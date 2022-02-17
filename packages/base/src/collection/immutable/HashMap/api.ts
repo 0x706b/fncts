@@ -2,7 +2,7 @@ import type { Either } from "../../../data/Either";
 import type { Maybe } from "../../../data/Maybe";
 import type { Predicate, PredicateWithIndex } from "../../../data/Predicate";
 import type { Refinement, RefinementWithIndex } from "../../../data/Refinement";
-import type { Config, HashMapF } from "./definition";
+import type { HashMapF } from "./definition";
 import type { Node, UpdateFn } from "./internal";
 
 import { Just, Nothing } from "../../../data/Maybe";
@@ -36,10 +36,7 @@ export function make<K, V>(K: P.Hash<K> & P.Eq<K>) {
  * Make a new map that has randomly cached hash and structural equality
  */
 export function makeDefault<K, V>() {
-  return make<K, V>({
-    ...P.Eq({ equals_: P.Equatable.strictEquals }),
-    ...P.Hash({ hash: P.Hashable.hash }),
-  });
+  return make<K, V>(P.HashEq.StructuralStrict);
 }
 
 /**
@@ -48,7 +45,7 @@ export function makeDefault<K, V>() {
  * @tsplus fluent fncts.collection.immutable.HashMapOps fromFoldable
  */
 export function fromFoldable<F extends P.HKT, C, K, A>(
-  C: Config<K>,
+  C: P.HashEq<K>,
   S: P.Semigroup<A>,
   F: P.Foldable<F, C>
 ) {

@@ -2,7 +2,6 @@ import type { Either } from "../../../data/Either";
 import type { Maybe } from "../../../data/Maybe";
 import type { Predicate } from "../../../data/Predicate";
 import type { Refinement } from "../../../data/Refinement";
-import type { Config } from "../HashMap";
 import type { Node } from "./definition";
 
 import { tuple } from "../../../data/function";
@@ -18,11 +17,6 @@ import { _EmptyNode, HashSet, isEmptyNode } from "./definition";
 export function add_<A>(set: HashSet<A>, value: A): HashSet<A> {
   return modifyHash(set, value, set.config.hash(value), false);
 }
-
-export const Default: Config<any> = {
-  ...P.Eq({ equals_: P.Equatable.strictEquals }),
-  ...P.Hash({ hash: P.Hashable.hash }),
-};
 
 /**
  * Mark `set` as mutable.
@@ -73,7 +67,7 @@ export function make<A>(config: P.Hash<A> & P.Eq<A>): HashSet<A> {
  * @tsplus static fncts.collection.immutable.HashSetOps makeDefault
  */
 export function makeDefault<A>(): HashSet<A> {
-  return make<A>(Default);
+  return make<A>(P.HashEq.StructuralStrict);
 }
 
 /**
@@ -132,7 +126,7 @@ export function toggle_<A>(set: HashSet<A>, a: A): HashSet<A> {
  * @tsplus fluent fncts.collection.immutable.HashSet map
  */
 export function map_<B>(
-  C: Config<B>
+  C: P.HashEq<B>
 ): <A>(fa: HashSet<A>, f: (x: A) => B) => HashSet<B> {
   const r = make(C);
 
@@ -154,7 +148,7 @@ export function map_<B>(
  * @tsplus fluent fncts.collection.immutable.HashSet chain
  */
 export function chain_<B>(
-  C: Config<B>
+  C: P.HashEq<B>
 ): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
   const r = make<B>(C);
   return (set, f) =>
@@ -225,7 +219,7 @@ export function filter_<A>(
 }
 
 export function filterMap_<B>(
-  B: Config<B>
+  B: P.HashEq<B>
 ): <A>(fa: HashSet<A>, f: (a: A) => Maybe<B>) => HashSet<B> {
   return (fa, f) => {
     const out = beginMutation(make(B));
@@ -272,8 +266,8 @@ export function partition_<A>(
  * Partition set values using predicate
  */
 export function partitionMap_<B, C>(
-  B: Config<B>,
-  C: Config<C>
+  B: P.HashEq<B>,
+  C: P.HashEq<C>
 ): <A>(
   self: HashSet<A>,
   f: (a: A) => Either<B, C>

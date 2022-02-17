@@ -1,13 +1,11 @@
 import type { Maybe } from "../../../data/Maybe";
-import type { Eq, Hash, HKT } from "../../../prelude";
+import type { HashEq, HKT } from "../../../prelude";
 import type { Node } from "./internal";
 
 import { identity, tuple } from "../../../data/function";
 import { Just, Nothing } from "../../../data/Maybe";
 import { Equatable, Hashable } from "../../../prelude";
 import { isEmptyNode } from "./internal";
-
-export type Config<K> = Eq<K> & Hash<K>;
 
 export interface HashMapF extends HKT {
   readonly type: HashMap<this["K"], this["A"]>;
@@ -29,7 +27,7 @@ export class HashMap<K, V>
   constructor(
     public editable: boolean,
     public edit: number,
-    readonly config: Config<K>,
+    readonly config: HashEq<K>,
     public root: Node<K, V>,
     public size: number
   ) {}

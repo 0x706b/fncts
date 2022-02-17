@@ -1,5 +1,3 @@
-import type { Config } from "../HashMap/definition";
-
 import { identity } from "../../../data/function";
 import * as P from "../../../prelude";
 import {
@@ -31,7 +29,7 @@ export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
     /**
      * @internal
      */
-    readonly config: Config<A>,
+    readonly config: P.HashEq<A>,
     /**
      * @internal
      */
