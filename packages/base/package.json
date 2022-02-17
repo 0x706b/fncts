@@ -1,0 +1,14 @@
+{
+  "name": "@fncts/base",
+  "type": "module",
+  "types": "./build/dts",
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "devDependencies": {
+    "@fncts/config": "workspace:*",
+    "@fncts/eslint-config": "workspace:*",
+    "@fncts/typelevel": "workspace:*",
+    "typescript": "4.6.0"
+  }
+}

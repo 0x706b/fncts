@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "downlevelIteration": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["ES2020", "ESNext.WeakRef"],
+    "noUncheckedIndexedAccess": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "paths": {
+      "@fncts/typelevel/*": ["../typelevel/build/dts/*"]
+    }
+  }
+}

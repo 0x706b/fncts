@@ -1,0 +1,8 @@
+{
+  "name": "@fncts/config",
+  "exports": {
+    "./prettier": {
+      "require": "./prettier.config.cjs"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "@fncts/eslint-config",
+  "exports": {
+    ".": {
+      "require": "./index.cjs"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@fncts/typelevel",
+  "types": "./build/dts",
+  "scripts": {
+    "build": "tsc -b tsconfig.json"
+  },
+  "devDependencies": {
+    "@fncts/config": "workspace:*",
+    "@fncts/eslint-config": "workspace:*",
+    "typescript": "4.6.0"
+  }
+}
