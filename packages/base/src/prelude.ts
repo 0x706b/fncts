@@ -18,6 +18,7 @@ export * from "./prelude/Functor";
 export * from "./prelude/FunctorWithIndex";
 export * from "./prelude/Hash";
 export * from "./prelude/Hashable";
+export * from "./prelude/HashEq";
 export * from "./prelude/HKT";
 export * from "./prelude/Monad";
 export * from "./prelude/MonadExcept";
