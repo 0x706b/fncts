@@ -17,6 +17,7 @@ export interface HashMapF extends HKT {
 
 /**
  * @tsplus type fncts.collection.immutable.HashMap
+ * @tsplus companion fncts.collection.immutable.HashMapOps
  */
 export class HashMap<K, V>
   implements Iterable<readonly [K, V]>, Hashable, Equatable

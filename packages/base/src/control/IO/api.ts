@@ -1,12 +1,37 @@
 import type { Cause } from "../../data/Cause";
-import type { Either } from "../../data/Either";
 import type { Lazy } from "../../data/function";
 import type { Trace } from "../../data/Trace";
+import type { URIO } from "./definition";
 
 import { Conc } from "../../collection/immutable/Conc";
+import { Either } from "../../data/Either";
 import { Exit } from "../../data/Exit";
 import { tuple } from "../../data/function";
 import { Chain, Ensuring, IO, Match } from "./definition";
+
+/**
+ * @tsplus fluent fncts.control.IO apFirst
+ */
+export function apFirst_<R, E, A, R1, E1, B>(
+  self: IO<R, E, A>,
+  fb: IO<R1, E1, B>,
+  __tsplusTrace?: string
+): IO<R1 & R, E1 | E, A> {
+  return self.chain((a) => fb.map(() => a));
+}
+
+/**
+ * Combine two effectful actions, keeping only the result of the second
+ *
+ * @tsplus fluent fncts.control.IO apSecond
+ */
+export function apSecond_<R, E, A, R1, E1, B>(
+  self: IO<R, E, A>,
+  fb: IO<R1, E1, B>,
+  __tsplusTrace?: string
+): IO<R1 & R, E1 | E, B> {
+  return self.chain(() => fb);
+}
 
 /**
  * @tsplus fluent fncts.control.IO as
@@ -23,6 +48,24 @@ export function asUnit<R, E, A>(self: IO<R, E, A>): IO<R, E, void> {
 }
 
 /**
+ * Returns an IO whose failure and success channels have been mapped by
+ * the specified pair of functions, `f` and `g`.
+ *
+ * @tsplus fluent fncts.control.IO bimap
+ */
+export function bimap_<R, E, A, E1, B>(
+  self: IO<R, E, A>,
+  f: (e: E) => E1,
+  g: (a: A) => B,
+  __tsplusTrace?: string
+): IO<R, E1, B> {
+  return self.matchIO(
+    (e) => IO.failNow(f(e)),
+    (a) => IO.succeedNow(g(a))
+  );
+}
+
+/**
  * Returns an IO that models the execution of this effect, followed by
  * the passing of its value to the specified continuation function `f`,
  * followed by the effect that it returns.
@@ -35,6 +78,18 @@ export function chain_<R, E, A, R1, E1, B>(
   __tsplusTrace?: string
 ): IO<R & R1, E | E1, B> {
   return new Chain(ma, f, __tsplusTrace);
+}
+
+/**
+ * Folds an `IO` that may fail with `E` or succeed with `A` into one that never fails but succeeds with `Either<E, A>`
+ *
+ * @tsplus getter fncts.control.IO either
+ */
+export function either<R, E, A>(
+  ma: IO<R, E, A>,
+  __tsplusTrace?: string
+): URIO<R, Either<E, A>> {
+  return ma.match(Either.left, Either.right);
 }
 
 /**
@@ -146,6 +201,26 @@ export function map_<R, E, A, B>(
   __tsplusTrace?: string
 ): IO<R, E, B> {
   return fa.chain((a) => IO.succeedNow(f(a)));
+}
+
+/**
+ * Map covariantly over the first argument.
+ *
+ * Returns an IO with its error channel mapped using the specified
+ * function. This can be used to lift a "smaller" error into a "larger"
+ * error.
+ *
+ * @tsplus fluent fncts.control.IO mapError
+ */
+export function mapError_<R, E, A, E1>(
+  fea: IO<R, E, A>,
+  f: (e: E) => E1,
+  __tsplusTrace?: string
+): IO<R, E1, A> {
+  return fea.matchCauseIO(
+    (cause) => IO.failCauseNow(cause.map(f)),
+    IO.succeedNow
+  );
 }
 
 /**

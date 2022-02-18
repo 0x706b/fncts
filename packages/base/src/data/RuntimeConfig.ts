@@ -1,3 +1,4 @@
+import type { Logger } from "../control/Logger";
 import type { Supervisor } from "../control/Supervisor";
 import type { Cause } from "./Cause";
 import type { FiberId } from "./FiberId";
@@ -27,6 +28,7 @@ export class RuntimeConfig extends CaseClass<{
   readonly supervisor: Supervisor<any>;
   readonly flags: RuntimeConfigFlags;
   readonly yieldOpCount: number;
+  readonly logger: Logger<string, any>;
 }> {}
 
 export class RuntimeConfigFlags {

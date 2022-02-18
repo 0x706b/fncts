@@ -25,3 +25,24 @@ export function combine_(id0: FiberId, id1: FiberId): FiberId {
   }
   return new Composite(HashSet.fromDefault(id0, id1));
 }
+
+/**
+ * @tsplus getter fncts.data.FiberId ids
+ */
+export function ids(self: FiberId): HashSet<number> {
+  switch (self._tag) {
+    case "None":
+      return HashSet.makeDefault();
+    case "Runtime":
+      return HashSet.fromDefault(self.seqNumber);
+    case "Composite":
+      return self.fiberIds.map((id) => id.seqNumber);
+  }
+}
+
+/**
+ * @tsplus getter fncts.data.FiberId threadName
+ */
+export function threadName(self: FiberId): string {
+  return `fncts-fiber-${self.ids.map((n) => n.toString()).join(",")}`;
+}

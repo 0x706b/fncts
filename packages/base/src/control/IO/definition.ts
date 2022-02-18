@@ -5,9 +5,11 @@ import type { FiberDescriptor } from "../../data/FiberDescriptor";
 import type { FiberId } from "../../data/FiberId";
 import type { Lazy } from "../../data/function";
 import type { InterruptStatus } from "../../data/InterruptStatus";
+import type { LogLevel } from "../../data/LogLevel";
 import type { Maybe } from "../../data/Maybe";
 import type { RuntimeConfig } from "../../data/RuntimeConfig";
 import type { Trace as Trace_ } from "../../data/Trace";
+import type { TraceElement } from "../../data/TraceElement";
 import type { Fiber } from "../Fiber";
 import type { FiberContext } from "../Fiber/FiberContext";
 import type { FiberRef } from "../FiberRef";
@@ -81,6 +83,7 @@ export const enum IOTag {
   Trace = "Trace",
   GetRuntimeConfig = "GetRuntimeConfig",
   Ensuring = "Ensuring",
+  Logged = "Logged",
 }
 
 export function isIO(u: unknown): u is IO<any, any, any> {
@@ -460,6 +463,20 @@ export class Ensuring<R, E, A, R1> extends IO<R & R1, E, A> {
   }
 }
 
+export class Logged extends IO<unknown, never, void> {
+  readonly _tag = IOTag.Logged;
+  constructor(
+    readonly message: () => string,
+    readonly cause: Cause<any>,
+    readonly overrideLogLevel: Maybe<LogLevel>,
+    readonly trace?: string,
+    readonly overrideRef1: FiberRef.Runtime<unknown> | null = null,
+    readonly overrideValue1: unknown | null = null
+  ) {
+    super();
+  }
+}
+
 export type Instruction =
   | Chain<any, any, any, any, any, any>
   | SucceedNow<any>
@@ -488,7 +505,8 @@ export type Instruction =
   | OverrideForkScope<any, any, any>
   | Trace
   | GetRuntimeConfig<any, any, any>
-  | Ensuring<any, any, any, any>;
+  | Ensuring<any, any, any, any>
+  | Logged;
 
 /**
  * @optimize identity

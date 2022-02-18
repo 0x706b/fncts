@@ -59,7 +59,7 @@ export function parse(trace?: string): TraceElement {
 }
 
 /**
- * @tsplus static fncts.data.TraceElement show
+ * @tsplus getter fncts.data.TraceElement show
  */
 export function show(self: TraceElement): string {
   switch (self._tag) {

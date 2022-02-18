@@ -122,8 +122,6 @@ export function toggle_<A>(set: HashSet<A>, a: A): HashSet<A> {
 
 /**
  * Projects a Set through a function
- *
- * @tsplus fluent fncts.collection.immutable.HashSet map
  */
 export function map_<B>(
   C: P.HashEq<B>
@@ -140,6 +138,15 @@ export function map_<B>(
       });
       return r;
     });
+}
+
+/**
+ * Projects a Set through a function
+ *
+ * @tsplus fluent fncts.collection.immutable.HashSet map
+ */
+export function mapDefault<A, B>(self: HashSet<A>, f: (a: A) => B): HashSet<B> {
+  return map_(P.HashEq.StructuralStrict as P.HashEq<B>)(self, f);
 }
 
 /**
@@ -315,6 +322,13 @@ export function foldLeft_<A, B>(fa: HashSet<A>, b: B, f: (b: B, v: A) => B): B {
     }
   }
   return b;
+}
+
+/**
+ * @tsplus fluent fncts.collection.immutable.HashSet join
+ */
+export function join_(self: HashSet<string>, separator: string): string {
+  return self.foldLeft("", (b, a) => b + separator + a);
 }
 
 /**

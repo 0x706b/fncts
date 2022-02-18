@@ -1,3 +1,4 @@
+import type { LogLevel } from "../../data/LogLevel";
 import type { RuntimeConfig } from "../../data/RuntimeConfig";
 import type { Instruction, Match, UIO } from "../IO";
 import type { Race } from "../IO/definition";
@@ -13,7 +14,6 @@ import { FiberDescriptor } from "../../data/FiberDescriptor";
 import { FiberId } from "../../data/FiberId";
 import { FiberState } from "../../data/FiberState";
 import { FiberStatus } from "../../data/FiberStatus";
-import { identity } from "../../data/function";
 import { InterruptStatus } from "../../data/InterruptStatus";
 import { Just, Maybe, Nothing } from "../../data/Maybe";
 import { RuntimeConfigFlag } from "../../data/RuntimeConfig";
@@ -29,16 +29,6 @@ import { Scope } from "../Scope";
 import { Supervisor } from "../Supervisor";
 
 export type FiberRefLocals = Map<FiberRef.Runtime<any>, unknown>;
-
-const forkScopeOverride = FiberRef.unsafeMake<Maybe<Scope>>(Nothing());
-
-const currentEnvironment = FiberRef.unsafeMake<any>(
-  undefined,
-  identity,
-  (a, _) => a
-);
-
-const fiberName = FiberRef.unsafeMake<Maybe<string>>(Nothing());
 
 type Erased = IO<any, any, any>;
 type ErasedCont = (a: any) => Erased;
@@ -164,7 +154,10 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
   }
 
   get name(): Maybe<string> {
-    return (this.fiberRefLocals.get(fiberName) as Maybe<string>) || Nothing();
+    return (
+      (this.fiberRefLocals.get(FiberRef.fiberName) as Maybe<string>) ||
+      Nothing()
+    );
   }
 
   get trace(): UIO<Trace> {
@@ -418,17 +411,21 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                   }
                   case IOTag.Asks: {
                     current = concrete(
-                      current.f(this.unsafeGetRef(currentEnvironment))
+                      current.f(this.unsafeGetRef(FiberRef.currentEnvironment))
                     );
                     break;
                   }
                   case IOTag.Provide: {
-                    const oldEnvironment =
-                      this.unsafeGetRef(currentEnvironment);
-                    this.unsafeSetRef(currentEnvironment, current.env);
+                    const oldEnvironment = this.unsafeGetRef(
+                      FiberRef.currentEnvironment
+                    );
+                    this.unsafeSetRef(FiberRef.currentEnvironment, current.env);
                     this.unsafeAddFinalizer(
                       IO.succeed(() => {
-                        this.unsafeSetRef(currentEnvironment, oldEnvironment);
+                        this.unsafeSetRef(
+                          FiberRef.currentEnvironment,
+                          oldEnvironment
+                        );
                       })
                     );
                     current = concrete(current.io);
@@ -512,7 +509,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                   case IOTag.GetForkScope: {
                     current = concrete(
                       current.f(
-                        this.unsafeGetRef(forkScopeOverride).getOrElse(
+                        this.unsafeGetRef(FiberRef.forkScopeOverride).getOrElse(
                           this.scope
                         )
                       )
@@ -521,13 +518,17 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                   }
 
                   case IOTag.OverrideForkScope: {
-                    const oldForkScopeOverride =
-                      this.unsafeGetRef(forkScopeOverride);
-                    this.unsafeSetRef(forkScopeOverride, current.forkScope);
+                    const oldForkScopeOverride = this.unsafeGetRef(
+                      FiberRef.forkScopeOverride
+                    );
+                    this.unsafeSetRef(
+                      FiberRef.forkScopeOverride,
+                      current.forkScope
+                    );
                     this.unsafeAddFinalizer(
                       IO.succeed(() => {
                         this.unsafeSetRef(
-                          forkScopeOverride,
+                          FiberRef.forkScopeOverride,
                           oldForkScopeOverride
                         );
                       })
@@ -538,6 +539,19 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                   case IOTag.Ensuring: {
                     this.unsafeAddFinalizer(current.finalizer);
                     current = concrete(current.io);
+                    break;
+                  }
+                  case IOTag.Logged: {
+                    this.unsafeLogWith(
+                      current.message,
+                      current.cause,
+                      current.overrideLogLevel,
+                      current.overrideRef1,
+                      current.overrideValue1,
+                      current.trace
+                    );
+
+                    current = this.unsafeNextEffect(undefined);
                     break;
                   }
                   default: {
@@ -971,7 +985,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
     });
 
     const parentScope: Scope = forkScope
-      .orElse(this.unsafeGetRef(forkScopeOverride))
+      .orElse(this.unsafeGetRef(FiberRef.forkScopeOverride))
       .getOrElse(this.scope);
 
     const childId       = FiberId.newFiberId();
@@ -988,7 +1002,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
 
     if (this.currentSupervisor !== Supervisor.none) {
       this.currentSupervisor.unsafeOnStart(
-        this.unsafeGetRef(currentEnvironment),
+        this.unsafeGetRef(FiberRef.currentEnvironment),
         io,
         Just(this),
         childContext
@@ -1177,6 +1191,64 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
         this.children.add(child);
       }),
       IO.unit
+    );
+  }
+
+  private unsafeLog(message: () => string, trace?: string): void {
+    const logLevel    = this.unsafeGetRef(FiberRef.currentLogLevel);
+    const spans       = this.unsafeGetRef(FiberRef.currentLogSpan);
+    const annotations = this.unsafeGetRef(FiberRef.currentLogAnnotations);
+    this.runtimeConfig.logger.log(
+      TraceElement.parse(trace),
+      this.fiberId,
+      logLevel,
+      message,
+      Cause.empty(),
+      this.fiberRefLocals,
+      spans,
+      annotations
+    );
+  }
+
+  private unsafeLogWith(
+    message: () => string,
+    cause: Cause<any>,
+    overrideLogLevel: Maybe<LogLevel>,
+    overrideRef1: FiberRef.Runtime<unknown> | null = null,
+    overrideValue1: unknown | null = null,
+    trace?: string
+  ): void {
+    const logLevel = overrideLogLevel.getOrElse(
+      this.unsafeGetRef(FiberRef.currentLogLevel)
+    );
+
+    const spans = this.unsafeGetRef(FiberRef.currentLogSpan);
+
+    const annotations = this.unsafeGetRef(FiberRef.currentLogAnnotations);
+
+    let contextMap: FiberRefLocals;
+
+    if (overrideRef1 !== null) {
+      const map = new Map(this.fiberRefLocals);
+      if (overrideValue1 === null) {
+        map.delete(overrideRef1);
+      } else {
+        map.set(overrideRef1, overrideValue1);
+      }
+      contextMap = map;
+    } else {
+      contextMap = new Map(this.fiberRefLocals);
+    }
+
+    this.runtimeConfig.logger.log(
+      TraceElement.parse(trace),
+      this.fiberId,
+      logLevel,
+      message,
+      cause,
+      contextMap,
+      spans,
+      annotations
     );
   }
 }

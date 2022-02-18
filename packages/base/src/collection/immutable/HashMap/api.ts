@@ -20,6 +20,8 @@ import {
 
 /**
  * Does `map` contain any elements?
+ *
+ * @tsplus getter fncts.collection.immutable.HashMap isEmpty
  */
 export function isEmpty<K, V>(map: HashMap<K, V>): boolean {
   return map && !!isEmptyNode(map.root);
@@ -27,6 +29,8 @@ export function isEmpty<K, V>(map: HashMap<K, V>): boolean {
 
 /**
  * Creates a new map
+ *
+ * @tsplus static fncts.collection.immutable.HashMapOps make
  */
 export function make<K, V>(K: P.Hash<K> & P.Eq<K>) {
   return new HashMap<K, V>(false, 0, K, _EmptyNode, 0);
@@ -34,6 +38,8 @@ export function make<K, V>(K: P.Hash<K> & P.Eq<K>) {
 
 /**
  * Make a new map that has randomly cached hash and structural equality
+ *
+ * @tsplus static fncts.collection.immutable.HashMapOps makeDefault
  */
 export function makeDefault<K, V>() {
   return make<K, V>(P.HashEq.StructuralStrict);
