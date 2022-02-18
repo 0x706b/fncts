@@ -9,7 +9,7 @@ import type { FiberRef } from "../FiberRef";
 
 /**
  * @tsplus type fncts.control.Logger
- * @tsplus companion fncts.control.Logger
+ * @tsplus companion fncts.control.LoggerOps
  */
 export class Logger<Message, Output> {
   readonly _Message!: (_: Message) => void;

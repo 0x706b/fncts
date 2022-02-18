@@ -1,7 +1,7 @@
 import { Logger } from "./definition";
 
 /**
- * @tsplus fncts.control.Logger defaultString
+ * @tsplus static fncts.control.LoggerOps defaultString
  */
 export const defaultString: Logger<string, string> = new Logger(
   (trace, fiberId, logLevel, message, cause, context, spans, annotations) => {
@@ -10,7 +10,7 @@ export const defaultString: Logger<string, string> = new Logger(
     const now       = new Date(nowMillis);
 
     s += "timestamp=";
-    s += now.toString();
+    s += now.toISOString();
     s += " level=";
     s += logLevel.label;
     s += " thread=#";

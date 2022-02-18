@@ -65,7 +65,7 @@ export const Warning = new LogLevel(30000, "WARN", 4);
 /**
  * @tsplus static fncts.data.LogLevelOps Info
  */
-export const Info = new LogLevel(20000, "WARN", 6);
+export const Info = new LogLevel(20000, "INFO", 6);
 
 /**
  * @tsplus static fncts.data.LogLevelOps Debug
@@ -75,7 +75,7 @@ export const Debug = new LogLevel(10000, "DEBUG", 7);
 /**
  * @tsplus static fncts.data.LogLevelOps Trace
  */
-export const Trace = new LogLevel(0, "DEBUG", 7);
+export const Trace = new LogLevel(0, "TRACE", 7);
 
 /**
  * @tsplus static fncts.data.LogLevelOps None

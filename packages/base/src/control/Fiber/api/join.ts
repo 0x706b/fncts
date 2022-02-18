@@ -13,5 +13,5 @@ import { IO } from "../../IO";
  * @tsplus getter fncts.control.Fiber join
  */
 export function join<E, A>(fiber: Fiber<E, A>): FIO<E, A> {
-  return fiber.await.chain(IO.fromExit).tap(() => fiber.inheritRefs);
+  return fiber.await.chain(IO.fromExitNow).tap(() => fiber.inheritRefs);
 }

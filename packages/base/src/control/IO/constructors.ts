@@ -23,6 +23,7 @@ import {
   GetInterrupt,
   IO,
   IOError,
+  Logged,
   Succeed,
   SucceedNow,
   Supervise,
@@ -430,6 +431,13 @@ export function halt(e: Lazy<unknown>, __tsplusTrace?: string): UIO<never> {
  */
 export function haltNow(e: unknown, __tsplusTrace?: string): UIO<never> {
   return IO.failCauseNow(Cause.halt(e, Trace.none), __tsplusTrace);
+}
+
+/**
+ * @tsplus static fncts.control.IOOps log
+ */
+export function log(message: Lazy<string>, __tsplusTrace?: string): UIO<void> {
+  return new Logged(message, Cause.empty(), Nothing(), __tsplusTrace);
 }
 
 /**

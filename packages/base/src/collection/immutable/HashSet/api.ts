@@ -328,7 +328,24 @@ export function foldLeft_<A, B>(fa: HashSet<A>, b: B, f: (b: B, v: A) => B): B {
  * @tsplus fluent fncts.collection.immutable.HashSet join
  */
 export function join_(self: HashSet<string>, separator: string): string {
-  return self.foldLeft("", (b, a) => b + separator + a);
+  if (self.size === 0) {
+    return "";
+  }
+  const iterator = self[Symbol.iterator]();
+  let first      = true;
+  let s          = "";
+  let result: IteratorResult<string>;
+  while (!(result = iterator.next()).done) {
+    if (first) {
+      first  = false;
+      s     += result.value;
+      result = iterator.next();
+    } else {
+      s += separator;
+      s += result.value;
+    }
+  }
+  return s;
 }
 
 /**
