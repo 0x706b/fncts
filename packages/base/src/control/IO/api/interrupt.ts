@@ -22,7 +22,7 @@ export function interruptAs(
  * Returns an effect that is interrupted as if by the fiber calling this
  * method.
  *
- * @tsplus static fncts.control.IOOps interruptAs
+ * @tsplus static fncts.control.IOOps interrupt
  */
 export const interrupt: IO<unknown, never, never> = IO.fiberId.chain(
   IO.interruptAs

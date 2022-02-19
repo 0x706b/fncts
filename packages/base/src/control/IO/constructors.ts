@@ -1,3 +1,4 @@
+import type { Conc } from "../../collection/immutable/Conc";
 import type { FiberDescriptor } from "../../data/FiberDescriptor";
 import type { Lazy } from "../../data/function";
 import type { InterruptStatus } from "../../data/InterruptStatus";
@@ -5,7 +6,7 @@ import type { Maybe } from "../../data/Maybe";
 import type { RuntimeConfig } from "../../data/RuntimeConfig";
 import type { Eval } from "../Eval";
 import type { Supervisor } from "../Supervisor";
-import type { Canceler, FIO, UIO } from "./definition";
+import type { Canceler, FIO, UIO, URIO } from "./definition";
 
 import { Cause } from "../../data/Cause";
 import { Either } from "../../data/Either";
@@ -15,6 +16,7 @@ import { identity } from "../../data/function";
 import { Nothing } from "../../data/Maybe";
 import { Trace } from "../../data/Trace";
 import {
+  Asks,
   Async,
   Defer,
   DeferWith,
@@ -27,7 +29,38 @@ import {
   Succeed,
   SucceedNow,
   Supervise,
+  Yield,
 } from "./definition";
+
+/**
+ * Accesses the environment provided to an `IO`
+ *
+ * @tsplus static fncts.control.IOOps ask
+ */
+export function ask<R>(__tsplusTrace?: string): URIO<R, R> {
+  return IO.asks(identity);
+}
+
+/**
+ * Accesses the environment provided to an `IO`
+ *
+ * @tsplus static fncts.control.IOOps asks
+ */
+export function asks<R, A>(f: (_: R) => A, __tsplusTrace?: string): URIO<R, A> {
+  return new Asks((r: R) => IO.succeedNow(f(r)), __tsplusTrace);
+}
+
+/**
+ * Effectfully accesses the environment provided to an `IO`
+ *
+ * @tsplus static fncts.control.IOOps asksIO
+ */
+export function asksIO<R0, R, E, A>(
+  f: (r: R0) => IO<R, E, A>,
+  __tsplusTrace?: string
+): IO<R & R0, E, A> {
+  return new Asks(f, __tsplusTrace);
+}
 
 /**
  * Imports an asynchronous side-effect into a `IO`
@@ -441,6 +474,25 @@ export function log(message: Lazy<string>, __tsplusTrace?: string): UIO<void> {
 }
 
 /**
+ * @tsplus static fncts.control.IOOps sequenceIterable
+ */
+export function sequenceIterable<R, E, A>(
+  as: Iterable<IO<R, E, A>>
+): IO<R, E, Conc<A>> {
+  return IO.foreach(as, identity);
+}
+
+/**
+ * @tsplus static fncts.control.IOOps sequenceIterableDiscard
+ */
+export function sequenceIterableDiscard<R, E, A>(
+  as: Iterable<IO<R, E, A>>,
+  __tsplusTrace?: string
+): IO<R, E, void> {
+  return IO.foreachDiscard(as, identity);
+}
+
+/**
  * Creates a `IO` that has succeeded with a pure value
  *
  * @tsplus static fncts.control.IOOps succeedNow
@@ -502,6 +554,15 @@ export function tryCatch<E, A>(
  * @tsplus static fncts.control.IOOps unit
  */
 export const unit: UIO<void> = IO.succeedNow(undefined);
+
+/**
+ * Returns an effect that yields to the runtime system, starting on a fresh
+ * stack. Manual use of this method can improve fairness, at the cost of
+ * overhead.
+ *
+ * @tsplus static fncts.control.IOOps yieldNow
+ */
+export const yieldNow: UIO<void> = new Yield();
 
 // codegen:start { preset: pipeable }
 /**

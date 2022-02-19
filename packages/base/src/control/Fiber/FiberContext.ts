@@ -105,7 +105,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
       if (this.fiberRefLocals.size === 0) {
         return IO.unit;
       } else {
-        return IO.foreachUnit(this.fiberRefLocals, ([fiberRef, value]) =>
+        return IO.foreachDiscard(this.fiberRefLocals, ([fiberRef, value]) =>
           fiberRef.update((old) => fiberRef.join(old, value))
         );
       }

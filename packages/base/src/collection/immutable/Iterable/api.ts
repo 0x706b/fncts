@@ -557,6 +557,17 @@ export function partitionWithIndex_<A>(
 }
 
 /**
+ * @tsplus getter fncts.collection.immutable.Iterable size
+ */
+export function size<A>(self: Iterable<A>): number {
+  let len = 0;
+  for (const _ of self) {
+    len += 1;
+  }
+  return len;
+}
+
+/**
  * @tsplus fluent fncts.collection.immutable.Iterable zipWith
  */
 export function zipWith_<A, B, C>(

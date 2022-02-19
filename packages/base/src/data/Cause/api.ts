@@ -649,7 +649,7 @@ export function haltMaybe<E>(self: Cause<E>): Maybe<unknown> {
 /**
  * A type-guard matching `Both`
  *
- * @tsplus getter fncts.data.Cause isBoth
+ * @tsplus fluent fncts.data.Cause isBoth
  */
 export function isBoth<E>(self: Cause<E>): self is Both<E> {
   return self._tag === CauseTag.Both;
@@ -658,14 +658,14 @@ export function isBoth<E>(self: Cause<E>): self is Both<E> {
 /**
  * A type-guard matching `Fail`
  *
- * @tsplus getter fncts.data.Cause isFail
+ * @tsplus fluent fncts.data.Cause isFail
  */
 export function isFail<E>(self: Cause<E>): self is Fail<E> {
   return self._tag === CauseTag.Fail;
 }
 
 /**
- * @tsplus getter fncts.data.Cause isHalt
+ * @tsplus fluent fncts.data.Cause isHalt
  */
 export function isHalt<E>(self: Cause<E>): self is Halt {
   return self._tag === CauseTag.Halt;
@@ -674,7 +674,7 @@ export function isHalt<E>(self: Cause<E>): self is Halt {
 /**
  * A type-guard matching `Then`
  *
- * @tsplus getter fncts.data.Cause isThen
+ * @tsplus fluent fncts.data.Cause isThen
  */
 export function isThen<E>(self: Cause<E>): self is Then<E> {
   return self._tag === CauseTag.Then;

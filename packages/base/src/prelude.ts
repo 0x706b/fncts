@@ -16,6 +16,7 @@ export * from "./prelude/Foldable";
 export * from "./prelude/FoldableWithIndex";
 export * from "./prelude/Functor";
 export * from "./prelude/FunctorWithIndex";
+export * from "./prelude/Has";
 export * from "./prelude/Hash";
 export * from "./prelude/Hashable";
 export * from "./prelude/HashEq";

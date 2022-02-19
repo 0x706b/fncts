@@ -79,7 +79,7 @@ export function bimap_<E1, A, E2, B>(
 }
 
 /**
- * @tsplus fluent fncts.data.Exit collectAll
+ * @tsplus static fncts.data.ExitOps collectAll
  */
 export function collectAll<E, A>(
   exits: Conc<Exit<E, A>>
@@ -94,7 +94,7 @@ export function collectAll<E, A>(
 }
 
 /**
- * @tsplus fluent fncts.data.Exit collectAllC
+ * @tsplus static fncts.data.ExitOps collectAllC
  */
 export function collectAllC<E, A>(
   exits: Conc<Exit<E, A>>

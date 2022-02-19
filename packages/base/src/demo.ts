@@ -1,7 +1,9 @@
+import { Iterable } from "./collection/immutable/Iterable";
 import { FiberContext } from "./control/Fiber/FiberContext";
 import { concrete, IO } from "./control/IO";
 import { Logger } from "./control/Logger";
 import { Supervisor } from "./control/Supervisor";
+import { Either } from "./data/Either";
 import { FiberId } from "./data/FiberId";
 import { LogLevel } from "./data/LogLevel";
 import { RuntimeConfig, RuntimeConfigFlags } from "./data/RuntimeConfig";
@@ -17,9 +19,21 @@ const config = new RuntimeConfig({
     .filterLogLevel((level) => level >= LogLevel.Info),
 });
 
-const effect = IO.succeed(42).tap((n) =>
-  IO.log(`The number is ${n.toString()}`)
-);
+const as = Iterable.range(0, 10);
+
+const effect = IO.succeed(console.time("A"))
+  .apSecond(
+    IO.foreachC(as, (n) =>
+      IO.asyncInterrupt<unknown, never, number>((k) => {
+        const handle = setTimeout(() => {
+          k(IO.succeedNow(n));
+        }, n * 10);
+        return Either.left(IO.succeed(clearTimeout(handle)));
+      })
+    )
+  )
+  .apFirst(IO.succeed(console.timeEnd("A")))
+  .withConcurrency(2);
 
 const fiber = new FiberContext(
   FiberId.newFiberId(),

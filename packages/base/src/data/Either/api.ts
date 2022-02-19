@@ -4,8 +4,9 @@ import type { Maybe } from "../Maybe";
 import type { Either } from "./definition";
 import type { EitherF } from "./instances";
 
+import { hasTypeId } from "../../util/predicates";
 import { identity, unsafeCoerce } from "../function";
-import { EitherTag, Left, Right } from "./definition";
+import { EitherTag, EitherTypeId, Left, Right } from "./definition";
 
 /**
  * @tsplus fluent fncts.data.Either ap
@@ -121,6 +122,13 @@ export function getOrElse_<E, A, B>(
   orElse: (e: E) => B
 ): A | B {
   return self.match(orElse, identity);
+}
+
+/**
+ * @tsplus static fncts.data.EitherOps isEither
+ */
+export function isEither(u: unknown): u is Either<unknown, unknown> {
+  return hasTypeId(u, EitherTypeId);
 }
 
 /**
