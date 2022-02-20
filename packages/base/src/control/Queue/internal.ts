@@ -101,13 +101,11 @@ class UnsafeQueue<A> extends QueueInternal<
   shutdown: UIO<void> = IO.deferWith((_, id) => {
     this.shutdownFlag.set(true);
 
-    return this.shutdownHook
-      .succeed(undefined)
-      .whenIO(
-        IO.foreachC(_unsafePollAll(this.takers), (fiber) =>
-          fiber.interruptAs(id)
-        ).chain(() => this.strategy.shutdown)
-      );
+    return IO.foreachC(_unsafePollAll(this.takers), (fiber) =>
+      fiber.interruptAs(id)
+    )
+      .chain(() => this.strategy.shutdown)
+      .whenIO(this.shutdownHook.succeed(undefined));
   });
 
   size: UIO<number> = IO.defer(() => {

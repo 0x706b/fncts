@@ -9,6 +9,7 @@ import { Nil } from "../../collection/immutable/List";
 import { Eval } from "../../control/Eval";
 import { Stack } from "../../internal/Stack";
 import { Either } from "../Either";
+import { identity } from "../function";
 import { Just, Maybe, MaybeTag, Nothing } from "../Maybe";
 import { Trace } from "../Trace";
 import { Cause, CauseTag } from "./definition";
@@ -284,6 +285,13 @@ export function find_<E, A>(
   f: (cause: Cause<E>) => Maybe<A>
 ): Maybe<A> {
   return findLoop(self, f, Nil());
+}
+
+/**
+ * @tsplus getter fncts.data.Cause flatten
+ */
+export function flatten<A>(self: Cause<Cause<A>>): Cause<A> {
+  return self.chain(identity);
 }
 
 class FCEStackFrameDone {

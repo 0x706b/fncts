@@ -1,10 +1,14 @@
 import type { MutableArray } from "../../collection/immutable/Array";
 import type { ConcBuilder } from "../../collection/immutable/Conc";
+import type { NonEmptyArray } from "../../collection/immutable/NonEmptyArray";
 import type { Lazy } from "../../data/function";
-import type { InterruptStatus } from "../../data/InterruptStatus";
+import type { Predicate } from "../../data/Predicate";
+import type { Refinement } from "../../data/Refinement";
 import type { Trace } from "../../data/Trace";
+import type * as P from "../../prelude";
 import type { _E, _R } from "../../types";
-import type { FIO, URIO } from "./definition";
+import type { FiberContext } from "../Fiber/FiberContext";
+import type { FIO, UIO, URIO } from "./definition";
 import type { Intersection } from "@fncts/typelevel";
 
 import { Array } from "../../collection/immutable/Array";
@@ -13,8 +17,18 @@ import { Cause } from "../../data/Cause";
 import { Either } from "../../data/Either";
 import { Exit } from "../../data/Exit";
 import { identity, tuple } from "../../data/function";
-import { Maybe, Nothing } from "../../data/Maybe";
-import { Chain, Ensuring, GetInterrupt, Give, IO, Match } from "./definition";
+import { Just, Maybe, Nothing } from "../../data/Maybe";
+import { Chain, Ensuring, Fork, Give, IO, Match } from "./definition";
+
+// /**
+//  * Attempts to convert defects into a failure, throwing away all information
+//  * about the cause of the failure.
+//  *
+//  * @tsplus fluent fncts.control.IO absorbWith
+//  */
+// export function absorbWith_<R, E, A>(ma: IO<R, E, A>, f: (e: E) => unknown, __tsplusTrace?: string) {
+//   return ma.sandbox.matchIO((cause) => IO.failNow(cause.squash(f)), IO.succeedNow)
+// }
 
 /**
  * @tsplus fluent fncts.control.IO apFirst
@@ -285,6 +299,61 @@ export function chain_<R, E, A, R1, E1, B>(
 }
 
 /**
+ * @tsplus fluent fncts.control.IO chainError
+ */
+export function chainError_<R, R1, E, E1, A>(
+  ma: IO<R, E, A>,
+  f: (e: E) => IO<R1, never, E1>
+): IO<R & R1, E1, A> {
+  return ma.swapWith((effect) => effect.chain(f));
+}
+
+/**
+ * @tsplus fluent fncts.control.IO collect
+ */
+export function collect_<R, E, A, E1, A1>(
+  ma: IO<R, E, A>,
+  f: Lazy<E1>,
+  pf: (a: A) => Maybe<A1>,
+  __tsplusTrace?: string
+): IO<R, E | E1, A1> {
+  return ma.collectIO(f, (a) => pf(a).map(IO.succeedNow));
+}
+
+/**
+ * @tsplus fluent fncts.control.IO collectIO
+ */
+export function collectIO_<R, E, A, R1, E1, A1, E2>(
+  ma: IO<R, E, A>,
+  f: Lazy<E2>,
+  pf: (a: A) => Maybe<IO<R1, E1, A1>>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1 | E2, A1> {
+  return ma.chain((a) => pf(a).getOrElse(IO.fail(f)));
+}
+
+/**
+ * @tsplus fluent fncts.control.IO compose
+ */
+export function compose_<R, E, A, E1, B>(
+  ra: IO<R, E, A>,
+  ab: IO<A, E1, B>
+): IO<R, E | E1, B> {
+  return ra.chain((a) => ab.give(a));
+}
+
+/**
+ * @tsplus static fncts.control.IOOps condIO
+ */
+export function condIO_<R, R1, E, A>(
+  b: boolean,
+  onTrue: URIO<R, A>,
+  onFalse: URIO<R1, E>
+): IO<R & R1, E, A> {
+  return b ? onTrue : onFalse.chain(IO.failNow);
+}
+
+/**
  * Folds an `IO` that may fail with `E` or succeed with `A` into one that never fails but succeeds with `Either<E, A>`
  *
  * @tsplus getter fncts.control.IO either
@@ -305,6 +374,37 @@ export function ensuring_<R, E, A, R1>(
   __tsplusTrace?: string
 ): IO<R & R1, E, A> {
   return new Ensuring(self, finalizer, __tsplusTrace);
+}
+
+/**
+ * @tsplus fluent fncts.control.IO errorAsCause
+ */
+export function errorAsCause<R, E, A>(
+  ma: IO<R, Cause<E>, A>,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return ma.matchIO(IO.failCauseNow, IO.succeedNow);
+}
+
+/**
+ * @tsplus getter fncts.control.IO eventually
+ */
+export function eventually<R, E, A>(
+  ma: IO<R, E, A>,
+  __tsplusTrace?: string
+): IO<R, never, A> {
+  return ma.orElse(ma.eventually);
+}
+
+/**
+ * @tsplus fluent fncts.control.IO extend
+ */
+export function extend_<R, E, A, B>(
+  wa: IO<R, E, A>,
+  f: (wa: IO<R, E, A>) => B,
+  __tsplusTrace?: string
+): IO<R, E, B> {
+  return wa.matchIO(IO.failNow, (_) => IO.succeed(f(wa)));
 }
 
 /**
@@ -332,6 +432,148 @@ export function filter_<A, R, E>(
 }
 
 /**
+ * @tsplus static fncts.control.IOOps filterMap
+ */
+export function filterMap_<A, R, E, B>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, Maybe<B>>,
+  __tsplusTrace?: string
+): IO<R, E, Conc<B>> {
+  return IO.filterMapWithIndex(as, (_, a) => f(a));
+}
+
+/**
+ * @tsplus static fncts.control.IOOps filterMapWithIndex
+ */
+export function filterMapWithIndex_<A, R, E, B>(
+  as: Iterable<A>,
+  f: (i: number, a: A) => IO<R, E, Maybe<B>>,
+  __tsplusTrace?: string
+): IO<R, E, Conc<B>> {
+  return IO.defer(() => {
+    const bs: MutableArray<B> = [];
+    return IO.foreachWithIndexDiscard(as, (i, a) =>
+      f(i, a).map((b) => {
+        if (b.isJust()) {
+          bs.push(b.value);
+        }
+      })
+    ).as(Conc.from(bs));
+  });
+}
+
+/**
+ * Filters the collection using the specified effectual predicate, removing
+ * all elements that satisfy the predicate.
+ *
+ * @tsplus static fncts.control.IOOps filterNot
+ */
+export function filterNot_<A, R, E>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, boolean>,
+  __tsplusTrace?: string
+): IO<R, E, Conc<A>> {
+  return IO.filter(as, (a) => f(a).map((b) => !b));
+}
+
+/**
+ * Applies `or` if the predicate fails.
+ *
+ * @tsplus fluent fncts.control.IO filterOrElse
+ */
+export function filterOrElse_<R, E, A, B extends A, R1, E1, A1>(
+  fa: IO<R, E, A>,
+  refinement: Refinement<A, B>,
+  or: (a: Exclude<A, B>) => IO<R1, E1, A1>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, B | A1>;
+export function filterOrElse_<R, E, A, R1, E1, A1>(
+  fa: IO<R, E, A>,
+  predicate: Predicate<A>,
+  or: (a: A) => IO<R1, E1, A1>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A | A1>;
+export function filterOrElse_<R, E, A, R1, E1, A1>(
+  fa: IO<R, E, A>,
+  predicate: Predicate<A>,
+  or: unknown,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A | A1> {
+  return chain_(
+    fa,
+    (a): IO<R1, E1, A | A1> =>
+      predicate(a)
+        ? IO.succeedNow(a)
+        : IO.defer((or as (a: A) => IO<R1, E1, A1>)(a))
+  );
+}
+
+/**
+ * Fails with `failWith` if the predicate fails.
+ *
+ * @tsplus fluent fncts.control.IO filterOrFail
+ */
+export function filterOrFail_<R, E, A, B extends A, E1>(
+  fa: IO<R, E, A>,
+  refinement: Refinement<A, B>,
+  failWith: (a: Exclude<A, B>) => E1
+): IO<R, E | E1, B>;
+export function filterOrFail_<R, E, A, E1>(
+  fa: IO<R, E, A>,
+  predicate: Predicate<A>,
+  failWith: (a: A) => E1
+): IO<R, E | E1, A>;
+export function filterOrFail_<R, E, A, E1>(
+  fa: IO<R, E, A>,
+  predicate: Predicate<A>,
+  failWith: unknown
+): IO<R, E | E1, A> {
+  return filterOrElse_(fa, predicate, (a) =>
+    IO.failNow((failWith as (a: A) => E1)(a))
+  );
+}
+
+/**
+ * Returns an `IO` that yields the value of the first
+ * `IO` to succeed.
+ *
+ * @tsplus static fncts.control.IOOps firstSuccess
+ */
+export function firstSuccess<R, E, A>(
+  mas: NonEmptyArray<IO<R, E, A>>
+): IO<R, E, A> {
+  return mas.tail.foldLeft(mas.head, (b, a) => b.orElse(a));
+}
+
+/**
+ * Halts with specified `unknown` if the predicate fails.
+ *
+ * @tsplus fluent fncts.control.IO filterOrHalt
+ */
+export function filterOrHalt_<R, E, A, B extends A>(
+  fa: IO<R, E, A>,
+  refinement: Refinement<A, B>,
+  haltWith: (a: Exclude<A, B>) => unknown,
+  __tsplusTrace?: string
+): IO<R, E, A>;
+export function filterOrHalt_<R, E, A>(
+  fa: IO<R, E, A>,
+  predicate: Predicate<A>,
+  haltWith: (a: A) => unknown,
+  __tsplusTrace?: string
+): IO<R, E, A>;
+export function filterOrHalt_<R, E, A>(
+  fa: IO<R, E, A>,
+  predicate: Predicate<A>,
+  haltWith: unknown,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return fa.filterOrElse(predicate, (a) =>
+    IO.haltNow((haltWith as (a: A) => unknown)(a))
+  );
+}
+
+/**
  * Folds an `Iterable<A>` using an effectful function f, working sequentially from left to right.
  *
  * @tsplus static fncts.control.IOOps foldLeft
@@ -345,6 +587,39 @@ export function foldLeft_<A, B, R, E>(
   return as.foldLeft(IO.succeedNow(b) as IO<R, E, B>, (acc, el) =>
     acc.chain((a) => f(a, el))
   );
+}
+
+/**
+ * Combines an array of `IO`s using a `Monoid`
+ *
+ * @constrained
+ * @tsplus static fncts.control.IOOps foldMap
+ */
+export function foldMap_<M>(M: P.Monoid<M>) {
+  return <R, E, A>(as: Iterable<IO<R, E, A>>, f: (a: A) => M): IO<R, E, M> =>
+    IO.foldLeft(as, M.nat, (m, a) => a.map((a) => M.combine_(m, f(a))));
+}
+
+function foldRightLoop<A, B, R, E>(
+  iterator: Iterator<A>,
+  b: UIO<B>,
+  f: (a: A, b: IO<R, E, B>) => IO<R, E, B>
+): IO<R, E, B> {
+  const next = iterator.next();
+  return next.done ? b : f(next.value, foldRightLoop(iterator, b, f));
+}
+
+/**
+ * Performs a right-associative fold of an `Iterable<A>`
+ *
+ * @tsplus static fncts.control.IOOps foldRight
+ */
+export function foldRight_<A, B, R, E>(
+  as: Iterable<A>,
+  b: UIO<B>,
+  f: (a: A, b: IO<R, E, B>) => IO<R, E, B>
+): IO<R, E, B> {
+  return foldRightLoop(as[Symbol.iterator](), b, f);
 }
 
 function foreachWithIndexDiscardLoop<A, R, E, B>(
@@ -444,6 +719,96 @@ export function forever<R, E, A>(ma: IO<R, E, A>): IO<R, E, never> {
 }
 
 /**
+ * Returns an IO that forks this IO into its own separate fiber,
+ * returning the fiber immediately, without waiting for it to begin executing
+ * the IO.
+ *
+ * You can use the `fork` method whenever you want to execute an IO in a
+ * new fiber, concurrently and without "blocking" the fiber executing other
+ * IOs. Using fibers can be tricky, so instead of using this method
+ * directly, consider other higher-level methods, such as `raceWith`,
+ * `zipPar`, and so forth.
+ *
+ * The fiber returned by this method has methods interrupt the fiber and to
+ * wait for it to finish executing the IO. See `Fiber` for more
+ * information.
+ *
+ * Whenever you use this method to launch a new fiber, the new fiber is
+ * attached to the parent fiber's scope. This means when the parent fiber
+ * terminates, the child fiber will be terminated as well, ensuring that no
+ * fibers leak. This behavior is called "None supervision", and if this
+ * behavior is not desired, you may use the `forkDaemon` or `forkIn`
+ * methods.
+ *
+ * @tsplus getter fncts.control.IO fork
+ */
+export function fork<R, E, A>(
+  ma: IO<R, E, A>,
+  __tsplusTrace?: string
+): URIO<R, FiberContext<E, A>> {
+  return new Fork(ma, Nothing(), __tsplusTrace);
+}
+
+/**
+ * Unwraps the optional success of an `IO`, but can fail with a `Nothing` value.
+ *
+ * @tsplus getter fncts.control.IO get
+ */
+export function get<R, E, A>(ma: IO<R, E, Maybe<A>>): IO<R, Maybe<E>, A> {
+  return ma.matchCauseIO(
+    (cause) => IO.failCauseNow(cause.map(Maybe.just)),
+    (ma) => ma.match(() => IO.failNow(Nothing()), IO.succeedNow)
+  );
+}
+
+/**
+ * Extracts the optional value, or returns the given 'orElse'.
+ *
+ * @tsplus fluent fncts.control.IO getOrElse
+ */
+export function getOrElse_<R, E, A, B>(
+  ma: IO<R, E, Maybe<A>>,
+  orElse: Lazy<B>
+): IO<R, E, A | B> {
+  return ma.map((ma) => ma.getOrElse(orElse));
+}
+
+/**
+ * Extracts the optional value, or executes the effect 'orElse'.
+ *
+ * @tsplus fluent fncts.control.IO getOrElseIO
+ */
+export function getOrElseIO_<R, E, A, R1, E1, B>(
+  ma: IO<R, E, Maybe<A>>,
+  orElse: Lazy<IO<R1, E1, B>>
+): IO<R & R1, E | E1, A | B> {
+  return (ma as IO<R, E, Maybe<A | B>>).chain((mab) =>
+    mab.map(IO.succeedNow).getOrElse(orElse)
+  );
+}
+
+/**
+ * Lifts a Maybe into an IO. If the option is `Nothing`, fail with `onNothing`.
+ *
+ * @tsplus static fncts.control.IOOps getOrFailWith
+ */
+export function getOrFailWith_<E, A>(
+  maybe: Maybe<A>,
+  onNothing: Lazy<E>
+): FIO<E, A> {
+  return IO.defer(maybe.match(() => IO.fail(onNothing), IO.succeedNow));
+}
+
+/**
+ * Lifts a Maybe into a IO, if the Maybe is `Nothing` it fails with Unit.
+ *
+ * @tsplus static fncts.control.IOOps getOrFailUnit
+ */
+export function getOrFailUnit<A>(option: Maybe<A>): FIO<void, A> {
+  return IO.getOrFailWith(option, undefined);
+}
+
+/**
  * Provides all of the environment required to compute a MonadEnv
  *
  * Provides the `IO` with its required environment, which eliminates
@@ -492,6 +857,188 @@ export function ifIO_<R, E, R1, E1, B, R2, E2, C>(
 }
 
 /**
+ * @tsplus static fncts.control.IOOps if
+ */
+export function if_<R, E, A, R1, E1, A1>(
+  b: boolean,
+  onTrue: Lazy<IO<R, E, A>>,
+  onFalse: Lazy<IO<R1, E1, A1>>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A | A1> {
+  return IO.succeedNow(b).ifIO(onTrue, onFalse);
+}
+
+/**
+ * @tsplus gettable fncts.control.IO ignore
+ */
+export function ignore<R, E, A>(fa: IO<R, E, A>): URIO<R, void> {
+  return fa.match(
+    () => undefined,
+    () => undefined
+  );
+}
+
+/**
+ * Folds a `IO` to a boolean describing whether or not it is a failure
+ *
+ * @tsplus getter fncts.control.IO isFailure
+ */
+export function isFailure<R, E, A>(ma: IO<R, E, A>): IO<R, never, boolean> {
+  return ma.match(
+    () => true,
+    () => false
+  );
+}
+
+/**
+ * Folds a `IO` to a boolean describing whether or not it is a success
+ *
+ * @tsplus getter fncts.control.IO isSuccess
+ */
+export function isSuccess<R, E, A>(ma: IO<R, E, A>): IO<R, never, boolean> {
+  return ma.match(
+    () => false,
+    () => true
+  );
+}
+/**
+ * Iterates with the specified effectual function. The moral equivalent of:
+ *
+ * ```typescript
+ * let s = initial;
+ *
+ * while (cont(s)) {
+ *   s = body(s);
+ * }
+ *
+ * return s;
+ * ```
+ *
+ * @tsplus static fncts.control.IOOps iterate
+ */
+export function iterate_<R, E, A>(
+  initial: A,
+  cont: (a: A) => boolean,
+  body: (a: A) => IO<R, E, A>,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return cont(initial)
+    ? body(initial).chain((a) => IO.iterate(a, cont, body))
+    : IO.succeedNow(initial);
+}
+
+/**
+ * Joins two `IOs` into one, where one or the other is returned depending on the provided environment
+ *
+ * @tsplus fluent fncts.control.IO join
+ */
+export function join_<R, E, A, R1, E1, A1>(
+  self: IO<R, E, A>,
+  that: IO<R1, E1, A1>,
+  __tsplusTrace?: string
+): IO<Either<R, R1>, E | E1, A | A1> {
+  return IO.asksIO(
+    (r: Either<R, R1>): IO<Either<R, R1>, E | E1, A | A1> =>
+      r.match(
+        (r) => self.give(r),
+        (r1) => that.give(r1)
+      )
+  );
+}
+
+/**
+ * Joins two `IOs` into one, where one or the other is returned depending on the provided environment
+ *
+ * @tsplus fluent fncts.control.IO joinEither
+ */
+export function joinEither_<R, E, A, R1, E1, A1>(
+  ma: IO<R, E, A>,
+  mb: IO<R1, E1, A1>,
+  __tsplusTrace?: string
+): IO<Either<R, R1>, E | E1, Either<A, A1>> {
+  return IO.asksIO(
+    (r: Either<R, R1>): IO<Either<R, R1>, E | E1, Either<A, A1>> =>
+      r.match(
+        (r) => ma.give(r).map(Either.left),
+        (r1) => mb.give(r1).map(Either.right)
+      )
+  );
+}
+
+/**
+ *  Returns an IO with the value on the left part.
+ *
+ * @tsplus static fncts.control.IOOps left
+ */
+export function left<A>(a: Lazy<A>): UIO<Either<A, never>> {
+  return IO.succeed(a).chain((a) => IO.succeedNow(Either.left(a)));
+}
+
+/**
+ * Loops with the specified effectual function, collecting the results into a
+ * list. The moral equivalent of:
+ *
+ * ```typescript
+ * let s  = initial
+ * let as = [] as readonly A[]
+ *
+ * while (cont(s)) {
+ *   as = [body(s), ...as]
+ *   s  = inc(s)
+ * }
+ *
+ * A.reverse(as)
+ * ```
+ *
+ * @tsplus static fncts.control.IOOps loop
+ */
+export function loop_<A, R, E, B>(
+  initial: A,
+  cont: (a: A) => boolean,
+  inc: (b: A) => A,
+  body: (b: A) => IO<R, E, B>,
+  __tsplusTrace?: string
+): IO<R, E, Conc<B>> {
+  if (cont(initial)) {
+    return body(initial).chain((a) =>
+      IO.loop(inc(initial), cont, inc, body).map((as) => as.prepend(a))
+    );
+  } else {
+    return IO.succeedNow(Conc.empty());
+  }
+}
+
+/**
+ * Loops with the specified effectual function purely for its effects. The
+ * moral equivalent of:
+ *
+ * ```
+ * var s = initial
+ *
+ * while (cont(s)) {
+ *   body(s)
+ *   s = inc(s)
+ * }
+ * ```
+ *
+ * @tsplus static fncts.control.IOOps loopUnit
+ */
+export function loopUnit_<A, R, E>(
+  initial: A,
+  cont: (a: A) => boolean,
+  inc: (a: A) => A,
+  body: (a: A) => IO<R, E, any>,
+  __tsplusTrace?: string
+): IO<R, E, void> {
+  if (cont(initial)) {
+    return body(initial).chain(() => IO.loop(inc(initial), cont, inc, body))
+      .asUnit;
+  } else {
+    return IO.unit;
+  }
+}
+
+/**
  * Returns an `IO` whose success is mapped by the specified function `f`.
  *
  * @tsplus fluent fncts.control.IO map
@@ -522,6 +1069,33 @@ export function mapError_<R, E, A, E1>(
     (cause) => IO.failCauseNow(cause.map(f)),
     IO.succeedNow
   );
+}
+
+/**
+ * @tsplus static fncts.control.IOOps mapTryCatch
+ */
+export function mapTryCatch_<R, E, A, E1, B>(
+  io: IO<R, E, A>,
+  f: (a: A) => B,
+  onThrow: (u: unknown) => E1,
+  __tsplusTrace?: string
+): IO<R, E | E1, B> {
+  return io.chain((a) => IO.tryCatch(() => f(a), onThrow));
+}
+
+/**
+ * Returns an IO with its full cause of failure mapped using
+ * the specified function. This can be used to transform errors
+ * while preserving the original structure of Cause.
+ *
+ * @tsplus fluent fncts.control.IO mapErrorCause
+ */
+export function mapErrorCause_<R, E, A, E1>(
+  ma: IO<R, E, A>,
+  f: (cause: Cause<E>) => Cause<E1>,
+  __tsplusTrace?: string
+): IO<R, E1, A> {
+  return ma.matchCauseIO((cause) => IO.failCauseNow(f(cause)), IO.succeedNow);
 }
 
 /**
@@ -611,6 +1185,316 @@ export function matchTraceIO_<R, E, A, R1, E1, A1, R2, E2, A2>(
 }
 
 /**
+ * @tsplus getter fncts.control.IO maybe
+ */
+export function maybe<R, E, A>(
+  io: IO<R, E, A>,
+  __tsplusTrace?: string
+): URIO<R, Maybe<A>> {
+  return io.match(() => Nothing(), Maybe.just);
+}
+
+/**
+ * @tsplus getter fncts.control.IO merge
+ */
+export function merge<R, E, A>(
+  io: IO<R, E, A>,
+  __tsplusTrace?: string
+): IO<R, never, A | E> {
+  return io.matchIO(IO.succeedNow, IO.succeedNow);
+}
+
+/**
+ * Merges an `Iterable<IO>` to a single IO, working sequentially.
+ *
+ * @tsplus static fncts.control.IOOps mergeAll
+ */
+export function mergeAll_<R, E, A, B>(
+  fas: Iterable<IO<R, E, A>>,
+  b: B,
+  f: (b: B, a: A) => B,
+  __tsplusTrace?: string
+): IO<R, E, B> {
+  return fas.foldLeft(IO.succeed(b) as IO<R, E, B>, (b, a) => b.zipWith(a, f));
+}
+
+/**
+ * Converts an option on errors into an option on values.
+ *
+ * @tsplus getter fncts.control.IO optional
+ */
+export function optional<R, E, A>(ma: IO<R, Maybe<E>, A>): IO<R, E, Maybe<A>> {
+  return ma.matchIO(
+    (me) => me.match(() => IO.succeedNow(Nothing()), IO.failNow),
+    (a) => IO.succeedNow(Just(a))
+  );
+}
+
+/**
+ * Returns the logical disjunction of the `Boolean` value returned by this
+ * effect and the `Boolean` value returned by the specified effect. This
+ * operator has "short circuiting" behavior so if the value returned by this
+ * effect is true the specified effect will not be evaluated.
+ *
+ * @tsplus fluent fncts.control.IO or
+ */
+export function or_<R, E, R1, E1>(
+  ma: IO<R, E, boolean>,
+  mb: IO<R1, E1, boolean>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, boolean> {
+  return ma.chain((b) => (b ? IO.succeedNow(true) : mb));
+}
+
+/**
+ * @tsplus fluent fncts.control.IO orElse
+ */
+export function orElse_<R, E, A, R1, E1, A1>(
+  ma: IO<R, E, A>,
+  that: Lazy<IO<R1, E1, A1>>,
+  __tsplusTrace?: string
+): IO<R & R1, E1, A | A1> {
+  return tryOrElse_(ma, that, IO.succeedNow);
+}
+
+/**
+ * @tsplus fluent fncts.control.IO orElseEither
+ */
+export function orElseEither_<R, E, A, R1, E1, A1>(
+  self: IO<R, E, A>,
+  that: Lazy<IO<R1, E1, A1>>,
+  __tsplusTrace?: string
+): IO<R & R1, E1, Either<A, A1>> {
+  return self.tryOrElse(that().map(Either.right), (a) =>
+    IO.succeedNow(Either.left(a))
+  );
+}
+
+/**
+ * @tsplus fluent fncts.control.IO orElseFail
+ */
+export function orElseFail_<R, E, A, E1>(
+  ma: IO<R, E, A>,
+  e: Lazy<E1>
+): IO<R, E1, A> {
+  return ma.orElse(IO.fail(e));
+}
+
+/**
+ * @tsplus fluent fncts.control.IO orElseMaybe
+ */
+export function orElseMaybe_<R, E, A, R1, E1, A1>(
+  ma: IO<R, Maybe<E>, A>,
+  that: Lazy<IO<R1, Maybe<E1>, A1>>,
+  __tsplusTrace?: string
+): IO<R & R1, Maybe<E | E1>, A | A1> {
+  return ma.catchAll((me) => me.match(that, (e) => IO.fail(Just(e))));
+}
+
+/**
+ * @tsplus fluent fncts.control.IO orElseSucceed
+ */
+export function orElseSucceed_<R, E, A, A1>(
+  ma: IO<R, E, A>,
+  a: Lazy<A1>,
+  __tsplusTrace?: string
+): IO<R, E, A | A1> {
+  return ma.orElse(IO.succeed(a));
+}
+
+/**
+ * @tsplus getter fncts.control.IO orHalt
+ */
+export function orHalt<R, E, A>(
+  ma: IO<R, E, A>,
+  __tsplusTrace?: string
+): IO<R, never, A> {
+  return ma.orHaltWith(identity);
+}
+
+/**
+ * @tsplus getter fncts.control.IO orHaltKepp
+ */
+export function orHaltKeep<R, E, A>(ma: IO<R, E, A>): IO<R, never, A> {
+  return ma.matchCauseIO(
+    (cause) => IO.failCauseNow(cause.chain(Cause.halt)),
+    IO.succeedNow
+  );
+}
+
+/**
+ * @tsplus fluent fncts.control.IO orHaltWith
+ */
+export function orHaltWith_<R, E, A>(
+  ma: IO<R, E, A>,
+  f: (e: E) => unknown,
+  __tsplusTrace?: string
+): IO<R, never, A> {
+  return matchIO_(ma, (e) => IO.haltNow(f(e)), IO.succeedNow);
+}
+
+/**
+ * Exposes all parallel errors in a single call
+ *
+ * @tsplus fluent fncts.control.IO parallelErrors
+ */
+export function parallelErrors<R, E, A>(
+  io: IO<R, E, A>
+): IO<R, ReadonlyArray<E>, A> {
+  return io.matchCauseIO((cause) => {
+    const f = cause.failures;
+    if (f.length === 0) {
+      return IO.failCauseNow(cause as Cause<never>);
+    } else {
+      return IO.failNow(f);
+    }
+  }, IO.succeedNow);
+}
+
+/**
+ * Feeds elements of type `A` to a function `f` that returns an IO.
+ * Collects all successes and failures in a separated fashion.
+ *
+ * @tsplus static fncts.control.IOOps partition
+ */
+export function partition_<R, E, A, B>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, B>,
+  __tsplusTrace?: string
+): IO<R, never, readonly [Conc<E>, Conc<B>]> {
+  return IO.foreach(as, (a) => f(a).either).map((c) => c.separate);
+}
+
+/**
+ * Keeps some of the errors, and terminates the fiber with the rest
+ *
+ * @tsplus fluent fncts.control.IO refineOrHalt
+ */
+export function refineOrHalt_<R, E, A, E1>(
+  fa: IO<R, E, A>,
+  pf: (e: E) => Maybe<E1>,
+  __tsplusTrace?: string
+): IO<R, E1, A> {
+  return fa.refineOrHaltWith(pf, identity);
+}
+
+/**
+ * Keeps some of the errors, and terminates the fiber with the rest, using
+ * the specified function to convert the `E` into a `Throwable`.
+ *
+ * @tsplus fluent fncts.control.IO refineOrHaltWith
+ */
+export function refineOrHaltWith_<R, E, A, E1>(
+  fa: IO<R, E, A>,
+  pf: (e: E) => Maybe<E1>,
+  f: (e: E) => unknown
+): IO<R, E1, A> {
+  return fa.catchAll((e) => pf(e).match(() => IO.haltNow(f(e)), IO.failNow));
+}
+
+/**
+ * Fail with the returned value if the partial function `pf` matches, otherwise
+ * continue with the held value.
+ *
+ * @tsplus fluent fncts.control.IO reject
+ */
+export function reject_<R, E, A, E1>(
+  fa: IO<R, E, A>,
+  pf: (a: A) => Maybe<E1>,
+  __tsplusTrace?: string
+): IO<R, E | E1, A> {
+  return fa.rejectIO((a) => pf(a).map(IO.failNow));
+}
+
+/**
+ * Continue with the returned computation if the partial function `pf` matches,
+ * translating the successful match into a failure, otherwise continue with
+ * the held value.
+ *
+ * @tsplus fluent fncts.control.IO rejectIO
+ */
+export function rejectIO_<R, E, A, R1, E1>(
+  fa: IO<R, E, A>,
+  pf: (a: A) => Maybe<IO<R1, E1, E1>>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A> {
+  return fa.chain((a) =>
+    pf(a).match(
+      () => IO.succeedNow(a),
+      (io) => io.chain(IO.failNow)
+    )
+  );
+}
+
+/**
+ * Repeats this effect the specified number of times.
+ *
+ * @tsplus fluent fncts.control.IO repeatN
+ */
+export function repeatN_<R, E, A>(
+  ma: IO<R, E, A>,
+  n: number,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return ma.chain((a) => (n <= 0 ? IO.succeed(a) : ma.repeatN(n - 1)));
+}
+
+/**
+ * Repeats this effect until its result satisfies the specified predicate.
+ *
+ * @tsplus fluent fncts.control.IO repeatUntil
+ */
+export function repeatUntil_<R, E, A>(
+  ma: IO<R, E, A>,
+  f: (a: A) => boolean,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return ma.repeatUntilIO((a) => IO.succeedNow(f(a)));
+}
+
+/**
+ * Repeats this effect until its error satisfies the specified effectful predicate.
+ *
+ * @tsplus fluent fncts.control.IO repeatUntilIO
+ */
+export function repeatUntilIO_<R, E, A, R1, E1>(
+  ma: IO<R, E, A>,
+  f: (a: A) => IO<R1, E1, boolean>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A> {
+  return ma.chain((a) =>
+    f(a).chain((b) => (b ? IO.succeed(a) : ma.repeatUntilIO(f)))
+  );
+}
+
+/**
+ * Repeats this effect while its error satisfies the specified predicate.
+ *
+ * @tsplus fluent fncts.control.IO repeatWhile
+ */
+export function repeatWhile_<R, E, A>(
+  ma: IO<R, E, A>,
+  f: (a: A) => boolean
+): IO<R, E, A> {
+  return ma.repeatWhileIO((a) => IO.succeedNow(f(a)));
+}
+
+/**
+ * Repeats this effect while its error satisfies the specified effectful predicate.
+ *
+ * @tsplus fluent fncts.control.IO repeatWhileIO
+ */
+export function repeatWhileIO_<R, E, A, R1, E1>(
+  ma: IO<R, E, A>,
+  f: (a: A) => IO<R1, E1, boolean>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A> {
+  return ma.chain((a) =>
+    f(a).chain((b) => (b ? ma.repeatWhileIO(f) : IO.succeed(a)))
+  );
+}
+
+/**
  * @tsplus fluent fncts.control.IO replicate
  */
 export function replicate_<R, E, A>(
@@ -619,6 +1503,17 @@ export function replicate_<R, E, A>(
   __tsplusTrace?: string
 ): Array<IO<R, E, A>> {
   return Array.range(0, n).map(() => self);
+}
+
+/**
+ * @tsplus fluent fncts.control.IO require
+ */
+export function require_<R, E, A>(
+  ma: IO<R, E, Maybe<A>>,
+  error: Lazy<E>,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return ma.chain((ma) => ma.match(() => IO.fail(error), IO.succeedNow));
 }
 
 /**
@@ -635,6 +1530,145 @@ export function result<R, E, A>(
     (cause) => IO.succeedNow(Exit.failCause(cause)),
     (a) => IO.succeedNow(Exit.succeed(a))
   );
+}
+
+/**
+ * Recover from the unchecked failure of the `IO`. (opposite of `orHalt`)
+ *
+ * @trace call
+ */
+export function resurrect<R, E, A>(io: IO<R, E, A>): IO<R, unknown, A> {
+  return io.unrefineWith(Maybe.just, identity);
+}
+
+/**
+ * Retries this effect until its error satisfies the specified predicate.
+ *
+ * @tsplus fluent fncts.control.IO retryUntil
+ */
+export function retryUntil_<R, E, A>(
+  fa: IO<R, E, A>,
+  f: (e: E) => boolean,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return fa.retryUntilIO((e) => IO.succeedNow(f(e)));
+}
+
+/**
+ * Retries this effect until its error satisfies the specified effectful predicate.
+ *
+ * @tsplus fluent fncts.control.IO retryUntilIO
+ */
+export function retryUntilIO_<R, E, A, R1, E1>(
+  fa: IO<R, E, A>,
+  f: (e: E) => IO<R1, E1, boolean>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A> {
+  return fa.catchAll((e) =>
+    f(e).chain((b) => (b ? IO.failNow(e) : fa.retryUntilIO(f)))
+  );
+}
+
+/**
+ * Retries this effect while its error satisfies the specified predicate.
+ *
+ * @tsplus fluent fncts.control.IO retryWhile
+ */
+export function retryWhile_<R, E, A>(
+  fa: IO<R, E, A>,
+  f: (e: E) => boolean,
+  __tsplusTrace?: string
+): IO<R, E, A> {
+  return fa.retryWhileIO((e) => IO.succeedNow(f(e)));
+}
+
+/**
+ * Retries this effect while its error satisfies the specified effectful predicate.
+ *
+ * @tsplus fluent fncts.control.IO retryWhileIO
+ */
+export function retryWhileIO_<R, E, A, R1, E1>(
+  fa: IO<R, E, A>,
+  f: (e: E) => IO<R1, E1, boolean>,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, A> {
+  return fa.catchAll((e) =>
+    f(e).chain((b) => (b ? fa.retryWhileIO(f) : IO.fail(e)))
+  );
+}
+
+/**
+ * Exposes the full cause of failure of this effect.
+ *
+ * @tsplus getter fncts.control.IO sandbox
+ */
+export function sandbox<R, E, A>(
+  fa: IO<R, E, A>,
+  __tsplusTrace?: string
+): IO<R, Cause<E>, A> {
+  return fa.matchCauseIO(IO.failNow, IO.succeedNow);
+}
+
+/**
+ * @tsplus fluent fncts.control.IO sandboxWith
+ */
+export function sandboxWith_<R, E, A, E1>(
+  ma: IO<R, E, A>,
+  f: (_: IO<R, Cause<E>, A>) => IO<R, Cause<E1>, A>,
+  __tsplusTrace?: string
+): IO<R, E1, A> {
+  return f(ma.sandbox).unsandbox;
+}
+
+/**
+ * @tsplus fluent fncts.control.IO summarized
+ */
+export function summarized_<R, E, A, R1, E1, B, C>(
+  ma: IO<R, E, A>,
+  summary: IO<R1, E1, B>,
+  f: (start: B, end: B) => C,
+  __tsplusTrace?: string
+): IO<R & R1, E | E1, readonly [C, A]> {
+  return gen(function* (_) {
+    const start = yield* _(summary);
+    const value = yield* _(ma);
+    const end   = yield* _(summary);
+    return tuple(f(start, end), value);
+  });
+}
+
+/**
+ * Swaps the positions of a Bifunctor's arguments
+ *
+ * @tsplus getter fncts.control.IO swap
+ */
+export function swap<R, E, A>(pab: IO<R, E, A>): IO<R, A, E> {
+  return pab.matchIO(IO.succeedNow, IO.failNow);
+}
+
+/**
+ * Swaps the error/value parameters, applies the function `f` and flips the parameters back
+ *
+ * @tsplus fluent fncts.control.IO swapWith
+ */
+export function swapWith_<R, E, A, R1, E1, A1>(
+  fa: IO<R, E, A>,
+  f: (ma: IO<R, A, E>) => IO<R1, A1, E1>
+) {
+  return f(fa.swap).swap;
+}
+
+/**
+ * A more powerful variation of `timed` that allows specifying the clock.
+ *
+ * @tsplus fluent fncts.control.IO timedWith
+ */
+export function timedWith_<R, E, A, R1, E1>(
+  ma: IO<R, E, A>,
+  msTime: IO<R1, E1, number>,
+  __tsplusTrace?: string
+) {
+  return ma.summarized(msTime, (start, end) => end - start);
 }
 
 /**
@@ -663,6 +1697,23 @@ export function tap_<R, E, A, R1, E1, B>(
   __tsplusTrace?: string
 ): IO<R1 & R, E1 | E, A> {
   return self.chain((a) => f(a).map(() => a));
+}
+
+/**
+ * Returns an IO that effectually "peeks" at the cause of the failure of
+ * this IO.
+ *
+ * @tsplus fluent fncts.control.IO tapCause
+ */
+export function tapCause_<R2, A2, R, E, E2>(
+  ma: IO<R2, E2, A2>,
+  f: (e: Cause<E2>) => IO<R, E, any>,
+  __tsplusTrace?: string
+): IO<R2 & R, E | E2, A2> {
+  return ma.matchCauseIO(
+    (c) => f(c).chain(() => IO.failCauseNow(c)),
+    IO.succeedNow
+  );
 }
 
 /**
@@ -703,6 +1754,21 @@ export function tapErrorCause_<R, E, A, R1, E1>(
 }
 
 /**
+ * @tsplus fluent fncts.control.IO tryOrElse
+ */
+export function tryOrElse_<R, E, A, R1, E1, A1, R2, E2, A2>(
+  ma: IO<R, E, A>,
+  that: Lazy<IO<R1, E1, A1>>,
+  onSuccess: (a: A) => IO<R2, E2, A2>,
+  __tsplusTrace?: string
+): IO<R & R1 & R2, E1 | E2, A1 | A2> {
+  return ma.matchCauseIO(
+    (cause) => cause.keepDefects.match(that, IO.failCauseNow),
+    onSuccess
+  );
+}
+
+/**
  * Takes some fiber failures and converts them into errors, using the
  * specified function to convert the `E` into an `E1 | E2`.
  *
@@ -722,13 +1788,33 @@ export function unrefineWith_<R, E, A, E1, E2>(
 }
 
 /**
+ * The inverse operation `sandbox`
+ *
+ * @tsplus getter fncts.control.IO unsandbox
+ */
+export function unsandbox<R, E, A>(ma: IO<R, Cause<E>, A>): IO<R, E, A> {
+  return ma.mapErrorCause((cause) => cause.flatten);
+}
+
+/**
+ * @tsplus fluent fncts.control.IO when
+ */
+export function when_<R, E, A>(
+  ma: IO<R, E, A>,
+  b: Lazy<boolean>,
+  __tsplusTrace?: string
+): IO<R, E, void> {
+  return ma.whenIO(IO.succeed(b));
+}
+
+/**
  * The moral equivalent of `if (p) exp` when `p` has side-effects
  *
  * @tsplus fluent fncts.control.IO whenIO
  */
 export function whenIO_<R, E, A, R1, E1>(
-  mb: IO<R1, E1, boolean>,
-  ma: IO<R, E, A>
+  ma: IO<R, E, A>,
+  mb: IO<R1, E1, boolean>
 ): IO<R1 & R, E | E1, void> {
   return mb.chain((b) => (b ? ma.asUnit : IO.unit));
 }
