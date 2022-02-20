@@ -1,6 +1,6 @@
 import type { Conc } from "../../../collection/immutable/Conc";
 import type { UIO } from "../../IO";
-import type { Queue } from "../definition";
+import type { PQueue } from "../definition";
 
 import { IO } from "../../IO";
 import { concrete, QueueInternal } from "../definition";
@@ -57,7 +57,7 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
  * @tsplus fluent fncts.control.Queue dimap
  */
 export function dimap_<RA, RB, EA, EB, A, B, C, D>(
-  self: Queue<RA, RB, EA, EB, A, B>,
+  self: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => A,
   g: (b: B) => D
 ) {
@@ -74,10 +74,10 @@ export function dimap_<RA, RB, EA, EB, A, B, C, D>(
  * @tsplus fluent fncts.control.Queue dimapIO
  */
 export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
   g: (b: B) => IO<RD, ED, D>
-): Queue<RC & RA, RD & RB, EC | EA, ED | EB, C, D> {
+): PQueue<RC & RA, RD & RB, EC | EA, ED | EB, C, D> {
   concrete(queue);
   return new DimapIO(queue, f, g);
 }
@@ -88,9 +88,9 @@ export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
  * @tsplus fluent fncts.control.Queue contramapIO
  */
 export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>
-): Queue<RA & RC, RB, EA | EC, EB, C, B> {
+): PQueue<RA & RC, RB, EA | EC, EB, C, B> {
   return queue.dimapIO(f, IO.succeedNow);
 }
 
@@ -100,9 +100,9 @@ export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
  * @tsplus fluent fncts.control.Queue contramap
  */
 export function contramap_<RA, RB, EA, EB, A, B, C>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => A
-): Queue<RA, RB, EA, EB, C, B> {
+): PQueue<RA, RB, EA, EB, C, B> {
   return queue.contramapIO((c) => IO.succeedNow(f(c)));
 }
 
@@ -112,9 +112,9 @@ export function contramap_<RA, RB, EA, EB, A, B, C>(
  * @tsplus fluent fncts.control.Queue mapIO
  */
 export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<R2, E2, C>
-): Queue<RA, R2 & RB, EA, EB | E2, A, C> {
+): PQueue<RA, R2 & RB, EA, EB | E2, A, C> {
   return queue.dimapIO(IO.succeedNow, f);
 }
 
@@ -124,9 +124,9 @@ export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
  * @tsplus fluent fncts.control.Queue map
  */
 export function map_<RA, RB, EA, EB, A, B, C>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => C
-): Queue<RA, RB, EA, EB, A, C> {
+): PQueue<RA, RB, EA, EB, A, C> {
   return queue.mapIO((b) => IO.succeedNow(f(b)));
 }
 
@@ -137,7 +137,7 @@ export function map_<RA, RB, EA, EB, A, B, C>(
  * @tsplus dataFirst dimap_
  */
 export function dimap<A, B, C, D>(f: (c: C) => A, g: (b: B) => D) {
-  return <RA, RB, EA, EB>(self: Queue<RA, RB, EA, EB, A, B>) =>
+  return <RA, RB, EA, EB>(self: PQueue<RA, RB, EA, EB, A, B>) =>
     dimap_(self, f, g);
 }
 /**
@@ -150,8 +150,8 @@ export function dimapIO<A, B, C, RC, EC, RD, ED, D>(
   g: (b: B) => IO<RD, ED, D>
 ) {
   return <RA, RB, EA, EB>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RC & RA, RD & RB, EC | EA, ED | EB, C, D> => dimapIO_(queue, f, g);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RC & RA, RD & RB, EC | EA, ED | EB, C, D> => dimapIO_(queue, f, g);
 }
 /**
  * Transforms elements enqueued into this queue with an effectful function.
@@ -159,8 +159,8 @@ export function dimapIO<A, B, C, RC, EC, RD, ED, D>(
  */
 export function contramapIO<A, RC, EC, C>(f: (c: C) => IO<RC, EC, A>) {
   return <RA, RB, EA, EB, B>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA & RC, RB, EA | EC, EB, C, B> => contramapIO_(queue, f);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA & RC, RB, EA | EC, EB, C, B> => contramapIO_(queue, f);
 }
 /**
  * Transforms elements enqueued into this queue with an effectful function.
@@ -168,8 +168,8 @@ export function contramapIO<A, RC, EC, C>(f: (c: C) => IO<RC, EC, A>) {
  */
 export function contramap<A, C>(f: (c: C) => A) {
   return <RA, RB, EA, EB, B>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA, RB, EA, EB, C, B> => contramap_(queue, f);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA, RB, EA, EB, C, B> => contramap_(queue, f);
 }
 /**
  * Transforms elements dequeued from this queue with an effectful function.
@@ -177,8 +177,8 @@ export function contramap<A, C>(f: (c: C) => A) {
  */
 export function mapIO<B, R2, E2, C>(f: (b: B) => IO<R2, E2, C>) {
   return <RA, RB, EA, EB, A>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA, R2 & RB, EA, EB | E2, A, C> => mapIO_(queue, f);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA, R2 & RB, EA, EB | E2, A, C> => mapIO_(queue, f);
 }
 /**
  * Transforms elements dequeued from this queue with a function.
@@ -186,7 +186,7 @@ export function mapIO<B, R2, E2, C>(f: (b: B) => IO<R2, E2, C>) {
  */
 export function map<B, C>(f: (b: B) => C) {
   return <RA, RB, EA, EB, A>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA, RB, EA, EB, A, C> => map_(queue, f);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA, RB, EA, EB, A, C> => map_(queue, f);
 }
 // codegen:end

@@ -2,6 +2,7 @@ export * as Any from "./Any";
 export * as Boolean from "./Boolean";
 export * as Function from "./Function";
 export * as Generic from "./Generic";
+export * as Intersection from "./Intersection";
 export * as Iteration from "./Iteration";
 export * as List from "./List";
 export * as Number from "./Number";

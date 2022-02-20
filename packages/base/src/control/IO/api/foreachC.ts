@@ -1,5 +1,3 @@
-import type { UQueue } from "../../Queue";
-
 import { Conc } from "../../../collection/immutable/Conc";
 import { Cause } from "../../../data/Cause";
 import { Exit } from "../../../data/Exit";
@@ -7,7 +5,7 @@ import { FiberId } from "../../../data/FiberId";
 import { identity } from "../../../data/function";
 import { AtomicNumber } from "../../../internal/AtomicNumber";
 import { Future } from "../../Future";
-import { Queue } from "../../Queue";
+import { PQueue, Queue } from "../../Queue";
 import { IO } from "../definition";
 
 /**
@@ -129,7 +127,7 @@ function foreachConcurrentUnbounded<R, E, A, B>(
 }
 
 function foreachConcurrentBoundedDiscardWorker<R, E, A>(
-  queue: UQueue<A>,
+  queue: Queue<A>,
   f: (a: A) => IO<R, E, any>
 ): IO<R, E, void> {
   return queue.poll.chain((ma) =>
@@ -170,7 +168,7 @@ function foreachConcurrentBoundedDiscard<R, E, A>(
 }
 
 function foreachConcurrentBoundedWorker<R, E, A, B>(
-  queue: UQueue<readonly [number, A]>,
+  queue: Queue<readonly [number, A]>,
   array: Array<any>,
   f: (a: A) => IO<R, E, B>
 ): IO<R, E, void> {

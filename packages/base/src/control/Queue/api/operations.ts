@@ -1,5 +1,5 @@
 import type { IO, UIO } from "../../IO";
-import type { Queue } from "../definition";
+import type { PQueue } from "../definition";
 
 import { concrete } from "../definition";
 
@@ -11,7 +11,7 @@ import { concrete } from "../definition";
  * @tsplus getter fncts.control.Queue awaitShutdown
  */
 export function awaitShutdown<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>
+  queue: PQueue<RA, RB, EA, EB, A, B>
 ): UIO<void> {
   concrete(queue);
   return queue.awaitShutdown;
@@ -23,7 +23,7 @@ export function awaitShutdown<RA, RB, EA, EB, A, B>(
  * @tsplus getter fncts.control.Queue capacity
  */
 export function capacity<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>
+  queue: PQueue<RA, RB, EA, EB, A, B>
 ): number {
   concrete(queue);
   return queue.capacity;
@@ -35,7 +35,7 @@ export function capacity<RA, RB, EA, EB, A, B>(
  * @tsplus getter fncts.control.Queue isShutdown
  */
 export function isShutdown<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>
+  queue: PQueue<RA, RB, EA, EB, A, B>
 ): UIO<boolean> {
   concrete(queue);
   return queue.isShutdown;
@@ -47,7 +47,7 @@ export function isShutdown<RA, RB, EA, EB, A, B>(
  * @tsplus fluent fncts.control.Queue offer
  */
 export function offer_<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   a: A
 ): IO<RA, EA, boolean> {
   concrete(queue);
@@ -73,7 +73,7 @@ export function offer_<RA, RB, EA, EB, A, B>(
  * @tsplus fluent fncts.control.Queue offerAll
  */
 export function offerAll_<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   as: Iterable<A>
 ) {
   concrete(queue);
@@ -87,7 +87,7 @@ export function offerAll_<RA, RB, EA, EB, A, B>(
  * @tsplus getter fncts.control.Queue shutdown
  */
 export function shutdown<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>
+  queue: PQueue<RA, RB, EA, EB, A, B>
 ) {
   concrete(queue);
   return queue.shutdown;
@@ -100,7 +100,9 @@ export function shutdown<RA, RB, EA, EB, A, B>(
  *
  * @tsplus getter fncts.control.Queue size
  */
-export function size<RA, RB, EA, EB, A, B>(queue: Queue<RA, RB, EA, EB, A, B>) {
+export function size<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>
+) {
   concrete(queue);
   return queue.size;
 }
@@ -111,7 +113,9 @@ export function size<RA, RB, EA, EB, A, B>(queue: Queue<RA, RB, EA, EB, A, B>) {
  *
  * @tsplus getter fncts.control.Queue take
  */
-export function take<RA, RB, EA, EB, A, B>(queue: Queue<RA, RB, EA, EB, A, B>) {
+export function take<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>
+) {
   concrete(queue);
   return queue.take;
 }
@@ -123,7 +127,7 @@ export function take<RA, RB, EA, EB, A, B>(queue: Queue<RA, RB, EA, EB, A, B>) {
  * @tsplus getter fncts.control.Queue takeAll
  */
 export function takeAll<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>
+  queue: PQueue<RA, RB, EA, EB, A, B>
 ) {
   concrete(queue);
   return queue.takeAll;
@@ -135,7 +139,7 @@ export function takeAll<RA, RB, EA, EB, A, B>(
  * @tsplus fluent fncts.control.Queue takeAllUpTo
  */
 export function takeAllUpTo_<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   n: number
 ) {
   concrete(queue);
@@ -149,7 +153,7 @@ export function takeAllUpTo_<RA, RB, EA, EB, A, B>(
  */
 export function offer<A>(a: A) {
   return <RA, RB, EA, EB, B>(
-    queue: Queue<RA, RB, EA, EB, A, B>
+    queue: PQueue<RA, RB, EA, EB, A, B>
   ): IO<RA, EA, boolean> => offer_(queue, a);
 }
 /**
@@ -170,7 +174,7 @@ export function offer<A>(a: A) {
  * @tsplus dataFirst offerAll_
  */
 export function offerAll<A>(as: Iterable<A>) {
-  return <RA, RB, EA, EB, B>(queue: Queue<RA, RB, EA, EB, A, B>) =>
+  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>) =>
     offerAll_(queue, as);
 }
 /**
@@ -178,7 +182,7 @@ export function offerAll<A>(as: Iterable<A>) {
  * @tsplus dataFirst takeAllUpTo_
  */
 export function takeAllUpTo(n: number) {
-  return <RA, RB, EA, EB, A, B>(queue: Queue<RA, RB, EA, EB, A, B>) =>
+  return <RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) =>
     takeAllUpTo_(queue, n);
 }
 // codegen:end

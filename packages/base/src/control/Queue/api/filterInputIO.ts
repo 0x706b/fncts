@@ -1,6 +1,6 @@
 import type { Conc } from "../../../collection/immutable/Conc";
 import type { UIO } from "../../IO";
-import type { Queue } from "../definition";
+import type { PQueue } from "../definition";
 
 import { Just, Nothing } from "../../../data/Maybe";
 import { IO } from "../../IO";
@@ -68,9 +68,9 @@ export class FilterInputIO<
  * @tsplus fluent fncts.control.Queue filterInputIO
  */
 export function filterInputIO_<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (_: A1) => IO<R2, E2, boolean>
-): Queue<RA & R2, RB, EA | E2, EB, A1, B> {
+): PQueue<RA & R2, RB, EA | E2, EB, A1, B> {
   concrete(queue);
   return new FilterInputIO(queue, f);
 }
@@ -82,9 +82,9 @@ export function filterInputIO_<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>(
  * @tsplus fluent fncts.control.Queue filterInput
  */
 export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (_: A1) => boolean
-): Queue<RA, RB, EA, EB, A1, B> {
+): PQueue<RA, RB, EA, EB, A1, B> {
   return queue.filterInputIO((a) => IO.succeedNow(f(a)));
 }
 
@@ -97,8 +97,8 @@ export function filterInputIO<A, A1 extends A, R2, E2>(
   f: (_: A1) => IO<R2, E2, boolean>
 ) {
   return <RA, RB, EA, EB, B>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA & R2, RB, EA | E2, EB, A1, B> => filterInputIO_(queue, f);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA & R2, RB, EA | E2, EB, A1, B> => filterInputIO_(queue, f);
 }
 /**
  * Applies a filter to elements enqueued into this queue. Elements that do not
@@ -107,7 +107,7 @@ export function filterInputIO<A, A1 extends A, R2, E2>(
  */
 export function filterInput<A, A1 extends A>(f: (_: A1) => boolean) {
   return <RA, RB, EA, EB, B>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA, RB, EA, EB, A1, B> => filterInput_(queue, f);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA, RB, EA, EB, A1, B> => filterInput_(queue, f);
 }
 // codegen:end

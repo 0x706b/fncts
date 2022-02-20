@@ -3,7 +3,7 @@
     "strict": true,
     "downlevelIteration": true,
     "module": "ESNext",
-    "target": "ESNext",
+    "target": "ES2020",
     "lib": ["ES2020", "ESNext.WeakRef"],
     "noUncheckedIndexedAccess": true,
     "allowSyntheticDefaultImports": true,

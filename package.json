@@ -14,7 +14,7 @@
     "build": "yarn workspaces foreach build"
   },
   "resolutions": {
-    "typescript": "patch:typescript@https://github.com/0x706b/typescript/raw/2c5cf7451b/typescript-4.7.0-ets.20220217.tgz#patches/typescript.patch"
+    "typescript": "patch:typescript@https://github.com/0x706b/typescript/raw/62a03d6839/typescript-4.7.0-ets.20220219.tgz#patches/typescript.patch"
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",

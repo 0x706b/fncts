@@ -211,7 +211,7 @@ export function length<A>(list: List<A>): number {
  */
 export function map_<A, B>(self: List<A>, f: (a: A) => B): List<B> {
   if (self.isEmpty()) {
-    return self as List<B>;
+    return self as unknown as List<B>;
   } else {
     const h        = new Cons(f(self.head), _Nil);
     let t: Cons<B> = h;

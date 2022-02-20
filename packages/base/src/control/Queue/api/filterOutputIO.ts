@@ -1,6 +1,6 @@
 import type { Predicate } from "../../../data/Predicate";
 import type { UIO } from "../../IO";
-import type { Queue } from "../definition";
+import type { PQueue } from "../definition";
 
 import { Conc } from "../../../collection/immutable/Conc";
 import { IO } from "../../IO";
@@ -76,9 +76,9 @@ export class FilterOutputIO<
  * @tsplus fluent fncts.control.Queue filterOutputIO
  */
 export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<RB1, EB1, boolean>
-): Queue<RA, RB & RB1, EA, EB | EB1, A, B> {
+): PQueue<RA, RB & RB1, EA, EB | EB1, A, B> {
   concrete(queue);
   return new FilterOutputIO(queue, f);
 }
@@ -87,9 +87,9 @@ export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
  * @tsplus fluent fncts.control.Queue filterOutput
  */
 export function filterOutput_<RA, RB, EA, EB, A, B>(
-  queue: Queue<RA, RB, EA, EB, A, B>,
+  queue: PQueue<RA, RB, EA, EB, A, B>,
   p: Predicate<B>
-): Queue<RA, RB, EA, EB, A, B> {
+): PQueue<RA, RB, EA, EB, A, B> {
   return queue.filterOutputIO((b) => IO.succeedNow(p(b)));
 }
 
@@ -101,15 +101,15 @@ export function filterOutputIO<B, RB1, EB1>(
   f: (b: B) => IO<RB1, EB1, boolean>
 ) {
   return <RA, RB, EA, EB, A>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA, RB & RB1, EA, EB | EB1, A, B> => filterOutputIO_(queue, f);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA, RB & RB1, EA, EB | EB1, A, B> => filterOutputIO_(queue, f);
 }
 /**
  * @tsplus dataFirst filterOutput_
  */
 export function filterOutput<B>(p: Predicate<B>) {
   return <RA, RB, EA, EB, A>(
-    queue: Queue<RA, RB, EA, EB, A, B>
-  ): Queue<RA, RB, EA, EB, A, B> => filterOutput_(queue, p);
+    queue: PQueue<RA, RB, EA, EB, A, B>
+  ): PQueue<RA, RB, EA, EB, A, B> => filterOutput_(queue, p);
 }
 // codegen:end

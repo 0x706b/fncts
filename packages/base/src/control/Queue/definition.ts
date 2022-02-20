@@ -2,7 +2,7 @@ import type { Conc } from "../../collection/immutable/Conc";
 import type { IO, UIO } from "../IO";
 
 /**
- * A `Queue<RA, RB, EA, EB, A, B>` is a lightweight, asynchronous queue into which values of
+ * A `PQueue<RA, RB, EA, EB, A, B>` is a lightweight, asynchronous queue into which values of
  * type `A` can be enqueued and of which elements of type `B` can be dequeued. The queue's
  * enqueueing operations may utilize an environment of type `RA` and may fail with errors of
  * type `EA`. The dequeueing operations may utilize an environment of type `RB` and may fail
@@ -10,7 +10,7 @@ import type { IO, UIO } from "../IO";
  *
  * @tsplus type fncts.control.Queue
  */
-export interface Queue<RA, RB, EA, EB, A, B> {
+export interface PQueue<RA, RB, EA, EB, A, B> {
   readonly _RA: (_: RA) => void;
   readonly _RB: (_: RB) => void;
   readonly _EA: () => EA;
@@ -30,7 +30,7 @@ export const Queue: QueueOps = {};
  * @optimize remove
  */
 export function concrete<RA, RB, EA, EB, A, B>(
-  _: Queue<RA, RB, EA, EB, A, B>
+  _: PQueue<RA, RB, EA, EB, A, B>
 ): asserts _ is QueueInternal<RA, RB, EA, EB, A, B> {
   //
 }
@@ -43,7 +43,7 @@ export function concrete<RA, RB, EA, EB, A, B>(
  * with errors of type `EB`.
  */
 export abstract class QueueInternal<RA, RB, EA, EB, A, B>
-  implements Queue<RA, RB, EA, EB, A, B>
+  implements PQueue<RA, RB, EA, EB, A, B>
 {
   readonly _RA!: (_: RA) => void;
   readonly _RB!: (_: RB) => void;
@@ -120,17 +120,17 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B>
  *
  * @tsplus type fncts.control.Queue
  */
-export interface UQueue<A>
-  extends Queue<unknown, unknown, never, never, A, A> {}
+export interface Queue<A>
+  extends PQueue<unknown, unknown, never, never, A, A> {}
 
 /**
  * A queue that can only be dequeued.
  */
 export interface Dequeue<A>
-  extends Queue<never, unknown, unknown, never, never, A> {}
+  extends PQueue<never, unknown, unknown, never, never, A> {}
 
 /**
  * A queue that can only be enqueued.
  */
 export interface Enqueue<A>
-  extends Queue<unknown, never, never, unknown, A, any> {}
+  extends PQueue<unknown, never, never, unknown, A, any> {}

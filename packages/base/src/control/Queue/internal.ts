@@ -1,6 +1,6 @@
 import type { MutableQueue } from "../../internal/MutableQueue";
 import type { UIO } from "../IO";
-import type { UQueue } from "./definition";
+import type { Queue } from "./definition";
 import type { Strategy } from "./strategy";
 
 import { Conc } from "../../collection/immutable/Conc";
@@ -180,13 +180,13 @@ function _unsafeQueue<A>(
   shutdownHook: Future<never, void>,
   shutdownFlag: AtomicBoolean,
   strategy: Strategy<A>
-): UQueue<A> {
+): Queue<A> {
   return new UnsafeQueue(queue, takers, shutdownHook, shutdownFlag, strategy);
 }
 
 export function _makeQueue<A>(
   strategy: Strategy<A>
-): (queue: MutableQueue<A>) => IO<unknown, never, UQueue<A>> {
+): (queue: MutableQueue<A>) => IO<unknown, never, Queue<A>> {
   return (queue) =>
     Future.make<never, void>().map((p) =>
       _unsafeQueue(queue, unbounded(), p, new AtomicBoolean(false), strategy)
