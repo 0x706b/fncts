@@ -4,7 +4,7 @@ import type { PRef } from "../definition";
 
 import { IO } from "../../IO";
 import { STM } from "../../STM";
-import { Ref, RefInternal } from "../definition";
+import { RefInternal } from "../definition";
 
 /**
  * @tsplus type fncts.control.Ref.Synchronized
@@ -121,11 +121,9 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
 
   withPermit<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
     return IO.uninterruptibleMask(({ restore }) =>
-      restore(
-        STM.foreach(this.semaphores, (s) => s.acquire).atomically
-      ).apSecond(
+      restore(STM.foreach(this.semaphores, (s) => s.acquire).commit).apSecond(
         restore(io).ensuring(
-          STM.foreach(this.semaphores, (s) => s.release).atomically
+          STM.foreach(this.semaphores, (s) => s.release).commit
         )
       )
     );

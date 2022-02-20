@@ -60,12 +60,12 @@ export function unsafeMake<A>(a: A): UTRef<A> {
  * @tsplus static fncts.control.TRefOps makeCommit
  */
 export function makeCommit<A>(a: Lazy<A>): UIO<UTRef<A>> {
-  return make(a).atomically;
+  return make(a).commit;
 }
 
 /**
  * Makes a new `TRef` that is initialized to the specified value.
  */
 export function makeCommitNow<A>(a: A): UIO<UTRef<A>> {
-  return makeNow(a).atomically;
+  return makeNow(a).commit;
 }

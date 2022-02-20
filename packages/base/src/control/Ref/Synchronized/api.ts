@@ -1,6 +1,5 @@
-import type { PRef, Ref } from "../definition";
+import type { PRef } from "../definition";
 
-import { Either } from "../../../data/Either";
 import { identity, tuple } from "../../../data/function";
 import { Just, Maybe, Nothing } from "../../../data/Maybe";
 import { IO } from "../../IO";
