@@ -474,6 +474,25 @@ export function log(message: Lazy<string>, __tsplusTrace?: string): UIO<void> {
 }
 
 /**
+ * Returns a `IO` that will never produce anything. The moral equivalent of
+ * `while(true) {}`, only without the wasted CPU cycles.
+ *
+ * @tsplus static fncts.control.IOOps never
+ */
+export const never: UIO<never> = defer(() =>
+  asyncInterrupt<unknown, never, never>(() => {
+    const interval = setInterval(() => {
+      //
+    }, 60000);
+    return Either.left(
+      IO.succeed(() => {
+        clearInterval(interval);
+      })
+    );
+  })
+);
+
+/**
  * @tsplus static fncts.control.IOOps sequenceIterable
  */
 export function sequenceIterable<R, E, A>(

@@ -55,10 +55,22 @@ export interface RuntimeFiber<E, A> extends CommonFiber<E, A> {
 }
 
 export interface SyntheticFiber<E, A> extends CommonFiber<E, A> {
-  _tag: "SyntheticFiber";
+  readonly _tag: "SyntheticFiber";
 }
 
 /**
  * @tsplus type fncts.control.Fiber
  */
 export type Fiber<E, A> = RuntimeFiber<E, A> | SyntheticFiber<E, A>;
+
+/**
+ * @tsplus type fncts.control.FiberOps
+ */
+export interface FiberOps {}
+
+export const Fiber: FiberOps = {};
+
+export declare namespace Fiber {
+  export type Runtime<E, A> = RuntimeFiber<E, A>;
+  export type Synthetic<E, A> = SyntheticFiber<E, A>;
+}
