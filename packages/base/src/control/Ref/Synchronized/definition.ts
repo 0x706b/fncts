@@ -4,13 +4,28 @@ import type { PRef } from "../definition";
 
 import { IO } from "../../IO";
 import { STM } from "../../STM";
-import { RefInternal } from "../definition";
+import { Ref, RefInternal } from "../definition";
 
 /**
  * @tsplus type fncts.control.Ref.Synchronized
- * @tsplus companion fncts.control.Ref.SynchronizedOps
  */
-export class PSynchronized<RA, RB, EA, EB, A, B> extends RefInternal<
+export interface PSynchronized<RA, RB, EA, EB, A, B>
+  extends PRef<RA, RB, EA, EB, A, B> {}
+
+/**
+ * @tsplus type fncts.control.Ref.SynchronizedOps
+ */
+export interface PSynchronizedOps {}
+
+/**
+ * @tsplus static fncts.control.RefOps Synchronized
+ */
+export const Synchronized: PSynchronizedOps = {};
+
+/**
+ * @tsplus type fncts.control.Ref.Synchronized
+ */
+export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
   RA,
   RB,
   EA,
@@ -46,8 +61,8 @@ export class PSynchronized<RA, RB, EA, EB, A, B> extends RefInternal<
     ca: (_: C) => (_: B) => IO<RC, EC, A>,
     bd: (_: B) => IO<RD, ED, D>,
     __tsplusTrace?: string
-  ): PRef<RA & RC & RB, RB & RD, EC, ED, C, D> {
-    return new PSynchronized(
+  ): PSynchronizedInternal<RA & RC & RB, RB & RD, EC, ED, C, D> {
+    return new PSynchronizedInternal(
       this.semaphores,
       this.get.matchIO((e) => IO.failNow(eb(e)), bd),
       (c) =>
@@ -64,8 +79,8 @@ export class PSynchronized<RA, RB, EA, EB, A, B> extends RefInternal<
     ca: (_: C) => IO<RC, EC, A>,
     bd: (_: B) => IO<RD, ED, D>,
     __tsplusTrace?: string
-  ): PRef<RA & RC, RB & RD, EC, ED, C, D> {
-    return new PSynchronized(
+  ): PSynchronizedInternal<RA & RC, RB & RD, EC, ED, C, D> {
+    return new PSynchronizedInternal(
       this.semaphores,
       this.unsafeGet.matchIO((e) => IO.failNow(eb(e)), bd),
       (c) => ca(c).chain((a) => this.unsafeSet(a).mapError(ea))
@@ -78,7 +93,7 @@ export class PSynchronized<RA, RB, EA, EB, A, B> extends RefInternal<
     ca: (_: C) => Either<EC, A>,
     bd: (_: B) => Either<ED, D>,
     __tsplusTrace?: string
-  ): PRef<RA, RB, EC, ED, C, D> {
+  ): PSynchronizedInternal<RA, RB, EC, ED, C, D> {
     return this.matchIO(
       ea,
       eb,
@@ -94,14 +109,14 @@ export class PSynchronized<RA, RB, EA, EB, A, B> extends RefInternal<
     ca: (_: C) => (_: B) => Either<EC, A>,
     bd: (_: B) => Either<ED, D>,
     __tsplusTrace?: string
-  ): PRef<RA, RB, EC, ED, C, D> {
+  ): PSynchronizedInternal<RA, RB, EC, ED, C, D> {
     return this.matchAllIO(
       ea,
       eb,
       ec,
       (c) => (b) => IO.fromEitherNow(ca(c)(b)),
       (b) => IO.fromEitherNow(bd(b))
-    ) as PRef<RA, RB, EC, ED, C, D>;
+    ) as PSynchronizedInternal<RA, RB, EC, ED, C, D>;
   }
 
   withPermit<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
@@ -115,4 +130,13 @@ export class PSynchronized<RA, RB, EA, EB, A, B> extends RefInternal<
       )
     );
   }
+}
+
+/**
+ * @tsplus macro remove
+ */
+export function concrete<RA, RB, EA, EB, A, B>(
+  self: PSynchronized<RA, RB, EA, EB, A, B>
+): asserts self is PSynchronizedInternal<RA, RB, EA, EB, A, B> {
+  //
 }

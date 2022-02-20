@@ -12,6 +12,7 @@ import { concrete } from "../definition";
  * version of `update`.
  *
  * @tsplus fluent fncts.control.Ref modify
+ * @tsplus fluent fncts.control.Ref.Synchronized modify
  */
 export function modify_<RA, RB, EA, EB, B, A>(
   ref: PRef<RA, RB, EA, EB, A, A>,
@@ -65,6 +66,7 @@ export function modify_<RA, RB, EA, EB, B, A>(
  * is a more powerful version of `updateJust`.
  *
  * @tsplus fluent fncts.control.Ref modifyJust
+ * @tsplus fluent fncts.control.Ref.Synchronized modifyJust
  */
 export function modifyJust_<RA, RB, EA, EB, A, B>(
   self: PRef<RA, RB, EA, EB, A, A>,
@@ -87,6 +89,7 @@ export function modifyJust_<RA, RB, EA, EB, A, B>(
  * immediately before modification.
  *
  * @tsplus fluent fncts.control.Ref getAndSet
+ * @tsplus fluent fncts.control.Ref.Synchronized getAndSet
  */
 export function getAndSet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
@@ -106,6 +109,7 @@ export function getAndSet_<RA, RB, EA, EB, A>(
  * the value immediately before modification.
  *
  * @tsplus fluent fncts.control.Ref getAndUpdate
+ * @tsplus fluent fncts.control.Ref.Synchronized getAndUpdate
  */
 export function getAndUpdate_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
@@ -128,6 +132,7 @@ export function getAndUpdate_<RA, RB, EA, EB, A>(
  * undefined on the current value it doesn't change it.
  *
  * @tsplus fluent fncts.control.Ref getAndUpdateJust
+ * @tsplus fluent fncts.control.Ref.Synchronized getAndUpdateJust
  */
 export function getAndUpdateJust_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
@@ -148,6 +153,7 @@ export function getAndUpdateJust_<RA, RB, EA, EB, A>(
  * Atomically modifies the `Ref` with the specified function.
  *
  * @tsplus fluent fncts.control.Ref update
+ * @tsplus fluent fncts.control.Ref.Synchronized update
  */
 export function update_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
@@ -169,6 +175,7 @@ export function update_<RA, RB, EA, EB, A>(
  * the updated value.
  *
  * @tsplus fluent fncts.control.Ref updateAndGet
+ * @tsplus fluent fncts.control.Ref.Synchronized updateAndGet
  */
 export function updateAndGet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
@@ -191,6 +198,7 @@ export function updateAndGet_<RA, RB, EA, EB, A>(
  * the function is undefined on the current value it doesn't change it.
  *
  * @tsplus fluent fncts.control.Ref updateJust
+ * @tsplus fluent fncts.control.Ref.Synchronized updateJust
  */
 export function updateJust_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
@@ -211,6 +219,9 @@ export function updateJust_<RA, RB, EA, EB, A>(
  * Atomically modifies the `Ref` with the specified partial function. If
  * the function is undefined on the current value it returns the old value
  * without changing it.
+ *
+ * @tsplus fluent fncts.control.Ref updateJustAndGet
+ * @tsplus fluent fncts.control.Ref.Synchronized updateJustAndGet
  */
 export function updateJustAndGet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,

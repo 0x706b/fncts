@@ -4,14 +4,17 @@ import type { UIO } from "../../IO";
 import { IO } from "../../IO";
 import { TSemaphore } from "../../TSemaphore";
 import { Ref } from "../definition";
-import { PSynchronized } from "./definition";
+import { PSynchronizedInternal } from "./definition";
 
-export function make<A>(
-  a: Lazy<A>
-): UIO<Ref.Synchronized<unknown, unknown, never, never, A, A>> {
+/**
+ * @tsplus static fncts.control.Ref.SynchronizedOps make
+ */
+export function make<A>(a: Lazy<A>): UIO<Ref.Synchronized<A>> {
   return IO.gen(function* (_) {
     const ref       = yield* _(Ref.make(a));
     const semaphore = yield* _(TSemaphore.make(1).atomically);
-    return new PSynchronized(new Set([semaphore]), ref.get, (a) => ref.set(a));
+    return new PSynchronizedInternal(new Set([semaphore]), ref.get, (a) =>
+      ref.set(a)
+    );
   });
 }

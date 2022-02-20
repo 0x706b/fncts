@@ -9,6 +9,7 @@ import { concrete } from "../definition";
  * of `match` but requires unifying the error types.
  *
  * @tsplus fluent fncts.control.Ref matchAll
+ * @tsplus fluent fncts.control.Ref.Synchronized matchAll
  */
 export function matchAll_<RA, RB, EA, EB, A, B, EC, ED, C, D>(
   ref: PRef<RA, RB, EA, EB, A, B>,

@@ -3,7 +3,7 @@ import type { IO } from "../IO";
 import type { Atomic as Atomic_ } from "./Atomic/Atomic";
 import type { Derived } from "./Derived";
 import type { DerivedAll } from "./DerivedAll";
-import type * as Synhcro from "./Synchronized/definition";
+import type * as Synchro from "./Synchronized/definition";
 
 export const RefTypeId = Symbol.for("fncts.control.Ref");
 export type RefTypeId = typeof RefTypeId;
@@ -22,16 +22,39 @@ export interface PRef<RA, RB, EA, EB, A, B> {
 }
 
 export type Ref<A> = PRef<unknown, unknown, never, never, A, A>;
+export type ERef<E, A> = PRef<unknown, unknown, E, E, A, A>;
 
-export declare namespace Ref {
-  export type Atomic<A> = Atomic_<A>;
-  export type Synchronized<RA, RB, EA, EB, A, B> = Synhcro.PSynchronized<
+export declare namespace PRef {
+  export type Synchronized<RA, RB, EA, EB, A, B> = Synchro.PSynchronized<
     RA,
     RB,
     EA,
     EB,
     A,
     B
+  >;
+}
+
+export declare namespace ERef {
+  export type Synchronized<E, A> = Synchro.PSynchronized<
+    unknown,
+    unknown,
+    E,
+    E,
+    A,
+    A
+  >;
+}
+
+export declare namespace Ref {
+  export type Atomic<A> = Atomic_<A>;
+  export type Synchronized<A> = Synchro.PSynchronized<
+    unknown,
+    unknown,
+    never,
+    never,
+    A,
+    A
   >;
 }
 
@@ -101,6 +124,6 @@ export function concrete<RA, RB, EA, EB, A, B>(
   | Atomic_<A | B>
   | Derived<EA, EB, A, B>
   | DerivedAll<EA, EB, A, B>
-  | Ref.Synchronized<RA, RB, EA, EB, A, B> {
+  | Synchro.PSynchronizedInternal<RA, RB, EA, EB, A, B> {
   //
 }

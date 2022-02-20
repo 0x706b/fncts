@@ -11,6 +11,7 @@ import { concrete } from "../definition";
  * method is extremely useful for implementing new combinators.
  *
  * @tsplus fluent fncts.control.Ref match
+ * @tsplus fluent fncts.control.Ref.Synchronized match
  */
 export function match_<RA, RB, EA, EB, A, B, EC, ED, C, D>(
   ref: PRef<RA, RB, EA, EB, A, B>,

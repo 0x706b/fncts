@@ -62,7 +62,7 @@ export function asJust<R, E, A>(
 /**
  * Maps the error value of this IO to an optional value.
  *
- * @tsplus fluent fncts.control.IO asJustError
+ * @tsplus getter fncts.control.IO asJustError
  */
 export function asJustError<R, E, A>(
   ma: IO<R, E, A>,
@@ -478,6 +478,17 @@ export function giveSome_<R, E, A, R0>(
   r: R0
 ): IO<Intersection.Erase<R, R0>, E, A> {
   return ma.gives((env) => ({ ...(env as R), ...r }));
+}
+
+/**
+ * @tsplus fluent fncts.control.IO ifIO
+ */
+export function ifIO_<R, E, R1, E1, B, R2, E2, C>(
+  self: IO<R, E, boolean>,
+  onFalse: Lazy<IO<R1, E1, B>>,
+  onTrue: Lazy<IO<R2, E2, C>>
+): IO<R & R1 & R2, E | E1 | E2, B | C> {
+  return self.chain((b) => (b ? onTrue() : onFalse()));
 }
 
 /**

@@ -7,6 +7,7 @@ import { concrete } from "../definition";
  * Reads the value from the `Ref`.
  *
  * @tsplus getter fncts.control.Ref get
+ * @tsplus getter fncts.control.Ref.Synchronized get
  */
 export function get<RA, RB, EA, EB, A, B>(
   self: PRef<RA, RB, EA, EB, A, B>

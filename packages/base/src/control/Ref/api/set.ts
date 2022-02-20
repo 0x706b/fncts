@@ -8,6 +8,7 @@ import { concrete } from "../definition";
  * consistency (at some cost to performance).
  *
  * @tsplus fluent fncts.control.Ref set
+ * @tsplus fluent fncts.control.Ref.Synchronized set
  */
 export function set_<RA, RB, EA, EB, A, B>(
   self: PRef<RA, RB, EA, EB, A, B>,
