@@ -5,30 +5,20 @@ import type { Finalizer } from "./Finalizer";
 import { Newtype } from "../../data/Newtype";
 import { _A, _E, _R } from "../../types";
 
-export interface ManagedN extends HKT {
-  readonly type: Managed<this["R"], this["E"], this["A"]>;
-  readonly variance: {
-    R: "-";
-    E: "+";
-    A: "+";
-  };
-}
+export const ManagedTypeId = Symbol.for("fncts.control.Managed");
+export type ManagedTypeId = typeof ManagedTypeId;
 
 /**
  * @tsplus type fncts.control.Managed
+ * @tsplus companion fncts.control.ManagedOps
  */
-export interface Managed<R, E, A>
-  extends Newtype<
-    { readonly Managed: unique symbol },
-    IO<R, E, readonly [Finalizer, A]>
-  > {}
-
-/**
- * @tsplus type fncts.control.ManagedOps
- */
-export interface ManagedOps extends Newtype.Iso<ManagedN> {}
-
-export const Managed: ManagedOps = Newtype<ManagedN>();
+export class Managed<R, E, A> {
+  readonly _R!: (_: R) => void;
+  readonly _E!: () => E;
+  readonly _A!: () => A;
+  readonly _typeId: ManagedTypeId = ManagedTypeId;
+  constructor(readonly io: IO<R, E, readonly [Finalizer, A]>) {}
+}
 
 export type UManaged<A> = Managed<unknown, never, A>;
 

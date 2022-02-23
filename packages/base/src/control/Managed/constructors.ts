@@ -44,7 +44,7 @@ export function bracketExit_<R, E, A, R1>(
   release: (a: A, exit: Exit<any, any>) => IO<R1, never, unknown>,
   __tsplusTrace?: string
 ): Managed<R & R1, E, A> {
-  return Managed.get(
+  return new Managed(
     IO.gen(function* (_) {
       const r               = yield* _(IO.ask<R1>());
       const releaseMap      = yield* _(FiberRef.currentReleaseMap.get);
@@ -147,7 +147,7 @@ export function finalizerRef(
  * @tsplus static fncts.control.ManagedOps fromIO
  */
 export function fromIO<R, E, A>(effect: IO<R, E, A>, __tsplusTrace?: string) {
-  return Managed.get(
+  return new Managed(
     IO.uninterruptibleMask(({ restore }) =>
       restore(effect).map((a) => tuple(Finalizer.noop, a))
     )
@@ -180,7 +180,7 @@ export function fromReservation<R, E, A>(
 export function fromReservationIO<R, E, R2, E2, A>(
   reservation: IO<R, E, Reservation<R2, E2, A>>
 ): Managed<R & R2, E | E2, A> {
-  return Managed.get(
+  return new Managed(
     IO.uninterruptibleMask(({ restore }) =>
       IO.gen(function* (_) {
         const r          = yield* _(IO.ask<R & R2>());

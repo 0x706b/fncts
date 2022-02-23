@@ -136,9 +136,7 @@ export function bimap_<R, E, A, B, C>(
   f: (e: E) => B,
   g: (a: A) => C
 ): Managed<R, B, C> {
-  return Managed.get(
-    Managed.reverseGet(self).bimap(f, ([fin, a]) => [fin, g(a)])
-  );
+  return new Managed(self.io.bimap(f, ([fin, a]) => [fin, g(a)]));
 }
 
 /**
@@ -237,9 +235,9 @@ export function chain_<R, E, A, R1, E1, B>(
   f: (a: A) => Managed<R1, E1, B>,
   __tsplusTrace?: string
 ): Managed<R & R1, E | E1, B> {
-  return Managed.get(
-    Managed.reverseGet(self).chain(([releaseSelf, a]) =>
-      Managed.reverseGet(f(a)).map(([releaseThat, b]) => [
+  return new Managed(
+    self.io.chain(([releaseSelf, a]) =>
+      f(a).io.map(([releaseThat, b]) => [
         Finalizer.get((exit) =>
           Finalizer.reverseGet(releaseThat)(exit).result.chain((e1) =>
             Finalizer.reverseGet(releaseSelf)(exit).result.chain((e2) =>
@@ -305,7 +303,7 @@ export function either<R, E, A>(
 export function eventually<R, E, A>(
   ma: Managed<R, E, A>
 ): Managed<R, never, A> {
-  return Managed.get(Managed.reverseGet(ma).eventually);
+  return new Managed(ma.io.eventually);
 }
 
 /**
@@ -406,8 +404,8 @@ export function foreach_<R, E, A, B>(
   f: (a: A) => Managed<R, E, B>,
   __tsplusTrace?: string
 ): Managed<R, E, Conc<B>> {
-  return Managed.get(
-    IO.foreach(as, (a) => Managed.reverseGet(f(a))).map((results) => {
+  return new Managed(
+    IO.foreach(as, (a) => f(a).io).map((results) => {
       const fins   = results.map((r) => r[0]);
       const values = results.map((r) => r[1]);
       return [
@@ -434,8 +432,8 @@ export function foreachDiscard_<R, E, A>(
   f: (a: A) => Managed<R, E, unknown>,
   __tsplusTrace?: string
 ): Managed<R, E, void> {
-  return Managed.get(
-    IO.foreach(as, (a) => Managed.reverseGet(f(a))).map((results) => {
+  return new Managed(
+    IO.foreach(as, (a) => f(a).io).map((results) => {
       const fins = results.map((r) => r[0]);
       return [
         Finalizer.get((exit) =>
@@ -485,7 +483,7 @@ export function gives_<R, E, A, R0>(
   f: (r0: R0) => R,
   __tsplusTrace?: string
 ): Managed<R0, E, A> {
-  return Managed.get(Managed.reverseGet(ma).gives(f));
+  return new Managed(ma.io.gives(f));
 }
 
 /**
@@ -546,7 +544,7 @@ export function ignore<R, E, A>(ma: Managed<R, E, A>): Managed<R, never, void> {
 export function ignoreReleaseFailures<R, E, A>(
   ma: Managed<R, E, A>
 ): Managed<R, E, A> {
-  return Managed.get(
+  return new Managed(
     FiberRef.currentReleaseMap.get
       .tap((releaseMap) =>
         releaseMap.updateAll((finalizer) =>
@@ -555,7 +553,7 @@ export function ignoreReleaseFailures<R, E, A>(
           )
         )
       )
-      .apSecond(Managed.reverseGet(ma))
+      .apSecond(ma.io)
   );
 }
 
@@ -654,7 +652,7 @@ export function map_<R, E, A, B>(
   f: (a: A) => B,
   __tsplusTrace?: string
 ): Managed<R, E, B> {
-  return Managed.get(Managed.reverseGet(self).map(([fin, a]) => [fin, f(a)]));
+  return new Managed(self.io.map(([fin, a]) => [fin, f(a)]));
 }
 
 /**
@@ -667,7 +665,7 @@ export function mapError_<R, E, A, D>(
   f: (e: E) => D,
   __tsplusTrace?: string
 ): Managed<R, D, A> {
-  return Managed.get(Managed.reverseGet(self).mapError(f));
+  return new Managed(self.io.mapError(f));
 }
 
 /**
@@ -680,7 +678,7 @@ export function mapErrorCause_<R, E, A, D>(
   f: (e: Cause<E>) => Cause<D>,
   __tsplusTrace?: string
 ): Managed<R, D, A> {
-  return Managed.get(Managed.reverseGet(self).mapErrorCause(f));
+  return new Managed(self.io.mapErrorCause(f));
 }
 
 /**
@@ -693,9 +691,7 @@ export function mapIO_<R, E, A, R1, E1, B>(
   f: (a: A) => IO<R1, E1, B>,
   __tsplusTrace?: string
 ): Managed<R & R1, E | E1, B> {
-  return Managed.get(
-    Managed.reverseGet(self).chain(([fin, a]) => f(a).map((b) => [fin, b]))
-  );
+  return new Managed(self.io.chain(([fin, a]) => f(a).map((b) => [fin, b])));
 }
 
 /**
@@ -741,11 +737,10 @@ export function matchCauseManaged_<R, E, A, R1, E1, A1, R2, E2, A2>(
   onSuccess: (a: A) => Managed<R2, E2, A2>,
   __tsplusTrace?: string
 ): Managed<R & R1 & R2, E1 | E2, A1 | A2> {
-  return Managed.get(
-    Managed.reverseGet(ma).matchCauseIO(
-      (c): IO<R1, E1, readonly [Finalizer, A1 | A2]> =>
-        Managed.reverseGet(onFailure(c)),
-      ([_, a]) => Managed.reverseGet(onSuccess(a))
+  return new Managed(
+    ma.io.matchCauseIO(
+      (c): IO<R1, E1, readonly [Finalizer, A1 | A2]> => onFailure(c).io,
+      ([_, a]) => onSuccess(a).io
     )
   );
 }
@@ -880,7 +875,7 @@ export function orHaltWith_<R, E, A>(
   f: (e: E) => unknown,
   __tsplusTrace?: string
 ): Managed<R, never, A> {
-  return Managed.get(Managed.reverseGet(ma).orHaltWith(f));
+  return new Managed(ma.io.orHaltWith(f));
 }
 
 /**
@@ -1039,7 +1034,7 @@ export function sandbox<R, E, A>(
   ma: Managed<R, E, A>,
   __tsplusTrace?: string
 ): Managed<R, Cause<E>, A> {
-  return Managed.get(Managed.reverseGet(ma).sandbox);
+  return new Managed(ma.io.sandbox);
 }
 
 /**
