@@ -13,7 +13,7 @@ export function make<A>(a: Lazy<A>): UIO<Ref<A>> {
 }
 
 /**
- * @tsplus fluent fncts.control.RefOps unsafeMake
+ * @tsplus static fncts.control.RefOps unsafeMake
  */
 export function unsafeMake<A>(a: A): Ref.Atomic<A> {
   return new Atomic(a);

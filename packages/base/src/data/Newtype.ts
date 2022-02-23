@@ -11,6 +11,10 @@ export interface Newtype<URI, A, C = HKT.None> {
   readonly _C: C;
 }
 
+export declare namespace Newtype {
+  export type Iso<N extends NewtypeHKT, C = N["type"]["_C"]> = NewtypeIso<N, C>;
+}
+
 /**
  * @tsplus type fncts.data.NewtypeOps
  */

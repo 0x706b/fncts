@@ -574,6 +574,15 @@ export function filterOrHalt_<R, E, A>(
 }
 
 /**
+ * @tsplus getter fncts.control.IO flatten
+ */
+export function flatten<R, E, R1, E1, A>(
+  self: IO<R, E, IO<R1, E1, A>>
+): IO<R & R1, E | E1, A> {
+  return self.chain(identity);
+}
+
+/**
  * Folds an `Iterable<A>` using an effectful function f, working sequentially from left to right.
  *
  * @tsplus static fncts.control.IOOps foldLeft
@@ -1313,7 +1322,7 @@ export function orHalt<R, E, A>(
 }
 
 /**
- * @tsplus getter fncts.control.IO orHaltKepp
+ * @tsplus getter fncts.control.IO orHaltKeep
  */
 export function orHaltKeep<R, E, A>(ma: IO<R, E, A>): IO<R, never, A> {
   return ma.matchCauseIO(
