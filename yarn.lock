@@ -2778,33 +2778,33 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@https://github.com/0x706b/typescript/raw/0bfd549d8a/typescript-4.7.0-ets.20220223.tgz":
-  version: 4.7.0-ets.20220223
-  resolution: "typescript@https://github.com/0x706b/typescript/raw/0bfd549d8a/typescript-4.7.0-ets.20220223.tgz"
+"typescript@https://github.com/0x706b/typescript/raw/9dfefab1fc/typescript-4.7.0-ets.20220224.tgz":
+  version: 4.7.0-ets.20220224
+  resolution: "typescript@https://github.com/0x706b/typescript/raw/9dfefab1fc/typescript-4.7.0-ets.20220224.tgz"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: c7522e05e37c58f8020a841285dd3bca10593c6a06875c0b13386a436d2de1ad79a85e75364ac5d96b382dc85850f1a3e795e7f44b0b28e5cb70eecb18c2fe89
+  checksum: 80a3ec182b66761b593cc54375a2ed2cbf2f327dba228e1593c3d069e3d071f8ffee735ef874050ba524bb26f9be6d1786896dc8ea0af73dc148125440d67efd
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@https://github.com/0x706b/typescript/raw/0bfd549d8a/typescript-4.7.0-ets.20220223.tgz#patches/typescript.patch::locator=fncts%40workspace%3A.":
-  version: 4.7.0-ets.20220223
-  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/0bfd549d8a/typescript-4.7.0-ets.20220223.tgz#patches/typescript.patch::version=4.7.0-ets.20220223&hash=b629a3&locator=fncts%40workspace%3A."
+"typescript@patch:typescript@https://github.com/0x706b/typescript/raw/9dfefab1fc/typescript-4.7.0-ets.20220224.tgz#patches/typescript.patch::locator=fncts%40workspace%3A.":
+  version: 4.7.0-ets.20220224
+  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/9dfefab1fc/typescript-4.7.0-ets.20220224.tgz#patches/typescript.patch::version=4.7.0-ets.20220224&hash=b629a3&locator=fncts%40workspace%3A."
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 3338474d5396c6dbadf7b2d1d222e18b8cb07505395641e08b8f9e92c367d410523e31379d0324bf1d446adadaabd95b4f778bf5a60ae47d7a0727dd12fd3bb1
+  checksum: b511bbbb735e2b51dbfb96adfaa0d97d349e6785daa245f1343eb6bdb859a09fd40e437a583d0096de417380910461f695179b0c6bef358f9adfe1321e9ad91c
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@patch%3Atypescript@https%3A//github.com/0x706b/typescript/raw/0bfd549d8a/typescript-4.7.0-ets.20220223.tgz%23patches/typescript.patch%3A%3Alocator=fncts%2540workspace%253A.#~builtin<compat/typescript>":
-  version: 4.7.0-ets.20220223
-  resolution: "typescript@patch:typescript@patch%3Atypescript@https%253A//github.com/0x706b/typescript/raw/0bfd549d8a/typescript-4.7.0-ets.20220223.tgz%23patches/typescript.patch%3A%3Aversion=4.7.0-ets.20220223&hash=b629a3&locator=fncts%2540workspace%253A.#~builtin<compat/typescript>::version=4.7.0-ets.20220223&hash=493e53"
+"typescript@patch:typescript@patch%3Atypescript@https%3A//github.com/0x706b/typescript/raw/9dfefab1fc/typescript-4.7.0-ets.20220224.tgz%23patches/typescript.patch%3A%3Alocator=fncts%2540workspace%253A.#~builtin<compat/typescript>":
+  version: 4.7.0-ets.20220224
+  resolution: "typescript@patch:typescript@patch%3Atypescript@https%253A//github.com/0x706b/typescript/raw/9dfefab1fc/typescript-4.7.0-ets.20220224.tgz%23patches/typescript.patch%3A%3Aversion=4.7.0-ets.20220224&hash=b629a3&locator=fncts%2540workspace%253A.#~builtin<compat/typescript>::version=4.7.0-ets.20220224&hash=493e53"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 3338474d5396c6dbadf7b2d1d222e18b8cb07505395641e08b8f9e92c367d410523e31379d0324bf1d446adadaabd95b4f778bf5a60ae47d7a0727dd12fd3bb1
+  checksum: b511bbbb735e2b51dbfb96adfaa0d97d349e6785daa245f1343eb6bdb859a09fd40e437a583d0096de417380910461f695179b0c6bef358f9adfe1321e9ad91c
   languageName: node
   linkType: hard
 

@@ -1,8 +1,6 @@
-import type { HKT } from "../../prelude";
 import type { IO } from "../IO";
 import type { Finalizer } from "./Finalizer";
 
-import { Newtype } from "../../data/Newtype";
 import { _A, _E, _R } from "../../types";
 
 export const ManagedTypeId = Symbol.for("fncts.control.Managed");

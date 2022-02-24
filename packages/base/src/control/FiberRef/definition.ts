@@ -62,10 +62,9 @@ export interface PFiberRef<EA, EB, A, B> {
    *
    * Guarantees that fiber data is properly restored via `acquireRelease`.
    */
-  readonly locally: <R, EC, C>(
-    use: IO<R, EC, C>,
+  readonly locally: (
     value: A
-  ) => IO<R, EA | EC, C>;
+  ) => <R, EC, C>(use: IO<R, EC, C>) => IO<R, EA | EC, C>;
 
   readonly getWith: <R, E, C>(f: (b: B) => IO<R, E, C>) => IO<R, EB | E, C>;
 }
@@ -136,8 +135,10 @@ export class RuntimeFiberRef<A> implements PFiberRef<never, never, A, A> {
     return Either.right(this.initial);
   }
 
-  locally<R, EC, C>(use: IO<R, EC, C>, value: A): IO<R, EC, C> {
-    return new FiberRefLocally(value, this, use);
+  locally(value: A) {
+    return <R, EC, C>(use: IO<R, EC, C>): IO<R, EC, C> => {
+      return new FiberRefLocally(value, this, use);
+    };
   }
 
   set(value: A): UIO<void> {
@@ -223,19 +224,21 @@ export class DerivedFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
     return this.use((value, getEither) => value.initialValue.chain(getEither));
   }
 
-  locally<R, EC, C>(use: IO<R, EC, C>, a: A): IO<R, EA | EC, C> {
-    return this.use((value, _, setEither) =>
-      value.get.chain((old) =>
-        setEither(a).match(
-          (e) => IO.failNow(e),
-          (s) =>
-            value.set(s).bracket(
-              () => use,
-              () => value.set(old)
-            )
+  locally(a: A) {
+    return <R, EC, C>(use: IO<R, EC, C>): IO<R, EA | EC, C> => {
+      return this.use((value, _, setEither) =>
+        value.get.chain((old) =>
+          setEither(a).match(
+            (e) => IO.failNow(e),
+            (s) =>
+              value.set(s).bracket(
+                () => use,
+                () => value.set(old)
+              )
+          )
         )
-      )
-    );
+      );
+    };
   }
 
   set(a: A): FIO<EA, void> {
@@ -347,19 +350,21 @@ export class DerivedAllFiberRef<EA, EB, A, B>
     );
   }
 
-  locally<R, EC, C>(use: IO<R, EC, C>, a: A): IO<R, EA | EC, C> {
-    return this.use((value, _getEither, setEither) =>
-      value.get.chain((old) =>
-        setEither(a)(old).match(
-          (e) => IO.failNow(e),
-          (s) =>
-            value.set(s).bracket(
-              () => use,
-              () => value.set(old)
-            )
+  locally(a: A) {
+    return <R, EC, C>(use: IO<R, EC, C>): IO<R, EA | EC, C> => {
+      return this.use((value, _getEither, setEither) =>
+        value.get.chain((old) =>
+          setEither(a)(old).match(
+            (e) => IO.failNow(e),
+            (s) =>
+              value.set(s).bracket(
+                () => use,
+                () => value.set(old)
+              )
+          )
         )
-      )
-    );
+      );
+    };
   }
 
   getWith<R, E, C>(f: (b: B) => IO<R, E, C>): IO<R, EB | E, C> {

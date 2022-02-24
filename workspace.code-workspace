@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../principia.ts"
+		}
+	],
+	"settings": {
+		"typescript.tsdk": "fncts/node_modules/typescript/lib"
+	}
+}

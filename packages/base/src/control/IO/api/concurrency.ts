@@ -42,17 +42,17 @@ export function withConcurrency_<R, E, A>(
   ma: IO<R, E, A>,
   n: number
 ): IO<R, E, A> {
-  return IO.defer(Concurrency.locally(ma, Just(n)));
+  return IO.defer(Concurrency.locally(Just(n))(ma));
 }
 
 /**
  * Runs the specified effect with an unbounded maximum number of fibers for
  * concurrent operators.
  *
- * @tsplus fluent fncts.control.IO withConcurrencyUnbounded
+ * @tsplus getter fncts.control.IO withConcurrencyUnbounded
  */
 export function withConcurrencyUnbounded<R, E, A>(
   ma: IO<R, E, A>
 ): IO<R, E, A> {
-  return IO.defer(Concurrency.locally(ma, Nothing()));
+  return IO.defer(Concurrency.locally(Nothing())(ma));
 }

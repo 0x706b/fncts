@@ -127,10 +127,11 @@ export function getAndUpdateJust_<EA, EB, A>(
  */
 export function locally_<EA, EB, A, B, R1, E1, C>(
   fiberRef: PFiberRef<EA, EB, A, B>,
-  value: A,
-  use: IO<R1, E1, C>
-): IO<R1, EA | E1, C> {
-  return fiberRef.locally(use, value);
+  value: A
+) {
+  return (use: IO<R1, E1, C>): IO<R1, EA | E1, C> => {
+    return fiberRef.locally(value)(use);
+  };
 }
 
 /**
@@ -396,9 +397,9 @@ export function getAndUpdateJust<A>(f: (a: A) => Maybe<A>) {
  * Guarantees that fiber data is properly restored via `bracket`.
  * @tsplus dataFirst locally_
  */
-export function locally<A, R1, E1, C>(value: A, use: IO<R1, E1, C>) {
-  return <EA, EB, B>(fiberRef: PFiberRef<EA, EB, A, B>): IO<R1, EA | E1, C> =>
-    locally_(fiberRef, value, use);
+export function locally<A>(value: A) {
+  return <EA, EB, B, R1, E1, C>(fiberRef: PFiberRef<EA, EB, A, B>) =>
+    locally_(fiberRef, value);
 }
 /**
  * @tsplus dataFirst getWith_
