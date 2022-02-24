@@ -28,11 +28,7 @@ export function map_<A, B>(self: Eval<A>, f: (a: A) => B): Eval<B> {
 /**
  * @tsplus fluent fncts.Eval zipWith
  */
-export function zipWith_<A, B, C>(
-  self: Eval<A>,
-  fb: Eval<B>,
-  f: (a: A, b: B) => C
-): Eval<C> {
+export function zipWith_<A, B, C>(self: Eval<A>, fb: Eval<B>, f: (a: A, b: B) => C): Eval<C> {
   return self.chain((a) => fb.map((b) => f(a, b)));
 }
 
@@ -64,7 +60,7 @@ const __adapter = (_: Eval<any>) => new GenEval(_);
 
 function runGenEval<T extends GenEval<A>, A>(
   state: IteratorYieldResult<T> | IteratorReturnResult<A>,
-  iterator: Generator<T, A, any>
+  iterator: Generator<T, A, any>,
 ): Eval<A> {
   if (state.done) {
     return Eval.now(state.value);
@@ -79,7 +75,7 @@ function runGenEval<T extends GenEval<A>, A>(
  * @tsplus static fncts.EvalOps gen
  */
 export function gen<T extends GenEval<any>, A>(
-  f: (i: { <A>(_: Eval<A>): GenEval<A> }) => Generator<T, A, any>
+  f: (i: { <A>(_: Eval<A>): GenEval<A> }) => Generator<T, A, any>,
 ): Eval<A> {
   return Eval.defer(() => {
     const iterator = f(__adapter);

@@ -38,11 +38,10 @@ export const Functor: P.Functor<NonEmptyArrayF> = P.Functor({
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps FunctorWithIndex
  */
-export const FunctorWithIndex: P.FunctorWithIndex<NonEmptyArrayF> =
-  P.FunctorWithIndex({
-    map_,
-    mapWithIndex_,
-  });
+export const FunctorWithIndex: P.FunctorWithIndex<NonEmptyArrayF> = P.FunctorWithIndex({
+  map_,
+  mapWithIndex_,
+});
 
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps Apply
@@ -85,13 +84,12 @@ export const Foldable: P.Foldable<NonEmptyArrayF> = P.Foldable({
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps FoldableWithIndex
  */
-export const FoldableWithIndex: P.FoldableWithIndex<NonEmptyArrayF> =
-  P.FoldableWithIndex({
-    foldLeft_,
-    foldRight_,
-    foldLeftWithIndex_,
-    foldRightWithIndex_,
-  });
+export const FoldableWithIndex: P.FoldableWithIndex<NonEmptyArrayF> = P.FoldableWithIndex({
+  foldLeft_,
+  foldRight_,
+  foldLeftWithIndex_,
+  foldRightWithIndex_,
+});
 
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps Traversable
@@ -106,14 +104,13 @@ export const Traversable: P.Traversable<NonEmptyArrayF> = P.Traversable({
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps TraversableWithIndex
  */
-export const TraversableWithIndex: P.TraversableWithIndex<NonEmptyArrayF> =
-  P.TraversableWithIndex({
-    map_,
-    foldLeft_,
-    foldRight_,
-    traverse_,
-    mapWithIndex_,
-    foldLeftWithIndex_,
-    foldRightWithIndex_,
-    traverseWithIndex_,
-  });
+export const TraversableWithIndex: P.TraversableWithIndex<NonEmptyArrayF> = P.TraversableWithIndex({
+  map_,
+  foldLeft_,
+  foldRight_,
+  traverse_,
+  mapWithIndex_,
+  foldLeftWithIndex_,
+  foldRightWithIndex_,
+  traverseWithIndex_,
+});

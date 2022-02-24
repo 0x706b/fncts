@@ -96,7 +96,7 @@ function allIn<A>(
   start: List<A>,
   remaining: List<A>,
   p: Predicate<A>,
-  isFlipped: boolean
+  isFlipped: boolean,
 ): List<A> {
   while (true) {
     if (remaining.isEmpty()) {
@@ -116,7 +116,7 @@ function partialFill<A>(
   origStart: List<A>,
   firstMiss: List<A>,
   p: Predicate<A>,
-  isFlipped: boolean
+  isFlipped: boolean,
 ): List<A> {
   const newHead   = new Cons(unsafeHead(origStart), _Nil);
   let toProcess   = unsafeTail(origStart) as Cons<A>;
@@ -154,11 +154,7 @@ function partialFill<A>(
   return newHead;
 }
 
-function filterCommon_<A>(
-  list: List<A>,
-  p: Predicate<A>,
-  isFlipped: boolean
-): List<A> {
+function filterCommon_<A>(list: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   return noneIn(list, p, isFlipped);
 }
 
@@ -282,10 +278,7 @@ export function sortSelf<A>(self: List<A>, O: P.Ord<A>): List<A> {
 /**
  * @tsplus fluent fncts.List sortWith
  */
-export function sortWith_<A>(
-  self: List<A>,
-  compare: (x: A, y: A) => P.Ordering
-): List<A> {
+export function sortWith_<A>(self: List<A>, compare: (x: A, y: A) => P.Ordering): List<A> {
   const len = length(self);
   const b   = new ListBuffer<A>();
   if (len === 1) {

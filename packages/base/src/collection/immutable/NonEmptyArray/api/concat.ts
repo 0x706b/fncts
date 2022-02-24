@@ -6,14 +6,8 @@ import { Array } from "../../Array/definition";
  * @tsplus fluent fncts.collection.immutable.Array concat
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray concat
  */
-export function concat_<A, B>(
-  self: Array<A>,
-  that: NonEmptyArray<B>
-): NonEmptyArray<A | B>;
-export function concat_<A, B>(
-  self: NonEmptyArray<A>,
-  that: Array<B>
-): NonEmptyArray<A | B>;
+export function concat_<A, B>(self: Array<A>, that: NonEmptyArray<B>): NonEmptyArray<A | B>;
+export function concat_<A, B>(self: NonEmptyArray<A>, that: Array<B>): NonEmptyArray<A | B>;
 export function concat_<A, B>(self: Array<A>, that: Array<B>): Array<A | B>;
 export function concat_<A, B>(self: Array<A>, that: Array<B>): Array<A | B> {
   const lenx = self.length;
@@ -37,15 +31,11 @@ export function concat_<A, B>(self: Array<A>, that: Array<B>): Array<A | B> {
 /**
  * @tsplus dataFirst concat_
  */
-export function concat<B>(
-  ys: NonEmptyArray<B>
-): <A>(xs: ReadonlyArray<A>) => NonEmptyArray<A | B>;
+export function concat<B>(ys: NonEmptyArray<B>): <A>(xs: ReadonlyArray<A>) => NonEmptyArray<A | B>;
 export function concat<B>(ys: ReadonlyArray<B>): {
   <A>(xs: NonEmptyArray<A>): NonEmptyArray<A | B>;
   <A>(xs: ReadonlyArray<A>): ReadonlyArray<A | B>;
 };
-export function concat<B>(
-  ys: ReadonlyArray<B>
-): <A>(xs: ReadonlyArray<A>) => ReadonlyArray<A | B> {
+export function concat<B>(ys: ReadonlyArray<B>): <A>(xs: ReadonlyArray<A>) => ReadonlyArray<A | B> {
   return (xs) => xs.concat(ys);
 }

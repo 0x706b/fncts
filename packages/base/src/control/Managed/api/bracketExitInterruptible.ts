@@ -12,9 +12,7 @@ import { Managed } from "../definition";
 export function bracketExitInterruptible_<R, E, A, R1>(
   acquire: IO<R, E, A>,
   release: (a: A) => IO<R1, never, unknown>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E, A> {
-  return Managed.fromIO(acquire).onExitFirst((exit) =>
-    exit.match(() => IO.unit, release)
-  );
+  return Managed.fromIO(acquire).onExitFirst((exit) => exit.match(() => IO.unit, release));
 }

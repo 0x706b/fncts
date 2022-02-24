@@ -61,10 +61,7 @@ export class Empty {
         return Eval.now(true);
       case CauseTag.Then:
       case CauseTag.Both:
-        return this.equalsEval(that.left).zipWith(
-          this.equalsEval(that.right),
-          (x, y) => x && y
-        );
+        return this.equalsEval(that.left).zipWith(this.equalsEval(that.right), (x, y) => x && y);
       default:
         return Eval.now(false);
     }
@@ -85,10 +82,7 @@ export class Fail<E> {
   constructor(readonly value: E, readonly trace: Trace) {}
 
   get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(
-      P.Hashable.hash(this._tag),
-      P.Hashable.hash(this.value)
-    );
+    return P.Hashable.combineHash(P.Hashable.hash(this._tag), P.Hashable.hash(this.value));
   }
   [Symbol.equatable](that: unknown): boolean {
     return isCause(that) && Eval.run(this.equalsEval(that));
@@ -103,9 +97,7 @@ export class Fail<E> {
           return P.Equatable.strictEquals(self.value, that.value);
         case CauseTag.Both:
         case CauseTag.Then:
-          return yield* _(
-            structuralSymmetric(structuralEqualEmpty)(self, that)
-          );
+          return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
         default:
           return false;
       }
@@ -125,10 +117,7 @@ export class Halt {
   constructor(readonly value: unknown, readonly trace: Trace) {}
 
   get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(
-      P.Hashable.hash(this._tag),
-      P.Hashable.hash(this.value)
-    );
+    return P.Hashable.combineHash(P.Hashable.hash(this._tag), P.Hashable.hash(this.value));
   }
   [Symbol.equatable](that: unknown): boolean {
     return isCause(that) && Eval.run(this.equalsEval(that));
@@ -143,9 +132,7 @@ export class Halt {
           return P.Equatable.strictEquals(self.value, that.value);
         case CauseTag.Then:
         case CauseTag.Both:
-          return yield* _(
-            structuralSymmetric(structuralEqualEmpty)(self, that)
-          );
+          return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
         default:
           return false;
       }
@@ -165,10 +152,7 @@ export class Interrupt {
   constructor(readonly id: FiberId, readonly trace: Trace) {}
 
   get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(
-      P.Hashable.hash(this._tag),
-      P.Hashable.hash(this.id)
-    );
+    return P.Hashable.combineHash(P.Hashable.hash(this._tag), P.Hashable.hash(this.id));
   }
 
   [Symbol.equatable](that: unknown): boolean {
@@ -184,9 +168,7 @@ export class Interrupt {
           return P.Equatable.strictEquals(self.id, that.id);
         case CauseTag.Then:
         case CauseTag.Both:
-          return yield* _(
-            structuralSymmetric(structuralEqualEmpty)(self, that)
-          );
+          return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
         default:
           return false;
       }
@@ -267,7 +249,7 @@ export class Both<E> {
  */
 
 function structuralSymmetric<Id, A>(
-  f: (x: Cause<A>, y: Cause<A>) => Eval<boolean>
+  f: (x: Cause<A>, y: Cause<A>) => Eval<boolean>,
 ): (x: Cause<A>, y: Cause<A>) => Eval<boolean> {
   return (x, y) => f(x, y).zipWith(f(y, x), (a, b) => a || b);
 }
@@ -286,10 +268,7 @@ function structuralEqualEmpty<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   }
 }
 
-function structuralThenAssociate<Id, A>(
-  l: Cause<A>,
-  r: Cause<A>
-): Eval<boolean> {
+function structuralThenAssociate<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Then &&
     l.left._tag === CauseTag.Then &&
@@ -306,10 +285,7 @@ function structuralThenAssociate<Id, A>(
   }
 }
 
-function strcturalThenDistribute<Id, A>(
-  l: Cause<A>,
-  r: Cause<A>
-): Eval<boolean> {
+function strcturalThenDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Then &&
     l.right._tag === CauseTag.Both &&
@@ -343,18 +319,13 @@ function strcturalThenDistribute<Id, A>(
 
 function structuralEqualThen<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (l._tag === CauseTag.Then && r._tag === CauseTag.Then) {
-    return l.left
-      .equalsEval(r.left)
-      .zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
+    return l.left.equalsEval(r.left).zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
   } else {
     return Eval.now(false);
   }
 }
 
-function structuralBothAssociate<Id, A>(
-  l: Cause<A>,
-  r: Cause<A>
-): Eval<boolean> {
+function structuralBothAssociate<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Both &&
     l.left._tag === CauseTag.Both &&
@@ -371,10 +342,7 @@ function structuralBothAssociate<Id, A>(
   }
 }
 
-function structuralBothDistribute<Id, A>(
-  l: Cause<A>,
-  r: Cause<A>
-): Eval<boolean> {
+function structuralBothDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Both &&
     l.left._tag === CauseTag.Then &&
@@ -408,9 +376,7 @@ function structuralBothDistribute<Id, A>(
 
 function structuralEqualBoth<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (l._tag === CauseTag.Both && r._tag === CauseTag.Both) {
-    return l.left
-      .equalsEval(r.left)
-      .zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
+    return l.left.equalsEval(r.left).zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
   } else {
     return Eval.now(false);
   }
@@ -426,7 +392,7 @@ function stepLoop<Id, A>(
   cause: Cause<A>,
   stack: List<Cause<A>>,
   parallel: HashSet<Cause<A>>,
-  sequential: List<Cause<A>>
+  sequential: List<Cause<A>>,
 ): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
   // eslint-disable-next-line no-constant-condition
   while (1) {
@@ -454,10 +420,7 @@ function stepLoop<Id, A>(
             break;
           }
           case CauseTag.Both: {
-            cause = new Both(
-              new Then(left.left, right),
-              new Then(left.right, right)
-            );
+            cause = new Both(new Then(left.left, right), new Then(left.right, right));
             break;
           }
           default: {
@@ -488,15 +451,13 @@ function stepLoop<Id, A>(
   /* eslint-enable no-param-reassign */
 }
 
-function step<Id, A>(
-  cause: Cause<A>
-): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
+function step<Id, A>(cause: Cause<A>): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
   return stepLoop(cause, Nil(), HashSet.makeDefault(), Nil());
 }
 
 function flattenLoop<Id, A>(
   causes: List<Cause<A>>,
-  flattened: List<HashSet<Cause<A>>>
+  flattened: List<HashSet<Cause<A>>>,
 ): List<HashSet<Cause<A>>> {
   // eslint-disable-next-line no-constant-condition
   while (1) {
@@ -505,7 +466,7 @@ function flattenLoop<Id, A>(
       ([parallel, sequential], cause) => {
         const [set, seq] = step(cause);
         return tuple(parallel.union(set), sequential.concat(seq));
-      }
+      },
     );
     const updated = parallel.size > 0 ? flattened.prepend(parallel) : flattened;
     if (sequential.isEmpty()) {

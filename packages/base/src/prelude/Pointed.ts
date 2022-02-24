@@ -1,7 +1,6 @@
 import { HKT } from "./HKT";
 
-export interface Pointed<F extends HKT, FC = HKT.None>
-  extends HKT.Typeclass<F, FC> {
+export interface Pointed<F extends HKT, FC = HKT.None> extends HKT.Typeclass<F, FC> {
   readonly pure: pure<F, FC>;
 }
 
@@ -19,9 +18,7 @@ export const Pointed: PointedOps = {};
 /**
  * @tsplus static fncts.PointedOps __call
  */
-export function mkPointed<F extends HKT, FC = HKT.None>(
-  F: PointedMin<F, FC>
-): Pointed<F, FC> {
+export function mkPointed<F extends HKT, FC = HKT.None>(F: PointedMin<F, FC>): Pointed<F, FC> {
   return HKT.instance<Pointed<F, FC>>(F);
 }
 
@@ -35,8 +32,8 @@ export interface pure<F extends HKT, C = HKT.None> {
     I = HKT.Low<F, "I">,
     S = HKT.Low<F, "S">,
     R = HKT.Low<F, "R">,
-    E = HKT.Low<F, "E">
+    E = HKT.Low<F, "E">,
   >(
-    a: A
+    a: A,
   ): HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>;
 }

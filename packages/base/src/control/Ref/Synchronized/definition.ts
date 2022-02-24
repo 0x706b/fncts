@@ -9,8 +9,7 @@ import { RefInternal } from "../definition";
 /**
  * @tsplus type fncts.control.Ref.Synchronized
  */
-export interface PSynchronized<RA, RB, EA, EB, A, B>
-  extends PRef<RA, RB, EA, EB, A, B> {}
+export interface PSynchronized<RA, RB, EA, EB, A, B> extends PRef<RA, RB, EA, EB, A, B> {}
 
 /**
  * @tsplus type fncts.control.Ref.SynchronizedOps
@@ -25,19 +24,12 @@ export const Synchronized: PSynchronizedOps = {};
 /**
  * @tsplus type fncts.control.Ref.Synchronized
  */
-export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
-  RA,
-  RB,
-  EA,
-  EB,
-  A,
-  B
-> {
+export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA, RB, EA, EB, A, B> {
   readonly _tag = "Synchronized";
   constructor(
     readonly semaphores: Set<TSemaphore>,
     readonly unsafeGet: IO<RB, EB, B>,
-    readonly unsafeSet: (a: A) => IO<RA, EA, void>
+    readonly unsafeSet: (a: A) => IO<RA, EA, void>,
   ) {
     super();
   }
@@ -60,7 +52,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => IO<RC, EC, A>,
     bd: (_: B) => IO<RD, ED, D>,
-    __tsplusTrace?: string
+    __tsplusTrace?: string,
   ): PSynchronizedInternal<RA & RC & RB, RB & RD, EC, ED, C, D> {
     return new PSynchronizedInternal(
       this.semaphores,
@@ -68,8 +60,8 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
       (c) =>
         this.get.matchIO(
           (e) => IO.failNow(ec(e)),
-          (b) => ca(c)(b).chain((a) => this.unsafeSet(a).mapError(ea))
-        )
+          (b) => ca(c)(b).chain((a) => this.unsafeSet(a).mapError(ea)),
+        ),
     );
   }
 
@@ -78,12 +70,12 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
     eb: (_: EB) => ED,
     ca: (_: C) => IO<RC, EC, A>,
     bd: (_: B) => IO<RD, ED, D>,
-    __tsplusTrace?: string
+    __tsplusTrace?: string,
   ): PSynchronizedInternal<RA & RC, RB & RD, EC, ED, C, D> {
     return new PSynchronizedInternal(
       this.semaphores,
       this.unsafeGet.matchIO((e) => IO.failNow(eb(e)), bd),
-      (c) => ca(c).chain((a) => this.unsafeSet(a).mapError(ea))
+      (c) => ca(c).chain((a) => this.unsafeSet(a).mapError(ea)),
     );
   }
 
@@ -92,13 +84,13 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
     eb: (_: EB) => ED,
     ca: (_: C) => Either<EC, A>,
     bd: (_: B) => Either<ED, D>,
-    __tsplusTrace?: string
+    __tsplusTrace?: string,
   ): PSynchronizedInternal<RA, RB, EC, ED, C, D> {
     return this.matchIO(
       ea,
       eb,
       (c) => IO.fromEitherNow(ca(c)),
-      (b) => IO.fromEitherNow(bd(b))
+      (b) => IO.fromEitherNow(bd(b)),
     );
   }
 
@@ -108,24 +100,22 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => Either<EC, A>,
     bd: (_: B) => Either<ED, D>,
-    __tsplusTrace?: string
+    __tsplusTrace?: string,
   ): PSynchronizedInternal<RA, RB, EC, ED, C, D> {
     return this.matchAllIO(
       ea,
       eb,
       ec,
       (c) => (b) => IO.fromEitherNow(ca(c)(b)),
-      (b) => IO.fromEitherNow(bd(b))
+      (b) => IO.fromEitherNow(bd(b)),
     ) as PSynchronizedInternal<RA, RB, EC, ED, C, D>;
   }
 
   withPermit<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
     return IO.uninterruptibleMask(({ restore }) =>
       restore(STM.foreach(this.semaphores, (s) => s.acquire).commit).apSecond(
-        restore(io).ensuring(
-          STM.foreach(this.semaphores, (s) => s.release).commit
-        )
-      )
+        restore(io).ensuring(STM.foreach(this.semaphores, (s) => s.release).commit),
+      ),
     );
   }
 }
@@ -134,7 +124,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<
  * @tsplus macro remove
  */
 export function concrete<RA, RB, EA, EB, A, B>(
-  self: PSynchronized<RA, RB, EA, EB, A, B>
+  self: PSynchronized<RA, RB, EA, EB, A, B>,
 ): asserts self is PSynchronizedInternal<RA, RB, EA, EB, A, B> {
   //
 }

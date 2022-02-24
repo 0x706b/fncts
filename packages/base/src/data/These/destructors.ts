@@ -9,7 +9,7 @@ export function match_<E, A, B, C, D>(
   self: These<E, A>,
   left: (e: E) => B,
   right: (a: A) => C,
-  both: (e: E, a: A) => D
+  both: (e: E, a: A) => D,
 ): B | C | D {
   switch (self._tag) {
     case TheseTag.Left:

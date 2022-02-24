@@ -8,17 +8,14 @@ import { Supervisor } from "./definition";
 /**
  * @tsplus fluent fncts.control.Supervisor zip
  */
-export function zip_<A, B>(
-  fa: Supervisor<A>,
-  fb: Supervisor<B>
-): Supervisor<readonly [A, B]> {
+export function zip_<A, B>(fa: Supervisor<A>, fb: Supervisor<B>): Supervisor<readonly [A, B]> {
   return new (class extends Supervisor<readonly [A, B]> {
     value = fa.value.zip(fb.value);
     unsafeOnStart<R, E, A>(
       environment: R,
       effect: IO<R, E, A>,
       parent: Maybe<RuntimeFiber<any, any>>,
-      fiber: RuntimeFiber<E, A>
+      fiber: RuntimeFiber<E, A>,
     ) {
       try {
         fa.unsafeOnStart(environment, effect, parent, fiber);

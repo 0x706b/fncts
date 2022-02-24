@@ -21,9 +21,7 @@ function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal): Entry {
  *
  * @tsplus getter fncts.control.TRef get
  */
-export function get<EA, EB, A, B>(
-  self: TRef<EA, EB, A, B>
-): STM<unknown, EB, B> {
+export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<unknown, EB, B> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -34,12 +32,12 @@ export function get<EA, EB, A, B>(
     }
     case "Derived": {
       return self.use((getEither, _setEither, value, _atomic) =>
-        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow))
+        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
       );
     }
     case "DerivedAll": {
       return self.use((getEither, _setEither, value, _atomic) =>
-        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow))
+        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
       );
     }
   }
@@ -53,7 +51,7 @@ export function get<EA, EB, A, B>(
  */
 export function modify_<E, A, B>(
   self: TRef<E, E, A, A>,
-  f: (a: A) => readonly [B, A]
+  f: (a: A) => readonly [B, A],
 ): STM<unknown, E, B> {
   concrete(self);
   switch (self._tag) {
@@ -75,11 +73,11 @@ export function modify_<E, A, B>(
               const [b, a2] = f(a1);
               return setEither(a2).match(
                 (e) => [Either.left(e), s],
-                (s) => [Either.right(b), s]
+                (s) => [Either.right(b), s],
               );
-            }
-          )
-        )
+            },
+          ),
+        ),
       ).absolve;
     }
     case "DerivedAll": {
@@ -91,11 +89,11 @@ export function modify_<E, A, B>(
               const [b, a2] = f(a1);
               return setEither(a2)(s).match(
                 (e) => [Either.left(e), s],
-                (s) => [Either.right(b), s]
+                (s) => [Either.right(b), s],
               );
-            }
-          )
-        )
+            },
+          ),
+        ),
       ).absolve;
     }
   }
@@ -106,10 +104,7 @@ export function modify_<E, A, B>(
  *
  * @tsplus fluent fncts.control.TRef set
  */
-export function set_<EA, EB, A, B>(
-  self: TRef<EA, EB, A, B>,
-  a: A
-): STM<unknown, EA, void> {
+export function set_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, a: A): STM<unknown, EA, void> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -120,7 +115,7 @@ export function set_<EA, EB, A, B>(
     }
     case "Derived": {
       return self.use((_getEither, setEither, value, _atomic) =>
-        setEither(a).match(STM.failNow, (s) => set_(value, s))
+        setEither(a).match(STM.failNow, (s) => set_(value, s)),
       );
     }
     case "DerivedAll": {
@@ -128,9 +123,9 @@ export function set_<EA, EB, A, B>(
         modify_(value, (s) =>
           setEither(a)(s).match(
             (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
-            (s) => [Either.right(undefined), s]
-          )
-        )
+            (s) => [Either.right(undefined), s],
+          ),
+        ),
       ).absolve;
     }
   }
@@ -141,21 +136,14 @@ export function set_<EA, EB, A, B>(
  *
  * @tsplus fluent fncts.control.TRef unsafeGet
  */
-export function unsafeGet_<EA, EB, A, B>(
-  self: TRef<EA, EB, A, B>,
-  journal: Journal
-): A {
+export function unsafeGet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Journal): A {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
-      return getOrMakeEntry(self.atomic, journal).use((entry) =>
-        entry.unsafeGet<A>()
-      );
+      return getOrMakeEntry(self.atomic, journal).use((entry) => entry.unsafeGet<A>());
     default:
       return self
-        .use((_getEither, _setEither, _value, atomic) =>
-          getOrMakeEntry(atomic, journal)
-        )
+        .use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal))
         .use((entry) => entry.unsafeGet());
   }
 }
@@ -169,7 +157,7 @@ export function unsafeGet_<EA, EB, A, B>(
 export function modifyJust_<E, A, B>(
   self: TRef<E, E, A, A>,
   b: B,
-  f: (a: A) => Maybe<readonly [B, A]>
+  f: (a: A) => Maybe<readonly [B, A]>,
 ): STM<unknown, E, B> {
   return self.modify((a) => f(a).getOrElse([b, a]));
 }
@@ -179,10 +167,7 @@ export function modifyJust_<E, A, B>(
  *
  * @tsplus fluent fncts.control.TRef getAndSet
  */
-export function getAndSet_<E, A>(
-  self: TRef<E, E, A, A>,
-  a: A
-): STM<unknown, E, A> {
+export function getAndSet_<E, A>(self: TRef<E, E, A, A>, a: A): STM<unknown, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -204,10 +189,7 @@ export function getAndSet_<E, A>(
  *
  * @tsplus fluent fncts.control.TRef getAndUpdate
  */
-export function getAndUpdate_<E, A>(
-  self: TRef<E, E, A, A>,
-  f: (a: A) => A
-): STM<unknown, E, A> {
+export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unknown, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -232,7 +214,7 @@ export function getAndUpdate_<E, A>(
  */
 export function getAndUpdateJust_<E, A>(
   self: TRef<E, E, A, A>,
-  f: (a: A) => Maybe<A>
+  f: (a: A) => Maybe<A>,
 ): STM<unknown, E, A> {
   concrete(self);
   switch (self._tag) {
@@ -251,8 +233,8 @@ export function getAndUpdateJust_<E, A>(
       return modify_(self, (a) =>
         f(a).match(
           () => [a, a],
-          (v) => [a, v]
-        )
+          (v) => [a, v],
+        ),
       );
     }
   }
@@ -263,10 +245,7 @@ export function getAndUpdateJust_<E, A>(
  *
  * @tsplus fluent fncts.control.TRef update
  */
-export function update_<E, A>(
-  self: TRef<E, E, A, A>,
-  f: (a: A) => A
-): STM<unknown, E, void> {
+export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unknown, E, void> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -288,7 +267,7 @@ export function update_<E, A>(
  */
 export function updateJust_<E, A>(
   self: TRef<E, E, A, A>,
-  f: (a: A) => Maybe<A>
+  f: (a: A) => Maybe<A>,
 ): STM<unknown, E, void> {
   return self.update((a) => f(a).getOrElse(a));
 }
@@ -298,10 +277,7 @@ export function updateJust_<E, A>(
  *
  * @tsplus fluent fncts.control.TRef updateAndGet
  */
-export function updateAndGet_<E, A>(
-  self: TRef<E, E, A, A>,
-  f: (a: A) => A
-): STM<unknown, E, A> {
+export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unknown, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -329,7 +305,7 @@ export function updateAndGet_<E, A>(
  */
 export function updateJustAndGet_<E, A>(
   self: TRef<E, E, A, A>,
-  f: (a: A) => Maybe<A>
+  f: (a: A) => Maybe<A>,
 ): STM<unknown, E, A> {
   return self.updateAndGet((a) => f(a).getOrElse(a));
 }
@@ -337,22 +313,14 @@ export function updateJustAndGet_<E, A>(
 /**
  * @tsplus fluent fncts.control.TRef unsafeSet
  */
-export function unsafeSet_<EA, EB, A, B>(
-  self: TRef<EA, EB, A, B>,
-  journal: Journal,
-  a: A
-): void {
+export function unsafeSet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Journal, a: A): void {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
-      return getOrMakeEntry(self.atomic, journal).use((entry) =>
-        entry.unsafeSet(a)
-      );
+      return getOrMakeEntry(self.atomic, journal).use((entry) => entry.unsafeSet(a));
     default:
       return self
-        .use((_getEither, _setEither, _value, atomic) =>
-          getOrMakeEntry(atomic, journal)
-        )
+        .use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal))
         .use((entry) => entry.unsafeSet(a));
   }
 }

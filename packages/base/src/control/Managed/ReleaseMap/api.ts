@@ -10,10 +10,7 @@ import { Exited, ReleaseMap, Running, State } from "./definition";
 /**
  * @tsplus fluent fncts.control.Managed.ReleaseMap addIfOpen
  */
-export function addIfOpen_(
-  releaseMap: ReleaseMap,
-  finalizer: Finalizer
-): UIO<Maybe<number>> {
+export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Maybe<number>> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited":
@@ -24,11 +21,7 @@ export function addIfOpen_(
       case "Running":
         return [
           IO.succeedNow(Just(s.nextKey)),
-          new Running(
-            s.nextKey + 1,
-            s.finalizers.set(s.nextKey, finalizer),
-            s.update
-          ),
+          new Running(s.nextKey + 1, s.finalizers.set(s.nextKey, finalizer), s.update),
         ];
     }
   }).flatten;
@@ -40,7 +33,7 @@ export function addIfOpen_(
 export function release_(
   releaseMap: ReleaseMap,
   key: number,
-  exit: Exit<any, any>
+  exit: Exit<any, any>,
 ): IO<unknown, never, any> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
@@ -51,7 +44,7 @@ export function release_(
         return [
           s.finalizers.get(key).match(
             () => IO.unit,
-            (f) => Finalizer.reverseGet(s.update(f))(exit)
+            (f) => Finalizer.reverseGet(s.update(f))(exit),
           ),
           new Running(s.nextKey, s.finalizers.remove(key), s.update),
         ];
@@ -63,15 +56,12 @@ export function release_(
 /**
  * @tsplus fluent fncts.control.Managed.ReleaseMap add
  */
-export function add_(
-  releaseMap: ReleaseMap,
-  finalizer: Finalizer
-): UIO<Finalizer> {
+export function add_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Finalizer> {
   return releaseMap.addIfOpen(finalizer).map((key) =>
     key.match(
       (): Finalizer => Finalizer.get(() => IO.unit),
-      (k): Finalizer => Finalizer.get((e) => releaseMap.release(k, e))
-    )
+      (k): Finalizer => Finalizer.get((e) => releaseMap.release(k, e)),
+    ),
   );
 }
 
@@ -81,7 +71,7 @@ export function add_(
 export function replace_(
   releaseMap: ReleaseMap,
   key: number,
-  finalizer: Finalizer
+  finalizer: Finalizer,
 ): UIO<Maybe<Finalizer>> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
@@ -102,10 +92,7 @@ export function replace_(
 /**
  * @tsplus fluent fncts.control.Managed.ReleaseMap updateAll
  */
-export function updateAll_(
-  releaseMap: ReleaseMap,
-  f: (_: Finalizer) => Finalizer
-): UIO<void> {
+export function updateAll_(releaseMap: ReleaseMap, f: (_: Finalizer) => Finalizer): UIO<void> {
   return ReleaseMap.reverseGet(releaseMap).update((s) => {
     switch (s._tag) {
       case "Exited":

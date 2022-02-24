@@ -33,7 +33,7 @@ export class Executing<E, A> {
     public suppressed: Cause<never>,
     public interruptors: Set<FiberId>,
     public asyncCanceller: CancellerState,
-    public mailbox: UIO<any> | null
+    public mailbox: UIO<any> | null,
   ) {}
 }
 

@@ -10,34 +10,32 @@ import { concrete } from "../definition";
  */
 export function locallyManaged_<EA, EB, A, B>(
   fiberRef: PFiberRef<EA, EB, A, B>,
-  a: A
+  a: A,
 ): Managed<unknown, EA, void> {
   concrete(fiberRef);
   return matchTag_(fiberRef, {
     Runtime: (ref: FiberRef.Runtime<A>) =>
       Managed.bracket(
         ref.get.chain((old) => ref.set(a).as(old)),
-        (a) => ref.set(a)
+        (a) => ref.set(a),
       ).asUnit,
     Derived: (ref) =>
       ref.use(
         (value, _, setEither) =>
           Managed.bracket(
-            value.get.chain((old) =>
-              setEither(a).match(IO.failNow, (s) => value.set(s).as(old))
-            ),
-            (s) => value.set(s)
-          ).asUnit
+            value.get.chain((old) => setEither(a).match(IO.failNow, (s) => value.set(s).as(old))),
+            (s) => value.set(s),
+          ).asUnit,
       ),
     DerivedAll: (ref) =>
       ref.use(
         (value, _, setEither) =>
           Managed.bracket(
             value.get.chain((old) =>
-              setEither(a)(old).match(IO.failNow, (s) => value.set(s).as(old))
+              setEither(a)(old).match(IO.failNow, (s) => value.set(s).as(old)),
             ),
-            (s) => value.set(s)
-          ).asUnit
+            (s) => value.set(s),
+          ).asUnit,
       ),
   });
 }

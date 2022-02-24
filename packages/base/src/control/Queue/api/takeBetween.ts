@@ -6,15 +6,13 @@ import { concrete } from "../definition";
 
 function takeRemainderLoop<RA, RB, EA, EB, A, B>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
-  n: number
+  n: number,
 ): IO<RB, EB, Conc<B>> {
   concrete(queue);
   if (n <= 0) {
     return IO.succeedNow(Conc.empty());
   } else {
-    return queue.take.chain((b) =>
-      takeRemainderLoop(queue, n - 1).map((out) => out.prepend(b))
-    );
+    return queue.take.chain((b) => takeRemainderLoop(queue, n - 1).map((out) => out.prepend(b)));
   }
 }
 
@@ -28,7 +26,7 @@ function takeRemainderLoop<RA, RB, EA, EB, A, B>(
 export function takeBetween_<RA, RB, EA, EB, A, B>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   min: number,
-  max: number
+  max: number,
 ): IO<RB, EB, Conc<B>> {
   concrete(queue);
   if (max < min) {
@@ -41,13 +39,11 @@ export function takeBetween_<RA, RB, EA, EB, A, B>(
         if (remaining === 1) {
           return queue.take.map((b) => bs.prepend(b));
         } else if (remaining > 1) {
-          return takeRemainderLoop(queue, remaining - 1).map((list) =>
-            bs.concat(list)
-          );
+          return takeRemainderLoop(queue, remaining - 1).map((list) => bs.concat(list));
         } else {
           return IO.succeedNow(bs);
         }
-      })
+      }),
     );
   }
 }
@@ -60,8 +56,7 @@ export function takeBetween_<RA, RB, EA, EB, A, B>(
  * @tsplus dataFirst takeBetween_
  */
 export function takeBetween(min: number, max: number) {
-  return <RA, RB, EA, EB, A, B>(
-    queue: PQueue<RA, RB, EA, EB, A, B>
-  ): IO<RB, EB, Conc<B>> => takeBetween_(queue, min, max);
+  return <RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): IO<RB, EB, Conc<B>> =>
+    takeBetween_(queue, min, max);
 }
 // codegen:end

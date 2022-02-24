@@ -29,9 +29,7 @@ export function isCaseClass(u: unknown): u is CaseConstructor {
 const hash0 = Hashable.hashString("fncts.data.CaseClass");
 
 // @ts-expect-error
-export const CaseClass: CaseConstructor = class<T>
-  implements Hashable, Equatable, CaseArgs
-{
+export const CaseClass: CaseConstructor = class<T> implements Hashable, Equatable, CaseArgs {
   private [argsSymbol]: T;
   private [keysSymbol]: ReadonlyArray<string> = [];
   constructor(args: T) {
@@ -87,25 +85,19 @@ export const CaseClass: CaseConstructor = class<T>
   }
 };
 
-export interface CaseConstructorTagged<
-  Tag extends string | symbol,
-  K extends string | symbol
-> {
-  new <T>(args: Equals<T, {}> extends true ? void : T): T &
-    Copy<T> & { readonly [k in K]: Tag };
+export interface CaseConstructorTagged<Tag extends string | symbol, K extends string | symbol> {
+  new <T>(args: Equals<T, {}> extends true ? void : T): T & Copy<T> & { readonly [k in K]: Tag };
 }
 
-export function Tagged<
-  Tag extends string | symbol,
-  Key extends string | symbol
->(tag: Tag, key: Key): CaseConstructorTagged<Tag, Key>;
-export function Tagged<Tag extends string | symbol>(
-  tag: Tag
-): CaseConstructorTagged<Tag, "_tag">;
-export function Tagged<
-  Tag extends string | symbol,
-  Key extends string | symbol
->(tag: Tag, key?: Key): CaseConstructorTagged<Tag, string> {
+export function Tagged<Tag extends string | symbol, Key extends string | symbol>(
+  tag: Tag,
+  key: Key,
+): CaseConstructorTagged<Tag, Key>;
+export function Tagged<Tag extends string | symbol>(tag: Tag): CaseConstructorTagged<Tag, "_tag">;
+export function Tagged<Tag extends string | symbol, Key extends string | symbol>(
+  tag: Tag,
+  key?: Key,
+): CaseConstructorTagged<Tag, string> {
   if (key) {
     class X extends CaseClass<{}> {
       // @ts-expect-error

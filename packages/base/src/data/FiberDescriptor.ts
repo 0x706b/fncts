@@ -15,6 +15,6 @@ export class FiberDescriptor {
     readonly status: FiberStatus,
     readonly interruptors: ReadonlySet<FiberId>,
     readonly interruptStatus: InterruptStatus,
-    readonly scope: Scope
+    readonly scope: Scope,
   ) {}
 }

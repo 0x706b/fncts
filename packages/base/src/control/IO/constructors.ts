@@ -57,7 +57,7 @@ export function asks<R, A>(f: (_: R) => A, __tsplusTrace?: string): URIO<R, A> {
  */
 export function asksIO<R0, R, E, A>(
   f: (r: R0) => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R & R0, E, A> {
   return new Asks(f, __tsplusTrace);
 }
@@ -70,7 +70,7 @@ export function asksIO<R0, R, E, A>(
 export function async<R, E, A>(
   register: (resolve: (_: IO<R, E, A>) => void) => void,
   blockingOn: FiberId = FiberId.none,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return IO.asyncMaybe(
     (cb) => {
@@ -78,7 +78,7 @@ export function async<R, E, A>(
       return Nothing();
     },
     blockingOn,
-    __tsplusTrace
+    __tsplusTrace,
   );
 }
 
@@ -93,12 +93,12 @@ export function async<R, E, A>(
 export function asyncMaybe<R, E, A>(
   register: (resolve: (_: IO<R, E, A>) => void) => Maybe<IO<R, E, A>>,
   blockingOn: FiberId = FiberId.none,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return asyncInterrupt(
     (cb) => register(cb).match(() => Either.left(IO.unit), Either.right),
     blockingOn,
-    __tsplusTrace
+    __tsplusTrace,
   );
 }
 
@@ -121,11 +121,9 @@ export function asyncMaybe<R, E, A>(
  * @tsplus static fncts.control.IOOps asyncInterrupt
  */
 export function asyncInterrupt<R, E, A>(
-  register: (
-    cb: (resolve: IO<R, E, A>) => void
-  ) => Either<Canceler<R>, IO<R, E, A>>,
+  register: (cb: (resolve: IO<R, E, A>) => void) => Either<Canceler<R>, IO<R, E, A>>,
   blockingOn: FiberId = FiberId.none,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return new Async(register, blockingOn, __tsplusTrace);
 }
@@ -138,7 +136,7 @@ export function asyncInterrupt<R, E, A>(
  */
 export function checkInterruptible<R, E, A>(
   f: (i: InterruptStatus) => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return new GetInterrupt(f, __tsplusTrace);
 }
@@ -151,10 +149,7 @@ export function checkInterruptible<R, E, A>(
  *
  * @tsplus static fncts.control.IOOps defer
  */
-export function defer<R, E, A>(
-  io: Lazy<IO<R, E, A>>,
-  __tsplusTrace?: string
-): IO<R, E, A> {
+export function defer<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, A> {
   return new Defer(io, __tsplusTrace);
 }
 
@@ -168,7 +163,7 @@ export function defer<R, E, A>(
  */
 export function deferWith<R, E, A>(
   io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return new DeferWith(io, __tsplusTrace);
 }
@@ -181,7 +176,7 @@ export function deferWith<R, E, A>(
  */
 export function deferTry<R, E, A>(
   io: () => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, unknown, A> {
   return IO.defer(() => {
     try {
@@ -199,7 +194,7 @@ export function deferTry<R, E, A>(
  * @tsplus static IOOps deferTryWith
  */
 export function deferTryWith<R, E, A>(
-  io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>
+  io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
 ): IO<R, unknown, A> {
   return IO.deferWith((runtimeConfig, id) => {
     try {
@@ -220,7 +215,7 @@ export function deferTryWith<R, E, A>(
  */
 export function deferTryCatch<R, E, A, E1>(
   io: () => IO<R, E, A>,
-  onThrow: (error: unknown) => E1
+  onThrow: (error: unknown) => E1,
 ): IO<R, E | E1, A> {
   return IO.defer(() => {
     try {
@@ -241,7 +236,7 @@ export function deferTryCatch<R, E, A, E1>(
  */
 export function deferTryCatchWith<R, E, A, E1>(
   io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-  onThrow: (error: unknown) => E1
+  onThrow: (error: unknown) => E1,
 ): IO<R, E | E1, A> {
   return IO.deferWith((runtimeConfig, id) => {
     try {
@@ -260,7 +255,7 @@ export function deferTryCatchWith<R, E, A, E1>(
  */
 export function descriptorWith<R, E, A>(
   f: (d: FiberDescriptor) => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return new GetDescriptor(f, __tsplusTrace);
 }
@@ -284,10 +279,7 @@ export function failNow<E>(e: E, __tsplusTrace?: string): FIO<E, never> {
  *
  * @tsplus static fncts.control.IOOps failCauseNow
  */
-export function failCauseNow<E>(
-  cause: Cause<E>,
-  __tsplusTrace?: string
-): FIO<E, never> {
+export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, never> {
   return new Fail(() => cause, __tsplusTrace);
 }
 
@@ -298,7 +290,7 @@ export function failCauseNow<E>(
  */
 export function failCause<E = never, A = never>(
   cause: Lazy<Cause<E>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): FIO<E, A> {
   return new Fail(cause, __tsplusTrace);
 }
@@ -308,9 +300,7 @@ export function failCause<E = never, A = never>(
  *
  * @tsplus static fncts.control.IOOps fiberId
  */
-export const fiberId: IO<unknown, never, FiberId> = IO.descriptorWith((d) =>
-  IO.succeedNow(d.id)
-);
+export const fiberId: IO<unknown, never, FiberId> = IO.descriptorWith((d) => IO.succeedNow(d.id));
 
 /**
  * Lifts an `Either` into an `IO`
@@ -319,7 +309,7 @@ export const fiberId: IO<unknown, never, FiberId> = IO.descriptorWith((d) =>
  */
 export function fromEither<E, A>(
   either: Lazy<Either<E, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<unknown, E, A> {
   return IO.succeed(either).chain((ea) => ea.match(IO.failNow, IO.succeedNow));
 }
@@ -331,7 +321,7 @@ export function fromEither<E, A>(
  */
 export function fromEitherNow<E, A>(
   either: Either<E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<unknown, E, A> {
   return either.match(IO.failNow, IO.succeedNow);
 }
@@ -341,10 +331,7 @@ export function fromEitherNow<E, A>(
  *
  * @tsplus static fncts.control.IOOps fromEval
  */
-export function fromEval<A>(
-  computation: Eval<A>,
-  __tsplusTrace?: string
-): IO<unknown, never, A> {
+export function fromEval<A>(computation: Eval<A>, __tsplusTrace?: string): IO<unknown, never, A> {
   return IO.succeed(computation.run);
 }
 
@@ -353,10 +340,7 @@ export function fromEval<A>(
  *
  * @tsplus static fncts.control.IOOps fromExit
  */
-export function fromExit<E, A>(
-  exit: Lazy<Exit<E, A>>,
-  __tsplusTrace?: string
-): FIO<E, A> {
+export function fromExit<E, A>(exit: Lazy<Exit<E, A>>, __tsplusTrace?: string): FIO<E, A> {
   return IO.defer(exit().match(IO.failCauseNow, IO.succeedNow));
 }
 
@@ -365,10 +349,7 @@ export function fromExit<E, A>(
  *
  * @tsplus static fncts.control.IOOps fromExitNow
  */
-export function fromExitNow<E, A>(
-  exit: Exit<E, A>,
-  __tsplusTrace?: string
-): FIO<E, A> {
+export function fromExitNow<E, A>(exit: Exit<E, A>, __tsplusTrace?: string): FIO<E, A> {
   return exit.match(IO.failCauseNow, IO.succeedNow);
 }
 
@@ -378,13 +359,8 @@ export function fromExitNow<E, A>(
  *
  * @tsplus static fncts.control.IOOps fromMaybe
  */
-export function fromMaybe<A>(
-  maybe: Lazy<Maybe<A>>,
-  __tsplusTrace?: string
-): FIO<Maybe<never>, A> {
-  return IO.succeed(maybe).chain((m) =>
-    m.match(() => IO.failNow(Nothing()), IO.succeedNow)
-  );
+export function fromMaybe<A>(maybe: Lazy<Maybe<A>>, __tsplusTrace?: string): FIO<Maybe<never>, A> {
+  return IO.succeed(maybe).chain((m) => m.match(() => IO.failNow(Nothing()), IO.succeedNow));
 }
 
 /**
@@ -392,7 +368,7 @@ export function fromMaybe<A>(
  */
 export function fromMaybeNow<A = never>(
   maybe: Maybe<A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<unknown, Maybe<never>, A> {
   return maybe.match(() => IO.failNow(Nothing()), IO.succeedNow);
 }
@@ -406,7 +382,7 @@ export function fromMaybeNow<A = never>(
 export function fromPromiseCatch<E, A>(
   promise: Lazy<Promise<A>>,
   onReject: (reason: unknown) => E,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): FIO<E, A> {
   return IO.async((k) => {
     promise()
@@ -421,10 +397,7 @@ export function fromPromiseCatch<E, A>(
  *
  * @tsplus static fncts.control.IOOps fromPromise
  */
-export function fromPromise<A>(
-  promise: Lazy<Promise<A>>,
-  __tsplusTrace?: string
-): FIO<unknown, A> {
+export function fromPromise<A>(promise: Lazy<Promise<A>>, __tsplusTrace?: string): FIO<unknown, A> {
   return IO.fromPromiseCatch(promise, identity);
 }
 
@@ -435,7 +408,7 @@ export function fromPromise<A>(
  */
 export function fromPromiseHalt<A>(
   promise: Lazy<Promise<A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): FIO<never, A> {
   return async((k) => {
     promise()
@@ -487,17 +460,15 @@ export const never: UIO<never> = defer(() =>
     return Either.left(
       IO.succeed(() => {
         clearInterval(interval);
-      })
+      }),
     );
-  })
+  }),
 );
 
 /**
  * @tsplus static fncts.control.IOOps sequenceIterable
  */
-export function sequenceIterable<R, E, A>(
-  as: Iterable<IO<R, E, A>>
-): IO<R, E, Conc<A>> {
+export function sequenceIterable<R, E, A>(as: Iterable<IO<R, E, A>>): IO<R, E, Conc<A>> {
   return IO.foreach(as, identity);
 }
 
@@ -506,7 +477,7 @@ export function sequenceIterable<R, E, A>(
  */
 export function sequenceIterableDiscard<R, E, A>(
   as: Iterable<IO<R, E, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, void> {
   return IO.foreachDiscard(as, identity);
 }
@@ -516,10 +487,7 @@ export function sequenceIterableDiscard<R, E, A>(
  *
  * @tsplus static fncts.control.IOOps succeedNow
  */
-export function succeedNow<A>(
-  value: A,
-  __tsplusTrace?: string
-): IO<unknown, never, A> {
+export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<unknown, never, A> {
   return new SucceedNow(value, __tsplusTrace);
 }
 
@@ -545,7 +513,7 @@ export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): UIO<A> {
 export function supervised_<R, E, A>(
   fa: IO<R, E, A>,
   supervisor: Supervisor<any>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return new Supervise(fa, supervisor);
 }
@@ -558,7 +526,7 @@ export function supervised_<R, E, A>(
 export function tryCatch<E, A>(
   effect: Lazy<A>,
   onThrow: (error: unknown) => E,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): FIO<E, A> {
   return IO.succeed(() => {
     try {
@@ -590,11 +558,7 @@ export const yieldNow: UIO<void> = new Yield();
  * fibers forked in the effect are reported to the specified supervisor.
  * @tsplus dataFirst supervised_
  */
-export function supervised(
-  supervisor: Supervisor<any>,
-  __tsplusTrace?: string
-) {
-  return <R, E, A>(fa: IO<R, E, A>): IO<R, E, A> =>
-    supervised_(fa, supervisor, __tsplusTrace);
+export function supervised(supervisor: Supervisor<any>, __tsplusTrace?: string) {
+  return <R, E, A>(fa: IO<R, E, A>): IO<R, E, A> => supervised_(fa, supervisor, __tsplusTrace);
 }
 // codegen:end

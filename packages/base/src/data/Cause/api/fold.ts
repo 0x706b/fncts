@@ -15,7 +15,7 @@ function foldEval<E, A>(
   onHalt: (reason: unknown, trace: Trace) => A,
   onInterrupt: (id: FiberId, trace: Trace) => A,
   onThen: (l: A, r: A) => A,
-  onBoth: (l: A, r: A) => A
+  onBoth: (l: A, r: A) => A,
 ): Eval<A> {
   switch (cause._tag) {
     case CauseTag.Empty:
@@ -28,53 +28,21 @@ function foldEval<E, A>(
       return Eval.now(onInterrupt(cause.id, cause.trace));
     case CauseTag.Both:
       return Eval.defer(() =>
-        foldEval(
-          cause.left,
-          onEmpty,
-          onFail,
-          onHalt,
-          onInterrupt,
-          onThen,
-          onBoth
-        )
+        foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
       ).zipWith(
         Eval.defer(() =>
-          foldEval(
-            cause.right,
-            onEmpty,
-            onFail,
-            onHalt,
-            onInterrupt,
-            onThen,
-            onBoth
-          )
+          foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
         ),
-        onBoth
+        onBoth,
       );
     case CauseTag.Then:
       return Eval.defer(() =>
-        foldEval(
-          cause.left,
-          onEmpty,
-          onFail,
-          onHalt,
-          onInterrupt,
-          onThen,
-          onBoth
-        )
+        foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
       ).zipWith(
         Eval.defer(() =>
-          foldEval(
-            cause.right,
-            onEmpty,
-            onFail,
-            onHalt,
-            onInterrupt,
-            onThen,
-            onBoth
-          )
+          foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
         ),
-        onThen
+        onThen,
       );
   }
 }
@@ -91,11 +59,9 @@ export function fold_<E, A>(
   onHalt: (u: unknown, trace: Trace) => A,
   onInterrupt: (id: FiberId, trace: Trace) => A,
   onThen: (l: A, r: A) => A,
-  onBoth: (l: A, r: A) => A
+  onBoth: (l: A, r: A) => A,
 ): A {
-  return Eval.run(
-    foldEval(cause, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)
-  );
+  return Eval.run(foldEval(cause, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth));
 }
 
 // codegen:start { preset: pipeable }
@@ -109,9 +75,8 @@ export function fold<E, A>(
   onHalt: (u: unknown, trace: Trace) => A,
   onInterrupt: (id: FiberId, trace: Trace) => A,
   onThen: (l: A, r: A) => A,
-  onBoth: (l: A, r: A) => A
+  onBoth: (l: A, r: A) => A,
 ) {
-  return (cause: Cause<E>): A =>
-    fold_(cause, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth);
+  return (cause: Cause<E>): A => fold_(cause, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth);
 }
 // codegen:end

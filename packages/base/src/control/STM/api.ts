@@ -46,9 +46,7 @@ export function asJustError<R, E, A>(stm: STM<R, E, A>): STM<R, Maybe<E>, A> {
  *
  * @tsplus getter fncts.control.STM absolve
  */
-export function absolve<R, E, E1, A>(
-  z: STM<R, E, Either<E1, A>>
-): STM<R, E | E1, A> {
+export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>): STM<R, E | E1, A> {
   return z.chain(STM.fromEitherNow);
 }
 
@@ -93,12 +91,8 @@ export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
         }
         case TryCommitTag.Suspend: {
           const id    = TxnId.make();
-          const state = new AtomicReference<CommitState<E, A>>(
-            CommitState.Running
-          );
-          const async = IO.async(
-            tryCommitAsync(result.journal, fiberId, stm, id, state, r)
-          );
+          const state = new AtomicReference<CommitState<E, A>>(CommitState.Running);
+          const async = IO.async(tryCommitAsync(result.journal, fiberId, stm, id, state, r));
           return IO.uninterruptibleMask(({ restore }) =>
             restore(async).catchAllCause((cause) => {
               state.compareAndSet(CommitState.Running, CommitState.Interrupted);
@@ -111,11 +105,11 @@ export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
                   return IO.failCauseNow(cause);
                 }
               }
-            })
+            }),
           );
         }
       }
-    })
+    }),
   );
 }
 
@@ -126,11 +120,11 @@ export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
 export function bimap_<R, E, A, E1, B>(
   stm: STM<R, E, A>,
   g: (e: E) => E1,
-  f: (a: A) => B
+  f: (a: A) => B,
 ): STM<R, E1, B> {
   return stm.matchSTM(
     (e) => STM.failNow(g(e)),
-    (a) => STM.succeedNow(f(a))
+    (a) => STM.succeedNow(f(a)),
   );
 }
 
@@ -139,20 +133,11 @@ export function bimap_<R, E, A, E1, B>(
  *
  * @tsplus fluent fncts.control.STM catch
  */
-export function catch_<
-  N extends keyof E,
-  K extends E[N] & string,
-  E,
-  R,
-  A,
-  R1,
-  E1,
-  A1
->(
+export function catch_<N extends keyof E, K extends E[N] & string, E, R, A, R1, E1, A1>(
   stm: STM<R, E, A>,
   tag: N,
   k: K,
-  f: (e: Extract<E, { [n in N]: K }>) => STM<R1, E1, A1>
+  f: (e: Extract<E, { [n in N]: K }>) => STM<R1, E1, A1>,
 ): STM<R & R1, Exclude<E, { [n in N]: K }> | E1, A | A1> {
   return stm.catchAll((e) => {
     if (tag in e && e[tag] === k) {
@@ -169,11 +154,9 @@ export function catch_<
  */
 export function catchJust_<R, E, A, R1, E1, B>(
   stm: STM<R, E, A>,
-  f: (e: E) => Maybe<STM<R1, E1, B>>
+  f: (e: E) => Maybe<STM<R1, E1, B>>,
 ): STM<R1 & R, E | E1, A | B> {
-  return stm.catchAll(
-    (e): STM<R1, E | E1, A | B> => f(e).getOrElse(STM.failNow(e))
-  );
+  return stm.catchAll((e): STM<R1, E | E1, A | B> => f(e).getOrElse(STM.failNow(e)));
 }
 
 /**
@@ -188,11 +171,11 @@ export function catchTag_<
   A,
   R1,
   E1,
-  A1
+  A1,
 >(
   stm: STM<R, E, A>,
   k: K,
-  f: (e: Extract<E, { _tag: K }>) => STM<R1, E1, A1>
+  f: (e: Extract<E, { _tag: K }>) => STM<R1, E1, A1>,
 ): STM<R & R1, Exclude<E, { _tag: K }> | E1, A | A1> {
   return stm.catchAll((e) => {
     if ("_tag" in e && e["_tag"] === k) {
@@ -210,7 +193,7 @@ export function catchTag_<
  */
 export function chainError_<R, E, A, R2, E2>(
   stm: STM<R, E, A>,
-  f: (e: E) => STM<R2, never, E2>
+  f: (e: E) => STM<R2, never, E2>,
 ): STM<R2 & R, E2, A> {
   return stm.swapWith((effect) => effect.chain(f));
 }
@@ -241,7 +224,7 @@ export function commitEither<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
 export function continueOrFail_<R, E, E1, A, A2>(
   fa: STM<R, E, A>,
   e: Lazy<E1>,
-  pf: (a: A) => Maybe<A2>
+  pf: (a: A) => Maybe<A2>,
 ): STM<R, E | E1, A2> {
   return fa.continueOrFailSTM(e, (a) => pf(a).map(STM.succeedNow));
 }
@@ -255,7 +238,7 @@ export function continueOrFail_<R, E, E1, A, A2>(
 export function continueOrFailSTM_<R, E, E1, A, R2, E2, A2>(
   fa: STM<R, E, A>,
   e: Lazy<E1>,
-  pf: (a: A) => Maybe<STM<R2, E2, A2>>
+  pf: (a: A) => Maybe<STM<R2, E2, A2>>,
 ): STM<R2 & R, E | E1 | E2, A2> {
   return fa.chain((a) => pf(a).getOrElse(STM.fail(e)));
 }
@@ -268,7 +251,7 @@ export function continueOrFailSTM_<R, E, E1, A, R2, E2, A2>(
  */
 export function continueOrRetry_<R, E, A, A2>(
   fa: STM<R, E, A>,
-  pf: (a: A) => Maybe<A2>
+  pf: (a: A) => Maybe<A2>,
 ): STM<R, E, A2> {
   return fa.continueOrRetrySTM((a) => pf(a).map(STM.succeedNow));
 }
@@ -281,7 +264,7 @@ export function continueOrRetry_<R, E, A, A2>(
  */
 export function continueOrRetrySTM_<R, E, A, R2, E2, A2>(
   fa: STM<R, E, A>,
-  pf: (a: A) => Maybe<STM<R2, E2, A2>>
+  pf: (a: A) => Maybe<STM<R2, E2, A2>>,
 ): STM<R2 & R, E | E2, A2> {
   return fa.chain((a) => pf(a).getOrElse(STM.retry));
 }
@@ -300,9 +283,7 @@ export function defer<R, E, A>(make: Lazy<STM<R, E, A>>): STM<R, E, A> {
  *
  * @tsplus getter fncts.control.STM either
  */
-export function either<R, E, A>(
-  stm: STM<R, E, A>
-): STM<R, never, Either<E, A>> {
+export function either<R, E, A>(stm: STM<R, E, A>): STM<R, never, Either<E, A>> {
   return stm.match(Either.left, Either.right);
 }
 
@@ -320,10 +301,7 @@ export function eventually<R, E, A>(stm: STM<R, E, A>): STM<R, never, A> {
  *
  * @tsplus fluent fncts.control.STM filterMap
  */
-export function filterMap_<R, E, A, B>(
-  stm: STM<R, E, A>,
-  f: (a: A) => Maybe<B>
-): STM<R, E, B> {
+export function filterMap_<R, E, A, B>(stm: STM<R, E, A>, f: (a: A) => Maybe<B>): STM<R, E, B> {
   return stm.filterMapSTM((a) => f(a).map(STM.succeedNow));
 }
 
@@ -335,7 +313,7 @@ export function filterMap_<R, E, A, B>(
  */
 export function filterMapSTM_<R, E, A, R1, E1, B>(
   self: STM<R, E, A>,
-  f: (a: A) => Maybe<STM<R1, E1, B>>
+  f: (a: A) => Maybe<STM<R1, E1, B>>,
 ): STM<R & R1, E | E1, B> {
   return self.matchSTM(STM.failNow, (a) => f(a).getOrElse(STM.retry));
 }
@@ -348,20 +326,20 @@ export function filterMapSTM_<R, E, A, R1, E1, B>(
 export function filterOrElse_<R, E, A, B extends A, R2, E2, A2>(
   fa: STM<R, E, A>,
   p: Refinement<A, B>,
-  or: (a: Exclude<A, B>) => STM<R2, E2, A2>
+  or: (a: Exclude<A, B>) => STM<R2, E2, A2>,
 ): STM<R & R2, E | E2, B | A2>;
 export function filterOrElse_<R, E, A, R2, E2, A2>(
   fa: STM<R, E, A>,
   p: Predicate<A>,
-  or: (a: A) => STM<R2, E2, A2>
+  or: (a: A) => STM<R2, E2, A2>,
 ): STM<R & R2, E | E2, A | A2>;
 export function filterOrElse_<R, E, A, R2, E2, A2>(
   fa: STM<R, E, A>,
   p: Predicate<A>,
-  or: unknown
+  or: unknown,
 ): STM<R & R2, E | E2, A | A2> {
   return fa.chain((a) =>
-    p(a) ? STM.succeedNow(a) : STM.defer((or as (a: A) => STM<R2, E2, A2>)(a))
+    p(a) ? STM.succeedNow(a) : STM.defer((or as (a: A) => STM<R2, E2, A2>)(a)),
   );
 }
 
@@ -373,17 +351,17 @@ export function filterOrElse_<R, E, A, R2, E2, A2>(
 export function filterOrFail_<R, E, E1, A, B extends A>(
   fa: STM<R, E, A>,
   p: Refinement<A, B>,
-  failWith: (a: Exclude<A, B>) => E1
+  failWith: (a: Exclude<A, B>) => E1,
 ): STM<R, E | E1, B>;
 export function filterOrFail_<R, E, E1, A>(
   fa: STM<R, E, A>,
   p: Predicate<A>,
-  failWith: (a: A) => E1
+  failWith: (a: A) => E1,
 ): STM<R, E | E1, A>;
 export function filterOrFail_<R, E, E1, A>(
   fa: STM<R, E, A>,
   p: Predicate<A>,
-  failWith: unknown
+  failWith: unknown,
 ): STM<R, E | E1, A> {
   return fa.filterOrElse(p, (a) => STM.fail((failWith as (a: A) => E1)(a)));
 }
@@ -396,21 +374,19 @@ export function filterOrFail_<R, E, E1, A>(
 export function filterOrHalt_<R, E, A, B extends A>(
   fa: STM<R, E, A>,
   p: Refinement<A, B>,
-  haltWith: (a: Exclude<A, B>) => unknown
+  haltWith: (a: Exclude<A, B>) => unknown,
 ): STM<R, E, B>;
 export function filterOrHalt_<R, E, A>(
   fa: STM<R, E, A>,
   p: Predicate<A>,
-  haltWith: (a: A) => unknown
+  haltWith: (a: A) => unknown,
 ): STM<R, E, A>;
 export function filterOrHalt_<R, E, A>(
   fa: STM<R, E, A>,
   p: Predicate<A>,
-  haltWith: unknown
+  haltWith: unknown,
 ): STM<R, E, A> {
-  return fa.filterOrElse(p, (a) =>
-    STM.halt((haltWith as (a: A) => unknown)(a))
-  );
+  return fa.filterOrElse(p, (a) => STM.halt((haltWith as (a: A) => unknown)(a)));
 }
 
 /**
@@ -418,9 +394,7 @@ export function filterOrHalt_<R, E, A>(
  *
  * @tsplus getter fncts.control.STM flatten
  */
-export function flatten<R, E, R1, E1, B>(
-  stm: STM<R, E, STM<R1, E1, B>>
-): STM<R1 & R, E | E1, B> {
+export function flatten<R, E, R1, E1, B>(stm: STM<R, E, STM<R1, E1, B>>): STM<R1 & R, E | E1, B> {
   return stm.chain(identity);
 }
 
@@ -431,7 +405,7 @@ export function flatten<R, E, R1, E1, B>(
  */
 export function flattenErrorOption_<R, E, A, E2>(
   stm: STM<R, Maybe<E>, A>,
-  def: Lazy<E2>
+  def: Lazy<E2>,
 ): STM<R, E | E2, A> {
   return stm.mapError((me) => me.getOrElse(def));
 }
@@ -444,7 +418,7 @@ export function flattenErrorOption_<R, E, A, E2>(
  */
 export function foreach_<A, R, E, B>(
   it: Iterable<A>,
-  f: (a: A) => STM<R, E, B>
+  f: (a: A) => STM<R, E, B>,
 ): STM<R, E, readonly B[]> {
   return STM.defer(() => {
     let stm = STM.succeedNow([]) as STM<R, E, B[]>;
@@ -484,7 +458,7 @@ export function fromEitherNow<E, A>(e: Either<E, A>): STM<unknown, E, A> {
 export function get<R, E, A>(stm: STM<R, E, Maybe<A>>): STM<R, Maybe<E>, A> {
   return stm.matchSTM(
     (e) => STM.failNow(Just(e)),
-    (ma) => ma.match(() => STM.failNow(Nothing()), STM.succeedNow)
+    (ma) => ma.match(() => STM.failNow(Nothing()), STM.succeedNow),
   );
 }
 
@@ -504,10 +478,7 @@ export function give_<R, E, A>(stm: STM<R, E, A>, r: R): STM<unknown, E, A> {
  *
  * @tsplus fluent fncts.control.STM gives
  */
-export function gives_<R, E, A, R0>(
-  self: STM<R, E, A>,
-  f: (r: R0) => R
-): STM<R0, E, A> {
+export function gives_<R, E, A, R0>(self: STM<R, E, A>, f: (r: R0) => R): STM<R0, E, A> {
   return new Gives(self, f);
 }
 
@@ -539,16 +510,14 @@ export function haltNow(u: unknown): STM<unknown, never, never> {
  *
  * @tsplus getter fncts.control.STM head
  */
-export function head<R, E, A>(
-  stm: STM<R, E, Iterable<A>>
-): STM<R, Maybe<E>, A> {
+export function head<R, E, A>(stm: STM<R, E, Iterable<A>>): STM<R, Maybe<E>, A> {
   return stm.matchSTM(
     (e) => STM.failNow(Just(e)),
     (ia) => {
       const it   = ia[Symbol.iterator]();
       const next = it.next();
       return next.done ? STM.failNow(Nothing()) : STM.succeedNow(next.value);
-    }
+    },
   );
 }
 
@@ -557,9 +526,7 @@ export function head<R, E, A>(
  *
  * @tsplus static fncts.control.STMOps interrupt
  */
-export const interrupt: STM<unknown, never, never> = STM.fiberId.chain((id) =>
-  STM.interruptAs(id)
-);
+export const interrupt: STM<unknown, never, never> = STM.fiberId.chain((id) => STM.interruptAs(id));
 
 /**
  * Returns whether this effect is a failure.
@@ -569,7 +536,7 @@ export const interrupt: STM<unknown, never, never> = STM.fiberId.chain((id) =>
 export function isFailure<R, E, A>(stm: STM<R, E, A>) {
   return stm.match(
     () => true,
-    () => false
+    () => false,
   );
 }
 
@@ -581,7 +548,7 @@ export function isFailure<R, E, A>(stm: STM<R, E, A>) {
 export function isSuccess<R, E, A>(stm: STM<R, E, A>) {
   return stm.match(
     () => false,
-    () => true
+    () => true,
   );
 }
 
@@ -592,14 +559,14 @@ export function isSuccess<R, E, A>(stm: STM<R, E, A>) {
  */
 export function join_<R, E, A, R1, E1, A1>(
   stm: STM<R, E, A>,
-  that: STM<R1, E1, A1>
+  that: STM<R1, E1, A1>,
 ): STM<Either<R, R1>, E | E1, A | A1> {
   return STM.asksSTM(
     (r: Either<R, R1>): STM<unknown, E | E1, A | A1> =>
       r.match(
         (r) => stm.give(r),
-        (r1) => that.give(r1)
-      )
+        (r1) => that.give(r1),
+      ),
   );
 }
 
@@ -610,14 +577,14 @@ export function join_<R, E, A, R1, E1, A1>(
  */
 export function joinEither_<R, E, A, R1, E1, A1>(
   stm: STM<R, E, A>,
-  that: STM<R1, E1, A1>
+  that: STM<R1, E1, A1>,
 ): STM<Either<R, R1>, E | E1, Either<A, A1>> {
   return asksSTM(
     (r: Either<R, R1>): STM<unknown, E | E1, Either<A, A1>> =>
       r.match(
         (r) => stm.give(r).map(Either.left),
-        (r1) => that.give(r1).map(Either.right)
-      )
+        (r1) => that.give(r1).map(Either.right),
+      ),
   );
 }
 
@@ -626,12 +593,10 @@ export function joinEither_<R, E, A, R1, E1, A1>(
  *
  * @tsplus getter fncts.control.STM left
  */
-export function left<R, E, B, C>(
-  stm: STM<R, E, Either<B, C>>
-): STM<R, Maybe<E>, B> {
+export function left<R, E, B, C>(stm: STM<R, E, Either<B, C>>): STM<R, Maybe<E>, B> {
   return stm.matchSTM(
     (e) => STM.fail(Just(e)),
-    (bc) => bc.match(STM.succeedNow, () => STM.failNow(Nothing()))
+    (bc) => bc.match(STM.succeedNow, () => STM.failNow(Nothing())),
   );
 }
 
@@ -642,11 +607,9 @@ export function left<R, E, B, C>(
  */
 export function leftOrFail_<R, E, B, C, E1>(
   stm: STM<R, E, Either<B, C>>,
-  orFail: (c: C) => E1
+  orFail: (c: C) => E1,
 ): STM<R, E | E1, B> {
-  return stm.chain((bc) =>
-    bc.match(STM.succeedNow, (c) => STM.fail(orFail(c)))
-  );
+  return stm.chain((bc) => bc.match(STM.succeedNow, (c) => STM.fail(orFail(c))));
 }
 
 /**
@@ -654,10 +617,7 @@ export function leftOrFail_<R, E, B, C, E1>(
  *
  * @tsplus fluent fncts.control.STM mapError
  */
-export function mapError_<R, E, A, E1>(
-  stm: STM<R, E, A>,
-  f: (a: E) => E1
-): STM<R, E1, A> {
+export function mapError_<R, E, A, E1>(stm: STM<R, E, A>, f: (a: E) => E1): STM<R, E1, A> {
   return stm.matchSTM((e) => STM.failNow(f(e)), STM.succeedNow);
 }
 
@@ -670,11 +630,11 @@ export function mapError_<R, E, A, E1>(
 export function match_<R, E, A, B, C>(
   stm: STM<R, E, A>,
   g: (e: E) => C,
-  f: (a: A) => B
+  f: (a: A) => B,
 ): STM<R, never, B | C> {
   return stm.matchSTM(
     (e) => STM.succeedNow(g(e)),
-    (a) => STM.succeedNow(f(a))
+    (a) => STM.succeedNow(f(a)),
   );
 }
 
@@ -692,10 +652,7 @@ export function match_<R, E, A, B, C>(
  *
  * @tsplus fluent fncts.control.STM repeatUntil
  */
-export function repeatUntil_<R, E, A>(
-  stm: STM<R, E, A>,
-  f: (a: A) => boolean
-): STM<R, E, A> {
+export function repeatUntil_<R, E, A>(stm: STM<R, E, A>, f: (a: A) => boolean): STM<R, E, A> {
   return stm.chain((a) => (f(a) ? STM.succeedNow(a) : stm.repeatUntil(f)));
 }
 
@@ -713,10 +670,7 @@ export function repeatUntil_<R, E, A>(
  *
  * @tsplus fluent fncts.control.STM repeatWhile
  */
-export function repeatWhile_<R, E, A>(
-  stm: STM<R, E, A>,
-  f: (a: A) => boolean
-): STM<R, E, A> {
+export function repeatWhile_<R, E, A>(stm: STM<R, E, A>, f: (a: A) => boolean): STM<R, E, A> {
   return stm.chain((a) => (f(a) ? stm.repeatWhile(f) : STM.succeedNow(a)));
 }
 
@@ -737,7 +691,7 @@ export function swap<R, E, A>(stm: STM<R, E, A>): STM<R, A, E> {
  */
 export function swapWith_<R, E, A, R2, E2, A2>(
   stm: STM<R, E, A>,
-  f: (stm: STM<R, A, E>) => STM<R2, A2, E2>
+  f: (stm: STM<R, A, E>) => STM<R2, A2, E2>,
 ): STM<R2, E2, A2> {
   return f(stm.swap).swap;
 }
@@ -749,7 +703,7 @@ export function swapWith_<R, E, A, R2, E2, A2>(
  */
 export function tap_<R, E, A, R1, E1, B>(
   stm: STM<R, E, A>,
-  f: (a: A) => STM<R1, E1, B>
+  f: (a: A) => STM<R1, E1, B>,
 ): STM<R1 & R, E | E1, A> {
   return stm.chain((a) => f(a).as(a));
 }
@@ -779,7 +733,7 @@ export const unit = STM.succeedNow<void>(undefined);
 export function zipWith_<R, E, A, R1, E1, B, C>(
   self: STM<R, E, A>,
   that: STM<R1, E1, B>,
-  f: (a: A, b: B) => C
+  f: (a: A, b: B) => C,
 ): STM<R & R1, E | E1, C> {
   return self.chain((a) => that.map((b) => f(a, b)));
 }

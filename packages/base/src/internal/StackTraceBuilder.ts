@@ -9,11 +9,7 @@ export class StackTraceBuilder {
   private builder: ConcBuilder<TraceElement> = Conc.builder();
 
   append(trace: TraceElement | undefined): void {
-    if (
-      trace != null &&
-      trace !== this.last &&
-      trace !== TraceElement.NoLocation
-    ) {
+    if (trace != null && trace !== this.last && trace !== TraceElement.NoLocation) {
       this.builder.append(trace);
       this.last = trace;
     }

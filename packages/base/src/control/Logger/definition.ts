@@ -23,7 +23,7 @@ export class Logger<Message, Output> {
       cause: Cause<any>,
       context: Map<FiberRef.Runtime<any>, any>,
       spans: List<LogSpan>,
-      annotations: HashMap<string, string>
-    ) => Output
+      annotations: HashMap<string, string>,
+    ) => Output,
   ) {}
 }

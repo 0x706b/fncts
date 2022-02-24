@@ -7,7 +7,7 @@ import type { Array } from "../../Array/definition";
 export function foldRightWithIndex_<A, B>(
   self: Array<A>,
   b: B,
-  f: (i: number, a: A, b: B) => B
+  f: (i: number, a: A, b: B) => B,
 ): B {
   let r = b;
   for (let i = self.length - 1; i >= 0; i--) {
@@ -20,10 +20,7 @@ export function foldRightWithIndex_<A, B>(
 /**
  * @tsplus dataFirst foldRightWithIndex_
  */
-export function foldRightWithIndex<A, B>(
-  b: B,
-  f: (i: number, a: A, b: B) => B
-) {
+export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
   return (self: Array<A>): B => foldRightWithIndex_(self, b, f);
 }
 // codegen:end

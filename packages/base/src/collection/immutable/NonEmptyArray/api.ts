@@ -13,7 +13,7 @@ import { NonEmptyArray } from "./definition";
  */
 export function ap_<A, B>(
   self: NonEmptyArray<(a: A) => B>,
-  fa: NonEmptyArray<A>
+  fa: NonEmptyArray<A>,
 ): NonEmptyArray<B> {
   return self.chain((f) => fa.map((a) => f(a)));
 }
@@ -23,7 +23,7 @@ export function ap_<A, B>(
  */
 export function align_<A, B>(
   self: NonEmptyArray<A>,
-  fb: NonEmptyArray<B>
+  fb: NonEmptyArray<B>,
 ): NonEmptyArray<These<A, B>> {
   return self.alignWith(fb, identity);
 }
@@ -34,14 +34,11 @@ export function align_<A, B>(
 export function alignWith_<A, B, C>(
   self: NonEmptyArray<A>,
   fb: NonEmptyArray<B>,
-  f: (_: These<A, B>) => C
+  f: (_: These<A, B>) => C,
 ): NonEmptyArray<C> {
   const minlen = Math.min(self.length, fb.length);
   const maxlen = Math.max(self.length, fb.length);
-  const ret    = NonEmptyArray.allocWithHead(
-    f(These.both(self.head, fb.head)),
-    maxlen
-  );
+  const ret    = NonEmptyArray.allocWithHead(f(These.both(self.head, fb.head)), maxlen);
   for (let i = 1; i < minlen; i++) {
     ret[i] = f(These.both(self[i]!, fb[i]!));
   }
@@ -64,7 +61,7 @@ export function alignWith_<A, B, C>(
  */
 export function chain_<A, B>(
   self: NonEmptyArray<A>,
-  f: (a: A) => NonEmptyArray<B>
+  f: (a: A) => NonEmptyArray<B>,
 ): NonEmptyArray<B> {
   return self.chainWithIndex((_, a) => f(a));
 }
@@ -74,7 +71,7 @@ export function chain_<A, B>(
  */
 export function chainWithIndex_<A, B>(
   self: NonEmptyArray<A>,
-  f: (i: number, a: A) => NonEmptyArray<B>
+  f: (i: number, a: A) => NonEmptyArray<B>,
 ): NonEmptyArray<B> {
   let outLen = 1;
   const len  = self.length;
@@ -108,7 +105,7 @@ export function chainWithIndex_<A, B>(
  */
 export function chop_<A, B>(
   self: NonEmptyArray<A>,
-  f: (as: NonEmptyArray<A>) => readonly [B, ReadonlyArray<A>]
+  f: (as: NonEmptyArray<A>) => readonly [B, ReadonlyArray<A>],
 ): NonEmptyArray<B> {
   const [b, rest] = f(self);
   const result    = [b] as MutableNonEmptyArray<B>;
@@ -124,10 +121,7 @@ export function chop_<A, B>(
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray chunksOf
  */
-export function chunksOf_<A>(
-  self: NonEmptyArray<A>,
-  n: number
-): NonEmptyArray<NonEmptyArray<A>> {
+export function chunksOf_<A>(self: NonEmptyArray<A>, n: number): NonEmptyArray<NonEmptyArray<A>> {
   return chop_(self, (as) => as.splitAt(n));
 }
 
@@ -137,7 +131,7 @@ export function chunksOf_<A>(
 export function crossWith_<A, B, C>(
   self: NonEmptyArray<A>,
   fb: NonEmptyArray<B>,
-  f: (a: A, b: B) => C
+  f: (a: A, b: B) => C,
 ): NonEmptyArray<C> {
   return self.chain((a) => fb.map((b) => f(a, b)));
 }
@@ -170,9 +164,7 @@ export function elemSelf<A>(self: NonEmptyArray<A>) {
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray flatten
  */
-export function flatten<A>(
-  self: NonEmptyArray<NonEmptyArray<A>>
-): NonEmptyArray<A> {
+export function flatten<A>(self: NonEmptyArray<NonEmptyArray<A>>): NonEmptyArray<A> {
   return self.chain(identity);
 }
 
@@ -194,11 +186,7 @@ export function foldSelf<A>(self: NonEmptyArray<A>, S: P.Semigroup<A>): A {
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray foldLeft
  */
-export function foldLeft_<A, B>(
-  self: NonEmptyArray<A>,
-  b: B,
-  f: (b: B, a: A) => B
-): B {
+export function foldLeft_<A, B>(self: NonEmptyArray<A>, b: B, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
 }
 
@@ -241,11 +229,7 @@ export function foldMapSelf<A>(self: NonEmptyArray<A>) {
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray foldRight
  */
-export function foldRight_<A, B>(
-  self: NonEmptyArray<A>,
-  b: B,
-  f: (a: A, b: B) => B
-): B {
+export function foldRight_<A, B>(self: NonEmptyArray<A>, b: B, f: (a: A, b: B) => B): B {
   return self.foldRightWithIndex(b, (_, a, b) => f(a, b));
 }
 
@@ -276,7 +260,7 @@ export function groupSelf<A>(self: NonEmptyArray<A>) {
 }
 
 export function groupSort<A>(
-  O: P.Ord<A>
+  O: P.Ord<A>,
 ): (as: NonEmptyArray<A>) => NonEmptyArray<NonEmptyArray<A>> {
   const sortO  = sort(O);
   const groupO = group(O);
@@ -293,10 +277,7 @@ export function isOutOfBound_<A>(as: NonEmptyArray<A>, i: number): boolean {
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray map
  */
-export function map_<A, B>(
-  self: NonEmptyArray<A>,
-  f: (a: A) => B
-): NonEmptyArray<B> {
+export function map_<A, B>(self: NonEmptyArray<A>, f: (a: A) => B): NonEmptyArray<B> {
   return self.mapWithIndex((_, a) => f(a));
 }
 
@@ -305,7 +286,7 @@ export function map_<A, B>(
  */
 export function mapWithIndex_<A, B>(
   self: NonEmptyArray<A>,
-  f: (i: number, a: A) => B
+  f: (i: number, a: A) => B,
 ): NonEmptyArray<B> {
   const out = NonEmptyArray.allocWithHead(f(0, self[0]), self.length);
   for (let i = 1; i < self.length; i++) {
@@ -365,8 +346,7 @@ export function reverse<A>(self: NonEmptyArray<A>): NonEmptyArray<A> {
   return out;
 }
 
-export const sequence: P.sequence<NonEmptyArrayF> = (A) => (self) =>
-  self.traverse(A)(identity);
+export const sequence: P.sequence<NonEmptyArrayF> = (A) => (self) => self.traverse(A)(identity);
 
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray sequence
@@ -379,7 +359,7 @@ export const sequenceSelf: P.sequenceSelf<NonEmptyArrayF> = (self) => (A) =>
  */
 export function splitAt_<A>(
   self: NonEmptyArray<A>,
-  n: number
+  n: number,
 ): readonly [NonEmptyArray<A>, ReadonlyArray<A>] {
   const m = Math.max(1, n);
   return m >= self.length
@@ -392,17 +372,14 @@ export function sort<B>(O: P.Ord<B>) {
     self.length === 1
       ? self
       : ((self.mutableClone as unknown as ESArray<A>).sort((first, second) =>
-          O.compare_(first, second)
+          O.compare_(first, second),
         ) as any);
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray sort
  */
-export function sortSelf<A extends B, B>(
-  self: NonEmptyArray<A>,
-  O: P.Ord<B>
-): NonEmptyArray<A> {
+export function sortSelf<A extends B, B>(self: NonEmptyArray<A>, O: P.Ord<B>): NonEmptyArray<A> {
   return sort(O)(self);
 }
 
@@ -411,8 +388,8 @@ export const traverseWithIndex_: P.traverseWithIndex_<NonEmptyArrayF> =
     (_) => (A) => (self, f) =>
       self.tail.foldLeftWithIndex(
         A.map_(f(0, self.head), (b) => [b] as NonEmptyArray<typeof b>),
-        (i, fbs, a) => A.zipWith_(fbs, f(i + 1, a), (bs, b) => bs.append(b))
-      )
+        (i, fbs, a) => A.zipWith_(fbs, f(i + 1, a), (bs, b) => bs.append(b)),
+      ),
   );
 
 /**
@@ -428,9 +405,8 @@ export const traverse_: P.traverse_<NonEmptyArrayF> = (A) => (self, f) =>
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray traverse
  */
-export const traverseSelf: P.traverseSelf<NonEmptyArrayF> =
-  (self) => (A) => (f) =>
-    self.traverseWithIndex(A)((_, a) => f(a));
+export const traverseSelf: P.traverseSelf<NonEmptyArrayF> = (self) => (A) => (f) =>
+  self.traverseWithIndex(A)((_, a) => f(a));
 
 export function uniq<A>(E: P.Eq<A>) {
   return (self: NonEmptyArray<A>): NonEmptyArray<A> => {
@@ -463,7 +439,7 @@ export function uniqSelf<A>(self: NonEmptyArray<A>) {
 export function zipWith_<A, B, C>(
   self: NonEmptyArray<A>,
   fb: NonEmptyArray<B>,
-  f: (a: A, b: B) => C
+  f: (a: A, b: B) => C,
 ): NonEmptyArray<C> {
   const len = Math.min(self.length, fb.length);
   const cs  = NonEmptyArray.allocWithHead(f(self[0], fb[0]), len);
@@ -478,23 +454,18 @@ export function zipWith_<A, B, C>(
  * @tsplus dataFirst ap_
  */
 export function ap<A>(fa: NonEmptyArray<A>) {
-  return <B>(self: NonEmptyArray<(a: A) => B>): NonEmptyArray<B> =>
-    ap_(self, fa);
+  return <B>(self: NonEmptyArray<(a: A) => B>): NonEmptyArray<B> => ap_(self, fa);
 }
 /**
  * @tsplus dataFirst align_
  */
 export function align<B>(fb: NonEmptyArray<B>) {
-  return <A>(self: NonEmptyArray<A>): NonEmptyArray<These<A, B>> =>
-    align_(self, fb);
+  return <A>(self: NonEmptyArray<A>): NonEmptyArray<These<A, B>> => align_(self, fb);
 }
 /**
  * @tsplus dataFirst alignWith_
  */
-export function alignWith<A, B, C>(
-  fb: NonEmptyArray<B>,
-  f: (_: These<A, B>) => C
-) {
+export function alignWith<A, B, C>(fb: NonEmptyArray<B>, f: (_: These<A, B>) => C) {
   return (self: NonEmptyArray<A>): NonEmptyArray<C> => alignWith_(self, fb, f);
 }
 /**
@@ -512,17 +483,14 @@ export function chainWithIndex<A, B>(f: (i: number, a: A) => NonEmptyArray<B>) {
 /**
  * @tsplus dataFirst chop_
  */
-export function chop<A, B>(
-  f: (as: NonEmptyArray<A>) => readonly [B, ReadonlyArray<A>]
-) {
+export function chop<A, B>(f: (as: NonEmptyArray<A>) => readonly [B, ReadonlyArray<A>]) {
   return (self: NonEmptyArray<A>): NonEmptyArray<B> => chop_(self, f);
 }
 /**
  * @tsplus dataFirst chunksOf_
  */
 export function chunksOf(n: number) {
-  return <A>(self: NonEmptyArray<A>): NonEmptyArray<NonEmptyArray<A>> =>
-    chunksOf_(self, n);
+  return <A>(self: NonEmptyArray<A>): NonEmptyArray<NonEmptyArray<A>> => chunksOf_(self, n);
 }
 /**
  * @tsplus dataFirst crossWith_
@@ -564,9 +532,8 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
  * @tsplus dataFirst splitAt_
  */
 export function splitAt(n: number) {
-  return <A>(
-    self: NonEmptyArray<A>
-  ): readonly [NonEmptyArray<A>, ReadonlyArray<A>] => splitAt_(self, n);
+  return <A>(self: NonEmptyArray<A>): readonly [NonEmptyArray<A>, ReadonlyArray<A>] =>
+    splitAt_(self, n);
 }
 /**
  * @tsplus dataFirst zipWith_

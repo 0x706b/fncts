@@ -26,10 +26,7 @@ export interface TraversableWithIndexOps {}
 
 export const TraversableWithIndex: TraversableWithIndexOps = {};
 
-export type TraversableWithIndexMin<
-  F extends HKT,
-  FC = HKT.None
-> = FunctorWithIndexMin<F, FC> &
+export type TraversableWithIndexMin<F extends HKT, FC = HKT.None> = FunctorWithIndexMin<F, FC> &
   FoldableWithIndexMin<F, FC> &
   TraversableMin<F, FC> & {
     readonly traverseWithIndex_: traverseWithIndex_<F, FC>;
@@ -39,7 +36,7 @@ export type TraversableWithIndexMin<
  * @tsplus static fncts.TraversableWithIndexOps __call
  */
 export function mkTraversableWithIndex<F extends HKT, FC = HKT.None>(
-  F: TraversableWithIndexMin<F, FC>
+  F: TraversableWithIndexMin<F, FC>,
 ): TraversableWithIndex<F, FC> {
   return HKT.instance<TraversableWithIndex<F, FC>>({
     ...FunctorWithIndex(F),
@@ -72,13 +69,13 @@ export interface traverseWithIndex_<F extends HKT, FC = HKT.None> {
     RF,
     EF,
     A,
-    B
+    B,
   >(
     ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
     f: (
       i: HKT.IndexFor<F, HKT.OrFix<FC, "K", KF>>,
-      a: A
-    ) => HKT.Kind<G, CG, KG, QG, WG, XG, IG, SG, RG, EG, B>
+      a: A,
+    ) => HKT.Kind<G, CG, KG, QG, WG, XG, IG, SG, RG, EG, B>,
   ) => HKT.Kind<
     G,
     CG,
@@ -95,25 +92,13 @@ export interface traverseWithIndex_<F extends HKT, FC = HKT.None> {
 }
 
 export interface traverseWithIndex<F extends HKT, FC = HKT.None> {
-  <G extends HKT, GC = HKT.None>(A: Applicative<G, GC>): <
-    KG,
-    QG,
-    WG,
-    XG,
-    IG,
-    SG,
-    RG,
-    EG,
-    KF,
-    A,
-    B
-  >(
+  <G extends HKT, GC = HKT.None>(A: Applicative<G, GC>): <KG, QG, WG, XG, IG, SG, RG, EG, KF, A, B>(
     f: (
       i: HKT.IndexFor<F, HKT.OrFix<FC, "K", KF>>,
-      a: A
-    ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, B>
+      a: A,
+    ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, B>,
   ) => <QF, WF, XF, IF, SF, RF, EF>(
-    ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>
+    ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
   ) => HKT.Kind<
     G,
     GC,
@@ -130,15 +115,16 @@ export interface traverseWithIndex<F extends HKT, FC = HKT.None> {
 }
 
 export interface traverseWithIndexSelf<F extends HKT, FC = HKT.None> {
-  <KF, QF, WF, XF, IF, SF, RF, EF, A>(
-    ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>
-  ): <G extends HKT, GC = HKT.None>(
-    A: Applicative<G, GC>
+  <KF, QF, WF, XF, IF, SF, RF, EF, A>(ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>): <
+    G extends HKT,
+    GC = HKT.None,
+  >(
+    A: Applicative<G, GC>,
   ) => <KG, QG, WG, XG, IG, SG, RG, EG, B>(
     f: (
       i: HKT.IndexFor<F, HKT.OrFix<FC, "K", KF>>,
-      a: A
-    ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, B>
+      a: A,
+    ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, B>,
   ) => HKT.Kind<
     G,
     GC,
@@ -168,12 +154,12 @@ export function mkTraverseWithIndex<F extends HKT, FC = HKT.None>(): (
     R: R;
     E: E;
   }) => (
-    A: Applicative<HKT.F<G>>
+    A: Applicative<HKT.F<G>>,
   ) => (
-    f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", K>>, a: A) => HKT.FK1<G, B>
+    f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", K>>, a: A) => HKT.FK1<G, B>,
   ) => (
-    ta: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>
-  ) => HKT.FK1<G, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>>
+    ta: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.FK1<G, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>>,
 ) => traverseWithIndex_<F, FC>;
 export function mkTraverseWithIndex() {
   return (i: any) => i();
@@ -193,11 +179,11 @@ export function mkTraverseWithIndex_<F extends HKT, FC = HKT.None>(): (
     R: R;
     E: E;
   }) => (
-    G: Applicative<HKT.F<G>>
+    G: Applicative<HKT.F<G>>,
   ) => (
     ta: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
-    f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", K>>, a: A) => HKT.FK1<G, B>
-  ) => HKT.FK1<G, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>>
+    f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", K>>, a: A) => HKT.FK1<G, B>,
+  ) => HKT.FK1<G, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>>,
 ) => traverseWithIndex_<F, FC>;
 export function mkTraverseWithIndex_() {
   return (i: any) => i();

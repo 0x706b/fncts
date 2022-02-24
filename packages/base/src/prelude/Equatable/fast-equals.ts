@@ -42,7 +42,7 @@ export function hasPair(
   pairs: [any, any][],
   pairToMatch: [any, any],
   isEqual: EqualityComparator,
-  meta: any
+  meta: any,
 ) {
   const { length } = pairs;
 
@@ -51,10 +51,7 @@ export function hasPair(
   for (let index = 0; index < length; index++) {
     pair = pairs[index]!;
 
-    if (
-      isEqual(pair[0], pairToMatch[0], meta) &&
-      isEqual(pair[1], pairToMatch[1], meta)
-    ) {
+    if (isEqual(pair[0], pairToMatch[0], meta) && isEqual(pair[1], pairToMatch[1], meta)) {
       return true;
     }
   }
@@ -75,12 +72,7 @@ export function hasPair(
  * @param meta the meta provided
  * @returns does the value exist in the values provided
  */
-export function hasValue(
-  values: any[],
-  valueToMatch: any,
-  isEqual: EqualityComparator,
-  meta: any
-) {
+export function hasValue(values: any[], valueToMatch: any, isEqual: EqualityComparator, meta: any) {
   const { length } = values;
 
   for (let index = 0; index < length; index++) {
@@ -197,17 +189,11 @@ export const getNewCache = ((canUseWeakMap: boolean) => {
  * @param [isEqual] the isEqual comparator to use instead of isDeepEqual
  * @returns the method to create the `isEqual` function
  */
-export function createCircularEqualCreator(
-  isEqual?: EqualityComparatorCreator
-) {
+export function createCircularEqualCreator(isEqual?: EqualityComparatorCreator) {
   return function createCircularEqual(comparator: EqualityComparator) {
     const _comparator = isEqual ? isEqual(comparator) : comparator;
 
-    return function circularEqual(
-      a: any,
-      b: any,
-      cache: Cache = getNewCache()
-    ) {
+    return function circularEqual(a: any, b: any, cache: Cache = getNewCache()) {
       const hasA = cache.has(a);
       const hasB = cache.has(b);
 
@@ -277,12 +263,7 @@ export function toValues(set: Set<any>) {
  * @param meta the meta object to pass through
  * @returns are the arrays equal
  */
-export function areArraysEqual(
-  a: any[],
-  b: any[],
-  isEqual: EqualityComparator,
-  meta: any
-) {
+export function areArraysEqual(a: any[], b: any[], isEqual: EqualityComparator, meta: any) {
   const { length } = a;
 
   if (b.length !== length) {
@@ -314,7 +295,7 @@ export function areMapsEqual(
   a: Map<any, any>,
   b: Map<any, any>,
   isEqual: EqualityComparator,
-  meta: any
+  meta: any,
 ) {
   if (a.size !== b.size) {
     return false;
@@ -346,7 +327,7 @@ const OWNER = "_owner";
 
 const hasOwnProperty = Function.prototype.bind.call(
   Function.prototype.call,
-  Object.prototype.hasOwnProperty
+  Object.prototype.hasOwnProperty,
 );
 
 /**
@@ -365,7 +346,7 @@ export function areObjectsEqual(
   a: Dictionary<any>,
   b: Dictionary<any>,
   isEqual: EqualityComparator,
-  meta: any
+  meta: any,
 ) {
   const keysA = keys(a);
 
@@ -430,12 +411,7 @@ export function areRegExpsEqual(a: RegExp, b: RegExp) {
  * @param meta the meta set to pass through
  * @returns are the sets equal
  */
-export function areSetsEqual(
-  a: Set<any>,
-  b: Set<any>,
-  isEqual: EqualityComparator,
-  meta: any
-) {
+export function areSetsEqual(a: Set<any>, b: Set<any>, isEqual: EqualityComparator, meta: any) {
   if (a.size !== b.size) {
     return false;
   }
@@ -469,9 +445,7 @@ type EqualityComparatorCreator = (fn: EqualityComparator) => EqualityComparator;
 export function createComparator(createIsEqual?: EqualityComparatorCreator) {
   const isEqual: EqualityComparator =
     /* eslint-disable no-use-before-define */
-    typeof createIsEqual === "function"
-      ? createIsEqual(comparator)
-      : comparator;
+    typeof createIsEqual === "function" ? createIsEqual(comparator) : comparator;
   /* eslint-enable */
 
   /**

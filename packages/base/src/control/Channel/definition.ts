@@ -16,15 +16,7 @@ export const enum ChannelTag {
   Give = "Give",
 }
 
-export abstract class Channel<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone
-> {
+export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
   readonly _Env!: (_: Env) => void;
   readonly _InErr!: (_: InErr) => void;
   readonly _InElem!: (_: InElem) => void;

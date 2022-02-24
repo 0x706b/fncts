@@ -40,7 +40,7 @@ export const defaultString: Logger<string, string> = new Logger(
     // TODO: render Cause, and Annotations
 
     return s;
-  }
+  },
 );
 
 /**

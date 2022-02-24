@@ -53,20 +53,14 @@ export namespace HKT {
     readonly [CURI]: C;
   }
 
-  export interface Typeclass2<
-    F extends HKT,
-    G extends HKT,
-    C = None,
-    D = None
-  > {
+  export interface Typeclass2<F extends HKT, G extends HKT, C = None, D = None> {
     readonly _F: F;
     readonly _G: G;
     readonly _CF: C;
     readonly _CG: D;
   }
 
-  export interface Compose2<F extends HKT, G extends HKT, C = None, D = None>
-    extends HKT {
+  export interface Compose2<F extends HKT, G extends HKT, C = None, D = None> extends HKT {
     readonly type: Kind<
       F,
       C,
@@ -216,22 +210,8 @@ export namespace HKT {
       })["type"]
     : FK<F, K, Q, W, X, I, S, R, E, A>;
 
-  export type Infer<F extends HKT, C, N extends ParamName | "C", K> = [
-    K
-  ] extends [
-    Kind<
-      F,
-      C,
-      infer K,
-      infer Q,
-      infer W,
-      infer X,
-      infer I,
-      infer S,
-      infer R,
-      infer E,
-      infer A
-    >
+  export type Infer<F extends HKT, C, N extends ParamName | "C", K> = [K] extends [
+    Kind<F, C, infer K, infer Q, infer W, infer X, infer I, infer S, infer R, infer E, infer A>,
   ]
     ? N extends "C"
       ? C
@@ -266,10 +246,9 @@ export namespace HKT {
     _: any;
   }
 
-  export type Low<
-    F extends HKT,
-    N extends ParamName
-  > = F["variance"][N] extends Variance ? Lows[F["variance"][N]] : never;
+  export type Low<F extends HKT, N extends ParamName> = F["variance"][N] extends Variance
+    ? Lows[F["variance"][N]]
+    : never;
 
   /*
    * Type mixing for variance
@@ -293,17 +272,12 @@ export namespace HKT {
   export type Mix<
     F extends HKT,
     N extends ParamName,
-    P extends ReadonlyArray<unknown>
+    P extends ReadonlyArray<unknown>,
   > = F["variance"][N] extends Variance ? Mixes<P>[F["variance"][N]] : P[0];
 
   export type OrNever<K> = unknown extends K ? never : K;
 
-  export type MixStruct<
-    F extends HKT,
-    N extends ParamName,
-    X,
-    Y
-  > = F["variance"][N] extends "_"
+  export type MixStruct<F extends HKT, N extends ParamName, X, Y> = F["variance"][N] extends "_"
     ? X
     : F["variance"][N] extends "+"
     ? Y[keyof Y]
@@ -321,12 +295,9 @@ export namespace HKT {
    * Type introduction for variance
    */
 
-  export type Intro<
-    F extends HKT,
-    N extends ParamName,
-    A,
-    B
-  > = F["variance"][N] extends Variance ? Intros<A, B>[F["variance"][N]] : A;
+  export type Intro<F extends HKT, N extends ParamName, A, B> = F["variance"][N] extends Variance
+    ? Intros<A, B>[F["variance"][N]]
+    : A;
 
   /**
    * Type parameter constraint
@@ -350,9 +321,7 @@ export namespace HKT {
     };
   }
 
-  export type OrFix<C, N extends ParamName, A> = C extends Fix<N, infer X>
-    ? X
-    : A;
+  export type OrFix<C, N extends ParamName, A> = C extends Fix<N, infer X> ? X : A;
 
   export type OrExtend<C, N extends ParamName, A> = C extends Extend<N, infer X>
     ? A extends X
@@ -360,16 +329,9 @@ export namespace HKT {
       : X
     : A;
 
-  export type GetExtends<C, N extends ParamName, A> = C extends Extend<
-    N,
-    infer X
-  >
-    ? X
-    : A;
+  export type GetExtends<C, N extends ParamName, A> = C extends Extend<N, infer X> ? X : A;
 
-  export type IndexFor<F extends HKT, K> = F extends { readonly index: unknown }
-    ? F["index"]
-    : K;
+  export type IndexFor<F extends HKT, K> = F extends { readonly index: unknown } ? F["index"] : K;
 
   export type InferKind<F extends HKT, FC, A> = [A] extends [
     HKT.Kind<
@@ -384,7 +346,7 @@ export namespace HKT {
       infer R,
       infer E,
       infer B
-    >
+    >,
   ]
     ? HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, ReadonlyArray<B>>
     : never;
@@ -397,7 +359,7 @@ export namespace HKT {
    * @tsplus smart:identity
    */
   export function instance<F>(
-    _: Omit<F, typeof URI | typeof CURI | "_F" | "_G" | "_CF" | "_CG">
+    _: Omit<F, typeof URI | typeof CURI | "_F" | "_G" | "_CF" | "_CG">,
   ): F {
     // @ts-expect-error: typelevel utility
     return _;

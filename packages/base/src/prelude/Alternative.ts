@@ -21,10 +21,7 @@ export interface AlternativeOps {}
 
 export const Alternative: AlternativeOps = {};
 
-export type AlternativeMin<F extends HKT, FC = HKT.None> = ApplicativeMin<
-  F,
-  FC
-> &
+export type AlternativeMin<F extends HKT, FC = HKT.None> = ApplicativeMin<F, FC> &
   NilMin<F, FC> &
   AltMin<F, FC>;
 
@@ -32,7 +29,7 @@ export type AlternativeMin<F extends HKT, FC = HKT.None> = ApplicativeMin<
  * @tsplus static fncts.prelude.AlternativeOps __call
  */
 export function mkAlternative<F extends HKT, C = HKT.None>(
-  F: AlternativeMin<F, C>
+  F: AlternativeMin<F, C>,
 ): Alternative<F, C> {
   return HKT.instance<Alternative<F, C>>({
     ...Applicative(F),

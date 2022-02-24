@@ -15,10 +15,7 @@ export type TagTypeId = typeof TagTypeId;
 export class Tag<T> {
   readonly _typeId: TagTypeId = TagTypeId;
   readonly _T!: T;
-  constructor(
-    readonly def: boolean = false,
-    readonly key: PropertyKey = Symbol()
-  ) {}
+  constructor(readonly def: boolean = false, readonly key: PropertyKey = Symbol()) {}
   readonly overridable = (): Tag<T> => new Tag(true, this.key);
   readonly fixed       = (): Tag<T> => new Tag(false, this.key);
   readonly refine      = <T1 extends T>(): Tag<T1> => new Tag(this.def, this.key);

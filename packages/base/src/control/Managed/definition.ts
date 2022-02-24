@@ -28,7 +28,7 @@ export type EManaged<E, A> = Managed<unknown, E, A>;
  * @tsplus unify fncts.control.Managed
  */
 export function unifyManaged<X extends Managed<any, any, any>>(
-  _: X
+  _: X,
 ): Managed<
   [X] extends [Managed<infer R, any, any>] ? R : never,
   [X] extends [Managed<any, infer E, any>] ? E : never,

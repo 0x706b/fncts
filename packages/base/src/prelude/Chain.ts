@@ -26,12 +26,9 @@ export type ChainMin<F extends HKT, FC = HKT.None> = {
 /**
  * @tsplus static fncts.ChainOps __call
  */
-export function mkChain<F extends HKT, FC = HKT.None>(
-  F: ChainMin<F, FC>
-): Chain<F, FC>;
+export function mkChain<F extends HKT, FC = HKT.None>(F: ChainMin<F, FC>): Chain<F, FC>;
 export function mkChain<F>(F: ChainMin<HKT.F<F>>): Chain<HKT.F<F>> {
-  const tap_: tap_<HKT.F<F>> = (ma, f) =>
-    F.chain_(ma, (a) => F.map_(f(a), () => a));
+  const tap_: tap_<HKT.F<F>>       = (ma, f) => F.chain_(ma, (a) => F.map_(f(a), () => a));
   const flatten: flatten<HKT.F<F>> = (mma) => F.chain_(mma, identity);
   return HKT.instance<Chain<HKT.F<F>>>({
     ...Functor(F),
@@ -47,7 +44,7 @@ export interface chain_<F extends HKT, FC = HKT.None> {
   <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
     ma: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
     f: (
-      a: A
+      a: A,
     ) => HKT.Kind<
       F,
       FC,
@@ -60,7 +57,7 @@ export interface chain_<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       B
-    >
+    >,
   ): HKT.Kind<
     F,
     FC,
@@ -78,7 +75,7 @@ export interface chain_<F extends HKT, FC = HKT.None> {
 
 export interface chain<F extends HKT, TC = HKT.None> {
   <K2, Q2, W2, X2, I2, S2, R2, E2, B, A>(
-    f: (a: A) => HKT.Kind<F, TC, K2, Q2, W2, X2, I2, S2, R2, E2, B>
+    f: (a: A) => HKT.Kind<F, TC, K2, Q2, W2, X2, I2, S2, R2, E2, B>,
   ): <K1, Q1, W1, X1, I1, S1, R1, E1>(
     ma: HKT.Kind<
       F,
@@ -92,7 +89,7 @@ export interface chain<F extends HKT, TC = HKT.None> {
       HKT.Intro<F, "R", R2, R1>,
       HKT.Intro<F, "E", E2, E1>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     TC,
@@ -134,7 +131,7 @@ export interface flatten<F extends HKT, FC = HKT.None> {
         HKT.Intro<F, "E", E2, E1>,
         A
       >
-    >
+    >,
   ): HKT.Kind<
     F,
     FC,
@@ -154,7 +151,7 @@ export interface tap_<F extends HKT, FC = HKT.None> {
   <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
     ma: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
     f: (
-      a: A
+      a: A,
     ) => HKT.Kind<
       F,
       FC,
@@ -167,7 +164,7 @@ export interface tap_<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       B
-    >
+    >,
   ): HKT.Kind<
     F,
     FC,
@@ -185,7 +182,7 @@ export interface tap_<F extends HKT, FC = HKT.None> {
 
 export interface tap<F extends HKT, TC = HKT.None> {
   <K2, Q2, W2, X2, I2, S2, R2, E2, B, A>(
-    f: (a: A) => HKT.Kind<F, TC, K2, Q2, W2, X2, I2, S2, R2, E2, B>
+    f: (a: A) => HKT.Kind<F, TC, K2, Q2, W2, X2, I2, S2, R2, E2, B>,
   ): <K1, Q1, W1, X1, I1, S1, R1, E1>(
     ma: HKT.Kind<
       F,
@@ -199,7 +196,7 @@ export interface tap<F extends HKT, TC = HKT.None> {
       HKT.Intro<F, "R", R2, R1>,
       HKT.Intro<F, "E", E2, E1>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     TC,

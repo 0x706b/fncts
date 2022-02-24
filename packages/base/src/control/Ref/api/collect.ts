@@ -14,9 +14,7 @@ import { Maybe, Nothing } from "../../../data/Maybe";
  */
 export function collect_<RA, RB, EA, EB, A, B, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
-  pf: (_: B) => Maybe<C>
+  pf: (_: B) => Maybe<C>,
 ): PRef<RA, RB, EA, Maybe<EB>, A, C> {
-  return ref.match(identity, Maybe.just, Either.right, (b) =>
-    pf(b).toEither(Nothing())
-  );
+  return ref.match(identity, Maybe.just, Either.right, (b) => pf(b).toEither(Nothing()));
 }

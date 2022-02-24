@@ -11,7 +11,7 @@ import type { IO } from "../../IO";
 export class Reservation<R, E, A> {
   constructor(
     readonly acquire: IO<R, E, A>,
-    readonly release: (exit: Exit<any, any>) => IO<R, never, any>
+    readonly release: (exit: Exit<any, any>) => IO<R, never, any>,
   ) {}
 }
 
@@ -20,7 +20,7 @@ export class Reservation<R, E, A> {
  */
 export function make<R, E, A>(
   acquire: IO<R, E, A>,
-  release: (exit: Exit<any, any>) => IO<R, never, any>
+  release: (exit: Exit<any, any>) => IO<R, never, any>,
 ): Reservation<R, E, A> {
   return new Reservation(acquire, release);
 }

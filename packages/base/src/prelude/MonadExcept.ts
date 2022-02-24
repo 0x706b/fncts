@@ -22,21 +22,16 @@ export interface MonadExceptOps {}
 
 export const MonadExcept: MonadExceptOps = {};
 
-export type MonadExceptMin<F extends HKT.CovariantE, FC = HKT.None> = MonadMin<
-  F,
-  FC
-> &
+export type MonadExceptMin<F extends HKT.CovariantE, FC = HKT.None> = MonadMin<F, FC> &
   ApplicativeExceptMin<F, FC>;
 
 /**
  * @tsplus static fncts.prelude.MonadExceptOps __call
  */
 export function mkMonadExcept<F extends HKT.CovariantE, FC = HKT.None>(
-  F: MonadExceptMin<F, FC>
+  F: MonadExceptMin<F, FC>,
 ): MonadExcept<F, FC>;
-export function mkMonadExcept<F>(
-  F: MonadExceptMin<HKT.FCoE<F>>
-): MonadExcept<HKT.FCoE<F>> {
+export function mkMonadExcept<F>(F: MonadExceptMin<HKT.FCoE<F>>): MonadExcept<HKT.FCoE<F>> {
   return HKT.instance<MonadExcept<HKT.FCoE<F>>>({
     ...Monad(F),
     ...ApplicativeExcept(F),
@@ -46,7 +41,7 @@ export function mkMonadExcept<F>(
 
 export interface absolve<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, E1, A>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, Either<HKT.OrFix<FC, "E", E1>, A>>
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, Either<HKT.OrFix<FC, "E", E1>, A>>,
   ): HKT.Kind<F, FC, K, Q, W, X, I, S, R, HKT.Mix<F, "E", [E, E1]>, A>;
 }
 
@@ -54,10 +49,8 @@ export interface absolve<F extends HKT, FC = HKT.None> {
  * @tsplus static fncts.prelude.MonadExceptOps absolveF
  */
 export function absolveF<F extends HKT.CovariantE, FC = HKT.None>(
-  F: MonadExceptMin<F, FC>
+  F: MonadExceptMin<F, FC>,
 ): absolve<F, FC>;
-export function absolveF<F>(
-  F: MonadExceptMin<HKT.FCoE<F>>
-): absolve<HKT.FCoE<F>> {
+export function absolveF<F>(F: MonadExceptMin<HKT.FCoE<F>>): absolve<HKT.FCoE<F>> {
   return (fa) => F.chain_(fa, (r) => r.match(F.fail, F.pure));
 }

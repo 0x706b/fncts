@@ -16,10 +16,7 @@ import { Done, FutureStateTag, Pending } from "./definition";
  *
  * @tsplus fluent fncts.control.Future done
  */
-export function done_<E, A>(
-  future: Future<E, A>,
-  exit: Exit<E, A>
-): UIO<boolean> {
+export function done_<E, A>(future: Future<E, A>, exit: Exit<E, A>): UIO<boolean> {
   return future.fulfillWith(IO.fromExitNow(exit));
 }
 
@@ -39,10 +36,7 @@ export function fail_<E, A>(future: Future<E, A>, e: E): UIO<boolean> {
  *
  * @tsplus fluent fncts.control.Future failCause
  */
-export function failCause_<E, A>(
-  future: Future<E, A>,
-  cause: Cause<E>
-): UIO<boolean> {
+export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>): UIO<boolean> {
   return future.fulfillWith(IO.failCauseNow(cause));
 }
 
@@ -55,12 +49,9 @@ export function failCause_<E, A>(
  *
  * @tsplus fluent fncts.control.Future fulfill
  */
-export function fulfill_<R, E, A>(
-  future: Future<E, A>,
-  io: IO<R, E, A>
-): IO<R, never, boolean> {
+export function fulfill_<R, E, A>(future: Future<E, A>, io: IO<R, E, A>): IO<R, never, boolean> {
   return IO.uninterruptibleMask(({ restore }) =>
-    restore(io).result.chain((exit) => future.done(exit))
+    restore(io).result.chain((exit) => future.done(exit)),
   );
 }
 
@@ -79,10 +70,7 @@ export function fulfill_<R, E, A>(
  *
  * @tsplus fluent fncts.control.Future fulfillWith
  */
-export function fulfillWith_<E, A>(
-  future: Future<E, A>,
-  io: FIO<E, A>
-): UIO<boolean> {
+export function fulfillWith_<E, A>(future: Future<E, A>, io: FIO<E, A>): UIO<boolean> {
   return IO.succeed(() => {
     switch (future.state._tag) {
       case FutureStateTag.Done: {
@@ -106,10 +94,7 @@ export function fulfillWith_<E, A>(
  *
  * @tsplus fluent fncts.control.Future halt
  */
-export function halt_<E, A>(
-  future: Future<E, A>,
-  defect: unknown
-): UIO<boolean> {
+export function halt_<E, A>(future: Future<E, A>, defect: unknown): UIO<boolean> {
   return future.fulfillWith(IO.haltNow(defect));
 }
 
@@ -129,10 +114,7 @@ export function interrupt<E, A>(future: Future<E, A>): UIO<boolean> {
  *
  * @tsplus fluent fncts.control.Future interruptAs
  */
-export function interruptAs_<E, A>(
-  future: Future<E, A>,
-  id: FiberId
-): UIO<boolean> {
+export function interruptAs_<E, A>(future: Future<E, A>, id: FiberId): UIO<boolean> {
   return future.fulfillWith(IO.interruptAs(id));
 }
 
@@ -212,14 +194,12 @@ export function wait<E, A>(future: Future<E, A>): IO<unknown, E, A> {
 
 function interruptJoiner<E, A>(
   future: Future<E, A>,
-  joiner: (a: FIO<E, A>) => void
+  joiner: (a: FIO<E, A>) => void,
 ): Canceler<unknown> {
   return IO.succeed(() => {
     switch (future.state._tag) {
       case FutureStateTag.Pending: {
-        future.state = new Pending(
-          future.state.joiners.filter((j) => j !== joiner)
-        );
+        future.state = new Pending(future.state.joiners.filter((j) => j !== joiner));
         break;
       }
       case FutureStateTag.Done: {

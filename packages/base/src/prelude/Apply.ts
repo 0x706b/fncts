@@ -9,9 +9,7 @@ import { HKT } from "./HKT";
 /**
  * @tsplus type fncts.Apply
  */
-export interface Apply<F extends HKT, FC = HKT.None>
-  extends Semimonoidal<F, FC>,
-    Functor<F, FC> {
+export interface Apply<F extends HKT, FC = HKT.None> extends Semimonoidal<F, FC>, Functor<F, FC> {
   readonly ap_: ap_<F, FC>;
   readonly ap: ap<F, FC>;
   readonly apFirst_: apFirst_<F, FC>;
@@ -37,14 +35,10 @@ export type ApplyMin<F extends HKT, FC = HKT.None> = {
 /**
  * @tsplus static fncts.ApplyOps __call
  */
-export function mkApply<F extends HKT, FC = HKT.None>(
-  F: ApplyMin<F, FC>
-): Apply<F, FC>;
+export function mkApply<F extends HKT, FC = HKT.None>(F: ApplyMin<F, FC>): Apply<F, FC>;
 export function mkApply<F>(F: ApplyMin<HKT.F<F>>): Apply<HKT.F<F>> {
-  const apFirst_: apFirst_<HKT.F<F>> = (fa, fb) =>
-    F.zipWith_(fa, fb, (a, _) => a);
-  const apSecond_: apSecond_<HKT.F<F>> = (fa, fb) =>
-    F.zipWith_(fa, fb, (_, b) => b);
+  const apFirst_: apFirst_<HKT.F<F>>   = (fa, fb) => F.zipWith_(fa, fb, (a, _) => a);
+  const apSecond_: apSecond_<HKT.F<F>> = (fa, fb) => F.zipWith_(fa, fb, (_, b) => b);
   return HKT.instance<Apply<HKT.F<F>>>({
     ...Functor(F),
     ap_: F.ap_,
@@ -75,7 +69,7 @@ export interface ap_<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       A
-    >
+    >,
   ): HKT.Kind<
     F,
     FC,
@@ -92,9 +86,17 @@ export interface ap_<F extends HKT, FC = HKT.None> {
 }
 
 export interface ap<F extends HKT, FC = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, A>(
-    fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>
-  ): <K2, Q2, W2, X2, I2, S2, R2, E2, B>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, A>(fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>): <
+    K2,
+    Q2,
+    W2,
+    X2,
+    I2,
+    S2,
+    R2,
+    E2,
+    B,
+  >(
     fab: HKT.Kind<
       F,
       FC,
@@ -107,7 +109,7 @@ export interface ap<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       (a: A) => B
-    >
+    >,
   ) => HKT.Kind<
     F,
     FC,
@@ -138,7 +140,7 @@ export interface apFirst_<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       B
-    >
+    >,
   ): HKT.Kind<
     F,
     FC,
@@ -155,9 +157,17 @@ export interface apFirst_<F extends HKT, FC = HKT.None> {
 }
 
 export interface apFirst<F extends HKT, FC = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>
-  ): <K2, Q2, W2, X2, I2, S2, R2, E2, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K2,
+    Q2,
+    W2,
+    X2,
+    I2,
+    S2,
+    R2,
+    E2,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       FC,
@@ -170,7 +180,7 @@ export interface apFirst<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     FC,
@@ -201,7 +211,7 @@ export interface apSecond_<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       B
-    >
+    >,
   ): HKT.Kind<
     F,
     FC,
@@ -218,9 +228,17 @@ export interface apSecond_<F extends HKT, FC = HKT.None> {
 }
 
 export interface apSecond<F extends HKT, FC = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>
-  ): <K2, Q2, W2, X2, I2, S2, R2, E2, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K2,
+    Q2,
+    W2,
+    X2,
+    I2,
+    S2,
+    R2,
+    E2,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       FC,
@@ -233,7 +251,7 @@ export interface apSecond<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     FC,
@@ -265,7 +283,7 @@ export interface zipWith_<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "E", E1, E2>,
       B
     >,
-    f: (a: A, b: B) => C
+    f: (a: A, b: B) => C,
   ): HKT.Kind<
     F,
     FC,
@@ -284,7 +302,7 @@ export interface zipWith_<F extends HKT, FC = HKT.None> {
 export interface zipWith<F extends HKT, FC = HKT.None> {
   <A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
     fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
-    f: (a: A, b: B) => C
+    f: (a: A, b: B) => C,
   ): <K2, Q2, W2, X2, I2, S2, R2, E2>(
     fa: HKT.Kind<
       F,
@@ -298,7 +316,7 @@ export interface zipWith<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     FC,
@@ -315,27 +333,7 @@ export interface zipWith<F extends HKT, FC = HKT.None> {
 }
 
 export interface apS_<F extends HKT, FC = HKT.None> {
-  <
-    K1,
-    Q1,
-    W1,
-    X1,
-    I1,
-    S1,
-    R1,
-    E1,
-    A,
-    BN extends string,
-    K2,
-    Q2,
-    W2,
-    X2,
-    I2,
-    S2,
-    R2,
-    E2,
-    B
-  >(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, A, BN extends string, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
     fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
     name: Exclude<BN, keyof A>,
     fb: HKT.Kind<
@@ -350,7 +348,7 @@ export interface apS_<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R2>,
       HKT.Intro<F, "E", E1, E2>,
       B
-    >
+    >,
   ): HKT.Kind<
     F,
     FC,
@@ -369,7 +367,7 @@ export interface apS_<F extends HKT, FC = HKT.None> {
 export interface apS<F extends HKT, FC = HKT.None> {
   <BN extends string, K1, Q1, W1, X1, I1, S1, R1, E1, A1, A>(
     name: Exclude<BN, keyof A>,
-    fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A1>
+    fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A1>,
   ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<
       F,
@@ -383,7 +381,7 @@ export interface apS<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "R", R1, R>,
       HKT.Intro<F, "E", E1, E>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     FC,
@@ -427,7 +425,7 @@ export interface sequenceS<F extends HKT, FC = HKT.None> {
     I = HKT.Low<F, "I">,
     S = HKT.Low<F, "S">,
     R = HKT.Low<F, "R">,
-    E = HKT.Low<F, "E">
+    E = HKT.Low<F, "E">,
   >(
     r: Object.EnforceNonEmpty<KS> &
       Readonly<
@@ -447,7 +445,7 @@ export interface sequenceS<F extends HKT, FC = HKT.None> {
             A
           >
         >
-      >
+      >,
   ): HKT.Kind<
     F,
     FC,
@@ -468,9 +466,7 @@ export interface sequenceS<F extends HKT, FC = HKT.None> {
 /**
  * @tsplus static fncts.ApplyOps sequenceSF
  */
-export function sequenceSF<F extends HKT, C = HKT.None>(
-  F: ApplyMin<F, C>
-): sequenceS<F, C>;
+export function sequenceSF<F extends HKT, C = HKT.None>(F: ApplyMin<F, C>): sequenceS<F, C>;
 export function sequenceSF<F>(F: ApplyMin<HKT.F<F>>): sequenceS<HKT.F<F>> {
   return (r) => {
     const keys = globalThis.Object.keys(r);
@@ -523,7 +519,7 @@ export interface sequenceT<F extends HKT, FC = HKT.None> {
     I = HKT.Low<F, "I">,
     S = HKT.Low<F, "S">,
     R = HKT.Low<F, "R">,
-    E = HKT.Low<F, "E">
+    E = HKT.Low<F, "E">,
   >(
     ...t: KT
   ): HKT.Kind<
@@ -546,9 +542,7 @@ export interface sequenceT<F extends HKT, FC = HKT.None> {
 /**
  * @tsplus static fncts.ApplyOps sequenceTF
  */
-export function sequenceTF<F extends HKT, FC = HKT.None>(
-  F: ApplyMin<F, FC>
-): sequenceT<F, FC>;
+export function sequenceTF<F extends HKT, FC = HKT.None>(F: ApplyMin<F, FC>): sequenceT<F, FC>;
 export function sequenceTF<F>(F: ApplyMin<HKT.F<F>>): sequenceT<HKT.F<F>> {
   return (...t) => {
     const len = t.length;
@@ -616,31 +610,24 @@ function getRecordConstructor(keys: ReadonlyArray<string>) {
       return r;
     },
     len - 1,
-    []
+    [],
   );
 }
 
 /**
  * @internal
  */
-type InferMixStruct<
-  F extends HKT,
-  FC,
-  P extends HKT.ParamName,
+type InferMixStruct<F extends HKT, FC, P extends HKT.ParamName, T, KS> = HKT.MixStruct<
+  F,
+  P,
   T,
-  KS
-> = HKT.MixStruct<F, P, T, { [K in keyof KS]: HKT.Infer<F, FC, P, KS[K]> }>;
+  { [K in keyof KS]: HKT.Infer<F, FC, P, KS[K]> }
+>;
 
 /**
  * @internal
  */
-type InferMixTuple<
-  F extends HKT,
-  FC,
-  P extends HKT.ParamName,
-  T,
-  KT
-> = HKT.MixStruct<
+type InferMixTuple<F extends HKT, FC, P extends HKT.ParamName, T, KT> = HKT.MixStruct<
   F,
   P,
   T,

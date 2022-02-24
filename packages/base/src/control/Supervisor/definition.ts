@@ -13,16 +13,10 @@ export abstract class Supervisor<A> {
     environment: R,
     effect: IO<R, E, A>,
     parent: Maybe<RuntimeFiber<E, A>>,
-    fiber: RuntimeFiber<E, A>
+    fiber: RuntimeFiber<E, A>,
   ): void;
-  abstract unsafeOnEnd<E, A>(
-    value: Exit<E, A>,
-    fiber: RuntimeFiber<E, A>
-  ): void;
-  unsafeOnEffect<E, A>(
-    _fiber: RuntimeFiber<E, A>,
-    _effect: IO<any, any, any>
-  ): void {
+  abstract unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>): void;
+  unsafeOnEffect<E, A>(_fiber: RuntimeFiber<E, A>, _effect: IO<any, any, any>): void {
     return;
   }
   unsafeOnSuspend<E, A>(_fiber: RuntimeFiber<E, A>): void {
@@ -62,17 +56,14 @@ export class ProxySupervisor<A> extends Supervisor<A> {
     environment: R,
     effect: IO<R, E, A>,
     parent: Maybe<RuntimeFiber<E, A>>,
-    fiber: RuntimeFiber<E, A>
+    fiber: RuntimeFiber<E, A>,
   ): void {
     this.underlying.unsafeOnStart(environment, effect, parent, fiber);
   }
   unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>): void {
     this.underlying.unsafeOnEnd(value, fiber);
   }
-  unsafeOnEffect<E, A>(
-    fiber: RuntimeFiber<E, A>,
-    effect: IO<any, any, any>
-  ): void {
+  unsafeOnEffect<E, A>(fiber: RuntimeFiber<E, A>, effect: IO<any, any, any>): void {
     this.underlying.unsafeOnEffect(fiber, effect);
   }
   unsafeOnSuspend<E, A>(fiber: RuntimeFiber<E, A>) {

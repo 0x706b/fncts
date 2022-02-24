@@ -54,7 +54,7 @@ export function match_<A, B, C>(
   strategy: ExecutionStrategy,
   sequential: () => A,
   concurrent: () => B,
-  concurrentBounded: (fiberBound: number) => C
+  concurrentBounded: (fiberBound: number) => C,
 ): A | B | C {
   switch (strategy._tag) {
     case "Sequential": {
@@ -75,8 +75,7 @@ export function match_<A, B, C>(
 export function match<A, B, C>(
   sequential: () => A,
   concurrent: () => B,
-  concurrentBounded: (fiberBound: number) => C
+  concurrentBounded: (fiberBound: number) => C,
 ): (strategy: ExecutionStrategy) => A | B | C {
-  return (strategy) =>
-    match_(strategy, sequential, concurrent, concurrentBounded);
+  return (strategy) => match_(strategy, sequential, concurrent, concurrentBounded);
 }

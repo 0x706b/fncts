@@ -42,9 +42,7 @@ export type SemialignMin<F extends HKT, C = HKT.None> = (
 /**
  * @tsplus static fncts.prelude.SemialignOps __call
  */
-export function mkSemialign<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
-): Semialign<F, C>;
+export function mkSemialign<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): Semialign<F, C>;
 export function mkSemialign<F>(F: SemialignMin<HKT.F<F>>): Semialign<HKT.F<F>> {
   const alignCombine_ = alignCombineF_(F);
   const padZip_       = padZipF_(F);
@@ -103,7 +101,7 @@ export interface align_<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R, R1>,
       HKT.Intro<F, "E", E, E1>,
       B
-    >
+    >,
   ): HKT.Kind<
     F,
     C,
@@ -120,9 +118,17 @@ export interface align_<F extends HKT, C = HKT.None> {
 }
 
 export interface align<F extends HKT, C = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>
-  ): <K, Q, W, X, I, S, R, E, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K,
+    Q,
+    W,
+    X,
+    I,
+    S,
+    R,
+    E,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       C,
@@ -135,7 +141,7 @@ export interface align<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R1, R>,
       HKT.Intro<F, "E", E1, E>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     C,
@@ -167,7 +173,7 @@ export interface alignWith_<F extends HKT, TC = HKT.None> {
       HKT.Intro<F, "E", E, E1>,
       B
     >,
-    f: (th: These<A, B>) => C
+    f: (th: These<A, B>) => C,
   ): HKT.Kind<
     F,
     TC,
@@ -186,7 +192,7 @@ export interface alignWith_<F extends HKT, TC = HKT.None> {
 export interface alignWith<F extends HKT, TC = HKT.None> {
   <A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
     fb: HKT.Kind<F, TC, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
-    f: (th: These<A, B>) => C
+    f: (th: These<A, B>) => C,
   ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<
       F,
@@ -200,7 +206,7 @@ export interface alignWith<F extends HKT, TC = HKT.None> {
       HKT.Intro<F, "R", R1, R>,
       HKT.Intro<F, "E", E1, E>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     TC,
@@ -216,9 +222,7 @@ export interface alignWith<F extends HKT, TC = HKT.None> {
   >;
 }
 
-export function alignWithF_<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
-): alignWith_<F, C> {
+export function alignWithF_<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): alignWith_<F, C> {
   if ("alignWith_" in F) {
     return F.alignWith_;
   } else {
@@ -227,24 +231,7 @@ export function alignWithF_<F extends HKT, C = HKT.None>(
 }
 
 export interface alignCombine_<F extends HKT, C = HKT.None> {
-  <A>(S: Semigroup<A>): <
-    K,
-    Q,
-    W,
-    X,
-    I,
-    S,
-    R,
-    E,
-    K1,
-    Q1,
-    W1,
-    X1,
-    I1,
-    S1,
-    R1,
-    E1
-  >(
+  <A>(S: Semigroup<A>): <K, Q, W, X, I, S, R, E, K1, Q1, W1, X1, I1, S1, R1, E1>(
     fa1: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>,
     fa2: HKT.Kind<
       F,
@@ -258,7 +245,7 @@ export interface alignCombine_<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R, R1>,
       HKT.Intro<F, "E", E, E1>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     C,
@@ -276,7 +263,7 @@ export interface alignCombine_<F extends HKT, C = HKT.None> {
 
 export interface alignCombine<F extends HKT, C = HKT.None> {
   <A>(S: Semigroup<A>): <K1, Q1, W1, X1, I1, S1, R1, E1>(
-    fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, A>
+    fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
   ) => <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<
       F,
@@ -290,7 +277,7 @@ export interface alignCombine<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R1, R>,
       HKT.Intro<F, "E", E1, E>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     C,
@@ -307,7 +294,7 @@ export interface alignCombine<F extends HKT, C = HKT.None> {
 }
 
 export function alignCombineF_<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
+  F: SemialignMin<F, C>,
 ): alignCombine_<F, C> {
   const alignWith_ = alignWithF_(F);
   return (S) => (fa1, fa2) =>
@@ -315,11 +302,9 @@ export function alignCombineF_<F extends HKT, C = HKT.None>(
 }
 
 export function alignCombineF<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
+  F: SemialignMin<F, C>,
 ): alignCombine<F, C>;
-export function alignCombineF<F>(
-  F: SemialignMin<HKT.F<F>>
-): alignCombine<HKT.F<F>> {
+export function alignCombineF<F>(F: SemialignMin<HKT.F<F>>): alignCombine<HKT.F<F>> {
   return (S) => (fb) => (fa) => alignCombineF_(F)(S)(fa, fb);
 }
 
@@ -338,7 +323,7 @@ export interface padZip_<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R, R1>,
       HKT.Intro<F, "E", E, E1>,
       B
-    >
+    >,
   ): HKT.Kind<
     F,
     C,
@@ -355,9 +340,17 @@ export interface padZip_<F extends HKT, C = HKT.None> {
 }
 
 export interface padZip<F extends HKT, C = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>
-  ): <K, Q, W, X, I, S, R, E, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K,
+    Q,
+    W,
+    X,
+    I,
+    S,
+    R,
+    E,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       C,
@@ -370,7 +363,7 @@ export interface padZip<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R1, R>,
       HKT.Intro<F, "E", E1, E>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     C,
@@ -386,16 +379,12 @@ export interface padZip<F extends HKT, C = HKT.None> {
   >;
 }
 
-export function padZipF_<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
-): padZip_<F, C> {
+export function padZipF_<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): padZip_<F, C> {
   const padZipWith_ = padZipWithF_(F);
   return (fa, fb) => padZipWith_(fa, fb, identity);
 }
 
-export function padZipF<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
-): padZip<F, C>;
+export function padZipF<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): padZip<F, C>;
 export function padZipF<F>(F: SemialignMin<HKT.F<F>>): padZip<HKT.F<F>> {
   return (fb) => (fa) => padZipF_(F)(fa, fb);
 }
@@ -416,7 +405,7 @@ export interface padZipWith_<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "E", E, E1>,
       B
     >,
-    f: (_: readonly [Maybe<A>, Maybe<B>]) => D
+    f: (_: readonly [Maybe<A>, Maybe<B>]) => D,
   ): HKT.Kind<
     F,
     C,
@@ -435,7 +424,7 @@ export interface padZipWith_<F extends HKT, C = HKT.None> {
 export interface padZipWith<F extends HKT, C = HKT.None> {
   <A, K1, Q1, W1, X1, I1, S1, R1, E1, B, D>(
     fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
-    f: (_: readonly [Maybe<A>, Maybe<B>]) => D
+    f: (_: readonly [Maybe<A>, Maybe<B>]) => D,
   ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<
       F,
@@ -449,7 +438,7 @@ export interface padZipWith<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R1, R>,
       HKT.Intro<F, "E", E1, E>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     C,
@@ -466,7 +455,7 @@ export interface padZipWith<F extends HKT, C = HKT.None> {
 }
 
 export function padZipWithF_<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
+  F: SemialignMin<F, C>,
 ): padZipWith_<F, C> {
   const alignWith_ = alignWithF_(F);
   return (fa, fb, f) =>
@@ -474,17 +463,13 @@ export function padZipWithF_<F extends HKT, C = HKT.None>(
       th.match(
         (a) => f([Just(a), Nothing()]),
         (b) => f([Nothing(), Just(b)]),
-        (a, b) => f([Just(a), Just(b)])
-      )
+        (a, b) => f([Just(a), Just(b)]),
+      ),
     );
 }
 
-export function padZipWithF<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
-): padZipWith<F, C>;
-export function padZipWithF<F>(
-  F: SemialignMin<HKT.F<F>>
-): padZipWith<HKT.F<F>> {
+export function padZipWithF<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): padZipWith<F, C>;
+export function padZipWithF<F>(F: SemialignMin<HKT.F<F>>): padZipWith<HKT.F<F>> {
   return (fb, f) => (fa) => padZipWithF_(F)(fa, fb, f);
 }
 
@@ -505,7 +490,7 @@ export interface zipAll_<F extends HKT, C = HKT.None> {
       B
     >,
     a: A,
-    b: B
+    b: B,
   ): HKT.Kind<
     F,
     C,
@@ -525,7 +510,7 @@ export interface zipAll<F extends HKT, C = HKT.None> {
   <A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
     fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
     a: A,
-    b: B
+    b: B,
   ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<
       F,
@@ -539,7 +524,7 @@ export interface zipAll<F extends HKT, C = HKT.None> {
       HKT.Intro<F, "R", R1, R>,
       HKT.Intro<F, "E", E1, E>,
       A
-    >
+    >,
   ) => HKT.Kind<
     F,
     C,
@@ -555,23 +540,19 @@ export interface zipAll<F extends HKT, C = HKT.None> {
   >;
 }
 
-export function zipAllF_<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
-): zipAll_<F, C> {
+export function zipAllF_<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): zipAll_<F, C> {
   const alignWith_ = alignWithF_(F);
   return (fa, fb, a, b) =>
     alignWith_(fa, fb, (th) =>
       th.match(
         (x) => [x, b],
         (x) => [a, x],
-        tuple
-      )
+        tuple,
+      ),
     );
 }
 
-export function zipAllF<F extends HKT, C = HKT.None>(
-  F: SemialignMin<F, C>
-): zipAll<F, C>;
+export function zipAllF<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): zipAll<F, C>;
 export function zipAllF<F>(F: SemialignMin<HKT.F<F>>): zipAll<HKT.F<F>> {
   return (fb, a, b) => (fa) => zipAllF_(F)(fa, fb, a, b);
 }

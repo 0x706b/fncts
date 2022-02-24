@@ -34,7 +34,7 @@ export const NoLocation: TraceElement = {
 export function SourceLocation(
   fileName: string,
   lineNumber: number,
-  columnNumber: number
+  columnNumber: number,
 ): TraceElement {
   return { _tag: "SourceLocation", fileName, lineNumber, columnNumber };
 }

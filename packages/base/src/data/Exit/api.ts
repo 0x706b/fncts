@@ -8,60 +8,42 @@ import { Exit, ExitTag } from "./definition";
 /**
  * @tsplus fluent fncts.data.Exit ap
  */
-export function ap_<E, A, G, B>(
-  fab: Exit<G, (a: A) => B>,
-  fa: Exit<E, A>
-): Exit<E | G, B> {
+export function ap_<E, A, G, B>(fab: Exit<G, (a: A) => B>, fa: Exit<E, A>): Exit<E | G, B> {
   return chain_(fab, (f) => map_(fa, (a) => f(a)));
 }
 
 /**
  * @tsplus fluent fncts.data.Exit apFirst
  */
-export function apFirst_<E, G, A, B>(
-  fa: Exit<E, A>,
-  fb: Exit<G, B>
-): Exit<E | G, A> {
+export function apFirst_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, A> {
   return fa.zipWithCause(fb, (a, _) => a, Cause.then);
 }
 
 /**
  * @tsplus fluent fncts.data.Exit apSecond
  */
-export function apSecond_<E, G, A, B>(
-  fa: Exit<E, A>,
-  fb: Exit<G, B>
-): Exit<E | G, B> {
+export function apSecond_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, B> {
   return fa.zipWithCause(fb, (_, b) => b, Cause.then);
 }
 
 /**
  * @tsplus fluent fncts.data.Exit apFirstC
  */
-export function apFirstC_<E, G, A, B>(
-  fa: Exit<E, A>,
-  fb: Exit<G, B>
-): Exit<E | G, A> {
+export function apFirstC_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, A> {
   return fa.zipWithCause(fb, (a, _) => a, Cause.both);
 }
 
 /**
  * @tsplus fluent fncts.data.Exit apSecondC
  */
-export function apSecondC_<E, G, A, B>(
-  fa: Exit<E, A>,
-  fb: Exit<G, B>
-): Exit<E | G, B> {
+export function apSecondC_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, B> {
   return fa.zipWithCause(fb, (_, b) => b, Cause.both);
 }
 
 /**
  * @tsplus fluent fncts.data.Exit chain
  */
-export function chain_<E, A, G, B>(
-  ma: Exit<E, A>,
-  f: (a: A) => Exit<G, B>
-): Exit<E | G, B> {
+export function chain_<E, A, G, B>(ma: Exit<E, A>, f: (a: A) => Exit<G, B>): Exit<E | G, B> {
   return ma.isFailure() ? ma : f(ma.value);
 }
 
@@ -71,40 +53,34 @@ export function chain_<E, A, G, B>(
 export function bimap_<E1, A, E2, B>(
   self: Exit<E1, A>,
   f: (e: E1) => E2,
-  g: (a: A) => B
+  g: (a: A) => B,
 ): Exit<E2, B> {
-  return self.isFailure()
-    ? Exit.failCause(self.cause.map(f))
-    : Exit.succeed(g(self.value));
+  return self.isFailure() ? Exit.failCause(self.cause.map(f)) : Exit.succeed(g(self.value));
 }
 
 /**
  * @tsplus static fncts.data.ExitOps collectAll
  */
-export function collectAll<E, A>(
-  exits: Conc<Exit<E, A>>
-): Maybe<Exit<E, Conc<A>>> {
+export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
   return exits.head.map((head) =>
     exits
       .drop(1)
       .foldLeft(head.map(Conc.single), (acc, el) =>
-        acc.zipWithCause(el, (c, a) => c.append(a), Cause.then)
-      )
+        acc.zipWithCause(el, (c, a) => c.append(a), Cause.then),
+      ),
   );
 }
 
 /**
  * @tsplus static fncts.data.ExitOps collectAllC
  */
-export function collectAllC<E, A>(
-  exits: Conc<Exit<E, A>>
-): Maybe<Exit<E, Conc<A>>> {
+export function collectAllC<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
   return exits.head.map((head) =>
     exits
       .drop(1)
       .foldLeft(head.map(Conc.single), (acc, el) =>
-        acc.zipWithCause(el, (c, a) => c.append(a), Cause.both)
-      )
+        acc.zipWithCause(el, (c, a) => c.append(a), Cause.both),
+      ),
   );
 }
 
@@ -125,10 +101,7 @@ export function map_<E, A, B>(fa: Exit<E, A>, f: (a: A) => B): Exit<E, B> {
 /**
  * @tsplus fluent fncts.data.Exit mapError
  */
-export function mapError_<E1, A, E2>(
-  self: Exit<E1, A>,
-  f: (e: E1) => E2
-): Exit<E2, A> {
+export function mapError_<E1, A, E2>(self: Exit<E1, A>, f: (e: E1) => E2): Exit<E2, A> {
   return self.isFailure() ? Exit.failCause(self.cause.map(f)) : self;
 }
 
@@ -137,7 +110,7 @@ export function mapError_<E1, A, E2>(
  */
 export function mapErrorCause_<E1, A, E2>(
   self: Exit<E1, A>,
-  f: (e: Cause<E1>) => Cause<E2>
+  f: (e: Cause<E1>) => Cause<E2>,
 ): Exit<E2, A> {
   return self.isFailure() ? Exit.failCause(f(self.cause)) : self;
 }
@@ -148,7 +121,7 @@ export function mapErrorCause_<E1, A, E2>(
 export function match_<E, A, B, C>(
   exit: Exit<E, A>,
   onFailure: (e: Cause<E>) => B,
-  onSuccess: (a: A) => C
+  onSuccess: (a: A) => C,
 ): B | C {
   switch (exit._tag) {
     case ExitTag.Success: {
@@ -166,7 +139,7 @@ export function match_<E, A, B, C>(
 export function zipWith_<EA, A, EB, B, C>(
   fa: Exit<EA, A>,
   fb: Exit<EB, B>,
-  f: (a: A, b: B) => C
+  f: (a: A, b: B) => C,
 ): Exit<EA | EB, C> {
   return fa.zipWithCause(fb, f, Cause.then);
 }
@@ -177,7 +150,7 @@ export function zipWith_<EA, A, EB, B, C>(
 export function zipWithC_<EA, A, EB, B, C>(
   fa: Exit<EA, A>,
   fb: Exit<EB, B>,
-  f: (a: A, b: B) => C
+  f: (a: A, b: B) => C,
 ): Exit<EA | EB, C> {
   return fa.zipWithCause(fb, f, Cause.both);
 }
@@ -189,7 +162,7 @@ export function zipWithCause_<E, A, G, B, C>(
   fa: Exit<E, A>,
   fb: Exit<G, B>,
   f: (a: A, b: B) => C,
-  g: (ea: Cause<E>, eb: Cause<G>) => Cause<E | G>
+  g: (ea: Cause<E>, eb: Cause<G>) => Cause<E | G>,
 ): Exit<E | G, C> {
   switch (fa._tag) {
     case ExitTag.Failure: {
@@ -279,10 +252,7 @@ export function mapErrorCause<E1, E2>(f: (e: Cause<E1>) => Cause<E2>) {
 /**
  * @tsplus dataFirst match_
  */
-export function match<E, A, B, C>(
-  onFailure: (e: Cause<E>) => B,
-  onSuccess: (a: A) => C
-) {
+export function match<E, A, B, C>(onFailure: (e: Cause<E>) => B, onSuccess: (a: A) => C) {
   return (exit: Exit<E, A>): B | C => match_(exit, onFailure, onSuccess);
 }
 /**
@@ -303,7 +273,7 @@ export function zipWithC<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
 export function zipWithCause<E, A, G, B, C>(
   fb: Exit<G, B>,
   f: (a: A, b: B) => C,
-  g: (ea: Cause<E>, eb: Cause<G>) => Cause<E | G>
+  g: (ea: Cause<E>, eb: Cause<G>) => Cause<E | G>,
 ) {
   return (fa: Exit<E, A>): Exit<E | G, C> => zipWithCause_(fa, fb, f, g);
 }

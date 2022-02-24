@@ -48,11 +48,7 @@ export class Fail<E> {
   }
 
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isTExit(that) &&
-      isFail(that) &&
-      P.Equatable.strictEquals(this.value, that.value)
-    );
+    return isTExit(that) && isFail(that) && P.Equatable.strictEquals(this.value, that.value);
   }
 }
 
@@ -75,11 +71,7 @@ export class Succeed<A> {
   }
 
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isTExit(that) &&
-      isSucceed(that) &&
-      P.Equatable.strictEquals(this.value, that.value)
-    );
+    return isTExit(that) && isSucceed(that) && P.Equatable.strictEquals(this.value, that.value);
   }
 }
 
@@ -102,11 +94,7 @@ export class Halt {
   }
 
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isTExit(that) &&
-      isHalt(that) &&
-      P.Equatable.strictEquals(this.value, that.value)
-    );
+    return isTExit(that) && isHalt(that) && P.Equatable.strictEquals(this.value, that.value);
   }
 }
 
@@ -125,17 +113,12 @@ export class Interrupt {
   constructor(readonly fiberId: FiberId) {}
 
   get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(
-      _interruptHash,
-      P.Hashable.hash(this.fiberId)
-    );
+    return P.Hashable.combineHash(_interruptHash, P.Hashable.hash(this.fiberId));
   }
 
   [Symbol.equatable](that: unknown): boolean {
     return (
-      isTExit(that) &&
-      isInterrupt(that) &&
-      P.Equatable.strictEquals(this.fiberId, that.fiberId)
+      isTExit(that) && isInterrupt(that) && P.Equatable.strictEquals(this.fiberId, that.fiberId)
     );
   }
 }

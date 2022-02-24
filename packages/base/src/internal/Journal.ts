@@ -39,7 +39,7 @@ export function prepareResetJournal(journal: Journal): () => unknown {
   for (const entry of journal) {
     saved.set(
       entry[0],
-      entry[1].use((_) => _.copy())
+      entry[1].use((_) => _.copy()),
     );
   }
   return () => {
@@ -82,7 +82,7 @@ export function analyzeJournal(journal: Journal): JournalAnalysis {
   let result: JournalAnalysis = ReadOnly;
   for (const entry of journal) {
     result = entry[1].use((entry) =>
-      entry.isInvalid() ? Invalid : entry.isChanged() ? ReadWrite : result
+      entry.isInvalid() ? Invalid : entry.isChanged() ? ReadWrite : result,
     );
     if (result === Invalid) {
       return result;
@@ -106,10 +106,8 @@ export function collectTodos(journal: Journal): Map<TxnId, Todo> {
   const allTodos: Map<TxnId, Todo> = new Map();
 
   for (const entry of journal) {
-    const tref: Atomic<unknown> = entry[1].use(
-      (entry) => entry.tref as Atomic<unknown>
-    );
-    const todos = tref.todo.get;
+    const tref: Atomic<unknown> = entry[1].use((entry) => entry.tref as Atomic<unknown>);
+    const todos                 = tref.todo.get;
     for (const todo of todos) {
       allTodos.set(todo[0], todo[1]);
     }
@@ -135,10 +133,7 @@ export function execTodos(todos: Map<TxnId, Todo>) {
  *
  * @tsplus fluent fncts.control.Journal completeTodos
  */
-export function completeTodos<E, A>(
-  journal: Journal,
-  exit: Exit<E, A>
-): Done<E, A> {
+export function completeTodos<E, A>(journal: Journal, exit: Exit<E, A>): Done<E, A> {
   const todos = collectTodos(journal);
   if (todos.size > 0) {
     defaultScheduler(() => execTodos(todos));
@@ -152,11 +147,7 @@ export function completeTodos<E, A>(
  *
  * @tsplus fluent fncts.control.Journal addTodo
  */
-export function addTodo(
-  journal: Journal,
-  txnId: TxnId,
-  todoEffect: Todo
-): boolean {
+export function addTodo(journal: Journal, txnId: TxnId, todoEffect: Todo): boolean {
   let added = false;
 
   for (const entry of journal.values()) {
@@ -175,10 +166,7 @@ export function addTodo(
 /**
  * Finds all the new todo targets that are not already tracked in the `oldJournal`.
  */
-export function untrackedTodoTargets(
-  oldJournal: Journal,
-  newJournal: Journal
-): Journal {
+export function untrackedTodoTargets(oldJournal: Journal, newJournal: Journal): Journal {
   const untracked: Journal = new Map();
   for (const entry of newJournal) {
     const key   = entry[0];
@@ -198,11 +186,7 @@ export function untrackedTodoTargets(
   return untracked;
 }
 
-export function tryCommitSync<R, E, A>(
-  fiberId: FiberId,
-  stm: STM<R, E, A>,
-  r: R
-): TryCommit<E, A> {
+export function tryCommitSync<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, r: R): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
   const analysis         = journal.analyze();
@@ -234,7 +218,7 @@ function tryCommit<R, E, A>(
   fiberId: FiberId,
   stm: STM<R, E, A>,
   state: AtomicReference<CommitState<E, A>>,
-  r: R
+  r: R,
 ): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
@@ -264,10 +248,7 @@ function tryCommit<R, E, A>(
   }
 }
 
-function completeTryCommit<R, E, A>(
-  exit: Exit<E, A>,
-  k: (_: IO<R, E, A>) => unknown
-) {
+function completeTryCommit<R, E, A>(exit: Exit<E, A>, k: (_: IO<R, E, A>) => unknown) {
   k(IO.fromExit(exit));
 }
 
@@ -279,13 +260,11 @@ function suspendTryCommit<R, E, A>(
   r: R,
   k: (_: IO<R, E, A>) => unknown,
   accum: Journal,
-  journal: Journal
+  journal: Journal,
 ): void {
   // eslint-disable-next-line no-constant-condition
   while (1) {
-    journal.addTodo(txnId, () =>
-      tryCommitAsync(undefined, fiberId, stm, txnId, state, r)(k)
-    );
+    journal.addTodo(txnId, () => tryCommitAsync(undefined, fiberId, stm, txnId, state, r)(k));
     if (isInvalid(journal)) {
       const result = tryCommit(fiberId, stm, state, r);
       switch (result._tag) {
@@ -319,7 +298,7 @@ export function tryCommitAsync<R, E, A>(
   stm: STM<R, E, A>,
   txnId: TxnId,
   state: AtomicReference<CommitState<E, A>>,
-  r: R
+  r: R,
 ): (k: (_: IO<R, E, A>) => unknown) => void {
   return (k) => {
     if (state.get.isRunning) {
@@ -333,16 +312,7 @@ export function tryCommitAsync<R, E, A>(
             break;
           }
           case "Suspend": {
-            suspendTryCommit(
-              fiberId,
-              stm,
-              txnId,
-              state,
-              r,
-              k,
-              result.journal,
-              result.journal
-            );
+            suspendTryCommit(fiberId, stm, txnId, state, r, k, result.journal, result.journal);
             break;
           }
         }

@@ -36,9 +36,7 @@ export function fail<E>(e: Lazy<E>): STM<unknown, E, never> {
  *
  * @tsplus static fncts.control.STMOps fiberId
  */
-export const fiberId: STM<unknown, never, FiberId> = new Effect(
-  (_, fiberId) => fiberId
-);
+export const fiberId: STM<unknown, never, FiberId> = new Effect((_, fiberId) => fiberId);
 
 /**
  * Interrupts the fiber running the effect with the specified fiber id.

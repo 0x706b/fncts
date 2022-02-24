@@ -11,9 +11,7 @@ import { ConstSupervisor, Supervisor } from "./definition";
 /**
  * @tsplus static fncts.control.SupervisorOps unsafeTrace
  */
-export function unsafeTrack(): Supervisor<
-  ReadonlyArray<RuntimeFiber<any, any>>
-> {
+export function unsafeTrack(): Supervisor<ReadonlyArray<RuntimeFiber<any, any>>> {
   const set = new Set<RuntimeFiber<any, any>>();
   return new (class extends Supervisor<ReadonlyArray<RuntimeFiber<any, any>>> {
     value = IO.succeed(Array.from(set));
@@ -21,7 +19,7 @@ export function unsafeTrack(): Supervisor<
       _environment: R,
       _effect: IO<R, E, A>,
       _parent: Maybe<RuntimeFiber<E, A>>,
-      fiber: RuntimeFiber<E, A>
+      fiber: RuntimeFiber<E, A>,
     ) {
       set.add(fiber);
     }
@@ -35,7 +33,7 @@ export function unsafeTrack(): Supervisor<
  * @tsplus static fncts.control.SupervisorOps fibersIn
  */
 export function fibersIn(
-  ref: AtomicReference<HashSet<RuntimeFiber<any, any>>>
+  ref: AtomicReference<HashSet<RuntimeFiber<any, any>>>,
 ): UIO<Supervisor<HashSet<RuntimeFiber<any, any>>>> {
   return IO.succeed(
     new (class extends Supervisor<HashSet<RuntimeFiber<any, any>>> {
@@ -44,14 +42,14 @@ export function fibersIn(
         _environment: R,
         _effect: IO<R, E, A>,
         _parent: Maybe<RuntimeFiber<any, any>>,
-        fiber: RuntimeFiber<E, A>
+        fiber: RuntimeFiber<E, A>,
       ) {
         ref.set(ref.get.add(fiber));
       }
       unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>) {
         ref.set(ref.get.remove(fiber));
       }
-    })()
+    })(),
   );
 }
 
@@ -70,5 +68,6 @@ export const none = new ConstSupervisor(IO.unit);
 /**
  * @tsplus static fncts.control.SupervisorOps track
  */
-export const track: UIO<Supervisor<ReadonlyArray<RuntimeFiber<any, any>>>> =
-  IO.succeed(unsafeTrack());
+export const track: UIO<Supervisor<ReadonlyArray<RuntimeFiber<any, any>>>> = IO.succeed(
+  unsafeTrack(),
+);

@@ -4,11 +4,7 @@ import type { Array } from "../../Array/definition";
  * @tsplus fluent fncts.collection.immutable.Array foldLeftWithIndex
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(
-  self: Array<A>,
-  b: B,
-  f: (i: number, b: B, a: A) => B
-): B {
+export function foldLeftWithIndex_<A, B>(self: Array<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   const len = self.length;
   let r     = b;
   for (let i = 0; i < len; i++) {

@@ -27,42 +27,38 @@ export interface NewtypeHKT extends HKT {
 }
 
 export interface NewtypeIso<N extends NewtypeHKT, C = N["type"]["_C"]> {
-  get: {
-    /**
-     * @optimize identity
-     */
-    <
-      K extends HKT.GetExtends<C, "K", any>,
-      Q extends HKT.GetExtends<C, "Q", any>,
-      W extends HKT.GetExtends<C, "W", any>,
-      X extends HKT.GetExtends<C, "X", any>,
-      I extends HKT.GetExtends<C, "I", any>,
-      S extends HKT.GetExtends<C, "S", any>,
-      R extends HKT.GetExtends<C, "E", any>,
-      E extends HKT.GetExtends<C, "E", any>,
-      A extends HKT.GetExtends<C, "A", any>
-    >(
-      _: HKT.Kind<N, N["type"]["_C"], K, Q, W, X, I, S, R, E, A>["_A"]
-    ): HKT.Kind<N, HKT.None, K, Q, W, X, I, S, R, E, A>;
-  };
-  reverseGet: {
-    /**
-     * @optimize identity
-     */
-    <
-      K extends HKT.GetExtends<C, "K", any>,
-      Q extends HKT.GetExtends<C, "Q", any>,
-      W extends HKT.GetExtends<C, "W", any>,
-      X extends HKT.GetExtends<C, "X", any>,
-      I extends HKT.GetExtends<C, "I", any>,
-      S extends HKT.GetExtends<C, "S", any>,
-      R extends HKT.GetExtends<C, "E", any>,
-      E extends HKT.GetExtends<C, "E", any>,
-      A extends HKT.GetExtends<C, "A", any>
-    >(
-      _: HKT.Kind<N, HKT.None, K, Q, W, X, I, S, R, E, A>
-    ): HKT.Kind<N, HKT.None, K, Q, W, X, I, S, R, E, A>["_A"];
-  };
+  /**
+   * @tsplus macro identity
+   */
+  get: <
+    K extends HKT.GetExtends<C, "K", any>,
+    Q extends HKT.GetExtends<C, "Q", any>,
+    W extends HKT.GetExtends<C, "W", any>,
+    X extends HKT.GetExtends<C, "X", any>,
+    I extends HKT.GetExtends<C, "I", any>,
+    S extends HKT.GetExtends<C, "S", any>,
+    R extends HKT.GetExtends<C, "E", any>,
+    E extends HKT.GetExtends<C, "E", any>,
+    A extends HKT.GetExtends<C, "A", any>,
+  >(
+    _: HKT.Kind<N, N["type"]["_C"], K, Q, W, X, I, S, R, E, A>["_A"],
+  ) => HKT.Kind<N, HKT.None, K, Q, W, X, I, S, R, E, A>;
+  /**
+   * @tsplus macro identity
+   */
+  reverseGet: <
+    K extends HKT.GetExtends<C, "K", any>,
+    Q extends HKT.GetExtends<C, "Q", any>,
+    W extends HKT.GetExtends<C, "W", any>,
+    X extends HKT.GetExtends<C, "X", any>,
+    I extends HKT.GetExtends<C, "I", any>,
+    S extends HKT.GetExtends<C, "S", any>,
+    R extends HKT.GetExtends<C, "E", any>,
+    E extends HKT.GetExtends<C, "E", any>,
+    A extends HKT.GetExtends<C, "A", any>,
+  >(
+    _: HKT.Kind<N, HKT.None, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<N, HKT.None, K, Q, W, X, I, S, R, E, A>["_A"];
 }
 
 /**

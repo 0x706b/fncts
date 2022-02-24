@@ -8,10 +8,7 @@ import { NonEmptyArray } from "./definition";
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps allocWithHead
  */
-export function allocWithHead<A>(
-  head: A,
-  length: number
-): MutableNonEmptyArray<A> {
+export function allocWithHead<A>(head: A, length: number): MutableNonEmptyArray<A> {
   const as = new globalThis.Array(length) as MutableNonEmptyArray<A>;
   as[0]    = head;
   return as;
@@ -55,7 +52,5 @@ export function replicate<A>(n: number, a: A): NonEmptyArray<A> {
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps range
  */
 export function range(start: number, end: number): NonEmptyArray<number> {
-  return start <= end
-    ? NonEmptyArray.makeBy(end - start + 1, (i) => start + i)
-    : [start];
+  return start <= end ? NonEmptyArray.makeBy(end - start + 1, (i) => start + i) : [start];
 }

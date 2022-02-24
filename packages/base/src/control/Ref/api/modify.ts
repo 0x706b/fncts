@@ -16,7 +16,7 @@ import { concrete } from "../definition";
  */
 export function modify_<RA, RB, EA, EB, B, A>(
   ref: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => readonly [B, A]
+  f: (a: A) => readonly [B, A],
 ): IO<RA & RB, EA | EB, B> {
   concrete(ref);
   switch (ref._tag) {
@@ -32,11 +32,11 @@ export function modify_<RA, RB, EA, EB, B, A>(
                 const [b, a2] = f(a1);
                 return setEither(a2).match(
                   (e) => tuple(Either.left(e), s),
-                  (s) => tuple(Either.right<EA | EB, B>(b), s)
+                  (s) => tuple(Either.right<EA | EB, B>(b), s),
                 );
-              }
-            )
-          ).absolve
+              },
+            ),
+          ).absolve,
       );
     case "DerivedAll":
       return ref.use(
@@ -48,11 +48,11 @@ export function modify_<RA, RB, EA, EB, B, A>(
                 const [b, a2] = f(a1);
                 return setEither(a2)(s).match(
                   (e) => tuple(Either.left(e), s),
-                  (s) => tuple(Either.right<EA | EB, B>(b), s)
+                  (s) => tuple(Either.right<EA | EB, B>(b), s),
                 );
-              }
-            )
-          ).absolve
+              },
+            ),
+          ).absolve,
       );
     case "Synchronized":
       return ref.modifyIO((a) => IO.succeedNow(f(a)));
@@ -71,16 +71,14 @@ export function modify_<RA, RB, EA, EB, B, A>(
 export function modifyJust_<RA, RB, EA, EB, A, B>(
   self: PRef<RA, RB, EA, EB, A, A>,
   def: B,
-  f: (a: A) => Maybe<readonly [B, A]>
+  f: (a: A) => Maybe<readonly [B, A]>,
 ): IO<RA & RB, EA | EB, B> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
       return self.modifyJust(def, f);
     default:
-      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a) =>
-        f(a).getOrElse(tuple(def, a))
-      );
+      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a) => f(a).getOrElse(tuple(def, a)));
   }
 }
 
@@ -93,7 +91,7 @@ export function modifyJust_<RA, RB, EA, EB, A, B>(
  */
 export function getAndSet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
-  a: A
+  a: A,
 ): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
@@ -113,16 +111,14 @@ export function getAndSet_<RA, RB, EA, EB, A>(
  */
 export function getAndUpdate_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => A
+  f: (a: A) => A,
 ): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
       return self.getAndUpdate(f);
     default:
-      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) =>
-        tuple(a0, f(a0))
-      );
+      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) => tuple(a0, f(a0)));
   }
 }
 
@@ -136,16 +132,14 @@ export function getAndUpdate_<RA, RB, EA, EB, A>(
  */
 export function getAndUpdateJust_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => Maybe<A>
+  f: (a: A) => Maybe<A>,
 ): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
       return self.getAndUpdateJust(f);
     default:
-      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) =>
-        tuple(a0, f(a0).getOrElse(a0))
-      );
+      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) => tuple(a0, f(a0).getOrElse(a0)));
   }
 }
 
@@ -157,16 +151,14 @@ export function getAndUpdateJust_<RA, RB, EA, EB, A>(
  */
 export function update_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => A
+  f: (a: A) => A,
 ): IO<RA & RB, EA | EB, void> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
       return self.update(f);
     default:
-      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) =>
-        tuple(undefined, f(a0))
-      );
+      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) => tuple(undefined, f(a0)));
   }
 }
 
@@ -179,7 +171,7 @@ export function update_<RA, RB, EA, EB, A>(
  */
 export function updateAndGet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => A
+  f: (a: A) => A,
 ): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
@@ -202,7 +194,7 @@ export function updateAndGet_<RA, RB, EA, EB, A>(
  */
 export function updateJust_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => Maybe<A>
+  f: (a: A) => Maybe<A>,
 ): IO<RA & RB, EA | EB, void> {
   concrete(self);
   switch (self._tag) {
@@ -210,7 +202,7 @@ export function updateJust_<RA, RB, EA, EB, A>(
       return self.updateJust(f);
     default:
       return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) =>
-        tuple(undefined, f(a0).getOrElse(a0))
+        tuple(undefined, f(a0).getOrElse(a0)),
       );
   }
 }
@@ -225,7 +217,7 @@ export function updateJust_<RA, RB, EA, EB, A>(
  */
 export function updateJustAndGet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => Maybe<A>
+  f: (a: A) => Maybe<A>,
 ): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {

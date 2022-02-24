@@ -55,11 +55,7 @@ export function modify<A, B>(self: Atomic<A>, f: (a: A) => readonly [B, A]) {
 /**
  * @tsplus fluent fncts.control.Ref.Atomic modifyJust
  */
-export function modifyJust<A, B>(
-  self: Atomic<A>,
-  def: B,
-  f: (a: A) => Maybe<readonly [B, A]>
-) {
+export function modifyJust<A, B>(self: Atomic<A>, def: B, f: (a: A) => Maybe<readonly [B, A]>) {
   return IO.succeed(() => {
     const v = self.unsafeGet;
     const o = f(v);

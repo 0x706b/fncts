@@ -3,8 +3,7 @@ import type { HKT } from "./HKT";
 /**
  * @tsplus type fncts.prelude.Nil
  */
-export interface Nil<F extends HKT, FC = HKT.None>
-  extends HKT.Typeclass<F, FC> {
+export interface Nil<F extends HKT, FC = HKT.None> extends HKT.Typeclass<F, FC> {
   readonly nil: nil<F, FC>;
 }
 
@@ -21,6 +20,6 @@ export interface nil<F extends HKT, FC = HKT.None> {
     I = HKT.Low<F, "I">,
     S = HKT.Low<F, "S">,
     R = HKT.Low<F, "R">,
-    E = HKT.Low<F, "E">
+    E = HKT.Low<F, "E">,
   >(): HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, never>;
 }

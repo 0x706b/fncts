@@ -10,14 +10,7 @@ import { DerivedAll } from "../DerivedAll";
 /**
  * @tsplus type fncts.control.Ref.Atomic
  */
-export class Atomic<A> extends RefInternal<
-  unknown,
-  unknown,
-  never,
-  never,
-  A,
-  A
-> {
+export class Atomic<A> extends RefInternal<unknown, unknown, never, never, A, A> {
   readonly _tag = "Atomic";
 
   constructor(private value: A) {
@@ -31,7 +24,7 @@ export class Atomic<A> extends RefInternal<
     _ea: (_: never) => EC,
     _eb: (_: never) => ED,
     ca: (_: C) => Either<EC, A>,
-    bd: (_: A) => Either<ED, D>
+    bd: (_: A) => Either<ED, D>,
   ): PRef<unknown, unknown, EC, ED, C, D> {
     return new Derived<EC, ED, C, D>((f) => f(this, bd, ca));
   }
@@ -41,7 +34,7 @@ export class Atomic<A> extends RefInternal<
     _eb: (_: never) => ED,
     _ec: (_: never) => EC,
     ca: (_: C) => (_: A) => Either<EC, A>,
-    bd: (_: A) => Either<ED, D>
+    bd: (_: A) => Either<ED, D>,
   ): PRef<unknown, unknown, EC, ED, C, D> {
     return new DerivedAll<EC, ED, C, D>((f) => f(this, bd, ca));
   }

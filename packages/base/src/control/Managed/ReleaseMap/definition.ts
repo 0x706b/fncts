@@ -11,7 +11,7 @@ export class Exited {
   constructor(
     readonly nextKey: number,
     readonly exit: Exit<any, any>,
-    readonly update: (_: Finalizer) => Finalizer
+    readonly update: (_: Finalizer) => Finalizer,
   ) {}
 }
 
@@ -20,7 +20,7 @@ export class Running {
   constructor(
     readonly nextKey: number,
     readonly finalizers: HashMap<number, Finalizer>,
-    readonly update: (_: Finalizer) => Finalizer
+    readonly update: (_: Finalizer) => Finalizer,
   ) {}
 }
 

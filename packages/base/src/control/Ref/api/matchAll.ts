@@ -17,7 +17,7 @@ export function matchAll_<RA, RB, EA, EB, A, B, EC, ED, C, D>(
   eb: (_: EB) => ED,
   ec: (_: EB) => EC,
   ca: (_: C) => (_: B) => Either<EC, A>,
-  bd: (_: B) => Either<ED, D>
+  bd: (_: B) => Either<ED, D>,
 ): PRef<RA, RB, EC, ED, C, D> {
   concrete(ref);
   return ref.matchAll(ea, eb, ec, ca as any, bd as any);

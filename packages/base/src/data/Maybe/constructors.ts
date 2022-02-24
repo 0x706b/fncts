@@ -33,20 +33,16 @@ export function fromNullable<A>(a: Nullable<A>): Maybe<NonNullable<A>> {
  * @tsplus static fncts.data.MaybeOps fromNullableK
  */
 export function fromNullableK<P extends ReadonlyArray<unknown>, A>(
-  f: (...params: P) => Nullable<A>
+  f: (...params: P) => Nullable<A>,
 ) {
-  return (...params: P): Maybe<NonNullable<A>> =>
-    Maybe.fromNullable(f(...params));
+  return (...params: P): Maybe<NonNullable<A>> => Maybe.fromNullable(f(...params));
 }
 
 /**
  * @tsplus static fncts.data.MaybeOps fromPredicate
  */
 export function fromPredicate_<A>(a: A, p: Predicate<A>): Maybe<A>;
-export function fromPredicate_<A, B extends A>(
-  a: A,
-  p: Refinement<A, B>
-): Maybe<A>;
+export function fromPredicate_<A, B extends A>(a: A, p: Refinement<A, B>): Maybe<A>;
 export function fromPredicate_<A>(a: A, p: Predicate<A>): Maybe<A> {
   return p(a) ? Just(a) : Nothing();
 }
@@ -65,9 +61,7 @@ export function tryCatch<A>(thunk: () => A): Maybe<A> {
 /**
  * @tsplus static fncts.data.MaybeOps tryCatchK
  */
-export function tryCatchK<P extends ReadonlyArray<unknown>, A>(
-  f: (...params: P) => A
-) {
+export function tryCatchK<P extends ReadonlyArray<unknown>, A>(f: (...params: P) => A) {
   return (...params: P): Maybe<A> => tryCatch(() => f(...params));
 }
 
@@ -83,7 +77,7 @@ function raisePartial(): never {
  * @tsplus static fncts.data.MaybeOps partial
  */
 export function partial<P extends ReadonlyArray<unknown>, A>(
-  f: (miss: () => never) => (...params: P) => A
+  f: (miss: () => never) => (...params: P) => A,
 ) {
   return (...params: P): Maybe<A> => {
     try {
@@ -105,9 +99,7 @@ export function fromPredicate<A>(p: Predicate<A>): (a: A) => Maybe<A>;
 /**
  * @tsplus dataFirst fromPredicate_
  */
-export function fromPredicate<A, B extends A>(
-  p: Refinement<A, B>
-): (a: A) => Maybe<A>;
+export function fromPredicate<A, B extends A>(p: Refinement<A, B>): (a: A) => Maybe<A>;
 /**
  * @tsplus dataFirst fromPredicate_
  */

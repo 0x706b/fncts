@@ -24,7 +24,7 @@ import { Finalizer } from "./Finalizer";
 export function as_<R, E, A, B>(
   ma: Managed<R, E, A>,
   b: Lazy<B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, B> {
   return ma.map(b);
 }
@@ -43,9 +43,7 @@ export function asJust<R, E, A>(ma: Managed<R, E, A>): Managed<R, E, Maybe<A>> {
  *
  * @tsplus getter fncts.control.Managed asJustError
  */
-export function asJustError<R, E, A>(
-  ma: Managed<R, E, A>
-): Managed<R, Maybe<E>, A> {
+export function asJustError<R, E, A>(ma: Managed<R, E, A>): Managed<R, Maybe<E>, A> {
   return ma.mapError(Maybe.just);
 }
 
@@ -61,10 +59,7 @@ export function asUnit<R, E, A>(ma: Managed<R, E, A>): Managed<R, E, void> {
  *
  * @tsplus static fncts.control.ManagedOps asks
  */
-export function asks<R, A>(
-  f: (r: R) => A,
-  __tsplusTrace?: string
-): Managed<R, never, A> {
+export function asks<R, A>(f: (r: R) => A, __tsplusTrace?: string): Managed<R, never, A> {
   return Managed.ask<R>().map(f);
 }
 
@@ -75,7 +70,7 @@ export function asks<R, A>(
  */
 export function asksIO<R0, R, E, A>(
   f: (r: R0) => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R0 & R, E, A> {
   return Managed.ask<R0>().mapIO(f);
 }
@@ -87,7 +82,7 @@ export function asksIO<R0, R, E, A>(
  */
 export function asksManaged<R0, R, E, A>(
   f: (r: R0) => Managed<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R0 & R, E, A> {
   return Managed.ask<R0>().chain(f);
 }
@@ -100,7 +95,7 @@ export function asksManaged<R0, R, E, A>(
  */
 export function absolve<R, E, E1, A>(
   fa: Managed<R, E, Either<E1, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E | E1, A> {
   return fa.chain(Managed.fromEitherNow);
 }
@@ -110,7 +105,7 @@ export function absolve<R, E, E1, A>(
  */
 export function apFirst_<R, E, A, R1, E1, B>(
   fa: Managed<R, E, A>,
-  fb: Managed<R1, E1, B>
+  fb: Managed<R1, E1, B>,
 ): Managed<R & R1, E | E1, A> {
   return fa.zipWith(fb, (a, _) => a);
 }
@@ -120,7 +115,7 @@ export function apFirst_<R, E, A, R1, E1, B>(
  */
 export function apSecond_<R, E, A, R1, E1, B>(
   fa: Managed<R, E, A>,
-  fb: Managed<R1, E1, B>
+  fb: Managed<R1, E1, B>,
 ): Managed<R & R1, E | E1, B> {
   return fa.zipWith(fb, (_, b) => b);
 }
@@ -134,7 +129,7 @@ export function apSecond_<R, E, A, R1, E1, B>(
 export function bimap_<R, E, A, B, C>(
   self: Managed<R, E, A>,
   f: (e: E) => B,
-  g: (a: A) => C
+  g: (a: A) => C,
 ): Managed<R, B, C> {
   return new Managed(self.io.bimap(f, ([fin, a]) => [fin, g(a)]));
 }
@@ -147,7 +142,7 @@ export function bimap_<R, E, A, B, C>(
 export function catchAll_<R, E, A, R1, E1, B>(
   ma: Managed<R, E, A>,
   f: (e: E) => Managed<R1, E1, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E1, A | B> {
   return ma.matchManaged(f, Managed.succeedNow);
 }
@@ -160,7 +155,7 @@ export function catchAll_<R, E, A, R1, E1, B>(
 export function catchAllCause_<R, E, A, R1, E1, B>(
   ma: Managed<R, E, A>,
   f: (e: Cause<E>) => Managed<R1, E1, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E1, A | B> {
   return ma.matchCauseManaged(f, Managed.succeedNow);
 }
@@ -173,7 +168,7 @@ export function catchAllCause_<R, E, A, R1, E1, B>(
 export function catchJust_<R, E, A, R1, E1, B>(
   ma: Managed<R, E, A>,
   pf: (e: E) => Maybe<Managed<R1, E1, B>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A | B> {
   return ma.catchAll((e) => pf(e).getOrElse(Managed.failNow(e)));
 }
@@ -186,11 +181,9 @@ export function catchJust_<R, E, A, R1, E1, B>(
 export function catchJustCause_<R, E, A, R1, E1, B>(
   ma: Managed<R, E, A>,
   pf: (e: Cause<E>) => Maybe<Managed<R1, E1, B>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A | B> {
-  return ma.catchAllCause((cause) =>
-    pf(cause).getOrElse(Managed.failCauseNow(cause))
-  );
+  return ma.catchAllCause((cause) => pf(cause).getOrElse(Managed.failCauseNow(cause)));
 }
 
 /**
@@ -203,7 +196,7 @@ export function collect_<R, E, A, E1, B>(
   ma: Managed<R, E, A>,
   e: E1,
   pf: (a: A) => Maybe<B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E | E1, B> {
   return ma.collectManaged(e, (a) => pf(a).map(Managed.succeedNow));
 }
@@ -218,7 +211,7 @@ export function collectManaged_<R, E, A, E1, R2, E2, B>(
   ma: Managed<R, E, A>,
   e: E1,
   pf: (a: A) => Maybe<Managed<R2, E2, B>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R2, E | E1 | E2, B> {
   return ma.chain((a) => pf(a).getOrElse(Managed.failNow(e)));
 }
@@ -233,7 +226,7 @@ export function collectManaged_<R, E, A, E1, R2, E2, B>(
 export function chain_<R, E, A, R1, E1, B>(
   self: Managed<R, E, A>,
   f: (a: A) => Managed<R1, E1, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, B> {
   return new Managed(
     self.io.chain(([releaseSelf, a]) =>
@@ -241,13 +234,13 @@ export function chain_<R, E, A, R1, E1, B>(
         Finalizer.get((exit) =>
           Finalizer.reverseGet(releaseThat)(exit).result.chain((e1) =>
             Finalizer.reverseGet(releaseSelf)(exit).result.chain((e2) =>
-              IO.fromExitNow(e1.apSecond(e2))
-            )
-          )
+              IO.fromExitNow(e1.apSecond(e2)),
+            ),
+          ),
         ),
         b,
-      ])
-    )
+      ]),
+    ),
   );
 }
 
@@ -258,7 +251,7 @@ export function chain_<R, E, A, R1, E1, B>(
  */
 export function chainError_<R, E, A, R1, E1>(
   ma: Managed<R, E, A>,
-  f: (e: E) => URManaged<R1, E1>
+  f: (e: E) => URManaged<R1, E1>,
 ): Managed<R & R1, E1, A> {
   return ma.swapWith((me) => me.chain(f));
 }
@@ -269,7 +262,7 @@ export function chainError_<R, E, A, R1, E1>(
 export function compose_<R, E, A, E1, B>(
   ma: Managed<R, E, A>,
   mb: Managed<A, E1, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E | E1, B> {
   return ma.chain((a) => mb.give(a));
 }
@@ -279,7 +272,7 @@ export function compose_<R, E, A, E1, B>(
  */
 export function defer<R, E, A>(
   managed: Lazy<Managed<R, E, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, A> {
   return Managed.succeed(managed).flatten;
 }
@@ -289,7 +282,7 @@ export function defer<R, E, A>(
  */
 export function either<R, E, A>(
   fa: Managed<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, Either<E, A>> {
   return fa.match(Either.left, Either.right);
 }
@@ -300,9 +293,7 @@ export function either<R, E, A>(
  *
  * @tsplus getter fncts.control.Managed eventually
  */
-export function eventually<R, E, A>(
-  ma: Managed<R, E, A>
-): Managed<R, never, A> {
+export function eventually<R, E, A>(ma: Managed<R, E, A>): Managed<R, never, A> {
   return new Managed(ma.io.eventually);
 }
 
@@ -316,7 +307,7 @@ export function eventually<R, E, A>(
  */
 export function flatten<R, E, R1, E1, A>(
   self: Managed<R, E, Managed<R1, E1, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A> {
   return self.chain(identity);
 }
@@ -331,7 +322,7 @@ export function flatten<R, E, R1, E1, A>(
  */
 export function flattenIO<R, E, R1, E1, A>(
   mma: Managed<R, E, IO<R1, E1, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A> {
   return mma.mapIO(identity);
 }
@@ -345,10 +336,10 @@ export function foldLeft_<R, E, A, B>(
   as: Iterable<A>,
   b: B,
   f: (b: B, a: A) => Managed<R, E, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, B> {
   return as.foldLeft(Managed.succeedNow(b) as Managed<R, E, B>, (acc, a) =>
-    acc.chain((b) => f(b, a))
+    acc.chain((b) => f(b, a)),
   );
 }
 
@@ -361,7 +352,7 @@ export function foldMap_<M>(M: P.Monoid<M>) {
   return <R, E, A>(
     mas: Iterable<Managed<R, E, A>>,
     f: (a: A) => M,
-    __tsplusTrace?: string
+    __tsplusTrace?: string,
   ): Managed<R, E, M> =>
     Managed.foldLeft(mas, M.nat, (m, ma) => ma.map((a) => M.combine_(m, f(a))));
 }
@@ -371,12 +362,8 @@ export function foldMap_<M>(M: P.Monoid<M>) {
  *
  * @tsplus static fncts.control.ManagedOps fromEither
  */
-export function fromEither<E, A>(
-  either: Lazy<Either<E, A>>
-): Managed<unknown, E, A> {
-  return Managed.succeed(either).chain((ea) =>
-    ea.match(Managed.failNow, Managed.succeedNow)
-  );
+export function fromEither<E, A>(either: Lazy<Either<E, A>>): Managed<unknown, E, A> {
+  return Managed.succeed(either).chain((ea) => ea.match(Managed.failNow, Managed.succeedNow));
 }
 
 /**
@@ -384,9 +371,7 @@ export function fromEither<E, A>(
  *
  * @tsplus static fncts.control.ManagedOps fromEitherNow
  */
-export function fromEitherNow<E, A>(
-  either: Either<E, A>
-): Managed<unknown, E, A> {
+export function fromEitherNow<E, A>(either: Either<E, A>): Managed<unknown, E, A> {
   return either.match(Managed.failNow, Managed.succeedNow);
 }
 
@@ -402,19 +387,17 @@ export function fromEitherNow<E, A>(
 export function foreach_<R, E, A, B>(
   as: Iterable<A>,
   f: (a: A) => Managed<R, E, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, Conc<B>> {
   return new Managed(
     IO.foreach(as, (a) => f(a).io).map((results) => {
       const fins   = results.map((r) => r[0]);
       const values = results.map((r) => r[1]);
       return [
-        Finalizer.get((exit) =>
-          IO.foreach(fins.reverse, (fin) => Finalizer.reverseGet(fin)(exit))
-        ),
+        Finalizer.get((exit) => IO.foreach(fins.reverse, (fin) => Finalizer.reverseGet(fin)(exit))),
         values,
       ];
-    })
+    }),
   );
 }
 
@@ -430,18 +413,16 @@ export function foreach_<R, E, A, B>(
 export function foreachDiscard_<R, E, A>(
   as: Iterable<A>,
   f: (a: A) => Managed<R, E, unknown>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, void> {
   return new Managed(
     IO.foreach(as, (a) => f(a).io).map((results) => {
       const fins = results.map((r) => r[0]);
       return [
-        Finalizer.get((exit) =>
-          IO.foreach(fins.reverse, (fin) => Finalizer.reverseGet(fin)(exit))
-        ),
+        Finalizer.get((exit) => IO.foreach(fins.reverse, (fin) => Finalizer.reverseGet(fin)(exit))),
         undefined,
       ];
-    })
+    }),
   );
 }
 
@@ -452,11 +433,9 @@ export function foreachDiscard_<R, E, A>(
  */
 export function getMaybe<R, A>(
   ma: Managed<R, never, Maybe<A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, Maybe<never>, A> {
-  return ma.chain((maybe) =>
-    maybe.match(() => Managed.failNow(Nothing()), Managed.succeedNow)
-  );
+  return ma.chain((maybe) => maybe.match(() => Managed.failNow(Nothing()), Managed.succeedNow));
 }
 
 /**
@@ -468,7 +447,7 @@ export function getMaybe<R, A>(
 export function give_<R, E, A>(
   ma: Managed<R, E, A>,
   env: R,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<unknown, E, A> {
   return ma.gives(() => env);
 }
@@ -481,7 +460,7 @@ export function give_<R, E, A>(
 export function gives_<R, E, A, R0>(
   ma: Managed<R, E, A>,
   f: (r0: R0) => R,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R0, E, A> {
   return new Managed(ma.io.gives(f));
 }
@@ -492,7 +471,7 @@ export function gives_<R, E, A, R0>(
 export function giveSome_<R, E, A, R0>(
   ma: Managed<R, E, A>,
   r: R0,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<Intersection.Erase<R, R0>, E, A> {
   return ma.gives((r0) => ({ ...(r0 as R), ...r }));
 }
@@ -506,7 +485,7 @@ export function ifManaged_<R, E, R1, E1, B, R2, E2, C>(
   mb: Managed<R, E, boolean>,
   onTrue: Managed<R1, E1, B>,
   onFalse: Managed<R2, E2, C>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1 & R2, E | E1 | E2, B | C> {
   return mb.chain((b) => (b ? onTrue : onFalse));
 }
@@ -519,7 +498,7 @@ export function ifManaged_<R, E, R1, E1, B, R2, E2, C>(
 export function if_<R, E, A, R1, E1, B>(
   b: Lazy<boolean>,
   onTrue: Managed<R, E, A>,
-  onFalse: Managed<R1, E1, B>
+  onFalse: Managed<R1, E1, B>,
 ): Managed<R & R1, E | E1, A | B> {
   return Managed.succeed(b).ifManaged(onTrue, onFalse);
 }
@@ -532,7 +511,7 @@ export function if_<R, E, A, R1, E1, B>(
 export function ignore<R, E, A>(ma: Managed<R, E, A>): Managed<R, never, void> {
   return ma.match(
     () => undefined,
-    () => undefined
+    () => undefined,
   );
 }
 
@@ -541,19 +520,17 @@ export function ignore<R, E, A>(ma: Managed<R, E, A>): Managed<R, never, void> {
  *
  * @tsplus getter fncts.control.Managed ignoreReleaseFailures
  */
-export function ignoreReleaseFailures<R, E, A>(
-  ma: Managed<R, E, A>
-): Managed<R, E, A> {
+export function ignoreReleaseFailures<R, E, A>(ma: Managed<R, E, A>): Managed<R, E, A> {
   return new Managed(
     FiberRef.currentReleaseMap.get
       .tap((releaseMap) =>
         releaseMap.updateAll((finalizer) =>
           Finalizer.get((exit) =>
-            Finalizer.reverseGet(finalizer)(exit).catchAllCause(() => IO.unit)
-          )
-        )
+            Finalizer.reverseGet(finalizer)(exit).catchAllCause(() => IO.unit),
+          ),
+        ),
       )
-      .apSecond(ma.io)
+      .apSecond(ma.io),
   );
 }
 
@@ -563,9 +540,9 @@ export function ignoreReleaseFailures<R, E, A>(
  *
  * @tsplus static fncts.control.ManagedOps interrupt
  */
-export const interrupt: Managed<unknown, never, never> = Managed.fromIO(
-  IO.fiberId
-).chain((id) => Managed.failCauseNow(Cause.interrupt(id)));
+export const interrupt: Managed<unknown, never, never> = Managed.fromIO(IO.fiberId).chain((id) =>
+  Managed.failCauseNow(Cause.interrupt(id)),
+);
 
 /**
  * Returns a Managed that is interrupted as if by the specified fiber.
@@ -583,11 +560,11 @@ export function interruptAs(fiberId: FiberId): Managed<unknown, never, never> {
  */
 export function isFailure<R, E, A>(
   ma: Managed<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, boolean> {
   return ma.match(
     () => true,
-    () => false
+    () => false,
   );
 }
 
@@ -598,11 +575,11 @@ export function isFailure<R, E, A>(
  */
 export function isSuccess<R, E, A>(
   ma: Managed<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, boolean> {
   return ma.match(
     () => false,
-    () => true
+    () => true,
   );
 }
 
@@ -614,13 +591,13 @@ export function isSuccess<R, E, A>(
 export function join_<R, E, A, R1, E1, A1>(
   ma: Managed<R, E, A>,
   that: Managed<R1, E1, A1>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<Either<R, R1>, E | E1, A | A1> {
   return Managed.ask<Either<R, R1>>().chain((env) =>
     env.match(
       (r) => ma.give(r),
-      (r1) => that.give(r1)
-    )
+      (r1) => that.give(r1),
+    ),
   );
 }
 
@@ -632,13 +609,13 @@ export function join_<R, E, A, R1, E1, A1>(
 export function joinEither_<R, E, A, R1, E1, A1>(
   ma: Managed<R, E, A>,
   that: Managed<R1, E1, A1>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<Either<R, R1>, E | E1, Either<A, A1>> {
   return Managed.ask<Either<R, R1>>().chain((env) =>
     env.match(
       (r) => ma.map(Either.left).give(r),
-      (r1) => that.map(Either.right).give(r1)
-    )
+      (r1) => that.map(Either.right).give(r1),
+    ),
   );
 }
 
@@ -650,7 +627,7 @@ export function joinEither_<R, E, A, R1, E1, A1>(
 export function map_<R, E, A, B>(
   self: Managed<R, E, A>,
   f: (a: A) => B,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, B> {
   return new Managed(self.io.map(([fin, a]) => [fin, f(a)]));
 }
@@ -663,7 +640,7 @@ export function map_<R, E, A, B>(
 export function mapError_<R, E, A, D>(
   self: Managed<R, E, A>,
   f: (e: E) => D,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, D, A> {
   return new Managed(self.io.mapError(f));
 }
@@ -676,7 +653,7 @@ export function mapError_<R, E, A, D>(
 export function mapErrorCause_<R, E, A, D>(
   self: Managed<R, E, A>,
   f: (e: Cause<E>) => Cause<D>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, D, A> {
   return new Managed(self.io.mapErrorCause(f));
 }
@@ -689,7 +666,7 @@ export function mapErrorCause_<R, E, A, D>(
 export function mapIO_<R, E, A, R1, E1, B>(
   self: Managed<R, E, A>,
   f: (a: A) => IO<R1, E1, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, B> {
   return new Managed(self.io.chain(([fin, a]) => f(a).map((b) => [fin, b])));
 }
@@ -705,11 +682,11 @@ export function match_<R, E, A, B, C>(
   ma: Managed<R, E, A>,
   onError: (e: E) => B,
   onSuccess: (a: A) => C,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, B | C> {
   return ma.matchManaged(
     (e) => Managed.succeedNow(onError(e)),
-    (a) => Managed.succeedNow(onSuccess(a))
+    (a) => Managed.succeedNow(onSuccess(a)),
   );
 }
 
@@ -721,7 +698,7 @@ export function match_<R, E, A, B, C>(
 export function matchCause_<R, E, A, B, C>(
   ma: Managed<R, E, A>,
   onFailure: (cause: Cause<E>) => B,
-  onSuccess: (a: A) => C
+  onSuccess: (a: A) => C,
 ): Managed<R, never, B | C> {
   return ma.sandbox.match(onFailure, onSuccess);
 }
@@ -735,13 +712,13 @@ export function matchCauseManaged_<R, E, A, R1, E1, A1, R2, E2, A2>(
   ma: Managed<R, E, A>,
   onFailure: (cause: Cause<E>) => Managed<R1, E1, A1>,
   onSuccess: (a: A) => Managed<R2, E2, A2>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1 & R2, E1 | E2, A1 | A2> {
   return new Managed(
     ma.io.matchCauseIO(
       (c): IO<R1, E1, readonly [Finalizer, A1 | A2]> => onFailure(c).io,
-      ([_, a]) => onSuccess(a).io
-    )
+      ([_, a]) => onSuccess(a).io,
+    ),
   );
 }
 
@@ -755,12 +732,9 @@ export function matchManaged_<R, E, A, R1, E1, B, R2, E2, C>(
   ma: Managed<R, E, A>,
   f: (e: E) => Managed<R1, E1, B>,
   g: (a: A) => Managed<R2, E2, C>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1 & R2, E1 | E2, B | C> {
-  return ma.matchCauseManaged(
-    (cause) => cause.failureOrCause.match(f, Managed.failCauseNow),
-    g
-  );
+  return ma.matchCauseManaged((cause) => cause.failureOrCause.match(f, Managed.failCauseNow), g);
 }
 
 /**
@@ -771,7 +745,7 @@ export function matchManaged_<R, E, A, R1, E1, B, R2, E2, C>(
  */
 export function merge<R, E, A>(
   ma: Managed<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, E | A> {
   return ma.matchManaged(Managed.succeedNow, Managed.succeedNow);
 }
@@ -784,11 +758,9 @@ export function merge<R, E, A>(
 export function mergeAll_<R, E, A, B>(
   mas: Iterable<Managed<R, E, A>>,
   b: B,
-  f: (b: B, a: A) => B
+  f: (b: B, a: A) => B,
 ): Managed<R, E, B> {
-  return mas.foldLeft(Managed.succeedNow(b) as Managed<R, E, B>, (b, a) =>
-    b.zipWith(a, f)
-  );
+  return mas.foldLeft(Managed.succeedNow(b) as Managed<R, E, B>, (b, a) => b.zipWith(a, f));
 }
 
 /**
@@ -800,7 +772,7 @@ export function mergeAll_<R, E, A, B>(
 export function orElse_<R, E, A, R1, E1, B>(
   ma: Managed<R, E, A>,
   that: Lazy<Managed<R1, E1, B>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A | B> {
   return ma.matchManaged(() => that(), Managed.succeedNow);
 }
@@ -814,11 +786,11 @@ export function orElse_<R, E, A, R1, E1, B>(
 export function orElseEither_<R, E, A, R1, E1, B>(
   ma: Managed<R, E, A>,
   that: Lazy<Managed<R1, E1, B>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E1, Either<B, A>> {
   return ma.matchManaged(
     () => that().map(Either.left),
-    (a) => Managed.succeedNow(Either.right(a))
+    (a) => Managed.succeedNow(Either.right(a)),
   );
 }
 
@@ -828,10 +800,7 @@ export function orElseEither_<R, E, A, R1, E1, B>(
  *
  * @tsplus fluent fncts.control.Managed orElseFail
  */
-export function orElseFail_<R, E, A, E1>(
-  ma: Managed<R, E, A>,
-  e: Lazy<E1>
-): Managed<R, E | E1, A> {
+export function orElseFail_<R, E, A, E1>(ma: Managed<R, E, A>, e: Lazy<E1>): Managed<R, E | E1, A> {
   return ma.orElse(Managed.fail(e));
 }
 
@@ -845,7 +814,7 @@ export function orElseFail_<R, E, A, E1>(
 export function orElseOptional_<R, E, A, R1, E1, B>(
   ma: Managed<R, Maybe<E>, A>,
   that: Lazy<Managed<R1, Maybe<E1>, B>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, Maybe<E | E1>, A | B> {
   return ma.catchAll((me) => me.match(that, (e) => Managed.failNow(Just(e))));
 }
@@ -859,7 +828,7 @@ export function orElseOptional_<R, E, A, R1, E1, B>(
 export function orElseSucceed_<R, E, A, A1>(
   ma: Managed<R, E, A>,
   that: Lazy<A1>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, A | A1> {
   return ma.orElse(Managed.succeed(that));
 }
@@ -873,7 +842,7 @@ export function orElseSucceed_<R, E, A, A1>(
 export function orHaltWith_<R, E, A>(
   ma: Managed<R, E, A>,
   f: (e: E) => unknown,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, A> {
   return new Managed(ma.io.orHaltWith(f));
 }
@@ -898,11 +867,9 @@ export function refineOrHaltWith_<R, E, A, E1>(
   ma: Managed<R, E, A>,
   pf: (e: E) => Maybe<E1>,
   f: (e: E) => unknown,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E1, A> {
-  return ma.catchAll((e) =>
-    pf(e).match(() => Managed.haltNow(f(e)), Managed.failNow)
-  );
+  return ma.catchAll((e) => pf(e).match(() => Managed.haltNow(f(e)), Managed.failNow));
 }
 
 /**
@@ -913,7 +880,7 @@ export function refineOrHaltWith_<R, E, A, E1>(
 export function refineOrHalt_<R, E, A, E1>(
   ma: Managed<R, E, A>,
   pf: (e: E) => Maybe<E1>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E1, A> {
   return ma.refineOrHaltWith(pf, identity);
 }
@@ -927,7 +894,7 @@ export function refineOrHalt_<R, E, A, E1>(
 export function reject_<R, E, A, E1>(
   ma: Managed<R, E, A>,
   pf: (a: A) => Maybe<E1>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E | E1, A> {
   return ma.rejectManaged((a) => pf(a).map(Managed.failNow));
 }
@@ -942,13 +909,13 @@ export function reject_<R, E, A, E1>(
 export function rejectManaged_<R, E, A, R1, E1>(
   ma: Managed<R, E, A>,
   pf: (a: A) => Maybe<Managed<R1, E1, E1>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A> {
   return ma.chain((a) =>
     pf(a).match(
       () => Managed.succeedNow(a),
-      (me) => me.chain(Managed.failNow)
-    )
+      (me) => me.chain(Managed.failNow),
+    ),
   );
 }
 
@@ -958,13 +925,10 @@ export function rejectManaged_<R, E, A, R1, E1>(
 export function require_<R, E, A>(
   ma: Managed<R, E, Maybe<A>>,
   error: Lazy<E>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, A> {
   return ma.chain((r) =>
-    r.match(
-      () => Managed.succeed(error).chain(Managed.failNow),
-      Managed.succeedNow
-    )
+    r.match(() => Managed.succeed(error).chain(Managed.failNow), Managed.succeedNow),
   );
 }
 
@@ -976,11 +940,11 @@ export function require_<R, E, A>(
  */
 export function result<R, E, A>(
   ma: Managed<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, Exit<E, A>> {
   return ma.matchCauseManaged(
     (cause) => Managed.succeedNow(Exit.failCause(cause)),
-    (a) => Managed.succeedNow(Exit.succeed(a))
+    (a) => Managed.succeedNow(Exit.succeed(a)),
   );
 }
 
@@ -992,7 +956,7 @@ export function result<R, E, A>(
 export function justOrElse_<R, E, A, B>(
   self: Managed<R, E, Maybe<A>>,
   onNothing: Lazy<B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, A | B> {
   return self.map((ma) => ma.getOrElse(onNothing()));
 }
@@ -1005,7 +969,7 @@ export function justOrElse_<R, E, A, B>(
 export function justOrElseManaged_<R, E, A, R1, E1, B>(
   self: Managed<R, E, Maybe<A>>,
   onNothing: Lazy<Managed<R1, E1, B>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A | B> {
   return self.chain((ma) => ma.match(onNothing, Managed.succeedNow));
 }
@@ -1018,11 +982,9 @@ export function justOrElseManaged_<R, E, A, R1, E1, B>(
 export function justOrFailWith_<R, E, A, E1>(
   self: Managed<R, E, Maybe<A>>,
   e: Lazy<E1>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E | E1, A> {
-  return self.chain((ma) =>
-    ma.match(() => Managed.failNow(e()), Managed.succeedNow)
-  );
+  return self.chain((ma) => ma.match(() => Managed.failNow(e()), Managed.succeedNow));
 }
 
 /**
@@ -1032,7 +994,7 @@ export function justOrFailWith_<R, E, A, E1>(
  */
 export function sandbox<R, E, A>(
   ma: Managed<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, Cause<E>, A> {
   return new Managed(ma.io.sandbox);
 }
@@ -1046,7 +1008,7 @@ export function sandbox<R, E, A>(
 export function sandboxWith<R, E, A, R1, E1, B>(
   self: Managed<R, E, A>,
   f: (ma: Managed<R, Cause<E>, A>) => Managed<R1, Cause<E1>, B>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, B> {
   return f(self.sandbox).unsandbox;
 }
@@ -1059,7 +1021,7 @@ export function sandboxWith<R, E, A, R1, E1, B>(
  */
 export function sequenceIterable<R, E, A>(
   mas: Iterable<Managed<R, E, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, Conc<A>> {
   return Managed.foreach(mas, identity);
 }
@@ -1072,7 +1034,7 @@ export function sequenceIterable<R, E, A>(
  */
 export function sequenceIterableUnit<R, E, A>(
   mas: Iterable<Managed<R, E, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, void> {
   return Managed.foreachDiscard(mas, identity);
 }
@@ -1082,10 +1044,7 @@ export function sequenceIterableUnit<R, E, A>(
  *
  * @tsplus getter fncts.control.Managed swap
  */
-export function swap<R, E, A>(
-  ma: Managed<R, E, A>,
-  __tsplusTrace?: string
-): Managed<R, A, E> {
+export function swap<R, E, A>(ma: Managed<R, E, A>, __tsplusTrace?: string): Managed<R, A, E> {
   return ma.matchManaged(Managed.succeedNow, Managed.failNow);
 }
 
@@ -1097,7 +1056,7 @@ export function swap<R, E, A>(
 export function swapWith_<R, E, A, R1, E1, B>(
   ma: Managed<R, E, A>,
   f: (me: Managed<R, A, E>) => Managed<R1, B, E1>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R1, E1, B> {
   return f(ma.swap).swap;
 }
@@ -1108,7 +1067,7 @@ export function swapWith_<R, E, A, R1, E1, B>(
 export function tap_<R, E, A, Q, D>(
   ma: Managed<R, E, A>,
   f: (a: A) => Managed<Q, D, any>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & Q, E | D, A> {
   return ma.chain((a) => f(a).map(() => a));
 }
@@ -1122,11 +1081,11 @@ export function tapBoth_<R, E, A, R1, E1, R2, E2>(
   ma: Managed<R, E, A>,
   f: (e: E) => Managed<R1, E1, any>,
   g: (a: A) => Managed<R2, E2, any>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1 & R2, E | E1 | E2, A> {
   return ma.matchManaged(
     (e) => f(e).chain(() => Managed.failNow(e)),
-    (a) => g(a).map(() => a)
+    (a) => g(a).map(() => a),
   );
 }
 
@@ -1138,11 +1097,9 @@ export function tapBoth_<R, E, A, R1, E1, R2, E2>(
  */
 export function tapCause_<R, E, A, R1, E1>(
   self: Managed<R, E, A>,
-  f: (c: Cause<E>) => Managed<R1, E1, any>
+  f: (c: Cause<E>) => Managed<R1, E1, any>,
 ): Managed<R & R1, E | E1, A> {
-  return self.catchAllCause((cause) =>
-    f(cause).chain(() => Managed.failCauseNow(cause))
-  );
+  return self.catchAllCause((cause) => f(cause).chain(() => Managed.failCauseNow(cause)));
 }
 
 /**
@@ -1152,7 +1109,7 @@ export function tapCause_<R, E, A, R1, E1>(
  */
 export function tapError_<R, E, A, R1, E1>(
   ma: Managed<R, E, A>,
-  f: (e: E) => Managed<R1, E1, any>
+  f: (e: E) => Managed<R1, E1, any>,
 ): Managed<R & R1, E | E1, A> {
   return ma.tapBoth(f, Managed.succeedNow);
 }
@@ -1165,7 +1122,7 @@ export function tapError_<R, E, A, R1, E1>(
  */
 export function tapIO_<R, E, A, R1, E1>(
   ma: Managed<R, E, A>,
-  f: (a: A) => IO<R1, E1, any>
+  f: (a: A) => IO<R1, E1, any>,
 ): Managed<R & R1, E | E1, A> {
   return ma.mapIO((a) => f(a).as(a));
 }
@@ -1178,7 +1135,7 @@ export function tapIO_<R, E, A, R1, E1>(
 export function unless_<R, E, A>(
   self: Managed<R, E, A>,
   b: Lazy<boolean>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, E, void> {
   return Managed.defer(() => (b() ? Managed.unit : self.asUnit));
 }
@@ -1189,10 +1146,7 @@ export function unless_<R, E, A>(
  * @tsplus satic fncts.control.ManagedOps unless
  */
 export function unless(b: () => boolean) {
-  return <R, E, A>(
-    ma: Lazy<Managed<R, E, A>>,
-    __tsplusTrace?: string
-  ): Managed<R, E, void> =>
+  return <R, E, A>(ma: Lazy<Managed<R, E, A>>, __tsplusTrace?: string): Managed<R, E, void> =>
     Managed.defer(() => (b() ? Managed.unit : ma().asUnit));
 }
 
@@ -1204,7 +1158,7 @@ export function unless(b: () => boolean) {
 export function unlessManaged_<R, E, A, R1, E1>(
   ma: Managed<R, E, A>,
   mb: Lazy<Managed<R1, E1, boolean>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, void> {
   return Managed.defer(() => mb().chain((b) => (b ? Managed.unit : ma.asUnit)));
 }
@@ -1217,7 +1171,7 @@ export function unlessManaged_<R, E, A, R1, E1>(
 export function unlessManaged<R1, E1>(mb: Lazy<Managed<R1, E1, boolean>>) {
   return <R, E, A>(
     ma: Lazy<Managed<R, E, A>>,
-    __tsplusTrace?: string
+    __tsplusTrace?: string,
   ): Managed<R & R1, E1 | E, void> =>
     Managed.defer(() => mb().chain((b) => (b ? Managed.unit : ma().asUnit)));
 }
@@ -1227,9 +1181,7 @@ export function unlessManaged<R1, E1>(mb: Lazy<Managed<R1, E1, boolean>>) {
  *
  * @tsplus getter fncts.control.Managed unsandbox
  */
-export function unsandbox<R, E, A>(
-  self: Managed<R, Cause<E>, A>
-): Managed<R, E, A> {
+export function unsandbox<R, E, A>(self: Managed<R, Cause<E>, A>): Managed<R, E, A> {
   return self.mapErrorCause((c) => c.flatten);
 }
 
@@ -1240,7 +1192,7 @@ export function unsandbox<R, E, A>(
  */
 export function unwrap<R, E, R1, E1, A>(
   fa: IO<R, E, Managed<R1, E1, A>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, A> {
   return Managed.fromIO(fa).flatten;
 }
@@ -1250,10 +1202,7 @@ export function unwrap<R, E, R1, E1, A>(
  *
  * @tsplus fluent fncts.control.Managed when
  */
-export function when_<R, E, A>(
-  ma: Managed<R, E, A>,
-  b: Lazy<boolean>
-): Managed<R, E, void> {
+export function when_<R, E, A>(ma: Managed<R, E, A>, b: Lazy<boolean>): Managed<R, E, void> {
   return Managed.defer(() => (b() ? ma.asUnit : Managed.unit));
 }
 
@@ -1263,10 +1212,7 @@ export function when_<R, E, A>(
  * @tsplus static fncts.control.ManagedOps when
  */
 export function when(b: Lazy<boolean>) {
-  return <R, E, A>(
-    ma: Lazy<Managed<R, E, A>>,
-    __tsplusTrace?: string
-  ): Managed<R, E, void> =>
+  return <R, E, A>(ma: Lazy<Managed<R, E, A>>, __tsplusTrace?: string): Managed<R, E, void> =>
     Managed.defer(() => (b() ? ma().asUnit : Managed.unit));
 }
 
@@ -1278,7 +1224,7 @@ export function when(b: Lazy<boolean>) {
 export function whenManaged_<R, E, A, R1, E1>(
   ma: Managed<R, E, A>,
   mb: Lazy<Managed<R1, E1, boolean>>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, void> {
   return Managed.defer(() => mb().chain((b) => (b ? ma.asUnit : Managed.unit)));
 }
@@ -1292,7 +1238,7 @@ export function whenManaged_<R, E, A, R1, E1>(
 export function whenManaged<R1, E1>(mb: Lazy<Managed<R1, E1, boolean>>) {
   return <R, E, A>(
     ma: Lazy<Managed<R, E, A>>,
-    __tsplusTrace?: string
+    __tsplusTrace?: string,
   ): Managed<R & R1, E1 | E, void> =>
     Managed.defer(() => mb().chain((b) => (b ? ma().asUnit : Managed.unit)));
 }
@@ -1307,7 +1253,7 @@ export function zipWith_<R, E, A, R1, E1, B, C>(
   fa: Managed<R, E, A>,
   fb: Managed<R1, E1, B>,
   f: (a: A, b: B) => C,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ) {
   return fa.chain((a) => fb.map((b) => f(a, b)));
 }

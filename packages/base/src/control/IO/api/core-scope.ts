@@ -19,20 +19,15 @@ export const forkScope: UIO<Scope> = new GetForkScope(IO.succeedNow);
  *
  * @tsplus static fncts.control.IOOps forkScopeWith
  */
-export function forkScopeWith<R, E, A>(
-  f: (_: Scope) => IO<R, E, A>,
-  __tsplusTrace?: string
-) {
+export function forkScopeWith<R, E, A>(f: (_: Scope) => IO<R, E, A>, __tsplusTrace?: string) {
   return new GetForkScope(f, __tsplusTrace);
 }
 
 export class ForkScopeRestore {
   constructor(private scope: Scope) {}
 
-  readonly restore = <R, E, A>(
-    ma: IO<R, E, A>,
-    __tsplusTrace?: string
-  ): IO<R, E, A> => new OverrideForkScope(ma, Just(this.scope), __tsplusTrace);
+  readonly restore = <R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> =>
+    new OverrideForkScope(ma, Just(this.scope), __tsplusTrace);
 }
 
 /**
@@ -45,15 +40,10 @@ export class ForkScopeRestore {
 export function forkScopeMask_<R, E, A>(
   newScope: Scope,
   f: (restore: ForkScopeRestore) => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return IO.forkScopeWith(
-    (scope) =>
-      new OverrideForkScope(
-        f(new ForkScopeRestore(scope)),
-        Just(newScope),
-        __tsplusTrace
-      )
+    (scope) => new OverrideForkScope(f(new ForkScopeRestore(scope)), Just(newScope), __tsplusTrace),
   );
 }
 
@@ -73,7 +63,7 @@ export function forkScopeMask_<R, E, A>(
 export function forkIn_<R, E, A>(
   io: IO<R, E, A>,
   scope: Scope,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): URIO<R, RuntimeFiber<E, A>> {
   return new Fork(io, Just(scope), __tsplusTrace);
 }
@@ -90,7 +80,7 @@ export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
   leftWins: (exit: Exit<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
   rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
   scope: Maybe<Scope> = Nothing(),
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
   return new Race(left, right, leftWins, rightWins, scope, __tsplusTrace);
 }
@@ -109,11 +99,9 @@ export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;
  */
 export function transplant<R, E, A>(
   f: (_: Grafter) => IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return forkScopeWith((scope) =>
-    f((e) => new OverrideForkScope(e, Just(scope)))
-  );
+  return forkScopeWith((scope) => f((e) => new OverrideForkScope(e, Just(scope))));
 }
 
 /**
@@ -125,7 +113,7 @@ export function transplant<R, E, A>(
  */
 export function forkDaemon<R, E, A>(
   ma: IO<R, E, A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): URIO<R, RuntimeFiber<E, A>> {
   return ma.forkIn(Scope.global);
 }
@@ -139,7 +127,7 @@ export function forkDaemon<R, E, A>(
 export function overrideForkScope_<R, E, A>(
   ma: IO<R, E, A>,
   scope: Scope,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): IO<R, E, A> {
   return new OverrideForkScope(ma, Just(scope), __tsplusTrace);
 }
@@ -150,9 +138,6 @@ export function overrideForkScope_<R, E, A>(
  *
  * @tsplus getter fncts.control.IO defaultForkScope
  */
-export function defaultForkScope<R, E, A>(
-  ma: IO<R, E, A>,
-  __tsplusTrace?: string
-): IO<R, E, A> {
+export function defaultForkScope<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new OverrideForkScope(ma, Nothing(), __tsplusTrace);
 }

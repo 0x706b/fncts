@@ -1,9 +1,6 @@
 import type { MutableArray } from "../Array";
 
-import {
-  ArrayIndexOutOfBoundsError,
-  IndexOutOfBoundsError,
-} from "../../../data/exceptions";
+import { ArrayIndexOutOfBoundsError, IndexOutOfBoundsError } from "../../../data/exceptions";
 import { unsafeCoerce } from "../../../data/function";
 import { Equatable, Hashable } from "../../../prelude";
 import { isByte, isObject } from "../../../util/predicates";
@@ -44,10 +41,7 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
   }
 
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      Conc.isConc(that) &&
-      (this as Conc<A>).corresponds(that, Equatable.strictEquals)
-    );
+    return Conc.isConc(that) && (this as Conc<A>).corresponds(that, Equatable.strictEquals);
   }
 }
 
@@ -115,9 +109,7 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
       return this.start.concat(conc).concat(that);
     }
     if (that._concTag === ConcTag.PrependN) {
-      const conc = fromArray(
-        (that.buffer as Array<A>).takeLast(that.bufferUsed)
-      );
+      const conc = fromArray((that.buffer as Array<A>).takeLast(that.bufferUsed));
       return this.concat(conc).concat(that.end);
     }
     const diff = that.depth - this.depth;
@@ -176,30 +168,24 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
   }
   append<A1>(a: A1): ConcImplementation<A | A1> {
     const binary = this.binary && isByte(a);
-    const buffer =
-      this.binary && binary
-        ? alloc(BUFFER_SIZE)
-        : Array.alloc<A | A1>(BUFFER_SIZE);
-    buffer[0] = a;
+    const buffer = this.binary && binary ? alloc(BUFFER_SIZE) : Array.alloc<A | A1>(BUFFER_SIZE);
+    buffer[0]    = a;
     return new AppendN<A | A1>(
       this as ConcImplementation<A | A1>,
       buffer,
       1,
-      this.binary && binary
+      this.binary && binary,
     );
   }
   prepend<A1>(a: A1): ConcImplementation<A | A1> {
-    const binary = this.binary && isByte(a);
-    const buffer =
-      this.binary && binary
-        ? alloc(BUFFER_SIZE)
-        : Array.alloc<A | A1>(BUFFER_SIZE);
+    const binary            = this.binary && isByte(a);
+    const buffer            = this.binary && binary ? alloc(BUFFER_SIZE) : Array.alloc<A | A1>(BUFFER_SIZE);
     buffer[BUFFER_SIZE - 1] = a;
     return new PrependN<A | A1>(
       this as ConcImplementation<A | A1>,
       buffer,
       1,
-      this.binary && binary
+      this.binary && binary,
     );
   }
 
@@ -209,11 +195,9 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
     }
     const binary        = this.binary && isByte(a1);
     const bufferIndices = Array.alloc<number>(UPDATE_BUFFER_SIZE);
-    const bufferValues  = binary
-      ? alloc(UPDATE_BUFFER_SIZE)
-      : Array.alloc<any>(UPDATE_BUFFER_SIZE);
-    bufferIndices[0] = index;
-    bufferValues[0]  = a1;
+    const bufferValues  = binary ? alloc(UPDATE_BUFFER_SIZE) : Array.alloc<any>(UPDATE_BUFFER_SIZE);
+    bufferIndices[0]    = index;
+    bufferValues[0]     = a1;
     return new Update(this, bufferIndices, bufferValues, 1, binary);
   }
 
@@ -234,10 +218,7 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
   }
 }
 
-const alloc =
-  typeof Buffer !== "undefined"
-    ? Buffer.alloc
-    : (n: number) => new Uint8Array(n);
+const alloc = typeof Buffer !== "undefined" ? Buffer.alloc : (n: number) => new Uint8Array(n);
 
 export class Empty<A> extends ConcImplementation<A> {
   readonly _concTag = ConcTag.Empty;
@@ -292,16 +273,11 @@ export class Concat<A> extends ConcImplementation<A> {
   length = this.left.length + this.right.length;
   depth  = 1 + Math.max(this.left.depth, this.right.depth);
   binary = this.left.binary && this.right.binary;
-  constructor(
-    readonly left: ConcImplementation<A>,
-    readonly right: ConcImplementation<A>
-  ) {
+  constructor(readonly left: ConcImplementation<A>, readonly right: ConcImplementation<A>) {
     super();
   }
   get(n: number): A {
-    return n < this.left.length
-      ? this.left.get(n)
-      : this.right.get(n - this.left.length);
+    return n < this.left.length ? this.left.get(n) : this.right.get(n - this.left.length);
   }
   forEach<B>(startIndex: number, f: (i: number, a: A) => B): void {
     this.left.forEach(startIndex, f);
@@ -338,7 +314,7 @@ class AppendN<A> extends ConcImplementation<A> {
     readonly start: ConcImplementation<A>,
     readonly buffer: MutableArray<unknown> | Uint8Array,
     readonly bufferUsed: number,
-    readonly binary: boolean
+    readonly binary: boolean,
   ) {
     super();
     this.length = this.start.length + this.bufferUsed;
@@ -363,7 +339,7 @@ class AppendN<A> extends ConcImplementation<A> {
           this.start as ConcImplementation<A | A1>,
           this.buffer,
           this.bufferUsed + 1,
-          this.binary && binary
+          this.binary && binary,
         );
       }
       this.buffer[this.bufferUsed] = a;
@@ -371,18 +347,17 @@ class AppendN<A> extends ConcImplementation<A> {
         this.start as ConcImplementation<A | A1>,
         this.buffer,
         this.bufferUsed + 1,
-        this.binary && binary
+        this.binary && binary,
       );
     } else {
-      const buffer =
-        this.binary && binary ? alloc(BUFFER_SIZE) : Array.alloc(BUFFER_SIZE);
-      buffer[0]  = a;
-      const conc = fromArray(this.buffer as Array<A>).take(this.bufferUsed);
+      const buffer = this.binary && binary ? alloc(BUFFER_SIZE) : Array.alloc(BUFFER_SIZE);
+      buffer[0]    = a;
+      const conc   = fromArray(this.buffer as Array<A>).take(this.bufferUsed);
       return new AppendN<A | A1>(
         this.start.concat(conc) as ConcImplementation<A | A1>,
         buffer,
         1,
-        this.binary && binary
+        this.binary && binary,
       );
     }
   }
@@ -397,13 +372,7 @@ class AppendN<A> extends ConcImplementation<A> {
 
   copyToArray(n: number, dest: MutableArray<A> | Uint8Array): void {
     this.start.copyToArray(n, dest);
-    copyArray(
-      this.buffer as ArrayLike<A>,
-      0,
-      dest,
-      this.start.length + n,
-      this.bufferUsed
-    );
+    copyArray(this.buffer as ArrayLike<A>, 0, dest, this.start.length + n, this.bufferUsed);
   }
 
   forEach<B>(startIndex: number, f: (i: number, a: A) => B): void {
@@ -425,7 +394,7 @@ class PrependN<A> extends ConcImplementation<A> {
     readonly end: ConcImplementation<A>,
     readonly buffer: MutableArray<unknown> | Uint8Array,
     readonly bufferUsed: number,
-    readonly binary: boolean
+    readonly binary: boolean,
   ) {
     super();
     this.length = this.end.length + this.bufferUsed;
@@ -450,7 +419,7 @@ class PrependN<A> extends ConcImplementation<A> {
           this.end as ConcImplementation<A | A1>,
           buffer,
           this.bufferUsed + 1,
-          this.binary && binary
+          this.binary && binary,
         );
       }
       this.buffer[BUFFER_SIZE - this.bufferUsed - 1] = a;
@@ -458,22 +427,21 @@ class PrependN<A> extends ConcImplementation<A> {
         this.end as ConcImplementation<A | A1>,
         this.buffer,
         this.bufferUsed + 1,
-        this.binary && binary
+        this.binary && binary,
       );
     } else {
-      const buffer =
-        this.binary && binary ? alloc(BUFFER_SIZE) : Array.alloc(BUFFER_SIZE);
+      const buffer            = this.binary && binary ? alloc(BUFFER_SIZE) : Array.alloc(BUFFER_SIZE);
       buffer[BUFFER_SIZE - 1] = a;
       const conc              = fromArray(
         "subarray" in this.buffer
           ? this.buffer.subarray(this.buffer.length - this.bufferUsed)
-          : this.buffer.slice(this.buffer.length - this.bufferUsed)
+          : this.buffer.slice(this.buffer.length - this.bufferUsed),
       ) as ConcImplementation<A>;
       return new PrependN<A | A1>(
         conc.concat(this.end) as ConcImplementation<A | A1>,
         buffer,
         1,
-        this.binary && binary
+        this.binary && binary,
       );
     }
   }
@@ -491,11 +459,7 @@ class PrependN<A> extends ConcImplementation<A> {
   }
 
   forEach<B>(startIndex: number, f: (i: number, a: A) => B): void {
-    for (
-      let i = BUFFER_SIZE - this.bufferUsed, j = 0;
-      i < BUFFER_SIZE;
-      i++, j++
-    ) {
+    for (let i = BUFFER_SIZE - this.bufferUsed, j = 0; i < BUFFER_SIZE; i++, j++) {
       f(startIndex + j, this.buffer[i] as A);
     }
     this.end.forEach(startIndex + this.bufferUsed, f);
@@ -514,7 +478,7 @@ class Update<A> extends ConcImplementation<A> {
     readonly bufferIndices: MutableArray<number>,
     readonly bufferValues: MutableArray<any> | Uint8Array,
     readonly used: number,
-    readonly binary: boolean
+    readonly binary: boolean,
   ) {
     super();
     this.length = this.conc.length;
@@ -549,7 +513,7 @@ class Update<A> extends ConcImplementation<A> {
           this.bufferIndices,
           buffer,
           this.used + 1,
-          this.binary && binary
+          this.binary && binary,
         );
       }
       this.bufferIndices[this.used] = i;
@@ -559,23 +523,15 @@ class Update<A> extends ConcImplementation<A> {
         this.bufferIndices,
         this.bufferValues,
         this.used + 1,
-        this.binary && binary
+        this.binary && binary,
       );
     } else {
       const bufferIndices = Array.alloc<number>(UPDATE_BUFFER_SIZE);
-      const bufferValues  = this.binary && binary
-          ? alloc(UPDATE_BUFFER_SIZE)
-          : Array.alloc<any>(UPDATE_BUFFER_SIZE);
-      bufferIndices[0] = i;
-      bufferValues[0]  = a;
-      const array      = toArray(this.conc);
-      return new Update(
-        fromArray(array),
-        bufferIndices,
-        bufferValues,
-        1,
-        this.binary && binary
-      );
+      const bufferValues  = this.binary && binary ? alloc(UPDATE_BUFFER_SIZE) : Array.alloc<any>(UPDATE_BUFFER_SIZE);
+      bufferIndices[0]    = i;
+      bufferValues[0]     = a;
+      const array         = toArray(this.conc);
+      return new Update(fromArray(array), bufferIndices, bufferValues, 1, this.binary && binary);
     }
   }
 
@@ -638,11 +594,7 @@ export class Slice<A> extends ConcImplementation<A> {
   left  = _Empty;
   right = _Empty;
 
-  constructor(
-    readonly conc: ConcImplementation<A>,
-    readonly offset: number,
-    readonly l: number
-  ) {
+  constructor(readonly conc: ConcImplementation<A>, readonly offset: number, readonly l: number) {
     super();
     this.binary = this.conc.binary;
     this.length = this.l;
@@ -761,7 +713,7 @@ export class ByteChunk<A> extends ConcImplementation<A> {
  * @tsplus macro remove
  */
 export function concrete<A>(
-  _: Conc<A>
+  _: Conc<A>,
 ): asserts _ is
   | Empty<A>
   | Singleton<A>
@@ -779,7 +731,7 @@ function copyArray<A>(
   sourcePos: number,
   dest: MutableArray<A> | Uint8Array,
   destPos: number,
-  length: number
+  length: number,
 ): void {
   const j = Math.min(source.length, sourcePos + length);
   for (let i = sourcePos; i < j; i++) {
@@ -794,9 +746,7 @@ export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
   if (array.length === 0) {
     return _Empty;
   } else {
-    return "buffer" in array
-      ? (new ByteChunk(array as any) as any)
-      : new Chunk(Array.from(array));
+    return "buffer" in array ? (new ByteChunk(array as any) as any) : new Chunk(Array.from(array));
   }
 }
 
@@ -806,11 +756,7 @@ export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
 export function isConc<A>(u: Iterable<A>): u is Conc<A>;
 export function isConc(u: unknown): u is Conc<unknown>;
 export function isConc(u: unknown): u is Conc<unknown> {
-  return (
-    isObject(u) &&
-    "_typeId" in u &&
-    u["_typeId" as keyof typeof u] === ConcTypeId
-  );
+  return isObject(u) && "_typeId" in u && u["_typeId" as keyof typeof u] === ConcTypeId;
 }
 
 /**
@@ -819,7 +765,7 @@ export function isConc(u: unknown): u is Conc<unknown> {
 export function corresponds_<A, B>(
   self: Conc<A>,
   bs: Conc<B>,
-  f: (a: A, b: B) => boolean
+  f: (a: A, b: B) => boolean,
 ): boolean {
   if (self.length !== bs.length) {
     return false;

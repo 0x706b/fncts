@@ -33,7 +33,7 @@ export function withInterrupting(self: FiberStatus, b: boolean): FiberStatus {
         withInterrupting(self.previous, b),
         self.interruptible,
         self.epoch,
-        self.blockingOn
+        self.blockingOn,
       );
   }
 }

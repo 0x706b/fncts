@@ -5,4 +5,4 @@ declare global {
   export interface SymbolConstructor {}
 }
 
-export {}
+export {};

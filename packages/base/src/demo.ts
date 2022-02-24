@@ -2,6 +2,7 @@ import { Iterable } from "./collection/immutable/Iterable";
 import { FiberContext } from "./control/Fiber/FiberContext";
 import { concrete, IO } from "./control/IO";
 import { Logger } from "./control/Logger";
+import { Finalizer } from "./control/Managed/Finalizer";
 import { Supervisor } from "./control/Supervisor";
 import { Either } from "./data/Either";
 import { FiberId } from "./data/FiberId";
@@ -29,8 +30,8 @@ const effect = IO.succeed(console.time("A"))
           k(IO.succeedNow(n));
         }, n * 10);
         return Either.left(IO.succeed(clearTimeout(handle)));
-      })
-    )
+      }),
+    ),
   )
   .apFirst(IO.succeed(console.timeEnd("A")))
   .withConcurrency(2);
@@ -40,7 +41,7 @@ const fiber = new FiberContext(
   config,
   Stack.make(true),
   new Map(),
-  new Set()
+  new Set(),
 );
 
 fiber.unsafeRunLater(concrete(effect));

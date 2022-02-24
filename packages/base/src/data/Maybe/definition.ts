@@ -21,11 +21,7 @@ export class Just<A> {
   readonly _tag                 = MaybeTag.Just;
   constructor(readonly value: A) {}
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isMaybe(that) &&
-      that.isJust() &&
-      Equatable.strictEquals(this.value, that.value)
-    );
+    return isMaybe(that) && that.isJust() && Equatable.strictEquals(this.value, that.value);
   }
   get [Symbol.hashable]() {
     return Hashable.combineHash(_justHash, Hashable.hash(this.value));
@@ -63,7 +59,7 @@ export const Maybe: MaybeOps = {};
  * @tsplus unify fncts.data.Maybe
  */
 export function unifyMaybe<X extends Maybe<any>>(
-  self: X
+  self: X,
 ): Maybe<[X] extends [Maybe<infer A>] ? A : never> {
   return self;
 }

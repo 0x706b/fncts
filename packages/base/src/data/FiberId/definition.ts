@@ -43,9 +43,7 @@ export class Composite {
   constructor(readonly fiberIds: HashSet<Runtime>) {}
   [Symbol.equatable](that: unknown) {
     return (
-      isFiberId(that) &&
-      isComposite(that) &&
-      Equatable.strictEquals(this.fiberIds, that.fiberIds)
+      isFiberId(that) && isComposite(that) && Equatable.strictEquals(this.fiberIds, that.fiberIds)
     );
   }
   get [Symbol.hashable]() {

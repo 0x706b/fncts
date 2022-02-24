@@ -25,7 +25,7 @@ import type { IO } from "../definition";
 export function bracket_<R, E, A, R1, E1, A1, R2, E2, A2>(
   acquire: IO<R, E, A>,
   use: (a: A) => IO<R1, E1, A1>,
-  release: (a: A) => IO<R2, E2, A2>
+  release: (a: A) => IO<R2, E2, A2>,
 ): IO<R & R1 & R2, E | E1 | E2, A1> {
   return acquire.bracketExit(use, release);
 }

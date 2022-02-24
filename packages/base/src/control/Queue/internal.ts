@@ -10,20 +10,13 @@ import { Future } from "../Future";
 import { IO } from "../IO";
 import { QueueInternal } from "./definition";
 
-class UnsafeQueue<A> extends QueueInternal<
-  unknown,
-  unknown,
-  never,
-  never,
-  A,
-  A
-> {
+class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A> {
   constructor(
     readonly queue: MutableQueue<A>,
     readonly takers: MutableQueue<Future<never, A>>,
     readonly shutdownHook: Future<never, void>,
     readonly shutdownFlag: AtomicBoolean,
-    readonly strategy: Strategy<A>
+    readonly strategy: Strategy<A>,
   ) {
     super();
   }
@@ -54,7 +47,7 @@ class UnsafeQueue<A> extends QueueInternal<
               Conc.single(a),
               this.queue,
               this.takers,
-              this.shutdownFlag
+              this.shutdownFlag,
             );
           }
         }
@@ -87,12 +80,7 @@ class UnsafeQueue<A> extends QueueInternal<
         if (surplus.length === 0) {
           return IO.succeedNow(true);
         } else {
-          return this.strategy.handleSurplus(
-            surplus,
-            this.queue,
-            this.takers,
-            this.shutdownFlag
-          );
+          return this.strategy.handleSurplus(surplus, this.queue, this.takers, this.shutdownFlag);
         }
       }
     });
@@ -101,9 +89,7 @@ class UnsafeQueue<A> extends QueueInternal<
   shutdown: UIO<void> = IO.deferWith((_, id) => {
     this.shutdownFlag.set(true);
 
-    return IO.foreachC(_unsafePollAll(this.takers), (fiber) =>
-      fiber.interruptAs(id)
-    )
+    return IO.foreachC(_unsafePollAll(this.takers), (fiber) => fiber.interruptAs(id))
       .chain(() => this.strategy.shutdown)
       .whenIO(this.shutdownHook.succeed(undefined));
   });
@@ -112,9 +98,7 @@ class UnsafeQueue<A> extends QueueInternal<
     if (this.shutdownFlag.get) {
       return IO.interrupt;
     } else {
-      return IO.succeedNow(
-        this.queue.size - this.takers.size + this.strategy.surplusSize
-      );
+      return IO.succeedNow(this.queue.size - this.takers.size + this.strategy.surplusSize);
     }
   });
 
@@ -142,7 +126,7 @@ class UnsafeQueue<A> extends QueueInternal<
           }
         }).onInterrupt(() => IO.succeed(_unsafeRemove(this.takers, p)));
       }
-    })
+    }),
   );
 
   takeAll: IO<unknown, never, Conc<A>> = IO.defer(() => {
@@ -177,17 +161,17 @@ function _unsafeQueue<A>(
   takers: MutableQueue<Future<never, A>>,
   shutdownHook: Future<never, void>,
   shutdownFlag: AtomicBoolean,
-  strategy: Strategy<A>
+  strategy: Strategy<A>,
 ): Queue<A> {
   return new UnsafeQueue(queue, takers, shutdownHook, shutdownFlag, strategy);
 }
 
 export function _makeQueue<A>(
-  strategy: Strategy<A>
+  strategy: Strategy<A>,
 ): (queue: MutableQueue<A>) => IO<unknown, never, Queue<A>> {
   return (queue) =>
     Future.make<never, void>().map((p) =>
-      _unsafeQueue(queue, unbounded(), p, new AtomicBoolean(false), strategy)
+      _unsafeQueue(queue, unbounded(), p, new AtomicBoolean(false), strategy),
     );
 }
 
@@ -246,7 +230,7 @@ function _unsafePollN<A>(q: MutableQueue<A>, max: number): Conc<A> {
 export function _unsafeCompleteTakers<A>(
   strategy: Strategy<A>,
   queue: MutableQueue<A>,
-  takers: MutableQueue<Future<never, A>>
+  takers: MutableQueue<Future<never, A>>,
 ): void {
   let keepPolling = true;
 

@@ -11,9 +11,7 @@ import { ReleaseMap, Running } from "./definition";
  * @tsplus static fncts.control.Managed.ReleaseMapOps unsafeMake
  */
 export function unsafeMake(): ReleaseMap {
-  return ReleaseMap.get(
-    Ref.unsafeMake<State>(new Running(0, HashMap.makeDefault(), identity))
-  );
+  return ReleaseMap.get(Ref.unsafeMake<State>(new Running(0, HashMap.makeDefault(), identity)));
 }
 
 /**

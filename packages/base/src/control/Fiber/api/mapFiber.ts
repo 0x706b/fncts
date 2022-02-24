@@ -10,7 +10,7 @@ import { Fiber } from "../definition";
  */
 export function mapFiber_<A, E, E1, A1>(
   fiber: Fiber<E, A>,
-  f: (a: A) => Fiber<E1, A1>
+  f: (a: A) => Fiber<E1, A1>,
 ): UIO<Fiber<E | E1, A1>> {
   return fiber.await.map((exit) => exit.match(Fiber.failCause, f));
 }

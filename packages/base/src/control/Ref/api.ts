@@ -21,7 +21,7 @@ export * from "./api/set";
  * @tsplus getter fncts.control.Ref.Synchronized readOnly
  */
 export function readOnly<RA, RB, EA, EB, A, B>(
-  ref: PRef<RA, RB, EA, EB, A, B>
+  ref: PRef<RA, RB, EA, EB, A, B>,
 ): PRef<RA, RB, EA, EB, never, B> {
   return ref;
 }
@@ -33,12 +33,12 @@ export function readOnly<RA, RB, EA, EB, A, B>(
  * @tsplus getter fncts.control.Ref.Synchronized writeOnly
  */
 export function writeOnly<RA, RB, EA, EB, A, B>(
-  ref: PRef<RA, RB, EA, EB, A, B>
+  ref: PRef<RA, RB, EA, EB, A, B>,
 ): PRef<RA, RB, EA, void, A, never> {
   return ref.match(
     identity,
     () => undefined,
     Either.right,
-    () => Either.left(undefined)
+    () => Either.left(undefined),
   );
 }

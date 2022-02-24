@@ -52,7 +52,7 @@ export abstract class TRefInternal<EA, EB, A, B> implements TRef<EA, EB, A, B> {
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
     ca: (c: C) => Either<EC, A>,
-    bd: (b: B) => Either<ED, D>
+    bd: (b: B) => Either<ED, D>,
   ): TRef<EC, ED, C, D>;
 
   abstract matchAll<EC, ED, C, D>(
@@ -60,7 +60,7 @@ export abstract class TRefInternal<EA, EB, A, B> implements TRef<EA, EB, A, B> {
     eb: (ea: EB) => ED,
     ec: (ea: EB) => EC,
     ca: (c: C) => (b: B) => Either<EC, A>,
-    bd: (b: B) => Either<ED, D>
+    bd: (b: B) => Either<ED, D>,
   ): TRef<EC, ED, C, D>;
 }
 
@@ -81,7 +81,7 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
 
   constructor(
     public versioned: Versioned<A>,
-    readonly todo: AtomicReference<HashMap<TxnId, Todo>>
+    readonly todo: AtomicReference<HashMap<TxnId, Todo>>,
   ) {
     super();
   }
@@ -90,7 +90,7 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
     _ea: (ea: never) => EC,
     _eb: (ea: never) => ED,
     ca: (c: C) => Either<EC, A>,
-    bd: (b: A) => Either<ED, D>
+    bd: (b: A) => Either<ED, D>,
   ): TRef<EC, ED, C, D> {
     return new Derived((f) => f(bd, ca, this, this.atomic));
   }
@@ -100,7 +100,7 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
     _eb: (ea: never) => ED,
     _ec: (ea: never) => EC,
     ca: (c: C) => (b: A) => Either<EC, A>,
-    bd: (b: A) => Either<ED, D>
+    bd: (b: A) => Either<ED, D>,
   ): TRef<EC, ED, C, D> {
     return new DerivedAll((f) => f(bd, ca, this, this.atomic));
   }
@@ -116,9 +116,9 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         getEither: (s: S) => Either<EB, B>,
         setEither: (a: A) => Either<EA, S>,
         value: Atomic<S>,
-        atomic: Atomic<unknown>
-      ) => X
-    ) => X
+        atomic: Atomic<unknown>,
+      ) => X,
+    ) => X,
   ) {
     super();
   }
@@ -127,21 +127,18 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
     ca: (c: C) => Either<EC, A>,
-    bd: (b: B) => Either<ED, D>
+    bd: (b: B) => Either<ED, D>,
   ): TRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
         new Derived((f) =>
           f(
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
-            (c) =>
-              ca(c).chain((a) =>
-                setEither(a).match((e) => Either.left(ea(e)), Either.right)
-              ),
+            (c) => ca(c).chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
             value,
-            atomic
-          )
-        )
+            atomic,
+          ),
+        ),
     );
   }
 
@@ -150,7 +147,7 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     eb: (ea: EB) => ED,
     ec: (ea: EB) => EC,
     ca: (c: C) => (b: B) => Either<EC, A>,
-    bd: (b: B) => Either<ED, D>
+    bd: (b: B) => Either<ED, D>,
   ): TRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
@@ -160,13 +157,11 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
             (c) => (s) =>
               getEither(s)
                 .match((e) => Either.left(ec(e)), ca(c))
-                .chain((a) =>
-                  setEither(a).match((e) => Either.left(ea(e)), Either.right)
-                ),
+                .chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
             value,
-            atomic
-          )
-        )
+            atomic,
+          ),
+        ),
     );
   }
 }
@@ -181,9 +176,9 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         getEither: (s: S) => Either<EB, B>,
         setEither: (a: A) => (s: S) => Either<EA, S>,
         value: Atomic<S>,
-        atomic: Atomic<unknown>
-      ) => X
-    ) => X
+        atomic: Atomic<unknown>,
+      ) => X,
+    ) => X,
   ) {
     super();
   }
@@ -192,7 +187,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
     ca: (c: C) => Either<EC, A>,
-    bd: (b: B) => Either<ED, D>
+    bd: (b: B) => Either<ED, D>,
   ): TRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
@@ -200,13 +195,11 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
           f(
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
             (c) => (s) =>
-              ca(c).chain((a) =>
-                setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)
-              ),
+              ca(c).chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
             value,
-            atomic
-          )
-        )
+            atomic,
+          ),
+        ),
     );
   }
 
@@ -215,7 +208,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     eb: (ea: EB) => ED,
     ec: (ea: EB) => EC,
     ca: (c: C) => (b: B) => Either<EC, A>,
-    bd: (b: B) => Either<ED, D>
+    bd: (b: B) => Either<ED, D>,
   ): TRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
@@ -225,13 +218,11 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
             (c) => (s) =>
               getEither(s)
                 .match((e) => Either.left(ec(e)), ca(c))
-                .chain((a) =>
-                  setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)
-                ),
+                .chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
             value,
-            atomic
-          )
-        )
+            atomic,
+          ),
+        ),
     );
   }
 }
@@ -240,10 +231,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
  * @tsplus macro remove
  */
 export function concrete<EA, EB, A, B>(
-  _: TRef<EA, EB, A, B>
-): asserts _ is
-  | (Atomic<A> & Atomic<B>)
-  | Derived<EA, EB, A, B>
-  | DerivedAll<EA, EB, A, B> {
+  _: TRef<EA, EB, A, B>,
+): asserts _ is (Atomic<A> & Atomic<B>) | Derived<EA, EB, A, B> | DerivedAll<EA, EB, A, B> {
   //
 }

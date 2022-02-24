@@ -8,11 +8,7 @@ import { MaybeTag } from "./definition";
  *
  * @tsplus fluent fncts.data.Maybe match
  */
-export function match_<A, B, C>(
-  self: Maybe<A>,
-  nothing: () => B,
-  just: (a: A) => C
-): B | C {
+export function match_<A, B, C>(self: Maybe<A>, nothing: () => B, just: (a: A) => C): B | C {
   return self._tag === MaybeTag.Just ? just(self.value) : nothing();
 }
 

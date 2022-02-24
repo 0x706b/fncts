@@ -32,11 +32,7 @@ export function align_<A, B>(self: Conc<A>, fb: Conc<B>): Conc<These<A, B>> {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc alignWith
  */
-export function alignWith_<A, B, C>(
-  self: Conc<A>,
-  fb: Conc<B>,
-  f: (_: These<A, B>) => C
-): Conc<C> {
+export function alignWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (_: These<A, B>) => C): Conc<C> {
   concrete(self);
   concrete(fb);
   const out    = builder<C>();
@@ -107,10 +103,7 @@ export function chain_<A, B>(ma: Conc<A>, f: (a: A) => Conc<B>): Conc<B> {
 /**
  * @tsplus static fncts.collection.immutable.ConcOps chainRecDepthFirst
  */
-export function chainRecDepthFirst<A, B>(
-  a: A,
-  f: (a: A) => Conc<Either<A, B>>
-): Conc<B> {
+export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
   let buffer = f(a);
   let out    = Conc.empty<B>();
 
@@ -130,10 +123,7 @@ export function chainRecDepthFirst<A, B>(
 /**
  * @tsplus static fncts.collection.immutable.ConcOps chainRecBreadthFirst
  */
-export function chainRecBreadthFirst<A, B>(
-  a: A,
-  f: (a: A) => Conc<Either<A, B>>
-): Conc<B> {
+export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
   const initial = f(a);
   let buffer    = Conc.empty<Either<A, B>>();
   let out       = Conc.empty<B>();
@@ -162,10 +152,7 @@ export function chainRecBreadthFirst<A, B>(
 /**
  * @tsplus fluent fncts.collection.immutable.Conc chop
  */
-export function chop_<A, B>(
-  self: Conc<A>,
-  f: (as: Conc<A>) => readonly [B, Conc<A>]
-): Conc<B> {
+export function chop_<A, B>(self: Conc<A>, f: (as: Conc<A>) => readonly [B, Conc<A>]): Conc<B> {
   const out       = builder<B>();
   let cs: Conc<A> = self;
   while (cs.isNonEmpty) {
@@ -262,10 +249,7 @@ export function dropWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc filter
  */
-export function filter_<A, B extends A>(
-  self: Conc<A>,
-  p: Refinement<A, B>
-): Conc<B>;
+export function filter_<A, B extends A>(self: Conc<A>, p: Refinement<A, B>): Conc<B>;
 export function filter_<A>(self: Conc<A>, p: Predicate<A>): Conc<A>;
 export function filter_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
   return self.filterWithIndex((_, a) => p(a));
@@ -274,10 +258,7 @@ export function filter_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc filterMap
  */
-export function filterMap_<A, B>(
-  self: Conc<A>,
-  f: (a: A) => Maybe<B>
-): Conc<B> {
+export function filterMap_<A, B>(self: Conc<A>, f: (a: A) => Maybe<B>): Conc<B> {
   return self.filterMapWithIndex((_, a) => f(a));
 }
 
@@ -286,7 +267,7 @@ export function filterMap_<A, B>(
  */
 export function filterMapWithIndex_<A, B>(
   self: Conc<A>,
-  f: (i: number, a: A) => Maybe<B>
+  f: (i: number, a: A) => Maybe<B>,
 ): Conc<B> {
   concrete(self);
   const iterator = self.arrayIterator();
@@ -311,16 +292,10 @@ export function filterMapWithIndex_<A, B>(
  */
 export function filterWithIndex_<A, B extends A>(
   self: Conc<A>,
-  p: RefinementWithIndex<number, A, B>
+  p: RefinementWithIndex<number, A, B>,
 ): Conc<B>;
-export function filterWithIndex_<A>(
-  self: Conc<A>,
-  p: PredicateWithIndex<number, A>
-): Conc<A>;
-export function filterWithIndex_<A>(
-  self: Conc<A>,
-  p: PredicateWithIndex<number, A>
-): Conc<A> {
+export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A>;
+export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A> {
   concrete(self);
   switch (self._concTag) {
     case ConcTag.Empty: {
@@ -396,12 +371,7 @@ export function flatten<A>(self: Conc<Conc<A>>): Conc<A> {
  *
  * @tsplus fluent fncts.collection.immutable.Conc foldLeftWhile
  */
-export function foldLeftWhile_<A, B>(
-  as: Conc<A>,
-  b: B,
-  p: Predicate<B>,
-  f: (b: B, a: A) => B
-): B {
+export function foldLeftWhile_<A, B>(as: Conc<A>, b: B, p: Predicate<B>, f: (b: B, a: A) => B): B {
   concrete(as);
   const iterator = as.arrayIterator();
   let s          = b;
@@ -427,11 +397,7 @@ export function foldLeft_<A, B>(self: Conc<A>, b: B, f: (b: B, a: A) => B): B {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(
-  self: Conc<A>,
-  b: B,
-  f: (i: number, b: B, a: A) => B
-): B {
+export function foldLeftWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   concrete(self);
   const iterator = self.arrayIterator();
   let out        = b;
@@ -451,8 +417,7 @@ export function foldLeftWithIndex_<A, B>(
  * @constrained
  */
 export function foldMap_<M>(M: P.Monoid<M>) {
-  return <A>(fa: Conc<A>, f: (a: A) => M) =>
-    fa.foldMapWithIndex(M)((_, a) => f(a));
+  return <A>(fa: Conc<A>, f: (a: A) => M) => fa.foldMapWithIndex(M)((_, a) => f(a));
 }
 
 /**
@@ -491,11 +456,7 @@ export function foldRight_<A, B>(fa: Conc<A>, b: B, f: (a: A, b: B) => B): B {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc foldRightWithIndex
  */
-export function foldRightWithIndex_<A, B>(
-  self: Conc<A>,
-  b: B,
-  f: (i: number, a: A, b: B) => B
-): B {
+export function foldRightWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   concrete(self);
   const iterator = self.reverseArrayIterator();
   let out        = b;
@@ -522,10 +483,7 @@ export function forEach_<A, B>(self: Conc<A>, f: (a: A) => B): void {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc forEachWithIndex
  */
-export function forEachWithIndex_<A, B>(
-  self: Conc<A>,
-  f: (i: number, a: A) => B
-): void {
+export function forEachWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): void {
   concrete(self);
   self.forEach(0, f);
 }
@@ -565,10 +523,7 @@ export function join_(self: Conc<string>, separator: string): string {
   if (self.length === 0) {
     return "";
   }
-  return self.unsafeTail.foldLeft(
-    self.unsafeGet(0),
-    (b, s) => b + separator + s
-  );
+  return self.unsafeTail.foldLeft(self.unsafeGet(0), (b, s) => b + separator + s);
 }
 
 /**
@@ -614,7 +569,7 @@ export function map_<A, B>(self: Conc<A>, f: (a: A) => B): Conc<B> {
 export function mapAccum_<A, S, B>(
   self: Conc<A>,
   s: S,
-  f: (s: S, a: A) => readonly [B, S]
+  f: (s: S, a: A) => readonly [B, S],
 ): readonly [Conc<B>, S] {
   concrete(self);
   const iterator = self.arrayIterator();
@@ -638,7 +593,7 @@ function mapArrayLike<A, B>(
   as: ArrayLike<A>,
   len: number,
   startIndex: number,
-  f: (i: number, a: A) => B
+  f: (i: number, a: A) => B,
 ): Conc<B> {
   let bs = Conc.empty<B>();
   for (let i = 0; i < len; i++) {
@@ -651,7 +606,7 @@ function mapArrayLikeReverse<A, B>(
   as: ArrayLike<A>,
   len: number,
   endIndex: number,
-  f: (i: number, a: A) => B
+  f: (i: number, a: A) => B,
 ): Conc<B> {
   let bs = Conc.empty<B>();
   for (let i = BUFFER_SIZE - len, j = len - 1; i < BUFFER_SIZE; i++, j--) {
@@ -680,7 +635,7 @@ class AppendFrame<A> {
   constructor(
     readonly buffer: ArrayLike<A>,
     readonly bufferUsed: number,
-    readonly startIndex: number
+    readonly startIndex: number,
   ) {}
 }
 
@@ -699,10 +654,7 @@ type Frame<A, B> =
 /**
  * @tsplus fluent fncts.collection.immutable.Conc mapWithIndex
  */
-export function mapWithIndex_<A, B>(
-  self: Conc<A>,
-  f: (i: number, a: A) => B
-): Conc<B> {
+export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): Conc<B> {
   let current = self;
 
   let index = 0;
@@ -725,9 +677,7 @@ export function mapWithIndex_<A, B>(
           break pushing;
         }
         case ConcTag.Chunk: {
-          result = new Chunk(
-            current._array.mapWithIndex((i, a) => f(i + index, a))
-          );
+          result = new Chunk(current._array.mapWithIndex((i, a) => f(i + index, a)));
           index += current.length;
           break pushing;
         }
@@ -738,12 +688,8 @@ export function mapWithIndex_<A, B>(
         }
         case ConcTag.AppendN: {
           stack = Stack.make(
-            new AppendFrame(
-              current.buffer as ArrayLike<A>,
-              current.bufferUsed,
-              index
-            ),
-            stack
+            new AppendFrame(current.buffer as ArrayLike<A>, current.bufferUsed, index),
+            stack,
           );
           current = current.start;
           continue pushing;
@@ -755,11 +701,11 @@ export function mapWithIndex_<A, B>(
                 current.buffer as ArrayLike<A>,
                 current.bufferUsed,
                 index + current.bufferUsed - 1,
-                f
+                f,
               ),
-              current.end
+              current.end,
             ),
-            stack
+            stack,
           );
           index += current.bufferUsed;
           break pushing;
@@ -793,10 +739,7 @@ export function mapWithIndex_<A, B>(
           continue popping;
         }
         case "Append": {
-          result = concat_(
-            result,
-            mapArrayLike(top.buffer, top.bufferUsed, index, f)
-          );
+          result = concat_(result, mapArrayLike(top.buffer, top.bufferUsed, index, f));
           continue popping;
         }
         case "Prepend": {
@@ -830,16 +773,10 @@ export function isNonEmpty<A>(conc: Conc<A>): boolean {
  */
 export function partition_<A, B extends A>(
   self: Conc<A>,
-  p: Refinement<A, B>
+  p: Refinement<A, B>,
 ): readonly [Conc<A>, Conc<B>];
-export function partition_<A>(
-  self: Conc<A>,
-  p: Predicate<A>
-): readonly [Conc<A>, Conc<A>];
-export function partition_<A>(
-  self: Conc<A>,
-  p: Predicate<A>
-): readonly [Conc<A>, Conc<A>] {
+export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>, Conc<A>];
+export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>, Conc<A>] {
   return self.partitionWithIndex((_, a) => p(a));
 }
 
@@ -848,7 +785,7 @@ export function partition_<A>(
  */
 export function partitionMap_<A, B, C>(
   self: Conc<A>,
-  f: (a: A) => Either<B, C>
+  f: (a: A) => Either<B, C>,
 ): readonly [Conc<B>, Conc<C>] {
   return self.partitionMapWithIndex((_, a) => f(a));
 }
@@ -858,7 +795,7 @@ export function partitionMap_<A, B, C>(
  */
 export function partitionMapWithIndex_<A, B, C>(
   fa: Conc<A>,
-  f: (i: number, a: A) => Either<B, C>
+  f: (i: number, a: A) => Either<B, C>,
 ): readonly [Conc<B>, Conc<C>] {
   concrete(fa);
   const iterator = fa.arrayIterator();
@@ -872,7 +809,7 @@ export function partitionMapWithIndex_<A, B, C>(
       const eab = f(i, array[j]!);
       eab.match(
         (b) => left.append(b),
-        (c) => right.append(c)
+        (c) => right.append(c),
       );
       i++;
     }
@@ -885,15 +822,15 @@ export function partitionMapWithIndex_<A, B, C>(
  */
 export function partitionWithIndex_<A, B extends A>(
   self: Conc<A>,
-  p: RefinementWithIndex<number, A, B>
+  p: RefinementWithIndex<number, A, B>,
 ): readonly [Conc<A>, Conc<B>];
 export function partitionWithIndex_<A>(
   self: Conc<A>,
-  p: PredicateWithIndex<number, A>
+  p: PredicateWithIndex<number, A>,
 ): readonly [Conc<A>, Conc<A>];
 export function partitionWithIndex_<A>(
   self: Conc<A>,
-  p: PredicateWithIndex<number, A>
+  p: PredicateWithIndex<number, A>,
 ): readonly [Conc<A>, Conc<A>] {
   concrete(self);
   const iterator = self.arrayIterator();
@@ -955,19 +892,14 @@ export function reverse<A>(self: Conc<A>): Iterable<A> {
 /**
  * @tsplus getter fncts.collection.immutable.Conc separate
  */
-export function separate<E, A>(
-  self: Conc<Either<E, A>>
-): readonly [Conc<E>, Conc<A>] {
+export function separate<E, A>(self: Conc<Either<E, A>>): readonly [Conc<E>, Conc<A>] {
   return self.partitionMap(identity);
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.Conc splitAt
  */
-export function splitAt_<A>(
-  self: Conc<A>,
-  n: number
-): readonly [Conc<A>, Conc<A>] {
+export function splitAt_<A>(self: Conc<A>, n: number): readonly [Conc<A>, Conc<A>] {
   return [self.take(n), self.drop(n)];
 }
 
@@ -976,10 +908,7 @@ export function splitAt_<A>(
  *
  * @tsplus fluent fncts.collection.immutable.Conc splitWhere
  */
-export function splitWhere_<A>(
-  self: Conc<A>,
-  f: (a: A) => boolean
-): readonly [Conc<A>, Conc<A>] {
+export function splitWhere_<A>(self: Conc<A>, f: (a: A) => boolean): readonly [Conc<A>, Conc<A>] {
   concrete(self);
   const iterator = self.arrayIterator();
   let next;
@@ -1061,10 +990,7 @@ export function takeWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
 /**
  * @tsplus fluent fncts.collection.immutable.ConcOps unfold
  */
-export function unfold<A, B>(
-  b: B,
-  f: (b: B) => Maybe<readonly [A, B]>
-): Conc<A> {
+export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A> {
   const out = builder<A>();
   let bb    = b;
   while (true) {
@@ -1119,11 +1045,7 @@ export function unsafeTail<A>(self: Conc<A>): Conc<A> {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc unsafeUpdateAt
  */
-export function unsafeUpdateAt_<A, A1>(
-  self: Conc<A>,
-  i: number,
-  a: A1
-): Conc<A | A1> {
+export function unsafeUpdateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Conc<A | A1> {
   concrete(self);
   return self.update(i, a);
 }
@@ -1131,11 +1053,7 @@ export function unsafeUpdateAt_<A, A1>(
 /**
  * @tsplus fluent fncts.collection.immutable.Conc updateAt
  */
-export function updateAt_<A, A1>(
-  self: Conc<A>,
-  i: number,
-  a: A1
-): Maybe<Conc<A | A1>> {
+export function updateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Maybe<Conc<A | A1>> {
   try {
     return Just(self.unsafeUpdateAt(i, a));
   } catch {
@@ -1153,11 +1071,7 @@ export function zip_<A, B>(self: Conc<A>, fb: Conc<B>): Conc<readonly [A, B]> {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc zipWith
  */
-export function zipWith_<A, B, C>(
-  self: Conc<A>,
-  fb: Conc<B>,
-  f: (a: A, b: B) => C
-): Conc<C> {
+export function zipWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (a: A, b: B) => C): Conc<C> {
   concrete(self);
   concrete(fb);
   const length = Math.min(self.length, fb.length);
@@ -1205,10 +1119,7 @@ export function zipWithIndex<A>(self: Conc<A>): Conc<readonly [A, number]> {
 /**
  * @tsplus fluent fncts.collection.immutable.Conc zipWithIndexOffset
  */
-export function zipWithIndexOffset_<A>(
-  as: Conc<A>,
-  offset: number
-): Conc<readonly [A, number]> {
+export function zipWithIndexOffset_<A>(as: Conc<A>, offset: number): Conc<readonly [A, number]> {
   concrete(as);
   const iterator = as.arrayIterator();
   let next: IteratorResult<ArrayLike<A>>;
@@ -1282,9 +1193,7 @@ export function dropWhile<A>(p: Predicate<A>) {
 /**
  * @tsplus dataFirst filter_
  */
-export function filter<A, B extends A>(
-  p: Refinement<A, B>
-): (self: Conc<A>) => Conc<B>;
+export function filter<A, B extends A>(p: Refinement<A, B>): (self: Conc<A>) => Conc<B>;
 /**
  * @tsplus dataFirst filter_
  */
@@ -1311,14 +1220,12 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
  * @tsplus dataFirst filterWithIndex_
  */
 export function filterWithIndex<A, B extends A>(
-  p: RefinementWithIndex<number, A, B>
+  p: RefinementWithIndex<number, A, B>,
 ): (self: Conc<A>) => Conc<B>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
-export function filterWithIndex<A>(
-  p: PredicateWithIndex<number, A>
-): (self: Conc<A>) => Conc<A>;
+export function filterWithIndex<A>(p: PredicateWithIndex<number, A>): (self: Conc<A>) => Conc<A>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
@@ -1336,11 +1243,7 @@ export function find<A>(f: (a: A) => boolean) {
  * Stops the fold early when the condition is not fulfilled.
  * @tsplus dataFirst foldLeftWhile_
  */
-export function foldLeftWhile<A, B>(
-  b: B,
-  p: Predicate<B>,
-  f: (b: B, a: A) => B
-) {
+export function foldLeftWhile<A, B>(b: B, p: Predicate<B>, f: (b: B, a: A) => B) {
   return (as: Conc<A>): B => foldLeftWhile_(as, b, p, f);
 }
 /**
@@ -1364,10 +1267,7 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 /**
  * @tsplus dataFirst foldRightWithIndex_
  */
-export function foldRightWithIndex<A, B>(
-  b: B,
-  f: (i: number, a: A, b: B) => B
-) {
+export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
   return (self: Conc<A>): B => foldRightWithIndex_(self, b, f);
 }
 /**
@@ -1417,14 +1317,12 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
  * @tsplus dataFirst partition_
  */
 export function partition<A, B extends A>(
-  p: Refinement<A, B>
+  p: Refinement<A, B>,
 ): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A>(
-  p: Predicate<A>
-): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
+export function partition<A>(p: Predicate<A>): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
 /**
  * @tsplus dataFirst partition_
  */
@@ -1440,30 +1338,26 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 /**
  * @tsplus dataFirst partitionMapWithIndex_
  */
-export function partitionMapWithIndex<A, B, C>(
-  f: (i: number, a: A) => Either<B, C>
-) {
-  return (fa: Conc<A>): readonly [Conc<B>, Conc<C>] =>
-    partitionMapWithIndex_(fa, f);
+export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
+  return (fa: Conc<A>): readonly [Conc<B>, Conc<C>] => partitionMapWithIndex_(fa, f);
 }
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
 export function partitionWithIndex<A, B extends A>(
-  p: RefinementWithIndex<number, A, B>
+  p: RefinementWithIndex<number, A, B>,
 ): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
 export function partitionWithIndex<A>(
-  p: PredicateWithIndex<number, A>
+  p: PredicateWithIndex<number, A>,
 ): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
 export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
-  return (self: Conc<A>): readonly [Conc<A>, Conc<A>] =>
-    partitionWithIndex_(self, p);
+  return (self: Conc<A>): readonly [Conc<A>, Conc<A>] => partitionWithIndex_(self, p);
 }
 /**
  * @tsplus dataFirst prepend_
@@ -1530,8 +1424,7 @@ export function zipWith<A, B, C>(fb: Conc<B>, f: (a: A, b: B) => C) {
  * @tsplus dataFirst zipWithIndexOffset_
  */
 export function zipWithIndexOffset(offset: number) {
-  return <A>(as: Conc<A>): Conc<readonly [A, number]> =>
-    zipWithIndexOffset_(as, offset);
+  return <A>(as: Conc<A>): Conc<readonly [A, number]> => zipWithIndexOffset_(as, offset);
 }
 /**
  * @constrained

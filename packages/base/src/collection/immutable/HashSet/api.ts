@@ -42,10 +42,7 @@ export function endMutation<K>(set: HashSet<K>): HashSet<K> {
  *
  * @tsplus fluent fncts.collection.immutable.HashSet forEach
  */
-export function forEach_<V>(
-  map: HashSet<V>,
-  f: (v: V, m: HashSet<V>) => void
-): void {
+export function forEach_<V>(map: HashSet<V>, f: (v: V, m: HashSet<V>) => void): void {
   foldLeft_(map, undefined as void, (_, value) => f(value, map));
 }
 
@@ -86,10 +83,7 @@ export function fromDefault<A>(...values: ReadonlyArray<A>): HashSet<A> {
  *
  * @tsplus fluent fncts.collection.immutable.HashSet mutate
  */
-export function mutate_<A>(
-  set: HashSet<A>,
-  transient: (set: HashSet<A>) => void
-) {
+export function mutate_<A>(set: HashSet<A>, transient: (set: HashSet<A>) => void) {
   const s = beginMutation(set);
   transient(s);
   return endMutation(s);
@@ -123,9 +117,7 @@ export function toggle_<A>(set: HashSet<A>, a: A): HashSet<A> {
 /**
  * Projects a Set through a function
  */
-export function map_<B>(
-  C: P.HashEq<B>
-): <A>(fa: HashSet<A>, f: (x: A) => B) => HashSet<B> {
+export function map_<B>(C: P.HashEq<B>): <A>(fa: HashSet<A>, f: (x: A) => B) => HashSet<B> {
   const r = make(C);
 
   return (fa, f) =>
@@ -155,7 +147,7 @@ export function mapDefault<A, B>(self: HashSet<A>, f: (a: A) => B): HashSet<B> {
  * @tsplus fluent fncts.collection.immutable.HashSet chain
  */
 export function chain_<B>(
-  C: P.HashEq<B>
+  C: P.HashEq<B>,
 ): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
   const r = make<B>(C);
   return (set, f) =>
@@ -202,18 +194,9 @@ export function getEq<A>(): P.Eq<HashSet<A>> {
  *
  * @tsplus fluent fncts.collection.immutable.HashSet filter
  */
-export function filter_<A, B extends A>(
-  set: HashSet<A>,
-  refinement: Refinement<A, B>
-): HashSet<B>;
-export function filter_<A>(
-  set: HashSet<A>,
-  predicate: Predicate<A>
-): HashSet<A>;
-export function filter_<A>(
-  set: HashSet<A>,
-  predicate: Predicate<A>
-): HashSet<A> {
+export function filter_<A, B extends A>(set: HashSet<A>, refinement: Refinement<A, B>): HashSet<B>;
+export function filter_<A>(set: HashSet<A>, predicate: Predicate<A>): HashSet<A>;
+export function filter_<A>(set: HashSet<A>, predicate: Predicate<A>): HashSet<A> {
   const r = make(set.config);
 
   return mutate_(r, (r) => {
@@ -226,7 +209,7 @@ export function filter_<A>(
 }
 
 export function filterMap_<B>(
-  B: P.HashEq<B>
+  B: P.HashEq<B>,
 ): <A>(fa: HashSet<A>, f: (a: A) => Maybe<B>) => HashSet<B> {
   return (fa, f) => {
     const out = beginMutation(make(B));
@@ -247,15 +230,12 @@ export function filterMap_<B>(
  */
 export function partition_<A, B extends A>(
   self: HashSet<A>,
-  p: Refinement<A, B>
+  p: Refinement<A, B>,
 ): readonly [HashSet<A>, HashSet<B>];
+export function partition_<A>(self: HashSet<A>, p: Predicate<A>): readonly [HashSet<A>, HashSet<A>];
 export function partition_<A>(
   self: HashSet<A>,
-  p: Predicate<A>
-): readonly [HashSet<A>, HashSet<A>];
-export function partition_<A>(
-  self: HashSet<A>,
-  p: Predicate<A>
+  p: Predicate<A>,
 ): readonly [HashSet<A>, HashSet<A>] {
   const right = beginMutation(make(self.config));
   const left  = beginMutation(make(self.config));
@@ -274,11 +254,8 @@ export function partition_<A>(
  */
 export function partitionMap_<B, C>(
   B: P.HashEq<B>,
-  C: P.HashEq<C>
-): <A>(
-  self: HashSet<A>,
-  f: (a: A) => Either<B, C>
-) => readonly [HashSet<B>, HashSet<C>] {
+  C: P.HashEq<C>,
+): <A>(self: HashSet<A>, f: (a: A) => Either<B, C>) => readonly [HashSet<B>, HashSet<C>] {
   return (fa, f) => {
     const right = beginMutation(make(C));
     const left  = beginMutation(make(B));
@@ -289,7 +266,7 @@ export function partitionMap_<B, C>(
         },
         (c) => {
           add_(right, c);
-        }
+        },
       );
     });
     return [endMutation(left), endMutation(right)];
@@ -380,10 +357,7 @@ export function every_<A>(self: HashSet<A>, predicate: Predicate<A>): boolean {
  *
  * the hash and equal of the 2 sets has to be the same
  */
-export function intersection_<A>(
-  self: HashSet<A>,
-  that: Iterable<A>
-): HashSet<A> {
+export function intersection_<A>(self: HashSet<A>, that: Iterable<A>): HashSet<A> {
   const out = make<A>(self.config);
 
   return out.mutate((y) => {
@@ -459,12 +433,7 @@ function setTree<A>(set: HashSet<A>, newRoot: Node<A>, newSize: number) {
     : new HashSet(set._editable, set._edit, set.config, newRoot, newSize);
 }
 
-function modifyHash<A>(
-  set: HashSet<A>,
-  value: A,
-  hash: number,
-  remove: boolean
-): HashSet<A> {
+function modifyHash<A>(set: HashSet<A>, value: A, hash: number, remove: boolean): HashSet<A> {
   const size    = { value: set._size };
   const newRoot = set._root.modify(
     remove,
@@ -473,7 +442,7 @@ function modifyHash<A>(
     0,
     hash,
     value,
-    size
+    size,
   );
   return setTree(set, newRoot, size.value);
 }
@@ -494,8 +463,7 @@ function tryGetHash<A>(set: HashSet<A>, value: A, hash: number): Maybe<A> {
           const children = node.children;
           for (let i = 0, len = children.length; i < len; ++i) {
             const child = children[i]!;
-            if ("value" in child && eq(child.value, value))
-              return Just(child.value);
+            if ("value" in child && eq(child.value, value)) return Just(child.value);
           }
         }
         return Nothing();

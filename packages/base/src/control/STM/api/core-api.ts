@@ -8,7 +8,7 @@ import { OnFailure, OnSuccess, STM } from "../definition";
  */
 export function catchAll_<R, E, A, R1, E1, B>(
   self: STM<R, E, A>,
-  f: (e: E) => STM<R1, E1, B>
+  f: (e: E) => STM<R1, E1, B>,
 ): STM<R1 & R, E1, A | B> {
   return new OnFailure<R1 & R, E, A | B, E1>(self, f);
 }
@@ -21,7 +21,7 @@ export function catchAll_<R, E, A, R1, E1, B>(
  */
 export function chain_<R, E, A, R1, E1, B>(
   self: STM<R, E, A>,
-  f: (a: A) => STM<R1, E1, B>
+  f: (a: A) => STM<R1, E1, B>,
 ): STM<R1 & R, E | E1, B> {
   return new OnSuccess<R1 & R, E | E1, A, B>(self, f);
 }
@@ -35,11 +35,11 @@ export function chain_<R, E, A, R1, E1, B>(
  */
 export function ensuring_<R, E, A, R1, B>(
   self: STM<R, E, A>,
-  finalizer: STM<R1, never, B>
+  finalizer: STM<R1, never, B>,
 ): STM<R & R1, E, A> {
   return self.matchSTM(
     (e) => finalizer.chain(() => STM.failNow(e)),
-    (a) => finalizer.chain(() => STM.succeedNow(a))
+    (a) => finalizer.chain(() => STM.succeedNow(a)),
   );
 }
 
@@ -48,10 +48,7 @@ export function ensuring_<R, E, A, R1, B>(
  *
  * @tsplus fluent fncts.control.STM map
  */
-export function map_<R, E, A, B>(
-  self: STM<R, E, A>,
-  f: (a: A) => B
-): STM<R, E, B> {
+export function map_<R, E, A, B>(self: STM<R, E, A>, f: (a: A) => B): STM<R, E, B> {
   return self.chain((a) => STM.succeedNow(f(a)));
 }
 
@@ -64,7 +61,7 @@ export function map_<R, E, A, B>(
 export function matchSTM_<R, E, A, R1, E1, B, R2, E2, C>(
   self: STM<R, E, A>,
   g: (e: E) => STM<R2, E2, C>,
-  f: (a: A) => STM<R1, E1, B>
+  f: (a: A) => STM<R1, E1, B>,
 ): STM<R1 & R2 & R, E1 | E2, B | C> {
   return self
     .map(Either.right)

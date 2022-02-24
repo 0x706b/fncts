@@ -5,9 +5,7 @@ import { Apply } from "./Apply";
 import { HKT } from "./HKT";
 import { Pointed } from "./Pointed";
 
-export interface Applicative<F extends HKT, FC = HKT.None>
-  extends Apply<F, FC>,
-    Pointed<F, FC> {}
+export interface Applicative<F extends HKT, FC = HKT.None> extends Apply<F, FC>, Pointed<F, FC> {}
 
 /**
  * @tsplus type fncts.ApplicativeOps
@@ -16,14 +14,13 @@ export interface ApplicativeOps {}
 
 export const Applicative: ApplicativeOps = {};
 
-export type ApplicativeMin<F extends HKT, FC = HKT.None> = ApplyMin<F, FC> &
-  PointedMin<F, FC>;
+export type ApplicativeMin<F extends HKT, FC = HKT.None> = ApplyMin<F, FC> & PointedMin<F, FC>;
 
 /**
  * @tsplus static fncts.ApplicativeOps __call
  */
 export function mkApplicative<F extends HKT, FC = HKT.None>(
-  F: ApplicativeMin<F, FC>
+  F: ApplicativeMin<F, FC>,
 ): Applicative<F, FC> {
   return HKT.instance<Applicative<F, FC>>({
     ...Pointed(F),

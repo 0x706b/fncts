@@ -1,9 +1,5 @@
 import { isEquatable } from "./definition";
-import {
-  createCircularEqualCreator,
-  createComparator,
-  sameValueZeroEqual,
-} from "./fast-equals";
+import { createCircularEqualCreator, createComparator, sameValueZeroEqual } from "./fast-equals";
 
 /**
  * @tsplus static fncts.prelude.structural.EquatableOps deepEquals
@@ -17,7 +13,7 @@ export const deepEquals = createComparator(
     } else {
       return eq(a, b, meta);
     }
-  })
+  }),
 );
 
 /**

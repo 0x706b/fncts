@@ -42,7 +42,7 @@ export const Either: EitherOps = {};
  * @tsplus unify fncts.data.Either
  */
 export function unifyEither<X extends Either<any, any>>(
-  self: X
+  self: X,
 ): Either<
   [X] extends [Either<infer E, any>] ? E : never,
   [X] extends [Either<any, infer A>] ? A : never

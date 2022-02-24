@@ -145,10 +145,7 @@ function isZero(value: unknown): boolean {
 function _hash(arg: any): number {
   let x = arg;
   if (isZero(x)) return 0;
-  if (
-    typeof x.valueOf === "function" &&
-    x.valueOf !== Object.prototype.valueOf
-  ) {
+  if (typeof x.valueOf === "function" && x.valueOf !== Object.prototype.valueOf) {
     x = x.valueOf();
     if (isZero(x)) return 0;
   }

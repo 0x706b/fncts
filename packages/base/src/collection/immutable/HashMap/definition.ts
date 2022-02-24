@@ -19,9 +19,7 @@ export interface HashMapF extends HKT {
  * @tsplus type fncts.collection.immutable.HashMap
  * @tsplus companion fncts.collection.immutable.HashMapOps
  */
-export class HashMap<K, V>
-  implements Iterable<readonly [K, V]>, Hashable, Equatable
-{
+export class HashMap<K, V> implements Iterable<readonly [K, V]>, Hashable, Equatable {
   readonly _K!: () => K;
   readonly _V!: () => V;
 
@@ -30,7 +28,7 @@ export class HashMap<K, V>
     public edit: number,
     readonly config: HashEq<K>,
     public root: Node<K, V>,
-    public size: number
+    public size: number,
   ) {}
 
   [Symbol.iterator](): Iterator<readonly [K, V]> {
@@ -40,8 +38,8 @@ export class HashMap<K, V>
   get [Symbol.hashable](): number {
     return Hashable.hashIterator(
       new HashMapIterator(this, ([k, v]) =>
-        Hashable.combineHash(Hashable.hash(k), Hashable.hash(v))
-      )
+        Hashable.combineHash(Hashable.hash(k), Hashable.hash(v)),
+      ),
     );
   }
 
@@ -49,10 +47,7 @@ export class HashMap<K, V>
     return (
       other instanceof HashMap &&
       other.size === this.size &&
-      (this as Iterable<readonly [K, V]>).corresponds(
-        other,
-        Equatable.strictEquals
-      )
+      (this as Iterable<readonly [K, V]>).corresponds(other, Equatable.strictEquals)
     );
   }
 }
@@ -60,10 +55,7 @@ export class HashMap<K, V>
 export class HashMapIterator<K, V, T> implements IterableIterator<T> {
   v: Maybe<VisitResult<K, V, T>>;
 
-  constructor(
-    readonly map: HashMap<K, V>,
-    readonly f: (node: readonly [K, V]) => T
-  ) {
+  constructor(readonly map: HashMap<K, V>, readonly f: (node: readonly [K, V]) => T) {
     this.v = visitLazy(this.map.root, this.f, undefined);
   }
 
@@ -87,14 +79,12 @@ type Cont<K, V, A> =
       children: Node<K, V>[],
       i: number,
       f: (node: readonly [K, V]) => A,
-      cont: Cont<K, V, A>
+      cont: Cont<K, V, A>,
     ]
   | undefined;
 
 function applyCont<K, V, A>(cont: Cont<K, V, A>) {
-  return cont
-    ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4])
-    : Nothing();
+  return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : Nothing();
 }
 
 function visitLazyChildren<K, V, A>(
@@ -102,7 +92,7 @@ function visitLazyChildren<K, V, A>(
   children: Node<K, V>[],
   i: number,
   f: (node: readonly [K, V]) => A,
-  cont: Cont<K, V, A>
+  cont: Cont<K, V, A>,
 ): Maybe<VisitResult<K, V, A>> {
   while (i < len) {
     // eslint-disable-next-line no-param-reassign
@@ -125,7 +115,7 @@ interface VisitResult<K, V, A> {
 function visitLazy<K, V, A>(
   node: Node<K, V>,
   f: (node: readonly [K, V]) => A,
-  cont: Cont<K, V, A> = undefined
+  cont: Cont<K, V, A> = undefined,
 ): Maybe<VisitResult<K, V, A>> {
   switch (node._tag) {
     case "LeafNode": {

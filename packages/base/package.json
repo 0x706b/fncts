@@ -3,7 +3,8 @@
   "type": "module",
   "types": "./build/dts",
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "format:write": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",

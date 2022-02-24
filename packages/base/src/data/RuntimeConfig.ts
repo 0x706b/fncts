@@ -7,21 +7,14 @@ import { HashSet } from "../collection/immutable/HashSet";
 import { CaseClass } from "./CaseClass";
 
 export const RuntimeConfigFlag = {
-  EnableCurrentFiber: Symbol.for(
-    "fncta.data.RuntimeConfigFlag.EnableCurrentFiber"
-  ),
+  EnableCurrentFiber: Symbol.for("fncta.data.RuntimeConfigFlag.EnableCurrentFiber"),
   LogRuntime: Symbol.for("fncta.data.RuntimeConfigFlag.LogRuntime"),
-  SuperviseOperations: Symbol.for(
-    "fncta.data.RuntimeConfigFlag.SuperviseOperations"
-  ),
-  TrackRuntimeMetrics: Symbol.for(
-    "fncts.data.RuntimeConfigFlag.TrackRuntimeMetrics"
-  ),
+  SuperviseOperations: Symbol.for("fncta.data.RuntimeConfigFlag.SuperviseOperations"),
+  TrackRuntimeMetrics: Symbol.for("fncts.data.RuntimeConfigFlag.TrackRuntimeMetrics"),
   EnableFiberRoots: Symbol.for("fncta.data.RuntimeConfigFlag.EnableFiberRoots"),
 } as const;
 
-export type RuntimeConfigFlag =
-  typeof RuntimeConfigFlag[keyof typeof RuntimeConfigFlag];
+export type RuntimeConfigFlag = typeof RuntimeConfigFlag[keyof typeof RuntimeConfigFlag];
 
 export class RuntimeConfig extends CaseClass<{
   readonly reportFailure: (e: Cause<unknown>) => void;

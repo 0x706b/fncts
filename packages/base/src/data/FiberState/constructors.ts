@@ -18,7 +18,7 @@ export function initial<E, A>(): FiberState<E, A> {
     Cause.empty(),
     new Set(),
     CancellerState.empty,
-    null
+    null,
   );
 }
 
@@ -38,14 +38,7 @@ export function executing<E, A>(
   suppressed: Cause<never>,
   interruptors: Set<FiberId>,
   asyncCanceller: CancellerState,
-  mailbox: UIO<any> | null
+  mailbox: UIO<any> | null,
 ): FiberState<E, A> {
-  return new Executing(
-    status,
-    observers,
-    suppressed,
-    interruptors,
-    asyncCanceller,
-    mailbox
-  );
+  return new Executing(status, observers, suppressed, interruptors, asyncCanceller, mailbox);
 }

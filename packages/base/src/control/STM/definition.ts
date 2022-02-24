@@ -31,9 +31,7 @@ export abstract class STM<R, E, A> {
 /**
  * @tsplus unify fncts.control.STM
  */
-export function unifySTM<X extends STM<any, any, any>>(
-  self: X
-): STM<_R<X>, _E<X>, _A<X>> {
+export function unifySTM<X extends STM<any, any, any>>(self: X): STM<_R<X>, _E<X>, _A<X>> {
   return self;
 }
 
@@ -51,10 +49,7 @@ export class Effect<R, E, A> extends STM<R, E, A> {
 
 export class OnFailure<R, E, A, E1> extends STM<R, E1, A> {
   readonly _tag = STMTag.OnFailure;
-  constructor(
-    readonly stm: STM<R, E, A>,
-    readonly onFailure: (e: E) => STM<R, E1, A>
-  ) {
+  constructor(readonly stm: STM<R, E, A>, readonly onFailure: (e: E) => STM<R, E1, A>) {
     super();
   }
   apply(a: A): STM<R, E, A> {
@@ -74,10 +69,7 @@ export class OnRetry<R, E, A> extends STM<R, E, A> {
 
 export class OnSuccess<R, E, A, B> extends STM<R, E, B> {
   readonly _tag = STMTag.OnSuccess;
-  constructor(
-    readonly stm: STM<R, E, A>,
-    readonly apply: (a: A) => STM<R, E, B>
-  ) {
+  constructor(readonly stm: STM<R, E, A>, readonly apply: (a: A) => STM<R, E, B>) {
     super();
   }
 }
@@ -104,7 +96,7 @@ export class Gives<R, E, A, R0> extends STM<R0, E, A> {
 }
 
 export function concrete<R, E, A>(
-  _: STM<R, E, A>
+  _: STM<R, E, A>,
 ): asserts _ is
   | Effect<R, E, A>
   | OnFailure<R, unknown, A, E>
@@ -116,9 +108,7 @@ export function concrete<R, E, A>(
   //
 }
 
-export const FailExceptionTypeId = Symbol.for(
-  "fncta.control.STM.FailException"
-);
+export const FailExceptionTypeId = Symbol.for("fncta.control.STM.FailException");
 export type FailExceptionTypeId = typeof FailExceptionTypeId;
 
 export class FailException<E> {
@@ -130,9 +120,7 @@ export function isFailException(u: unknown): u is FailException<unknown> {
   return hasTypeId(u, FailExceptionTypeId);
 }
 
-export const HaltExceptionTypeId = Symbol.for(
-  "fncts.control.STM.HaltException"
-);
+export const HaltExceptionTypeId = Symbol.for("fncts.control.STM.HaltException");
 export type HaltExceptionTypeId = typeof HaltExceptionTypeId;
 
 export class HaltException<E> {
@@ -144,9 +132,7 @@ export function isHaltException(u: unknown): u is HaltException<unknown> {
   return hasTypeId(u, HaltExceptionTypeId);
 }
 
-export const InterruptExceptionTypeId = Symbol.for(
-  "fncts.control.STM.InterruptException"
-);
+export const InterruptExceptionTypeId = Symbol.for("fncts.control.STM.InterruptException");
 export type InterruptExceptionTypeId = typeof InterruptExceptionTypeId;
 
 export class InterruptException {
@@ -158,9 +144,7 @@ export function isInterruptException(u: unknown): u is InterruptException {
   return hasTypeId(u, InterruptExceptionTypeId);
 }
 
-export const RetryExceptionTypeId = Symbol.for(
-  "fncts.control.STM.RetryException"
-);
+export const RetryExceptionTypeId = Symbol.for("fncts.control.STM.RetryException");
 export type RetryExceptionTypeId = typeof RetryExceptionTypeId;
 
 export class RetryException {

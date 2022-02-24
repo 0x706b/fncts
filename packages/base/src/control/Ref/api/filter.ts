@@ -14,13 +14,13 @@ import { Maybe, Nothing } from "../../../data/Maybe";
  */
 export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
   ref: PRef<RA, RB, EA, EB, A, B>,
-  f: (_: A1) => boolean
+  f: (_: A1) => boolean,
 ): PRef<RA, RB, Maybe<EA>, EB, A1, B> {
   return ref.match(
     Maybe.just,
     identity,
     (a) => (f(a) ? Either.right(a) : Either.left(Nothing())),
-    Either.right
+    Either.right,
   );
 }
 
@@ -34,9 +34,9 @@ export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
  */
 export function filterOutput_<RA, RB, EA, EB, A, B>(
   ref: PRef<RA, RB, EA, EB, A, B>,
-  f: (_: B) => boolean
+  f: (_: B) => boolean,
 ): PRef<RA, RB, EA, Maybe<EB>, A, B> {
   return ref.match(identity, Maybe.just, Either.right, (b) =>
-    f(b) ? Either.right(b) : Either.left(Nothing())
+    f(b) ? Either.right(b) : Either.left(Nothing()),
   );
 }

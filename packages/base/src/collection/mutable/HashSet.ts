@@ -24,11 +24,9 @@ export class HashSet<A> implements Iterable<A> {
   constructor(
     private initialCapacity: number,
     private loadFactor: number,
-    private config: HashEq<A> = HashEq.StructuralStrict
+    private config: HashEq<A> = HashEq.StructuralStrict,
   ) {
-    this.table = new Array<Node<A> | undefined>(
-      tableSizeFor(this.initialCapacity)
-    );
+    this.table = new Array<Node<A> | undefined>(tableSizeFor(this.initialCapacity));
 
     this.threshold = this.newThreshold(this.table.length);
   }
@@ -56,8 +54,7 @@ export class HashSet<A> implements Iterable<A> {
   }
 
   add(elem: A): boolean {
-    this.contentSize + 1 >= this.threshold &&
-      this.growTable(this.table.length * 2);
+    this.contentSize + 1 >= this.threshold && this.growTable(this.table.length * 2);
     return this.addHash(elem, this.computeHash(elem));
   }
 
@@ -189,17 +186,9 @@ export class HashSet<A> implements Iterable<A> {
 }
 
 class Node<K> {
-  constructor(
-    public key: K,
-    public hash: number,
-    public next: Node<K> | undefined
-  ) {}
+  constructor(public key: K, public hash: number, public next: Node<K> | undefined) {}
 
-  findNode(
-    k: K,
-    h: number,
-    equals: (x: K, y: K) => boolean
-  ): Node<K> | undefined {
+  findNode(k: K, h: number, equals: (x: K, y: K) => boolean): Node<K> | undefined {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let n: Node<K> | undefined = this;
     while (n) {
@@ -227,10 +216,7 @@ export class HashSetIterator<V, A> implements Iterator<A> {
   private len: number;
   private i    = 0;
   private done = false;
-  constructor(
-    private table: Array<Node<V> | undefined>,
-    private extract: (nd: Node<V>) => A
-  ) {
+  constructor(private table: Array<Node<V> | undefined>, private extract: (nd: Node<V>) => A) {
     this.len = table.length;
   }
 

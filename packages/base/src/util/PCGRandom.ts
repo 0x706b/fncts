@@ -49,11 +49,7 @@ export class PCGRandom {
    *
    * @memberOf PCGRandom
    */
-  constructor(
-    seedHi: OptionalNumber,
-    seedLo: OptionalNumber,
-    inc?: OptionalNumber
-  );
+  constructor(seedHi: OptionalNumber, seedLo: OptionalNumber, inc?: OptionalNumber);
   /**
    * Creates an instance of PCGRandom.
    *
@@ -68,13 +64,13 @@ export class PCGRandom {
     seedHi: OptionalNumber,
     seedLo: OptionalNumber,
     incHi: OptionalNumber,
-    incLo: OptionalNumber
+    incLo: OptionalNumber,
   );
   constructor(
     seedHi?: OptionalNumber,
     seedLo?: OptionalNumber,
     incHi?: OptionalNumber,
-    incLo?: OptionalNumber
+    incLo?: OptionalNumber,
   ) {
     if (isNothing(seedLo) && isNothing(seedHi)) {
       seedLo = (Math.random() * 0xffffffff) >>> 0;
@@ -93,19 +89,14 @@ export class PCGRandom {
       incHi = 0;
     }
 
-    this._state = new Int32Array([
-      0,
-      0,
-      (<number>incHi) >>> 0,
-      ((incLo || 0) | 1) >>> 0,
-    ]);
+    this._state = new Int32Array([0, 0, (<number>incHi) >>> 0, ((incLo || 0) | 1) >>> 0]);
     this._next();
     add64(
       this._state,
       this._state[0]!,
       this._state[1]!,
       (<number>seedHi) >>> 0,
-      (<number>seedLo) >>> 0
+      (<number>seedLo) >>> 0,
     );
     this._next();
     return this;
@@ -135,13 +126,7 @@ export class PCGRandom {
 
     // churn LCG.
     mul64(this._state, oldHi, oldLo, MUL_HI, MUL_LO);
-    add64(
-      this._state,
-      this._state[0]!,
-      this._state[1]!,
-      this._state[2]!,
-      this._state[3]!
-    );
+    add64(this._state, this._state[0]!, this._state[1]!, this._state[2]!, this._state[3]!);
 
     // get least sig. 32 bits of ((oldstate >> 18) ^ oldstate) >> 27
     let xsHi         = oldHi >>> 18;
@@ -184,13 +169,7 @@ export class PCGRandom {
   }
 }
 
-function mul64(
-  out: Int32Array,
-  aHi: number,
-  aLo: number,
-  bHi: number,
-  bLo: number
-): void {
+function mul64(out: Int32Array, aHi: number, aLo: number, bHi: number, bLo: number): void {
   let c1 = ((aLo >>> 16) * (bLo & 0xffff)) >>> 0;
   let c0 = ((aLo & 0xffff) * (bLo >>> 16)) >>> 0;
 
@@ -217,13 +196,7 @@ function mul64(
 }
 
 // add two 64 bit numbers (given in parts), and store the result in `out`.
-function add64(
-  out: Int32Array,
-  aHi: number,
-  aLo: number,
-  bHi: number,
-  bLo: number
-): void {
+function add64(out: Int32Array, aHi: number, aLo: number, bHi: number, bLo: number): void {
   let hi   = (aHi + bHi) >>> 0;
   const lo = (aLo + bLo) >>> 0;
   if (lo >>> 0 < aLo >>> 0) {

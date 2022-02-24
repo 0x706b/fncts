@@ -24,13 +24,13 @@ export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
         (e1) =>
           y.match(
             (e2) => EE.equals_(e1, e2),
-            () => false
+            () => false,
           ),
         (a1) =>
           y.match(
             () => false,
-            (a2) => EA.equals_(a1, a2)
-          )
+            (a2) => EA.equals_(a1, a2),
+          ),
       ),
   });
 }
@@ -58,26 +58,19 @@ export function getFilerable<E>(ME: P.Monoid<E>) {
 
   const partition_: P.partition_<EitherF, FixE> = <A>(
     fa: Either<E, A>,
-    p: Predicate<A>
+    p: Predicate<A>,
   ): readonly [Either<E, A>, Either<E, A>] =>
-    fa._tag === EitherTag.Left
-      ? [fa, fa]
-      : p(fa.right)
-      ? [empty, fa]
-      : [fa, empty];
+    fa._tag === EitherTag.Left ? [fa, fa] : p(fa.right) ? [empty, fa] : [fa, empty];
 
   const filterMap_: P.filterMap_<EitherF, FixE> = (fa, f) =>
     fa._tag === EitherTag.Left
       ? fa
       : f(fa.right).match(
           () => empty,
-          (b) => Right(b)
+          (b) => Right(b),
         );
 
-  const filter_: P.filter_<EitherF, FixE> = <A>(
-    fa: Either<E, A>,
-    p: Predicate<A>
-  ): Either<E, A> =>
+  const filter_: P.filter_<EitherF, FixE> = <A>(fa: Either<E, A>, p: Predicate<A>): Either<E, A> =>
     fa._tag === EitherTag.Left ? fa : p(fa.right) ? fa : empty;
 
   return P.Filterable<EitherF, FixE>({

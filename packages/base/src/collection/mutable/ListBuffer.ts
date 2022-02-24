@@ -14,10 +14,7 @@
 
 import type { Cons, List } from "../immutable/List";
 
-import {
-  IndexOutOfBoundsError,
-  NoSuchElementError,
-} from "../../data/exceptions";
+import { IndexOutOfBoundsError, NoSuchElementError } from "../../data/exceptions";
 import * as L from "../immutable/List";
 
 export class ListBuffer<A> implements Iterable<A> {
@@ -84,9 +81,7 @@ export class ListBuffer<A> implements Iterable<A> {
 
   insert(idx: number, elem: A): this {
     if (idx < 0 || idx > this.len) {
-      throw new IndexOutOfBoundsError(
-        `${idx} is out of bounds (min 0, max ${this.len - 1})`
-      );
+      throw new IndexOutOfBoundsError(`${idx} is out of bounds (min 0, max ${this.len - 1})`);
     }
     if (idx === this.len) {
       this.append(elem);

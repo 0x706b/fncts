@@ -20,9 +20,7 @@ export function isNonNullable<A>(value: A | null | undefined): value is A {
   return value != null;
 }
 
-export function isNullable<A>(
-  value: A | null | undefined
-): value is null | undefined {
+export function isNullable<A>(value: A | null | undefined): value is null | undefined {
   return value == null;
 }
 
@@ -30,28 +28,22 @@ export function isIterable<A>(value: unknown): value is Iterable<A> {
   return isObject(value) && Symbol.iterator in value;
 }
 
-export function isArray<A>(
-  value: A | Array<A> | ReadonlyArray<A>
-): value is Array<A>;
+export function isArray<A>(value: A | Array<A> | ReadonlyArray<A>): value is Array<A>;
 export function isArray<A>(value: unknown): value is Array<A>;
 export function isArray(value: unknown): boolean {
   return Array.isArray(value);
 }
 
 export function isObject<A extends Function>(value: A): false;
-export function isObject(
-  value: unknown
-): value is object & Record<PropertyKey, any>;
-export function isObject<A>(
-  value: A | Primitive
-): value is A & Record<PropertyKey, unknown>;
+export function isObject(value: unknown): value is object & Record<PropertyKey, any>;
+export function isObject<A>(value: A | Primitive): value is A & Record<PropertyKey, unknown>;
 export function isObject<A>(value: A | Primitive): boolean {
   return typeof value === "object" && value !== null;
 }
 
 export function hasTypeId<X extends symbol>(
   value: unknown,
-  typeId: X
+  typeId: X,
 ): value is { readonly _typeId: X } & Record<PropertyKey, unknown> {
   return isObject(value) && "_typeId" in value && value["_typeId"] === typeId;
 }
@@ -84,9 +76,7 @@ export function isPlain(value: unknown): value is object {
   return isObject(value) && value.constructor === Object;
 }
 
-export function isInstanceOf<C extends Constructor<A>, A>(
-  type: C
-): (value: unknown) => value is A {
+export function isInstanceOf<C extends Constructor<A>, A>(type: C): (value: unknown) => value is A {
   return (value): value is A => value instanceof type;
 }
 
@@ -134,14 +124,10 @@ export function isTypedArray(u: unknown): u is TypedArray {
 }
 
 export function isRegExp(u: unknown): u is RegExp {
-  return (
-    isObject(u) && (getTag(u) === "[object RegExp]" || u instanceof RegExp)
-  );
+  return isObject(u) && (getTag(u) === "[object RegExp]" || u instanceof RegExp);
 }
 
-export function isAnyArrayBuffer(
-  u: unknown
-): u is ArrayBuffer | SharedArrayBuffer {
+export function isAnyArrayBuffer(u: unknown): u is ArrayBuffer | SharedArrayBuffer {
   return u instanceof ArrayBuffer || u instanceof SharedArrayBuffer;
 }
 

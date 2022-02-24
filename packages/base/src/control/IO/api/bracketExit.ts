@@ -15,7 +15,7 @@ import { IO } from "../definition";
 export function bracketExit_<R, E, A, E1, R1, A1, R2, E2>(
   acquire: IO<R, E, A>,
   use: (a: A) => IO<R1, E1, A1>,
-  release: (a: A, e: Exit<E1, A1>) => IO<R2, E2, any>
+  release: (a: A, e: Exit<E1, A1>) => IO<R2, E2, any>,
 ): IO<R & R1 & R2, E | E1 | E2, A1> {
   return IO.uninterruptibleMask(({ restore }) =>
     acquire.chain((a) =>
@@ -25,12 +25,12 @@ export function bracketExit_<R, E, A, E1, R1, A1, R2, E2>(
             IO.failCause(
               exit.match(
                 (cause1) => Cause.then(cause1, cause2),
-                () => cause2
-              )
+                () => cause2,
+              ),
             ),
-          () => IO.fromExit(exit)
-        )
-      )
-    )
+          () => IO.fromExit(exit),
+        ),
+      ),
+    ),
   );
 }

@@ -9,18 +9,15 @@ import { TFuture } from "./definition";
 /**
  * @tsplus fluent fncts.control.TFuture done
  */
-export function done_<E, A>(
-  self: TFuture<E, A>,
-  v: Either<E, A>
-): USTM<boolean> {
+export function done_<E, A>(self: TFuture<E, A>, v: Either<E, A>): USTM<boolean> {
   return TFuture.reverseGet(self).get.chain((mea) =>
     mea.match(
       () =>
         TFuture.reverseGet(self)
           .set(Just(v))
           .chain(() => STM.succeedNow(true)),
-      () => STM.succeedNow(false)
-    )
+      () => STM.succeedNow(false),
+    ),
   );
 }
 
@@ -49,7 +46,5 @@ export function succeed_<E, A>(self: TFuture<E, A>, a: A): USTM<boolean> {
  * @tsplus getter fncts.control.TFuture await
  */
 export function wait<E, A>(self: TFuture<E, A>): STM<unknown, E, A> {
-  return TFuture.reverseGet(self).get.filterMapSTM((mea) =>
-    mea.map(STM.fromEitherNow)
-  );
+  return TFuture.reverseGet(self).get.filterMapSTM((mea) => mea.map(STM.fromEitherNow));
 }

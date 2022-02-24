@@ -8,9 +8,7 @@ import { IO } from "../definition";
 /**
  * The number of fibers used for concurrent operators.
  */
-export const Concurrency: FiberRef.Runtime<Maybe<number>> = FiberRef.unsafeMake(
-  Nothing()
-);
+export const Concurrency: FiberRef.Runtime<Maybe<number>> = FiberRef.unsafeMake(Nothing());
 
 /**
  * Retrieves the maximum number of fibers for concurrent operators or `Nothing` if
@@ -27,7 +25,7 @@ export const concurrency: UIO<Maybe<number>> = Concurrency.get;
  * @tsplus static fncts.control.IOOps concurrencyWith
  */
 export function concurrencyWith<R, E, A>(
-  f: (concurrency: Maybe<number>) => IO<R, E, A>
+  f: (concurrency: Maybe<number>) => IO<R, E, A>,
 ): IO<R, E, A> {
   return Concurrency.getWith(f);
 }
@@ -38,10 +36,7 @@ export function concurrencyWith<R, E, A>(
  *
  * @tsplus fluent fncts.control.IO withConcurrency
  */
-export function withConcurrency_<R, E, A>(
-  ma: IO<R, E, A>,
-  n: number
-): IO<R, E, A> {
+export function withConcurrency_<R, E, A>(ma: IO<R, E, A>, n: number): IO<R, E, A> {
   return IO.defer(Concurrency.locally(Just(n))(ma));
 }
 
@@ -51,8 +46,6 @@ export function withConcurrency_<R, E, A>(
  *
  * @tsplus getter fncts.control.IO withConcurrencyUnbounded
  */
-export function withConcurrencyUnbounded<R, E, A>(
-  ma: IO<R, E, A>
-): IO<R, E, A> {
+export function withConcurrencyUnbounded<R, E, A>(ma: IO<R, E, A>): IO<R, E, A> {
   return IO.defer(Concurrency.locally(Nothing())(ma));
 }

@@ -39,11 +39,7 @@ export class Failure<E> {
     return P.Hashable.hash(this.cause);
   }
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isExit(that) &&
-      isFailure(that) &&
-      P.Equatable.strictEquals(this.cause, that.cause)
-    );
+    return isExit(that) && isFailure(that) && P.Equatable.strictEquals(this.cause, that.cause);
   }
 }
 
@@ -63,11 +59,7 @@ export class Success<A> implements P.Hashable, P.Equatable {
     return P.Hashable.hash(this.value);
   }
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isExit(that) &&
-      isSuccess(that) &&
-      P.Equatable.strictEquals(this.value, that.value)
-    );
+    return isExit(that) && isSuccess(that) && P.Equatable.strictEquals(this.value, that.value);
   }
 }
 

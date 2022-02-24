@@ -22,9 +22,7 @@ export function prepend_<A, B>(self: Array<A>, head: B): NonEmptyArray<A | B> {
 /**
  * @tsplus dataFirst prepend_
  */
-export function prepend<B>(
-  head: B
-): <A>(self: Array<A>) => NonEmptyArray<A | B>;
+export function prepend<B>(head: B): <A>(self: Array<A>) => NonEmptyArray<A | B>;
 /**
  * @tsplus dataFirst prepend_
  */

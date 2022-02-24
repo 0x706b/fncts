@@ -9,7 +9,7 @@ import { EitherTag, Right } from "../definition";
 export function alignWith_<E1, A, E2, B, C>(
   self: Either<E1, A>,
   fb: Either<E2, B>,
-  f: (_: These<A, B>) => C
+  f: (_: These<A, B>) => C,
 ): Either<E1 | E2, C> {
   return self._tag === EitherTag.Left
     ? fb._tag === EitherTag.Left
@@ -24,11 +24,7 @@ export function alignWith_<E1, A, E2, B, C>(
 /**
  * @tsplus dataFirst alignWith_
  */
-export function alignWith<A, E2, B, C>(
-  fb: Either<E2, B>,
-  f: (_: These<A, B>) => C
-) {
-  return <E1>(self: Either<E1, A>): Either<E1 | E2, C> =>
-    alignWith_(self, fb, f);
+export function alignWith<A, E2, B, C>(fb: Either<E2, B>, f: (_: These<A, B>) => C) {
+  return <E1>(self: Either<E1, A>): Either<E1 | E2, C> => alignWith_(self, fb, f);
 }
 // codegen:end

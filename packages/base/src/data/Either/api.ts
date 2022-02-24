@@ -13,7 +13,7 @@ import { EitherTag, EitherTypeId, Left, Right } from "./definition";
  */
 export function ap_<E1, A, E2, B>(
   self: Either<E1, (a: A) => B>,
-  fa: Either<E2, A>
+  fa: Either<E2, A>,
 ): Either<E1 | E2, B> {
   return self._tag === EitherTag.Left
     ? self
@@ -28,11 +28,9 @@ export function ap_<E1, A, E2, B>(
 export function bimap_<E1, A, E2, B>(
   self: Either<E1, A>,
   f: (e: E1) => E2,
-  g: (a: A) => B
+  g: (a: A) => B,
 ): Either<E2, B> {
-  return self._tag === EitherTag.Left
-    ? Left(f(self.left))
-    : Right(g(self.right));
+  return self._tag === EitherTag.Left ? Left(f(self.left)) : Right(g(self.right));
 }
 
 /**
@@ -40,7 +38,7 @@ export function bimap_<E1, A, E2, B>(
  */
 export function catchAll_<E1, A, E2, B>(
   self: Either<E1, A>,
-  f: (e: E1) => Either<E2, B>
+  f: (e: E1) => Either<E2, B>,
 ): Either<E2, A | B> {
   return self._tag === EitherTag.Left ? f(self.left) : self;
 }
@@ -50,7 +48,7 @@ export function catchAll_<E1, A, E2, B>(
  */
 export function catchJust_<E1, A, E2, B>(
   self: Either<E1, A>,
-  f: (e: E1) => Maybe<Either<E2, B>>
+  f: (e: E1) => Maybe<Either<E2, B>>,
 ): Either<E1 | E2, A | B> {
   return self.catchAll((e): Either<E1 | E2, A | B> => f(e).getOrElse(self));
 }
@@ -58,10 +56,7 @@ export function catchJust_<E1, A, E2, B>(
 /**
  * @tsplus fluent fncts.data.Either catchMap
  */
-export function catchMap_<E, A, B>(
-  self: Either<E, A>,
-  f: (e: E) => B
-): Either<never, A | B> {
+export function catchMap_<E, A, B>(self: Either<E, A>, f: (e: E) => B): Either<never, A | B> {
   return self.catchAll((e) => Right(f(e)));
 }
 
@@ -70,7 +65,7 @@ export function catchMap_<E, A, B>(
  */
 export function chain_<E1, A, E2, B>(
   self: Either<E1, A>,
-  f: (a: A) => Either<E2, B>
+  f: (a: A) => Either<E2, B>,
 ): Either<E1 | E2, B> {
   return self._tag === EitherTag.Left ? self : f(self.right);
 }
@@ -78,22 +73,14 @@ export function chain_<E1, A, E2, B>(
 /**
  * @tsplus fluent fncts.data.Either foldLeft
  */
-export function foldLeft_<E, A, B>(
-  self: Either<E, A>,
-  b: B,
-  f: (b: B, a: A) => B
-): B {
+export function foldLeft_<E, A, B>(self: Either<E, A>, b: B, f: (b: B, a: A) => B): B {
   return self._tag === EitherTag.Left ? b : f(b, self.right);
 }
 
 /**
  * @tsplus fluent fncts.data.Either foldRight
  */
-export function foldRight_<E, A, B>(
-  self: Either<E, A>,
-  b: B,
-  f: (a: A, b: B) => B
-): B {
+export function foldRight_<E, A, B>(self: Either<E, A>, b: B, f: (a: A, b: B) => B): B {
   return self._tag === EitherTag.Left ? b : f(self.right, b);
 }
 
@@ -117,10 +104,7 @@ export function foldMapSelf<E, A>(self: Either<E, A>) {
 /**
  * @tsplus fluent fncts.data.Either getOrElse
  */
-export function getOrElse_<E, A, B>(
-  self: Either<E, A>,
-  orElse: (e: E) => B
-): A | B {
+export function getOrElse_<E, A, B>(self: Either<E, A>, orElse: (e: E) => B): A | B {
   return self.match(orElse, identity);
 }
 
@@ -150,20 +134,14 @@ export function isRight<E, A>(self: Either<E, A>): self is Right<A> {
 /**
  * @tsplus fluent fncts.data.Either map
  */
-export function map_<E, A, B>(
-  self: Either<E, A>,
-  f: (a: A) => B
-): Either<E, B> {
+export function map_<E, A, B>(self: Either<E, A>, f: (a: A) => B): Either<E, B> {
   return self._tag === EitherTag.Left ? self : Right(f(self.right));
 }
 
 /**
  * @tsplus fluent fncts.data.Either mapLeft
  */
-export function mapLeft_<E1, A, E2>(
-  self: Either<E1, A>,
-  f: (e: E1) => E2
-): Either<E2, A> {
+export function mapLeft_<E1, A, E2>(self: Either<E1, A>, f: (e: E1) => E2): Either<E2, A> {
   return self._tag === EitherTag.Left ? Left(f(self.left)) : self;
 }
 
@@ -179,13 +157,12 @@ export function merge<E, A>(self: Either<E, A>): E | A {
  */
 export function orElse_<E1, A, E2, B>(
   self: Either<E1, A>,
-  that: Lazy<Either<E2, B>>
+  that: Lazy<Either<E2, B>>,
 ): Either<E1 | E2, A | B> {
   return self._tag === EitherTag.Left ? that() : self;
 }
 
-export const sequence: P.sequence<EitherF> = (A) => (self) =>
-  traverse_(A)(self, identity);
+export const sequence: P.sequence<EitherF> = (A) => (self) => traverse_(A)(self, identity);
 
 /**
  * @tsplus getter fncts.data.Either sequence
@@ -206,23 +183,21 @@ export const traverse_: P.traverse_<EitherF> = (A) => (self, f) =>
     (a) =>
       pipe(
         f(a),
-        A.map((b) => Right(b))
-      )
+        A.map((b) => Right(b)),
+      ),
   );
 
-export const traverse: P.traverse<EitherF> = (A) => (f) => (self) =>
-  traverse_(A)(self, f);
+export const traverse: P.traverse<EitherF> = (A) => (f) => (self) => traverse_(A)(self, f);
 
 /**
  * @tsplus getter fncts.data.Either traverse
  */
-export const traverseSelf: P.traverseSelf<EitherF> = (self) => (A) => (f) =>
-  traverse_(A)(self, f);
+export const traverseSelf: P.traverseSelf<EitherF> = (self) => (A) => (f) => traverse_(A)(self, f);
 
 export function zipWith_<E1, A, E2, B, C>(
   self: Either<E1, A>,
   fb: Either<E2, B>,
-  f: (a: A, b: B) => C
+  f: (a: A, b: B) => C,
 ): Either<E1 | E2, C> {
   return self._tag === EitherTag.Left
     ? self
@@ -236,8 +211,7 @@ export function zipWith_<E1, A, E2, B, C>(
  * @tsplus dataFirst ap_
  */
 export function ap<A, E2>(fa: Either<E2, A>) {
-  return <E1, B>(self: Either<E1, (a: A) => B>): Either<E1 | E2, B> =>
-    ap_(self, fa);
+  return <E1, B>(self: Either<E1, (a: A) => B>): Either<E1 | E2, B> => ap_(self, fa);
 }
 /**
  * @tsplus dataFirst bimap_
@@ -255,8 +229,7 @@ export function catchAll<E1, E2, B>(f: (e: E1) => Either<E2, B>) {
  * @tsplus dataFirst catchJust_
  */
 export function catchJust<E1, E2, B>(f: (e: E1) => Maybe<Either<E2, B>>) {
-  return <A>(self: Either<E1, A>): Either<E1 | E2, A | B> =>
-    catchJust_(self, f);
+  return <A>(self: Either<E1, A>): Either<E1 | E2, A | B> => catchJust_(self, f);
 }
 /**
  * @tsplus dataFirst catchMap_
@@ -304,8 +277,7 @@ export function mapLeft<E1, E2>(f: (e: E1) => E2) {
  * @tsplus dataFirst orElse_
  */
 export function orElse<E2, B>(that: Lazy<Either<E2, B>>) {
-  return <E1, A>(self: Either<E1, A>): Either<E1 | E2, A | B> =>
-    orElse_(self, that);
+  return <E1, A>(self: Either<E1, A>): Either<E1 | E2, A | B> => orElse_(self, that);
 }
 /**
  * @tsplus dataFirst zipWith_

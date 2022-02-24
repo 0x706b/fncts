@@ -30,7 +30,7 @@ export const Queue: QueueOps = {};
  * @optimize remove
  */
 export function concrete<RA, RB, EA, EB, A, B>(
-  _: PQueue<RA, RB, EA, EB, A, B>
+  _: PQueue<RA, RB, EA, EB, A, B>,
 ): asserts _ is QueueInternal<RA, RB, EA, EB, A, B> {
   //
 }
@@ -42,9 +42,7 @@ export function concrete<RA, RB, EA, EB, A, B>(
  * type `EA`. The dequeueing operations may utilize an environment of type `RB` and may fail
  * with errors of type `EB`.
  */
-export abstract class QueueInternal<RA, RB, EA, EB, A, B>
-  implements PQueue<RA, RB, EA, EB, A, B>
-{
+export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, RB, EA, EB, A, B> {
   readonly _RA!: (_: RA) => void;
   readonly _RB!: (_: RB) => void;
   readonly _EA!: () => EA;
@@ -120,17 +118,14 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B>
  *
  * @tsplus type fncts.control.Queue
  */
-export interface Queue<A>
-  extends PQueue<unknown, unknown, never, never, A, A> {}
+export interface Queue<A> extends PQueue<unknown, unknown, never, never, A, A> {}
 
 /**
  * A queue that can only be dequeued.
  */
-export interface Dequeue<A>
-  extends PQueue<never, unknown, unknown, never, never, A> {}
+export interface Dequeue<A> extends PQueue<never, unknown, unknown, never, never, A> {}
 
 /**
  * A queue that can only be enqueued.
  */
-export interface Enqueue<A>
-  extends PQueue<unknown, never, never, unknown, A, any> {}
+export interface Enqueue<A> extends PQueue<unknown, never, never, unknown, A, any> {}

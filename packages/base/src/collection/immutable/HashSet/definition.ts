@@ -37,7 +37,7 @@ export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
     /**
      * @internal
      */
-    public _size: number
+    public _size: number,
   ) {}
 
   get size(): number {
@@ -96,12 +96,7 @@ export function canEditNode<A>(edit: number, node: Node<A>): boolean {
   return isEmptyNode(node) ? false : edit === node.edit;
 }
 
-export type Node<A> =
-  | EmptyNode<A>
-  | LeafNode<A>
-  | CollisionNode<A>
-  | IndexedNode<A>
-  | ArrayNode<A>;
+export type Node<A> = EmptyNode<A> | LeafNode<A> | CollisionNode<A> | IndexedNode<A> | ArrayNode<A>;
 
 export class EmptyNode<A> {
   readonly _tag = "EmptyNode";
@@ -113,7 +108,7 @@ export class EmptyNode<A> {
     shift: number,
     hash: number,
     value: A,
-    size: SizeRef
+    size: SizeRef,
   ) {
     if (remove) return this;
     ++size.value;
@@ -138,7 +133,7 @@ export class LeafNode<A> {
     shift: number,
     hash: number,
     value: A,
-    size: SizeRef
+    size: SizeRef,
   ): Node<A> {
     if (eq(value, this.value)) {
       if (remove) {
@@ -158,24 +153,13 @@ export class LeafNode<A> {
       return this;
     }
     ++size.value;
-    return mergeLeaves(
-      edit,
-      shift,
-      this.hash,
-      this,
-      hash,
-      new LeafNode(edit, hash, value)
-    );
+    return mergeLeaves(edit, shift, this.hash, this, hash, new LeafNode(edit, hash, value));
   }
 }
 
 export class CollisionNode<A> {
   readonly _tag = "CollisionNode";
-  constructor(
-    public edit: number,
-    public hash: number,
-    public children: Array<Node<A>>
-  ) {}
+  constructor(public edit: number, public hash: number, public children: Array<Node<A>>) {}
   modify(
     remove: boolean,
     edit: number,
@@ -183,7 +167,7 @@ export class CollisionNode<A> {
     shift: number,
     hash: number,
     value: A,
-    size: SizeRef
+    size: SizeRef,
   ): Node<A> {
     if (hash === this.hash) {
       const canEdit = canEditNode(edit, this);
@@ -195,23 +179,14 @@ export class CollisionNode<A> {
         this.hash,
         this.children,
         value,
-        size
+        size,
       );
       if (list === this.children) return this;
-      return list.length > 1
-        ? new CollisionNode(edit, this.hash, list)
-        : list[0]!;
+      return list.length > 1 ? new CollisionNode(edit, this.hash, list) : list[0]!;
     }
     if (remove) return this;
     ++size.value;
-    return mergeLeaves(
-      edit,
-      shift,
-      this.hash,
-      this,
-      hash,
-      new LeafNode(edit, hash, value)
-    );
+    return mergeLeaves(edit, shift, this.hash, this, hash, new LeafNode(edit, hash, value));
   }
 }
 
@@ -223,7 +198,7 @@ function updateCollisionList<A>(
   hash: number,
   list: Array<Node<A>>,
   value: A,
-  size: SizeRef
+  size: SizeRef,
 ) {
   const len = list.length;
   for (let i = 0; i < len; ++i) {
@@ -242,23 +217,13 @@ function updateCollisionList<A>(
   return arrayUpdate(mutate, len, new LeafNode(edit, hash, value), list);
 }
 
-export function isLeaf<A>(
-  node: Node<A>
-): node is EmptyNode<A> | LeafNode<A> | CollisionNode<A> {
-  return (
-    isEmptyNode(node) ||
-    node._tag === "LeafNode" ||
-    node._tag === "CollisionNode"
-  );
+export function isLeaf<A>(node: Node<A>): node is EmptyNode<A> | LeafNode<A> | CollisionNode<A> {
+  return isEmptyNode(node) || node._tag === "LeafNode" || node._tag === "CollisionNode";
 }
 
 export class IndexedNode<A> {
   readonly _tag = "IndexNode";
-  constructor(
-    public edit: number,
-    public mask: number,
-    public children: Array<Node<A>>
-  ) {}
+  constructor(public edit: number, public mask: number, public children: Array<Node<A>>) {}
 
   modify(
     remove: boolean,
@@ -267,7 +232,7 @@ export class IndexedNode<A> {
     shift: number,
     hash: number,
     value: A,
-    size: SizeRef
+    size: SizeRef,
   ): Node<A> {
     const mask     = this.mask;
     const children = this.children;
@@ -276,15 +241,7 @@ export class IndexedNode<A> {
     const indx     = fromBitmap(mask, bit);
     const exists   = mask & bit;
     const current  = exists ? children[indx]! : _EmptyNode;
-    const child    = current.modify(
-      remove,
-      edit,
-      eq,
-      shift + SIZE,
-      hash,
-      value,
-      size
-    );
+    const child    = current.modify(remove, edit, eq, shift + SIZE, hash, value, size);
 
     if (current === child) return this;
 
@@ -294,12 +251,10 @@ export class IndexedNode<A> {
     if (exists && isEmptyNode(child)) {
       bitmap &= ~bit;
       if (!bitmap) return _EmptyNode;
-      if (children.length <= 2 && isLeaf(children[indx ^ 1]!))
-        return children[indx ^ 1]!;
+      if (children.length <= 2 && isLeaf(children[indx ^ 1]!)) return children[indx ^ 1]!;
       newChildren = arraySpliceOut(canEdit, indx, children);
     } else if (!exists && !isEmptyNode(child)) {
-      if (children.length >= MAX_INDEX_NODE)
-        return expand(edit, frag, child, mask, children);
+      if (children.length >= MAX_INDEX_NODE) return expand(edit, frag, child, mask, children);
       bitmap     |= bit;
       newChildren = arraySpliceIn(canEdit, indx, child, children);
     } else {
@@ -317,11 +272,7 @@ export class IndexedNode<A> {
 
 export class ArrayNode<A> {
   readonly _tag = "ArrayNode";
-  constructor(
-    public edit: number,
-    public size: number,
-    public children: Array<Node<A>>
-  ) {}
+  constructor(public edit: number, public size: number, public children: Array<Node<A>>) {}
   modify(
     remove: boolean,
     edit: number,
@@ -329,7 +280,7 @@ export class ArrayNode<A> {
     shift: number,
     hash: number,
     value: A,
-    size: SizeRef
+    size: SizeRef,
   ): Node<A> {
     let count      = this.size;
     const children = this.children;
@@ -342,7 +293,7 @@ export class ArrayNode<A> {
       shift + SIZE,
       hash,
       value,
-      size
+      size,
     );
 
     if (child === newChild) return this;
@@ -373,12 +324,7 @@ export class ArrayNode<A> {
   }
 }
 
-function pack<A>(
-  edit: number,
-  count: number,
-  removed: number,
-  elements: Array<Node<A>>
-) {
+function pack<A>(edit: number, count: number, removed: number, elements: Array<Node<A>>) {
   const children = new Array<Node<A>>(count - 1);
   let g          = 0;
   let bitmap     = 0;
@@ -399,7 +345,7 @@ function expand<A>(
   frag: number,
   child: Node<A>,
   bitmap: number,
-  subNodes: Array<Node<A>>
+  subNodes: Array<Node<A>>,
 ) {
   const arr = [];
   let bit   = bitmap;
@@ -418,7 +364,7 @@ function mergeLeaves<A>(
   h1: number,
   n1: Node<A>,
   h2: number,
-  n2: Node<A>
+  n2: Node<A>,
 ): Node<A> {
   if (h1 === h2) return new CollisionNode(edit, h1, [n2, n1]);
   const subH1 = hashFragment(shift, h1);
@@ -430,24 +376,16 @@ function mergeLeaves<A>(
       ? [mergeLeaves(edit, shift + SIZE, h1, n1, h2, n2)]
       : subH1 < subH2
       ? [n1, n2]
-      : [n2, n1]
+      : [n2, n1],
   );
 }
 
 type Cont<V, A> =
-  | [
-      len: number,
-      children: Array<Node<V>>,
-      i: number,
-      f: (node: V) => A,
-      cont: Cont<V, A>
-    ]
+  | [len: number, children: Array<Node<V>>, i: number, f: (node: V) => A, cont: Cont<V, A>]
   | undefined;
 
 function applyCont<V, A>(cont: Cont<V, A>) {
-  return cont
-    ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4])
-    : undefined;
+  return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : undefined;
 }
 
 function visitLazyChildren<V, A>(
@@ -455,7 +393,7 @@ function visitLazyChildren<V, A>(
   children: Node<V>[],
   i: number,
   f: (node: V) => A,
-  cont: Cont<V, A>
+  cont: Cont<V, A>,
 ): VisitResult<V, A> | undefined {
   while (i < len) {
     // eslint-disable-next-line no-param-reassign
@@ -478,7 +416,7 @@ interface VisitResult<V, A> {
 function visitLazy<V, A>(
   node: Node<V>,
   f: (node: V) => A,
-  cont: Cont<V, A> = undefined
+  cont: Cont<V, A> = undefined,
 ): VisitResult<V, A> | undefined {
   switch (node._tag) {
     case "LeafNode": {

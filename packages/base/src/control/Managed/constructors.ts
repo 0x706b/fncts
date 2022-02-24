@@ -28,7 +28,7 @@ export function ask<R>(): Managed<R, never, R> {
  */
 export function bracket_<R, E, A, R1>(
   acquire: IO<R, E, A>,
-  release: (a: A) => IO<R1, never, unknown>
+  release: (a: A) => IO<R1, never, unknown>,
 ): Managed<R & R1, E, A> {
   return Managed.bracketExit(acquire, release);
 }
@@ -42,7 +42,7 @@ export function bracket_<R, E, A, R1>(
 export function bracketExit_<R, E, A, R1>(
   acquire: IO<R, E, A>,
   release: (a: A, exit: Exit<any, any>) => IO<R1, never, unknown>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E, A> {
   return new Managed(
     IO.gen(function* (_) {
@@ -50,10 +50,10 @@ export function bracketExit_<R, E, A, R1>(
       const releaseMap      = yield* _(FiberRef.currentReleaseMap.get);
       const a               = yield* _(acquire);
       const releaseMapEntry = yield* _(
-        releaseMap.add(Finalizer.get((exit) => release(a, exit).give(r)))
+        releaseMap.add(Finalizer.get((exit) => release(a, exit).give(r))),
       );
       return [releaseMapEntry, a] as const;
-    }).uninterruptible
+    }).uninterruptible,
   );
 }
 
@@ -62,7 +62,7 @@ export function bracketExit_<R, E, A, R1>(
  */
 export function fail<E = never, A = never>(
   e: Lazy<E>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<unknown, E, A> {
   return Managed.fromIO(IO.fail(e));
 }
@@ -72,7 +72,7 @@ export function fail<E = never, A = never>(
  */
 export function failNow<E = never, A = never>(
   e: E,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<unknown, E, A> {
   return Managed.fromIO(IO.failNow(e));
 }
@@ -82,9 +82,7 @@ export function failNow<E = never, A = never>(
  *
  * @tsplus static fncts.control.ManagedOps failCause
  */
-export function failCause<E = never, A = never>(
-  cause: Lazy<Cause<E>>
-): Managed<unknown, E, A> {
+export function failCause<E = never, A = never>(cause: Lazy<Cause<E>>): Managed<unknown, E, A> {
   return Managed.fromIO(IO.failCause(cause));
 }
 
@@ -93,9 +91,7 @@ export function failCause<E = never, A = never>(
  *
  * @tsplus static fncts.control.ManagedOps failCauseNow
  */
-export function failCauseNow<E = never, A = never>(
-  cause: Cause<E>
-): Managed<unknown, E, A> {
+export function failCauseNow<E = never, A = never>(cause: Cause<E>): Managed<unknown, E, A> {
   return Managed.fromIO(IO.failCauseNow(cause));
 }
 
@@ -105,10 +101,7 @@ export function failCauseNow<E = never, A = never>(
  *
  * @tsplus static fncts.control.ManagedOps finalizer
  */
-export function finalizer<R>(
-  f: URIO<R, unknown>,
-  __tsplusTrace?: string
-): Managed<R, never, void> {
+export function finalizer<R>(f: URIO<R, unknown>, __tsplusTrace?: string): Managed<R, never, void> {
   return finalizerExit(() => f);
 }
 
@@ -120,7 +113,7 @@ export function finalizer<R>(
  */
 export function finalizerExit<R>(
   fin: (exit: Exit<unknown, unknown>) => URIO<R, unknown>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R, never, void> {
   return Managed.bracketExit(IO.unit, (_, exit) => fin(exit));
 }
@@ -132,11 +125,9 @@ export function finalizerExit<R>(
  *
  * @tsplus static fncts.control.ManagedOps finalizerRef
  */
-export function finalizerRef(
-  initial: Finalizer
-): Managed<unknown, never, Ref<Finalizer>> {
+export function finalizerRef(initial: Finalizer): Managed<unknown, never, Ref<Finalizer>> {
   return Managed.bracketExit(Ref.make(initial), (ref, exit) =>
-    ref.get.chain((f) => Finalizer.reverseGet(f)(exit))
+    ref.get.chain((f) => Finalizer.reverseGet(f)(exit)),
   );
 }
 
@@ -148,9 +139,7 @@ export function finalizerRef(
  */
 export function fromIO<R, E, A>(effect: IO<R, E, A>, __tsplusTrace?: string) {
   return new Managed(
-    IO.uninterruptibleMask(({ restore }) =>
-      restore(effect).map((a) => tuple(Finalizer.noop, a))
-    )
+    IO.uninterruptibleMask(({ restore }) => restore(effect).map((a) => tuple(Finalizer.noop, a))),
   );
 }
 
@@ -160,9 +149,7 @@ export function fromIO<R, E, A>(effect: IO<R, E, A>, __tsplusTrace?: string) {
  *
  * @tsplus static fncts.control.ManagedOps fromReservation
  */
-export function fromReservation<R, E, A>(
-  reservation: Reservation<R, E, A>
-): Managed<R, E, A> {
+export function fromReservation<R, E, A>(reservation: Reservation<R, E, A>): Managed<R, E, A> {
   return Managed.fromReservationIO(IO.succeedNow(reservation));
 }
 
@@ -178,7 +165,7 @@ export function fromReservation<R, E, A>(
  * @tsplus static fncts.control.ManagedOps fromReservationIO
  */
 export function fromReservationIO<R, E, R2, E2, A>(
-  reservation: IO<R, E, Reservation<R2, E2, A>>
+  reservation: IO<R, E, Reservation<R2, E2, A>>,
 ): Managed<R & R2, E | E2, A> {
   return new Managed(
     IO.uninterruptibleMask(({ restore }) =>
@@ -187,9 +174,7 @@ export function fromReservationIO<R, E, R2, E2, A>(
         const releaseMap = yield* _(FiberRef.currentReleaseMap.get);
         const reserved   = yield* _(reservation);
         const releaseKey = yield* _(
-          releaseMap.addIfOpen(
-            Finalizer.get((fin) => reserved.release(fin).give(r))
-          )
+          releaseMap.addIfOpen(Finalizer.get((fin) => reserved.release(fin).give(r))),
         );
         const finalizerAndA = yield* _(
           IO.defer(
@@ -199,13 +184,13 @@ export function fromReservationIO<R, E, R2, E2, A>(
                 restore(reserved.acquire).map((a): readonly [Finalizer, A] => [
                   Finalizer.get((exit) => releaseMap.release(key, exit)),
                   a,
-                ])
-            )
-          )
+                ]),
+            ),
+          ),
         );
         return finalizerAndA;
-      })
-    )
+      }),
+    ),
   );
 }
 
@@ -215,9 +200,7 @@ export function fromReservationIO<R, E, R2, E2, A>(
  *
  * @tsplus static fncts.control.ManagedOps fromIOUninterruptible
  */
-export function fromIOUninterruptible<R, E, A>(
-  effect: IO<R, E, A>
-): Managed<R, E, A> {
+export function fromIOUninterruptible<R, E, A>(effect: IO<R, E, A>): Managed<R, E, A> {
   return Managed.fromIO(effect.uninterruptible);
 }
 
@@ -246,7 +229,7 @@ export function haltNow(e: unknown): Managed<unknown, never, never> {
  */
 export function succeed<E = never, A = never>(
   a: Lazy<A>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<unknown, E, A> {
   return Managed.fromIO(IO.succeed(a));
 }
@@ -258,7 +241,7 @@ export function succeed<E = never, A = never>(
  */
 export function succeedNow<E = never, A = never>(
   a: A,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<unknown, E, A> {
   return Managed.fromIO(IO.succeedNow(a));
 }
@@ -277,7 +260,7 @@ export function try_<A>(effect: Lazy<A>): Managed<unknown, unknown, A> {
  */
 export function tryCatch_<E, A>(
   thunk: Lazy<A>,
-  onThrow: (error: unknown) => E
+  onThrow: (error: unknown) => E,
 ): Managed<unknown, E, A> {
   return Managed.fromIO(IO.tryCatch(thunk, onThrow));
 }

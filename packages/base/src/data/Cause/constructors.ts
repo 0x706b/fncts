@@ -52,10 +52,7 @@ export function halt(value: unknown, trace: Trace = Trace.none): Cause<never> {
  * @tsplus static fncts.data.CauseOps interrupt
  * @tsplus static fncts.data.Cause.InterruptOps __call
  */
-export function interrupt(
-  id: FiberId,
-  trace: Trace = Trace.none
-): Cause<never> {
+export function interrupt(id: FiberId, trace: Trace = Trace.none): Cause<never> {
   return new Interrupt(id, trace);
 }
 
@@ -68,11 +65,7 @@ export function interrupt(
  * @tsplus static fncts.data.Cause.ThenOps __call
  */
 export function then<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
-  return left.isEmpty
-    ? right
-    : right.isEmpty
-    ? left
-    : new Then<E | E1>(left, right);
+  return left.isEmpty ? right : right.isEmpty ? left : new Then<E | E1>(left, right);
 }
 
 /**
@@ -84,9 +77,5 @@ export function then<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
  * @tsplus static fncts.data.Cause.BothOps __call
  */
 export function both<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
-  return left.isEmpty
-    ? right
-    : right.isEmpty
-    ? left
-    : new Both<E | E1>(left, right);
+  return left.isEmpty ? right : right.isEmpty ? left : new Both<E | E1>(left, right);
 }

@@ -243,10 +243,7 @@ export class RingBufferArb<A> extends RingBuffer<A> {
 export class RingBufferPow2<A> extends RingBuffer<A> {
   constructor(requestedCapacity: number) {
     super(nextPow2(requestedCapacity));
-    assert(
-      requestedCapacity > 0,
-      `RingBufferPow2 created with capacity ${requestedCapacity}`
-    );
+    assert(requestedCapacity > 0, `RingBufferPow2 created with capacity ${requestedCapacity}`);
   }
   posToIdx(pos: number, capacity: number) {
     return pos & (capacity - 1);
@@ -254,10 +251,7 @@ export class RingBufferPow2<A> extends RingBuffer<A> {
 }
 
 export function mkRingBuffer<A>(requestedCapacity: number): RingBuffer<A> {
-  assert(
-    requestedCapacity >= 2,
-    `RingBuffer created with capacity ${requestedCapacity}`
-  );
+  assert(requestedCapacity >= 2, `RingBuffer created with capacity ${requestedCapacity}`);
   if (nextPow2(requestedCapacity) === requestedCapacity) {
     return new RingBufferPow2(requestedCapacity);
   } else {

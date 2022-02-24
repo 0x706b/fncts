@@ -20,13 +20,7 @@ export class Entry {
  */
 export function make<A0>(tref0: Atomic<A0>, isNew0: boolean): Entry {
   const versioned = tref0.versioned;
-  const ops       = new ConcreteEntry<A0>(
-    tref0,
-    versioned,
-    versioned.value,
-    isNew0,
-    false
-  );
+  const ops       = new ConcreteEntry<A0>(tref0, versioned, versioned.value, isNew0, false);
   return new Entry((f) => f(ops));
 }
 
@@ -41,7 +35,7 @@ export class ConcreteEntry<S> {
     readonly expected: Versioned<S>,
     protected newValue: S,
     readonly isNew: boolean,
-    private _isChanged: boolean
+    private _isChanged: boolean,
   ) {}
 
   unsafeSet(value: unknown) {
@@ -63,7 +57,7 @@ export class ConcreteEntry<S> {
       this.expected,
       this.newValue,
       this.isNew,
-      this.isChanged()
+      this.isChanged(),
     );
     return new Entry((f) => f(ops));
   }
@@ -81,8 +75,8 @@ export class ConcreteEntry<S> {
   }
 
   toString() {
-    return `Entry(expected.value = ${this.expected.value}, newValue = ${
-      this.newValue
-    }, tref = ${this.tref}, isChanged = ${this.isChanged()})`;
+    return `Entry(expected.value = ${this.expected.value}, newValue = ${this.newValue}, tref = ${
+      this.tref
+    }, isChanged = ${this.isChanged()})`;
   }
 }

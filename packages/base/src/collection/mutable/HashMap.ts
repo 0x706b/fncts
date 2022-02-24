@@ -27,11 +27,9 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
   constructor(
     private initialCapacity: number,
     private loadFactor: number,
-    private config: HashEq<K> = HashEq.StructuralStrict
+    private config: HashEq<K> = HashEq.StructuralStrict,
   ) {
-    this.table = new Array<Node<K, V> | undefined>(
-      tableSizeFor(this.initialCapacity)
-    );
+    this.table = new Array<Node<K, V> | undefined>(tableSizeFor(this.initialCapacity));
 
     this.threshold = this.newThreshold(this.table.length);
   }
@@ -94,9 +92,8 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
         }
       }
     }
-    const previousValue =
-      foundNode === undefined ? Nothing() : Just(foundNode.value);
-    const nextValue = f(previousValue);
+    const previousValue = foundNode === undefined ? Nothing() : Just(foundNode.value);
+    const nextValue     = f(previousValue);
     previousValue.match(
       () =>
         nextValue.match(
@@ -109,7 +106,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
                 ? (this.growTable(this.table.length * 2), this.index(hash))
                 : indexedHash;
             this._set0(key, value, false, hash, newIndexedHash);
-          }
+          },
         ),
       () =>
         nextValue.match(
@@ -123,8 +120,8 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
           },
           (newValue) => {
             foundNode!.value = newValue;
-          }
-        )
+          },
+        ),
     );
     return nextValue;
   }
@@ -153,13 +150,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     return this._set0(key, value, getOld, hash, idx);
   }
 
-  private _set0(
-    key: K,
-    value: V,
-    getOld: boolean,
-    hash: number,
-    idx: number
-  ): Maybe<V> {
+  private _set0(key: K, value: V, getOld: boolean, hash: number, idx: number): Maybe<V> {
     let n = this.table[idx];
     if (n === undefined) {
       this.table[idx] = new Node(key, hash, value, undefined);
@@ -240,18 +231,13 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     if (this.size === 0) {
       this.table = new Array(newLen);
     } else {
-      this.table   = copyOfArray(this.table, newLen);
-      const preLow = new Node<K, V>(
-        unsafeCoerce(undefined),
-        0,
-        unsafeCoerce(undefined),
-        undefined
-      );
+      this.table    = copyOfArray(this.table, newLen);
+      const preLow  = new Node<K, V>(unsafeCoerce(undefined), 0, unsafeCoerce(undefined), undefined);
       const preHigh = new Node<K, V>(
         unsafeCoerce(undefined),
         0,
         unsafeCoerce(undefined),
-        undefined
+        undefined,
       );
       while (oldLen < newLen) {
         let i = 0;
@@ -296,14 +282,10 @@ class Node<K, V> {
     public key: K,
     public hash: number,
     public value: V,
-    public next: Node<K, V> | undefined
+    public next: Node<K, V> | undefined,
   ) {}
 
-  findNode(
-    k: K,
-    h: number,
-    equals: (x: K, y: K) => boolean
-  ): Node<K, V> | undefined {
+  findNode(k: K, h: number, equals: (x: K, y: K) => boolean): Node<K, V> | undefined {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let n: Node<K, V> | undefined = this;
     while (n) {
@@ -333,7 +315,7 @@ export class HashMapIterator<K, V, A> implements Iterator<A> {
   private done = false;
   constructor(
     private table: Array<Node<K, V> | undefined>,
-    private extract: (nd: Node<K, V>) => A
+    private extract: (nd: Node<K, V>) => A,
   ) {
     this.len = table.length;
   }

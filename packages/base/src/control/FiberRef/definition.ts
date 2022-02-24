@@ -3,12 +3,7 @@ import type { UIO } from "../IO/definition";
 
 import { Either } from "../../data/Either";
 import { IO } from "../IO";
-import {
-  FiberRefDelete,
-  FiberRefLocally,
-  FiberRefModify,
-  FiberRefWith,
-} from "../IO/definition";
+import { FiberRefDelete, FiberRefLocally, FiberRefModify, FiberRefWith } from "../IO/definition";
 
 /**
  * @tsplus type fncts.control.FiberRef
@@ -29,7 +24,7 @@ export interface PFiberRef<EA, EB, A, B> {
     ea: (_: EA) => EC,
     eb: (_: EB) => ED,
     ca: (_: C) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ) => PFiberRef<EC, ED, C, D>;
 
   /**
@@ -42,7 +37,7 @@ export interface PFiberRef<EA, EB, A, B> {
     eb: (_: EB) => ED,
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ) => PFiberRef<EC, ED, C, D>;
   /**
    * Reads the value associated with the current fiber. Returns initial value if
@@ -62,9 +57,7 @@ export interface PFiberRef<EA, EB, A, B> {
    *
    * Guarantees that fiber data is properly restored via `acquireRelease`.
    */
-  readonly locally: (
-    value: A
-  ) => <R, EC, C>(use: IO<R, EC, C>) => IO<R, EA | EC, C>;
+  readonly locally: (value: A) => <R, EC, C>(use: IO<R, EC, C>) => IO<R, EA | EC, C>;
 
   readonly getWith: <R, E, C>(f: (b: B) => IO<R, E, C>) => IO<R, EB | E, C>;
 }
@@ -96,7 +89,7 @@ export class RuntimeFiberRef<A> implements PFiberRef<never, never, A, A> {
   constructor(
     readonly initial: A,
     readonly fork: (a: A) => A,
-    readonly join: (a0: A, a1: A) => A
+    readonly join: (a0: A, a1: A) => A,
   ) {}
 
   get delete(): UIO<void> {
@@ -106,7 +99,7 @@ export class RuntimeFiberRef<A> implements PFiberRef<never, never, A, A> {
     _ea: (_: never) => EC,
     _eb: (_: never) => ED,
     ca: (_: C) => Either<EC, A>,
-    bd: (_: A) => Either<ED, D>
+    bd: (_: A) => Either<ED, D>,
   ): PFiberRef<EC, ED, C, D> {
     return new DerivedFiberRef((f) => f(this, bd, ca));
   }
@@ -116,11 +109,9 @@ export class RuntimeFiberRef<A> implements PFiberRef<never, never, A, A> {
     eb: (_: never) => ED,
     ec: (_: never) => EC,
     ca: (_: C) => (_: A) => Either<EC, A>,
-    bd: (_: A) => Either<ED, D>
+    bd: (_: A) => Either<ED, D>,
   ): PFiberRef<EC, ED, C, D> {
-    return new DerivedAllFiberRef((f) =>
-      f(this, bd, ca, this.initialValue.chain(bd))
-    );
+    return new DerivedAllFiberRef((f) => f(this, bd, ca, this.initialValue.chain(bd)));
   }
 
   modify<B>(f: (a: A) => readonly [B, A]): UIO<B> {
@@ -163,16 +154,16 @@ export class DerivedFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
       f: <S>(
         value: RuntimeFiberRef<S>,
         getEither: (s: S) => Either<EB, B>,
-        setEither: (a: A) => Either<EA, S>
-      ) => X
-    ) => X
+        setEither: (a: A) => Either<EA, S>,
+      ) => X,
+    ) => X,
   ) {}
 
   match<EC, ED, C, D>(
     ea: (_: EA) => EC,
     eb: (_: EB) => ED,
     ca: (_: C) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ): PFiberRef<EC, ED, C, D> {
     return this.use(
       (value, getEither, setEither) =>
@@ -180,12 +171,9 @@ export class DerivedFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
           f(
             value,
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
-            (c) =>
-              ca(c).chain((a) =>
-                setEither(a).match((e) => Either.left(ea(e)), Either.right)
-              )
-          )
-        )
+            (c) => ca(c).chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
+          ),
+        ),
     );
   }
 
@@ -194,7 +182,7 @@ export class DerivedFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
     eb: (_: EB) => ED,
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ): PFiberRef<EC, ED, C, D> {
     return this.use(
       (value, getEither, setEither) =>
@@ -205,18 +193,16 @@ export class DerivedFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
             (c) => (s) =>
               getEither(s)
                 .match((eb) => Either.left(ec(eb)), ca(c))
-                .chain((a) =>
-                  setEither(a).match((e) => Either.left(ea(e)), Either.right)
-                ),
-            this.initialValue.mapLeft(eb).chain(bd)
-          )
-        )
+                .chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
+            this.initialValue.mapLeft(eb).chain(bd),
+          ),
+        ),
     );
   }
 
   get get(): FIO<EB, B> {
     return this.use((value, getEither) =>
-      value.get.chain((s) => getEither(s).match(IO.failNow, IO.succeedNow))
+      value.get.chain((s) => getEither(s).match(IO.failNow, IO.succeedNow)),
     );
   }
 
@@ -233,18 +219,16 @@ export class DerivedFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
             (s) =>
               value.set(s).bracket(
                 () => use,
-                () => value.set(old)
-              )
-          )
-        )
+                () => value.set(old),
+              ),
+          ),
+        ),
       );
     };
   }
 
   set(a: A): FIO<EA, void> {
-    return this.use((value, _, setEither) =>
-      setEither(a).match(IO.failNow, (s) => value.set(s))
-    );
+    return this.use((value, _, setEither) => setEither(a).match(IO.failNow, (s) => value.set(s)));
   }
 
   getWith<R, E, C>(f: (b: B) => IO<R, E, C>): IO<R, EB | E, C> {
@@ -252,9 +236,7 @@ export class DerivedFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
   }
 }
 
-export class DerivedAllFiberRef<EA, EB, A, B>
-  implements PFiberRef<EA, EB, A, B>
-{
+export class DerivedAllFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B> {
   readonly _EA!: () => EA;
   readonly _EB!: () => EB;
   readonly _A!: (_: A) => void;
@@ -268,9 +250,9 @@ export class DerivedAllFiberRef<EA, EB, A, B>
         value: RuntimeFiberRef<S>,
         getEither: (s: S) => Either<EB, B>,
         setEither: (a: A) => (s: S) => Either<EA, S>,
-        initialValue: Either<EB, B>
-      ) => X
-    ) => X
+        initialValue: Either<EB, B>,
+      ) => X,
+    ) => X,
   ) {
     this.match    = this.match.bind(this);
     this.matchAll = this.matchAll.bind(this);
@@ -281,7 +263,7 @@ export class DerivedAllFiberRef<EA, EB, A, B>
     ea: (_: EA) => EC,
     eb: (_: EB) => ED,
     ca: (_: C) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ): PFiberRef<EC, ED, C, D> {
     return this.use(
       (value, getEither, setEither, initialValue) =>
@@ -290,12 +272,10 @@ export class DerivedAllFiberRef<EA, EB, A, B>
             value,
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
             (c) => (s) =>
-              ca(c).chain((a) =>
-                setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)
-              ),
-            initialValue.mapLeft(eb).chain(bd)
-          )
-        )
+              ca(c).chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
+            initialValue.mapLeft(eb).chain(bd),
+          ),
+        ),
     );
   }
 
@@ -304,7 +284,7 @@ export class DerivedAllFiberRef<EA, EB, A, B>
     eb: (_: EB) => ED,
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ): PFiberRef<EC, ED, C, D> {
     return this.use(
       (value, getEither, setEither, initialValue) =>
@@ -315,25 +295,21 @@ export class DerivedAllFiberRef<EA, EB, A, B>
             (c) => (s) =>
               getEither(s)
                 .match((e) => Either.left(ec(e)), ca(c))
-                .chain((a) =>
-                  setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)
-                ),
-            initialValue.mapLeft(eb).chain(bd)
-          )
-        )
+                .chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
+            initialValue.mapLeft(eb).chain(bd),
+          ),
+        ),
     );
   }
 
   get get(): FIO<EB, B> {
     return this.use((value, getEither) =>
-      value.get.chain((s) => getEither(s).match(IO.failNow, IO.succeedNow))
+      value.get.chain((s) => getEither(s).match(IO.failNow, IO.succeedNow)),
     );
   }
 
   get initialValue(): Either<EB, B> {
-    return this.use(
-      (_value, _getEither, _setEither, initialValue) => initialValue
-    );
+    return this.use((_value, _getEither, _setEither, initialValue) => initialValue);
   }
 
   set(a: A): FIO<EA, void> {
@@ -342,11 +318,11 @@ export class DerivedAllFiberRef<EA, EB, A, B>
         value.modify((s) =>
           setEither(a)(s).match(
             (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
-            (s) => [Either.right(undefined), s]
-          )
+            (s) => [Either.right(undefined), s],
+          ),
         ),
-        (a) => a.absolve
-      )
+        (a) => a.absolve,
+      ),
     );
   }
 
@@ -359,10 +335,10 @@ export class DerivedAllFiberRef<EA, EB, A, B>
             (s) =>
               value.set(s).bracket(
                 () => use,
-                () => value.set(old)
-              )
-          )
-        )
+                () => value.set(old),
+              ),
+          ),
+        ),
       );
     };
   }
@@ -377,8 +353,11 @@ type Concrete<EA, EB, A, B> =
   | DerivedFiberRef<EA, EB, A, B>
   | DerivedAllFiberRef<EA, EB, A, B>;
 
+/**
+ * @tsplus macro remove
+ */
 export function concrete<EA, EB, A, B>(
-  _: PFiberRef<EA, EB, A, B>
+  _: PFiberRef<EA, EB, A, B>,
   // @ts-expect-error
 ): asserts _ is Concrete<EA, EB, A, B> {
   //

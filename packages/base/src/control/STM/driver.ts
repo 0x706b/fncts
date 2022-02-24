@@ -27,7 +27,7 @@ export class STMDriver<R, E, A> {
     readonly self: STM<R, E, A>,
     readonly journal: Journal,
     readonly fiberId: FiberId,
-    r0: R
+    r0: R,
   ) {
     this.envStack = Stack.make(r0);
   }
@@ -86,7 +86,7 @@ export class STMDriver<R, E, A> {
           curr          = k.stm.ensuring(
             STM.succeed(() => {
               this.envStack = this.envStack.previous!;
-            })
+            }),
           );
           break;
         }

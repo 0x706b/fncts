@@ -16,7 +16,7 @@ import { ReleaseMap } from "../ReleaseMap";
 export function onExitFirst_<R, E, A, R1>(
   ma: Managed<R, E, A>,
   cleanup: (exit: Exit<E, A>) => IO<R1, never, unknown>,
-  __tsplusTrace?: string
+  __tsplusTrace?: string,
 ): Managed<R & R1, E, A> {
   return new Managed(
     IO.uninterruptibleMask(({ restore }) =>
@@ -26,8 +26,8 @@ export function onExitFirst_<R, E, A, R1>(
         const innerReleaseMap = yield* _(ReleaseMap.make);
         const exitEA          = yield* _(
           FiberRef.currentReleaseMap.locally(innerReleaseMap)(
-            restore(ma.io.map(([_, a]) => a)).result
-          )
+            restore(ma.io.map(([_, a]) => a)).result,
+          ),
         );
         const releaseMapEntry = yield* _(
           outerReleaseMap.add(
@@ -36,18 +36,15 @@ export function onExitFirst_<R, E, A, R1>(
                 cleanup(exitEA)
                   .give(r1)
                   .result.zipWith(
-                    innerReleaseMap.releaseAll(
-                      exit,
-                      ExecutionStrategy.sequential
-                    ).result,
-                    (l, r) => IO.fromExitNow(l.apSecond(r))
-                  ).flatten
-            )
-          )
+                    innerReleaseMap.releaseAll(exit, ExecutionStrategy.sequential).result,
+                    (l, r) => IO.fromExitNow(l.apSecond(r)),
+                  ).flatten,
+            ),
+          ),
         );
         const a = yield* _(IO.fromExitNow(exitEA));
         return [releaseMapEntry, a];
-      })
-    )
+      }),
+    ),
   );
 }

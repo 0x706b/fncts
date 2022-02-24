@@ -40,7 +40,7 @@ export class Suspended {
     readonly interruptible: boolean,
     readonly epoch: number,
     readonly blockingOn: FiberId,
-    readonly asyncTrace?: string
+    readonly asyncTrace?: string,
   ) {}
 }
 

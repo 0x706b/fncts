@@ -1,4 +1,4 @@
-import type { Either} from "./definition";
+import type { Either } from "./definition";
 
 import { EitherTag } from "./definition";
 
@@ -8,7 +8,7 @@ import { EitherTag } from "./definition";
 export function match_<E, A, B, C>(
   self: Either<E, A>,
   left: (e: E) => B,
-  right: (a: A) => C
+  right: (a: A) => C,
 ): B | C {
   switch (self._tag) {
     case EitherTag.Left:

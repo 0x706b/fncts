@@ -5,17 +5,14 @@ import { Cause } from "../definition";
 /**
  * @tsplus fluent fncts.data.Cause mapTrace
  */
-export function mapTrace_<E>(
-  self: Cause<E>,
-  f: (trace: Trace) => Trace
-): Cause<E> {
+export function mapTrace_<E>(self: Cause<E>, f: (trace: Trace) => Trace): Cause<E> {
   return self.fold(
     () => Cause.empty(),
     (e, trace) => Cause.fail(e, f(trace)),
     (u, trace) => Cause.halt(u, f(trace)),
     (id, trace) => Cause.interrupt(id, f(trace)),
     Cause.then,
-    Cause.both
+    Cause.both,
   );
 }
 

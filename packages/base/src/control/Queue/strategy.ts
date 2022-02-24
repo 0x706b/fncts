@@ -18,12 +18,12 @@ export interface Strategy<A> {
     as: Conc<A>,
     queue: MutableQueue<A>,
     takers: MutableQueue<Future<never, A>>,
-    isShutdown: AtomicBoolean
+    isShutdown: AtomicBoolean,
   ) => UIO<boolean>;
 
   readonly unsafeOnQueueEmptySpace: (
     queue: MutableQueue<A>,
-    takers: MutableQueue<Future<never, A>>
+    takers: MutableQueue<Future<never, A>>,
   ) => void;
 
   readonly surplusSize: number;
@@ -38,7 +38,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     as: Conc<A>,
     queue: MutableQueue<A>,
     takers: MutableQueue<Future<never, A>>,
-    isShutdown: AtomicBoolean
+    isShutdown: AtomicBoolean,
   ): UIO<boolean> {
     return IO.descriptorWith((d) =>
       IO.defer(() => {
@@ -54,14 +54,14 @@ export class BackPressureStrategy<A> implements Strategy<A> {
             return p.await;
           }
         }).onInterrupt(() => IO.succeed(() => this.unsafeRemove(p)));
-      })
+      }),
     );
   }
 
   unsafeRemove(p: Future<never, boolean>) {
     _unsafeOfferAll(
       this.putters,
-      _unsafePollAll(this.putters).filter(([_, __]) => __ !== p)
+      _unsafePollAll(this.putters).filter(([_, __]) => __ !== p),
     );
   }
 
@@ -81,10 +81,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     }
   }
 
-  unsafeOnQueueEmptySpace(
-    queue: MutableQueue<A>,
-    takers: MutableQueue<Future<never, A>>
-  ) {
+  unsafeOnQueueEmptySpace(queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>) {
     let keepPolling = true;
 
     while (keepPolling && !queue.isFull) {
@@ -96,10 +93,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
         if (offered && putter[2]) {
           _unsafeCompletePromise(putter[1], true);
         } else if (!offered) {
-          _unsafeOfferAll(
-            this.putters,
-            _unsafePollAll(this.putters).prepend(putter)
-          );
+          _unsafeOfferAll(this.putters, _unsafePollAll(this.putters).prepend(putter));
         }
         _unsafeCompleteTakers(this, queue, takers);
       } else {
@@ -116,8 +110,8 @@ export class BackPressureStrategy<A> implements Strategy<A> {
       const putters = yield* _(IO.succeed(_unsafePollAll(self.putters)));
       yield* _(
         IO.foreachC(putters, ([, p, lastItem]) =>
-          lastItem ? p.interruptAs(fiberId).asUnit : IO.unit
-        )
+          lastItem ? p.interruptAs(fiberId).asUnit : IO.unit,
+        ),
       );
     });
   }
@@ -132,7 +126,7 @@ export class DroppingStrategy<A> implements Strategy<A> {
     _as: Conc<A>,
     _queue: MutableQueue<A>,
     _takers: MutableQueue<Future<never, A>>,
-    _isShutdown: AtomicBoolean
+    _isShutdown: AtomicBoolean,
   ): UIO<boolean> {
     return IO.succeedNow(false);
   }
@@ -155,7 +149,7 @@ export class SlidingStrategy<A> implements Strategy<A> {
     as: Conc<A>,
     queue: MutableQueue<A>,
     takers: MutableQueue<Future<never, A>>,
-    _isShutdown: AtomicBoolean
+    _isShutdown: AtomicBoolean,
   ): UIO<boolean> {
     return IO.succeed(() => {
       this.unsafeSlidingOffer(queue, as);

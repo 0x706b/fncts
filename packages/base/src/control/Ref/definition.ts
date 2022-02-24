@@ -25,37 +25,16 @@ export type Ref<A> = PRef<unknown, unknown, never, never, A, A>;
 export type ERef<E, A> = PRef<unknown, unknown, E, E, A, A>;
 
 export declare namespace PRef {
-  export type Synchronized<RA, RB, EA, EB, A, B> = Synchro.PSynchronized<
-    RA,
-    RB,
-    EA,
-    EB,
-    A,
-    B
-  >;
+  export type Synchronized<RA, RB, EA, EB, A, B> = Synchro.PSynchronized<RA, RB, EA, EB, A, B>;
 }
 
 export declare namespace ERef {
-  export type Synchronized<E, A> = Synchro.PSynchronized<
-    unknown,
-    unknown,
-    E,
-    E,
-    A,
-    A
-  >;
+  export type Synchronized<E, A> = Synchro.PSynchronized<unknown, unknown, E, E, A, A>;
 }
 
 export declare namespace Ref {
   export type Atomic<A> = Atomic_<A>;
-  export type Synchronized<A> = Synchro.PSynchronized<
-    unknown,
-    unknown,
-    never,
-    never,
-    A,
-    A
-  >;
+  export type Synchronized<A> = Synchro.PSynchronized<unknown, unknown, never, never, A, A>;
 }
 
 /**
@@ -65,9 +44,7 @@ export interface RefOps {}
 
 export const Ref: RefOps = {};
 
-export abstract class RefInternal<RA, RB, EA, EB, A, B>
-  implements PRef<RA, RB, EA, EB, A, B>
-{
+export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, EA, EB, A, B> {
   readonly _U!: RefTypeId;
   readonly _RA!: (_: RA) => void;
   readonly _RB!: (_: RB) => void;
@@ -87,7 +64,7 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B>
     ea: (_: EA) => EC,
     eb: (_: EB) => ED,
     ca: (_: C) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ): PRef<RA, RB, EC, ED, C, D>;
 
   /**
@@ -100,7 +77,7 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B>
     eb: (_: EB) => ED,
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => Either<EC, A>,
-    bd: (_: B) => Either<ED, D>
+    bd: (_: B) => Either<ED, D>,
   ): PRef<RA & RB, RB, EC, ED, C, D>;
 
   /**
@@ -119,7 +96,7 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B>
  * @tsplus macro remove
  */
 export function concrete<RA, RB, EA, EB, A, B>(
-  _: PRef<RA, RB, EA, EB, A, B>
+  _: PRef<RA, RB, EA, EB, A, B>,
 ): asserts _ is  // @ts-expect-error
   | Atomic_<A | B>
   | Derived<EA, EB, A, B>

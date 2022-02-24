@@ -30,7 +30,7 @@ export function suspended(
   interruptible: boolean,
   epoch: number,
   blockingOn: FiberId,
-  asyncTrace?: string
+  asyncTrace?: string,
 ): FiberStatus {
   return new Suspended(previous, interruptible, epoch, blockingOn, asyncTrace);
 }
