@@ -809,7 +809,7 @@ export function if_<R, E, A, R1, E1, A1>(
 }
 
 /**
- * @tsplus gettable fncts.control.IO ignore
+ * @tsplus getter fncts.control.IO ignore
  */
 export function ignore<R, E, A>(fa: IO<R, E, A>): URIO<R, void> {
   return fa.match(

@@ -29,9 +29,7 @@ export const Queue: QueueOps = {};
 /**
  * @optimize remove
  */
-export function concrete<RA, RB, EA, EB, A, B>(
-  _: PQueue<RA, RB, EA, EB, A, B>,
-): asserts _ is QueueInternal<RA, RB, EA, EB, A, B> {
+export function concrete<RA, RB, EA, EB, A, B>(_: PQueue<RA, RB, EA, EB, A, B>): asserts _ is QueueInternal<RA, RB, EA, EB, A, B> {
   //
 }
 
@@ -122,10 +120,14 @@ export interface Queue<A> extends PQueue<unknown, unknown, never, never, A, A> {
 
 /**
  * A queue that can only be dequeued.
+ *
+ * @tsplus type fncts.control.Queue
  */
 export interface Dequeue<A> extends PQueue<never, unknown, unknown, never, never, A> {}
 
 /**
  * A queue that can only be enqueued.
+ *
+ * @tsplus type fncts.control.Queue
  */
 export interface Enqueue<A> extends PQueue<unknown, never, never, unknown, A, any> {}

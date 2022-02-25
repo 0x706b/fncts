@@ -68,6 +68,8 @@ export function unsafeCurrentFiber(): Maybe<FiberContext<any, any>> {
 
 /**
  * `FiberContext` provides all of the context and facilities required to run a `IO`
+ *
+ * @tsplus type fncts.control.Fiber
  */
 export class FiberContext<E, A> implements RuntimeFiber<E, A> {
   readonly _tag = "RuntimeFiber";

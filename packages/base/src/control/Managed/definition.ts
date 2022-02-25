@@ -2,6 +2,7 @@ import type { IO } from "../IO";
 import type { Finalizer } from "./Finalizer";
 
 import { _A, _E, _R } from "../../types";
+import { hasTypeId } from "../../util/predicates";
 
 export const ManagedTypeId = Symbol.for("fncts.control.Managed");
 export type ManagedTypeId = typeof ManagedTypeId;
@@ -35,4 +36,11 @@ export function unifyManaged<X extends Managed<any, any, any>>(
   [X] extends [Managed<any, any, infer A>] ? A : never
 > {
   return _;
+}
+
+/**
+ * @tsplus static fncts.control.ManagedOps isManaged
+ */
+export function isManaged(u: unknown): u is Managed<unknown, unknown, unknown> {
+  return hasTypeId(u, ManagedTypeId);
 }

@@ -5,16 +5,17 @@ import type { AtomicReference } from "../../internal/AtomicReference";
 import type { RuntimeFiber } from "../Fiber";
 import type { UIO } from "../IO";
 
+import { Conc } from "../../collection/immutable/Conc";
 import { IO } from "../IO";
 import { ConstSupervisor, Supervisor } from "./definition";
 
 /**
  * @tsplus static fncts.control.SupervisorOps unsafeTrace
  */
-export function unsafeTrack(): Supervisor<ReadonlyArray<RuntimeFiber<any, any>>> {
+export function unsafeTrack(): Supervisor<Conc<RuntimeFiber<any, any>>> {
   const set = new Set<RuntimeFiber<any, any>>();
-  return new (class extends Supervisor<ReadonlyArray<RuntimeFiber<any, any>>> {
-    value = IO.succeed(Array.from(set));
+  return new (class extends Supervisor<Conc<RuntimeFiber<any, any>>> {
+    value = IO.succeed(Conc.from(set));
     unsafeOnStart<R, E, A>(
       _environment: R,
       _effect: IO<R, E, A>,
@@ -68,6 +69,4 @@ export const none = new ConstSupervisor(IO.unit);
 /**
  * @tsplus static fncts.control.SupervisorOps track
  */
-export const track: UIO<Supervisor<ReadonlyArray<RuntimeFiber<any, any>>>> = IO.succeed(
-  unsafeTrack(),
-);
+export const track: UIO<Supervisor<Conc<RuntimeFiber<any, any>>>> = IO.succeed(unsafeTrack());

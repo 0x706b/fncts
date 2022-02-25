@@ -2,6 +2,7 @@ import type { Conc } from "../../collection/immutable/Conc";
 import type { FiberId } from "../../data/FiberId";
 import type { Lazy } from "../../data/function";
 import type * as P from "../../prelude";
+import type { _E, _R } from "../../types";
 import type { URManaged } from "./definition";
 import type { Intersection } from "@fncts/typelevel";
 
@@ -10,9 +11,10 @@ import { Either } from "../../data/Either";
 import { Exit } from "../../data/Exit";
 import { identity } from "../../data/function";
 import { Just, Maybe, Nothing } from "../../data/Maybe";
+import { hasTypeId } from "../../util/predicates";
 import { FiberRef } from "../FiberRef";
 import { IO } from "../IO";
-import { Managed } from "./definition";
+import { Managed, ManagedTypeId } from "./definition";
 import { Finalizer } from "./Finalizer";
 
 /**
@@ -1256,4 +1258,54 @@ export function zipWith_<R, E, A, R1, E1, B, C>(
   __tsplusTrace?: string,
 ) {
   return fa.chain((a) => fb.map((b) => f(a, b)));
+}
+
+export class GenManaged<R, E, A> {
+  readonly _R!: (_R: R) => void;
+  readonly _E!: () => E;
+  readonly _A!: () => A;
+
+  constructor(readonly M: Managed<R, E, A>, readonly _trace?: string) {}
+
+  *[Symbol.iterator](): Generator<GenManaged<R, E, A>, A, any> {
+    return yield this;
+  }
+}
+
+export const __adapter = (_: any): Managed<unknown, unknown, unknown> => {
+  if (Managed.isManaged(_)) {
+    return _;
+  }
+  return Managed.fromIO(_);
+};
+
+const adapter = (_: any, __tsplusTrace?: string) => {
+  return new GenManaged(__adapter(_), __tsplusTrace);
+};
+
+/**
+ * @tsplus static fncts.control.ManagedOps gen
+ */
+export function gen<T extends GenManaged<any, any, any>, A>(
+  f: (i: {
+    <R, E, A>(_: Managed<R, E, A>, __tsplusTrace?: string): GenManaged<R, E, A>;
+    <R, E, A>(_: IO<R, E, A>, __tsplusTrace?: string): GenManaged<R, E, A>;
+  }) => Generator<T, A, any>,
+): Managed<_R<T>, _E<T>, A> {
+  return Managed.defer(() => {
+    const iterator = f(adapter as any);
+    const state    = iterator.next();
+
+    function run(state: IteratorYieldResult<T> | IteratorReturnResult<A>): Managed<any, any, A> {
+      if (state.done) {
+        return Managed.succeedNow(state.value);
+      }
+      return state.value.M.chain((val) => {
+        const next = iterator.next(val);
+        return run(next);
+      });
+    }
+
+    return run(state);
+  });
 }

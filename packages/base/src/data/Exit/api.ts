@@ -2,7 +2,7 @@ import type { Maybe } from "../Maybe";
 
 import { Conc } from "../../collection/immutable/Conc";
 import { Cause } from "../Cause";
-import { identity } from "../function";
+import { identity, tuple } from "../function";
 import { Exit, ExitTag } from "./definition";
 
 /**
@@ -50,11 +50,7 @@ export function chain_<E, A, G, B>(ma: Exit<E, A>, f: (a: A) => Exit<G, B>): Exi
 /**
  * @tsplus fluent fncts.data.Exit bimap
  */
-export function bimap_<E1, A, E2, B>(
-  self: Exit<E1, A>,
-  f: (e: E1) => E2,
-  g: (a: A) => B,
-): Exit<E2, B> {
+export function bimap_<E1, A, E2, B>(self: Exit<E1, A>, f: (e: E1) => E2, g: (a: A) => B): Exit<E2, B> {
   return self.isFailure() ? Exit.failCause(self.cause.map(f)) : Exit.succeed(g(self.value));
 }
 
@@ -63,11 +59,7 @@ export function bimap_<E1, A, E2, B>(
  */
 export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
   return exits.head.map((head) =>
-    exits
-      .drop(1)
-      .foldLeft(head.map(Conc.single), (acc, el) =>
-        acc.zipWithCause(el, (c, a) => c.append(a), Cause.then),
-      ),
+    exits.drop(1).foldLeft(head.map(Conc.single), (acc, el) => acc.zipWithCause(el, (c, a) => c.append(a), Cause.then)),
   );
 }
 
@@ -76,11 +68,7 @@ export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>
  */
 export function collectAllC<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
   return exits.head.map((head) =>
-    exits
-      .drop(1)
-      .foldLeft(head.map(Conc.single), (acc, el) =>
-        acc.zipWithCause(el, (c, a) => c.append(a), Cause.both),
-      ),
+    exits.drop(1).foldLeft(head.map(Conc.single), (acc, el) => acc.zipWithCause(el, (c, a) => c.append(a), Cause.both)),
   );
 }
 
@@ -108,21 +96,14 @@ export function mapError_<E1, A, E2>(self: Exit<E1, A>, f: (e: E1) => E2): Exit<
 /**
  * @tsplus fluent fncts.data.Exit mapErrorCause
  */
-export function mapErrorCause_<E1, A, E2>(
-  self: Exit<E1, A>,
-  f: (e: Cause<E1>) => Cause<E2>,
-): Exit<E2, A> {
+export function mapErrorCause_<E1, A, E2>(self: Exit<E1, A>, f: (e: Cause<E1>) => Cause<E2>): Exit<E2, A> {
   return self.isFailure() ? Exit.failCause(f(self.cause)) : self;
 }
 
 /**
  * @tsplus fluent fncts.data.Exit match
  */
-export function match_<E, A, B, C>(
-  exit: Exit<E, A>,
-  onFailure: (e: Cause<E>) => B,
-  onSuccess: (a: A) => C,
-): B | C {
+export function match_<E, A, B, C>(exit: Exit<E, A>, onFailure: (e: Cause<E>) => B, onSuccess: (a: A) => C): B | C {
   switch (exit._tag) {
     case ExitTag.Success: {
       return onSuccess(exit.value);
@@ -136,23 +117,29 @@ export function match_<E, A, B, C>(
 /**
  * @tsplus fluent fncts.data.Exit zipWith
  */
-export function zipWith_<EA, A, EB, B, C>(
-  fa: Exit<EA, A>,
-  fb: Exit<EB, B>,
-  f: (a: A, b: B) => C,
-): Exit<EA | EB, C> {
+export function zipWith_<EA, A, EB, B, C>(fa: Exit<EA, A>, fb: Exit<EB, B>, f: (a: A, b: B) => C): Exit<EA | EB, C> {
   return fa.zipWithCause(fb, f, Cause.then);
+}
+
+/**
+ * @tsplus fluent fncts.data.Exit zip
+ */
+export function zip<EA, A, EB, B>(self: Exit<EA, A>, that: Exit<EB, B>): Exit<EA | EB, readonly [A, B]> {
+  return self.zipWith(that, tuple);
 }
 
 /**
  * @tsplus fluent fncts.data.Exit zipWithC
  */
-export function zipWithC_<EA, A, EB, B, C>(
-  fa: Exit<EA, A>,
-  fb: Exit<EB, B>,
-  f: (a: A, b: B) => C,
-): Exit<EA | EB, C> {
+export function zipWithC_<EA, A, EB, B, C>(fa: Exit<EA, A>, fb: Exit<EB, B>, f: (a: A, b: B) => C): Exit<EA | EB, C> {
   return fa.zipWithCause(fb, f, Cause.both);
+}
+
+/**
+ * @tsplus fluent fncts.data.Exit zipC
+ */
+export function zipC<EA, A, EB, B>(self: Exit<EA, A>, that: Exit<EB, B>): Exit<EA | EB, readonly [A, B]> {
+  return self.zipWithC(that, tuple);
 }
 
 /**
@@ -270,11 +257,7 @@ export function zipWithC<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
 /**
  * @tsplus dataFirst zipWithCause_
  */
-export function zipWithCause<E, A, G, B, C>(
-  fb: Exit<G, B>,
-  f: (a: A, b: B) => C,
-  g: (ea: Cause<E>, eb: Cause<G>) => Cause<E | G>,
-) {
+export function zipWithCause<E, A, G, B, C>(fb: Exit<G, B>, f: (a: A, b: B) => C, g: (ea: Cause<E>, eb: Cause<G>) => Cause<E | G>) {
   return (fa: Exit<E, A>): Exit<E | G, C> => zipWithCause_(fa, fb, f, g);
 }
 // codegen:end

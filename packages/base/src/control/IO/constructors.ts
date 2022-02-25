@@ -248,6 +248,11 @@ export function deferTryCatchWith<R, E, A, E1>(
 }
 
 /**
+ * @tsplus static fncts.control.IOOps descriptor
+ */
+export const descriptor = descriptorWith(IO.succeedNow);
+
+/**
  * Constructs an IO based on information about the current fiber, such as
  * its identity.
  *

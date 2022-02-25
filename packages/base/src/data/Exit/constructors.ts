@@ -1,10 +1,9 @@
 import type { Either } from "../Either";
 import type { FiberId } from "../FiberId";
 import type { Maybe } from "../Maybe";
-import type { Exit } from "./definition";
 
 import { Cause } from "../Cause";
-import { Failure, Success } from "./definition";
+import { Exit, Failure, Success } from "./definition";
 
 /**
  * @tsplus static fncts.data.ExitOps halt
@@ -54,6 +53,11 @@ export function interrupt(id: FiberId) {
 export function succeed<E = never, A = never>(value: A): Exit<E, A> {
   return new Success(value);
 }
+
+/**
+ * @tsplus static fncts.data.ExitOps unit
+ */
+export const unit: Exit<never, void> = Exit.succeed(undefined);
 
 // codegen:start { preset: pipeable }
 /**
