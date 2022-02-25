@@ -27,7 +27,22 @@ import { ReleaseMap } from "../Managed/ReleaseMap";
 import { Queue } from "../Queue";
 import { Ref } from "../Ref";
 import { TSemaphore } from "../TSemaphore";
-import { BracketOut, Bridge, Channel, ConcatAll, ContinuationK, Defer, Emit, Ensuring, Fail, Fold, FromIO, Give, PipeTo, Read } from "./definition";
+import {
+  BracketOut,
+  Bridge,
+  Channel,
+  ConcatAll,
+  ContinuationK,
+  Defer,
+  Emit,
+  Ensuring,
+  Fail,
+  Fold,
+  FromIO,
+  Give,
+  PipeTo,
+  Read,
+} from "./definition";
 import { ChannelExecutor, readUpstream } from "./internal/ChannelExecutor";
 import { ChannelStateTag } from "./internal/ChannelState";
 import { ChildExecutorDecision } from "./internal/ChildExecutorDecision";
@@ -159,7 +174,22 @@ export function bufferChunk<InElem, InErr, InDone>(
  *
  * @tsplus fluent fncts.control.Channel catchAll
  */
-export function catchAll_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+export function catchAll_<
+  Env,
+  Env1,
+  InErr,
+  InErr1,
+  InElem,
+  InElem1,
+  InDone,
+  InDone1,
+  OutErr,
+  OutErr1,
+  OutElem,
+  OutElem1,
+  OutDone,
+  OutDone1,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (error: OutErr) => Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr1, OutElem | OutElem1, OutDone | OutDone1> {
@@ -178,7 +208,22 @@ export function catchAll_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InD
  *
  * @tsplus fluent fncts.control.Channel catchAllCause
  */
-export function catchAllCause_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+export function catchAllCause_<
+  Env,
+  Env1,
+  InErr,
+  InErr1,
+  InElem,
+  InElem1,
+  InDone,
+  InDone1,
+  OutErr,
+  OutErr1,
+  OutElem,
+  OutElem1,
+  OutDone,
+  OutDone1,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (cause: Cause<OutErr>) => Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr1, OutElem | OutElem1, OutDone | OutDone1> {
@@ -311,7 +356,22 @@ export function concatMapWithCustom_<
  *
  * @tsplus fluent fncts.control.Channel concatAllWith
  */
-export function concatAllWith_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDone2, OutDone3, Env2, InErr2, InElem2, InDone2, OutErr2>(
+export function concatAllWith_<
+  Env,
+  InErr,
+  InElem,
+  InDone,
+  OutErr,
+  OutElem,
+  OutDone,
+  OutDone2,
+  OutDone3,
+  Env2,
+  InErr2,
+  InElem2,
+  InDone2,
+  OutErr2,
+>(
   channels: Channel<Env, InErr, InElem, InDone, OutErr, Channel<Env2, InErr2, InElem2, InDone2, OutErr2, OutElem, OutDone>, OutDone2>,
   f: (o: OutDone, o1: OutDone) => OutDone,
   g: (o: OutDone, o2: OutDone2) => OutDone3,
@@ -344,7 +404,22 @@ export function concatAllWith_<Env, InErr, InElem, InDone, OutErr, OutElem, OutD
  *
  * @tsplus fluent fncts.control.Channel concatMap
  */
-export function concatMap_<Env, InErr, InElem, InDone, OutErr, OutElem, OutElem2, OutDone, OutDone2, Env2, InErr2, InElem2, InDone2, OutErr2>(
+export function concatMap_<
+  Env,
+  InErr,
+  InElem,
+  InDone,
+  OutErr,
+  OutElem,
+  OutElem2,
+  OutDone,
+  OutDone2,
+  Env2,
+  InErr2,
+  InElem2,
+  InDone2,
+  OutErr2,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2>,
   f: (o: OutElem) => Channel<Env2, InErr2, InElem2, InDone2, OutErr2, OutElem2, OutDone>,
 ): Channel<Env & Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem2, unknown> {
@@ -355,7 +430,9 @@ export function concatMap_<Env, InErr, InElem, InDone, OutErr, OutElem, OutElem2
   );
 }
 
-function contramapReader<InErr, InElem, InDone0, InDone>(f: (a: InDone0) => InDone): Channel<unknown, InErr, InElem, InDone0, InErr, InElem, InDone> {
+function contramapReader<InErr, InElem, InDone0, InDone>(
+  f: (a: InDone0) => InDone,
+): Channel<unknown, InErr, InElem, InDone0, InErr, InElem, InDone> {
   return readWith(
     (_in) => Channel.writeNow(_in).zipRight(contramapReader(f)),
     Channel.failNow,
@@ -416,7 +493,11 @@ export function contramapIO_<Env, Env1, InErr, InElem, InDone0, InDone, OutErr, 
 function contramapInIOReader<Env1, InErr, InElem0, InElem, InDone>(
   f: (a: InElem0) => IO<Env1, InErr, InElem>,
 ): Channel<Env1, InErr, InElem0, InDone, InErr, InElem, InDone> {
-  return Channel.readWith((inp) => Channel.fromIO(f(inp)).chain(Channel.writeNow).zipRight(contramapInIOReader(f)), Channel.failNow, Channel.endNow);
+  return Channel.readWith(
+    (inp) => Channel.fromIO(f(inp)).chain(Channel.writeNow).zipRight(contramapInIOReader(f)),
+    Channel.failNow,
+    Channel.endNow,
+  );
 }
 
 /**
@@ -579,7 +660,9 @@ export function fromEither<E, A>(either: Lazy<Either<E, A>>): Channel<unknown, u
 /**
  * @tsplus static fncts.control.ChannelOps fromInput
  */
-export function fromInput<Err, Elem, Done>(input: AsyncInputConsumer<Err, Elem, Done>): Channel<unknown, unknown, unknown, unknown, Err, Elem, Done> {
+export function fromInput<Err, Elem, Done>(
+  input: AsyncInputConsumer<Err, Elem, Done>,
+): Channel<unknown, unknown, unknown, unknown, Err, Elem, Done> {
   return unwrap(input.takeWith(Channel.failCauseNow, (elem) => Channel.writeNow(elem).zipRight(fromInput(input)), Channel.endNow));
 }
 
@@ -1091,7 +1174,15 @@ export function mergeWith_<
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
   leftDone: (ex: Exit<OutErr, OutDone>) => MergeDecision<Env2, OutErr1, OutDone1, OutErr2, OutDone2>,
   rightDone: (ex: Exit<OutErr1, OutDone1>) => MergeDecision<Env3, OutErr, OutDone, OutErr3, OutDone3>,
-): Channel<Env & Env1 & Env2 & Env3, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr2 | OutErr3, OutElem | OutElem1, OutDone2 | OutDone3> {
+): Channel<
+  Env & Env1 & Env2 & Env3,
+  InErr & InErr1,
+  InElem & InElem1,
+  InDone & InDone1,
+  OutErr2 | OutErr3,
+  OutElem | OutElem1,
+  OutDone2 | OutDone3
+> {
   return Channel.unwrapManaged(
     Managed.gen(function* (_) {
       const input       = yield* _(SingleProducerAsyncInput<InErr & InErr1, InElem & InElem1, InDone & InDone1>());
@@ -1323,7 +1414,15 @@ export function readWithCause<
   inp: (i: InElem) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   halt: (e: Cause<InErr>) => Channel<Env1, InErr, InElem, InDone, OutErr1, OutElem1, OutDone1>,
   done: (d: InDone) => Channel<Env2, InErr, InElem, InDone, OutErr2, OutElem2, OutDone2>,
-): Channel<Env & Env1 & Env2, InErr, InElem, InDone, OutErr | OutErr1 | OutErr2, OutElem | OutElem1 | OutElem2, OutDone | OutDone1 | OutDone2> {
+): Channel<
+  Env & Env1 & Env2,
+  InErr,
+  InElem,
+  InDone,
+  OutErr | OutErr1 | OutErr2,
+  OutElem | OutElem1 | OutElem2,
+  OutDone | OutDone1 | OutDone2
+> {
   return new Read<
     Env & Env1 & Env2,
     InErr,
@@ -1355,11 +1454,35 @@ export function readWithCause<
  *
  * @tsplus static fncts.control.ChannelOps readWith
  */
-export function readWith<Env, Env1, Env2, InErr, InElem, InDone, OutErr, OutErr1, OutErr2, OutElem, OutElem1, OutElem2, OutDone, OutDone1, OutDone2>(
+export function readWith<
+  Env,
+  Env1,
+  Env2,
+  InErr,
+  InElem,
+  InDone,
+  OutErr,
+  OutErr1,
+  OutErr2,
+  OutElem,
+  OutElem1,
+  OutElem2,
+  OutDone,
+  OutDone1,
+  OutDone2,
+>(
   inp: (i: InElem) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   error: (e: InErr) => Channel<Env1, InErr, InElem, InDone, OutErr1, OutElem1, OutDone1>,
   done: (d: InDone) => Channel<Env2, InErr, InElem, InDone, OutErr2, OutElem2, OutDone2>,
-): Channel<Env & Env1 & Env2, InErr, InElem, InDone, OutErr | OutErr1 | OutErr2, OutElem | OutElem1 | OutElem2, OutDone | OutDone1 | OutDone2> {
+): Channel<
+  Env & Env1 & Env2,
+  InErr,
+  InElem,
+  InDone,
+  OutErr | OutErr1 | OutErr2,
+  OutElem | OutElem1 | OutElem2,
+  OutDone | OutDone1 | OutDone2
+> {
   return Channel.readWithCause(inp, (c) => c.failureOrCause.match(error, Channel.failCauseNow), done);
 }
 
@@ -1408,9 +1531,10 @@ function runManagedInterpret<Env, InErr, InDone, OutErr, OutDone>(
 export function runManaged<Env, InErr, InDone, OutErr, OutDone>(
   self: Channel<Env, InErr, unknown, InDone, OutErr, never, OutDone>,
 ): Managed<Env, OutErr, OutDone> {
-  return Managed.bracketExit(IO.succeed(new ChannelExecutor(() => self, undefined, identity)), (exec, exit) => exec.close(exit) || IO.unit).mapIO(
-    (exec) => IO.defer(runManagedInterpret(exec.run(), exec)),
-  );
+  return Managed.bracketExit(
+    IO.succeed(new ChannelExecutor(() => self, undefined, identity)),
+    (exec, exit) => exec.close(exit) || IO.unit,
+  ).mapIO((exec) => IO.defer(runManagedInterpret(exec.run(), exec)));
 }
 
 /**
@@ -1452,9 +1576,10 @@ export function runDrain<Env, InErr, InDone, OutElem, OutErr, OutDone>(
 export function toPull<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
 ): Managed<Env, never, IO<Env, OutErr, Either<OutDone, OutElem>>> {
-  return Managed.bracketExit(IO.succeed(new ChannelExecutor(() => self, undefined, identity)), (exec, exit) => exec.close(exit) || IO.unit).map(
-    (exec) => IO.defer(toPullInterpret(exec.run(), exec)),
-  );
+  return Managed.bracketExit(
+    IO.succeed(new ChannelExecutor(() => self, undefined, identity)),
+    (exec, exit) => exec.close(exit) || IO.unit,
+  ).map((exec) => IO.defer(toPullInterpret(exec.run(), exec)));
 }
 
 function toPullInterpret<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
@@ -1479,7 +1604,9 @@ function toPullInterpret<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 /**
  * @tsplus static fncts.control.Channel toQueue
  */
-export function toQueue<Err, Done, Elem>(queue: Enqueue<Either<Exit<Err, Done>, Elem>>): Channel<unknown, Err, Elem, Done, never, never, any> {
+export function toQueue<Err, Done, Elem>(
+  queue: Enqueue<Either<Exit<Err, Done>, Elem>>,
+): Channel<unknown, Err, Elem, Done, never, never, any> {
   return readWithCause(
     (in_: Elem) => Channel.fromIO(queue.offer(Either.right(in_))).zipRight(toQueue(queue)),
     (cause: Cause<Err>) => Channel.fromIO(queue.offer(Either.left(Exit.failCause(cause)))),
@@ -1560,7 +1687,15 @@ export function unwrapManaged<R, E, Env, InErr, InElem, InDone, OutErr, OutElem,
 export function zipC_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<Env1 & Env, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem | OutElem1, readonly [OutDone, OutDone1]> {
+): Channel<
+  Env1 & Env,
+  InErr & InErr1,
+  InElem & InElem1,
+  InDone & InDone1,
+  OutErr | OutErr1,
+  OutElem | OutElem1,
+  readonly [OutDone, OutDone1]
+> {
   return mergeWith_(
     self,
     that,
@@ -1572,7 +1707,22 @@ export function zipC_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1
 /**
  * @tsplus fluent fncts.control.Channel zipFirstC
  */
-export function zipFirstC_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+export function zipFirstC_<
+  Env,
+  Env1,
+  InErr,
+  InErr1,
+  InElem,
+  InElem1,
+  InDone,
+  InDone1,
+  OutErr,
+  OutErr1,
+  OutElem,
+  OutElem1,
+  OutDone,
+  OutDone1,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<Env1 & Env, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem | OutElem1, OutDone> {
@@ -1582,7 +1732,22 @@ export function zipFirstC_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, In
 /**
  * @tsplus fluent fncts.control.Channel zipSecondC
  */
-export function zipSecondC_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+export function zipSecondC_<
+  Env,
+  Env1,
+  InErr,
+  InErr1,
+  InElem,
+  InElem1,
+  InDone,
+  InDone1,
+  OutErr,
+  OutErr1,
+  OutElem,
+  OutElem1,
+  OutDone,
+  OutDone1,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<Env1 & Env, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem | OutElem1, OutDone1> {

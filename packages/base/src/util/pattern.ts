@@ -1,18 +1,10 @@
 export const pattern_: <N extends string>(
   n: N,
 ) => {
-  <
-    X extends { [k in N]: string },
-    K extends { [k in X[N]]: (_: Extract<X, { [_tag in N]: k }>) => any },
-  >(
-    m: X,
-    _: K,
-  ): ReturnType<K[keyof K]>;
-  <
-    X extends { [k in N]: string },
-    K extends { [k in X[N]]?: (_: Extract<X, { [_tag in N]: k }>) => any },
-    H,
-  >(
+  <X extends { [k in N]: string }, K extends { [k in X[N]]: (_: Extract<X, { [_tag in N]: k }>) => any }>(m: X, _: K): ReturnType<
+    K[keyof K]
+  >;
+  <X extends { [k in N]: string }, K extends { [k in X[N]]?: (_: Extract<X, { [_tag in N]: k }>) => any }, H>(
     m: X,
     _: K,
     __: (_: Exclude<X, { _tag: keyof K }>) => H,
@@ -25,17 +17,10 @@ export const pattern_: <N extends string>(
 export const pattern: <N extends string>(
   n: N,
 ) => {
-  <
-    X extends { [k in N]: string },
-    K extends { [k in X[N]]: (_: Extract<X, { [_tag in N]: k }>) => any },
-  >(
-    _: K,
-  ): (m: X) => ReturnType<K[keyof K]>;
-  <
-    X extends { [k in N]: string },
-    K extends { [k in X[N]]?: (_: Extract<X, { [_tag in N]: k }>) => any },
-    H,
-  >(
+  <X extends { [k in N]: string }, K extends { [k in X[N]]: (_: Extract<X, { [_tag in N]: k }>) => any }>(_: K): (
+    m: X,
+  ) => ReturnType<K[keyof K]>;
+  <X extends { [k in N]: string }, K extends { [k in X[N]]?: (_: Extract<X, { [_tag in N]: k }>) => any }, H>(
     _: K,
     __: (_: Exclude<X, { _tag: keyof K }>) => H,
   ): (m: X) => { [k in keyof K]: ReturnType<NonNullable<K[k]>> }[keyof K] | H;

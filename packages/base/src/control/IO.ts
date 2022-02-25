@@ -11,7 +11,11 @@ export * from "./IO/api/concurrency";
 export * from "./IO/api/core-scope";
 export * from "./IO/api/foreachC";
 export * from "./IO/api/foreachExec";
+export * from "./IO/api/fulfill";
 export * from "./IO/api/interrupt";
+export * from "./IO/api/race";
+export * from "./IO/api/raceFirst";
+export * from "./IO/api/sequenceT";
 export * from "./IO/api/zipC";
 export * from "./IO/api/zipWithC";
 // codegen:end

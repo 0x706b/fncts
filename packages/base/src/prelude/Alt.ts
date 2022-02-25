@@ -35,9 +35,7 @@ export function mkAlt<F>(F: AltMin<HKT.F<F>>): Alt<HKT.F<F>> {
 }
 
 export interface alt<F extends HKT, C = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    that: () => HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
-  ): <K, Q, W, X, I, S, R, E, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(that: () => HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <K, Q, W, X, I, S, R, E, A>(
     fa: HKT.Kind<
       F,
       C,

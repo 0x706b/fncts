@@ -10,9 +10,7 @@ import { HKT } from "./HKT";
 /**
  * @tsplus type fncts.prelude.ApplicativeExcept
  */
-export interface ApplicativeExcept<F extends HKT.CovariantE, C = HKT.None>
-  extends Applicative<F, C>,
-    Fail<F, C> {
+export interface ApplicativeExcept<F extends HKT.CovariantE, C = HKT.None> extends Applicative<F, C>, Fail<F, C> {
   readonly catchAll_: CatchAllFn_<F, C>;
   readonly catchAll: CatchAllFn<F, C>;
   readonly catchJust_: CatchJustFn_<F, C>;
@@ -35,12 +33,8 @@ export type ApplicativeExceptMin<F extends HKT.CovariantE, C = HKT.None> = Appli
 /**
  * @tsplus static fncts.prelude.ApplicativeExceptOps __call
  */
-export function mkApplicativeExcept<F extends HKT.CovariantE, C = HKT.None>(
-  F: ApplicativeExceptMin<F, C>,
-): ApplicativeExcept<F, C>;
-export function mkApplicativeExcept<F>(
-  F: ApplicativeExceptMin<HKT.FCoE<F>>,
-): ApplicativeExcept<HKT.FCoE<F>> {
+export function mkApplicativeExcept<F extends HKT.CovariantE, C = HKT.None>(F: ApplicativeExceptMin<F, C>): ApplicativeExcept<F, C>;
+export function mkApplicativeExcept<F>(F: ApplicativeExceptMin<HKT.FCoE<F>>): ApplicativeExcept<HKT.FCoE<F>> {
   const ApplicativeF = Applicative(F);
   const catchJust_   = catchJustF_(F);
   return HKT.instance<ApplicativeExcept<HKT.FCoE<F>>>({
@@ -88,9 +82,16 @@ export interface CatchAllFn_<F extends HKT.CovariantE, C = HKT.None> {
 }
 
 export interface CatchAllFn<F extends HKT.CovariantE, C = HKT.None> {
-  <E, K1, Q1, W1, X1, I1, S1, R1, E1, A1>(
-    f: (e: HKT.OrFix<C, "E", E>) => HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, A1>,
-  ): <K, Q, W, X, I, S, R, A>(
+  <E, K1, Q1, W1, X1, I1, S1, R1, E1, A1>(f: (e: HKT.OrFix<C, "E", E>) => HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, A1>): <
+    K,
+    Q,
+    W,
+    X,
+    I,
+    S,
+    R,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       C,
@@ -157,23 +158,26 @@ export interface CatchJustFn_<F extends HKT.CovariantE, C = HKT.None> {
 /**
  * @tsplus static fncts.prelude.ApplicativeExceptOps catchJustF_
  */
-export function catchJustF_<F extends HKT.CovariantE, C = HKT.None>(
-  F: ApplicativeExceptMin<F, C>,
-): CatchJustFn_<F, C>;
+export function catchJustF_<F extends HKT.CovariantE, C = HKT.None>(F: ApplicativeExceptMin<F, C>): CatchJustFn_<F, C>;
 export function catchJustF_<F>(F: ApplicativeExceptMin<HKT.FCoE<F>>): CatchJustFn_<HKT.FCoE<F>> {
   return <K, Q, W, X, I, S, R, E, A, E1, A1>(
     fa: HKT.FK<F, K, Q, W, X, I, S, R, E, A>,
     f: (e: E) => Maybe<HKT.FK<F, K, Q, W, X, I, S, R, E1, A1>>,
   ): HKT.FK<F, K, Q, W, X, I, S, R, E | E1, A | A1> =>
-    F.catchAll_(fa, (e) =>
-      f(e).match(() => F.fail(e) as HKT.FK<F, K, Q, W, X, I, S, R, E | E1, A | A1>, identity),
-    );
+    F.catchAll_(fa, (e) => f(e).match(() => F.fail(e) as HKT.FK<F, K, Q, W, X, I, S, R, E | E1, A | A1>, identity));
 }
 
 export interface CatchJustFn<F extends HKT, C = HKT.None> {
-  <E, K1, Q1, W1, X1, I1, S1, R1, E1, A1>(
-    f: (e: HKT.OrFix<C, "E", E>) => Maybe<HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, A1>>,
-  ): <K, Q, W, X, I, S, R, A>(
+  <E, K1, Q1, W1, X1, I1, S1, R1, E1, A1>(f: (e: HKT.OrFix<C, "E", E>) => Maybe<HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, A1>>): <
+    K,
+    Q,
+    W,
+    X,
+    I,
+    S,
+    R,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       C,
@@ -205,17 +209,11 @@ export interface CatchJustFn<F extends HKT, C = HKT.None> {
 /**
  * @tsplus static fncts.prelude.ApplicativeExceptOps catchJustF
  */
-export function catchJustF<F extends HKT.CovariantE, C = HKT.None>(
-  F: ApplicativeExceptMin<F, C>,
-): CatchJustFn<F, C>;
+export function catchJustF<F extends HKT.CovariantE, C = HKT.None>(F: ApplicativeExceptMin<F, C>): CatchJustFn<F, C>;
 export function catchJustF<F>(F: ApplicativeExceptMin<HKT.FCoE<F>>): CatchJustFn<HKT.FCoE<F>> {
-  return <K, Q, W, X, I, S, R, E, E1, A1>(
-      f: (e: E) => Maybe<HKT.FK<F, K, Q, W, X, I, S, R, E1, A1>>,
-    ) =>
+  return <K, Q, W, X, I, S, R, E, E1, A1>(f: (e: E) => Maybe<HKT.FK<F, K, Q, W, X, I, S, R, E1, A1>>) =>
     <A>(fa: HKT.FK<F, K, Q, W, X, I, S, R, E, A>): HKT.FK<F, K, Q, W, X, I, S, R, E | E1, A | A1> =>
-      F.catchAll_(fa, (e) =>
-        f(e).match(() => F.fail(e) as HKT.FK<F, K, Q, W, X, I, S, R, E | E1, A | A1>, identity),
-      );
+      F.catchAll_(fa, (e) => f(e).match(() => F.fail(e) as HKT.FK<F, K, Q, W, X, I, S, R, E | E1, A | A1>, identity));
 }
 
 export interface EitherFn<F extends HKT, C = HKT.None> {
@@ -237,9 +235,7 @@ export interface EitherFn<F extends HKT, C = HKT.None> {
 /**
  * @tsplus static fncts.prelude.ApplicativeExceptOps eitherF
  */
-export function eitherF<F extends HKT.CovariantE, C = HKT.None>(
-  F: ApplicativeExceptMin<F, C>,
-): EitherFn<F, C>;
+export function eitherF<F extends HKT.CovariantE, C = HKT.None>(F: ApplicativeExceptMin<F, C>): EitherFn<F, C>;
 export function eitherF<F>(F: ApplicativeExceptMin<HKT.FCoE<F>>): EitherFn<HKT.FCoE<F>> {
   return (fa) => F.catchAll_(F.map_(fa, Either.right), (e) => F.pure(Left(e)));
 }

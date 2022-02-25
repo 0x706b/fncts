@@ -43,9 +43,6 @@ export const Either: EitherOps = {};
  */
 export function unifyEither<X extends Either<any, any>>(
   self: X,
-): Either<
-  [X] extends [Either<infer E, any>] ? E : never,
-  [X] extends [Either<any, infer A>] ? A : never
-> {
+): Either<[X] extends [Either<infer E, any>] ? E : never, [X] extends [Either<any, infer A>] ? A : never> {
   return self;
 }

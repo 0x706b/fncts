@@ -6,18 +6,8 @@ import { Conc } from "../../../collection/immutable/Conc";
 import { IO } from "../../IO";
 import { concrete, QueueInternal } from "../definition";
 
-export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<
-  RA,
-  RB & RB1,
-  EA,
-  EB | EB1,
-  A,
-  B
-> {
-  constructor(
-    readonly queue: QueueInternal<RA, RB, EA, EB, A, B>,
-    readonly f: (b: B) => IO<RB1, EB1, boolean>,
-  ) {
+export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, RB & RB1, EA, EB | EB1, A, B> {
+  constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RB1, EB1, boolean>) {
     super();
   }
 
@@ -39,13 +29,9 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
 
   size: UIO<number> = this.queue.size;
 
-  take: IO<RB & RB1, EB1 | EB, B> = this.queue.take.chain((b) =>
-    this.f(b).chain((p) => (p ? IO.succeedNow(b) : this.take)),
-  );
+  take: IO<RB & RB1, EB1 | EB, B> = this.queue.take.chain((b) => this.f(b).chain((p) => (p ? IO.succeedNow(b) : this.take)));
 
-  takeAll: IO<RB & RB1, EB | EB1, Conc<B>> = this.queue.takeAll.chain((bs) =>
-    IO.filter(bs, this.f),
-  );
+  takeAll: IO<RB & RB1, EB | EB1, Conc<B>> = this.queue.takeAll.chain((bs) => IO.filter(bs, this.f));
 
   loop(max: number, acc: Conc<B>): IO<RB & RB1, EB | EB1, Conc<B>> {
     return this.queue.takeUpTo(max).chain((bs) => {
@@ -84,10 +70,7 @@ export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
 /**
  * @tsplus fluent fncts.control.Queue filterOutput
  */
-export function filterOutput_<RA, RB, EA, EB, A, B>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-  p: Predicate<B>,
-): PQueue<RA, RB, EA, EB, A, B> {
+export function filterOutput_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, p: Predicate<B>): PQueue<RA, RB, EA, EB, A, B> {
   return queue.filterOutputIO((b) => IO.succeedNow(p(b)));
 }
 
@@ -96,15 +79,12 @@ export function filterOutput_<RA, RB, EA, EB, A, B>(
  * @tsplus dataFirst filterOutputIO_
  */
 export function filterOutputIO<B, RB1, EB1>(f: (b: B) => IO<RB1, EB1, boolean>) {
-  return <RA, RB, EA, EB, A>(
-    queue: PQueue<RA, RB, EA, EB, A, B>,
-  ): PQueue<RA, RB & RB1, EA, EB | EB1, A, B> => filterOutputIO_(queue, f);
+  return <RA, RB, EA, EB, A>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB & RB1, EA, EB | EB1, A, B> => filterOutputIO_(queue, f);
 }
 /**
  * @tsplus dataFirst filterOutput_
  */
 export function filterOutput<B>(p: Predicate<B>) {
-  return <RA, RB, EA, EB, A>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A, B> =>
-    filterOutput_(queue, p);
+  return <RA, RB, EA, EB, A>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A, B> => filterOutput_(queue, p);
 }
 // codegen:end

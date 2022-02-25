@@ -3,45 +3,43 @@ import { Logger } from "./definition";
 /**
  * @tsplus static fncts.control.LoggerOps defaultString
  */
-export const defaultString: Logger<string, string> = new Logger(
-  (trace, fiberId, logLevel, message, cause, context, spans, annotations) => {
-    let s           = "";
-    const nowMillis = Date.now();
-    const now       = new Date(nowMillis);
+export const defaultString: Logger<string, string> = new Logger((trace, fiberId, logLevel, message, cause, context, spans, annotations) => {
+  let s           = "";
+  const nowMillis = Date.now();
+  const now       = new Date(nowMillis);
 
-    s += "timestamp=";
-    s += now.toISOString();
-    s += " level=";
-    s += logLevel.label;
-    s += " thread=#";
-    s += fiberId.threadName;
-    s += ' message="';
-    s += message();
-    s += '"';
+  s += "timestamp=";
+  s += now.toISOString();
+  s += " level=";
+  s += logLevel.label;
+  s += " thread=#";
+  s += fiberId.threadName;
+  s += ' message="';
+  s += message();
+  s += '"';
 
-    if (spans.isNonEmpty()) {
-      let first = true;
-      for (const span of spans) {
-        if (first) {
-          first = false;
-        } else {
-          s += " ";
-        }
-
-        s += span.render(nowMillis);
+  if (spans.isNonEmpty()) {
+    let first = true;
+    for (const span of spans) {
+      if (first) {
+        first = false;
+      } else {
+        s += " ";
       }
+
+      s += span.render(nowMillis);
     }
+  }
 
-    if (trace._tag === "SourceLocation") {
-      s += " location=";
-      s += quoted(trace.show);
-    }
+  if (trace._tag === "SourceLocation") {
+    s += " location=";
+    s += quoted(trace.show);
+  }
 
-    // TODO: render Cause, and Annotations
+  // TODO: render Cause, and Annotations
 
-    return s;
-  },
-);
+  return s;
+});
 
 /**
  * @tsplus fncts.control.Logger none

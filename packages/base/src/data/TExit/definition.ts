@@ -117,9 +117,7 @@ export class Interrupt {
   }
 
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isTExit(that) && isInterrupt(that) && P.Equatable.strictEquals(this.fiberId, that.fiberId)
-    );
+    return isTExit(that) && isInterrupt(that) && P.Equatable.strictEquals(this.fiberId, that.fiberId);
   }
 }
 

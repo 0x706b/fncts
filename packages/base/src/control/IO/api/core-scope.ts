@@ -42,9 +42,7 @@ export function forkScopeMask_<R, E, A>(
   f: (restore: ForkScopeRestore) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return IO.forkScopeWith(
-    (scope) => new OverrideForkScope(f(new ForkScopeRestore(scope)), Just(newScope), __tsplusTrace),
-  );
+  return IO.forkScopeWith((scope) => new OverrideForkScope(f(new ForkScopeRestore(scope)), Just(newScope), __tsplusTrace));
 }
 
 /**
@@ -60,11 +58,7 @@ export function forkScopeMask_<R, E, A>(
  *
  * @tsplus fluent fncts.control.IO forkIn
  */
-export function forkIn_<R, E, A>(
-  io: IO<R, E, A>,
-  scope: Scope,
-  __tsplusTrace?: string,
-): URIO<R, RuntimeFiber<E, A>> {
+export function forkIn_<R, E, A>(io: IO<R, E, A>, scope: Scope, __tsplusTrace?: string): URIO<R, RuntimeFiber<E, A>> {
   return new Fork(io, Just(scope), __tsplusTrace);
 }
 
@@ -97,10 +91,7 @@ export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;
  *
  * @tsplus static fncts.control.IOOps transplant
  */
-export function transplant<R, E, A>(
-  f: (_: Grafter) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
+export function transplant<R, E, A>(f: (_: Grafter) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return forkScopeWith((scope) => f((e) => new OverrideForkScope(e, Just(scope))));
 }
 
@@ -111,10 +102,7 @@ export function transplant<R, E, A>(
  *
  * @tsplus getter fncts.control.IO forkDaemon
  */
-export function forkDaemon<R, E, A>(
-  ma: IO<R, E, A>,
-  __tsplusTrace?: string,
-): URIO<R, RuntimeFiber<E, A>> {
+export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, RuntimeFiber<E, A>> {
   return ma.forkIn(Scope.global);
 }
 
@@ -124,11 +112,7 @@ export function forkDaemon<R, E, A>(
  *
  * @tsplus fluent fncts.control.IO overrideForkScope
  */
-export function overrideForkScope_<R, E, A>(
-  ma: IO<R, E, A>,
-  scope: Scope,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
+export function overrideForkScope_<R, E, A>(ma: IO<R, E, A>, scope: Scope, __tsplusTrace?: string): IO<R, E, A> {
   return new OverrideForkScope(ma, Just(scope), __tsplusTrace);
 }
 

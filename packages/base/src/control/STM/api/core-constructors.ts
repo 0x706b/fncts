@@ -2,14 +2,7 @@ import type { FiberId } from "../../../data/FiberId";
 import type { Lazy } from "../../../data/function";
 import type { STM } from "../definition";
 
-import {
-  Effect,
-  FailException,
-  InterruptException,
-  RetryException,
-  Succeed,
-  SucceedNow,
-} from "../definition";
+import { Effect, FailException, InterruptException, RetryException, Succeed, SucceedNow } from "../definition";
 
 /**
  * Returns a value that models failure in the transaction.

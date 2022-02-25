@@ -56,10 +56,7 @@ export function getFilerable<E>(ME: P.Monoid<E>) {
     }
   };
 
-  const partition_: P.partition_<EitherF, FixE> = <A>(
-    fa: Either<E, A>,
-    p: Predicate<A>,
-  ): readonly [Either<E, A>, Either<E, A>] =>
+  const partition_: P.partition_<EitherF, FixE> = <A>(fa: Either<E, A>, p: Predicate<A>): readonly [Either<E, A>, Either<E, A>] =>
     fa._tag === EitherTag.Left ? [fa, fa] : p(fa.right) ? [empty, fa] : [fa, empty];
 
   const filterMap_: P.filterMap_<EitherF, FixE> = (fa, f) =>

@@ -27,21 +27,13 @@ function foldEval<E, A>(
     case CauseTag.Interrupt:
       return Eval.now(onInterrupt(cause.id, cause.trace));
     case CauseTag.Both:
-      return Eval.defer(() =>
-        foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
-      ).zipWith(
-        Eval.defer(() =>
-          foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
-        ),
+      return Eval.defer(() => foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)).zipWith(
+        Eval.defer(() => foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)),
         onBoth,
       );
     case CauseTag.Then:
-      return Eval.defer(() =>
-        foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
-      ).zipWith(
-        Eval.defer(() =>
-          foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth),
-        ),
+      return Eval.defer(() => foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)).zipWith(
+        Eval.defer(() => foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)),
         onThen,
       );
   }

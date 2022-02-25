@@ -14,10 +14,7 @@ import { concrete } from "../definition";
  * @tsplus fluent fncts.control.Ref modify
  * @tsplus fluent fncts.control.Ref.Synchronized modify
  */
-export function modify_<RA, RB, EA, EB, B, A>(
-  ref: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => readonly [B, A],
-): IO<RA & RB, EA | EB, B> {
+export function modify_<RA, RB, EA, EB, B, A>(ref: PRef<RA, RB, EA, EB, A, A>, f: (a: A) => readonly [B, A]): IO<RA & RB, EA | EB, B> {
   concrete(ref);
   switch (ref._tag) {
     case "Atomic":
@@ -89,10 +86,7 @@ export function modifyJust_<RA, RB, EA, EB, A, B>(
  * @tsplus fluent fncts.control.Ref getAndSet
  * @tsplus fluent fncts.control.Ref.Synchronized getAndSet
  */
-export function getAndSet_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  a: A,
-): IO<RA & RB, EA | EB, A> {
+export function getAndSet_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, a: A): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -109,10 +103,7 @@ export function getAndSet_<RA, RB, EA, EB, A>(
  * @tsplus fluent fncts.control.Ref getAndUpdate
  * @tsplus fluent fncts.control.Ref.Synchronized getAndUpdate
  */
-export function getAndUpdate_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => A,
-): IO<RA & RB, EA | EB, A> {
+export function getAndUpdate_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, f: (a: A) => A): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -130,10 +121,7 @@ export function getAndUpdate_<RA, RB, EA, EB, A>(
  * @tsplus fluent fncts.control.Ref getAndUpdateJust
  * @tsplus fluent fncts.control.Ref.Synchronized getAndUpdateJust
  */
-export function getAndUpdateJust_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => Maybe<A>,
-): IO<RA & RB, EA | EB, A> {
+export function getAndUpdateJust_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, f: (a: A) => Maybe<A>): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -149,10 +137,7 @@ export function getAndUpdateJust_<RA, RB, EA, EB, A>(
  * @tsplus fluent fncts.control.Ref update
  * @tsplus fluent fncts.control.Ref.Synchronized update
  */
-export function update_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => A,
-): IO<RA & RB, EA | EB, void> {
+export function update_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, f: (a: A) => A): IO<RA & RB, EA | EB, void> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -169,10 +154,7 @@ export function update_<RA, RB, EA, EB, A>(
  * @tsplus fluent fncts.control.Ref updateAndGet
  * @tsplus fluent fncts.control.Ref.Synchronized updateAndGet
  */
-export function updateAndGet_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => A,
-): IO<RA & RB, EA | EB, A> {
+export function updateAndGet_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, f: (a: A) => A): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -192,18 +174,13 @@ export function updateAndGet_<RA, RB, EA, EB, A>(
  * @tsplus fluent fncts.control.Ref updateJust
  * @tsplus fluent fncts.control.Ref.Synchronized updateJust
  */
-export function updateJust_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => Maybe<A>,
-): IO<RA & RB, EA | EB, void> {
+export function updateJust_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, f: (a: A) => Maybe<A>): IO<RA & RB, EA | EB, void> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
       return self.updateJust(f);
     default:
-      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) =>
-        tuple(undefined, f(a0).getOrElse(a0)),
-      );
+      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) => tuple(undefined, f(a0).getOrElse(a0)));
   }
 }
 
@@ -215,10 +192,7 @@ export function updateJust_<RA, RB, EA, EB, A>(
  * @tsplus fluent fncts.control.Ref updateJustAndGet
  * @tsplus fluent fncts.control.Ref.Synchronized updateJustAndGet
  */
-export function updateJustAndGet_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  f: (a: A) => Maybe<A>,
-): IO<RA & RB, EA | EB, A> {
+export function updateJustAndGet_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, f: (a: A) => Maybe<A>): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":

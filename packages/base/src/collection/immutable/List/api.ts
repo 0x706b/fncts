@@ -92,12 +92,7 @@ function noneIn<A>(l: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   }
 }
 
-function allIn<A>(
-  start: List<A>,
-  remaining: List<A>,
-  p: Predicate<A>,
-  isFlipped: boolean,
-): List<A> {
+function allIn<A>(start: List<A>, remaining: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   while (true) {
     if (remaining.isEmpty()) {
       return start;
@@ -112,12 +107,7 @@ function allIn<A>(
   }
 }
 
-function partialFill<A>(
-  origStart: List<A>,
-  firstMiss: List<A>,
-  p: Predicate<A>,
-  isFlipped: boolean,
-): List<A> {
+function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   const newHead   = new Cons(unsafeHead(origStart), _Nil);
   let toProcess   = unsafeTail(origStart) as Cons<A>;
   let currentLast = newHead;

@@ -2,18 +2,7 @@ import type { HKT } from "../../prelude";
 import type { Maybe } from "./definition";
 
 import * as P from "../../prelude";
-import {
-  ap_,
-  chain_,
-  filter_,
-  filterMap_,
-  foldLeft_,
-  foldRight_,
-  map_,
-  partition_,
-  partitionMap_,
-  zipWith_,
-} from "./api";
+import { ap_, chain_, filter_, filterMap_, foldLeft_, foldRight_, map_, partition_, partitionMap_, zipWith_ } from "./api";
 import { just } from "./constructors";
 
 export interface MaybeF extends HKT {

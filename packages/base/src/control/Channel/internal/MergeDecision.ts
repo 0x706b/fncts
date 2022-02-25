@@ -26,9 +26,7 @@ export abstract class MergeDecision<R, E0, Z0, E, Z> {
  * @tsplus fluent fncts.control.Channel.MergeDecision concrete
  * @tsplus macro remove
  */
-export function concrete<R, E0, Z0, E, Z>(
-  _: MergeDecision<R, E0, Z0, E, Z>,
-): asserts _ is Done<R, E, Z> | Await<R, E0, Z0, E, Z> {
+export function concrete<R, E0, Z0, E, Z>(_: MergeDecision<R, E0, Z0, E, Z>): asserts _ is Done<R, E, Z> | Await<R, E0, Z0, E, Z> {
   //
 }
 

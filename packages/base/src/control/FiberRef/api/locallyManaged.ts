@@ -8,10 +8,7 @@ import { concrete } from "../definition";
 /**
  * @tsplus fluent fncts.control.FiberRef locallyManaged
  */
-export function locallyManaged_<EA, EB, A, B>(
-  fiberRef: PFiberRef<EA, EB, A, B>,
-  a: A,
-): Managed<unknown, EA, void> {
+export function locallyManaged_<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>, a: A): Managed<unknown, EA, void> {
   concrete(fiberRef);
   return matchTag_(fiberRef, {
     Runtime: (ref: FiberRef.Runtime<A>) =>
@@ -31,9 +28,7 @@ export function locallyManaged_<EA, EB, A, B>(
       ref.use(
         (value, _, setEither) =>
           Managed.bracket(
-            value.get.chain((old) =>
-              setEither(a)(old).match(IO.failNow, (s) => value.set(s).as(old)),
-            ),
+            value.get.chain((old) => setEither(a)(old).match(IO.failNow, (s) => value.set(s).as(old))),
             (s) => value.set(s),
           ).asUnit,
       ),

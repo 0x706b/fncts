@@ -25,10 +25,7 @@ export class Global extends Scope {
 }
 
 export class Local extends Scope {
-  constructor(
-    readonly fiberId: FiberId,
-    private parentRef: WeakRef<FiberContext<unknown, unknown>>,
-  ) {
+  constructor(readonly fiberId: FiberId, private parentRef: WeakRef<FiberContext<unknown, unknown>>) {
     super();
   }
   unsafeAdd(child: FiberContext<unknown, unknown>): boolean {

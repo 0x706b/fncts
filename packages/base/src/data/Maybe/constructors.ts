@@ -32,9 +32,7 @@ export function fromNullable<A>(a: Nullable<A>): Maybe<NonNullable<A>> {
 /**
  * @tsplus static fncts.data.MaybeOps fromNullableK
  */
-export function fromNullableK<P extends ReadonlyArray<unknown>, A>(
-  f: (...params: P) => Nullable<A>,
-) {
+export function fromNullableK<P extends ReadonlyArray<unknown>, A>(f: (...params: P) => Nullable<A>) {
   return (...params: P): Maybe<NonNullable<A>> => Maybe.fromNullable(f(...params));
 }
 
@@ -76,9 +74,7 @@ function raisePartial(): never {
 /**
  * @tsplus static fncts.data.MaybeOps partial
  */
-export function partial<P extends ReadonlyArray<unknown>, A>(
-  f: (miss: () => never) => (...params: P) => A,
-) {
+export function partial<P extends ReadonlyArray<unknown>, A>(f: (miss: () => never) => (...params: P) => A) {
   return (...params: P): Maybe<A> => {
     try {
       return Just(f(raisePartial)(...params));

@@ -4,11 +4,7 @@ import type { Array } from "../../Array/definition";
  * @tsplus fluent fncts.collection.immutable.Array foldRightWithIndex
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray foldRightWithIndex
  */
-export function foldRightWithIndex_<A, B>(
-  self: Array<A>,
-  b: B,
-  f: (i: number, a: A, b: B) => B,
-): B {
+export function foldRightWithIndex_<A, B>(self: Array<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   let r = b;
   for (let i = self.length - 1; i >= 0; i--) {
     r = f(i, self[i]!, r);

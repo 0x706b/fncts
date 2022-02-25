@@ -53,12 +53,7 @@ export class Finalizer {
   constructor(readonly finalizer: UIO<any>, readonly apply: ErasedCont, readonly trace?: string) {}
 }
 
-export type Frame =
-  | InterruptExit
-  | Match<any, any, any, any, any, any, any, any, any>
-  | HandlerFrame
-  | TracedCont
-  | Finalizer;
+export type Frame = InterruptExit | Match<any, any, any, any, any, any, any, any, any> | HandlerFrame | TracedCont | Finalizer;
 
 export const currentFiber = new AtomicReference<FiberContext<any, any> | null>(null);
 
@@ -101,9 +96,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
       if (this.fiberRefLocals.size === 0) {
         return IO.unit;
       } else {
-        return IO.foreachDiscard(this.fiberRefLocals, ([fiberRef, value]) =>
-          fiberRef.update((old) => fiberRef.join(old, value)),
-        );
+        return IO.foreachDiscard(this.fiberRefLocals, ([fiberRef, value]) => fiberRef.update((old) => fiberRef.join(old, value)));
       }
     });
   }
@@ -179,12 +172,9 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
 
       const flags = this.runtimeConfig.flags;
 
-      const superviseOps =
-        flags.isEnabled(RuntimeConfigFlag.SuperviseOperations) &&
-        this.currentSupervisor !== Supervisor.none;
+      const superviseOps = flags.isEnabled(RuntimeConfigFlag.SuperviseOperations) && this.currentSupervisor !== Supervisor.none;
 
-      this.runtimeConfig.flags.isEnabled(RuntimeConfigFlag.EnableCurrentFiber) &&
-        currentFiber.set(this);
+      this.runtimeConfig.flags.isEnabled(RuntimeConfigFlag.EnableCurrentFiber) && currentFiber.set(this);
 
       this.currentSupervisor !== Supervisor.none && this.currentSupervisor.unsafeOnResume(this);
 
@@ -242,9 +232,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                     break;
                   }
                   case IOTag.Trace: {
-                    current = this.unsafeNextEffect(
-                      this.unsafeCaptureTrace(Cons(current.trace, Nil())),
-                    );
+                    current = this.unsafeNextEffect(this.unsafeCaptureTrace(Cons(current.trace, Nil())));
                     break;
                   }
                   case IOTag.SucceedNow: {
@@ -256,23 +244,17 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                     break;
                   }
                   case IOTag.SucceedWith: {
-                    current = this.unsafeNextEffect(
-                      current.effect(this.runtimeConfig, this.fiberId),
-                    );
+                    current = this.unsafeNextEffect(current.effect(this.runtimeConfig, this.fiberId));
                     break;
                   }
                   case IOTag.Fail: {
-                    const fastPathTrace: List<string> =
-                      extraTrace === undefined ? Nil() : Cons(extraTrace, Nil());
+                    const fastPathTrace: List<string> = extraTrace === undefined ? Nil() : Cons(extraTrace, Nil());
                     extraTrace = undefined;
 
                     const cause       = current.cause();
                     const tracedCause = cause.isTraced
                       ? cause
-                      : Cause.traced(
-                          cause,
-                          this.unsafeCaptureTrace(Cons(current.trace, fastPathTrace)),
-                        );
+                      : Cause.traced(cause, this.unsafeCaptureTrace(Cons(current.trace, fastPathTrace)));
 
                     const discardedFolds            = this.unsafeUnwindStack();
                     const strippedCause: Cause<any> = discardedFolds
@@ -284,9 +266,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                         tracedCause.stripFailures
                       : tracedCause;
                     const suppressed = this.unsafeClearSuppressedCause();
-                    const fullCause  = strippedCause.contains(suppressed)
-                      ? strippedCause
-                      : Cause.then(strippedCause, suppressed);
+                    const fullCause  = strippedCause.contains(suppressed) ? strippedCause : Cause.then(strippedCause, suppressed);
 
                     if (this.unsafeIsStackEmpty) {
                       // Error not caught, stack is empty:
@@ -317,9 +297,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                     break;
                   }
                   case IOTag.GetInterrupt: {
-                    current = concrete(
-                      current.f(InterruptStatus.fromBoolean(this.unsafeIsInterruptible)),
-                    );
+                    current = concrete(current.f(InterruptStatus.fromBoolean(this.unsafeIsInterruptible)));
                     break;
                   }
                   case IOTag.Async: {
@@ -338,11 +316,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                         if (this.unsafeShouldInterrupt) {
                           if (this.unsafeExitAsync(epoch)) {
                             this.unsafeSetInterrupting(true);
-                            current = concrete(
-                              r.left.chain(() =>
-                                IO.failCauseNow(this.unsafeClearSuppressedCause()),
-                              ),
-                            );
+                            current = concrete(r.left.chain(() => IO.failCauseNow(this.unsafeClearSuppressedCause())));
                           } else {
                             current = null;
                           }
@@ -362,9 +336,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                     break;
                   }
                   case IOTag.Fork: {
-                    current = this.unsafeNextEffect(
-                      this.unsafeFork(concrete(current.io), current.scope, current.trace),
-                    );
+                    current = this.unsafeNextEffect(this.unsafeFork(concrete(current.io), current.scope, current.trace));
                     break;
                   }
                   case IOTag.GetDescriptor: {
@@ -460,11 +432,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                   }
 
                   case IOTag.GetForkScope: {
-                    current = concrete(
-                      current.f(
-                        this.unsafeGetRef(FiberRef.forkScopeOverride).getOrElse(this.scope),
-                      ),
-                    );
+                    current = concrete(current.f(this.unsafeGetRef(FiberRef.forkScopeOverride).getOrElse(this.scope)));
                     break;
                   }
 
@@ -724,10 +692,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
     }
   }
 
-  private unsafeNotifyObservers(
-    v: Exit<E, A>,
-    observers: Set<FiberState.Callback<never, Exit<E, A>>>,
-  ) {
+  private unsafeNotifyObservers(v: Exit<E, A>, observers: Set<FiberState.Callback<never, Exit<E, A>>>) {
     if (observers.size > 0) {
       const result = Exit.succeed(v);
       observers.forEach((k) => k(result));
@@ -822,11 +787,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
   private unsafeSetAsyncCanceller(epoch: number, asyncCanceller0: Erased | null): void {
     const asyncCanceller = !asyncCanceller0 ? IO.unit : asyncCanceller0;
     if (this.state._tag === "Executing") {
-      if (
-        this.state.status._tag === "Suspended" &&
-        this.state.asyncCanceller._tag === "Pending" &&
-        this.state.status.epoch === epoch
-      ) {
+      if (this.state.status._tag === "Suspended" && this.state.asyncCanceller._tag === "Pending" && this.state.status.epoch === epoch) {
         this.state.asyncCanceller = CancellerState.registered(asyncCanceller);
       } else if (
         this.state.status._tag === "Suspended" &&
@@ -873,11 +834,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
   }
 
   private unsafeExitAsync(epoch: number): boolean {
-    if (
-      this.state._tag === "Executing" &&
-      this.state.status._tag === "Suspended" &&
-      this.state.status.epoch === epoch
-    ) {
+    if (this.state._tag === "Executing" && this.state.status._tag === "Suspended" && this.state.status.epoch === epoch) {
       this.state.status         = this.state.status.previous;
       this.state.asyncCanceller = CancellerState.empty;
       return true;
@@ -893,20 +850,14 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
     };
   }
 
-  private unsafeFork(
-    io: Instruction,
-    forkScope: Maybe<Scope>,
-    trace?: string,
-  ): FiberContext<any, any> {
+  private unsafeFork(io: Instruction, forkScope: Maybe<Scope>, trace?: string): FiberContext<any, any> {
     const childFiberRefLocals: FiberRefLocals = new Map();
 
     this.fiberRefLocals.forEach((v, k) => {
       childFiberRefLocals.set(k, k.fork(v));
     });
 
-    const parentScope: Scope = forkScope
-      .orElse(this.unsafeGetRef(FiberRef.forkScopeOverride))
-      .getOrElse(this.scope);
+    const parentScope: Scope = forkScope.orElse(this.unsafeGetRef(FiberRef.forkScopeOverride)).getOrElse(this.scope);
 
     const childId       = FiberId.newFiberId();
     const grandChildren = new Set<FiberContext<any, any>>();
@@ -921,12 +872,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
     );
 
     if (this.currentSupervisor !== Supervisor.none) {
-      this.currentSupervisor.unsafeOnStart(
-        this.unsafeGetRef(FiberRef.currentEnvironment),
-        io,
-        Just(this),
-        childContext,
-      );
+      this.currentSupervisor.unsafeOnStart(this.unsafeGetRef(FiberRef.currentEnvironment), io, Just(this), childContext);
       childContext.unsafeOnDone((exit) => {
         this.currentSupervisor.unsafeOnEnd(exit.flatten, childContext);
       });
@@ -1034,8 +980,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
 
   private unsafeEvalOn(effect: UIO<any>, orElse: UIO<any>): UIO<void> {
     if (this.state._tag === "Executing") {
-      const newMailbox =
-        this.state.mailbox == null ? effect : this.state.mailbox.chain(() => effect);
+      const newMailbox   = this.state.mailbox == null ? effect : this.state.mailbox.chain(() => effect);
       this.state.mailbox = newMailbox;
       return IO.unit;
     } else {
@@ -1106,15 +1051,6 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
       contextMap = new Map(this.fiberRefLocals);
     }
 
-    this.runtimeConfig.logger.log(
-      TraceElement.parse(trace),
-      this.fiberId,
-      logLevel,
-      message,
-      cause,
-      contextMap,
-      spans,
-      annotations,
-    );
+    this.runtimeConfig.logger.log(TraceElement.parse(trace), this.fiberId, logLevel, message, cause, contextMap, spans, annotations);
   }
 }

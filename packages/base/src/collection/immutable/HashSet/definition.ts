@@ -53,11 +53,7 @@ export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
   }
 
   [Symbol.equatable](other: unknown): boolean {
-    return (
-      other instanceof HashSet &&
-      this._size === other._size &&
-      (this as Iterable<A>).corresponds(other, P.Equatable.strictEquals)
-    );
+    return other instanceof HashSet && this._size === other._size && (this as Iterable<A>).corresponds(other, P.Equatable.strictEquals);
   }
 }
 
@@ -101,15 +97,7 @@ export type Node<A> = EmptyNode<A> | LeafNode<A> | CollisionNode<A> | IndexedNod
 export class EmptyNode<A> {
   readonly _tag = "EmptyNode";
 
-  modify(
-    remove: boolean,
-    edit: number,
-    eq: (x: A, y: A) => boolean,
-    shift: number,
-    hash: number,
-    value: A,
-    size: SizeRef,
-  ) {
+  modify(remove: boolean, edit: number, eq: (x: A, y: A) => boolean, shift: number, hash: number, value: A, size: SizeRef) {
     if (remove) return this;
     ++size.value;
     return new LeafNode(edit, hash, value);
@@ -126,15 +114,7 @@ export class LeafNode<A> {
   readonly _tag = "LeafNode";
   constructor(public edit: number, public hash: number, public value: A) {}
 
-  modify(
-    remove: boolean,
-    edit: number,
-    eq: (x: A, y: A) => boolean,
-    shift: number,
-    hash: number,
-    value: A,
-    size: SizeRef,
-  ): Node<A> {
+  modify(remove: boolean, edit: number, eq: (x: A, y: A) => boolean, shift: number, hash: number, value: A, size: SizeRef): Node<A> {
     if (eq(value, this.value)) {
       if (remove) {
         --size.value;
@@ -160,27 +140,10 @@ export class LeafNode<A> {
 export class CollisionNode<A> {
   readonly _tag = "CollisionNode";
   constructor(public edit: number, public hash: number, public children: Array<Node<A>>) {}
-  modify(
-    remove: boolean,
-    edit: number,
-    eq: (x: A, y: A) => boolean,
-    shift: number,
-    hash: number,
-    value: A,
-    size: SizeRef,
-  ): Node<A> {
+  modify(remove: boolean, edit: number, eq: (x: A, y: A) => boolean, shift: number, hash: number, value: A, size: SizeRef): Node<A> {
     if (hash === this.hash) {
       const canEdit = canEditNode(edit, this);
-      const list    = updateCollisionList(
-        remove,
-        canEdit,
-        edit,
-        eq,
-        this.hash,
-        this.children,
-        value,
-        size,
-      );
+      const list    = updateCollisionList(remove, canEdit, edit, eq, this.hash, this.children, value, size);
       if (list === this.children) return this;
       return list.length > 1 ? new CollisionNode(edit, this.hash, list) : list[0]!;
     }
@@ -225,15 +188,7 @@ export class IndexedNode<A> {
   readonly _tag = "IndexNode";
   constructor(public edit: number, public mask: number, public children: Array<Node<A>>) {}
 
-  modify(
-    remove: boolean,
-    edit: number,
-    eq: (x: A, y: A) => boolean,
-    shift: number,
-    hash: number,
-    value: A,
-    size: SizeRef,
-  ): Node<A> {
+  modify(remove: boolean, edit: number, eq: (x: A, y: A) => boolean, shift: number, hash: number, value: A, size: SizeRef): Node<A> {
     const mask     = this.mask;
     const children = this.children;
     const frag     = hashFragment(shift, hash);
@@ -273,28 +228,12 @@ export class IndexedNode<A> {
 export class ArrayNode<A> {
   readonly _tag = "ArrayNode";
   constructor(public edit: number, public size: number, public children: Array<Node<A>>) {}
-  modify(
-    remove: boolean,
-    edit: number,
-    eq: (x: A, y: A) => boolean,
-    shift: number,
-    hash: number,
-    value: A,
-    size: SizeRef,
-  ): Node<A> {
+  modify(remove: boolean, edit: number, eq: (x: A, y: A) => boolean, shift: number, hash: number, value: A, size: SizeRef): Node<A> {
     let count      = this.size;
     const children = this.children;
     const frag     = hashFragment(shift, hash);
     const child    = children[frag]!;
-    const newChild = (child || _EmptyNode).modify(
-      remove,
-      edit,
-      eq,
-      shift + SIZE,
-      hash,
-      value,
-      size,
-    );
+    const newChild = (child || _EmptyNode).modify(remove, edit, eq, shift + SIZE, hash, value, size);
 
     if (child === newChild) return this;
 
@@ -340,13 +279,7 @@ function pack<A>(edit: number, count: number, removed: number, elements: Array<N
   return new IndexedNode(edit, bitmap, children);
 }
 
-function expand<A>(
-  edit: number,
-  frag: number,
-  child: Node<A>,
-  bitmap: number,
-  subNodes: Array<Node<A>>,
-) {
+function expand<A>(edit: number, frag: number, child: Node<A>, bitmap: number, subNodes: Array<Node<A>>) {
   const arr = [];
   let bit   = bitmap;
   let count = 0;
@@ -358,31 +291,18 @@ function expand<A>(
   return new ArrayNode(edit, count + 1, arr);
 }
 
-function mergeLeaves<A>(
-  edit: number,
-  shift: number,
-  h1: number,
-  n1: Node<A>,
-  h2: number,
-  n2: Node<A>,
-): Node<A> {
+function mergeLeaves<A>(edit: number, shift: number, h1: number, n1: Node<A>, h2: number, n2: Node<A>): Node<A> {
   if (h1 === h2) return new CollisionNode(edit, h1, [n2, n1]);
   const subH1 = hashFragment(shift, h1);
   const subH2 = hashFragment(shift, h2);
   return new IndexedNode(
     edit,
     toBitmap(subH1) | toBitmap(subH2),
-    subH1 === subH2
-      ? [mergeLeaves(edit, shift + SIZE, h1, n1, h2, n2)]
-      : subH1 < subH2
-      ? [n1, n2]
-      : [n2, n1],
+    subH1 === subH2 ? [mergeLeaves(edit, shift + SIZE, h1, n1, h2, n2)] : subH1 < subH2 ? [n1, n2] : [n2, n1],
   );
 }
 
-type Cont<V, A> =
-  | [len: number, children: Array<Node<V>>, i: number, f: (node: V) => A, cont: Cont<V, A>]
-  | undefined;
+type Cont<V, A> = [len: number, children: Array<Node<V>>, i: number, f: (node: V) => A, cont: Cont<V, A>] | undefined;
 
 function applyCont<V, A>(cont: Cont<V, A>) {
   return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : undefined;
@@ -413,11 +333,7 @@ interface VisitResult<V, A> {
 /**
  * Visit each leaf lazily
  */
-function visitLazy<V, A>(
-  node: Node<V>,
-  f: (node: V) => A,
-  cont: Cont<V, A> = undefined,
-): VisitResult<V, A> | undefined {
+function visitLazy<V, A>(node: Node<V>, f: (node: V) => A, cont: Cont<V, A> = undefined): VisitResult<V, A> | undefined {
   switch (node._tag) {
     case "LeafNode": {
       return {

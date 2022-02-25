@@ -55,10 +55,7 @@ export function asks<R, A>(f: (_: R) => A, __tsplusTrace?: string): URIO<R, A> {
  *
  * @tsplus static fncts.control.IOOps asksIO
  */
-export function asksIO<R0, R, E, A>(
-  f: (r: R0) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R & R0, E, A> {
+export function asksIO<R0, R, E, A>(f: (r: R0) => IO<R, E, A>, __tsplusTrace?: string): IO<R & R0, E, A> {
   return new Asks(f, __tsplusTrace);
 }
 
@@ -95,11 +92,7 @@ export function asyncMaybe<R, E, A>(
   blockingOn: FiberId = FiberId.none,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return asyncInterrupt(
-    (cb) => register(cb).match(() => Either.left(IO.unit), Either.right),
-    blockingOn,
-    __tsplusTrace,
-  );
+  return asyncInterrupt((cb) => register(cb).match(() => Either.left(IO.unit), Either.right), blockingOn, __tsplusTrace);
 }
 
 /**
@@ -134,10 +127,7 @@ export function asyncInterrupt<R, E, A>(
  *
  * @tsplus static fncts.control.IOOps checkInterruptible
  */
-export function checkInterruptible<R, E, A>(
-  f: (i: InterruptStatus) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
+export function checkInterruptible<R, E, A>(f: (i: InterruptStatus) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new GetInterrupt(f, __tsplusTrace);
 }
 
@@ -161,10 +151,7 @@ export function defer<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): I
  *
  * @tsplus static fncts.control.IOOps deferWith
  */
-export function deferWith<R, E, A>(
-  io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
+export function deferWith<R, E, A>(io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new DeferWith(io, __tsplusTrace);
 }
 
@@ -174,10 +161,7 @@ export function deferWith<R, E, A>(
  *
  * @tsplus static fncts.control.IOOps deferTry
  */
-export function deferTry<R, E, A>(
-  io: () => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, unknown, A> {
+export function deferTry<R, E, A>(io: () => IO<R, E, A>, __tsplusTrace?: string): IO<R, unknown, A> {
   return IO.defer(() => {
     try {
       return io();
@@ -193,9 +177,7 @@ export function deferTry<R, E, A>(
  *
  * @tsplus static IOOps deferTryWith
  */
-export function deferTryWith<R, E, A>(
-  io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-): IO<R, unknown, A> {
+export function deferTryWith<R, E, A>(io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>): IO<R, unknown, A> {
   return IO.deferWith((runtimeConfig, id) => {
     try {
       return io(runtimeConfig, id);
@@ -213,10 +195,7 @@ export function deferTryWith<R, E, A>(
  *
  * @tsplus static IOOps deferTryCatch
  */
-export function deferTryCatch<R, E, A, E1>(
-  io: () => IO<R, E, A>,
-  onThrow: (error: unknown) => E1,
-): IO<R, E | E1, A> {
+export function deferTryCatch<R, E, A, E1>(io: () => IO<R, E, A>, onThrow: (error: unknown) => E1): IO<R, E | E1, A> {
   return IO.defer(() => {
     try {
       return io();
@@ -258,10 +237,7 @@ export const descriptor = descriptorWith(IO.succeedNow);
  *
  * @tsplus static fncts.control.IOOps descriptorWith
  */
-export function descriptorWith<R, E, A>(
-  f: (d: FiberDescriptor) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
+export function descriptorWith<R, E, A>(f: (d: FiberDescriptor) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new GetDescriptor(f, __tsplusTrace);
 }
 
@@ -293,10 +269,7 @@ export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E,
  *
  * @tsplus static fncts.control.IOOps failCause
  */
-export function failCause<E = never, A = never>(
-  cause: Lazy<Cause<E>>,
-  __tsplusTrace?: string,
-): FIO<E, A> {
+export function failCause<E = never, A = never>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): FIO<E, A> {
   return new Fail(cause, __tsplusTrace);
 }
 
@@ -312,10 +285,7 @@ export const fiberId: IO<unknown, never, FiberId> = IO.descriptorWith((d) => IO.
  *
  * @tsplus static fncts.control.IOOps fromEither
  */
-export function fromEither<E, A>(
-  either: Lazy<Either<E, A>>,
-  __tsplusTrace?: string,
-): IO<unknown, E, A> {
+export function fromEither<E, A>(either: Lazy<Either<E, A>>, __tsplusTrace?: string): IO<unknown, E, A> {
   return IO.succeed(either).chain((ea) => ea.match(IO.failNow, IO.succeedNow));
 }
 
@@ -324,10 +294,7 @@ export function fromEither<E, A>(
  *
  * @tsplus static fncts.control.IOOps fromEitherNow
  */
-export function fromEitherNow<E, A>(
-  either: Either<E, A>,
-  __tsplusTrace?: string,
-): IO<unknown, E, A> {
+export function fromEitherNow<E, A>(either: Either<E, A>, __tsplusTrace?: string): IO<unknown, E, A> {
   return either.match(IO.failNow, IO.succeedNow);
 }
 
@@ -371,10 +338,7 @@ export function fromMaybe<A>(maybe: Lazy<Maybe<A>>, __tsplusTrace?: string): FIO
 /**
  * @tsplus static fncts.control.IOOps fromMaybeNow
  */
-export function fromMaybeNow<A = never>(
-  maybe: Maybe<A>,
-  __tsplusTrace?: string,
-): IO<unknown, Maybe<never>, A> {
+export function fromMaybeNow<A = never>(maybe: Maybe<A>, __tsplusTrace?: string): IO<unknown, Maybe<never>, A> {
   return maybe.match(() => IO.failNow(Nothing()), IO.succeedNow);
 }
 
@@ -384,11 +348,7 @@ export function fromMaybeNow<A = never>(
  *
  * @tsplus static fncts.control.IOOps fromPromiseCatch
  */
-export function fromPromiseCatch<E, A>(
-  promise: Lazy<Promise<A>>,
-  onReject: (reason: unknown) => E,
-  __tsplusTrace?: string,
-): FIO<E, A> {
+export function fromPromiseCatch<E, A>(promise: Lazy<Promise<A>>, onReject: (reason: unknown) => E, __tsplusTrace?: string): FIO<E, A> {
   return IO.async((k) => {
     promise()
       .then((a) => k(IO.succeedNow(a)))
@@ -411,10 +371,7 @@ export function fromPromise<A>(promise: Lazy<Promise<A>>, __tsplusTrace?: string
  *
  * @tsplus static fncts.control.IOOps fromPromiseHalt
  */
-export function fromPromiseHalt<A>(
-  promise: Lazy<Promise<A>>,
-  __tsplusTrace?: string,
-): FIO<never, A> {
+export function fromPromiseHalt<A>(promise: Lazy<Promise<A>>, __tsplusTrace?: string): FIO<never, A> {
   return async((k) => {
     promise()
       .then((a) => k(IO.succeedNow(a)))
@@ -480,10 +437,7 @@ export function sequenceIterable<R, E, A>(as: Iterable<IO<R, E, A>>): IO<R, E, C
 /**
  * @tsplus static fncts.control.IOOps sequenceIterableDiscard
  */
-export function sequenceIterableDiscard<R, E, A>(
-  as: Iterable<IO<R, E, A>>,
-  __tsplusTrace?: string,
-): IO<R, E, void> {
+export function sequenceIterableDiscard<R, E, A>(as: Iterable<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, void> {
   return IO.foreachDiscard(as, identity);
 }
 
@@ -515,11 +469,7 @@ export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): UIO<A> {
  *
  * @tsplus fluent fncts.control.IO supervised
  */
-export function supervised_<R, E, A>(
-  fa: IO<R, E, A>,
-  supervisor: Supervisor<any>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
+export function supervised_<R, E, A>(fa: IO<R, E, A>, supervisor: Supervisor<any>, __tsplusTrace?: string): IO<R, E, A> {
   return new Supervise(fa, supervisor);
 }
 
@@ -528,11 +478,7 @@ export function supervised_<R, E, A>(
  *
  * @tsplus static fncts.control.IOOps tryCatch
  */
-export function tryCatch<E, A>(
-  effect: Lazy<A>,
-  onThrow: (error: unknown) => E,
-  __tsplusTrace?: string,
-): FIO<E, A> {
+export function tryCatch<E, A>(effect: Lazy<A>, onThrow: (error: unknown) => E, __tsplusTrace?: string): FIO<E, A> {
   return IO.succeed(() => {
     try {
       return effect();

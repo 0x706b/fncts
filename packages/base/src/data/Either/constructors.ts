@@ -53,21 +53,9 @@ export function fromNullableK<E, P extends ReadonlyArray<unknown>, A>(
 /**
  * @tsplus static fncts.data.EitherOps fromPredicate
  */
-export function fromPredicate_<E, A, B extends A>(
-  value: A,
-  p: Refinement<A, B>,
-  otherwise: (a: A) => E,
-): Either<E, B>;
-export function fromPredicate_<E, A>(
-  value: A,
-  p: Predicate<A>,
-  otherwise: (a: A) => E,
-): Either<E, A>;
-export function fromPredicate_<E, A>(
-  value: A,
-  p: Predicate<A>,
-  otherwise: (a: A) => E,
-): Either<E, A> {
+export function fromPredicate_<E, A, B extends A>(value: A, p: Refinement<A, B>, otherwise: (a: A) => E): Either<E, B>;
+export function fromPredicate_<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A>;
+export function fromPredicate_<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A> {
   return p(value) ? Right(value) : left(otherwise(value));
 }
 
@@ -108,17 +96,11 @@ export function fromNullable<E>(nullable: Lazy<E>) {
 /**
  * @tsplus dataFirst fromPredicate_
  */
-export function fromPredicate<E, A, B extends A>(
-  p: Refinement<A, B>,
-  otherwise: (a: A) => E,
-): (value: A) => Either<E, B>;
+export function fromPredicate<E, A, B extends A>(p: Refinement<A, B>, otherwise: (a: A) => E): (value: A) => Either<E, B>;
 /**
  * @tsplus dataFirst fromPredicate_
  */
-export function fromPredicate<E, A>(
-  p: Predicate<A>,
-  otherwise: (a: A) => E,
-): (value: A) => Either<E, A>;
+export function fromPredicate<E, A>(p: Predicate<A>, otherwise: (a: A) => E): (value: A) => Either<E, A>;
 /**
  * @tsplus dataFirst fromPredicate_
  */

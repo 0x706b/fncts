@@ -15,9 +15,7 @@ const config = new RuntimeConfig({
   supervisor: Supervisor.none,
   flags: RuntimeConfigFlags.empty,
   yieldOpCount: 2048,
-  logger: Logger.defaultString
-    .map(console.log.bind(console))
-    .filterLogLevel((level) => level >= LogLevel.Info),
+  logger: Logger.defaultString.map(console.log.bind(console)).filterLogLevel((level) => level >= LogLevel.Info),
 });
 
 const as = Iterable.range(0, 10);
@@ -36,13 +34,7 @@ const effect = IO.succeed(console.time("A"))
   .apFirst(IO.succeed(console.timeEnd("A")))
   .withConcurrency(2);
 
-const fiber = new FiberContext(
-  FiberId.newFiberId(),
-  config,
-  Stack.make(true),
-  new Map(),
-  new Set(),
-);
+const fiber = new FiberContext(FiberId.newFiberId(), config, Stack.make(true), new Map(), new Set());
 
 fiber.unsafeRunLater(concrete(effect));
 

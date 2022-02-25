@@ -32,9 +32,7 @@ export type FoldableWithIndexMin<F extends HKT, FC = HKT.None> = FoldableMin<F, 
 /**
  * @tsplus static fncts.FoldableWithIndexOps __call
  */
-export function mkFoldableWithIndex<F extends HKT, FC = HKT.None>(
-  F: FoldableWithIndexMin<F, FC>,
-): FoldableWithIndex<F, FC> {
+export function mkFoldableWithIndex<F extends HKT, FC = HKT.None>(F: FoldableWithIndexMin<F, FC>): FoldableWithIndex<F, FC> {
   const foldMapWithIndex_: foldMapWithIndex_<F, FC> = (M) => (fa, f) =>
     F.foldLeftWithIndex_(fa, M.nat, (i, b, a) => M.combine_(b, f(i, a)));
   return HKT.instance<FoldableWithIndex<F, FC>>({
@@ -57,15 +55,7 @@ export interface foldLeftWithIndex_<F extends HKT, FC = HKT.None> {
 }
 
 export interface foldLeftWithIndex<F extends HKT, FC = HKT.None> {
-  <K, A, B>(b: B, f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", K>>, b: B, a: A) => B): <
-    Q,
-    W,
-    X,
-    I,
-    S,
-    R,
-    E,
-  >(
+  <K, A, B>(b: B, f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", K>>, b: B, a: A) => B): <Q, W, X, I, S, R, E>(
     fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   ) => B;
 }
@@ -79,10 +69,9 @@ export interface foldRightWithIndex_<F extends HKT, C = HKT.None> {
 }
 
 export interface foldRightWithIndex<F extends HKT, C = HKT.None> {
-  <K, A, B>(
-    b: Eval<B>,
-    f: (i: HKT.IndexFor<F, HKT.OrFix<C, "K", K>>, a: A, b: Eval<B>) => Eval<B>,
-  ): <Q, W, X, I, S, R, E>(fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>) => Eval<B>;
+  <K, A, B>(b: Eval<B>, f: (i: HKT.IndexFor<F, HKT.OrFix<C, "K", K>>, a: A, b: Eval<B>) => Eval<B>): <Q, W, X, I, S, R, E>(
+    fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>,
+  ) => Eval<B>;
 }
 
 export interface foldMapWithIndex_<F extends HKT, C = HKT.None> {

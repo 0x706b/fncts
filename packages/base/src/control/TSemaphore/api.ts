@@ -58,9 +58,7 @@ export function releaseN_(self: TSemaphore, n: number): USTM<void> {
 export function withPermitsSelf(self: TSemaphore) {
   return (n: number) =>
     <R, E, A>(io: IO<R, E, A>) =>
-      IO.uninterruptibleMask(({ restore }) =>
-        restore(self.acquireN(n).commit).apSecond(restore(io).ensuring(self.releaseN(n).commit)),
-      );
+      IO.uninterruptibleMask(({ restore }) => restore(self.acquireN(n).commit).apSecond(restore(io).ensuring(self.releaseN(n).commit)));
 }
 
 /**

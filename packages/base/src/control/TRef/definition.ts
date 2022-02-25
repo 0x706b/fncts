@@ -79,10 +79,7 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
   readonly _tag                    = "Atomic";
   readonly atomic: Atomic<unknown> = this as Atomic<unknown>;
 
-  constructor(
-    public versioned: Versioned<A>,
-    readonly todo: AtomicReference<HashMap<TxnId, Todo>>,
-  ) {
+  constructor(public versioned: Versioned<A>, readonly todo: AtomicReference<HashMap<TxnId, Todo>>) {
     super();
   }
 
@@ -112,12 +109,7 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
 
   constructor(
     readonly use: <X>(
-      f: <S>(
-        getEither: (s: S) => Either<EB, B>,
-        setEither: (a: A) => Either<EA, S>,
-        value: Atomic<S>,
-        atomic: Atomic<unknown>,
-      ) => X,
+      f: <S>(getEither: (s: S) => Either<EB, B>, setEither: (a: A) => Either<EA, S>, value: Atomic<S>, atomic: Atomic<unknown>) => X,
     ) => X,
   ) {
     super();
@@ -194,8 +186,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         new DerivedAll((f) =>
           f(
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
-            (c) => (s) =>
-              ca(c).chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
+            (c) => (s) => ca(c).chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),

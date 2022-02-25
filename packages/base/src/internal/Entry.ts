@@ -52,13 +52,7 @@ export class ConcreteEntry<S> {
   }
 
   copy(): Entry {
-    const ops = new ConcreteEntry<S>(
-      this.tref,
-      this.expected,
-      this.newValue,
-      this.isNew,
-      this.isChanged(),
-    );
+    const ops = new ConcreteEntry<S>(this.tref, this.expected, this.newValue, this.isNew, this.isChanged());
     return new Entry((f) => f(ops));
   }
 

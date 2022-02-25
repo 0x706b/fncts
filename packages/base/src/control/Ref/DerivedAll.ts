@@ -10,13 +10,7 @@ export class DerivedAll<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, 
   readonly _tag = "DerivedAll";
 
   constructor(
-    readonly use: <X>(
-      f: <S>(
-        value: Atomic<S>,
-        getEither: (s: S) => Either<EB, B>,
-        setEither: (a: A) => (s: S) => Either<EA, S>,
-      ) => X,
-    ) => X,
+    readonly use: <X>(f: <S>(value: Atomic<S>, getEither: (s: S) => Either<EB, B>, setEither: (a: A) => (s: S) => Either<EA, S>) => X) => X,
   ) {
     super();
     this.match    = this.match.bind(this);
@@ -36,8 +30,7 @@ export class DerivedAll<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, 
           f(
             value,
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
-            (c) => (s) =>
-              ca(c).chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
+            (c) => (s) => ca(c).chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
           ),
         ),
     );
@@ -66,9 +59,7 @@ export class DerivedAll<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, 
   }
 
   get get(): FIO<EB, B> {
-    return this.use((value, getEither) =>
-      value.get.chain((s) => getEither(s).match(IO.failNow, IO.succeedNow)),
-    );
+    return this.use((value, getEither) => value.get.chain((s) => getEither(s).match(IO.failNow, IO.succeedNow)));
   }
 
   set(a: A): FIO<EA, void> {

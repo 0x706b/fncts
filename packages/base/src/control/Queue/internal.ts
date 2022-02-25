@@ -43,12 +43,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
           if (succeeded) {
             return IO.succeedNow(true);
           } else {
-            return this.strategy.handleSurplus(
-              Conc.single(a),
-              this.queue,
-              this.takers,
-              this.shutdownFlag,
-            );
+            return this.strategy.handleSurplus(Conc.single(a), this.queue, this.takers, this.shutdownFlag);
           }
         }
       }
@@ -61,9 +56,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
       if (this.shutdownFlag.get) {
         return IO.interrupt;
       } else {
-        const pTakers = this.queue.isEmpty
-          ? _unsafePollN(this.takers, arr.length)
-          : Conc.empty<Future<never, A>>();
+        const pTakers                = this.queue.isEmpty ? _unsafePollN(this.takers, arr.length) : Conc.empty<Future<never, A>>();
         const [forTakers, remaining] = arr.splitAt(pTakers.length);
         pTakers.zip(forTakers).forEach(([taker, item]) => {
           _unsafeCompletePromise(taker, item);
@@ -166,13 +159,8 @@ function _unsafeQueue<A>(
   return new UnsafeQueue(queue, takers, shutdownHook, shutdownFlag, strategy);
 }
 
-export function _makeQueue<A>(
-  strategy: Strategy<A>,
-): (queue: MutableQueue<A>) => IO<unknown, never, Queue<A>> {
-  return (queue) =>
-    Future.make<never, void>().map((p) =>
-      _unsafeQueue(queue, unbounded(), p, new AtomicBoolean(false), strategy),
-    );
+export function _makeQueue<A>(strategy: Strategy<A>): (queue: MutableQueue<A>) => IO<unknown, never, Queue<A>> {
+  return (queue) => Future.make<never, void>().map((p) => _unsafeQueue(queue, unbounded(), p, new AtomicBoolean(false), strategy));
 }
 
 export function _unsafeOfferAll<A>(q: MutableQueue<A>, as: Conc<A>): Conc<A> {
@@ -227,11 +215,7 @@ function _unsafePollN<A>(q: MutableQueue<A>, max: number): Conc<A> {
   return as;
 }
 
-export function _unsafeCompleteTakers<A>(
-  strategy: Strategy<A>,
-  queue: MutableQueue<A>,
-  takers: MutableQueue<Future<never, A>>,
-): void {
+export function _unsafeCompleteTakers<A>(strategy: Strategy<A>, queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>): void {
   let keepPolling = true;
 
   while (keepPolling && !queue.isEmpty) {

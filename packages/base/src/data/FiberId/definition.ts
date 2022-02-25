@@ -26,12 +26,7 @@ export class Runtime {
   readonly _tag                   = "Runtime";
   constructor(readonly seqNumber: number, readonly startTime: number) {}
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isFiberId(that) &&
-      isRuntime(that) &&
-      this.seqNumber === that.seqNumber &&
-      this.startTime === that.startTime
-    );
+    return isFiberId(that) && isRuntime(that) && this.seqNumber === that.seqNumber && this.startTime === that.startTime;
   }
 }
 
@@ -42,9 +37,7 @@ export class Composite {
   readonly _tag                   = "Composite";
   constructor(readonly fiberIds: HashSet<Runtime>) {}
   [Symbol.equatable](that: unknown) {
-    return (
-      isFiberId(that) && isComposite(that) && Equatable.strictEquals(this.fiberIds, that.fiberIds)
-    );
+    return isFiberId(that) && isComposite(that) && Equatable.strictEquals(this.fiberIds, that.fiberIds);
   }
   get [Symbol.hashable]() {
     return Hashable.combineHash(_hashComposite, Hashable.hash(this.fiberIds));

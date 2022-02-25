@@ -5,14 +5,7 @@ import type { PQueue } from "../definition";
 import { IO } from "../../IO";
 import { concrete, QueueInternal } from "../definition";
 
-class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
-  RC & RA,
-  RD & RB,
-  EC | EA,
-  ED | EB,
-  C,
-  D
-> {
+class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<RC & RA, RD & RB, EC | EA, ED | EB, C, D> {
   constructor(
     readonly queue: QueueInternal<RA, RB, EA, EB, A, B>,
     readonly f: (c: C) => IO<RC, EC, A>,
@@ -54,11 +47,7 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
  *
  * @tsplus fluent fncts.control.Queue dimap
  */
-export function dimap_<RA, RB, EA, EB, A, B, C, D>(
-  self: PQueue<RA, RB, EA, EB, A, B>,
-  f: (c: C) => A,
-  g: (b: B) => D,
-) {
+export function dimap_<RA, RB, EA, EB, A, B, C, D>(self: PQueue<RA, RB, EA, EB, A, B>, f: (c: C) => A, g: (b: B) => D) {
   return self.dimapIO(
     (c: C) => IO.succeedNow(f(c)),
     (b) => IO.succeedNow(g(b)),
@@ -97,10 +86,7 @@ export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
  *
  * @tsplus fluent fncts.control.Queue contramap
  */
-export function contramap_<RA, RB, EA, EB, A, B, C>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-  f: (c: C) => A,
-): PQueue<RA, RB, EA, EB, C, B> {
+export function contramap_<RA, RB, EA, EB, A, B, C>(queue: PQueue<RA, RB, EA, EB, A, B>, f: (c: C) => A): PQueue<RA, RB, EA, EB, C, B> {
   return queue.contramapIO((c) => IO.succeedNow(f(c)));
 }
 
@@ -121,10 +107,7 @@ export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
  *
  * @tsplus fluent fncts.control.Queue map
  */
-export function map_<RA, RB, EA, EB, A, B, C>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-  f: (b: B) => C,
-): PQueue<RA, RB, EA, EB, A, C> {
+export function map_<RA, RB, EA, EB, A, B, C>(queue: PQueue<RA, RB, EA, EB, A, B>, f: (b: B) => C): PQueue<RA, RB, EA, EB, A, C> {
   return queue.mapIO((b) => IO.succeedNow(f(b)));
 }
 
@@ -142,46 +125,35 @@ export function dimap<A, B, C, D>(f: (c: C) => A, g: (b: B) => D) {
  * specified effectual functions.
  * @tsplus dataFirst dimapIO_
  */
-export function dimapIO<A, B, C, RC, EC, RD, ED, D>(
-  f: (c: C) => IO<RC, EC, A>,
-  g: (b: B) => IO<RD, ED, D>,
-) {
-  return <RA, RB, EA, EB>(
-    queue: PQueue<RA, RB, EA, EB, A, B>,
-  ): PQueue<RC & RA, RD & RB, EC | EA, ED | EB, C, D> => dimapIO_(queue, f, g);
+export function dimapIO<A, B, C, RC, EC, RD, ED, D>(f: (c: C) => IO<RC, EC, A>, g: (b: B) => IO<RD, ED, D>) {
+  return <RA, RB, EA, EB>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RC & RA, RD & RB, EC | EA, ED | EB, C, D> => dimapIO_(queue, f, g);
 }
 /**
  * Transforms elements enqueued into this queue with an effectful function.
  * @tsplus dataFirst contramapIO_
  */
 export function contramapIO<A, RC, EC, C>(f: (c: C) => IO<RC, EC, A>) {
-  return <RA, RB, EA, EB, B>(
-    queue: PQueue<RA, RB, EA, EB, A, B>,
-  ): PQueue<RA & RC, RB, EA | EC, EB, C, B> => contramapIO_(queue, f);
+  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA & RC, RB, EA | EC, EB, C, B> => contramapIO_(queue, f);
 }
 /**
  * Transforms elements enqueued into this queue with an effectful function.
  * @tsplus dataFirst contramap_
  */
 export function contramap<A, C>(f: (c: C) => A) {
-  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, C, B> =>
-    contramap_(queue, f);
+  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, C, B> => contramap_(queue, f);
 }
 /**
  * Transforms elements dequeued from this queue with an effectful function.
  * @tsplus dataFirst mapIO_
  */
 export function mapIO<B, R2, E2, C>(f: (b: B) => IO<R2, E2, C>) {
-  return <RA, RB, EA, EB, A>(
-    queue: PQueue<RA, RB, EA, EB, A, B>,
-  ): PQueue<RA, R2 & RB, EA, EB | E2, A, C> => mapIO_(queue, f);
+  return <RA, RB, EA, EB, A>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, R2 & RB, EA, EB | E2, A, C> => mapIO_(queue, f);
 }
 /**
  * Transforms elements dequeued from this queue with a function.
  * @tsplus dataFirst map_
  */
 export function map<B, C>(f: (b: B) => C) {
-  return <RA, RB, EA, EB, A>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A, C> =>
-    map_(queue, f);
+  return <RA, RB, EA, EB, A>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A, C> => map_(queue, f);
 }
 // codegen:end

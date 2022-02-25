@@ -57,9 +57,7 @@ export function concrete(_: Eval<any>): asserts _ is Concrete {
 /**
  * @tsplus unify fncts.Eval
  */
-export function unifyEval<X extends Eval<any>>(
-  self: X,
-): Eval<[X] extends [Eval<infer A>] ? A : never> {
+export function unifyEval<X extends Eval<any>>(self: X): Eval<[X] extends [Eval<infer A>] ? A : never> {
   return self;
 }
 

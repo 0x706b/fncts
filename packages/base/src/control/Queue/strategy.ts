@@ -6,12 +6,7 @@ import type { UIO } from "../IO";
 import { unbounded } from "../../internal/MutableQueue";
 import { Future } from "../Future";
 import { IO } from "../IO";
-import {
-  _unsafeCompletePromise,
-  _unsafeCompleteTakers,
-  _unsafeOfferAll,
-  _unsafePollAll,
-} from "./internal";
+import { _unsafeCompletePromise, _unsafeCompleteTakers, _unsafeOfferAll, _unsafePollAll } from "./internal";
 
 export interface Strategy<A> {
   readonly handleSurplus: (
@@ -21,10 +16,7 @@ export interface Strategy<A> {
     isShutdown: AtomicBoolean,
   ) => UIO<boolean>;
 
-  readonly unsafeOnQueueEmptySpace: (
-    queue: MutableQueue<A>,
-    takers: MutableQueue<Future<never, A>>,
-  ) => void;
+  readonly unsafeOnQueueEmptySpace: (queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>) => void;
 
   readonly surplusSize: number;
 
@@ -34,12 +26,7 @@ export interface Strategy<A> {
 export class BackPressureStrategy<A> implements Strategy<A> {
   private putters = unbounded<[A, Future<never, boolean>, boolean]>();
 
-  handleSurplus(
-    as: Conc<A>,
-    queue: MutableQueue<A>,
-    takers: MutableQueue<Future<never, A>>,
-    isShutdown: AtomicBoolean,
-  ): UIO<boolean> {
+  handleSurplus(as: Conc<A>, queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>, isShutdown: AtomicBoolean): UIO<boolean> {
     return IO.descriptorWith((d) =>
       IO.defer(() => {
         const p = Future.unsafeMake<never, boolean>(d.id);
@@ -108,11 +95,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     return IO.gen(function* (_) {
       const fiberId = yield* _(IO.fiberId);
       const putters = yield* _(IO.succeed(_unsafePollAll(self.putters)));
-      yield* _(
-        IO.foreachC(putters, ([, p, lastItem]) =>
-          lastItem ? p.interruptAs(fiberId).asUnit : IO.unit,
-        ),
-      );
+      yield* _(IO.foreachC(putters, ([, p, lastItem]) => (lastItem ? p.interruptAs(fiberId).asUnit : IO.unit)));
     });
   }
 
@@ -122,12 +105,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
 }
 
 export class DroppingStrategy<A> implements Strategy<A> {
-  handleSurplus(
-    _as: Conc<A>,
-    _queue: MutableQueue<A>,
-    _takers: MutableQueue<Future<never, A>>,
-    _isShutdown: AtomicBoolean,
-  ): UIO<boolean> {
+  handleSurplus(_as: Conc<A>, _queue: MutableQueue<A>, _takers: MutableQueue<Future<never, A>>, _isShutdown: AtomicBoolean): UIO<boolean> {
     return IO.succeedNow(false);
   }
 
@@ -145,12 +123,7 @@ export class DroppingStrategy<A> implements Strategy<A> {
 }
 
 export class SlidingStrategy<A> implements Strategy<A> {
-  handleSurplus(
-    as: Conc<A>,
-    queue: MutableQueue<A>,
-    takers: MutableQueue<Future<never, A>>,
-    _isShutdown: AtomicBoolean,
-  ): UIO<boolean> {
+  handleSurplus(as: Conc<A>, queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>, _isShutdown: AtomicBoolean): UIO<boolean> {
     return IO.succeed(() => {
       this.unsafeSlidingOffer(queue, as);
       _unsafeCompleteTakers(this, queue, takers);

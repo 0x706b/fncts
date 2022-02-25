@@ -11,10 +11,7 @@ import { concrete } from "./definition";
 /**
  * @tsplus fluent fncts.control.FiberRef modify
  */
-export function modify_<EA, EB, A, B>(
-  self: PFiberRef<EA, EB, A, A>,
-  f: (a: A) => readonly [B, A],
-): FIO<EA | EB, B> {
+export function modify_<EA, EB, A, B>(self: PFiberRef<EA, EB, A, A>, f: (a: A) => readonly [B, A]): FIO<EA | EB, B> {
   concrete(self);
   return matchTag_(self, {
     Runtime: (_) => _.modify(f),
@@ -62,10 +59,7 @@ export function modify_<EA, EB, A, B>(
 /**
  * @tsplus fluent fncts.control.FiberRef update
  */
-export function update_<EA, EB, A>(
-  fiberRef: PFiberRef<EA, EB, A, A>,
-  f: (a: A) => A,
-): FIO<EA | EB, void> {
+export function update_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, f: (a: A) => A): FIO<EA | EB, void> {
   return fiberRef.modify((a) => [undefined, f(a)]);
 }
 
@@ -93,20 +87,14 @@ export function getAndSet_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, a: A): 
 /**
  * @tsplus fluent fncts.control.FiberRef getAndUpdate
  */
-export function getAndUpdate_<EA, EB, A>(
-  fiberRef: PFiberRef<EA, EB, A, A>,
-  f: (a: A) => A,
-): FIO<EA | EB, A> {
+export function getAndUpdate_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, f: (a: A) => A): FIO<EA | EB, A> {
   return fiberRef.modify((a) => [a, f(a)]);
 }
 
 /**
  * @tsplus fluent fncts.control.FiberRef getAndUpdateJust
  */
-export function getAndUpdateJust_<EA, EB, A>(
-  fiberRef: PFiberRef<EA, EB, A, A>,
-  f: (a: A) => Maybe<A>,
-): FIO<EA | EB, A> {
+export function getAndUpdateJust_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, f: (a: A) => Maybe<A>): FIO<EA | EB, A> {
   return fiberRef.modify((a) => [a, f(a).getOrElse(a)]);
 }
 
@@ -126,10 +114,7 @@ export function locally_<EA, EB, A, B, R1, E1, C>(fiberRef: PFiberRef<EA, EB, A,
 /**
  * @tsplus fluent fncts.control.FiberRef getWith
  */
-export function getWith_<EA, EB, A, B, R, E, C>(
-  fiberRef: PFiberRef<EA, EB, A, B>,
-  f: (b: B) => IO<R, E, C>,
-): IO<R, EB | E, C> {
+export function getWith_<EA, EB, A, B, R, E, C>(fiberRef: PFiberRef<EA, EB, A, B>, f: (b: B) => IO<R, E, C>): IO<R, EB | E, C> {
   return fiberRef.getWith(f);
 }
 
@@ -191,11 +176,7 @@ export function dimapEither_<EA, EB, A, B, EC, ED, C, D>(
 /**
  * @tsplus fluent fncts.control.FiberRef dimap
  */
-export function dimap_<EA, EB, A, B, C, D>(
-  ref: PFiberRef<EA, EB, A, B>,
-  f: (inp: C) => A,
-  g: (out: B) => D,
-): PFiberRef<EA, EB, C, D> {
+export function dimap_<EA, EB, A, B, C, D>(ref: PFiberRef<EA, EB, A, B>, f: (inp: C) => A, g: (out: B) => D): PFiberRef<EA, EB, C, D> {
   return ref.dimapEither(
     (c) => Either.right(f(c)),
     (b) => Either.right(g(b)),
@@ -232,10 +213,7 @@ export function contramapEither_<EA, EB, A, B, EC, C>(
 /**
  * @tsplus fluent fncts.control.FiberRef contramap
  */
-export function contramap_<EA, EB, A, B, C>(
-  ref: PFiberRef<EA, EB, A, B>,
-  f: (inp: C) => A,
-): PFiberRef<EA, EB, C, B> {
+export function contramap_<EA, EB, A, B, C>(ref: PFiberRef<EA, EB, A, B>, f: (inp: C) => A): PFiberRef<EA, EB, C, B> {
   return ref.contramapEither((c) => Either.right(f(c)));
 }
 
@@ -248,40 +226,22 @@ export function contramap_<EA, EB, A, B, C>(
 /**
  * @tsplus fluent fncts.control.FiberRef filterMap
  */
-export function filterMap_<EA, EB, A, B, C>(
-  ref: PFiberRef<EA, EB, A, B>,
-  f: (b: B) => Maybe<C>,
-): PFiberRef<EA, Maybe<EB>, A, C> {
-  return ref.match(identity, Maybe.just, Either.right, (b) =>
-    f(b).match(() => Either.left(Nothing()), Either.right),
-  );
+export function filterMap_<EA, EB, A, B, C>(ref: PFiberRef<EA, EB, A, B>, f: (b: B) => Maybe<C>): PFiberRef<EA, Maybe<EB>, A, C> {
+  return ref.match(identity, Maybe.just, Either.right, (b) => f(b).match(() => Either.left(Nothing()), Either.right));
 }
 
 /**
  * @tsplus fluent fncts.control.FiberRef filterInput
  */
-export function filterInput_<EA, EB, A, B>(
-  ref: PFiberRef<EA, EB, A, B>,
-  p: Predicate<A>,
-): PFiberRef<Maybe<EA>, EB, A, B> {
-  return ref.match(
-    Maybe.just,
-    identity,
-    (a) => (p(a) ? Either.right(a) : Either.left(Nothing())),
-    Either.right,
-  );
+export function filterInput_<EA, EB, A, B>(ref: PFiberRef<EA, EB, A, B>, p: Predicate<A>): PFiberRef<Maybe<EA>, EB, A, B> {
+  return ref.match(Maybe.just, identity, (a) => (p(a) ? Either.right(a) : Either.left(Nothing())), Either.right);
 }
 
 /**
  * @tsplus fluent fncts.control.FiberRef filterOutput
  */
-export function filterOutput_<EA, EB, A, B>(
-  ref: PFiberRef<EA, EB, A, B>,
-  p: Predicate<B>,
-): PFiberRef<EA, Maybe<EB>, A, B> {
-  return ref.match(identity, Maybe.just, Either.right, (b) =>
-    p(b) ? Either.right(b) : Either.left(Nothing()),
-  );
+export function filterOutput_<EA, EB, A, B>(ref: PFiberRef<EA, EB, A, B>, p: Predicate<B>): PFiberRef<EA, Maybe<EB>, A, B> {
+  return ref.match(identity, Maybe.just, Either.right, (b) => (p(b) ? Either.right(b) : Either.left(Nothing())));
 }
 
 /*
@@ -293,20 +253,14 @@ export function filterOutput_<EA, EB, A, B>(
 /**
  * @tsplus fluent fncts.control.FiberRef mapEither
  */
-export function mapEither_<EA, EB, A, B, EC, C>(
-  ref: PFiberRef<EA, EB, A, B>,
-  f: (out: B) => Either<EC, C>,
-): PFiberRef<EA, EB | EC, A, C> {
+export function mapEither_<EA, EB, A, B, EC, C>(ref: PFiberRef<EA, EB, A, B>, f: (out: B) => Either<EC, C>): PFiberRef<EA, EB | EC, A, C> {
   return ref.dimapEither(Either.right, f);
 }
 
 /**
  * @tsplus fluent fncts.control.FiberRef map
  */
-export function map_<EA, EB, A, B, C>(
-  ref: PFiberRef<EA, EB, A, B>,
-  f: (out: B) => C,
-): PFiberRef<EA, EB, A, C> {
+export function map_<EA, EB, A, B, C>(ref: PFiberRef<EA, EB, A, B>, f: (out: B) => C): PFiberRef<EA, EB, A, C> {
   return ref.mapEither((b) => Either.right(f(b)));
 }
 
@@ -323,9 +277,7 @@ export function readOnly<EA, EB, A, B>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<
   return ref;
 }
 
-export function writeOnly<EA, EB, A, B>(
-  ref: PFiberRef<EA, EB, A, B>,
-): PFiberRef<EA, void, A, never> {
+export function writeOnly<EA, EB, A, B>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA, void, A, never> {
   return match_(
     ref,
     identity,
@@ -370,8 +322,7 @@ export function getAndUpdate<A>(f: (a: A) => A) {
  * @tsplus dataFirst getAndUpdateJust_
  */
 export function getAndUpdateJust<A>(f: (a: A) => Maybe<A>) {
-  return <EA, EB>(fiberRef: PFiberRef<EA, EB, A, A>): FIO<EA | EB, A> =>
-    getAndUpdateJust_(fiberRef, f);
+  return <EA, EB>(fiberRef: PFiberRef<EA, EB, A, A>): FIO<EA | EB, A> => getAndUpdateJust_(fiberRef, f);
 }
 /**
  * Returns an `IO` that runs with `value` bound to the current fiber.
@@ -409,18 +360,13 @@ export function matchAll<EA, EB, A, B, EC, ED, C, D>(
   ca: (_: C) => (_: B) => Either<EC, A>,
   bd: (_: B) => Either<ED, D>,
 ) {
-  return (ref: PFiberRef<EA, EB, A, B>): PFiberRef<EC, ED, C, D> =>
-    matchAll_(ref, ea, eb, ec, ca, bd);
+  return (ref: PFiberRef<EA, EB, A, B>): PFiberRef<EC, ED, C, D> => matchAll_(ref, ea, eb, ec, ca, bd);
 }
 /**
  * @tsplus dataFirst dimapEither_
  */
-export function dimapEither<A, B, EC, ED, C, D>(
-  f: (inp: C) => Either<EC, A>,
-  g: (out: B) => Either<ED, D>,
-) {
-  return <EA, EB>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA | EC, EB | ED, C, D> =>
-    dimapEither_(ref, f, g);
+export function dimapEither<A, B, EC, ED, C, D>(f: (inp: C) => Either<EC, A>, g: (out: B) => Either<ED, D>) {
+  return <EA, EB>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA | EC, EB | ED, C, D> => dimapEither_(ref, f, g);
 }
 /**
  * @tsplus dataFirst dimap_
@@ -438,8 +384,7 @@ export function dimapError<EA, EB, EC, ED>(f: (inpError: EA) => EC, g: (outError
  * @tsplus dataFirst contramapEither_
  */
 export function contramapEither<A, EC, C>(f: (inp: C) => Either<EC, A>) {
-  return <EA, EB, B>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA | EC, EB, C, B> =>
-    contramapEither_(ref, f);
+  return <EA, EB, B>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA | EC, EB, C, B> => contramapEither_(ref, f);
 }
 /**
  * @tsplus dataFirst contramap_
@@ -451,29 +396,25 @@ export function contramap<A, C>(f: (inp: C) => A) {
  * @tsplus dataFirst filterMap_
  */
 export function filterMap<B, C>(f: (b: B) => Maybe<C>) {
-  return <EA, EB, A>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA, Maybe<EB>, A, C> =>
-    filterMap_(ref, f);
+  return <EA, EB, A>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA, Maybe<EB>, A, C> => filterMap_(ref, f);
 }
 /**
  * @tsplus dataFirst filterInput_
  */
 export function filterInput<A>(p: Predicate<A>) {
-  return <EA, EB, B>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<Maybe<EA>, EB, A, B> =>
-    filterInput_(ref, p);
+  return <EA, EB, B>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<Maybe<EA>, EB, A, B> => filterInput_(ref, p);
 }
 /**
  * @tsplus dataFirst filterOutput_
  */
 export function filterOutput<B>(p: Predicate<B>) {
-  return <EA, EB, A>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA, Maybe<EB>, A, B> =>
-    filterOutput_(ref, p);
+  return <EA, EB, A>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA, Maybe<EB>, A, B> => filterOutput_(ref, p);
 }
 /**
  * @tsplus dataFirst mapEither_
  */
 export function mapEither<B, EC, C>(f: (out: B) => Either<EC, C>) {
-  return <EA, EB, A>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA, EB | EC, A, C> =>
-    mapEither_(ref, f);
+  return <EA, EB, A>(ref: PFiberRef<EA, EB, A, B>): PFiberRef<EA, EB | EC, A, C> => mapEither_(ref, f);
 }
 /**
  * @tsplus dataFirst map_

@@ -11,6 +11,7 @@ export * from "./Fiber/api/evalOn";
 export * from "./Fiber/api/evalOnIO";
 export * from "./Fiber/api/fromIO";
 export * from "./Fiber/api/interrupt";
+export * from "./Fiber/api/interruptAll";
 export * from "./Fiber/api/interruptFork";
 export * from "./Fiber/api/join";
 export * from "./Fiber/api/joinAll";

@@ -12,14 +12,7 @@ import { Done, Executing } from "./definition";
  * @tsplus static fncts.data.FiberStateOps initial
  */
 export function initial<E, A>(): FiberState<E, A> {
-  return new Executing(
-    FiberStatus.running(false),
-    new Set(),
-    Cause.empty(),
-    new Set(),
-    CancellerState.empty,
-    null,
-  );
+  return new Executing(FiberStatus.running(false), new Set(), Cause.empty(), new Set(), CancellerState.empty, null);
 }
 
 /**

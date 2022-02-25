@@ -29,12 +29,7 @@ export function withInterrupting(self: FiberStatus, b: boolean): FiberStatus {
     case FiberStatusTag.Running:
       return new Running(b);
     case FiberStatusTag.Suspended:
-      return new Suspended(
-        withInterrupting(self.previous, b),
-        self.interruptible,
-        self.epoch,
-        self.blockingOn,
-      );
+      return new Suspended(withInterrupting(self.previous, b), self.interruptible, self.epoch, self.blockingOn);
   }
 }
 
