@@ -10,7 +10,7 @@ import { IO } from "../IO";
 import { ConstSupervisor, Supervisor } from "./definition";
 
 /**
- * @tsplus static fncts.control.SupervisorOps unsafeTrace
+ * @tsplus static fncts.control.SupervisorOps unsafeTrack
  */
 export function unsafeTrack(): Supervisor<Conc<RuntimeFiber<any, any>>> {
   const set = new Set<RuntimeFiber<any, any>>();

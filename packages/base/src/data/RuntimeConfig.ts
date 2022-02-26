@@ -24,10 +24,11 @@ export class RuntimeConfig extends CaseClass<{
   readonly logger: Logger<string, any>;
 }> {}
 
+/**
+ * @tsplus companion fncts.data.RuntimeConfigFlags
+ */
 export class RuntimeConfigFlags {
   constructor(readonly flags: HashSet<RuntimeConfigFlag>) {}
-
-  static empty = new RuntimeConfigFlags(HashSet.makeDefault());
 
   add(flag: RuntimeConfigFlag) {
     return new RuntimeConfigFlags(this.flags.add(flag));
@@ -37,3 +38,8 @@ export class RuntimeConfigFlags {
     return this.flags.has(flag);
   }
 }
+
+/**
+ * @tsplus static fncts.data.RuntimeConfigFlags empty
+ */
+export const empty = new RuntimeConfigFlags(HashSet.makeDefault());

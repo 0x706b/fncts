@@ -4,6 +4,7 @@ import type { NonEmptyArray } from "../../collection/immutable/NonEmptyArray";
 import type { Lazy } from "../../data/function";
 import type { Predicate } from "../../data/Predicate";
 import type { Refinement } from "../../data/Refinement";
+import type { RuntimeConfig } from "../../data/RuntimeConfig";
 import type { Trace } from "../../data/Trace";
 import type * as P from "../../prelude";
 import type { _E, _R } from "../../types";
@@ -18,7 +19,7 @@ import { Either } from "../../data/Either";
 import { Exit } from "../../data/Exit";
 import { identity, tuple } from "../../data/function";
 import { Just, Maybe, Nothing } from "../../data/Maybe";
-import { Chain, Ensuring, Fork, Give, IO, Match } from "./definition";
+import { Chain, Ensuring, Fork, Give, IO, Match, SetRuntimeConfig } from "./definition";
 
 // /**
 //  * Attempts to convert defects into a failure, throwing away all information
@@ -1298,6 +1299,13 @@ export function retryWhileIO_<R, E, A, R1, E1>(
 }
 
 /**
+ * Retrieves the runtimeConfig that this effect is running on.
+ *
+ * @tsplus static fncts.control.IOOps runtimeConfig
+ */
+export const runtimeConfig: UIO<RuntimeConfig> = IO.deferWith((runtimeConfig) => IO.succeedNow(runtimeConfig));
+
+/**
  * Exposes the full cause of failure of this effect.
  *
  * @tsplus getter fncts.control.IO sandbox
@@ -1315,6 +1323,14 @@ export function sandboxWith_<R, E, A, E1>(
   __tsplusTrace?: string,
 ): IO<R, E1, A> {
   return f(ma.sandbox).unsandbox;
+}
+
+/**
+ * Sets the runtime configuration to the specified value.
+ * @tsplus static fncts.control.IOOps setRuntimeConfig
+ */
+export function setRuntimeConfig(runtimeConfig: Lazy<RuntimeConfig>, __tsplusTrace?: string): UIO<void> {
+  return IO.defer(new SetRuntimeConfig(runtimeConfig(), __tsplusTrace));
 }
 
 /**

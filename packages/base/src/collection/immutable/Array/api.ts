@@ -1011,7 +1011,6 @@ export function spanIndexRight_<A>(as: Array<A>, predicate: Predicate<A>): numbe
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array splitAt
- * @tsplus fluent fncts.collection.immutable.NonEmptyArray splitAt
  */
 export function splitAt_<A>(as: Array<A>, n: number): readonly [Array<A>, Array<A>] {
   return [as.slice(0, n), as.slice(n)];

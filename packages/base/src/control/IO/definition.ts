@@ -84,6 +84,7 @@ export const enum IOTag {
   GetRuntimeConfig = "GetRuntimeConfig",
   Ensuring = "Ensuring",
   Logged = "Logged",
+  SetRuntimeConfig = "SetRuntimeConfig",
 }
 
 export function isIO(u: unknown): u is IO<any, any, any> {
@@ -399,6 +400,13 @@ export class Logged extends IO<unknown, never, void> {
   }
 }
 
+export class SetRuntimeConfig extends IO<unknown, never, void> {
+  readonly _tag = IOTag.SetRuntimeConfig;
+  constructor(readonly runtimeConfig: RuntimeConfig, readonly trace?: string) {
+    super();
+  }
+}
+
 export type Instruction =
   | Chain<any, any, any, any, any, any>
   | SucceedNow<any>
@@ -428,7 +436,8 @@ export type Instruction =
   | Trace
   | GetRuntimeConfig<any, any, any>
   | Ensuring<any, any, any, any>
-  | Logged;
+  | Logged
+  | SetRuntimeConfig;
 
 /**
  * @optimize identity

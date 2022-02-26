@@ -19,7 +19,7 @@ export class Global extends Scope {
   get fiberId(): FiberId {
     return FiberId.none;
   }
-  unsafeAdd(_child: FiberContext<unknown, unknown>): boolean {
+  unsafeAdd(_child: FiberContext<any, any>): boolean {
     return true;
   }
 }

@@ -78,7 +78,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
 
   constructor(
     protected readonly fiberId: FiberId,
-    private readonly runtimeConfig: RuntimeConfig,
+    private runtimeConfig: RuntimeConfig,
     private interruptStatus: Stack<boolean> | undefined,
     private readonly fiberRefLocals: FiberRefLocals,
     private readonly children: Set<FiberContext<unknown, unknown>>,
@@ -463,6 +463,11 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                     );
 
                     current = this.unsafeNextEffect(undefined);
+                    break;
+                  }
+                  case IOTag.SetRuntimeConfig: {
+                    this.runtimeConfig = current.runtimeConfig;
+                    current            = concrete(IO.unit);
                     break;
                   }
                   default: {
@@ -886,7 +891,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
     return childContext;
   }
 
-  private unsafeOnDone(k: FiberState.Callback<never, Exit<E, A>>): void {
+  unsafeOnDone(k: FiberState.Callback<never, Exit<E, A>>): void {
     const exit = this.unsafeAddObserver(k);
     if (exit == null) {
       return;
