@@ -8,6 +8,7 @@
 		}
 	],
 	"settings": {
-		"typescript.tsdk": "fncts/node_modules/typescript/lib"
-	}
+		"typescript.tsdk": "fncts/node_modules/typescript/lib",
+		"explorer.sortOrder": "mixed"
+	},
 }

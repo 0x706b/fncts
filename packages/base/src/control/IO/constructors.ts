@@ -4,6 +4,8 @@ import type { Lazy } from "../../data/function";
 import type { InterruptStatus } from "../../data/InterruptStatus";
 import type { Maybe } from "../../data/Maybe";
 import type { RuntimeConfig } from "../../data/RuntimeConfig";
+import type { Tag } from "../../data/Tag";
+import type { Has } from "../../prelude";
 import type { Eval } from "../Eval";
 import type { Supervisor } from "../Supervisor";
 import type { Canceler, FIO, UIO, URIO } from "./definition";
@@ -57,6 +59,14 @@ export function asks<R, A>(f: (_: R) => A, __tsplusTrace?: string): URIO<R, A> {
  */
 export function asksIO<R0, R, E, A>(f: (r: R0) => IO<R, E, A>, __tsplusTrace?: string): IO<R & R0, E, A> {
   return new Asks(f, __tsplusTrace);
+}
+
+/**
+ * @tsplus static fncts.control.IOOps asksServiceIO
+ */
+export function asksServiceIO<T>(tag: Tag<T>) {
+  return <R, E, A>(f: (service: T) => IO<R, E, A>, __tsplusTrace?: string): IO<R & Has<T>, E, A> =>
+    IO.asksIO((service: Has<T>) => f(tag.read(service)));
 }
 
 /**
