@@ -2,5 +2,6 @@
 export * from "./exceptions/ArrayIndexOutOfBoundsError";
 export * from "./exceptions/IndexOutOfBoundsError";
 export * from "./exceptions/InterruptedException";
+export * from "./exceptions/InvalidCapacityError";
 export * from "./exceptions/NoSuchElementError";
 // codegen:end

@@ -118,16 +118,18 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, 
  */
 export interface Queue<A> extends PQueue<unknown, unknown, never, never, A, A> {}
 
-/**
- * A queue that can only be dequeued.
- *
- * @tsplus type fncts.control.Queue
- */
-export interface Dequeue<A> extends PQueue<never, unknown, unknown, never, never, A> {}
+export declare namespace Queue {
+  /**
+   * A queue that can only be dequeued.
+   *
+   * @tsplus type fncts.control.Queue
+   */
+  export interface Dequeue<A> extends PQueue<never, unknown, unknown, never, never, A> {}
 
-/**
- * A queue that can only be enqueued.
- *
- * @tsplus type fncts.control.Queue
- */
-export interface Enqueue<A> extends PQueue<unknown, never, never, unknown, A, any> {}
+  /**
+   * A queue that can only be enqueued.
+   *
+   * @tsplus type fncts.control.Queue
+   */
+  export interface Enqueue<A> extends PQueue<unknown, never, never, unknown, A, any> {}
+}

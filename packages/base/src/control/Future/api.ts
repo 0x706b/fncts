@@ -171,6 +171,13 @@ export function unsafeDone_<E, A>(future: Future<E, A>, io: FIO<E, A>) {
 }
 
 /**
+ * @tsplus fluent fncts.control.Future unsafeSucceed
+ */
+export function unsafeSucceed_<A>(future: Future<never, A>, a: A): void {
+  future.unsafeDone(IO.succeedNow(a));
+}
+
+/**
  * Retrieves the value of the future, suspending the fiber running the action
  * until the result is available.
  *
@@ -287,5 +294,11 @@ export function succeed<A>(a: A) {
  */
 export function unsafeDone<E, A>(io: FIO<E, A>) {
   return (future: Future<E, A>) => unsafeDone_(future, io);
+}
+/**
+ * @tsplus dataFirst unsafeSucceed_
+ */
+export function unsafeSucceed<A>(a: A) {
+  return (future: Future<never, A>): void => unsafeSucceed_(future, a);
 }
 // codegen:end

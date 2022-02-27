@@ -1,6 +1,10 @@
 import { Conc } from "../collection/immutable/Conc";
 import { assert } from "../util/assert";
 
+/**
+ * @tsplus type fncts.internal.MutableQueue
+ * @tsplus companion fncts.internal.MutableQueueOps
+ */
 export abstract class MutableQueue<A> {
   /**
    * The maximum number of elements that a queue can hold.
@@ -259,6 +263,9 @@ export function mkRingBuffer<A>(requestedCapacity: number): RingBuffer<A> {
   }
 }
 
+/**
+ * @tsplus static fncts.internal.MutableQueueOps bounded
+ */
 export function bounded<A>(capacity: number): MutableQueue<A> {
   if (capacity === 1) {
     return new OneElementMutableQueue<A>();
@@ -267,6 +274,23 @@ export function bounded<A>(capacity: number): MutableQueue<A> {
   }
 }
 
+/**
+ * @tsplus static fncts.internal.MutableQueueOps unbounded
+ */
 export function unbounded<A>(): MutableQueue<A> {
   return new LinkedQueue<A>();
+}
+
+/**
+ * @tsplus getter fncts.internal.MutableQueue unsafeDequeueAll
+ */
+export function unsafeDequeueAll<A>(queue: MutableQueue<A>): Conc<A> {
+  return queue.dequeueUpTo(Number.MAX_SAFE_INTEGER);
+}
+
+/**
+ * @tsplus fluent fncts.internal.MutableQueue unsafeRemove
+ */
+export function unsafeRemove<A>(queue: MutableQueue<A>, a: A): void {
+  queue.enqueueAll(queue.unsafeDequeueAll.filter((_) => _ !== a));
 }

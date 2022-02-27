@@ -919,6 +919,8 @@ export function swapWith_<R, E, A, R1, E1, B>(
 
 /**
  * Returns a managed that effectfully peeks at the acquired resource.
+ *
+ * @tsplus fluent fncts.control.Managed tap
  */
 export function tap_<R, E, A, Q, D>(
   ma: Managed<R, E, A>,
