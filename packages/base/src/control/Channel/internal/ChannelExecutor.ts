@@ -391,7 +391,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               break;
             }
             case ChannelTag.FromIO: {
-              const pio = this.providedEnv === null ? currentChannel.io : currentChannel.io.give(this.providedEnv as Env);
+              const pio = this.providedEnv === null ? currentChannel.io : currentChannel.io.provideEnvironment(this.providedEnv as Env);
               result    = new State.Effect(
                 pio.matchCauseIO(
                   (cause) => {
@@ -459,7 +459,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               result = this.runBracketOut(currentChannel);
               break;
             }
-            case ChannelTag.Give: {
+            case ChannelTag.Provide: {
               const previousEnv   = this.providedEnv;
               this.providedEnv    = currentChannel.environment;
               this.currentChannel = currentChannel.inner;

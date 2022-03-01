@@ -69,7 +69,7 @@ export class Runtime<R> {
  * @tsplus static fncts.control.IOOps runtime
  */
 export function runtime<R>(__tsplusTrace?: string): URIO<R, Runtime<R>> {
-  return IO.asksIO((environment: R) => IO.runtimeConfig.map((config) => new Runtime(environment, config)));
+  return IO.environmentWithIO((environment: R) => IO.runtimeConfig.map((config) => new Runtime(environment, config)));
 }
 
 export const defaultRuntimeConfig = new RuntimeConfig({

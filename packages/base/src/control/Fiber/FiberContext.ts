@@ -348,7 +348,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
                     this.unsafeRunLater(concrete(IO.unit));
                     break;
                   }
-                  case IOTag.Asks: {
+                  case IOTag.Environment: {
                     current = concrete(current.f(this.unsafeGetRef(FiberRef.currentEnvironment)));
                     break;
                   }

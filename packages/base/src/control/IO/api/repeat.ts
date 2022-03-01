@@ -35,5 +35,5 @@ export function repeatOrElseEither_<R, E, A>(self: IO<R, E, A>) {
     orElse: (e: E, out: Maybe<B>) => IO<R2, E2, C>,
     __tsplusTrace?: string,
   ): IO<Has<Clock> & R & R1 & R2, E2, Either<C, B>> =>
-    IO.asksServiceIO(Clock.Tag)((clock) => clock.repeatOrElseEither(self)(schedule0, orElse));
+    IO.serviceWithIO(Clock.Tag)((clock) => clock.repeatOrElseEither(self)(schedule0, orElse));
 }

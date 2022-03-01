@@ -14,10 +14,10 @@ import { Finalizer } from "./Finalizer";
 /**
  * Accesses the whole environment of the effect.
  *
- * @tsplus static fncts.control.ManagedOps ask
+ * @tsplus static fncts.control.ManagedOps environment
  */
-export function ask<R>(): Managed<R, never, R> {
-  return Managed.fromIO(IO.ask<R>());
+export function environment<R>(): Managed<R, never, R> {
+  return Managed.fromIO(IO.environment<R>());
 }
 
 /**
@@ -43,10 +43,10 @@ export function bracketExit_<R, E, A, R1>(
 ): Managed<R & R1, E, A> {
   return new Managed(
     IO.gen(function* (_) {
-      const r               = yield* _(IO.ask<R1>());
+      const r               = yield* _(IO.environment<R1>());
       const releaseMap      = yield* _(FiberRef.currentReleaseMap.get);
       const a               = yield* _(acquire);
-      const releaseMapEntry = yield* _(releaseMap.add(Finalizer.get((exit) => release(a, exit).give(r))));
+      const releaseMapEntry = yield* _(releaseMap.add(Finalizer.get((exit) => release(a, exit).provideEnvironment(r))));
       return [releaseMapEntry, a] as const;
     }).uninterruptible,
   );
@@ -150,10 +150,10 @@ export function fromReservationIO<R, E, R2, E2, A>(reservation: IO<R, E, Reserva
   return new Managed(
     IO.uninterruptibleMask(({ restore }) =>
       IO.gen(function* (_) {
-        const r             = yield* _(IO.ask<R & R2>());
+        const r             = yield* _(IO.environment<R & R2>());
         const releaseMap    = yield* _(FiberRef.currentReleaseMap.get);
         const reserved      = yield* _(reservation);
-        const releaseKey    = yield* _(releaseMap.addIfOpen(Finalizer.get((fin) => reserved.release(fin).give(r))));
+        const releaseKey    = yield* _(releaseMap.addIfOpen(Finalizer.get((fin) => reserved.release(fin).provideEnvironment(r))));
         const finalizerAndA = yield* _(
           IO.defer(
             releaseKey.match(

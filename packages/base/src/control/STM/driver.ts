@@ -70,7 +70,7 @@ export class STMDriver<R, E, A> {
           }
           break;
         }
-        case STMTag.Gives: {
+        case STMTag.ContramapEnvironment: {
           this.envStack = Stack.make(k.f(this.envStack.value), this.envStack);
           curr          = k.stm.ensuring(
             STM.succeed(() => {

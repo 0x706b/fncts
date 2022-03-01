@@ -55,28 +55,28 @@ export function asUnit<R, E, A>(ma: Managed<R, E, A>): Managed<R, E, void> {
 /**
  * Create a managed that accesses the environment.
  *
- * @tsplus static fncts.control.ManagedOps asks
+ * @tsplus static fncts.control.ManagedOps environmentWith
  */
-export function asks<R, A>(f: (r: R) => A, __tsplusTrace?: string): Managed<R, never, A> {
-  return Managed.ask<R>().map(f);
+export function environmentWith<R, A>(f: (r: R) => A, __tsplusTrace?: string): Managed<R, never, A> {
+  return Managed.environment<R>().map(f);
 }
 
 /**
  * Create a managed that accesses the environment.
  *
- * @tsplus static fncts.control.ManagedOps asksIO
+ * @tsplus static fncts.control.ManagedOps environmentWithIO
  */
-export function asksIO<R0, R, E, A>(f: (r: R0) => IO<R, E, A>, __tsplusTrace?: string): Managed<R0 & R, E, A> {
-  return Managed.ask<R0>().mapIO(f);
+export function environmentWithIO<R0, R, E, A>(f: (r: R0) => IO<R, E, A>, __tsplusTrace?: string): Managed<R0 & R, E, A> {
+  return Managed.environment<R0>().mapIO(f);
 }
 
 /**
  * Create a managed that accesses the environment.
  *
- * @tsplus static fncts.control.ManagedOps asksManaged
+ * @tsplus static fncts.control.ManagedOps environmentWithManaged
  */
-export function asksManaged<R0, R, E, A>(f: (r: R0) => Managed<R, E, A>, __tsplusTrace?: string): Managed<R0 & R, E, A> {
-  return Managed.ask<R0>().chain(f);
+export function environmentWithManaged<R0, R, E, A>(f: (r: R0) => Managed<R, E, A>, __tsplusTrace?: string): Managed<R0 & R, E, A> {
+  return Managed.environment<R0>().chain(f);
 }
 
 /**
@@ -234,7 +234,7 @@ export function chainError_<R, E, A, R1, E1>(ma: Managed<R, E, A>, f: (e: E) => 
  * @tsplus fluent fncts.control.Managed compose
  */
 export function compose_<R, E, A, E1, B>(ma: Managed<R, E, A>, mb: Managed<A, E1, B>, __tsplusTrace?: string): Managed<R, E | E1, B> {
-  return ma.chain((a) => mb.give(a));
+  return ma.chain((a) => mb.provideEnvironment(a));
 }
 
 /**
@@ -381,26 +381,30 @@ export function getMaybe<R, A>(ma: Managed<R, never, Maybe<A>>, __tsplusTrace?: 
  * Provides the `Managed` effect with its required environment, which eliminates
  * its dependency on `R`.
  *
- * @tsplus fluent fncts.control.Managed give
+ * @tsplus fluent fncts.control.Managed provideEnvironment
  */
-export function give_<R, E, A>(ma: Managed<R, E, A>, env: R, __tsplusTrace?: string): Managed<unknown, E, A> {
-  return ma.gives(() => env);
+export function provideEnvironment_<R, E, A>(ma: Managed<R, E, A>, env: R, __tsplusTrace?: string): Managed<unknown, E, A> {
+  return ma.contramapEnvironment(() => env);
 }
 
 /**
  * Modify the environment required to run a Managed
  *
- * @tsplus fluent fncts.control.Managed gives
+ * @tsplus fluent fncts.control.Managed contramapEnvironment
  */
-export function gives_<R, E, A, R0>(ma: Managed<R, E, A>, f: (r0: R0) => R, __tsplusTrace?: string): Managed<R0, E, A> {
-  return new Managed(ma.io.gives(f));
+export function contramapEnvironment_<R, E, A, R0>(ma: Managed<R, E, A>, f: (r0: R0) => R, __tsplusTrace?: string): Managed<R0, E, A> {
+  return new Managed(ma.io.contramapEnvironment(f));
 }
 
 /**
- * @tsplus fluent fncts.control.Managed giveSome
+ * @tsplus fluent fncts.control.Managed provideSomeEnvironment
  */
-export function giveSome_<R, E, A, R0>(ma: Managed<R, E, A>, r: R0, __tsplusTrace?: string): Managed<Intersection.Erase<R, R0>, E, A> {
-  return ma.gives((r0) => ({ ...(r0 as R), ...r }));
+export function provideSomeEnvironment_<R, E, A, R0>(
+  ma: Managed<R, E, A>,
+  r: R0,
+  __tsplusTrace?: string,
+): Managed<Intersection.Erase<R, R0>, E, A> {
+  return ma.contramapEnvironment((r0) => ({ ...(r0 as R), ...r }));
 }
 
 /**
@@ -510,10 +514,10 @@ export function join_<R, E, A, R1, E1, A1>(
   that: Managed<R1, E1, A1>,
   __tsplusTrace?: string,
 ): Managed<Either<R, R1>, E | E1, A | A1> {
-  return Managed.ask<Either<R, R1>>().chain((env) =>
+  return Managed.environment<Either<R, R1>>().chain((env) =>
     env.match(
-      (r) => ma.give(r),
-      (r1) => that.give(r1),
+      (r) => ma.provideEnvironment(r),
+      (r1) => that.provideEnvironment(r1),
     ),
   );
 }
@@ -528,10 +532,10 @@ export function joinEither_<R, E, A, R1, E1, A1>(
   that: Managed<R1, E1, A1>,
   __tsplusTrace?: string,
 ): Managed<Either<R, R1>, E | E1, Either<A, A1>> {
-  return Managed.ask<Either<R, R1>>().chain((env) =>
+  return Managed.environment<Either<R, R1>>().chain((env) =>
     env.match(
-      (r) => ma.map(Either.left).give(r),
-      (r1) => that.map(Either.right).give(r1),
+      (r) => ma.map(Either.left).provideEnvironment(r),
+      (r1) => that.map(Either.right).provideEnvironment(r1),
     ),
   );
 }

@@ -11,7 +11,7 @@ import { CommitState } from "../../internal/CommitState";
 import { tryCommitAsync, tryCommitSync } from "../../internal/Journal";
 import { TryCommitTag } from "../../internal/TryCommit";
 import { IO } from "../IO";
-import { Effect, Gives, HaltException, STM } from "./definition";
+import { ContramapEnvironment, Effect, HaltException, STM } from "./definition";
 
 /**
  * Maps the success value of this effect to the specified constant value.
@@ -53,28 +53,28 @@ export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>): STM<R, E | E1
 /**
  * Retrieves the environment inside an stm.
  *
- * @tsplus static fncts.control.STMOps ask
+ * @tsplus static fncts.control.STMOps environment
  */
-export function ask<R>(): STM<R, never, R> {
+export function environment<R>(): STM<R, never, R> {
   return new Effect((_, __, r: R) => r);
 }
 
 /**
  * Accesses the environment of the transaction.
  *
- * @tsplus static fncts.control.STMOps asks
+ * @tsplus static fncts.control.STMOps environmentWith
  */
-export function asks<R, A>(f: (r: R) => A): STM<R, never, A> {
-  return STM.ask<R>().map(f);
+export function environmentWith<R, A>(f: (r: R) => A): STM<R, never, A> {
+  return STM.environment<R>().map(f);
 }
 
 /**
  * Accesses the environment of the transaction to perform a transaction.
  *
- * @tsplus static fncts.control.STMOps asksSTM
+ * @tsplus static fncts.control.STMOps environmentWithSTM
  */
-export function asksSTM<R0, R, E, A>(f: (r: R0) => STM<R, E, A>) {
-  return STM.ask<R0>().chain(f);
+export function environmentWithSTM<R0, R, E, A>(f: (r: R0) => STM<R, E, A>) {
+  return STM.environment<R0>().chain(f);
 }
 
 /**
@@ -82,7 +82,7 @@ export function asksSTM<R0, R, E, A>(f: (r: R0) => STM<R, E, A>) {
  * @tsplus getter fncts.control.STM commit
  */
 export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
-  return IO.asksIO((r: R) =>
+  return IO.environmentWithIO((r: R) =>
     IO.deferWith((_, fiberId) => {
       const result = tryCommitSync(fiberId, stm, r);
       switch (result._tag) {
@@ -407,20 +407,20 @@ export function get<R, E, A>(stm: STM<R, E, Maybe<A>>): STM<R, Maybe<E>, A> {
  * Provides the transaction its required environment, which eliminates
  * its dependency on `R`.
  *
- * @tsplus fluent fncts.control.STM give
+ * @tsplus fluent fncts.control.STM provideEnvironment
  */
-export function give_<R, E, A>(stm: STM<R, E, A>, r: R): STM<unknown, E, A> {
-  return stm.gives(() => r);
+export function provideEnvironment_<R, E, A>(stm: STM<R, E, A>, r: R): STM<unknown, E, A> {
+  return stm.contramapEnvironment(() => r);
 }
 
 /**
  * Provides some of the environment required to run this effect,
  * leaving the remainder `R0`.
  *
- * @tsplus fluent fncts.control.STM gives
+ * @tsplus fluent fncts.control.STM contramapEnvironment
  */
-export function gives_<R, E, A, R0>(self: STM<R, E, A>, f: (r: R0) => R): STM<R0, E, A> {
-  return new Gives(self, f);
+export function contramapEnvironment_<R, E, A, R0>(self: STM<R, E, A>, f: (r: R0) => R): STM<R0, E, A> {
+  return new ContramapEnvironment(self, f);
 }
 
 /**
@@ -499,11 +499,11 @@ export function isSuccess<R, E, A>(stm: STM<R, E, A>) {
  * @tsplus fluent fncts.control.STM join
  */
 export function join_<R, E, A, R1, E1, A1>(stm: STM<R, E, A>, that: STM<R1, E1, A1>): STM<Either<R, R1>, E | E1, A | A1> {
-  return STM.asksSTM(
+  return STM.environmentWithSTM(
     (r: Either<R, R1>): STM<unknown, E | E1, A | A1> =>
       r.match(
-        (r) => stm.give(r),
-        (r1) => that.give(r1),
+        (r) => stm.provideEnvironment(r),
+        (r1) => that.provideEnvironment(r1),
       ),
   );
 }
@@ -514,11 +514,11 @@ export function join_<R, E, A, R1, E1, A1>(stm: STM<R, E, A>, that: STM<R1, E1, 
  * @tsplus fluent fncts.control.STM joinEither
  */
 export function joinEither_<R, E, A, R1, E1, A1>(stm: STM<R, E, A>, that: STM<R1, E1, A1>): STM<Either<R, R1>, E | E1, Either<A, A1>> {
-  return asksSTM(
+  return STM.environmentWithSTM(
     (r: Either<R, R1>): STM<unknown, E | E1, Either<A, A1>> =>
       r.match(
-        (r) => stm.give(r).map(Either.left),
-        (r1) => that.give(r1).map(Either.right),
+        (r) => stm.provideEnvironment(r).map(Either.left),
+        (r1) => that.provideEnvironment(r1).map(Either.right),
       ),
   );
 }

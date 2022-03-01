@@ -38,8 +38,8 @@ import {
   Fail,
   Fold,
   FromIO,
-  Give,
   PipeTo,
+  Provide,
   Read,
 } from "./definition";
 import { ChannelExecutor, readUpstream } from "./internal/ChannelExecutor";
@@ -69,7 +69,7 @@ export function as_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDon
  * @tsplus static fncts.control.ChannelOps ask
  */
 export function ask<Env>(): Channel<Env, unknown, unknown, unknown, never, never, Env> {
-  return Channel.fromIO(IO.ask<Env>());
+  return Channel.fromIO(IO.environment<Env>());
 }
 
 /**
@@ -147,11 +147,11 @@ export function buffer<InElem, InErr, InDone>(
     ref.modify((v) => {
       if (isEmpty(v)) {
         return tuple(
-          readWith((_in) => Channel.writeNow(_in).zipRight(Channel.buffer(empty, isEmpty, ref)), Channel.failNow, Channel.endNow),
+          readWith((_in) => Channel.writeNow(_in).apSecond(Channel.buffer(empty, isEmpty, ref)), Channel.failNow, Channel.endNow),
           v,
         );
       } else {
-        return tuple(Channel.writeNow(v).zipRight(Channel.buffer(empty, isEmpty, ref)), empty);
+        return tuple(Channel.writeNow(v).apSecond(Channel.buffer(empty, isEmpty, ref)), empty);
       }
     }),
   );
@@ -433,7 +433,7 @@ function contramapReader<InErr, InElem, InDone0, InDone>(
   f: (a: InDone0) => InDone,
 ): Channel<unknown, InErr, InElem, InDone0, InErr, InElem, InDone> {
   return readWith(
-    (_in) => Channel.writeNow(_in).zipRight(contramapReader(f)),
+    (_in) => Channel.writeNow(_in).apSecond(contramapReader(f)),
     Channel.failNow,
     (done) => Channel.endNow(f(done)),
   );
@@ -453,7 +453,7 @@ function contramapInReader<InErr, InElem0, InElem, InDone>(
   f: (a: InElem0) => InElem,
 ): Channel<unknown, InErr, InElem0, InDone, InErr, InElem, InDone> {
   return readWith(
-    (_in) => Channel.writeNow(f(_in)).zipRight(contramapInReader(f)),
+    (_in) => Channel.writeNow(f(_in)).apSecond(contramapInReader(f)),
     Channel.failNow,
     (done) => Channel.endNow(done),
   );
@@ -473,7 +473,7 @@ function contramapIOReader<Env1, InErr, InElem, InDone0, InDone>(
   f: (i: InDone0) => IO<Env1, InErr, InDone>,
 ): Channel<Env1, InErr, InElem, InDone0, InErr, InElem, InDone> {
   return readWith(
-    (_in) => Channel.writeNow(_in).zipRight(contramapIOReader(f)),
+    (_in) => Channel.writeNow(_in).apSecond(contramapIOReader(f)),
     Channel.failNow,
     (done0) => Channel.fromIO(f(done0)),
   );
@@ -493,7 +493,7 @@ function contramapInIOReader<Env1, InErr, InElem0, InElem, InDone>(
   f: (a: InElem0) => IO<Env1, InErr, InElem>,
 ): Channel<Env1, InErr, InElem0, InDone, InErr, InElem, InDone> {
   return Channel.readWith(
-    (inp) => Channel.fromIO(f(inp)).chain(Channel.writeNow).zipRight(contramapInIOReader(f)),
+    (inp) => Channel.fromIO(f(inp)).chain(Channel.writeNow).apSecond(contramapInIOReader(f)),
     Channel.failNow,
     Channel.endNow,
   );
@@ -527,7 +527,7 @@ function doneCollectReader<Env, OutErr, OutElem, OutDone>(
         IO.succeed(() => {
           builder.append(out);
         }),
-      ).zipRight(doneCollectReader(builder)),
+      ).apSecond(doneCollectReader(builder)),
     Channel.failNow,
     Channel.endNow,
   );
@@ -662,7 +662,7 @@ export function fromEither<E, A>(either: Lazy<Either<E, A>>): Channel<unknown, u
 export function fromInput<Err, Elem, Done>(
   input: AsyncInputConsumer<Err, Elem, Done>,
 ): Channel<unknown, unknown, unknown, unknown, Err, Elem, Done> {
-  return unwrap(input.takeWith(Channel.failCauseNow, (elem) => Channel.writeNow(elem).zipRight(fromInput(input)), Channel.endNow));
+  return unwrap(input.takeWith(Channel.failCauseNow, (elem) => Channel.writeNow(elem).apSecond(fromInput(input)), Channel.endNow));
 }
 
 /**
@@ -690,7 +690,7 @@ export function fromQueue<Err, Elem, Done>(
   return Channel.fromIO(queue.take).chain((_) =>
     _.match(
       (_) => _.match(Channel.failCauseNow, Channel.endNow),
-      (elem) => Channel.writeNow(elem).zipRight(Channel.fromQueue(queue)),
+      (elem) => Channel.writeNow(elem).apSecond(Channel.fromQueue(queue)),
     ),
   );
 }
@@ -705,7 +705,7 @@ export function provideEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem,
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   env: Env,
 ): Channel<unknown, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  return new Give(env, self);
+  return new Provide(env, self);
 }
 
 /**
@@ -740,7 +740,7 @@ export function halt(defect: Lazy<unknown>): Channel<unknown, unknown, unknown, 
  * @tsplus static fncts.control.ChannelOps id
  */
 export function id<Err, Elem, Done>(): Channel<unknown, Err, Elem, Done, Err, Elem, Done> {
-  return Channel.readWith((_in) => write(_in).zipRight(id<Err, Elem, Done>()), Channel.failNow, Channel.endNow);
+  return Channel.readWith((_in) => write(_in).apSecond(id<Err, Elem, Done>()), Channel.failNow, Channel.endNow);
 }
 
 /**
@@ -873,7 +873,7 @@ export function mapOut_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Ou
   f: (o: OutElem) => OutElem2,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem2, OutDone> {
   const reader: Channel<Env, OutErr, OutElem, OutDone, OutErr, OutElem2, OutDone> = readWith(
-    (out) => Channel.writeNow(f(out)).zipRight(reader),
+    (out) => Channel.writeNow(f(out)).apSecond(reader),
     Channel.failNow,
     Channel.endNow,
   );
@@ -884,7 +884,7 @@ export function mapOut_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Ou
 const mapOutIOReader = <Env, Env1, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
   f: (o: OutElem) => IO<Env1, OutErr1, OutElem1>,
 ): Channel<Env & Env1, OutErr, OutElem, OutDone, OutErr | OutErr1, OutElem1, OutDone> =>
-  Channel.readWith((out) => Channel.fromIO(f(out)).chain(Channel.writeNow).zipRight(mapOutIOReader(f)), Channel.failNow, Channel.endNow);
+  Channel.readWith((out) => Channel.fromIO(f(out)).chain(Channel.writeNow).apSecond(mapOutIOReader(f)), Channel.failNow, Channel.endNow);
 
 /**
  * @tsplus fluent fncts.control.Channel mapOutIO
@@ -949,7 +949,7 @@ export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone,
     (queue) => {
       const consumer: Channel<Env & Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem1, OutDone> = Channel.unwrap(
         queue.take.flatten.matchCause(Channel.failCauseNow, (r) =>
-          r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).zipRight(consumer)),
+          r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),
         ),
       );
       return consumer;
@@ -1137,7 +1137,7 @@ export function mergeAllWith_<Env, InErr, InElem, InDone, OutErr, OutDone, Env1,
     (queue) => {
       const consumer: Channel<Env & Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem, OutDone> = Channel.unwrap(
         queue.take.flatten.matchCause(Channel.failCauseNow, (out) =>
-          out.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).zipRight(consumer)),
+          out.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),
         ),
       );
       return consumer;
@@ -1254,7 +1254,7 @@ export function mergeWith_<
                     (r) =>
                       r.match(
                         (done) => Channel.fromIO(decision.f(Exit.succeed(done))),
-                        (elem) => Channel.writeNow(elem).zipRight(go(single(decision.f))),
+                        (elem) => Channel.writeNow(elem).apSecond(go(single(decision.f))),
                       ),
                   ),
                 );
@@ -1265,7 +1265,7 @@ export function mergeWith_<
             (r) =>
               r.match(
                 (d) => onDecision(done(Exit.succeed(d))),
-                (elem) => pull.forkDaemon.map((leftFiber) => Channel.writeNow(elem).zipRight(go(both(leftFiber, fiber)))),
+                (elem) => pull.forkDaemon.map((leftFiber) => Channel.writeNow(elem).apSecond(go(both(leftFiber, fiber)))),
               ),
           );
         };
@@ -1303,7 +1303,7 @@ export function mergeWith_<
                   (r) =>
                     r.match(
                       (d) => Channel.fromIO(state.f(Exit.succeed(d))),
-                      (elem) => Channel.writeNow(elem).zipRight(go(MergeState.LeftDone(state.f))),
+                      (elem) => Channel.writeNow(elem).apSecond(go(MergeState.LeftDone(state.f))),
                     ),
                 ),
               ),
@@ -1316,7 +1316,7 @@ export function mergeWith_<
                   (r) =>
                     r.match(
                       (d) => Channel.fromIO(state.f(Exit.succeed(d))),
-                      (elem) => Channel.writeNow(elem).zipRight(go(MergeState.RightDone(state.f))),
+                      (elem) => Channel.writeNow(elem).apSecond(go(MergeState.RightDone(state.f))),
                     ),
                 ),
               ),
@@ -1648,7 +1648,7 @@ export function toQueue<Err, Done, Elem>(
   queue: Queue.Enqueue<Either<Exit<Err, Done>, Elem>>,
 ): Channel<unknown, Err, Elem, Done, never, never, any> {
   return readWithCause(
-    (in_: Elem) => Channel.fromIO(queue.offer(Either.right(in_))).zipRight(toQueue(queue)),
+    (in_: Elem) => Channel.fromIO(queue.offer(Either.right(in_))).apSecond(toQueue(queue)),
     (cause: Cause<Err>) => Channel.fromIO(queue.offer(Either.left(Exit.failCause(cause)))),
     (done: Done) => Channel.fromIO(queue.offer(Either.left(Exit.succeed(done)))),
   );

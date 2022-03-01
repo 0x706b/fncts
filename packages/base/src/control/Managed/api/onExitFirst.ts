@@ -21,7 +21,7 @@ export function onExitFirst_<R, E, A, R1>(
   return new Managed(
     IO.uninterruptibleMask(({ restore }) =>
       IO.gen(function* (_) {
-        const r1              = yield* _(IO.ask<R1>());
+        const r1              = yield* _(IO.environment<R1>());
         const outerReleaseMap = yield* _(FiberRef.currentReleaseMap.get);
         const innerReleaseMap = yield* _(ReleaseMap.make);
         const exitEA          = yield* _(FiberRef.currentReleaseMap.locally(innerReleaseMap)(restore(ma.io.map(([_, a]) => a)).result));
@@ -30,7 +30,7 @@ export function onExitFirst_<R, E, A, R1>(
             Finalizer.get(
               (exit) =>
                 cleanup(exitEA)
-                  .give(r1)
+                  .provideEnvironment(r1)
                   .result.zipWith(innerReleaseMap.releaseAll(exit, ExecutionStrategy.sequential).result, (l, r) =>
                     IO.fromExitNow(l.apSecond(r)),
                   ).flatten,

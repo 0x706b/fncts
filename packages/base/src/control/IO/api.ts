@@ -19,7 +19,7 @@ import { Either } from "../../data/Either";
 import { Exit } from "../../data/Exit";
 import { identity, tuple } from "../../data/function";
 import { Just, Maybe, Nothing } from "../../data/Maybe";
-import { Chain, Ensuring, Fork, Give, IO, Match, SetRuntimeConfig } from "./definition";
+import { Chain, Ensuring, Fork, IO, Match, Provide, SetRuntimeConfig } from "./definition";
 
 // /**
 //  * Attempts to convert defects into a failure, throwing away all information
@@ -277,7 +277,7 @@ export function collectIO_<R, E, A, R1, E1, A1, E2>(
  * @tsplus fluent fncts.control.IO compose
  */
 export function compose_<R, E, A, E1, B>(ra: IO<R, E, A>, ab: IO<A, E1, B>): IO<R, E | E1, B> {
-  return ra.chain((a) => ab.give(a));
+  return ra.chain((a) => ab.provideEnvironment(a));
 }
 
 /**
@@ -285,6 +285,16 @@ export function compose_<R, E, A, E1, B>(ra: IO<R, E, A>, ab: IO<A, E1, B>): IO<
  */
 export function condIO_<R, R1, E, A>(b: boolean, onTrue: URIO<R, A>, onFalse: URIO<R1, E>): IO<R & R1, E, A> {
   return b ? onTrue : onFalse.chain(IO.failNow);
+}
+
+/**
+ * Provides some of the environment required to run this `IO`,
+ * leaving the remainder `R0`.
+ *
+ * @tsplus fluent fncts.control.IO contramapEnvironment
+ */
+export function contramapEnvironment_<R0, R, E, A>(self: IO<R, E, A>, f: (r0: R0) => R) {
+  return IO.environmentWithIO((r0: R0) => self.provideEnvironment(f(r0)));
 }
 
 /**
@@ -647,28 +657,18 @@ export function getOrFailUnit<A>(option: Maybe<A>): FIO<void, A> {
  * Provides the `IO` with its required environment, which eliminates
  * its dependency on `R`.
  *
- * @tsplus fluent fncts.control.IO give
+ * @tsplus fluent fncts.control.IO provideEnvironment
  */
-export function give_<R, E, A>(self: IO<R, E, A>, r: R, __tsplusTrace?: string): FIO<E, A> {
-  return new Give(self, r, __tsplusTrace);
-}
-
-/**
- * Provides some of the environment required to run this `IO`,
- * leaving the remainder `R0`.
- *
- * @tsplus fluent fncts.control.IO gives
- */
-export function gives_<R0, R, E, A>(self: IO<R, E, A>, f: (r0: R0) => R) {
-  return IO.asksIO((r0: R0) => self.give(f(r0)));
+export function provideEnvironment_<R, E, A>(self: IO<R, E, A>, r: R, __tsplusTrace?: string): FIO<E, A> {
+  return new Provide(self, r, __tsplusTrace);
 }
 
 /**
  * Provides some of the environment required to run this effect,
  * leaving the remainder `R0` and combining it automatically using spread.
  */
-export function giveSome_<R, E, A, R0>(ma: IO<R, E, A>, r: R0): IO<Intersection.Erase<R, R0>, E, A> {
-  return ma.gives((env) => ({ ...(env as R), ...r }));
+export function provideSomeEnvironment_<R, E, A, R0>(ma: IO<R, E, A>, r: R0): IO<Intersection.Erase<R, R0>, E, A> {
+  return ma.contramapEnvironment((env) => ({ ...(env as R), ...r }));
 }
 
 /**
@@ -756,11 +756,11 @@ export function join_<R, E, A, R1, E1, A1>(
   that: IO<R1, E1, A1>,
   __tsplusTrace?: string,
 ): IO<Either<R, R1>, E | E1, A | A1> {
-  return IO.asksIO(
+  return IO.environmentWithIO(
     (r: Either<R, R1>): IO<Either<R, R1>, E | E1, A | A1> =>
       r.match(
-        (r) => self.give(r),
-        (r1) => that.give(r1),
+        (r) => self.provideEnvironment(r),
+        (r1) => that.provideEnvironment(r1),
       ),
   );
 }
@@ -775,11 +775,11 @@ export function joinEither_<R, E, A, R1, E1, A1>(
   mb: IO<R1, E1, A1>,
   __tsplusTrace?: string,
 ): IO<Either<R, R1>, E | E1, Either<A, A1>> {
-  return IO.asksIO(
+  return IO.environmentWithIO(
     (r: Either<R, R1>): IO<Either<R, R1>, E | E1, Either<A, A1>> =>
       r.match(
-        (r) => ma.give(r).map(Either.left),
-        (r1) => mb.give(r1).map(Either.right),
+        (r) => ma.provideEnvironment(r).map(Either.left),
+        (r1) => mb.provideEnvironment(r1).map(Either.right),
       ),
   );
 }

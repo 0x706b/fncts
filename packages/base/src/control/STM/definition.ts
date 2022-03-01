@@ -11,7 +11,7 @@ export const enum STMTag {
   OnSuccess = "OnSuccess",
   Succeed = "Succeed",
   SucceedNow = "SucceedNow",
-  Gives = "Gives",
+  ContramapEnvironment = "ContramapEnvironment",
 }
 
 export const STMTypeId = Symbol.for("fncts.control.STM");
@@ -88,8 +88,8 @@ export class SucceedNow<A> extends STM<unknown, never, A> {
   }
 }
 
-export class Gives<R, E, A, R0> extends STM<R0, E, A> {
-  readonly _tag = STMTag.Gives;
+export class ContramapEnvironment<R, E, A, R0> extends STM<R0, E, A> {
+  readonly _tag = STMTag.ContramapEnvironment;
   constructor(readonly stm: STM<R, E, A>, readonly f: (_: R0) => R) {
     super();
   }
@@ -104,7 +104,7 @@ export function concrete<R, E, A>(
   | OnRetry<R, E, A>
   | Succeed<A>
   | SucceedNow<A>
-  | Gives<unknown, E, A, R> {
+  | ContramapEnvironment<unknown, E, A, R> {
   //
 }
 

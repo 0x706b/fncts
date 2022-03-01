@@ -18,10 +18,10 @@ import { identity } from "../../data/function";
 import { Nothing } from "../../data/Maybe";
 import { Trace } from "../../data/Trace";
 import {
-  Asks,
   Async,
   Defer,
   DeferWith,
+  Environment,
   Fail,
   GetDescriptor,
   GetInterrupt,
@@ -33,41 +33,6 @@ import {
   Supervise,
   Yield,
 } from "./definition";
-
-/**
- * Accesses the environment provided to an `IO`
- *
- * @tsplus static fncts.control.IOOps ask
- */
-export function ask<R>(__tsplusTrace?: string): URIO<R, R> {
-  return IO.asks(identity);
-}
-
-/**
- * Accesses the environment provided to an `IO`
- *
- * @tsplus static fncts.control.IOOps asks
- */
-export function asks<R, A>(f: (_: R) => A, __tsplusTrace?: string): URIO<R, A> {
-  return new Asks((r: R) => IO.succeedNow(f(r)), __tsplusTrace);
-}
-
-/**
- * Effectfully accesses the environment provided to an `IO`
- *
- * @tsplus static fncts.control.IOOps asksIO
- */
-export function asksIO<R0, R, E, A>(f: (r: R0) => IO<R, E, A>, __tsplusTrace?: string): IO<R & R0, E, A> {
-  return new Asks(f, __tsplusTrace);
-}
-
-/**
- * @tsplus static fncts.control.IOOps asksServiceIO
- */
-export function asksServiceIO<T>(tag: Tag<T>) {
-  return <R, E, A>(f: (service: T) => IO<R, E, A>, __tsplusTrace?: string): IO<R & Has<T>, E, A> =>
-    IO.asksIO((service: Has<T>) => f(tag.read(service)));
-}
 
 /**
  * Imports an asynchronous side-effect into a `IO`
@@ -249,6 +214,33 @@ export const descriptor = descriptorWith(IO.succeedNow);
  */
 export function descriptorWith<R, E, A>(f: (d: FiberDescriptor) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new GetDescriptor(f, __tsplusTrace);
+}
+
+/**
+ * Accesses the environment provided to an `IO`
+ *
+ * @tsplus static fncts.control.IOOps environment
+ */
+export function environment<R>(__tsplusTrace?: string): URIO<R, R> {
+  return IO.environmentWith(identity);
+}
+
+/**
+ * Accesses the environment provided to an `IO`
+ *
+ * @tsplus static fncts.control.IOOps environmentWith
+ */
+export function environmentWith<R, A>(f: (_: R) => A, __tsplusTrace?: string): URIO<R, A> {
+  return new Environment((r: R) => IO.succeedNow(f(r)), __tsplusTrace);
+}
+
+/**
+ * Effectfully accesses the environment provided to an `IO`
+ *
+ * @tsplus static fncts.control.IOOps environmentWithIO
+ */
+export function environmentWithIO<R0, R, E, A>(f: (r: R0) => IO<R, E, A>, __tsplusTrace?: string): IO<R & R0, E, A> {
+  return new Environment(f, __tsplusTrace);
 }
 
 /**
@@ -449,6 +441,14 @@ export function sequenceIterable<R, E, A>(as: Iterable<IO<R, E, A>>): IO<R, E, C
  */
 export function sequenceIterableDiscard<R, E, A>(as: Iterable<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, void> {
   return IO.foreachDiscard(as, identity);
+}
+
+/**
+ * @tsplus static fncts.control.IOOps serviceWithIO
+ */
+export function serviceWithIO<T>(tag: Tag<T>) {
+  return <R, E, A>(f: (service: T) => IO<R, E, A>, __tsplusTrace?: string): IO<R & Has<T>, E, A> =>
+    IO.environmentWithIO((service: Has<T>) => f(tag.read(service)));
 }
 
 /**

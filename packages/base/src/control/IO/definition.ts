@@ -66,7 +66,7 @@ export const enum IOTag {
   Fork = "Fork",
   Fail = "Fail",
   Yield = "Yield",
-  Asks = "Asks",
+  Environment = "Environment",
   Provide = "Provide",
   Race = "Race",
   SetInterrupt = "SetInterrupt",
@@ -203,8 +203,8 @@ export class Yield extends IO<unknown, never, void> {
 /**
  * @internal
  */
-export class Asks<R0, R, E, A> extends IO<R & R0, E, A> {
-  readonly _tag = IOTag.Asks;
+export class Environment<R0, R, E, A> extends IO<R & R0, E, A> {
+  readonly _tag = IOTag.Environment;
 
   constructor(readonly f: (_: R0) => IO<R, E, A>, readonly trace?: string) {
     super();
@@ -214,7 +214,7 @@ export class Asks<R0, R, E, A> extends IO<R & R0, E, A> {
 /**
  * @internal
  */
-export class Give<R, E, A> extends IO<unknown, E, A> {
+export class Provide<R, E, A> extends IO<unknown, E, A> {
   readonly _tag = IOTag.Provide;
 
   constructor(readonly io: IO<R, E, A>, readonly env: R, readonly trace?: string) {
@@ -420,8 +420,8 @@ export type Instruction =
   | Fail<any>
   | GetDescriptor<any, any, any>
   | Yield
-  | Asks<any, any, any, any>
-  | Give<any, any, any>
+  | Environment<any, any, any, any>
+  | Provide<any, any, any>
   | Defer<any, any, any>
   | DeferWith<any, any, any>
   | FiberRefGetAll<any, any, any>

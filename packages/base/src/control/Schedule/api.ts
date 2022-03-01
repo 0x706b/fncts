@@ -154,7 +154,7 @@ export function contramapEnvironment_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (env: R1) => R,
 ): Schedule.WithState<S, R1, I, O> {
-  return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).gives(f));
+  return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).contramapEnvironment(f));
 }
 
 /**
@@ -501,7 +501,7 @@ export function onDecision_<S, R, I, O, R1>(
  * @tsplus fluent fncts.control.Schedule provideEnvironment
  */
 export function provideEnvironment_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, env: R): Schedule.WithState<S, unknown, I, O> {
-  return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).give(env));
+  return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).provideEnvironment(env));
 }
 
 /**

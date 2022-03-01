@@ -55,7 +55,7 @@ export function asyncInterrupt<R, E, A>(
               .chain((take) => take.done)
               .match(
                 (maybeError) => maybeError.match(() => Channel.endNow(undefined), Channel.failNow),
-                (as) => Channel.writeNow(as).zipRight(loop),
+                (as) => Channel.writeNow(as).apSecond(loop),
               ),
           );
           return new Stream(loop).ensuring(canceler);
@@ -125,7 +125,7 @@ export function asyncIO<R, E, A, R1 = R, E1 = E>(
                     Channel.failCauseNow,
                   ),
                 ),
-              (as) => IO.succeed(Channel.writeNow(as).zipRight(loop)),
+              (as) => IO.succeed(Channel.writeNow(as).apSecond(loop)),
             ),
         );
         return loop;
@@ -207,7 +207,7 @@ export function ensuring_<R, E, A, R1>(self: Stream<R, E, A>, finalizer: IO<R1, 
  * @tsplus static fncts.control.StreamOps environment
  */
 export function environment<R>(): Stream<R, never, R> {
-  return Stream.fromIO(IO.ask<R>());
+  return Stream.fromIO(IO.environment<R>());
 }
 
 /**
@@ -373,7 +373,7 @@ function fromAsyncIterableLoop<A>(iterator: AsyncIterator<A>): Channel<unknown, 
         .then((result) =>
           result.done
             ? k(IO.succeedNow(Channel.end(undefined)))
-            : k(IO.succeedNow(Channel.writeNow(Conc.single(result.value)).zipRight(fromAsyncIterableLoop(iterator)))),
+            : k(IO.succeedNow(Channel.writeNow(Conc.single(result.value)).apSecond(fromAsyncIterableLoop(iterator)))),
         );
     }),
   );
@@ -400,7 +400,7 @@ export function fromIterable<A>(iterable: Iterable<A>, maxChunkSize = DEFAULT_CH
               return Channel.unit;
             }
             if (maxChunkSize === 1) {
-              return Channel.writeNow(Conc.single(result.value)).zipRight(loop(iterator));
+              return Channel.writeNow(Conc.single(result.value)).apSecond(loop(iterator));
             } else {
               const out = Array<A>(maxChunkSize);
               out[0]    = result.value;
@@ -409,7 +409,7 @@ export function fromIterable<A>(iterable: Iterable<A>, maxChunkSize = DEFAULT_CH
                 out[count] = result.value;
                 count++;
               }
-              return Channel.writeNow(Conc.from(out)).zipRight(loop(iterator));
+              return Channel.writeNow(Conc.from(out)).apSecond(loop(iterator));
             }
           }),
         );
@@ -531,13 +531,13 @@ export function loopOnPartialChunks_<R, E, A, R1, E1, A1>(
             outputChunk = outputChunk.append(a);
           }),
         )
-          .map((cont) => Channel.write(outputChunk).zipRight(Channel.endNow(cont)))
+          .map((cont) => Channel.write(outputChunk).apSecond(Channel.endNow(cont)))
           .catchAll((failure) =>
             IO.succeed(() => {
               if (outputChunk.isEmpty) {
                 return Channel.failNow(failure);
               } else {
-                return Channel.writeNow(outputChunk).zipRight(Channel.failNow(failure));
+                return Channel.writeNow(outputChunk).apSecond(Channel.failNow(failure));
               }
             }),
           );
