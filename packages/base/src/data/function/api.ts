@@ -1,3 +1,7 @@
+export function constVoid(): void {
+  return undefined;
+}
+
 /**
  * @tsplus macro identity
  */

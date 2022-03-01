@@ -699,9 +699,9 @@ export function fromQueue<Err, Elem, Done>(
  * Provides the channel with its required environment, which eliminates
  * its dependency on `Env`.
  *
- * @tsplus fluent fncts.control.Channel give
+ * @tsplus fluent fncts.control.Channel provideEnvironment
  */
-export function give_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+export function provideEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   env: Env,
 ): Channel<unknown, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
@@ -709,13 +709,13 @@ export function give_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 }
 
 /**
- * @tsplus fluent fncts.control.Channel gives
+ * @tsplus fluent fncts.control.Channel contramapEnvironment
  */
-export function gives_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env0>(
+export function contramapEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env0>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (env0: Env0) => Env,
 ): Channel<Env0, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  return Channel.ask<Env0>().chain((env0) => self.give(f(env0)));
+  return Channel.ask<Env0>().chain((env0) => self.provideEnvironment(f(env0)));
 }
 
 /**
@@ -825,6 +825,31 @@ export function managedOut<R, E, A>(managed: Managed<R, E, A>): Channel<R, unkno
 }
 
 /**
+ * Returns a new channel, which is the same as this one, except the failure value of the returned
+ * channel is created by applying the specified function to the failure value of this channel.
+ *
+ * @tsplus fluent fncts.control.Channel mapError
+ */
+export function mapError_<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone>(
+  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  f: (err: OutErr) => OutErr2,
+): Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone> {
+  return self.mapErrorCause((cause) => cause.map(f));
+}
+
+/**
+ * A more powerful version of `mapError` which also surfaces the `Cause` of the channel failure
+ *
+ * @tsplus fluent fncts.control.Channel mapErrorCause
+ */
+export function mapErrorCause_<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone>(
+  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  f: (cause: Cause<OutErr>) => Cause<OutErr2>,
+): Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone> {
+  return self.catchAllCause((cause) => Channel.failCauseNow(f(cause)));
+}
+
+/**
  * Returns a new channel, which is the same as this one, except the terminal value of the
  * returned channel is created by applying the specified effectful function to the terminal value
  * of this channel.
@@ -861,6 +886,9 @@ const mapOutIOReader = <Env, Env1, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
 ): Channel<Env & Env1, OutErr, OutElem, OutDone, OutErr | OutErr1, OutElem1, OutDone> =>
   Channel.readWith((out) => Channel.fromIO(f(out)).chain(Channel.writeNow).zipRight(mapOutIOReader(f)), Channel.failNow, Channel.endNow);
 
+/**
+ * @tsplus fluent fncts.control.Channel mapOutIO
+ */
 export function mapOutIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (o: OutElem) => IO<Env1, OutErr1, OutElem1>,
@@ -1307,6 +1335,19 @@ export function mergeWith_<
 }
 
 export const never: Channel<unknown, unknown, unknown, unknown, never, never, never> = Channel.fromIO(IO.never);
+
+/**
+ * Returns a new channel that will perform the operations of this one, until failure, and then
+ * it will switch over to the operations of the specified fallback channel.
+ *
+ * @tsplus fluent fncts.control.Channel orElse
+ */
+export function orElse_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
+): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr1, OutElem | OutElem1, OutDone | OutDone1> {
+  return self.catchAll((_) => that);
+}
 
 /**
  * @tsplus fluent fncts.control.Channel orHalt

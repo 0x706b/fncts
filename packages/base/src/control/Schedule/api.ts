@@ -150,7 +150,7 @@ export function contramap_<S, R, I, O, I2>(self: Schedule.WithState<S, R, I, O>,
 /**
  * @tsplus fluent fncts.control.Schedule contramapEnvironment
  */
-export function provideSomeEnvironment_<S, R, I, O, R1>(
+export function contramapEnvironment_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (env: R1) => R,
 ): Schedule.WithState<S, R1, I, O> {
