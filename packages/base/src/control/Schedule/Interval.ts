@@ -56,7 +56,7 @@ export function lt_(self: Interval, that: Interval): boolean {
 /**
  * @tsplus static fncts.control.Schedule.IntervalOps __call
  */
-export function make(start: number, end: number): Interval {
+export function makeInterval(start: number, end: number): Interval {
   if (start <= end) return Interval(start, end);
   else return Interval.empty;
 }

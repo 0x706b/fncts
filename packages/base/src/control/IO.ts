@@ -16,6 +16,8 @@ export * from "./IO/api/fulfill";
 export * from "./IO/api/interrupt";
 export * from "./IO/api/race";
 export * from "./IO/api/raceFirst";
+export * from "./IO/api/repeat";
+export * from "./IO/api/retry";
 export * from "./IO/api/sequenceT";
 export * from "./IO/api/withRuntimeConfig";
 export * from "./IO/api/zipC";

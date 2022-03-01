@@ -1,4 +1,5 @@
 import type { Exit } from "../../data/Exit";
+import type { Has } from "../../prelude";
 import type { URIO } from "./definition";
 
 import { FiberId } from "../../data/FiberId";
@@ -7,6 +8,7 @@ import { LogLevel } from "../../data/LogLevel";
 import { Nothing } from "../../data/Maybe";
 import { RuntimeConfig, RuntimeConfigFlags } from "../../data/RuntimeConfig";
 import { Stack } from "../../internal/Stack";
+import { Clock } from "../Clock";
 import { FiberContext } from "../Fiber";
 import { Logger } from "../Logger";
 import { Scope } from "../Scope";
@@ -78,7 +80,12 @@ export const defaultRuntimeConfig = new RuntimeConfig({
   logger: Logger.defaultString.map((s) => console.log(s)).filterLogLevel((level) => level >= LogLevel.Info),
 });
 
-export const defaultRuntime = new Runtime({} as unknown, defaultRuntimeConfig);
+export const defaultRuntime = new Runtime(
+  {
+    [Clock.Tag.key]: Clock.Live,
+  } as unknown as Has<Clock>,
+  defaultRuntimeConfig,
+);
 
 /**
  * @tsplus fluent fncts.control.IO unsafeRunAsync

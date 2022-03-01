@@ -1,8 +1,10 @@
+import type { Lazy } from "../../data/function";
 import type { Maybe } from "../../data/Maybe";
 import type { Has } from "../../prelude";
 import type { UIO, URIO } from "../IO";
 import type { Schedule } from "../Schedule/definition";
 
+import { Either } from "../../data/Either";
 import { NoSuchElementError } from "../../data/exceptions";
 import { Just, Nothing } from "../../data/Maybe";
 import { tag } from "../../data/Tag";
@@ -52,6 +54,83 @@ export abstract class Clock {
       return Driver(next, last, reset, state);
     });
   }
+
+  repeat<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+    return <R1, B>(schedule0: Lazy<Schedule<R1, A, B>>, __tsplusTrace?: string): IO<R & R1, E, B> =>
+      this.repeatOrElse(io0)(schedule0, (e, _) => IO.fail(e));
+  }
+
+  repeatOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+    return <R1, B, R2, E2>(
+      schedule0: Lazy<Schedule<R1, A, B>>,
+      orElse: (e: E, out: Maybe<B>) => IO<R2, E2, B>,
+      __tsplusTrace?: string,
+    ): IO<R & R1 & R2, E2, B> => this.repeatOrElseEither(io0)(schedule0, orElse).map((_) => _.value);
+  }
+
+  repeatOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+    return <R1, B, R2, E2, C>(
+      schedule0: Lazy<Schedule<R1, A, B>>,
+      orElse: (e: E, out: Maybe<B>) => IO<R2, E2, C>,
+      __tsplusTrace?: string,
+    ): IO<R & R1 & R2, E2, Either<C, B>> =>
+      IO.defer(() => {
+        const io       = io0();
+        const schedule = schedule0();
+
+        return this.driver(schedule).chain((driver) => {
+          const loop = (a: A): IO<R & R1 & R2, E2, Either<C, B>> =>
+            driver.next(a).matchIO(
+              () => driver.last.orHalt.map(Either.right),
+              (b) =>
+                io.matchIO(
+                  (e) => orElse(e, Just(b)).map(Either.left),
+                  (a) => loop(a),
+                ),
+            );
+
+          return io.matchIO(
+            (e) => orElse(e, Nothing()).map(Either.left),
+            (a) => loop(a),
+          );
+        });
+      });
+  }
+
+  retry<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+    return <R1, O>(schedule0: Lazy<Schedule<R1, E, O>>, __tsplusTrace?: string): IO<R & R1, E, A> =>
+      this.retryOrElse(io0)(schedule0, (e) => IO.fail(e));
+  }
+
+  retryOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+    return <R1, O, R2, E2>(
+      schedule0: Lazy<Schedule<R1, E, O>>,
+      orElse: (e: E, out: O) => IO<R2, E2, A>,
+      __tsplusTrace?: string,
+    ): IO<R & R1 & R2, E2, A> => this.retryOrElseEither(io0)(schedule0, orElse).map((_) => _.value);
+  }
+
+  retryOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+    return <R1, O, R2, E2, B>(
+      schedule0: Lazy<Schedule<R1, E, O>>,
+      orElse: (e: E, out: O) => IO<R2, E2, B>,
+      __tsplusTrace?: string,
+    ): IO<R & R1 & R2, E2, Either<B, A>> =>
+      IO.defer(() => {
+        const io       = io0();
+        const schedule = schedule0();
+
+        const loop = (driver: Schedule.Driver<unknown, R1, E, O>): IO<R & R1 & R2, E2, Either<B, A>> =>
+          io.map(Either.right).catchAll((e) =>
+            driver.next(e).matchIO(
+              () => driver.last.orHalt.chain((out) => orElse(e, out).map(Either.left)),
+              () => loop(driver),
+            ),
+          );
+
+        return this.driver(schedule).chain(loop);
+      });
+  }
 }
 
 /**
@@ -79,4 +158,89 @@ export function driver<State, Env, In, Out>(
  */
 export function sleep(duration: number, __tsplusTrace?: string): URIO<Has<Clock>, void> {
   return IO.asksServiceIO(Clock.Tag)((clock) => clock.sleep(duration));
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps repeat
+ */
+export function repeat<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+  return <R1, B>(schedule0: Lazy<Schedule<R1, A, B>>, __tsplusTrace?: string): IO<Has<Clock> & R & R1, E, B> =>
+    IO.asksServiceIO(Clock.Tag)((clock) => clock.repeatOrElse(io0)(schedule0, (e, _) => IO.fail(e)));
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps repeatOrElse
+ */
+export function repeatOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+  return <R1, B, R2, E2>(
+    schedule0: Lazy<Schedule<R1, A, B>>,
+    orElse: (e: E, out: Maybe<B>) => IO<R2, E2, B>,
+    __tsplusTrace?: string,
+  ): IO<Has<Clock> & R & R1 & R2, E2, B> =>
+    IO.asksServiceIO(Clock.Tag)((clock) =>
+      clock
+        .repeatOrElseEither(io0)(schedule0, orElse)
+        .map((_) => _.value),
+    );
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps repeatOrElseEither
+ */
+export function repeatOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+  return <R1, B, R2, E2, C>(
+    schedule0: Lazy<Schedule<R1, A, B>>,
+    orElse: (e: E, out: Maybe<B>) => IO<R2, E2, C>,
+    __tsplusTrace?: string,
+  ): IO<Has<Clock> & R & R1 & R2, E2, Either<C, B>> =>
+    IO.asksServiceIO(Clock.Tag)((clock) => clock.repeatOrElseEither(io0)(schedule0, orElse));
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps retry
+ */
+export function retry<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+  return <R1, O>(schedule0: Lazy<Schedule<R1, E, O>>, __tsplusTrace?: string): IO<Has<Clock> & R & R1, E, A> =>
+    IO.asksServiceIO(Clock.Tag)((clock) => clock.retryOrElse(io0)(schedule0, (e) => IO.fail(e)));
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps retryOrElse
+ */
+export function retryOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+  return <R1, O, R2, E2>(
+    schedule0: Lazy<Schedule<R1, E, O>>,
+    orElse: (e: E, out: O) => IO<R2, E2, A>,
+    __tsplusTrace?: string,
+  ): IO<Has<Clock> & R & R1 & R2, E2, A> =>
+    IO.asksServiceIO(Clock.Tag)((clock) =>
+      clock
+        .retryOrElseEither(io0)(schedule0, orElse)
+        .map((_) => _.value),
+    );
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps retryOrElseEither
+ */
+export function retryOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
+  return <R1, O, R2, E2, B>(
+    schedule0: Lazy<Schedule<R1, E, O>>,
+    orElse: (e: E, out: O) => IO<R2, E2, B>,
+    __tsplusTrace?: string,
+  ): IO<Has<Clock> & R & R1 & R2, E2, Either<B, A>> =>
+    IO.defer(() => {
+      const io       = io0();
+      const schedule = schedule0();
+
+      const loop = (driver: Schedule.Driver<unknown, R1, E, O>): IO<R & R1 & R2, E2, Either<B, A>> =>
+        io.map(Either.right).catchAll((e) =>
+          driver.next(e).matchIO(
+            () => driver.last.orHalt.chain((out) => orElse(e, out).map(Either.left)),
+            () => loop(driver),
+          ),
+        );
+
+      return IO.asksServiceIO(Clock.Tag)((clock) => clock.driver(schedule).chain(loop));
+    });
 }

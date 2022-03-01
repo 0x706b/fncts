@@ -4,7 +4,6 @@ import type { Lazy } from "../../data/function";
 import type { Maybe } from "../../data/Maybe";
 import type { Predicate } from "../../data/Predicate";
 import type { URIO } from "../IO";
-import type { Dequeue, Enqueue } from "../Queue";
 import type { AsyncInputConsumer } from "./internal/AsyncInputConsumer";
 import type { AsyncInputProducer } from "./internal/AsyncInputProducer";
 import type { ChannelState } from "./internal/ChannelState";
@@ -686,7 +685,7 @@ export function fromOption<A>(option: Lazy<Maybe<A>>): Channel<unknown, unknown,
  * @tsplus static fncts.control.ChannelOps fromQueue
  */
 export function fromQueue<Err, Elem, Done>(
-  queue: Dequeue<Either<Exit<Err, Done>, Elem>>,
+  queue: Queue.Dequeue<Either<Exit<Err, Done>, Elem>>,
 ): Channel<unknown, unknown, unknown, unknown, Err, Elem, Done> {
   return Channel.fromIO(queue.take).chain((_) =>
     _.match(
@@ -1605,7 +1604,7 @@ function toPullInterpret<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
  * @tsplus static fncts.control.Channel toQueue
  */
 export function toQueue<Err, Done, Elem>(
-  queue: Enqueue<Either<Exit<Err, Done>, Elem>>,
+  queue: Queue.Enqueue<Either<Exit<Err, Done>, Elem>>,
 ): Channel<unknown, Err, Elem, Done, never, never, any> {
   return readWithCause(
     (in_: Elem) => Channel.fromIO(queue.offer(Either.right(in_))).zipRight(toQueue(queue)),
