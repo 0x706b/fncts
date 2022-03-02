@@ -27,7 +27,7 @@ export function before(end: number): Interval {
 /**
  * @tsplus static fncts.control.Schedule.IntervalOps empty
  */
-export const empty: Interval = Interval(Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER);
+export const empty: Interval = new Interval(Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER);
 
 /**
  * @tsplus getter fncts.control.Schedule.Interval isEmpty

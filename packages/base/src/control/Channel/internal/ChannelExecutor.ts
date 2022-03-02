@@ -55,23 +55,21 @@ class PullFromUpstream<R> {
     const fin1 = this.upstreamExecutor.close(ex);
     const fins = this.activeChildExecutors.map((child) => (child !== null ? child.childExecutor.close(ex) : null)).enqueue(fin1);
 
-    const finalizer = pipe(
-      fins.foldLeft(null as URIO<R, Exit<never, any>> | null, (acc, next): URIO<R, Exit<never, any>> | null => {
-        if (acc === null) {
-          if (next === null) {
-            return null;
-          } else {
-            return next.result;
-          }
+    const finalizer = fins.foldLeft(null as URIO<R, Exit<never, any>> | null, (acc, next): URIO<R, Exit<never, any>> | null => {
+      if (acc === null) {
+        if (next === null) {
+          return null;
         } else {
-          if (next === null) {
-            return acc;
-          } else {
-            return acc.zipWith(next.result, (a, b) => a.apSecond(b));
-          }
+          return next.result;
         }
-      }),
-    );
+      } else {
+        if (next === null) {
+          return acc;
+        } else {
+          return acc.zipWith(next.result, (a, b) => a.apSecond(b));
+        }
+      }
+    });
     if (finalizer) {
       return finalizer.chain(IO.fromExitNow);
     } else {
@@ -112,7 +110,7 @@ class PullFromChild<R> {
       }
     } else {
       if (fin2 === null) {
-        return fin1.result;
+        return fin1;
       } else {
         return fin1.result.zipWith(fin2.result, (a, b) => a.apSecond(b)).chain(IO.fromExitNow);
       }
@@ -138,7 +136,7 @@ class DrainChildExecutors<R> {
 
   close(ex: Exit<unknown, unknown>): URIO<R, Exit<unknown, unknown>> | null {
     const fin1 = this.upstreamExecutor.close(ex);
-    const fins = this.activeChildExecutors.map((child) => (child !== null ? child.childExecutor.close(ex) : null));
+    const fins = this.activeChildExecutors.map((child) => (child !== null ? child.childExecutor.close(ex) : null)).enqueue(fin1);
     return pipe(
       fins.foldLeft(null as URIO<R, Exit<unknown, unknown>> | null, (acc, next): URIO<R, Exit<unknown, unknown>> | null => {
         if (acc === null) {
@@ -202,13 +200,13 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
         const emitEffect = current.onEmit(current.upstream.getEmit());
         if (readStack === undefined) {
           if (emitEffect === null) {
-            return IO.defer(cont);
+            return IO.defer(cont());
           } else {
             return emitEffect.chain(() => cont());
           }
         } else {
           if (emitEffect === null) {
-            return IO.defer(read);
+            return IO.defer(read());
           } else {
             return emitEffect.chain(() => read());
           }
@@ -218,13 +216,13 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
         const doneEffect = current.onDone(current.upstream.getDone());
         if (readStack === undefined) {
           if (doneEffect === null) {
-            return IO.defer(cont);
+            return IO.defer(cont());
           } else {
             return doneEffect.chain(() => cont());
           }
         } else {
           if (doneEffect === null) {
-            return IO.defer(read);
+            return IO.defer(read());
           } else {
             return doneEffect.chain(() => read());
           }
@@ -245,7 +243,7 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
       case State.ChannelStateTag.Read: {
         readStack = Stack.make(current, readStack);
         readStack = Stack.make(state, readStack);
-        return IO.defer(read);
+        return IO.defer(read());
       }
     }
   };
@@ -303,8 +301,8 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               if (this.input !== null) {
                 const inputExecutor = this.input;
                 this.input          = null;
-                const drainer: URIO<Env, unknown> = pipe(
-                  currentChannel.input.awaitRead.chain(() => {
+                const drainer: URIO<Env, unknown> = currentChannel.input.awaitRead.apSecond(
+                  IO.defer(() => {
                     const state = inputExecutor.run();
 
                     switch (state._tag) {
@@ -334,7 +332,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                   drainer.fork.chain((fiber) =>
                     IO.succeed(() => {
                       this.addFinalizer((exit) =>
-                        fiber.interrupt.chain(() =>
+                        fiber.interrupt.apSecond(
                           IO.defer(() => {
                             const effect = this.restorePipe(exit, inputExecutor);
                             if (effect !== null) {
@@ -353,7 +351,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
             }
             case ChannelTag.PipeTo: {
               const previousInput = this.input;
-              const leftExec      = new ChannelExecutor(currentChannel.left, this.providedEnv, this.executeCloseLastSubstream);
+              const leftExec      = new ChannelExecutor(currentChannel.left, this.providedEnv, (_) => this.executeCloseLastSubstream(_));
               leftExec.input      = previousInput;
               this.input          = leftExec;
               this.addFinalizer((exit) => {
@@ -368,15 +366,16 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               break;
             }
             case ChannelTag.Read: {
-              result = new State.Read(
+              const read = currentChannel;
+              result     = new State.Read(
                 this.input,
                 identity,
                 (out) => {
-                  this.currentChannel = currentChannel.more(out);
+                  this.currentChannel = read.more(out);
                   return null;
                 },
                 (exit) => {
-                  this.currentChannel = currentChannel.done.onExit(exit);
+                  this.currentChannel = read.done.onExit(exit);
                   return null;
                 },
               );
@@ -480,15 +479,15 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
   private restorePipe(exit: Exit<unknown, unknown>, prev: ErasedExecutor<Env> | null): IO<Env, never, unknown> | null {
     const currInput = this.input;
     this.input      = prev;
-    return currInput !== null ? currInput.close(exit) : null;
+    return currInput !== null ? currInput.close(exit) : IO.unit;
   }
 
-  private popAllFinalizers(exit: Exit<unknown, unknown>): URIO<Env, Exit<unknown, unknown>> {
+  private popAllFinalizers(exit: Exit<unknown, unknown>): URIO<Env, any> {
     /**
      * @tsplus tailrec
      */
     const unwind = (acc: IO<Env, never, Exit<never, any>>, conts: List<ErasedContinuation<Env>>): IO<Env, never, Exit<never, unknown>> => {
-      if (conts.isNonEmpty()) {
+      if (conts.isEmpty()) {
         return acc;
       } else {
         const head = conts.unsafeHead!;
@@ -496,11 +495,11 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         if (head._tag === ChannelTag.ContinuationK) {
           return unwind(acc, conts.unsafeTail);
         } else {
-          return unwind(acc.apSecond(pipe(head.finalizer(exit), (io) => io.result)), conts.unsafeTail);
+          return unwind(acc.apSecond(head.finalizer(exit).result), conts.unsafeTail);
         }
       }
     };
-    const effect   = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).result;
+    const effect   = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).chain(IO.fromExitNow);
     this.doneStack = Nil();
     this.storeInProgressFinalizer(effect);
     return effect;
@@ -529,8 +528,8 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     return builder.toList;
   }
 
-  private storeInProgressFinalizer(effect: URIO<Env, unknown> | null): void {
-    this.inProgressFinalizer = effect;
+  private storeInProgressFinalizer(finalizer: URIO<Env, unknown> | null): void {
+    this.inProgressFinalizer = finalizer;
   }
 
   private clearInProgressFinalizer(): void {

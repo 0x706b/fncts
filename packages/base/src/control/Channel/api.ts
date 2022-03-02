@@ -1672,7 +1672,7 @@ export function writeAll<Out>(outs: ReadonlyArray<Out>): Channel<unknown, unknow
 
 function writeChunkWriter<Out>(outs: Conc<Out>, idx: number, len: number): Channel<unknown, unknown, unknown, unknown, never, Out, void> {
   if (idx === len) return Channel.unit;
-  return Channel.write(outs.unsafeGet(idx)), writeChunkWriter(outs, idx + 1, len);
+  return Channel.writeNow(outs.unsafeGet(idx)).apSecond(writeChunkWriter(outs, idx + 1, len));
 }
 
 /**

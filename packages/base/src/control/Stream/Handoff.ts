@@ -33,7 +33,7 @@ export class Full<A> {
   readonly _typeId: typeof StateTypeId = StateTypeId;
   readonly _tag: typeof FullTypeId     = FullTypeId;
 
-  constructor(readonly a: A, readonly notifyConsumer: Future<never, void>) {}
+  constructor(readonly a: A, readonly notifyProducer: Future<never, void>) {}
 }
 
 export type State<A> = Empty | Full<A>;
@@ -56,7 +56,7 @@ export function offer<A>(handoff: Handoff<A>, a: A): UIO<void> {
       handoff.ref.modify((s) => {
         switch (s._tag) {
           case FullTypeId:
-            return tuple(s.notifyConsumer.await.apSecond(handoff.offer(a)), s);
+            return tuple(s.notifyProducer.await.apSecond(handoff.offer(a)), s);
           case EmptyTypeId:
             return tuple(s.notifyConsumer.succeed(undefined).apSecond(p.await), new Full(a, p));
         }
@@ -73,7 +73,7 @@ export function take<A>(handoff: Handoff<A>): UIO<A> {
       handoff.ref.modify((s) => {
         switch (s._tag) {
           case FullTypeId:
-            return tuple(s.notifyConsumer.succeed(undefined).as(s.a), new Empty(p));
+            return tuple(s.notifyProducer.succeed(undefined).as(s.a), new Empty(p));
           case EmptyTypeId:
             return tuple(s.notifyConsumer.await.apSecond(handoff.take), s);
         }
@@ -90,7 +90,7 @@ export function poll<A>(handoff: Handoff<A>): UIO<Maybe<A>> {
       handoff.ref.modify((s) => {
         switch (s._tag) {
           case FullTypeId:
-            return tuple(s.notifyConsumer.succeed(undefined).as(Just(s.a)), new Empty(p));
+            return tuple(s.notifyProducer.succeed(undefined).as(Just(s.a)), new Empty(p));
           case EmptyTypeId:
             return tuple(IO.succeedNow(Nothing()), s);
         }

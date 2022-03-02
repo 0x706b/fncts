@@ -1,26 +1,16 @@
-import { Iterable } from "./collection/immutable/Iterable";
+import { Conc } from "./collection/immutable/Conc";
 import { IO } from "./control/IO";
-import { Stream } from "./control/Stream/definition";
+import { Stream } from "./control/Stream";
 
-async function wait(n: number) {
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, n);
+Stream.fromChunk(Conc(2, 3))
+  .interleave(Stream.fromChunk(Conc(5, 6, 7)))
+  .runCollect.chain((c) =>
+    IO(
+      c.forEach((n) => {
+        console.log(n);
+      }),
+    ),
+  )
+  .unsafeRunAsyncWith((exit) => {
+    console.log(exit);
   });
-}
-
-const iter = {
-  async *[Symbol.asyncIterator]() {
-    let i = 0;
-    while (true) {
-      await wait(i);
-      yield i++;
-    }
-  },
-};
-
-Stream.fromAsyncIterable(iter)
-  .take(100)
-  .mapIO((n) => IO(console.log(n)))
-  .runDrain.unsafeRunAsync();

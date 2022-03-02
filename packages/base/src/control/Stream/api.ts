@@ -1665,7 +1665,7 @@ export function interleaveWith_<R, E, A, R1, E1, B, R2, E2>(
         ): Channel<R & R1 & R2, E | E1 | E2, boolean, unknown, E | E1 | E2, Conc<A | B>, void> =>
           Channel.readWithCause(
             (b: boolean) => {
-              if (b && leftDone) {
+              if (b && !leftDone) {
                 return Channel.fromIO(left.take).chain((take) =>
                   take.match(rightDone ? Channel.unit : process(true, rightDone), Channel.failCauseNow, (chunk) =>
                     Channel.writeNow(chunk).apSecond(process(leftDone, rightDone)),
