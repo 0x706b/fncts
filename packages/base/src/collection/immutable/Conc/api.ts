@@ -1166,9 +1166,7 @@ export function dropWhile<A>(p: Predicate<A>) {
 /**
  * @tsplus dataFirst filter_
  */
-export function filter<A, B extends A>(
-  p: Refinement<A, B>
-): (self: Conc<A>) => Conc<B>;
+export function filter<A, B extends A>(p: Refinement<A, B>): (self: Conc<A>) => Conc<B>;
 /**
  * @tsplus dataFirst filter_
  */
@@ -1194,15 +1192,11 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 /**
  * @tsplus dataFirst filterWithIndex_
  */
-export function filterWithIndex<A, B extends A>(
-  p: RefinementWithIndex<number, A, B>
-): (self: Conc<A>) => Conc<B>;
+export function filterWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: Conc<A>) => Conc<B>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
-export function filterWithIndex<A>(
-  p: PredicateWithIndex<number, A>
-): (self: Conc<A>) => Conc<A>;
+export function filterWithIndex<A>(p: PredicateWithIndex<number, A>): (self: Conc<A>) => Conc<A>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
@@ -1220,11 +1214,7 @@ export function find<A>(f: (a: A) => boolean) {
  * Stops the fold early when the condition is not fulfilled.
  * @tsplus dataFirst foldLeftWhile_
  */
-export function foldLeftWhile<A, B>(
-  b: B,
-  p: Predicate<B>,
-  f: (b: B, a: A) => B
-) {
+export function foldLeftWhile<A, B>(b: B, p: Predicate<B>, f: (b: B, a: A) => B) {
   return (as: Conc<A>): B => foldLeftWhile_(as, b, p, f);
 }
 /**
@@ -1248,10 +1238,7 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 /**
  * @tsplus dataFirst foldRightWithIndex_
  */
-export function foldRightWithIndex<A, B>(
-  b: B,
-  f: (i: number, a: A, b: B) => B
-) {
+export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
   return (self: Conc<A>): B => foldRightWithIndex_(self, b, f);
 }
 /**
@@ -1300,15 +1287,11 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A, B extends A>(
-  p: Refinement<A, B>
-): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
+export function partition<A, B extends A>(p: Refinement<A, B>): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A>(
-  p: Predicate<A>
-): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
+export function partition<A>(p: Predicate<A>): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
 /**
  * @tsplus dataFirst partition_
  */
@@ -1324,30 +1307,22 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 /**
  * @tsplus dataFirst partitionMapWithIndex_
  */
-export function partitionMapWithIndex<A, B, C>(
-  f: (i: number, a: A) => Either<B, C>
-) {
-  return (fa: Conc<A>): readonly [Conc<B>, Conc<C>] =>
-    partitionMapWithIndex_(fa, f);
+export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
+  return (fa: Conc<A>): readonly [Conc<B>, Conc<C>] => partitionMapWithIndex_(fa, f);
 }
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
-export function partitionWithIndex<A, B extends A>(
-  p: RefinementWithIndex<number, A, B>
-): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
+export function partitionWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
-export function partitionWithIndex<A>(
-  p: PredicateWithIndex<number, A>
-): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
+export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
 export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
-  return (self: Conc<A>): readonly [Conc<A>, Conc<A>] =>
-    partitionWithIndex_(self, p);
+  return (self: Conc<A>): readonly [Conc<A>, Conc<A>] => partitionWithIndex_(self, p);
 }
 /**
  * @tsplus dataFirst prepend_
@@ -1414,8 +1389,7 @@ export function zipWith<A, B, C>(fb: Conc<B>, f: (a: A, b: B) => C) {
  * @tsplus dataFirst zipWithIndexOffset_
  */
 export function zipWithIndexOffset(offset: number) {
-  return <A>(as: Conc<A>): Conc<readonly [A, number]> =>
-    zipWithIndexOffset_(as, offset);
+  return <A>(as: Conc<A>): Conc<readonly [A, number]> => zipWithIndexOffset_(as, offset);
 }
 /**
  * @constrained

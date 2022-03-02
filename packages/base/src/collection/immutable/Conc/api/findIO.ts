@@ -1,5 +1,5 @@
 import type { Maybe } from "../../../../data/Maybe";
-import type { Conc} from "../definition";
+import type { Conc } from "../definition";
 
 import { IO } from "../../../../control/IO";
 import { Just, Nothing } from "../../../../data/Maybe";
