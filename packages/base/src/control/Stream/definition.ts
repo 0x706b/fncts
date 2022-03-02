@@ -1,4 +1,5 @@
 import type { Conc } from "../../collection/immutable/Conc";
+import type { _A, _E, _R } from "../../types";
 import type { Channel } from "../Channel";
 
 export const StreamTypeId = Symbol.for("@principia/base/IO/Stream");
@@ -31,6 +32,13 @@ export class Stream<R, E, A> {
   readonly _A!: () => A;
 
   constructor(readonly channel: Channel<R, unknown, unknown, unknown, E, Conc<A>, unknown>) {}
+}
+
+/**
+ * @tsplus unify fncts.control.Stream
+ */
+export function unifyStream<X extends Stream<any, any, any>>(_: X): Stream<_R<X>, _E<X>, _A<X>> {
+  return _;
 }
 
 export const DEFAULT_CHUNK_SIZE = 4096;

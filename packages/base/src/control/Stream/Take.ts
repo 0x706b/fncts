@@ -188,5 +188,7 @@ export function fromExit<E, A>(exit: Exit<E, A>): Take<E, A> {
 
 /**
  * End-of-stream marker
+ *
+ * @tsplus static fncts.control.Stream.TakeOps end
  */
 export const end: Take<never, never> = new Take(Exit.fail(Nothing()));
