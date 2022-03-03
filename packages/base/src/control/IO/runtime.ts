@@ -10,7 +10,9 @@ import { RuntimeConfig, RuntimeConfigFlags } from "../../data/RuntimeConfig";
 import { Stack } from "../../internal/Stack";
 import { Clock } from "../Clock";
 import { FiberContext } from "../Fiber";
+import { FiberRef } from "../FiberRef";
 import { Logger } from "../Logger";
+import { Random } from "../Random";
 import { Scope } from "../Scope";
 import { Supervisor } from "../Supervisor";
 import { concrete, IO } from "./definition";
@@ -33,7 +35,7 @@ export class Runtime<R> {
       fiberId,
       this.runtimeConfig,
       Stack.make(InterruptStatus.interruptible.toBoolean),
-      new Map(),
+      new Map([[FiberRef.currentEnvironment, this.environment]]),
       children,
     );
 
@@ -83,7 +85,8 @@ export const defaultRuntimeConfig = new RuntimeConfig({
 export const defaultRuntime = new Runtime(
   {
     [Clock.Tag.key]: Clock.Live,
-  } as unknown as Has<Clock>,
+    [Random.Tag.key]: Random.live,
+  } as unknown as Has<Clock> & Has<Random>,
   defaultRuntimeConfig,
 );
 

@@ -1572,7 +1572,7 @@ export function runManaged<Env, InErr, InDone, OutErr, OutDone>(
   self: Channel<Env, InErr, unknown, InDone, OutErr, never, OutDone>,
 ): Managed<Env, OutErr, OutDone> {
   return Managed.bracketExit(
-    IO.succeed(new ChannelExecutor(() => self, undefined, identity)),
+    IO.succeed(new ChannelExecutor(() => self, null, identity)),
     (exec, exit) => exec.close(exit) || IO.unit,
   ).mapIO((exec) => IO.defer(runManagedInterpret(exec.run(), exec)));
 }

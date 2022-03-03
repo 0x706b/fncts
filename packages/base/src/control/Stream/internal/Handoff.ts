@@ -1,14 +1,14 @@
-import type { Conc } from "../../collection/immutable/Conc";
-import type { Cause } from "../../data/Cause";
-import type { Maybe } from "../../data/Maybe";
-import type { UIO } from "../IO";
+import type { Conc } from "../../../collection/immutable/Conc";
+import type { Cause } from "../../../data/Cause";
+import type { Maybe } from "../../../data/Maybe";
+import type { UIO } from "../../IO";
 import type { SinkEndReason } from "./SinkEndReason";
 
-import { tuple } from "../../data/function";
-import { Just, Nothing } from "../../data/Maybe";
-import { Future } from "../Future";
-import { IO } from "../IO";
-import { Ref } from "../Ref";
+import { tuple } from "../../../data/function";
+import { Just, Nothing } from "../../../data/Maybe";
+import { Future } from "../../Future";
+import { IO } from "../../IO";
+import { Ref } from "../../Ref";
 
 /**
  * @tsplus type fncts.control.Stream.Handoff

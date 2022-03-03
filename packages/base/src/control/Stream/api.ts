@@ -8,7 +8,7 @@ import type { PHub } from "../Hub";
 import type { Canceler, UIO } from "../IO";
 import type { UManaged } from "../Managed";
 import type { PQueue } from "../Queue";
-import type { SinkEndReason } from "./SinkEndReason";
+import type { SinkEndReason } from "./internal/SinkEndReason";
 
 import { Conc } from "../../collection/immutable/Conc";
 import { HashMap } from "../../collection/immutable/HashMap";
@@ -22,28 +22,19 @@ import { MergeDecision } from "../Channel/internal/MergeDecision";
 import { Clock } from "../Clock";
 import { Future } from "../Future";
 import { Hub } from "../Hub";
-import { IO, left } from "../IO";
+import { IO } from "../IO";
 import { Managed } from "../Managed";
 import { Queue } from "../Queue";
 import { Ref } from "../Ref";
 import { Schedule } from "../Schedule";
 import { Sink } from "../Sink";
 import { TSemaphore } from "../TSemaphore";
-import { DebounceState } from "./DebounceState";
-import { DEFAULT_CHUNK_SIZE, Stream, StreamTypeId } from "./definition";
-import { EmitTypeId, EndTypeId, HaltTypeId, Handoff, HandoffSignal } from "./Handoff";
-import { Pull } from "./Pull";
-import {
-  ScheduleEnd,
-  ScheduleEndTypeId,
-  ScheduleTimeout,
-  ScheduleTimeoutTypeId,
-  SinkEnd,
-  SinkEndTypeId,
-  UpstreamEnd,
-  UpstreamEndTypeId,
-} from "./SinkEndReason";
-import { Take } from "./Take";
+import { DEFAULT_CHUNK_SIZE, Stream } from "./definition";
+import { DebounceState } from "./internal/DebounceState";
+import { Handoff, HandoffSignal } from "./internal/Handoff";
+import { Pull } from "./internal/Pull";
+import { ScheduleEnd, ScheduleTimeout, SinkEnd, UpstreamEnd } from "./internal/SinkEndReason";
+import { Take } from "./internal/Take";
 
 /**
  * Submerges the error case of an `Either` into the `Stream`.
@@ -129,16 +120,13 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
         if (leftovers.isEmpty) {
           return IO.succeedNow(Channel.writeNow(leftovers).apSecond(handoffConsumer));
         } else {
-          return handoff.take.map((signal) => {
-            switch (signal._tag) {
-              case EmitTypeId:
-                return Channel.writeNow(signal.els).apSecond(handoffConsumer);
-              case HaltTypeId:
-                return Channel.failCause(signal.error);
-              case EndTypeId:
-                return Channel.fromIO(sinkEndReason.set(signal.reason));
-            }
-          });
+          return handoff.take.map((signal) =>
+            signal.match({
+              Emit: ({ els }) => Channel.writeNow(els).apSecond(handoffConsumer),
+              Halt: ({ error }) => Channel.failCause(error),
+              End: ({ reason }) => Channel.fromIO(sinkEndReason.set(reason)),
+            }),
+          );
         }
       }),
     );
@@ -149,7 +137,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
       const timeout = scheduleDriver.next(lastB).matchCauseIO(
         (_) =>
           _.failureOrCause.match(
-            (_) => handoff.offer(HandoffSignal.End(new ScheduleTimeout())),
+            () => handoff.offer(HandoffSignal.End(new ScheduleTimeout())),
             (cause) => handoff.offer(HandoffSignal.Halt(cause)),
           ),
         (c) => handoff.offer(HandoffSignal.End(new ScheduleEnd(c))),
@@ -159,18 +147,14 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
         return handoffConsumer.pipeToOrFail(sink.channel).doneCollect.chain(([leftovers, b]) => {
           return Channel.fromIO(fiber.interrupt.apSecond(sinkLeftovers.set(leftovers.flatten))).apSecond(
             Channel.unwrap(
-              sinkEndReason.modify((reason) => {
-                switch (reason._tag) {
-                  case ScheduleEndTypeId:
-                    return tuple(Channel.writeNow(Conc.from([Either.right(b), Either.left(reason.c)])).as(Just(b)), new SinkEnd());
-                  case ScheduleTimeoutTypeId:
-                    return tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Just(b)), new SinkEnd());
-                  case SinkEndTypeId:
-                    return tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Just(b)), new SinkEnd());
-                  case UpstreamEndTypeId:
-                    return tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Nothing()), new UpstreamEnd());
-                }
-              }),
+              sinkEndReason.modify((reason) =>
+                reason.match({
+                  ScheduleEnd: ({ c }) => tuple(Channel.writeNow(Conc.from([Either.right(b), Either.left(c)])).as(Just(b)), new SinkEnd()),
+                  ScheduleTimeout: () => tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Just(b)), new SinkEnd()),
+                  SinkEnd: () => tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Just(b)), new SinkEnd()),
+                  UpstreamEnd: () => tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Nothing()), new UpstreamEnd()),
+                }),
+              ),
             ),
           );
         });
@@ -2729,116 +2713,65 @@ export function unwrapManaged<R0, E0, R, E, A>(stream: Managed<R0, E0, Stream<R,
 }
 
 /**
- * @tsplus fluent fncts.control.Stream zipWith
+ * Zips the two streams so that when a value is emitted by either of the two
+ * streams, it is combined with the latest value from the other stream to
+ * produce a result.
+ *
+ * Note: tracking the latest value is done on a per-chunk basis. That means
+ * that emitted elements that are not the last value in chunks will never be
+ * used for zipping.
+ *
+ * @tsplus fluent fncts.control.Stream zipWithLatest
  */
-export function zipWith_<R, E, A, R1, E1, B, C>(
-  self: Stream<R, E, A>,
-  that: Stream<R1, E1, B>,
+export function zipWithLatest_<R, E, A, R1, E1, B, C>(
+  fa: Stream<R, E, A>,
+  fb: Stream<R1, E1, B>,
   f: (a: A, b: B) => C,
 ): Stream<R & R1, E | E1, C> {
-  return self.zipWithChunks(that, (as, bs) => zipChunks_(as, bs, f));
-}
-
-class PullBoth {
-  readonly _tag = "PullBoth";
-}
-
-class PullLeft<A2> {
-  readonly _tag = "PullLeft";
-  constructor(readonly rightChunk: Conc<A2>) {}
-}
-
-class PullRight<A1> {
-  readonly _tag = "PullRight";
-  constructor(readonly leftChunk: Conc<A1>) {}
-}
-
-type ZipWithChunksState<A1, A2> = PullBoth | PullLeft<A2> | PullRight<A1>;
-
-function zipWithChunksPull<R, E, A1, R1, E1, A2, A3>(
-  state: ZipWithChunksState<A1, A2>,
-  pullLeft: IO<R, Maybe<E>, Conc<A1>>,
-  pullRight: IO<R1, Maybe<E1>, Conc<A2>>,
-  f: (as: Conc<A1>, bs: Conc<A2>) => readonly [Conc<A3>, Either<Conc<A1>, Conc<A2>>],
-): IO<R & R1, never, Exit<Maybe<E | E1>, readonly [Conc<A3>, ZipWithChunksState<A1, A2>]>> {
-  switch (state._tag) {
-    case "PullBoth":
-      return pullLeft.zipC(pullRight).matchIO(
-        (err) => IO.succeedNow(Exit.fail(err)),
-        ([leftChunk, rightChunk]) => {
-          if (leftChunk.isEmpty && rightChunk.isEmpty) {
-            return zipWithChunksPull(new PullBoth(), pullLeft, pullRight, f);
-          } else if (leftChunk.isEmpty) {
-            return zipWithChunksPull(new PullLeft(rightChunk), pullLeft, pullRight, f);
-          } else if (rightChunk.isEmpty) {
-            return zipWithChunksPull(new PullRight(leftChunk), pullLeft, pullRight, f);
-          } else {
-            return IO.succeedNow(Exit.succeed(handleZipWithChunksSuccess(leftChunk, rightChunk, f)));
-          }
-        },
-      );
-    case "PullLeft":
-      return pullLeft.matchIO(
-        (err) => IO.succeedNow(Exit.fail(err)),
-        (leftChunk) => {
-          if (leftChunk.isEmpty) {
-            return zipWithChunksPull(new PullLeft(state.rightChunk), pullLeft, pullRight, f);
-          } else if (state.rightChunk.isEmpty) {
-            return zipWithChunksPull(new PullRight(leftChunk), pullLeft, pullRight, f);
-          } else {
-            return IO.succeedNow(Exit.succeed(handleZipWithChunksSuccess(leftChunk, state.rightChunk, f)));
-          }
-        },
-      );
-    case "PullRight":
-      return pullRight.matchIO(
-        (err) => IO.succeedNow(Exit.fail(err)),
-        (rightChunk) => {
-          if (rightChunk.isEmpty) {
-            return zipWithChunksPull(new PullRight(state.leftChunk), pullLeft, pullRight, f);
-          } else if (state.leftChunk.isEmpty) {
-            return zipWithChunksPull(new PullLeft(rightChunk), pullLeft, pullRight, f);
-          } else {
-            return IO.succeedNow(Exit.succeed(handleZipWithChunksSuccess(state.leftChunk, rightChunk, f)));
-          }
-        },
-      );
+  function pullNonEmpty<R, E, A>(pull: IO<R, Maybe<E>, Conc<A>>): IO<R, Maybe<E>, Conc<A>> {
+    return pull.chain((chunk) => (chunk.isNonEmpty ? pullNonEmpty(pull) : IO.succeedNow(chunk)));
   }
-}
-
-function handleZipWithChunksSuccess<A1, A2, A3>(
-  leftChunk: Conc<A1>,
-  rightChunk: Conc<A2>,
-  f: (as: Conc<A1>, bs: Conc<A2>) => readonly [Conc<A3>, Either<Conc<A1>, Conc<A2>>],
-): readonly [Conc<A3>, ZipWithChunksState<A1, A2>] {
-  const [out, remaining] = f(leftChunk, rightChunk);
-  return remaining.match(
-    (l) => (leftChunk.isEmpty ? [out, new PullBoth()] : [out, new PullRight(leftChunk)]),
-    (r) => (rightChunk.isEmpty ? [out, new PullBoth()] : [out, new PullLeft(rightChunk)]),
+  return Stream.fromPull(
+    Managed.gen(function* (_) {
+      const left  = yield* _(fa.toPull.map(pullNonEmpty));
+      const right = yield* _(fb.toPull.map(pullNonEmpty));
+      return yield* _(
+        Stream.fromIOMaybe(
+          left.raceWith(
+            right,
+            (leftDone, rightFiber) => IO.fromExitNow(leftDone).zipWith(rightFiber.join, (l, r) => tuple(l, r, true)),
+            (rightDone, leftFiber) => IO.fromExitNow(rightDone).zipWith(leftFiber.join, (r, l) => tuple(l, r, false)),
+          ),
+        ).chain(([l, r, leftFirst]) =>
+          Stream.fromIO(Ref.make(tuple(l.unsafeGet(l.length - 1), r.unsafeGet(r.length - 1)))).chain((latest) =>
+            Stream.fromChunk(
+              leftFirst ? r.map((b) => f(l.unsafeGet(l.length - 1), b)) : l.map((a) => f(a, r.unsafeGet(r.length - 1))),
+            ).concat(
+              Stream.repeatIOMaybe(left)
+                .mergeEither(Stream.repeatIOMaybe(right))
+                .mapIO((ab) =>
+                  ab.match(
+                    (leftChunk) =>
+                      latest.modify(([_, rightLatest]) =>
+                        tuple(
+                          leftChunk.map((a) => f(a, rightLatest)),
+                          tuple(leftChunk.unsafeGet(leftChunk.length - 1), rightLatest),
+                        ),
+                      ),
+                    (rightChunk) =>
+                      latest.modify(([leftLatest, _]) =>
+                        tuple(
+                          rightChunk.map((b) => f(leftLatest, b)),
+                          tuple(leftLatest, rightChunk.unsafeGet(rightChunk.length - 1)),
+                        ),
+                      ),
+                  ),
+                )
+                .chain(Stream.fromChunkNow),
+            ),
+          ),
+        ).toPull,
+      );
+    }),
   );
-}
-
-/**
- * @tsplus fluent fncts.control.Stream zipWithChunks
- */
-export function zipWithChunks_<R, E, A, R1, E1, B, C>(
-  self: Stream<R, E, A>,
-  that: Stream<R1, E1, B>,
-  f: (as: Conc<A>, bs: Conc<B>) => readonly [Conc<C>, Either<Conc<A>, Conc<B>>],
-): Stream<R & R1, E | E1, C> {
-  return self.combineChunks(that, <ZipWithChunksState<A, B>>new PullBoth(), (s, l, r) => zipWithChunksPull(s, l, r, f));
-}
-
-function zipChunks_<A, B, C>(fa: Conc<A>, fb: Conc<B>, f: (a: A, b: B) => C): readonly [Conc<C>, Either<Conc<A>, Conc<B>>] {
-  let fc    = Conc.empty<C>();
-  const len = Math.min(fa.length, fb.length);
-  for (let i = 0; i < len; i++) {
-    fc = fc.append(f(fa.unsafeGet(i), fb.unsafeGet(i)));
-  }
-
-  if (fa.length > fb.length) {
-    return tuple(fc, Either.left(fa.drop(fb.length)));
-  }
-
-  return tuple(fc, Either.right(fb.drop(fa.length)));
 }

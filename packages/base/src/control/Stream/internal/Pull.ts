@@ -1,11 +1,11 @@
-import type { Cause } from "../../data/Cause";
-import type { FIO, UIO } from "../IO";
-import type { Queue } from "../Queue";
+import type { Cause } from "../../../data/Cause";
+import type { FIO, UIO } from "../../IO";
+import type { Queue } from "../../Queue";
 import type { Take } from "./Take";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { Just, Maybe, Nothing } from "../../data/Maybe";
-import { IO } from "../IO";
+import { Conc } from "../../../collection/immutable/Conc";
+import { Just, Maybe, Nothing } from "../../../data/Maybe";
+import { IO } from "../../IO";
 
 export type Pull<R, E, A> = IO<R, Maybe<E>, Conc<A>>;
 

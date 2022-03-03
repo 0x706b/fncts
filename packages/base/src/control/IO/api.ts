@@ -42,6 +42,7 @@ export function apFirst_<R, E, A, R1, E1, B>(self: IO<R, E, A>, fb: IO<R1, E1, B
  * Combine two effectful actions, keeping only the result of the second
  *
  * @tsplus fluent fncts.control.IO apSecond
+ * @tsplus operator fncts.control.IO >
  */
 export function apSecond_<R, E, A, R1, E1, B>(self: IO<R, E, A>, fb: IO<R1, E1, B>, __tsplusTrace?: string): IO<R1 & R, E1 | E, B> {
   return self.chain(() => fb);
@@ -1452,6 +1453,18 @@ export function tryOrElse_<R, E, A, R1, E1, A1, R2, E2, A2>(
   __tsplusTrace?: string,
 ): IO<R & R1 & R2, E1 | E2, A1 | A2> {
   return ma.matchCauseIO((cause) => cause.keepDefects.match(that, IO.failCauseNow), onSuccess);
+}
+
+/**
+ * Converts an option on errors into an option on values.
+ *
+ * @tsplus getter fncts.control.IO unjust
+ */
+export function unjust<R, E, A>(self: IO<R, Maybe<E>, A>): IO<R, E, Maybe<A>> {
+  return self.matchIO(
+    (e) => e.match(() => IO.succeedNow(Nothing()), IO.failNow),
+    (a) => IO.succeedNow(Just(a))
+  )
 }
 
 /**

@@ -263,7 +263,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 
   constructor(
     initialChannel: () => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-    private providedEnv: unknown,
+    private providedEnv: unknown | null,
     private executeCloseLastSubstream: (_: URIO<Env, unknown>) => URIO<Env, unknown>,
   ) {
     this.currentChannel = initialChannel() as ErasedChannel<Env>;
