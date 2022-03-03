@@ -14,3 +14,5 @@ const _fiberCounter = new AtomicNumber(0);
 export function newFiberId(): Runtime {
   return new Runtime(_fiberCounter.getAndIncrement(), new Date().getTime());
 }
+
+export const synthetic = new Runtime(-1, -1);
