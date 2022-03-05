@@ -195,7 +195,7 @@ export function flatten<A>(self: ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>>
  * @constrained
  */
 export function fold_<A>(S: P.Semigroup<A>) {
-  return (self: ReadonlyNonEmptyArray<A>): A => self.slice(1).unsafeAsImmutable.foldLeftWithIndex(self[0], (_, b, a) => S.combine_(b, a));
+  return (self: ReadonlyNonEmptyArray<A>): A => self.slice(1).foldLeftWithIndex(self[0], (_, b, a) => S.combine_(b, a));
 }
 
 /**

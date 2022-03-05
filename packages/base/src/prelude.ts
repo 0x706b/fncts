@@ -31,6 +31,7 @@ export * from "./prelude/Pointed";
 export * from "./prelude/Semialign";
 export * from "./prelude/Semigroup";
 export * from "./prelude/Semimonoidal";
+export * from "./prelude/Showable";
 export * from "./prelude/Traversable";
 export * from "./prelude/TraversableWithIndex";
 export * from "./prelude/Witherable";

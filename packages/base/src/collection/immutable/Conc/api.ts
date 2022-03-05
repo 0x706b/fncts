@@ -10,7 +10,7 @@ import { Just, Maybe, Nothing } from "../../../data/Maybe";
 import { These } from "../../../data/These";
 import { Stack } from "../../../internal/Stack";
 import * as P from "../../../prelude";
-import { Iterable } from "../Iterable/definition";
+import { Iterable } from "../../Iterable/definition";
 import { _Empty, BUFFER_SIZE, Chunk, Conc, concrete, ConcTag, Singleton, Slice } from "./definition";
 
 /**

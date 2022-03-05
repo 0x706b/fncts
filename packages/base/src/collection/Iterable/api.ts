@@ -1,11 +1,11 @@
-import type { Either } from "../../../data/Either";
-import type { Maybe } from "../../../data/Maybe";
-import type { Predicate, PredicateWithIndex } from "../../../data/Predicate";
-import type { Refinement, RefinementWithIndex } from "../../../data/Refinement";
-import type * as P from "../../../prelude";
+import type { Either } from "../../data/Either";
+import type { Maybe } from "../../data/Maybe";
+import type { Predicate, PredicateWithIndex } from "../../data/Predicate";
+import type { Refinement, RefinementWithIndex } from "../../data/Refinement";
+import type * as P from "../../prelude";
 
-import { Eval } from "../../../control/Eval";
-import { tuple } from "../../../data/function";
+import { Eval } from "../../control/Eval";
+import { tuple } from "../../data/function";
 import { Iterable } from "./definition";
 
 /**

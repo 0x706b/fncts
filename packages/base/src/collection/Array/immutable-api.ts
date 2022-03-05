@@ -533,6 +533,7 @@ export function findLastMapWithIndex_<A, B>(as: ReadonlyArray<A>, f: (i: number,
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldLeftWithIndex
+ * @tsplus fluent fncts.collection.mutable.Array foldLeftWithIndex
  */
 export function foldLeftWithIndex_<A, B>(self: ReadonlyArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   const len = self.length;
@@ -545,7 +546,7 @@ export function foldLeftWithIndex_<A, B>(self: ReadonlyArray<A>, b: B, f: (i: nu
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldLeft
- * @tsplus static fncts.collection.immutable.ArrayOps foldLeft_
+ * @tsplus fluent fncts.collection.mutable.Array foldLeft
  */
 export function foldLeft_<A, B>(self: ReadonlyArray<A>, b: B, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
@@ -553,6 +554,7 @@ export function foldLeft_<A, B>(self: ReadonlyArray<A>, b: B, f: (b: B, a: A) =>
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldLeftWhile
+ * @tsplus fluent fncts.collection.mutable.Array foldLeftWhile
  */
 export function foldLeftWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<B>, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndexWhile(b, p, (_, b, a) => f(b, a));
@@ -560,6 +562,7 @@ export function foldLeftWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldLeftWithIndexWhile
+ * @tsplus fluent fncts.collection.mutable.Array foldLeftWithIndexWhile
  */
 export function foldLeftWithIndexWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<B>, f: (i: number, b: B, a: A) => B): B {
   let out  = b;
@@ -577,6 +580,7 @@ export function fold<M>(M: Monoid<M>) {
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array fold
+ * @tsplus fluent fncts.collection.mutable.Array fold
  */
 export function foldSelf<M>(self: ReadonlyArray<M>, M: Monoid<M>): M {
   return self.foldLeft(M.nat, M.combine_);
@@ -593,6 +597,7 @@ export function foldMapWithIndex_<M>(M: Monoid<M>) {
 
 /**
  * @tsplus getter fncts.collection.immutable.Array foldMapWithIndex
+ * @tsplus getter fncts.collection.mutable.Array foldMapWithIndex
  */
 export function foldMapWithIndexSelf<A>(self: ReadonlyArray<A>) {
   return <M>(M: Monoid<M>) =>
@@ -611,6 +616,7 @@ export function foldMap_<M>(M: Monoid<M>) {
 
 /**
  * @tsplus getter fncts.collection.immutable.Array foldMap
+ * @tsplus getter fncts.collection.mutable.Array foldMap
  */
 export function foldMapSelf<A>(self: ReadonlyArray<A>) {
   return <M>(M: Monoid<M>) =>
@@ -620,6 +626,7 @@ export function foldMapSelf<A>(self: ReadonlyArray<A>) {
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldRightWithIndex
+ * @tsplus fluent fncts.collection.mutable.Array foldRightWithIndex
  */
 export function foldRightWithIndex_<A, B>(self: ReadonlyArray<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   let r = b;
@@ -631,6 +638,7 @@ export function foldRightWithIndex_<A, B>(self: ReadonlyArray<A>, b: B, f: (i: n
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldRight
+ * @tsplus fluent fncts.collection.mutable.Array foldRight
  */
 export function foldRight_<A, B>(self: ReadonlyArray<A>, b: B, f: (a: A, b: B) => B): B {
   return self.foldRightWithIndex(b, (_, a, b) => f(a, b));
@@ -638,6 +646,7 @@ export function foldRight_<A, B>(self: ReadonlyArray<A>, b: B, f: (a: A, b: B) =
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldRighWhile
+ * @tsplus fluent fncts.collection.mutable.Array foldRightWhile
  */
 export function foldRightWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<B>, f: (a: A, b: B) => B): B {
   return self.foldRightWithIndexWhile(b, p, (_, a, b) => f(a, b));
@@ -645,6 +654,7 @@ export function foldRightWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array foldRightWithIndexWhile
+ * @tsplus fluent fncts.collection.mutable.Array foldRightWithIndexWhile
  */
 export function foldRightWithIndexWhile_<A, B>(self: ReadonlyArray<A>, b: B, predicate: Predicate<B>, f: (i: number, a: A, b: B) => B): B {
   let out  = b;
@@ -665,6 +675,7 @@ export function forEach_<A, B>(self: ReadonlyArray<A>, f: (a: A) => B): void {
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array get
+ * @tsplus fluent fncts.collection.mutable.Array get
  */
 export function get_<A>(self: ReadonlyArray<A>, i: number): Maybe<A> {
   return self.isOutOfBound(i) ? Nothing() : Just(self[i]!);
@@ -749,7 +760,7 @@ export function intersectionSelf<A>(self: ReadonlyArray<A>) {
 
 export function intersperse_<A>(self: ReadonlyArray<A>, a: A): ReadonlyArray<A> {
   const len = self.length;
-  return len === 0 ? self : self.slice(1, len).unsafeAsImmutable.prependAll(a).prepend(self[0]!);
+  return len === 0 ? self : self.slice(1, len).prependAll(a).prepend(self[0]!);
 }
 
 /**
@@ -939,6 +950,7 @@ export function prepend_<A, B>(self: ReadonlyArray<A>, head: B): ReadonlyArray<A
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array prependAll
+ * @tsplus fluent fncts.collection.mutable.Array prependAll
  */
 export function prependAll_<A>(self: ReadonlyArray<A>, a: A): ReadonlyArray<A> {
   const out: Array<A> = [];
