@@ -1,6 +1,6 @@
 import type { Byte } from "../../../data/Byte";
 
-import { Array } from "../Array";
+import { ReadonlyArray } from "../../Array";
 import { ByteChunk, Chunk, Conc, Empty, Singleton } from "./definition";
 
 /**
@@ -35,7 +35,7 @@ export function make<A>(...as: ReadonlyArray<A>): Conc<A> {
  * @tsplus static fncts.collection.immutable.ConcOps range
  */
 export function range(start: number, end: number): Conc<number> {
-  return Conc.fromArray(Array.range(start, end));
+  return Conc.fromArray(ReadonlyArray.range(start, end));
 }
 
 /**

@@ -1,8 +1,7 @@
 import type { Either } from "../../../data/Either";
 import type { Predicate, PredicateWithIndex } from "../../../data/Predicate";
 import type { Refinement, RefinementWithIndex } from "../../../data/Refinement";
-import type * as P from "../../../prelude";
-import type { Concat } from "./definition";
+import type { Concat, ConcF } from "./definition";
 
 import { EitherTag } from "../../../data/Either";
 import { ArrayIndexOutOfBoundsError } from "../../../data/exceptions";
@@ -10,6 +9,7 @@ import { identity, tuple } from "../../../data/function";
 import { Just, Maybe, Nothing } from "../../../data/Maybe";
 import { These } from "../../../data/These";
 import { Stack } from "../../../internal/Stack";
+import * as P from "../../../prelude";
 import { Iterable } from "../Iterable/definition";
 import { _Empty, BUFFER_SIZE, Chunk, Conc, concrete, ConcTag, Singleton, Slice } from "./definition";
 
@@ -952,6 +952,22 @@ export function takeWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
     }
   }
 }
+
+export const traverse_: P.traverse_<ConcF> = (A) => (ta, f) => traverseWithIndex_(A)(ta, (_, a) => f(a));
+
+/**
+ * @tsplus getter fncts.collection.immutable.Conc traverse
+ */
+export const traverseSelf: P.traverseSelf<ConcF> = (ta) => (A) => (f) => traverseWithIndex_(A)(ta, (_, a) => f(a));
+
+export const traverseWithIndex_: P.traverseWithIndex_<ConcF> = P.mkTraverseWithIndex_<ConcF>()(
+  (_) => (A) => (ta, f) => ta.foldLeftWithIndex(A.pure(Conc.empty()), (i, fbs, a) => A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b))),
+);
+
+/**
+ * @tsplus getter fncts.collection.immutable.Conc traverseWithIndex
+ */
+export const traverseSelfWithIndex: P.traverseWithIndexSelf<ConcF> = (ta) => (A) => (f) => traverseWithIndex_(A)(ta, f);
 
 /**
  * @tsplus fluent fncts.collection.immutable.ConcOps unfold

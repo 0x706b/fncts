@@ -29,7 +29,7 @@ export function addArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt): Arra
   if (arrayIntA.sign !== arrayIntB.sign) {
     return substractArrayIntToNew(arrayIntA, { sign: -arrayIntB.sign as -1 | 1, data: arrayIntB.data });
   }
-  const data   = [] as unknown as ESArray<number>;
+  const data   = [];
   let reminder = 0;
   const dataA  = arrayIntA.data;
   const dataB  = arrayIntB.data;
@@ -94,7 +94,7 @@ export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt)
     out.sign  = -out.sign as -1 | 1;
     return out;
   }
-  const data   = [] as unknown as ESArray<number>;
+  const data   = [];
   let reminder = 0;
   for (let indexA = dataA.length - 1, indexB = dataB.length - 1; indexA >= 0 || indexB >= 0; --indexA, --indexB) {
     const vA      = indexA >= 0 ? dataA[indexA]! : 0;

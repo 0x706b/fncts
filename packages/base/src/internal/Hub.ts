@@ -1,6 +1,3 @@
-import type { MutableArray } from "../collection/immutable/Array";
-
-import { Array } from "../collection/immutable/Array";
 import { Conc } from "../collection/immutable/Conc";
 import { InvalidCapacityError } from "../data/exceptions";
 
@@ -36,9 +33,9 @@ export abstract class Hub<A> {
 }
 
 export class BoundedHubArb<A> extends Hub<A> {
-  array: MutableArray<A>;
+  array: Array<A>;
   publisherIndex = 0;
-  subscribers: MutableArray<number>;
+  subscribers: Array<number>;
   subscriberCount  = 0;
   subscribersIndex = 0;
 
@@ -47,8 +44,8 @@ export class BoundedHubArb<A> extends Hub<A> {
   constructor(requestedCapacity: number) {
     super();
 
-    this.array       = Array.alloc(requestedCapacity);
-    this.subscribers = Array.alloc(requestedCapacity);
+    this.array       = Array(requestedCapacity);
+    this.subscribers = Array(requestedCapacity);
     this.capacity    = requestedCapacity;
   }
 
@@ -212,10 +209,10 @@ class BoundedHubArbSubscription<A> extends SubscriptionInternal<A> {
   }
 }
 export class BoundedHubPow2<A> extends Hub<A> {
-  array: MutableArray<A>;
+  array: Array<A>;
   mask: number;
   publisherIndex = 0;
-  subscribers: MutableArray<number>;
+  subscribers: Array<number>;
   subscriberCount  = 0;
   subscribersIndex = 0;
 
@@ -224,9 +221,9 @@ export class BoundedHubPow2<A> extends Hub<A> {
   constructor(requestedCapacity: number) {
     super();
 
-    this.array       = Array.alloc(requestedCapacity);
+    this.array       = Array(requestedCapacity);
     this.mask        = requestedCapacity - 1;
-    this.subscribers = Array.alloc(requestedCapacity);
+    this.subscribers = Array(requestedCapacity);
     this.capacity    = requestedCapacity;
   }
 

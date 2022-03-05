@@ -1,4 +1,3 @@
-import type { Array } from "../../collection/immutable/Array";
 import type { List } from "../../collection/immutable/List";
 import type { FiberId } from "../FiberId";
 import type { Lazy } from "../function";
@@ -105,7 +104,7 @@ export function failed<E>(self: Cause<E>): boolean {
  *
  * @tsplus getter fncts.data.Cause failures
  */
-export function failures<E>(self: Cause<E>): Array<E> {
+export function failures<E>(self: Cause<E>): ReadonlyArray<E> {
   return self.foldLeft([] as readonly E[], (a, c) => (c._tag === CauseTag.Fail ? Just(a.append(c.value)) : Nothing()));
 }
 

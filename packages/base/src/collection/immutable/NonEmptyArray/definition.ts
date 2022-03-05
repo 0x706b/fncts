@@ -1,17 +1,16 @@
 import type { HKT } from "../../../prelude";
-import type { Array, MutableArray } from "../Array/definition";
 
 /**
  * @tsplus type fncts.collection.immutable.NonEmptyArray
  */
-export interface NonEmptyArray<A> extends Array<A> {
+export interface ReadonlyNonEmptyArray<A> extends ReadonlyArray<A> {
   readonly 0: A;
 }
 
 /**
  * @tsplus type fncts.collection.immutable.NonEmptyArray
  */
-export interface MutableNonEmptyArray<A> extends MutableArray<A> {
+export interface NonEmptyArray<A> extends Array<A> {
   0: A;
 }
 
@@ -23,7 +22,7 @@ export interface NonEmptyArrayOps {}
 export const NonEmptyArray: NonEmptyArrayOps = {};
 
 export interface NonEmptyArrayF extends HKT {
-  readonly type: NonEmptyArray<this["A"]>;
+  readonly type: ReadonlyNonEmptyArray<this["A"]>;
   readonly variance: {
     readonly A: "+";
   };

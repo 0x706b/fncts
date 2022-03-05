@@ -1,8 +1,20 @@
 import type { Conc } from "../../collection/immutable/Conc";
 import type { Cause } from "../../data/Cause";
+import type { HKT } from "../../prelude";
 import type { _A, _E, _R, _S1, _S2, _W } from "../../types";
 
 import { hasTypeId } from "../../util/predicates";
+
+export interface ZF extends HKT {
+  readonly type: Z<this["W"], this["S"], this["S"], this["R"], this["E"], this["A"]>;
+  readonly variance: {
+    readonly W: "_";
+    readonly S: "_";
+    readonly R: "-";
+    readonly E: "+";
+    readonly A: "+";
+  };
+}
 
 export const ZTypeId = Symbol.for("@principia/base/Z");
 export type ZTypeId = typeof ZTypeId;

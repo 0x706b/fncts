@@ -1,4 +1,3 @@
-import type { Array } from "../../collection/immutable/Array";
 import type { _A } from "../../types/extractions";
 
 import { identity } from "../../data/function";

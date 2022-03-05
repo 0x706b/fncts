@@ -45,7 +45,6 @@ export const CaseClass: CaseConstructor = class<T> implements Hashable, Equatabl
   get [Symbol.hashable](): number {
     let h = hash0;
     for (const k of this[keysSymbol]) {
-      // @ts-expect-error
       h = Hashable.combineHash(h, Hashable.hash(this[k]!));
     }
     return h;
@@ -56,7 +55,6 @@ export const CaseClass: CaseConstructor = class<T> implements Hashable, Equatabl
       return true;
     }
     if (that instanceof this.constructor) {
-      // @ts-expect-error
       const kthat = that[CaseClassTypeId];
       const len   = kthat.length;
       if (len !== this[keysSymbol].length) {
@@ -67,10 +65,7 @@ export const CaseClass: CaseConstructor = class<T> implements Hashable, Equatabl
       let i      = 0;
 
       while (result && i < len) {
-        result =
-          this[keysSymbol][i] === kthat[i] &&
-          // @ts-expect-error
-          Equatable.strictEquals(this[this[keysSymbol]![i]!], that[kthat[i]]);
+        result = this[keysSymbol][i] === kthat[i] && Equatable.strictEquals(this[this[keysSymbol]![i]!], that[kthat[i]]);
         i++;
       }
 

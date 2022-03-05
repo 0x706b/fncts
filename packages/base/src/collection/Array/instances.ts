@@ -1,6 +1,7 @@
 import type { ArrayF } from "./definition.js";
 
-import * as P from "../../../prelude.js";
+import * as P from "../../prelude.js";
+import { empty } from "./constructors";
 import {
   alignWith_,
   alt_,
@@ -29,8 +30,7 @@ import {
   wiltWithIndex_,
   wither_,
   witherWithIndex_,
-} from "./api";
-import { empty, fromValues } from "./constructors";
+} from "./immutable-api";
 
 export const Align = P.Align<ArrayF>({
   map_,
@@ -57,7 +57,7 @@ export const Applicative = P.Applicative<ArrayF>({
   map_,
   ap_,
   zipWith_: crossWith_,
-  pure: fromValues,
+  pure: (a) => [a],
 });
 
 export const Alt = P.Alt<ArrayF>({
@@ -69,7 +69,7 @@ export const Alternative = P.Alternative<ArrayF>({
   map_,
   ap_,
   zipWith_: crossWith_,
-  pure: fromValues,
+  pure: (a) => [a],
   alt_,
   nil: empty,
 });
@@ -111,7 +111,7 @@ export const Monad = P.Monad<ArrayF>({
   map_,
   ap_,
   zipWith_: crossWith_,
-  pure: fromValues,
+  pure: (a) => [a],
   chain_,
 });
 

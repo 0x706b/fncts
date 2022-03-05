@@ -2778,33 +2778,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@https://github.com/0x706b/typescript/raw/f48c7239f2/typescript-4.7.0-ets.20220301.tgz":
-  version: 4.7.0-ets.20220301
-  resolution: "typescript@https://github.com/0x706b/typescript/raw/f48c7239f2/typescript-4.7.0-ets.20220301.tgz"
+"typescript@https://github.com/0x706b/typescript/raw/28580f8501/typescript-4.7.0-ets.20220304.tgz":
+  version: 4.7.0-ets.20220304
+  resolution: "typescript@https://github.com/0x706b/typescript/raw/28580f8501/typescript-4.7.0-ets.20220304.tgz"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 03ecea990985f6e53f10fd0df680f6fd8b35e673d6985dd7f3b038a5beaa9b84ea78d6c6958a2fcc2e238d03469c16dab10d6619f5aaa96d99525fe489c4a58b
+  checksum: 917b2b93f75c21d88ba1806b2f86b5559dd41d1e9aa556e47dfb5ee3deae233c130ce599a91d6551771fea0c60da5a74b8f2f83d400b67e84cffc23e43f73516
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@https://github.com/0x706b/typescript/raw/f48c7239f2/typescript-4.7.0-ets.20220301.tgz#patches/typescript.patch::locator=fncts%40workspace%3A.":
-  version: 4.7.0-ets.20220301
-  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/f48c7239f2/typescript-4.7.0-ets.20220301.tgz#patches/typescript.patch::version=4.7.0-ets.20220301&hash=b629a3&locator=fncts%40workspace%3A."
+"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/28580f8501/typescript-4.7.0-ets.20220304.tgz#~builtin<compat/typescript>":
+  version: 4.7.0-ets.20220304
+  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/28580f8501/typescript-4.7.0-ets.20220304.tgz#~builtin<compat/typescript>::version=4.7.0-ets.20220304&hash=493e53"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 8d5f7ef4c0d61a43a9445141df0d00096af0bd9c8f5e3b5c670c2e66d8a7201b0c08107311a43a2e141ee60bb65fda6721e114c4e8e29a338a80a69a49c70522
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@patch%3Atypescript@https%3A//github.com/0x706b/typescript/raw/f48c7239f2/typescript-4.7.0-ets.20220301.tgz%23patches/typescript.patch%3A%3Alocator=fncts%2540workspace%253A.#~builtin<compat/typescript>":
-  version: 4.7.0-ets.20220301
-  resolution: "typescript@patch:typescript@patch%3Atypescript@https%253A//github.com/0x706b/typescript/raw/f48c7239f2/typescript-4.7.0-ets.20220301.tgz%23patches/typescript.patch%3A%3Aversion=4.7.0-ets.20220301&hash=b629a3&locator=fncts%2540workspace%253A.#~builtin<compat/typescript>::version=4.7.0-ets.20220301&hash=493e53"
-  bin:
-    tsc: ./bin/tsc
-    tsserver: ./bin/tsserver
-  checksum: 8d5f7ef4c0d61a43a9445141df0d00096af0bd9c8f5e3b5c670c2e66d8a7201b0c08107311a43a2e141ee60bb65fda6721e114c4e8e29a338a80a69a49c70522
+  checksum: b361acd28b49676a0ceadab6c5812b9b14db9d0aa239c13952bb72632b0107cfc11e2e92e6bcf9e86653f47280053bf9fc659b911274fc11405df19613584282
   languageName: node
   linkType: hard
 

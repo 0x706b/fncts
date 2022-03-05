@@ -276,7 +276,7 @@ export function sortWith_<A>(self: List<A>, compare: (x: A, y: A) => P.Ordering)
   } else if (len > 1) {
     const arr = new Array<[number, A]>(len);
     copyToArrayWithIndex(self, arr);
-    (arr as unknown as ESArray<[number, A]>).sort(([i, x], [j, y]) => {
+    arr.sort(([i, x], [j, y]) => {
       const c = compare(x, y);
       return c !== 0 ? c : i < j ? -1 : 1;
     });

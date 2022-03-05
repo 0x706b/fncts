@@ -403,7 +403,7 @@ export function union_<A>(l: HashSet<A>, r: Iterable<A>): HashSet<A> {
 export function toArray_<A>(set: HashSet<A>, O: P.Ord<A>): ReadonlyArray<A> {
   const r: Array<A> = [];
   set.forEach((a) => r.push(a));
-  return r.sort(O);
+  return r.sort(O.compare_);
 }
 
 /*

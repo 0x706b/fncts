@@ -4,7 +4,6 @@ import type { UManaged } from "../Managed";
 import type { Queue } from "../Queue";
 import type { Hub } from "./definition";
 
-import { Array } from "../../collection/immutable/Array";
 import { Conc } from "../../collection/immutable/Conc";
 import { HashSet } from "../../collection/mutable/HashSet";
 import { ExecutionStrategy } from "../../data/ExecutionStrategy";

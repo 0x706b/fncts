@@ -16,6 +16,16 @@ export function absolve<W, S1, S2, R, E, E1, A>(fa: Z<W, S1, S2, R, E, Either<E1
 }
 
 /**
+ * @tsplus fluent fncts.control.Z ap
+ */
+export function ap_<W, S, R, E, A, R1, E1, B>(
+  self: Z<W, S, S, R, E, (a: A) => B>,
+  fb: Z<W, S, S, R1, E1, A>,
+): Z<W, S, S, R & R1, E | E1, B> {
+  return self.crossWith(fb, (f, a) => f(a));
+}
+
+/**
  * @tsplus fluent fncts.control.Z apFirst
  */
 export function apFirst_<W, S, R, E, A, R1, E1, B>(fa: Z<W, S, S, R, E, A>, fb: Z<W, S, S, R1, E1, B>): Z<W, S, S, R & R1, E | E1, A> {
@@ -86,6 +96,16 @@ export function contramapEnvironment_<R0, W, S1, S2, R, E, A>(ma: Z<W, S1, S2, R
  */
 export function contramapState_<S0, W, S1, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>, f: (s: S0) => S1): Z<W, S0, S2, R, E, A> {
   return Z.update(f).chain(() => fa);
+}
+
+/**
+ * @tsplus fluent fncts.control.Z cross
+ */
+export function cross_<W, S, R, E, A, R1, E1, B>(
+  fa: Z<W, S, S, R, E, A>,
+  fb: Z<W, S, S, R1, E1, B>,
+): Z<W, S, S, R & R1, E | E1, readonly [A, B]> {
+  return fa.crossWith(fb, tuple);
 }
 
 /**

@@ -1,6 +1,5 @@
-import type { MutableArray } from "../../collection/immutable/Array";
 import type { ConcBuilder } from "../../collection/immutable/Conc";
-import type { NonEmptyArray } from "../../collection/immutable/NonEmptyArray";
+import type { ReadonlyNonEmptyArray } from "../../collection/immutable/NonEmptyArray";
 import type { Lazy } from "../../data/function";
 import type { Predicate } from "../../data/Predicate";
 import type { Refinement } from "../../data/Refinement";
@@ -12,7 +11,7 @@ import type { FiberContext } from "../Fiber/FiberContext";
 import type { FIO, UIO, URIO } from "./definition";
 import type { Intersection } from "@fncts/typelevel";
 
-import { Array } from "../../collection/immutable/Array";
+import { ReadonlyArray } from "../../collection/Array";
 import { Conc } from "../../collection/immutable/Conc";
 import { Cause } from "../../data/Cause";
 import { Either } from "../../data/Either";
@@ -369,7 +368,7 @@ export function filterMapWithIndex_<A, R, E, B>(
   __tsplusTrace?: string,
 ): IO<R, E, Conc<B>> {
   return IO.defer(() => {
-    const bs: MutableArray<B> = [];
+    const bs: Array<B> = [];
     return IO.foreachWithIndexDiscard(as, (i, a) =>
       f(i, a).map((b) => {
         if (b.isJust()) {
@@ -437,7 +436,7 @@ export function filterOrFail_<R, E, A, E1>(fa: IO<R, E, A>, predicate: Predicate
  *
  * @tsplus static fncts.control.IOOps firstSuccess
  */
-export function firstSuccess<R, E, A>(mas: NonEmptyArray<IO<R, E, A>>): IO<R, E, A> {
+export function firstSuccess<R, E, A>(mas: ReadonlyNonEmptyArray<IO<R, E, A>>): IO<R, E, A> {
   return mas.tail.foldLeft(mas.head, (b, a) => b.orElse(a));
 }
 
@@ -519,7 +518,7 @@ function foreachWithIndexDiscardLoop<A, R, E, B>(iterator: Iterator<A>, f: (i: n
  */
 export function foreach_<A, R, E, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>, __tsplusTrace?: string): IO<R, E, Conc<B>> {
   return IO.defer(() => {
-    const acc: MutableArray<B> = [];
+    const acc: Array<B> = [];
     return IO.foreachWithIndexDiscard(as, (_, a) =>
       f(a).chain((b) => {
         acc.push(b);
@@ -540,7 +539,7 @@ export function foreach_<A, R, E, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>, 
  */
 export function foreachWithIndex_<A, R, E, B>(as: Iterable<A>, f: (i: number, a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
   return IO.defer(() => {
-    const acc: MutableArray<B> = [];
+    const acc: Array<B> = [];
     return IO.foreachWithIndexDiscard(as, (i, a) =>
       f(i, a).chain((b) => {
         acc.push(b);
@@ -1222,8 +1221,8 @@ export function repeatWhileIO_<R, E, A, R1, E1>(
 /**
  * @tsplus fluent fncts.control.IO replicate
  */
-export function replicate_<R, E, A>(self: IO<R, E, A>, n: number, __tsplusTrace?: string): Array<IO<R, E, A>> {
-  return Array.range(0, n).map(() => self);
+export function replicate_<R, E, A>(self: IO<R, E, A>, n: number, __tsplusTrace?: string): ReadonlyArray<IO<R, E, A>> {
+  return ReadonlyArray.range(0, n).map(() => self);
 }
 
 /**
@@ -1463,8 +1462,8 @@ export function tryOrElse_<R, E, A, R1, E1, A1, R2, E2, A2>(
 export function unjust<R, E, A>(self: IO<R, Maybe<E>, A>): IO<R, E, Maybe<A>> {
   return self.matchIO(
     (e) => e.match(() => IO.succeedNow(Nothing()), IO.failNow),
-    (a) => IO.succeedNow(Just(a))
-  )
+    (a) => IO.succeedNow(Just(a)),
+  );
 }
 
 /**
