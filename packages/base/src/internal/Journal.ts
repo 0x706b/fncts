@@ -8,7 +8,7 @@ import type { TryCommit } from "./TryCommit";
 
 import { HashMap } from "../collection/immutable/HashMap";
 import { IO } from "../control/IO";
-import { STMDriver } from "../control/STM";
+import { STMDriver } from "../control/STM/driver";
 import { Exit } from "../data/Exit";
 import { TExitTag } from "../data/TExit";
 import { CommitState } from "./CommitState";

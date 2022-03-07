@@ -20,6 +20,10 @@ import { copyOfArray, improveHash, tableSizeFor } from "./internal";
 const DEFAULT_INITIAL_CAPACITY = 16;
 const DEFAULT_LOAD_FACTOR      = 0.75;
 
+/**
+ * @tsplus type fncts.collection.mutable.HashSet
+ * @tsplus companion fncts.collection.mutable.HashSetOps
+ */
 export class HashSet<A> implements Iterable<A> {
   constructor(private initialCapacity: number, private loadFactor: number, private config: HashEq<A> = HashEq.StructuralStrict) {
     this.table = new Array<Node<A> | undefined>(tableSizeFor(this.initialCapacity));

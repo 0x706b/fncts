@@ -70,3 +70,21 @@ export function isMaybe(u: unknown): u is Maybe<unknown> {
     isObject(u) && (MaybeTypeId in u || ("_tag" in u && typeof u["_tag"] === "string" && (u["_tag"] === "Nothing" || u["_tag"] === "Just")))
   );
 }
+
+/**
+ * A type predicate determining if a `Maybe` is `Just`
+ *
+ * @tsplus fluent fncts.data.Maybe isJust
+ */
+export function isJust<A>(self: Maybe<A>): self is Just<A> {
+  return self._tag === MaybeTag.Just;
+}
+
+/**
+ * A type predicate determining if a `Maybe` is `Nothing`
+ *
+ * @tsplus fluent fncts.data.Maybe isNothing
+ */
+export function isNothing<A>(self: Maybe<A>): self is Nothing {
+  return self._tag === MaybeTag.Nothing;
+}

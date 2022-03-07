@@ -5,7 +5,7 @@ import type { FilterableWithIndexMin } from "./FilterableWithIndex";
 import type { TraversableWithIndexMin } from "./TraversableWithIndex";
 import type { WitherableMin } from "./Witherable";
 
-import { Just, Nothing } from "../data/Maybe";
+import { Just, Nothing } from "../data/Maybe/definition";
 import { FilterableWithIndex } from "./FilterableWithIndex";
 import { HKT } from "./HKT";
 import { TraversableWithIndex } from "./TraversableWithIndex";

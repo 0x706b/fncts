@@ -1,4 +1,4 @@
-// codegen:start { preset: barrel, include: prelude/*.ts }
+// codegen:start { preset: barrel, include: ./prelude/*.ts, exclude: ./prelude/Showable.ts }
 export * from "./prelude/Align";
 export * from "./prelude/Alt";
 export * from "./prelude/Alternative";
@@ -31,7 +31,6 @@ export * from "./prelude/Pointed";
 export * from "./prelude/Semialign";
 export * from "./prelude/Semigroup";
 export * from "./prelude/Semimonoidal";
-export * from "./prelude/Showable";
 export * from "./prelude/Traversable";
 export * from "./prelude/TraversableWithIndex";
 export * from "./prelude/Witherable";

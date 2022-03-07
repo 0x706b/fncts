@@ -4,7 +4,7 @@ import type { Applicative } from "./Applicative";
 import type { FilterableMin } from "./Filterable";
 import type { TraversableMin } from "./Traversable";
 
-import { Just, Nothing } from "../data/Maybe";
+import { Just, Nothing } from "../data/Maybe/definition";
 import { Filterable } from "./Filterable";
 import { HKT } from "./HKT";
 import { Traversable } from "./Traversable";

@@ -135,24 +135,6 @@ export function getOrElse_<A, B>(self: Maybe<A>, orElse: Lazy<B>): A | B {
 }
 
 /**
- * A type predicate determining if a `Maybe` is `Just`
- *
- * @tsplus fluent fncts.data.Maybe isJust
- */
-export function isJust<A>(self: Maybe<A>): self is Just<A> {
-  return self._tag === MaybeTag.Just;
-}
-
-/**
- * A type predicate determining if a `Maybe` is `Nothing`
- *
- * @tsplus fluent fncts.data.Maybe isNothing
- */
-export function isNothing<A>(self: Maybe<A>): self is Nothing {
-  return self._tag === MaybeTag.Nothing;
-}
-
-/**
  * Applies `f` to the value contained in `Maybe` if it is `Just`, otherwise returns `Nothing`.
  *
  * @tsplus fluent fncts.data.Maybe map

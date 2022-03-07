@@ -2,7 +2,6 @@ import type { List } from "../../collection/immutable/List";
 import type { FiberId } from "../FiberId";
 import type { Lazy } from "../function";
 import type { Predicate } from "../Predicate";
-import type { Both, Fail, Halt, Then } from "./definition";
 
 import { Nil } from "../../collection/immutable/List";
 import { Eval } from "../../control/Eval";
@@ -11,7 +10,7 @@ import { Either } from "../Either";
 import { identity } from "../function";
 import { Just, Maybe, MaybeTag, Nothing } from "../Maybe";
 import { Trace } from "../Trace";
-import { Cause, CauseTag } from "./definition";
+import { _Empty, Both, Cause, CauseTag, Fail, Halt, Interrupt, Then } from "./definition";
 
 /**
  * @tsplus fluent fncts.data.Cause as
@@ -44,6 +43,18 @@ function chainEval<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Eval<Cause<D>> 
         Cause.both,
       );
   }
+}
+
+/**
+ * Constructs a `Cause` from two `Cause`s, representing parallel failures.
+ *
+ * @note If one of the `Cause`s is `Empty`, the non-empty `Cause` is returned
+ *
+ * @tsplus static fncts.data.CauseOps both
+ * @tsplus static fncts.data.Cause.BothOps __call
+ */
+export function both<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
+  return left.isEmpty ? right : right.isEmpty ? left : new Both<E | E1>(left, right);
 }
 
 /**
@@ -85,6 +96,26 @@ function containsEval<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): Eva
  */
 export function defects<E>(self: Cause<E>): ReadonlyArray<unknown> {
   return self.foldLeft([] as ReadonlyArray<unknown>, (a, c) => (c._tag === CauseTag.Halt ? Just([...a, c.value]) : Nothing()));
+}
+
+/**
+ * The empty `Cause`
+ *
+ * @tsplus static fncts.data.CauseOps empty
+ * @tsplus static fncts.data.Cause.EmptyOps __call
+ */
+export function empty<A>(): Cause<A> {
+  return _Empty;
+}
+
+/**
+ * Constructs a `Cause` from a single value, representing a typed failure
+ *
+ * @tsplus static fncts.data.CauseOps fail
+ * @tsplus static fncts.data.Cause.FailOps __call
+ */
+export function fail<E = never>(value: E, trace: Trace = Trace.none): Cause<E> {
+  return new Fail(value, trace);
 }
 
 /**
@@ -550,6 +581,16 @@ function foldLeftLoop<A, B>(self: Cause<A>, b: B, f: (b: B, a: Cause<A>) => Mayb
 }
 
 /**
+ * Constructs a `Cause` from a single `unknown`, representing an untyped failure
+ *
+ * @tsplus static fncts.data.CauseOps halt
+ * @tsplus static fncts.data.Cause.HaltOps __call
+ */
+export function halt(value: unknown, trace: Trace = Trace.none): Cause<never> {
+  return new Halt(value, trace);
+}
+
+/**
  * Determines whether a `Cause` contains a defect
  *
  * @tsplus getter fncts.data.Cause halted
@@ -568,6 +609,16 @@ export function halted<E>(self: Cause<E>): self is Halt {
  */
 export function haltMaybe<E>(self: Cause<E>): Maybe<unknown> {
   return self.find((c) => (c._tag === CauseTag.Halt ? Maybe.just(c.value) : Maybe.nothing()));
+}
+
+/**
+ * Constructs a `Cause` from an `Id`, representing an interruption of asynchronous computation
+ *
+ * @tsplus static fncts.data.CauseOps interrupt
+ * @tsplus static fncts.data.Cause.InterruptOps __call
+ */
+export function interrupt(id: FiberId, trace: Trace = Trace.none): Cause<never> {
+  return new Interrupt(id, trace);
 }
 
 /**
@@ -732,6 +783,20 @@ export function keepDefects<E>(self: Cause<E>): Maybe<Cause<never>> {
  */
 export function map_<A, B>(self: Cause<A>, f: (e: A) => B): Cause<B> {
   return self.chain((e) => Cause.fail(f(e), Trace.none));
+}
+
+/**
+ * @tsplus fluent fncts.data.Cause mapTrace
+ */
+export function mapTrace_<E>(self: Cause<E>, f: (trace: Trace) => Trace): Cause<E> {
+  return self.fold(
+    () => Cause.empty(),
+    (e, trace) => Cause.fail(e, f(trace)),
+    (u, trace) => Cause.halt(u, f(trace)),
+    (id, trace) => Cause.interrupt(id, f(trace)),
+    Cause.then,
+    Cause.both,
+  );
 }
 
 /**
@@ -973,6 +1038,30 @@ export function sequenceCauseMaybe<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
 // }
 
 /**
+ * Constructs a `Cause` from two `Cause`s, representing sequential failures.
+ *
+ * @note If one of the `Cause`s is `Empty`, the non-empty `Cause` is returned
+ *
+ * @tsplus static fncts.data.CauseOps then
+ * @tsplus static fncts.data.Cause.ThenOps __call
+ */
+export function then<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
+  return left.isEmpty ? right : right.isEmpty ? left : new Then<E | E1>(left, right);
+}
+
+/**
+ * Constructs a `Cause` from a `Cause` and a stack trace.
+ *
+ * @note If the stack trace is empty, the original `Cause` is returned.
+ *
+ * @tsplus static fncts.data.CauseOps traced
+ * @tsplus static fncts.data.Cause.TracedOps __call
+ */
+export function traced<E>(cause: Cause<E>, trace: Trace): Cause<E> {
+  return cause.mapTrace((t) => t.combine(trace));
+}
+
+/**
  * Returns a `Cause` that has been stripped of all tracing information.
  *
  * @tsplus getter fncts.data.Cause untraced
@@ -1031,10 +1120,15 @@ export function foldLeft<A, B>(b: B, f: (b: B, cause: Cause<A>) => Maybe<B>) {
 export function map<A, B>(f: (e: A) => B) {
   return (self: Cause<A>): Cause<B> => map_(self, f);
 }
+/**
+ * @tsplus dataFirst mapTrace_
+ */
+export function mapTrace(f: (trace: Trace) => Trace) {
+  return <E>(self: Cause<E>): Cause<E> => mapTrace_(self, f);
+}
 // codegen:end
 
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/fold";
 export * from "./api/isEmpty";
-export * from "./api/mapTrace";
 // codegen:end

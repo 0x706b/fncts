@@ -23,6 +23,10 @@ import { copyOfArray, improveHash, tableSizeFor } from "./internal";
 const DEFAULT_INITIAL_CAPACITY = 16;
 const DEFAULT_LOAD_FACTOR      = 0.75;
 
+/**
+ * @tsplus type fncts.collection.mutable.HashMap
+ * @tsplus companion fncts.collection.mutable.HashMapOps
+ */
 export class HashMap<K, V> implements Iterable<readonly [K, V]> {
   constructor(private initialCapacity: number, private loadFactor: number, private config: HashEq<K> = HashEq.StructuralStrict) {
     this.table = new Array<Node<K, V> | undefined>(tableSizeFor(this.initialCapacity));

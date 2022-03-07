@@ -1,6 +1,5 @@
 // codegen:start { preset: barrel, include: IO/*.ts }
 export * from "./IO/api";
-export * from "./IO/constructors";
 export * from "./IO/definition";
 export * from "./IO/runtime";
 // codegen:end

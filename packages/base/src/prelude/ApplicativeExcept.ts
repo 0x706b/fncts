@@ -2,7 +2,7 @@ import type { Maybe } from "../data/Maybe";
 import type { ApplicativeMin } from "./Applicative";
 import type { Fail, FailMin } from "./Fail";
 
-import { Either, Left, Right } from "../data/Either";
+import { Either, Left } from "../data/Either/definition";
 import { identity } from "../data/function";
 import { Applicative } from "./Applicative";
 import { HKT } from "./HKT";

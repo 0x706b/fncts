@@ -4,7 +4,7 @@ import type { FunctorMin } from "./Functor";
 import type { Semigroup } from "./Semigroup";
 
 import { identity, tuple } from "../data/function";
-import { Just, Nothing } from "../data/Maybe";
+import { Just, Nothing } from "../data/Maybe/definition";
 import { Functor } from "./Functor";
 import { HKT } from "./HKT";
 

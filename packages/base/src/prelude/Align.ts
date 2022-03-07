@@ -1,5 +1,5 @@
 import type { Nil, NilMin } from "./Nil";
-import type { mkSemialign, SemialignMin } from "./Semialign";
+import type { SemialignMin } from "./Semialign";
 
 import { HKT } from "./HKT";
 import { Semialign } from "./Semialign";

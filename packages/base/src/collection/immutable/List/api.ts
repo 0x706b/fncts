@@ -109,7 +109,7 @@ function allIn<A>(start: List<A>, remaining: List<A>, p: Predicate<A>, isFlipped
 
 function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   const newHead   = new Cons(unsafeHead(origStart), _Nil);
-  let toProcess   = unsafeTail(origStart) as Cons<A>;
+  let toProcess   = origStart.unsafeTail as Cons<A>;
   let currentLast = newHead;
 
   while (!(toProcess === firstMiss)) {
@@ -146,19 +146,6 @@ function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>,
 
 function filterCommon_<A>(list: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   return noneIn(list, p, isFlipped);
-}
-
-/**
- * @tsplus fluent fncts.List foldLeft
- */
-export function foldLeft_<A, B>(self: List<A>, b: B, f: (b: B, a: A) => B): B {
-  let acc   = b;
-  let these = self;
-  while (!these.isEmpty()) {
-    acc   = f(acc, these.head);
-    these = these.tail;
-  }
-  return acc;
 }
 
 /**
@@ -345,16 +332,6 @@ export function unsafeLast<A>(list: List<A>): A {
   return these.head;
 }
 
-/**
- * @tsplus getter fncts.List unsafeTail
- */
-export function unsafeTail<A>(self: List<A>): List<A> {
-  if (self.isEmpty()) {
-    throw new NoSuchElementError("unsafeTail on empty List");
-  }
-  return self.tail;
-}
-
 // codegen:start { preset: pipeable }
 /**
  * @tsplus dataFirst chain_
@@ -379,12 +356,6 @@ export function exists<A>(p: Predicate<A>) {
  */
 export function filter<A>(p: Predicate<A>) {
   return (self: List<A>): List<A> => filter_(self, p);
-}
-/**
- * @tsplus dataFirst foldLeft_
- */
-export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
-  return (self: List<A>): B => foldLeft_(self, b, f);
 }
 /**
  * @tsplus dataFirst forEach_

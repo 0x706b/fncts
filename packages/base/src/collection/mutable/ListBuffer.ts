@@ -12,13 +12,14 @@
  * for more information regarding copyright ownership
  */
 
-import type { Cons, List } from "../immutable/List";
+import type { List } from "../immutable/List/definition";
 
 import { IndexOutOfBoundsError, NoSuchElementError } from "../../data/exceptions";
-import * as L from "../immutable/List";
+import { assert } from "../../util/assert";
+import { _Nil, Cons } from "../immutable/List/definition";
 
 export class ListBuffer<A> implements Iterable<A> {
-  private first: List<A>             = L._Nil;
+  private first: List<A>             = _Nil;
   private last0: Cons<A> | undefined = undefined;
   private len = 0;
 
@@ -38,18 +39,18 @@ export class ListBuffer<A> implements Iterable<A> {
     if (this.isEmpty) {
       throw new NoSuchElementError("head on empty ListBuffer");
     }
-    return (this.first as L.Cons<A>).head;
+    return (this.first as Cons<A>).head;
   }
 
-  get unsafeTail(): L.List<A> {
+  get unsafeTail(): List<A> {
     if (this.isEmpty) {
       throw new NoSuchElementError("tail on empty ListBuffer");
     }
-    return (this.first as L.Cons<A>).tail;
+    return (this.first as Cons<A>).tail;
   }
 
   append(elem: A): this {
-    const last1 = new L.Cons(elem, L._Nil);
+    const last1 = new Cons(elem, _Nil);
     if (this.len === 0) {
       this.first = last1;
     } else {
@@ -69,13 +70,13 @@ export class ListBuffer<A> implements Iterable<A> {
     if (this.isEmpty) {
       throw new NoSuchElementError("unprepend on empty ListBuffer");
     }
-    const h    = (this.first as L.Cons<A>).head;
-    this.first = (this.first as L.Cons<A>).tail;
+    const h    = (this.first as Cons<A>).head;
+    this.first = (this.first as Cons<A>).tail;
     this.len  -= 1;
     return h;
   }
 
-  get toList(): L.List<A> {
+  get toList(): List<A> {
     return this.first;
   }
 
@@ -87,11 +88,11 @@ export class ListBuffer<A> implements Iterable<A> {
       this.append(elem);
     } else {
       const p  = this.locate(idx);
-      const nx = this.getNext(p).prepend(elem);
+      const nx = new Cons(elem, this.getNext(p));
       if (p === undefined) {
         this.first = nx;
       } else {
-        (p as L.Cons<A>).tail = nx;
+        (p as Cons<A>).tail = nx;
       }
       this.len += 1;
     }
@@ -102,7 +103,7 @@ export class ListBuffer<A> implements Iterable<A> {
     return this.first.foldLeft(b, f);
   }
 
-  private getNext(p: L.List<A> | undefined): L.List<A> {
+  private getNext(p: List<A> | undefined): List<A> {
     if (p === undefined) {
       return this.first;
     } else {
@@ -110,7 +111,7 @@ export class ListBuffer<A> implements Iterable<A> {
     }
   }
 
-  private locate(i: number): L.List<A> | undefined {
+  private locate(i: number): List<A> | undefined {
     if (i === 0) {
       return undefined;
     } else if (i === this.len) {
