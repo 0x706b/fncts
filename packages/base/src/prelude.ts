@@ -5,6 +5,7 @@ export * from "./prelude/Alternative";
 export * from "./prelude/Applicative";
 export * from "./prelude/ApplicativeExcept";
 export * from "./prelude/Apply";
+export * from "./prelude/builtin";
 export * from "./prelude/Chain";
 export * from "./prelude/Closure";
 export * from "./prelude/Eq";

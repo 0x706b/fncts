@@ -303,7 +303,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fncts/base@workspace:packages/base":
+"@fncts/base@workspace:*, @fncts/base@workspace:packages/base":
   version: 0.0.0-use.local
   resolution: "@fncts/base@workspace:packages/base"
   dependencies:
@@ -349,6 +349,19 @@ __metadata:
 "@fncts/eslint-config@workspace:*, @fncts/eslint-config@workspace:packages/eslint-config":
   version: 0.0.0-use.local
   resolution: "@fncts/eslint-config@workspace:packages/eslint-config"
+  languageName: unknown
+  linkType: soft
+
+"@fncts/test@workspace:packages/test":
+  version: 0.0.0-use.local
+  resolution: "@fncts/test@workspace:packages/test"
+  dependencies:
+    "@fncts/base": "workspace:*"
+    "@fncts/config": "workspace:*"
+    "@fncts/eslint-config": "workspace:*"
+    "@fncts/typelevel": "workspace:*"
+    madge: ^5.0.1
+    typescript: 4.6.0
   languageName: unknown
   linkType: soft
 
