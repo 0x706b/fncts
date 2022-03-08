@@ -1,3 +1,4 @@
+import type { Conc } from "../../collection/immutable/Conc";
 import type { FiberId } from "../FiberId";
 import type { Trace } from "../Trace";
 
@@ -15,7 +16,7 @@ export type CauseTypeId = typeof CauseTypeId;
 /**
  * @tsplus type fncts.data.Cause
  */
-export type Cause<E> = Empty | Halt | Interrupt | Fail<E> | Then<E> | Both<E>;
+export type Cause<E> = Empty | Halt | Interrupt | Fail<E> | Then<E> | Both<E> | Stackless<E>;
 
 /**
  * @tsplus type fncts.data.CauseOps
@@ -35,6 +36,7 @@ export const enum CauseTag {
   Interrupt = "Interrupt",
   Then = "Then",
   Both = "Both",
+  Stackless = "Stackless",
 }
 
 const _emptyHash = P.Hashable.hashString("fncts.data.Cause");
@@ -52,7 +54,7 @@ export class Empty {
     return _emptyHash;
   }
   [Symbol.equatable](that: unknown): boolean {
-    return isCause(that) && Eval.run(this.equalsEval(that));
+    return isCause(that) && this.equalsEval(that).run;
   }
 
   equalsEval(that: Cause<unknown>): Eval<boolean> {
@@ -62,6 +64,8 @@ export class Empty {
       case CauseTag.Then:
       case CauseTag.Both:
         return this.equalsEval(that.left).zipWith(this.equalsEval(that.right), (x, y) => x && y);
+      case CauseTag.Stackless:
+        return this.equalsEval(that.cause);
       default:
         return Eval.now(false);
     }
@@ -98,6 +102,8 @@ export class Fail<E> {
         case CauseTag.Both:
         case CauseTag.Then:
           return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
+        case CauseTag.Stackless:
+          return yield* _(self.equalsEval(that.cause));
         default:
           return false;
       }
@@ -133,6 +139,8 @@ export class Halt {
         case CauseTag.Then:
         case CauseTag.Both:
           return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
+        case CauseTag.Stackless:
+          return yield* _(self.equalsEval(that.cause));
         default:
           return false;
       }
@@ -169,6 +177,8 @@ export class Interrupt {
         case CauseTag.Then:
         case CauseTag.Both:
           return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
+        case CauseTag.Stackless:
+          return yield* _(self.equalsEval(that.cause));
         default:
           return false;
       }
@@ -240,6 +250,34 @@ export class Both<E> {
       );
     });
   }
+}
+
+/**
+ * @tsplus companion fncts.data.Cause.StacklessOps
+ */
+export class Stackless<E> {
+  readonly _E!: () => E;
+
+  readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  readonly _tag = CauseTag.Stackless;
+
+  constructor(readonly cause: Cause<E>, readonly stackless: boolean) {}
+
+  get [Symbol.hashable](): number {
+    return this.cause[Symbol.hashable];
+  }
+
+  [Symbol.equatable](that: unknown): boolean {
+    return isCause(that) && this.cause[Symbol.equatable](that);
+  }
+
+  equalsEval(that: unknown): Eval<boolean> {
+    return Eval.now(this[Symbol.equatable](that));
+  }
+}
+
+export class Unified {
+  constructor(readonly fiberId: FiberId, readonly message: ReadonlyArray<string>, readonly trace: Conc<string>) {}
 }
 
 /*

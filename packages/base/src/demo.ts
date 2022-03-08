@@ -1,25 +1,33 @@
-import { ReadonlyArray } from "./collection/Array";
-import { Conc } from "./collection/immutable/Conc";
 import { IO } from "./control/IO";
-import { Z } from "./control/Z";
-import { showWithOptions } from "./prelude/Showable";
+import { Left } from "./data/Either";
 
-const x = {
-  a: "hello",
-  b: 1,
-  c: true,
-  d: ReadonlyArray.range(1, 1000),
-  e: Conc.range(1, 1000),
-  f: Z.succeedNow(1),
-  g: IO.succeed(1),
-  h: {
-    i: {
-      j: "deep object",
-    },
-  },
-};
+const list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-// @ts-expect-error
-x.h.i.circular = x;
+IO.foreachC(list, (n) =>
+  IO.asyncInterrupt<unknown, Error, number>((k) => {
+    const handle = setTimeout(() => {
+      n === 8 ? k(IO.fail(new Error(`error: ${n}`))) : k(IO(n));
+    }, 100);
 
-console.log(showWithOptions(x, { colors: true, depth: 100 }));
+    return Left(IO.succeed(clearTimeout(handle)));
+  }),
+).unsafeRunWith((exit) =>
+  exit.match(
+    (cause) => console.log(cause.prettyPrint),
+    () => console.log("Success!"),
+  ),
+);
+
+/*
+ * IO(0)
+ *   .chain((n) => IO(n + 1))
+ *   .chain((n) => IO(n + 1))
+ *   .chain((n) => IO(n + 1))
+ *   .chain((n) => IO(n + 1))
+ *   .chain((n) => IO(n + 1))
+ *   .chain((n) => IO.fail(`error: ${n + 1}`))
+ *   .unsafeRunWith((exit) => exit.match(
+ *     (cause) => console.log(cause.prettyPrint),
+ *     () => console.log("Success")
+ *   ))
+ */

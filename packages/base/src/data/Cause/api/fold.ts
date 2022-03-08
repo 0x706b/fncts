@@ -2,40 +2,91 @@ import type { FiberId } from "../../FiberId";
 import type { Trace } from "../../Trace";
 import type { Cause } from "../definition";
 
+import { _Nil, Cons, List } from "../../../collection/immutable/List";
 import { Eval } from "../../../control/Eval";
+import { Either } from "../../Either";
 import { CauseTag } from "../definition";
 
+class BothCase {
+  readonly _tag = "BothCase";
+}
+
+const _BothCase = new BothCase();
+
+class ThenCase {
+  readonly _tag = "ThenCase";
+}
+
+const _ThenCase = new ThenCase();
+
+class StacklessCase {
+  readonly _tag = "StacklessCase";
+  constructor(readonly stackless: boolean) {}
+}
+
+type CauseCase = BothCase | ThenCase | StacklessCase;
+
 /**
- * @internal
+ * @tsplus tailRec
  */
-function foldEval<E, A>(
-  cause: Cause<E>,
-  onEmpty: () => A,
-  onFail: (reason: E, trace: Trace) => A,
-  onHalt: (reason: unknown, trace: Trace) => A,
-  onInterrupt: (id: FiberId, trace: Trace) => A,
-  onThen: (l: A, r: A) => A,
-  onBoth: (l: A, r: A) => A,
-): Eval<A> {
-  switch (cause._tag) {
-    case CauseTag.Empty:
-      return Eval.now(onEmpty());
-    case CauseTag.Fail:
-      return Eval.now(onFail(cause.value, cause.trace));
-    case CauseTag.Halt:
-      return Eval.now(onHalt(cause.value, cause.trace));
-    case CauseTag.Interrupt:
-      return Eval.now(onInterrupt(cause.id, cause.trace));
-    case CauseTag.Both:
-      return Eval.defer(() => foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)).zipWith(
-        Eval.defer(() => foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)),
-        onBoth,
-      );
-    case CauseTag.Then:
-      return Eval.defer(() => foldEval(cause.left, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)).zipWith(
-        Eval.defer(() => foldEval(cause.right, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth)),
-        onThen,
-      );
+function foldLoop<E, Z>(
+  cases: {
+    Empty: () => Z;
+    Fail: (e: E, trace: Trace) => Z;
+    Halt: (t: unknown, trace: Trace) => Z;
+    Interrupt: (fiberId: FiberId, trace: Trace) => Z;
+    Then: (l: Z, r: Z) => Z;
+    Both: (l: Z, r: Z) => Z;
+    Stackless: (z: Z, stackless: boolean) => Z;
+  },
+  inp: List<Cause<E>>,
+  out: List<Either<CauseCase, Z>>,
+): List<Z> {
+  if (inp.isNonEmpty()) {
+    const head   = inp.unsafeHead;
+    const causes = inp.unsafeTail;
+    switch (head._tag) {
+      case CauseTag.Empty:
+        return foldLoop(cases, causes, out.prepend(Either.right(cases.Empty())));
+      case CauseTag.Fail:
+        return foldLoop(cases, causes, out.prepend(Either.right(cases.Fail(head.value, head.trace))));
+      case CauseTag.Halt:
+        return foldLoop(cases, causes, out.prepend(Either.right(cases.Halt(head.value, head.trace))));
+      case CauseTag.Interrupt:
+        return foldLoop(cases, causes, out.prepend(Either.right(cases.Interrupt(head.id, head.trace))));
+      case CauseTag.Both:
+        return foldLoop(cases, Cons(head.left, Cons(head.right, causes)), out.prepend(Either.left(_BothCase)));
+      case CauseTag.Then:
+        return foldLoop(cases, Cons(head.left, Cons(head.right, causes)), out.prepend(Either.left(_ThenCase)));
+      case CauseTag.Stackless:
+        return foldLoop(cases, causes.prepend(head.cause), out.prepend(Either.left(new StacklessCase(head.stackless))));
+    }
+  } else {
+    return out.foldLeft(List.empty(), (acc, v) => {
+      if (v.isRight()) {
+        return acc.prepend(v.right);
+      } else {
+        switch (v.left._tag) {
+          case "BothCase": {
+            const left   = acc.unsafeHead;
+            const right  = acc.unsafeTail.unsafeHead;
+            const causes = acc.unsafeTail.unsafeTail;
+            return causes.prepend(cases.Both(left, right));
+          }
+          case "ThenCase": {
+            const left   = acc.unsafeHead;
+            const right  = acc.unsafeTail.unsafeHead;
+            const causes = acc.unsafeTail.unsafeTail;
+            return causes.prepend(cases.Then(left, right));
+          }
+          case "StacklessCase": {
+            const cause  = acc.unsafeHead;
+            const causes = acc.unsafeTail;
+            return causes.prepend(cases.Stackless(cause, v.left.stackless));
+          }
+        }
+      }
+    });
   }
 }
 
@@ -44,31 +95,17 @@ function foldEval<E, A>(
  *
  * @tsplus fluent fncts.data.Cause fold
  */
-export function fold_<E, A>(
-  cause: Cause<E>,
-  onEmpty: () => A,
-  onFail: (e: E, trace: Trace) => A,
-  onHalt: (u: unknown, trace: Trace) => A,
-  onInterrupt: (id: FiberId, trace: Trace) => A,
-  onThen: (l: A, r: A) => A,
-  onBoth: (l: A, r: A) => A,
-): A {
-  return Eval.run(foldEval(cause, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth));
+export function fold_<E, Z>(
+  self: Cause<E>,
+  cases: {
+    Empty: () => Z;
+    Fail: (e: E, trace: Trace) => Z;
+    Halt: (t: unknown, trace: Trace) => Z;
+    Interrupt: (fiberId: FiberId, trace: Trace) => Z;
+    Then: (l: Z, r: Z) => Z;
+    Both: (l: Z, r: Z) => Z;
+    Stackless: (z: Z, stackless: boolean) => Z;
+  },
+): Z {
+  return foldLoop(cases, Cons(self, _Nil), List.empty()).unsafeHead;
 }
-
-// codegen:start { preset: pipeable }
-/**
- * Folds over a cause
- * @tsplus dataFirst fold_
- */
-export function fold<E, A>(
-  onEmpty: () => A,
-  onFail: (e: E, trace: Trace) => A,
-  onHalt: (u: unknown, trace: Trace) => A,
-  onInterrupt: (id: FiberId, trace: Trace) => A,
-  onThen: (l: A, r: A) => A,
-  onBoth: (l: A, r: A) => A,
-) {
-  return (cause: Cause<E>): A => fold_(cause, onEmpty, onFail, onHalt, onInterrupt, onThen, onBoth);
-}
-// codegen:end

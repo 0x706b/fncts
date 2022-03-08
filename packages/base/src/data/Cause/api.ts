@@ -10,7 +10,7 @@ import { Either } from "../Either";
 import { identity } from "../function";
 import { Just, Maybe, MaybeTag, Nothing } from "../Maybe";
 import { Trace } from "../Trace";
-import { _Empty, Both, Cause, CauseTag, Fail, Halt, Interrupt, Then } from "./definition";
+import { _Empty, Both, Cause, CauseTag, Empty, Fail, Halt, Interrupt, Stackless, Then } from "./definition";
 
 /**
  * @tsplus fluent fncts.data.Cause as
@@ -42,6 +42,8 @@ function chainEval<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Eval<Cause<D>> 
         Eval.defer(() => chainEval(self.right, f)),
         Cause.both,
       );
+    case CauseTag.Stackless:
+      return Eval.defer(chainEval(self.cause, f));
   }
 }
 
@@ -180,51 +182,6 @@ export function failureMaybe<E>(self: Cause<E>): Maybe<E> {
   return self.find((c) => (c._tag === CauseTag.Fail ? Maybe.just(c.value) : Maybe.nothing()));
 }
 
-function filterDefectsEval<E>(self: Cause<E>, pf: Predicate<unknown>): Eval<Maybe<Cause<E>>> {
-  switch (self._tag) {
-    case CauseTag.Empty: {
-      return Eval.now(Maybe.nothing());
-    }
-    case CauseTag.Interrupt: {
-      return Eval.now(Maybe.just(Cause.interrupt(self.id, self.trace)));
-    }
-    case CauseTag.Fail: {
-      return Eval.now(Maybe.just(Cause.fail(self.value, self.trace)));
-    }
-    case CauseTag.Halt: {
-      return Eval.now(pf(self.value) ? Maybe.just(Cause.halt(self.value, self.trace)) : Maybe.nothing());
-    }
-    case CauseTag.Both: {
-      return Eval.defer(() => filterDefectsEval(self.left, pf)).zipWith(
-        Eval.defer(() => filterDefectsEval(self.right, pf)),
-        (left, right) => {
-          return left._tag === "Just"
-            ? right._tag === "Just"
-              ? Maybe.just(Cause.both(left.value, right.value))
-              : left
-            : right._tag === "Just"
-            ? right
-            : Maybe.nothing();
-        },
-      );
-    }
-    case CauseTag.Then: {
-      return Eval.defer(() => filterDefectsEval(self.left, pf)).zipWith(
-        Eval.defer(() => filterDefectsEval(self.right, pf)),
-        (left, right) => {
-          return left._tag === "Just"
-            ? right._tag === "Just"
-              ? Maybe.just(Cause.then(left.value, right.value))
-              : left
-            : right._tag === "Just"
-            ? right
-            : Maybe.nothing();
-        },
-      );
-    }
-  }
-}
-
 /**
  * Remove all `Halt` causes that the specified partial function is defined at,
  * returning `Just` with the remaining causes or `Nothing` if there are no
@@ -233,7 +190,35 @@ function filterDefectsEval<E>(self: Cause<E>, pf: Predicate<unknown>): Eval<Mayb
  * @tsplus fluent fncts.data.Cause filterDefects
  */
 export function filterDefects_<E>(self: Cause<E>, p: Predicate<unknown>): Maybe<Cause<E>> {
-  return Eval.run(filterDefectsEval(self, p));
+  return self.fold({
+    Empty: () => Just(Empty()),
+    Fail: (e, trace) => Just(Fail(e, trace)),
+    Halt: (u, trace) => (p(u) ? Nothing() : Just(Halt(u, trace))),
+    Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
+    Then: (l, r) => {
+      if (l.isJust() && r.isJust()) {
+        return Just(Then(l.value, r.value));
+      } else if (l.isJust() && r.isNothing()) {
+        return Just(l.value);
+      } else if (l.isNothing() && r.isJust()) {
+        return Just(r.value);
+      } else {
+        return Nothing();
+      }
+    },
+    Both: (l, r) => {
+      if (l.isJust() && r.isJust()) {
+        return Just(Both(l.value, r.value));
+      } else if (l.isJust() && r.isNothing()) {
+        return Just(l.value);
+      } else if (l.isNothing() && r.isJust()) {
+        return Just(r.value);
+      } else {
+        return Nothing();
+      }
+    },
+    Stackless: (causeOption, stackless) => causeOption.map((cause) => Stackless(cause, stackless)),
+  });
 }
 
 /**
@@ -717,65 +702,41 @@ export function interruptedOnly<E>(self: Cause<E>): boolean {
 }
 
 /**
- * @internal
- */
-function keepDefectsEval<E>(self: Cause<E>): Eval<Maybe<Cause<never>>> {
-  switch (self._tag) {
-    case CauseTag.Empty: {
-      return Eval.now(Nothing());
-    }
-    case CauseTag.Fail: {
-      return Eval.now(Nothing());
-    }
-    case CauseTag.Interrupt: {
-      return Eval.now(Nothing());
-    }
-    case CauseTag.Halt: {
-      return Eval.now(Just(self));
-    }
-    case CauseTag.Then: {
-      return Eval.defer(() => keepDefectsEval(self.left)).zipWith(
-        Eval.defer(() => keepDefectsEval(self.right)),
-        (lefts, rights) => {
-          if (lefts._tag === "Just" && rights._tag === "Just") {
-            return Maybe.just(Cause.then(lefts.value, rights.value));
-          } else if (lefts._tag === "Just") {
-            return lefts;
-          } else if (rights._tag === "Just") {
-            return rights;
-          } else {
-            return Maybe.nothing();
-          }
-        },
-      );
-    }
-    case CauseTag.Both: {
-      return Eval.defer(() => keepDefectsEval(self.left)).zipWith(
-        Eval.defer(() => keepDefectsEval(self.right)),
-        (lefts, rights) => {
-          if (lefts._tag === "Just" && rights._tag === "Just") {
-            return Maybe.just(Cause.both(lefts.value, rights.value));
-          } else if (lefts._tag === "Just") {
-            return lefts;
-          } else if (rights._tag === "Just") {
-            return rights;
-          } else {
-            return Maybe.nothing();
-          }
-        },
-      );
-    }
-  }
-}
-
-/**
  * Remove all `Fail` and `Interrupt` nodes from this `Cause`,
  * return only `Halt` cause/finalizer defects.
  *
  * @tsplus getter fncts.data.Cause keepDefects
  */
 export function keepDefects<E>(self: Cause<E>): Maybe<Cause<never>> {
-  return Eval.run(keepDefectsEval(self));
+  return self.fold({
+    Empty: () => Nothing(),
+    Fail: () => Nothing(),
+    Halt: (t, trace) => Just(Halt(t, trace)),
+    Interrupt: () => Nothing(),
+    Then: (l, r) => {
+      if (l.isJust() && r.isJust()) {
+        return Just(Then(l.value, r.value));
+      } else if (l.isJust() && r.isNothing()) {
+        return Just(l.value);
+      } else if (l.isNothing() && r.isJust()) {
+        return Just(r.value);
+      } else {
+        return Nothing();
+      }
+    },
+    Both: (l, r) => {
+      if (l.isJust() && r.isJust()) {
+        return Just(Both(l.value, r.value));
+      } else if (l.isJust() && r.isNothing()) {
+        return Just(l.value);
+      } else if (l.isNothing() && r.isJust()) {
+        return Just(r.value);
+      } else {
+        return Nothing();
+      }
+    },
+    Stackless: (maybeCause, stackless) => maybeCause.map((cause) => Stackless(cause, stackless)),
+  });
 }
 
 /**
@@ -789,46 +750,23 @@ export function map_<A, B>(self: Cause<A>, f: (e: A) => B): Cause<B> {
  * @tsplus fluent fncts.data.Cause mapTrace
  */
 export function mapTrace_<E>(self: Cause<E>, f: (trace: Trace) => Trace): Cause<E> {
-  return self.fold(
-    () => Cause.empty(),
-    (e, trace) => Cause.fail(e, f(trace)),
-    (u, trace) => Cause.halt(u, f(trace)),
-    (id, trace) => Cause.interrupt(id, f(trace)),
-    Cause.then,
-    Cause.both,
-  );
+  return self.fold({
+    Empty: () => Cause.empty(),
+    Fail: (e, trace) => Cause.fail(e, f(trace)),
+    Halt: (u, trace) => Cause.halt(u, f(trace)),
+    Interrupt: (id, trace) => Cause.interrupt(id, f(trace)),
+    Then: Cause.then,
+    Both: Cause.both,
+    Stackless: Cause.stackless,
+  });
 }
 
 /**
- * @internal
+ * @tsplus static fncts.data.CauseOps stackless
+ * @tsplus static fncts.data.Cause.StacklessOps __call
  */
-function stripFailuresEval<A>(self: Cause<A>): Eval<Cause<never>> {
-  switch (self._tag) {
-    case CauseTag.Empty: {
-      return Eval.now(Cause.empty());
-    }
-    case CauseTag.Fail: {
-      return Eval.now(Cause.empty());
-    }
-    case CauseTag.Interrupt: {
-      return Eval.now(self);
-    }
-    case CauseTag.Halt: {
-      return Eval.now(self);
-    }
-    case CauseTag.Both: {
-      return Eval.defer(() => stripFailuresEval(self.left)).zipWith(
-        Eval.defer(() => stripFailuresEval(self.right)),
-        Cause.both,
-      );
-    }
-    case CauseTag.Then: {
-      return Eval.defer(() => stripFailuresEval(self.left)).zipWith(
-        Eval.defer(() => stripFailuresEval(self.right)),
-        Cause.then,
-      );
-    }
-  }
+export function stackless<E>(cause: Cause<E>, stackless: boolean): Cause<E> {
+  return new Stackless(cause, stackless);
 }
 
 /**
@@ -837,48 +775,15 @@ function stripFailuresEval<A>(self: Cause<A>): Eval<Cause<never>> {
  * @tsplus getter fncts.data.Cause stripFailures
  */
 export function stripFailures<A>(self: Cause<A>): Cause<never> {
-  return Eval.run(stripFailuresEval(self));
-}
-
-/**
- * @internal
- */
-function stripInterruptsEval<A>(self: Cause<A>): Eval<Cause<A>> {
-  switch (self._tag) {
-    case CauseTag.Empty: {
-      return Eval.now(Cause.empty());
-    }
-    case CauseTag.Fail: {
-      return Eval.now(self);
-    }
-    case CauseTag.Interrupt: {
-      return Eval.now(Cause.empty());
-    }
-    case CauseTag.Halt: {
-      return Eval.now(self);
-    }
-    case CauseTag.Both: {
-      return Eval.defer(() => stripInterruptsEval(self.left)).zipWith(
-        Eval.defer(() => stripInterruptsEval(self.right)),
-        Cause.both,
-      );
-    }
-    case CauseTag.Then: {
-      return Eval.defer(() => stripInterruptsEval(self.left)).zipWith(
-        Eval.defer(() => stripInterruptsEval(self.right)),
-        Cause.then,
-      );
-    }
-  }
-}
-
-/**
- * Discards all interrupts kept on this `Cause`.
- *
- * @tsplus getter fncts.data.Cause stripInterrupts
- */
-export function stripInterrupts<A>(self: Cause<A>): Cause<A> {
-  return Eval.run(stripInterruptsEval(self));
+  return self.fold({
+    Empty: () => Empty(),
+    Fail: () => Empty(),
+    Halt: (u, trace) => Halt(u, trace),
+    Interrupt: (fiberId, trace) => Interrupt(fiberId, trace),
+    Then: (l, r) => Then(l, r),
+    Both: (l, r) => Both(l, r),
+    Stackless: (c, stackless) => Stackless(c, stackless),
+  });
 }
 
 function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<Cause<E>, A>> {
@@ -923,6 +828,9 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
             : Either.right(lefts.right);
         },
       );
+    }
+    case CauseTag.Stackless: {
+      return Eval.defer(sequenceCauseEitherEval(self.cause)).map((_) => _.mapLeft((cause) => Stackless(cause, self.stackless)));
     }
   }
 }
@@ -977,6 +885,9 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
             : Maybe.nothing();
         },
       );
+    }
+    case CauseTag.Stackless: {
+      return Eval.defer(sequenceCauseMaybeEval(self.cause)).map((_) => _.map((cause) => Stackless(cause, self.stackless)));
     }
   }
 }

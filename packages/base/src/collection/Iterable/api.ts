@@ -6,6 +6,7 @@ import type * as P from "../../prelude";
 
 import { Eval } from "../../control/Eval";
 import { tuple } from "../../data/function";
+import { Just, Nothing } from "../../data/Maybe";
 import { Iterable } from "./definition";
 
 /**
@@ -123,6 +124,36 @@ export function crossWith_<A, B, C>(self: Iterable<A>, fb: Iterable<B>, f: (a: A
 }
 
 /**
+ * @tsplus fluent fncts.collection.immutable.Iterable every
+ */
+export function every_<A, B extends A>(self: Iterable<A>, p: Refinement<A, B>): boolean;
+export function every_<A>(self: Iterable<A>, p: Predicate<A>): boolean;
+export function every_<A>(self: Iterable<A>, p: Predicate<A>): boolean {
+  return self.everyWithIndex((_, a) => p(a));
+}
+
+/**
+ * @tsplus fluent fncts.collection.immutable.Iterable everyWithIndex
+ */
+export function everyWithIndex_<A, B extends A>(self: Iterable<A>, p: RefinementWithIndex<number, A, B>): boolean;
+export function everyWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): boolean;
+export function everyWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): boolean {
+  const iterator = self[Symbol.iterator]();
+  let i          = 0;
+  let next: IteratorResult<A>;
+  while (!(next = iterator.next()).done) {
+    if (!p(i, next.value)) {
+      if (typeof iterator.return === "function") {
+        iterator.return();
+      }
+      return false;
+    }
+    i++;
+  }
+  return true;
+}
+
+/**
  * @tsplus fluent fncts.collection.immutable.Iterable filter
  */
 export function filter_<A, B extends A>(self: Iterable<A>, p: Refinement<A, B>): Iterable<B>;
@@ -211,6 +242,20 @@ export function filterWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<num
       },
     };
   });
+}
+
+/**
+ * @tsplus fluent fncts.collection.immutable.Iterable find
+ */
+export function find_<A, B extends A>(ia: Iterable<A>, refinement: Refinement<A, B>): Maybe<B>;
+export function find_<A>(ia: Iterable<A>, predicate: Predicate<A>): Maybe<A>;
+export function find_<A>(ia: Iterable<A>, predicate: Predicate<A>): Maybe<A> {
+  for (const value of ia) {
+    if (predicate(value)) {
+      return Just(value);
+    }
+  }
+  return Nothing();
 }
 
 /**
@@ -576,7 +621,10 @@ export function concat<A>(ib: Iterable<A>) {
 /**
  * @tsplus dataFirst corresponds_
  */
-export function corresponds<A, B>(right: Iterable<B>, f: (a: A, b: B) => boolean) {
+export function corresponds<A, B>(
+  right: Iterable<B>,
+  f: (a: A, b: B) => boolean
+) {
   return (left: Iterable<A>): boolean => corresponds_(left, right, f);
 }
 /**
@@ -586,9 +634,45 @@ export function crossWith<A, B, C>(fb: Iterable<B>, f: (a: A, b: B) => C) {
   return (self: Iterable<A>): Iterable<C> => crossWith_(self, fb, f);
 }
 /**
+ * @tsplus dataFirst every_
+ */
+export function every<A, B extends A>(
+  p: Refinement<A, B>
+): (self: Iterable<A>) => boolean;
+/**
+ * @tsplus dataFirst every_
+ */
+export function every<A>(p: Predicate<A>): (self: Iterable<A>) => boolean;
+/**
+ * @tsplus dataFirst every_
+ */
+export function every<A>(p: Predicate<A>) {
+  return (self: Iterable<A>): boolean => every_(self, p);
+}
+/**
+ * @tsplus dataFirst everyWithIndex_
+ */
+export function everyWithIndex<A, B extends A>(
+  p: RefinementWithIndex<number, A, B>
+): (self: Iterable<A>) => boolean;
+/**
+ * @tsplus dataFirst everyWithIndex_
+ */
+export function everyWithIndex<A>(
+  p: PredicateWithIndex<number, A>
+): (self: Iterable<A>) => boolean;
+/**
+ * @tsplus dataFirst everyWithIndex_
+ */
+export function everyWithIndex<A>(p: PredicateWithIndex<number, A>) {
+  return (self: Iterable<A>): boolean => everyWithIndex_(self, p);
+}
+/**
  * @tsplus dataFirst filter_
  */
-export function filter<A, B extends A>(p: Refinement<A, B>): (self: Iterable<A>) => Iterable<B>;
+export function filter<A, B extends A>(
+  p: Refinement<A, B>
+): (self: Iterable<A>) => Iterable<B>;
 /**
  * @tsplus dataFirst filter_
  */
@@ -614,16 +698,36 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 /**
  * @tsplus dataFirst filterWithIndex_
  */
-export function filterWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: Iterable<A>) => Iterable<B>;
+export function filterWithIndex<A, B extends A>(
+  p: RefinementWithIndex<number, A, B>
+): (self: Iterable<A>) => Iterable<B>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
-export function filterWithIndex<A>(p: PredicateWithIndex<number, A>): (self: Iterable<A>) => Iterable<A>;
+export function filterWithIndex<A>(
+  p: PredicateWithIndex<number, A>
+): (self: Iterable<A>) => Iterable<A>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
 export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
   return (self: Iterable<A>): Iterable<A> => filterWithIndex_(self, p);
+}
+/**
+ * @tsplus dataFirst find_
+ */
+export function find<A, B extends A>(
+  refinement: Refinement<A, B>
+): (ia: Iterable<A>) => Maybe<B>;
+/**
+ * @tsplus dataFirst find_
+ */
+export function find<A>(predicate: Predicate<A>): (ia: Iterable<A>) => Maybe<A>;
+/**
+ * @tsplus dataFirst find_
+ */
+export function find<A>(predicate: Predicate<A>) {
+  return (ia: Iterable<A>): Maybe<A> => find_(ia, predicate);
 }
 /**
  * @tsplus dataFirst foldLeftWithIndex_
@@ -640,7 +744,10 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 /**
  * @tsplus dataFirst foldRightWithIndex_
  */
-export function foldRightWithIndex<A, B>(b: Eval<B>, f: (i: number, a: A, b: Eval<B>) => Eval<B>) {
+export function foldRightWithIndex<A, B>(
+  b: Eval<B>,
+  f: (i: number, a: A, b: Eval<B>) => Eval<B>
+) {
   return (self: Iterable<A>): Eval<B> => foldRightWithIndex_(self, b, f);
 }
 /**
@@ -665,43 +772,55 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
  * @tsplus dataFirst partitionMap_
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
-  return (self: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => partitionMap_(self, f);
+  return (self: Iterable<A>): readonly [Iterable<B>, Iterable<C>] =>
+    partitionMap_(self, f);
 }
 /**
  * @tsplus dataFirst partitionMapWithIndex_
  */
-export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
-  return (fa: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => partitionMapWithIndex_(fa, f);
+export function partitionMapWithIndex<A, B, C>(
+  f: (i: number, a: A) => Either<B, C>
+) {
+  return (fa: Iterable<A>): readonly [Iterable<B>, Iterable<C>] =>
+    partitionMapWithIndex_(fa, f);
 }
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A, B extends A>(p: Refinement<A, B>): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<B>];
+export function partition<A, B extends A>(
+  p: Refinement<A, B>
+): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<B>];
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A>(p: Predicate<A>): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
+export function partition<A>(
+  p: Predicate<A>
+): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
 /**
  * @tsplus dataFirst partition_
  */
 export function partition<A>(p: Predicate<A>) {
-  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] => partition_(self, p);
+  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] =>
+    partition_(self, p);
 }
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
 export function partitionWithIndex<A, B extends A>(
-  p: RefinementWithIndex<number, A, B>,
+  p: RefinementWithIndex<number, A, B>
 ): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<B>];
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
-export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
+export function partitionWithIndex<A>(
+  p: PredicateWithIndex<number, A>
+): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
 /**
  * @tsplus dataFirst partitionWithIndex_
  */
 export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
-  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] => partitionWithIndex_(self, p);
+  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] =>
+    partitionWithIndex_(self, p);
 }
 /**
  * @tsplus dataFirst zipWith_

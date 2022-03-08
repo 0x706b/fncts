@@ -8,6 +8,7 @@ import { tuple } from "../../../data/function";
 import { Just, Nothing } from "../../../data/Maybe";
 import { Stack } from "../../../internal/Stack";
 import * as P from "../../../prelude";
+import { HashEq } from "../../../prelude";
 import { fromBitmap, hashFragment, SIZE, toBitmap } from "../HashMap/internal";
 import { _EmptyNode, HashSet, isEmptyNode } from "./definition";
 
@@ -143,8 +144,6 @@ export function mapDefault<A, B>(self: HashSet<A>, f: (a: A) => B): HashSet<B> {
 
 /**
  * Map + Flatten
- *
- * @tsplus fluent fncts.collection.immutable.HashSet chain
  */
 export function chain_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
   const r = make<B>(C);
@@ -159,6 +158,13 @@ export function chain_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => Ite
       });
       return r;
     });
+}
+
+/**
+ * @tsplus fluent fncts.collection.immutable.HashSet chain
+ */
+export function chainDefault<A, B>(self: HashSet<A>, f: (a: A) => Iterable<B>): HashSet<B> {
+  return chain_<B>(HashEq.StructuralStrict)(self, f);
 }
 
 /**
