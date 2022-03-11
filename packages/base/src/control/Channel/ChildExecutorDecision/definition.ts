@@ -46,33 +46,3 @@ export type ChildExecutorDecision = Continue | Close | Yield;
 export interface ChildExecutorDecisionOps {}
 
 export const ChildExecutorDecision: ChildExecutorDecisionOps = {};
-
-/**
- * @tsplus fluent fncts.control.Channel.ChildExecutorDecision match
- */
-export function match_<A, B, C>(
-  d: ChildExecutorDecision,
-  onContinue: () => A,
-  onClose: (value: any) => B,
-  onYield: () => C,
-): A | B | C {
-  switch (d._tag) {
-    case "Continue": {
-      return onContinue();
-    }
-    case "Close": {
-      return onClose(d.value);
-    }
-    case "Yield": {
-      return onYield();
-    }
-  }
-}
-
-export function match<A, B, C>(
-  onContinue: () => A,
-  onClose: (value: any) => B,
-  onYield: () => C,
-): (d: ChildExecutorDecision) => A | B | C {
-  return (d) => match_(d, onContinue, onClose, onYield);
-}

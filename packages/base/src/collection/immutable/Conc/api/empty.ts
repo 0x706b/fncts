@@ -1,4 +1,4 @@
-import type { Conc} from "../definition";
+import type { Conc } from "../definition";
 
 import { Empty } from "../definition";
 

@@ -8,8 +8,7 @@ import type { Managed } from "../Managed";
 import type { Queue } from "../Queue";
 import type { AsyncInputConsumer } from "./internal/AsyncInputConsumer";
 import type { AsyncInputProducer } from "./internal/AsyncInputProducer";
-import type { ChannelState } from "./internal/ChannelState";
-import type { UpstreamPullRequest } from "./internal/UpstreamPullRequest";
+import type { UpstreamPullRequest } from "./UpstreamPullRequest/definition";
 
 import { Conc } from "../../collection/immutable/Conc";
 import { Cause } from "../../data/Cause";
@@ -17,15 +16,13 @@ import { Either } from "../../data/Either";
 import { ExecutionStrategy } from "../../data/ExecutionStrategy";
 import { Exit } from "../../data/Exit";
 import { identity, tuple } from "../../data/function";
-import { Just, Nothing } from "../../data/Maybe";
+import { Nothing } from "../../data/Maybe";
 import { hasTypeId } from "../../util/predicates";
-import { Fiber } from "../Fiber";
 import { FiberRef } from "../FiberRef";
-import { Future } from "../Future";
 import { IO } from "../IO";
 import { ReleaseMap } from "../Managed/ReleaseMap";
 import { Ref } from "../Ref";
-import { TSemaphore } from "../TSemaphore";
+import { ChildExecutorDecision } from "./ChildExecutorDecision/definition";
 import {
   BracketOut,
   Bridge,
@@ -42,11 +39,6 @@ import {
   Provide,
   Read,
 } from "./definition";
-import { ChannelStateTag } from "./internal/ChannelState";
-import { ChildExecutorDecision } from "./internal/ChildExecutorDecision";
-import { MergeDecision, MergeDecisionTag } from "./internal/MergeDecision";
-import { MergeState, MergeStateTag } from "./internal/MergeState";
-import { SingleProducerAsyncInput } from "./internal/SingleProducerAsyncInput";
 import { UpstreamPullStrategy } from "./internal/UpstreamPullStrategy";
 
 /**

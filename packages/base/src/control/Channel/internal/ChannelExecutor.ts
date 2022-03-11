@@ -2,9 +2,9 @@ import type { List } from "../../../collection/immutable/List";
 import type { Cause } from "../../../data/Cause";
 import type { Maybe } from "../../../data/Maybe";
 import type { URIO } from "../../IO";
+import type { ChildExecutorDecision } from "../ChildExecutorDecision/definition";
 import type { BracketOut, Continuation, Ensuring } from "../definition";
 import type { ChannelState } from "./ChannelState";
-import type { ChildExecutorDecision } from "./ChildExecutorDecision";
 import type { UpstreamPullStrategy } from "./UpstreamPullStrategy";
 
 import { Nil } from "../../../collection/immutable/List";
@@ -21,8 +21,8 @@ import {
   concreteContinuation,
   ContinuationFinalizer,
 } from "../definition";
+import { UpstreamPullRequest } from "../UpstreamPullRequest/definition";
 import * as State from "./ChannelState";
-import { UpstreamPullRequest } from "./UpstreamPullRequest";
 
 type ErasedChannel<R> = Channel<R, unknown, unknown, unknown, unknown, unknown, unknown>;
 export type ErasedExecutor<R> = ChannelExecutor<
@@ -872,13 +872,12 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
           }
         } else {
           const lastClose = this.closeLastSubstream;
-          return pipe(
+          return State.effectOrNullIgnored(
             this.finishSubexecutorWithCloseEffect(
               exit.map((_) => subexec.combineWithChildResult(subexec.lastDone, _)),
               () => lastClose,
               (exit) => subexec.upstreamExecutor.close(exit),
             ),
-            State.effectOrNullIgnored,
           );
         }
       },
@@ -1023,7 +1022,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
       },
       (exit) =>
         exit.match(
-          (cause) => pipe(handleSubexecFailure(cause), State.effectOrNullIgnored),
+          (cause) => State.effectOrNullIgnored(handleSubexecFailure(cause)),
           (doneValue) => {
             finishWithDoneValue(doneValue);
             return null;
