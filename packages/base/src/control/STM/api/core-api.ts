@@ -6,7 +6,10 @@ import { OnFailure, OnSuccess, STM } from "../definition";
  *
  * @tsplus fluent fncts.control.STM catchAll
  */
-export function catchAll_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (e: E) => STM<R1, E1, B>): STM<R1 & R, E1, A | B> {
+export function catchAll_<R, E, A, R1, E1, B>(
+  self: STM<R, E, A>,
+  f: (e: E) => STM<R1, E1, B>,
+): STM<R1 & R, E1, A | B> {
   return new OnFailure<R1 & R, E, A | B, E1>(self, f);
 }
 
@@ -16,7 +19,10 @@ export function catchAll_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (e: E) => S
  *
  * @tsplus fluent fncts.control.STM chain
  */
-export function chain_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (a: A) => STM<R1, E1, B>): STM<R1 & R, E | E1, B> {
+export function chain_<R, E, A, R1, E1, B>(
+  self: STM<R, E, A>,
+  f: (a: A) => STM<R1, E1, B>,
+): STM<R1 & R, E | E1, B> {
   return new OnSuccess<R1 & R, E | E1, A, B>(self, f);
 }
 
@@ -27,7 +33,10 @@ export function chain_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (a: A) => STM<
  *
  * @tsplus fluent fncts.control.STM ensuring
  */
-export function ensuring_<R, E, A, R1, B>(self: STM<R, E, A>, finalizer: STM<R1, never, B>): STM<R & R1, E, A> {
+export function ensuring_<R, E, A, R1, B>(
+  self: STM<R, E, A>,
+  finalizer: STM<R1, never, B>,
+): STM<R & R1, E, A> {
   return self.matchSTM(
     (e) => finalizer.chain(() => STM.failNow(e)),
     (a) => finalizer.chain(() => STM.succeedNow(a)),

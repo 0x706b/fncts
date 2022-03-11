@@ -14,9 +14,15 @@ export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Ma
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited":
-        return [Finalizer.reverseGet(finalizer)(s.exit).map(() => Nothing()), new Exited(s.nextKey + 1, s.exit, s.update)];
+        return [
+          Finalizer.reverseGet(finalizer)(s.exit).map(() => Nothing()),
+          new Exited(s.nextKey + 1, s.exit, s.update),
+        ];
       case "Running":
-        return [IO.succeedNow(Just(s.nextKey)), new Running(s.nextKey + 1, s.finalizers.set(s.nextKey, finalizer), s.update)];
+        return [
+          IO.succeedNow(Just(s.nextKey)),
+          new Running(s.nextKey + 1, s.finalizers.set(s.nextKey, finalizer), s.update),
+        ];
     }
   }).flatten;
 }
@@ -24,7 +30,11 @@ export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Ma
 /**
  * @tsplus fluent fncts.control.Managed.ReleaseMap release
  */
-export function release_(releaseMap: ReleaseMap, key: number, exit: Exit<any, any>): IO<unknown, never, any> {
+export function release_(
+  releaseMap: ReleaseMap,
+  key: number,
+  exit: Exit<any, any>,
+): IO<unknown, never, any> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited": {
@@ -58,13 +68,23 @@ export function add_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Finalize
 /**
  * @tsplus fluent fncts.control.Managed.ReleaseMap replace
  */
-export function replace_(releaseMap: ReleaseMap, key: number, finalizer: Finalizer): UIO<Maybe<Finalizer>> {
+export function replace_(
+  releaseMap: ReleaseMap,
+  key: number,
+  finalizer: Finalizer,
+): UIO<Maybe<Finalizer>> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited":
-        return [Finalizer.reverseGet(finalizer)(s.exit).map(() => Nothing()), new Exited(s.nextKey, s.exit, s.update)];
+        return [
+          Finalizer.reverseGet(finalizer)(s.exit).map(() => Nothing()),
+          new Exited(s.nextKey, s.exit, s.update),
+        ];
       case "Running":
-        return [IO.succeedNow(s.finalizers.get(key)), new Running(s.nextKey, s.finalizers.set(key, finalizer), s.update)];
+        return [
+          IO.succeedNow(s.finalizers.get(key)),
+          new Running(s.nextKey, s.finalizers.set(key, finalizer), s.update),
+        ];
     }
   }).flatten;
 }

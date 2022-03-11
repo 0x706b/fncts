@@ -17,8 +17,10 @@ const INDEX_POSITIVE_INFINITY_32 = 2139095040; // floatToIndex(MAX_VALUE_32) + 1
 const INDEX_NEGATIVE_INFINITY_32 = -2139095041; // floatToIndex(-MAX_VALUE_32) - 1
 
 export function safeFloatToIndex(f: number, label: string): IO<unknown, never, number> {
-  const conversionTrick = "you can convert any double to a 32-bit float by using `new Float32Array([myDouble])[0]`";
-  const errorMessage    = "fc.floatNext constraints." + label + " must be a 32-bit float - " + conversionTrick;
+  const conversionTrick =
+    "you can convert any double to a 32-bit float by using `new Float32Array([myDouble])[0]`";
+  const errorMessage =
+    "fc.floatNext constraints." + label + " must be a 32-bit float - " + conversionTrick;
   if (Number.isNaN(f) || (Number.isFinite(f) && (f < -MAX_VALUE_32 || f > MAX_VALUE_32))) {
     return IO.haltNow(new Error(errorMessage));
   }
@@ -52,7 +54,11 @@ export function floatToIndex(f: number): number {
   }
   const { exponent, significand } = decomposeFloat(f);
 
-  if (Number.isNaN(exponent) || Number.isNaN(significand) || !Number.isInteger(significand * 0x800000)) {
+  if (
+    Number.isNaN(exponent) ||
+    Number.isNaN(significand) ||
+    !Number.isInteger(significand * 0x800000)
+  ) {
     return Number.NaN;
   }
 
@@ -189,7 +195,10 @@ function substract64Internal(a: ArrayInt64, b: ArrayInt64): ArrayInt64 {
   // Operation is a substraction
   return {
     sign: 1,
-    data: a.sign === 1 ? substract64DataInternal(a.data, b.data) : substract64DataInternal(b.data, a.data),
+    data:
+      a.sign === 1
+        ? substract64DataInternal(a.data, b.data)
+        : substract64DataInternal(b.data, a.data),
   };
 }
 
@@ -240,7 +249,10 @@ export function add64(arrayIntA: ArrayInt64, arrayIntB: ArrayInt64): ArrayInt64 
 export function halve64(a: ArrayInt64): ArrayInt64 {
   return {
     sign: a.sign,
-    data: [Math.floor(a.data[0] / 2), (a.data[0] % 2 === 1 ? 0x80000000 : 0) + Math.floor(a.data[1] / 2)],
+    data: [
+      Math.floor(a.data[0] / 2),
+      (a.data[0] % 2 === 1 ? 0x80000000 : 0) + Math.floor(a.data[1] / 2),
+    ],
   };
 }
 

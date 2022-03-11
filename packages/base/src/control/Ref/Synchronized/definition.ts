@@ -26,7 +26,11 @@ export const Synchronized: PSynchronizedOps = {};
  */
 export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA, RB, EA, EB, A, B> {
   readonly _tag = "Synchronized";
-  constructor(readonly semaphores: Set<TSemaphore>, readonly unsafeGet: IO<RB, EB, B>, readonly unsafeSet: (a: A) => IO<RA, EA, void>) {
+  constructor(
+    readonly semaphores: Set<TSemaphore>,
+    readonly unsafeGet: IO<RB, EB, B>,
+    readonly unsafeSet: (a: A) => IO<RA, EA, void>,
+  ) {
     super();
   }
 

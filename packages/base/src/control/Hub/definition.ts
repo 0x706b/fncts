@@ -101,6 +101,8 @@ export abstract class PHubInternal<RA, RB, EA, EB, A, B> implements PHub<RA, RB,
 /**
  * @tsplus macro remove
  */
-export function concrete<RA, RB, EA, EB, A, B>(_: PHub<RA, RB, EA, EB, A, B>): asserts _ is PHubInternal<RA, RB, EA, EB, A, B> {
+export function concrete<RA, RB, EA, EB, A, B>(
+  _: PHub<RA, RB, EA, EB, A, B>,
+): asserts _ is PHubInternal<RA, RB, EA, EB, A, B> {
   //
 }

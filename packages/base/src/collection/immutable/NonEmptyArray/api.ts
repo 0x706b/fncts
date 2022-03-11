@@ -8,14 +8,20 @@ import { NonEmptyArray } from "./definition";
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray ap
  */
-export function ap_<A, B>(self: ReadonlyNonEmptyArray<(a: A) => B>, fa: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<B> {
+export function ap_<A, B>(
+  self: ReadonlyNonEmptyArray<(a: A) => B>,
+  fa: ReadonlyNonEmptyArray<A>,
+): ReadonlyNonEmptyArray<B> {
   return self.chain((f) => fa.map((a) => f(a)) as unknown as ReadonlyNonEmptyArray<B>);
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray append
  */
-export function append_<A, B>(self: ReadonlyNonEmptyArray<A>, last: B): ReadonlyNonEmptyArray<A | B> {
+export function append_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  last: B,
+): ReadonlyNonEmptyArray<A | B> {
   const len = self.length;
   const r   = Array<A | B>(len + 1);
   r[len]    = last;
@@ -28,7 +34,10 @@ export function append_<A, B>(self: ReadonlyNonEmptyArray<A>, last: B): Readonly
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray align
  */
-export function align_<A, B>(self: ReadonlyNonEmptyArray<A>, fb: ReadonlyNonEmptyArray<B>): ReadonlyNonEmptyArray<These<A, B>> {
+export function align_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  fb: ReadonlyNonEmptyArray<B>,
+): ReadonlyNonEmptyArray<These<A, B>> {
   return self.alignWith(fb, identity);
 }
 
@@ -63,7 +72,10 @@ export function alignWith_<A, B, C>(
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray chain
  */
-export function chain_<A, B>(self: ReadonlyNonEmptyArray<A>, f: (a: A) => ReadonlyNonEmptyArray<B>): ReadonlyNonEmptyArray<B> {
+export function chain_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  f: (a: A) => ReadonlyNonEmptyArray<B>,
+): ReadonlyNonEmptyArray<B> {
   return self.chainWithIndex((_, a) => f(a));
 }
 
@@ -122,14 +134,20 @@ export function chop_<A, B>(
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray chunksOf
  */
-export function chunksOf_<A>(self: ReadonlyNonEmptyArray<A>, n: number): ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>> {
+export function chunksOf_<A>(
+  self: ReadonlyNonEmptyArray<A>,
+  n: number,
+): ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>> {
   return chop_(self, (as) => as.splitAt(n));
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray concat
  */
-export function concat_<A, B>(self: ReadonlyNonEmptyArray<A>, that: ReadonlyArray<B>): ReadonlyArray<A | B> {
+export function concat_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  that: ReadonlyArray<B>,
+): ReadonlyArray<A | B> {
   const lenx = self.length;
   if (lenx === 0) {
     return that;
@@ -187,7 +205,9 @@ export function elemSelf<A>(self: ReadonlyNonEmptyArray<A>) {
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray flatten
  */
-export function flatten<A>(self: ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>>): ReadonlyNonEmptyArray<A> {
+export function flatten<A>(
+  self: ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>>,
+): ReadonlyNonEmptyArray<A> {
   return self.chain(identity);
 }
 
@@ -195,7 +215,8 @@ export function flatten<A>(self: ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>>
  * @constrained
  */
 export function fold_<A>(S: P.Semigroup<A>) {
-  return (self: ReadonlyNonEmptyArray<A>): A => self.slice(1).foldLeftWithIndex(self[0], (_, b, a) => S.combine_(b, a));
+  return (self: ReadonlyNonEmptyArray<A>): A =>
+    self.slice(1).foldLeftWithIndex(self[0], (_, b, a) => S.combine_(b, a));
 }
 
 /**
@@ -215,7 +236,11 @@ export function foldLeft_<A, B>(self: ReadonlyNonEmptyArray<A>, b: B, f: (b: B, 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(self: ReadonlyNonEmptyArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
+export function foldLeftWithIndex_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  b: B,
+  f: (i: number, b: B, a: A) => B,
+): B {
   const len = self.length;
   let r     = b;
   for (let i = 0; i < len; i++) {
@@ -270,7 +295,11 @@ export function foldRight_<A, B>(self: ReadonlyNonEmptyArray<A>, b: B, f: (a: A,
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray foldRightWithIndex
  */
-export function foldRightWithIndex_<A, B>(self: ReadonlyNonEmptyArray<A>, b: B, f: (i: number, a: A, b: B) => B): B {
+export function foldRightWithIndex_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  b: B,
+  f: (i: number, a: A, b: B) => B,
+): B {
   let r = b;
   for (let i = self.length - 1; i >= 0; i--) {
     r = f(i, self[i]!, r);
@@ -304,7 +333,9 @@ export function groupSelf<A>(self: ReadonlyNonEmptyArray<A>) {
   return (E: P.Eq<A>): ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>> => group(E)(self);
 }
 
-export function groupSort<A>(O: P.Ord<A>): (as: ReadonlyNonEmptyArray<A>) => ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>> {
+export function groupSort<A>(
+  O: P.Ord<A>,
+): (as: ReadonlyNonEmptyArray<A>) => ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>> {
   const sortO  = sort(O);
   const groupO = group(O);
   return (as) => groupO(sortO(as));
@@ -320,14 +351,20 @@ export function isOutOfBound_<A>(as: ReadonlyNonEmptyArray<A>, i: number): boole
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray map
  */
-export function map_<A, B>(self: ReadonlyNonEmptyArray<A>, f: (a: A) => B): ReadonlyNonEmptyArray<B> {
+export function map_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  f: (a: A) => B,
+): ReadonlyNonEmptyArray<B> {
   return self.mapWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray mapWithIndex
  */
-export function mapWithIndex_<A, B>(self: ReadonlyNonEmptyArray<A>, f: (i: number, a: A) => B): ReadonlyNonEmptyArray<B> {
+export function mapWithIndex_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  f: (i: number, a: A) => B,
+): ReadonlyNonEmptyArray<B> {
   const out = NonEmptyArray.allocWithHead(f(0, self[0]), self.length);
   for (let i = 1; i < self.length; i++) {
     out[i] = f(i, self[i]!);
@@ -375,7 +412,10 @@ export function mutableClone<A>(as: ReadonlyNonEmptyArray<A>): NonEmptyArray<A> 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray prepend
  */
-export function prepend_<A, B>(self: ReadonlyNonEmptyArray<A>, head: B): ReadonlyNonEmptyArray<A | B> {
+export function prepend_<A, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  head: B,
+): ReadonlyNonEmptyArray<A | B> {
   const len = self.length;
   const out = Array<A | B>(len + 1);
   out[0]    = head;
@@ -404,47 +444,63 @@ export const sequence: P.sequence<NonEmptyArrayF> = (A) => (self) => self.traver
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray sequence
  */
-export const sequenceSelf: P.sequenceSelf<NonEmptyArrayF> = (self) => (A) => unsafeCoerce(self.traverse(A)(unsafeCoerce(identity)));
+export const sequenceSelf: P.sequenceSelf<NonEmptyArrayF> = (self) => (A) =>
+  unsafeCoerce(self.traverse(A)(unsafeCoerce(identity)));
 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray splitAt
  */
-export function splitAt_<A>(self: ReadonlyNonEmptyArray<A>, n: number): readonly [ReadonlyNonEmptyArray<A>, ReadonlyArray<A>] {
+export function splitAt_<A>(
+  self: ReadonlyNonEmptyArray<A>,
+  n: number,
+): readonly [ReadonlyNonEmptyArray<A>, ReadonlyArray<A>] {
   const m = Math.max(1, n);
-  return m >= self.length ? [self, []] : [self.slice(0, m) as unknown as ReadonlyNonEmptyArray<A>, self.slice(m)];
+  return m >= self.length
+    ? [self, []]
+    : [self.slice(0, m) as unknown as ReadonlyNonEmptyArray<A>, self.slice(m)];
 }
 
 export function sort<B>(O: P.Ord<B>) {
   return <A extends B>(self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<A> =>
-    self.length === 1 ? self : (self.mutableClone.sort((first, second) => O.compare_(first, second)) as any);
+    self.length === 1
+      ? self
+      : (self.mutableClone.sort((first, second) => O.compare_(first, second)) as any);
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray sort
  */
-export function sortSelf<A extends B, B>(self: ReadonlyNonEmptyArray<A>, O: P.Ord<B>): ReadonlyNonEmptyArray<A> {
+export function sortSelf<A extends B, B>(
+  self: ReadonlyNonEmptyArray<A>,
+  O: P.Ord<B>,
+): ReadonlyNonEmptyArray<A> {
   return sort(O)(self);
 }
 
-export const traverseWithIndex_: P.traverseWithIndex_<NonEmptyArrayF> = P.mkTraverseWithIndex_<NonEmptyArrayF>()(
-  (_) => (A) => (self, f) =>
-    self.tail.foldLeftWithIndex(
-      A.map_(f(0, self.head), (b) => [b] as ReadonlyNonEmptyArray<typeof b>),
-      (i, fbs, a) => A.zipWith_(fbs, f(i + 1, a), (bs, b) => bs.append(b)),
-    ),
-);
+export const traverseWithIndex_: P.traverseWithIndex_<NonEmptyArrayF> =
+  P.mkTraverseWithIndex_<NonEmptyArrayF>()(
+    (_) => (A) => (self, f) =>
+      self.tail.foldLeftWithIndex(
+        A.map_(f(0, self.head), (b) => [b] as ReadonlyNonEmptyArray<typeof b>),
+        (i, fbs, a) => A.zipWith_(fbs, f(i + 1, a), (bs, b) => bs.append(b)),
+      ),
+  );
 
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray traverseWithIndex
  */
-export const traverseWithIndexSelf: P.traverseWithIndexSelf<NonEmptyArrayF> = (self) => (A) => (f) => traverseWithIndex_(A)(self, f);
+export const traverseWithIndexSelf: P.traverseWithIndexSelf<NonEmptyArrayF> =
+  (self) => (A) => (f) =>
+    traverseWithIndex_(A)(self, f);
 
-export const traverse_: P.traverse_<NonEmptyArrayF> = (A) => (self, f) => self.traverseWithIndex(A)((_, a) => f(a));
+export const traverse_: P.traverse_<NonEmptyArrayF> = (A) => (self, f) =>
+  self.traverseWithIndex(A)((_, a) => f(a));
 
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray traverse
  */
-export const traverseSelf: P.traverseSelf<NonEmptyArrayF> = (self) => (A) => (f) => self.traverseWithIndex(A)((_, a) => f(a));
+export const traverseSelf: P.traverseSelf<NonEmptyArrayF> = (self) => (A) => (f) =>
+  self.traverseWithIndex(A)((_, a) => f(a));
 
 export function uniq<A>(E: P.Eq<A>) {
   return (self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<A> => {
@@ -504,7 +560,8 @@ export function append<B>(last: B) {
  * @tsplus dataFirst align_
  */
 export function align<B>(fb: ReadonlyNonEmptyArray<B>) {
-  return <A>(self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<These<A, B>> => align_(self, fb);
+  return <A>(self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<These<A, B>> =>
+    align_(self, fb);
 }
 /**
  * @tsplus dataFirst alignWith_
@@ -534,7 +591,8 @@ export function chop<A, B>(f: (as: ReadonlyNonEmptyArray<A>) => readonly [B, Rea
  * @tsplus dataFirst chunksOf_
  */
 export function chunksOf(n: number) {
-  return <A>(self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>> => chunksOf_(self, n);
+  return <A>(self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>> =>
+    chunksOf_(self, n);
 }
 /**
  * @tsplus dataFirst concat_
@@ -600,7 +658,9 @@ export function prepend<B>(head: B) {
  * @tsplus dataFirst splitAt_
  */
 export function splitAt(n: number) {
-  return <A>(self: ReadonlyNonEmptyArray<A>): readonly [ReadonlyNonEmptyArray<A>, ReadonlyArray<A>] => splitAt_(self, n);
+  return <A>(
+    self: ReadonlyNonEmptyArray<A>,
+  ): readonly [ReadonlyNonEmptyArray<A>, ReadonlyArray<A>] => splitAt_(self, n);
 }
 /**
  * @tsplus dataFirst zipWith_

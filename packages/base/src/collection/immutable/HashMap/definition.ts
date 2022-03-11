@@ -23,19 +23,31 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]>, Hashable, Equat
   readonly _K!: () => K;
   readonly _V!: () => V;
 
-  constructor(public editable: boolean, public edit: number, readonly config: HashEq<K>, public root: Node<K, V>, public size: number) {}
+  constructor(
+    public editable: boolean,
+    public edit: number,
+    readonly config: HashEq<K>,
+    public root: Node<K, V>,
+    public size: number,
+  ) {}
 
   [Symbol.iterator](): Iterator<readonly [K, V]> {
     return new HashMapIterator(this, identity);
   }
 
   get [Symbol.hashable](): number {
-    return Hashable.hashIterator(new HashMapIterator(this, ([k, v]) => Hashable.combineHash(Hashable.hash(k), Hashable.hash(v))));
+    return Hashable.hashIterator(
+      new HashMapIterator(this, ([k, v]) =>
+        Hashable.combineHash(Hashable.hash(k), Hashable.hash(v)),
+      ),
+    );
   }
 
   [Symbol.equatable](other: unknown): boolean {
     return (
-      other instanceof HashMap && other.size === this.size && (this as Iterable<readonly [K, V]>).corresponds(other, Equatable.strictEquals)
+      other instanceof HashMap &&
+      other.size === this.size &&
+      (this as Iterable<readonly [K, V]>).corresponds(other, Equatable.strictEquals)
     );
   }
 }
@@ -61,7 +73,15 @@ export class HashMapIterator<K, V, T> implements IterableIterator<T> {
   }
 }
 
-type Cont<K, V, A> = [len: number, children: Node<K, V>[], i: number, f: (node: readonly [K, V]) => A, cont: Cont<K, V, A>] | undefined;
+type Cont<K, V, A> =
+  | [
+      len: number,
+      children: Node<K, V>[],
+      i: number,
+      f: (node: readonly [K, V]) => A,
+      cont: Cont<K, V, A>,
+    ]
+  | undefined;
 
 function applyCont<K, V, A>(cont: Cont<K, V, A>) {
   return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : Nothing();

@@ -24,7 +24,9 @@ export const concurrency: UIO<Maybe<number>> = Concurrency.get;
  *
  * @tsplus static fncts.control.IOOps concurrencyWith
  */
-export function concurrencyWith<R, E, A>(f: (concurrency: Maybe<number>) => IO<R, E, A>): IO<R, E, A> {
+export function concurrencyWith<R, E, A>(
+  f: (concurrency: Maybe<number>) => IO<R, E, A>,
+): IO<R, E, A> {
   return Concurrency.getWith(f);
 }
 

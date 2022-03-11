@@ -61,7 +61,10 @@ export class MutableRandom {
    */
   nextInt(min: number, max: number): number;
   nextInt(min?: number, max?: number): number {
-    return this.uniformIn(min == null ? MutableRandom.MIN_INT : min, max == null ? MutableRandom.MAX_INT : max);
+    return this.uniformIn(
+      min == null ? MutableRandom.MIN_INT : min,
+      max == null ? MutableRandom.MAX_INT : max,
+    );
   }
 
   /**
@@ -78,7 +81,10 @@ export class MutableRandom {
    * @param min - Minimal ArrayInt value
    * @param max - Maximal ArrayInt value
    */
-  nextArrayInt(min: { sign: 1 | -1; data: number[] }, max: { sign: 1 | -1; data: number[] }): { sign: 1 | -1; data: number[] } {
+  nextArrayInt(
+    min: { sign: 1 | -1; data: number[] },
+    max: { sign: 1 | -1; data: number[] },
+  ): { sign: 1 | -1; data: number[] } {
     return uniformArrayIntDistribution(min, max, this.internalRng);
   }
 

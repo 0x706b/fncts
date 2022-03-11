@@ -6,7 +6,22 @@ import { MergeDecision } from "../internal/MergeDecision";
 /**
  * @tsplus fluent fncts.control.Channel zipC
  */
-export function zipC_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+export function zipC_<
+  Env,
+  Env1,
+  InErr,
+  InErr1,
+  InElem,
+  InElem1,
+  InDone,
+  InDone1,
+  OutErr,
+  OutErr1,
+  OutElem,
+  OutElem1,
+  OutDone,
+  OutDone1,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
@@ -46,7 +61,15 @@ export function zipFirstC_<
 >(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<Env1 & Env, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem | OutElem1, OutDone> {
+): Channel<
+  Env1 & Env,
+  InErr & InErr1,
+  InElem & InElem1,
+  InDone & InDone1,
+  OutErr | OutErr1,
+  OutElem | OutElem1,
+  OutDone
+> {
   return self.zipC(that).map(([d]) => d);
 }
 
@@ -71,6 +94,14 @@ export function zipSecondC_<
 >(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<Env1 & Env, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem | OutElem1, OutDone1> {
+): Channel<
+  Env1 & Env,
+  InErr & InErr1,
+  InElem & InElem1,
+  InDone & InDone1,
+  OutErr | OutErr1,
+  OutElem | OutElem1,
+  OutDone1
+> {
   return self.zipC(that).map(([_, d1]) => d1);
 }

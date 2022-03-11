@@ -41,7 +41,11 @@ export function continue_(interval: Interval): Decision {
 /**
  * @tsplus fluent fncts.control.Schedule.Decision match
  */
-export function match_<A, B>(self: Decision, onDone: () => A, onContinue: (interval: Interval) => B): A | B {
+export function match_<A, B>(
+  self: Decision,
+  onDone: () => A,
+  onContinue: (interval: Interval) => B,
+): A | B {
   switch (self._tag) {
     case DecisionTag.Continue:
       return onContinue(self.interval);

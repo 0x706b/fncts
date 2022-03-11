@@ -1,6 +1,17 @@
 import * as Ansi from "../../util/AnsiFormat";
 
-export type Style = "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white" | "gray" | "bold" | "italic" | "underline";
+export type Style =
+  | "red"
+  | "green"
+  | "yellow"
+  | "blue"
+  | "magenta"
+  | "cyan"
+  | "white"
+  | "gray"
+  | "bold"
+  | "italic"
+  | "underline";
 
 export type ShowGroup =
   | "string"

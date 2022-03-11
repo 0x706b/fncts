@@ -14,6 +14,9 @@ import { IO } from "../definition";
  *
  * @tsplus fluent fncts.control.IO raceFirst
  */
-export function raceFirst_<R, E, A, R1, E1, A1>(ma: IO<R, E, A>, that: IO<R1, E1, A1>): IO<R & R1, E | E1, A | A1> {
+export function raceFirst_<R, E, A, R1, E1, A1>(
+  ma: IO<R, E, A>,
+  that: IO<R1, E1, A1>,
+): IO<R & R1, E | E1, A | A1> {
   return ma.result.race(that.result).chain(IO.fromExitNow);
 }

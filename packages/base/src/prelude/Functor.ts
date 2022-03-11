@@ -36,7 +36,10 @@ export function mkFunctor<F extends HKT, C = HKT.None>(F: FunctorMin<F, C>): Fun
 }
 
 export interface map_<F extends HKT, C = HKT.None> {
-  <K, Q, W, X, I, S, R, E, A, B>(fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>, f: (a: A) => B): HKT.Kind<F, C, K, Q, W, X, I, S, R, E, B>;
+  <K, Q, W, X, I, S, R, E, A, B>(
+    fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>,
+    f: (a: A) => B,
+  ): HKT.Kind<F, C, K, Q, W, X, I, S, R, E, B>;
 }
 
 export interface map<F extends HKT, C = HKT.None> {
@@ -46,9 +49,14 @@ export interface map<F extends HKT, C = HKT.None> {
 }
 
 export interface as_<F extends HKT, C = HKT.None> {
-  <K, Q, W, X, I, S, R, E, A, B>(fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>, b: Lazy<B>): HKT.Kind<F, C, K, Q, W, X, I, S, R, E, B>;
+  <K, Q, W, X, I, S, R, E, A, B>(
+    fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>,
+    b: Lazy<B>,
+  ): HKT.Kind<F, C, K, Q, W, X, I, S, R, E, B>;
 }
 
 export interface as<F extends HKT, C = HKT.None> {
-  <B>(b: Lazy<B>): <K, Q, W, X, I, S, R, E, A>(fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>) => HKT.Kind<F, C, K, Q, W, X, I, S, R, E, B>;
+  <B>(b: Lazy<B>): <K, Q, W, X, I, S, R, E, A>(
+    fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<F, C, K, Q, W, X, I, S, R, E, B>;
 }

@@ -99,7 +99,9 @@ export interface ShowComputationComplex {
   keys?: ShowComputationChunk;
   braces?: [string, string];
 }
-export function showComputationComplex(args: Omit<ShowComputationComplex, "_tag">): ShowComputationComplex {
+export function showComputationComplex(
+  args: Omit<ShowComputationComplex, "_tag">,
+): ShowComputationComplex {
   return {
     _tag: "Complex",
     ...args,
@@ -159,7 +161,10 @@ function showValue(value: object): ShowComputation {
         Z.modify((context: ShowContext) =>
           pipe(
             context.circular.get(value).match(
-              () => [context.circular.size + 1, context.copy({ circular: context.circular.set(value, context.circular.size + 1) })],
+              () => [
+                context.circular.size + 1,
+                context.copy({ circular: context.circular.set(value, context.circular.size + 1) }),
+              ],
               (n) => [n, context],
             ),
           ),
@@ -217,7 +222,11 @@ type InspectionResult = InspectionInfo | InspectionEarlyReturn | InspectionExter
  * Determines the approximate type of the unknown value and collects information about
  * the structure of that value
  */
-function getInspectionInfo(context: ShowContext, value: object, typedArray?: string): InspectionResult {
+function getInspectionInfo(
+  context: ShowContext,
+  value: object,
+  typedArray?: string,
+): InspectionResult {
   if (isShowable(value)) {
     return inspectionExternal(value[Symbol.showable as keyof typeof value]);
   }
@@ -235,7 +244,10 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
   if (
     typeof tag !== "string" ||
     (tag !== "" &&
-      (context.showHidden ? Object.prototype.hasOwnProperty : Object.prototype.propertyIsEnumerable).call(value, Symbol.toStringTag))
+      (context.showHidden
+        ? Object.prototype.hasOwnProperty
+        : Object.prototype.propertyIsEnumerable
+      ).call(value, Symbol.toStringTag))
   ) {
     tag = "";
   }
@@ -315,7 +327,9 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
         return inspectionEarlyReturn(base);
       }
     } else if (isDate(value)) {
-      base         = Number.isNaN((value as Date).getTime()) ? (value as Date).toString() : (value as Date).toISOString();
+      base = Number.isNaN((value as Date).getTime())
+        ? (value as Date).toString()
+        : (value as Date).toISOString();
       const prefix = getPrefix(constructor, tag, "Date");
       if (prefix !== "Date ") {
         base = `${prefix}${base}`;
@@ -329,7 +343,9 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
       if (typedArray === undefined) {
         formatter = showArrayBuffer;
       } else if (keys.length === 0 && protoProps.isEmpty) {
-        return inspectionEarlyReturn(prefix + `{ byteLength: ${_showNumber(context, (value as ArrayBuffer).byteLength)} }`);
+        return inspectionEarlyReturn(
+          prefix + `{ byteLength: ${_showNumber(context, (value as ArrayBuffer).byteLength)} }`,
+        );
       }
       braces[0] = `${prefix}{`;
       keys.unshift("byteLength");
@@ -343,7 +359,9 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
     } else if (isWeakMap(value)) {
       return inspectionEarlyReturn(`${getPrefix(constructor, tag, "WeakMap")}{}`);
     } else if (Z.isZ(value)) {
-      return constructor !== null ? inspectionEarlyReturn(`Z (${constructor}) {}`) : inspectionEarlyReturn("Z {}");
+      return constructor !== null
+        ? inspectionEarlyReturn(`Z (${constructor}) {}`)
+        : inspectionEarlyReturn("Z {}");
     } else {
       if (keys.length === 0) {
         return inspectionEarlyReturn(`${getPrefix(constructor, tag, "Object")}{}`);
@@ -370,14 +388,19 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
  */
 function showRaw(value: object, typedArray?: string): ShowComputation {
   return pipe(
-    Z.gets((context: ShowContext) => tuple(context, getInspectionInfo(context, value, typedArray))).chain(([context, info]) => {
+    Z.gets((context: ShowContext) =>
+      tuple(context, getInspectionInfo(context, value, typedArray)),
+    ).chain(([context, info]) => {
       if (info._tag === "InspectionInfo" && context.recurseTimes > context.depth) {
         let constructorName = getPrefix(info.constructor, info.tag, "Object").slice(0, -1);
         if (info.constructor !== null) {
           constructorName = `[${constructorName}]`;
         }
         return Z.update((context: ShowContext) =>
-          context.copy({ recurseTimes: context.recurseTimes - 1, currentDepth: context.currentDepth - 1 }),
+          context.copy({
+            recurseTimes: context.recurseTimes - 1,
+            currentDepth: context.currentDepth - 1,
+          }),
         ).apSecond(Z.succeedNow(context.stylize(constructorName, "special")));
       }
       if (info._tag === "InspectionEarlyReturn") {
@@ -401,7 +424,9 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                     Conc.from(info.keys)
                       .traverse(Z.Applicative)((key) => showProperty(value, key, info.extrasType))
                       .crossWith(
-                        info.protoProps.traverse(Z.Applicative)((key) => showProperty(value, key, PROTO_TYPE)),
+                        info.protoProps.traverse(Z.Applicative)((key) =>
+                          showProperty(value, key, PROTO_TYPE),
+                        ),
                         (k1, k2) => k1.concat(k2),
                       ),
                   );
@@ -414,7 +439,9 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                   const externalComputation = info.computation;
                   if (externalComputation._tag === "Primitive") {
                     return Z.getsZ((context) =>
-                      externalComputation.computation.map((str) => str.replace(/\n/g, `\n${" ".repeat(context.indentationLevel)}`)),
+                      externalComputation.computation.map((str) =>
+                        str.replace(/\n/g, `\n${" ".repeat(context.indentationLevel)}`),
+                      ),
                     );
                   } else {
                     base       = externalComputation.base || Z.succeedNow("");
@@ -441,12 +468,24 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                 ),
               );
 
-              return Z.update((_: ShowContext) => _.copy({ recurseTimes: context.recurseTimes + 1, currentDepth: _.recurseTimes + 1 }))
+              return Z.update((_: ShowContext) =>
+                _.copy({
+                  recurseTimes: context.recurseTimes + 1,
+                  currentDepth: _.recurseTimes + 1,
+                }),
+              )
                 .apSecond(output)
                 .cross(baseWithRef)
                 .chain(([output, base]) =>
                   Z.modify((context) => {
-                    const res = reduceToSingleString(context, output, base, braces, extrasType, value);
+                    const res = reduceToSingleString(
+                      context,
+                      output,
+                      base,
+                      braces,
+                      extrasType,
+                      value,
+                    );
 
                     const budget    = context.budget[context.indentationLevel] || 0;
                     const newLength = budget + res.length;
@@ -495,7 +534,10 @@ function reduceToSingleString(
     if (extrasType === ARRAY_EXTRAS_TYPE && entries > 6) {
       output = groupElements(context, output, value);
     }
-    if (context.currentDepth - context.recurseTimes < context.compact && entries === output.length) {
+    if (
+      context.currentDepth - context.recurseTimes < context.compact &&
+      entries === output.length
+    ) {
       const start = output.length + context.indentationLevel + braces[0].length + base.length + 10;
       if (isBelowBreakLength(context, output, start, base)) {
         return `${base ? `${base} ` : ""}${braces[0]} ${output.join(", ")} ${braces[1]}`;
@@ -503,10 +545,18 @@ function reduceToSingleString(
     }
   }
   const indentation = `\n${" ".repeat(context.indentationLevel)}`;
-  return `${base ? `${base} ` : ""}${braces[0]}${indentation}  ` + `${output.join(`,${indentation}  `)}${indentation}${braces[1]}`;
+  return (
+    `${base ? `${base} ` : ""}${braces[0]}${indentation}  ` +
+    `${output.join(`,${indentation}  `)}${indentation}${braces[1]}`
+  );
 }
 
-function isBelowBreakLength(context: ShowContext, input: Conc<string>, start: number, base: string): boolean {
+function isBelowBreakLength(
+  context: ShowContext,
+  input: Conc<string>,
+  start: number,
+  base: string,
+): boolean {
   let totalLength = input.length + start;
   if (totalLength + input.length > context.breakLength) {
     return false;
@@ -571,11 +621,15 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
             .apSecond(
               Z.succeedNow(output).chain((output) =>
                 Conc("BYTES_PER_ELEMENT", "length", "byteLength", "byteOffset", "buffer")
-                  .traverse(Z.Applicative)((key) => _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`))
+                  .traverse(Z.Applicative)((key) =>
+                    _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`),
+                  )
                   .map((shownKeys) => output.concat(shownKeys)),
               ),
             )
-            .apFirst(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 }))),
+            .apFirst(
+              Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })),
+            ),
         );
       } else {
         return Z.succeedNow(output);
@@ -640,17 +694,25 @@ function showSpecialArray(
           break;
         }
       }
-      computation = computation.crossWith(showProperty(value, key, ARRAY_TYPE), (as, b) => as.append(b));
+      computation = computation.crossWith(showProperty(value, key, ARRAY_TYPE), (as, b) =>
+        as.append(b),
+      );
       outputLength++;
       index++;
     }
     const remaining = value.length - index;
     if (outputLength !== maxLength) {
       if (remaining > 0) {
-        computation = computation.map((as) => as.append(context.stylize(`<${remaining} empty item${pluralize(remaining)}>`, "undefined")));
+        computation = computation.map((as) =>
+          as.append(
+            context.stylize(`<${remaining} empty item${pluralize(remaining)}>`, "undefined"),
+          ),
+        );
       }
     } else if (remaining > 0) {
-      computation = computation.map((as) => as.append(`... ${remaining} more item${pluralize(remaining)}`));
+      computation = computation.map((as) =>
+        as.append(`... ${remaining} more item${pluralize(remaining)}`),
+      );
     }
     return computation;
   });
@@ -671,10 +733,14 @@ function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
         if (!Object.prototype.hasOwnProperty.call(value, i)) {
           return showSpecialArray(value, chunk.length, computation, i, i);
         }
-        computation = computation.crossWith(showProperty(value, i, ARRAY_TYPE), (props, p) => props.append(p));
+        computation = computation.crossWith(showProperty(value, i, ARRAY_TYPE), (props, p) =>
+          props.append(p),
+        );
       }
       if (remaining > 0) {
-        computation = computation.map((props) => props.append(`... ${remaining} more item${pluralize(remaining)}`));
+        computation = computation.map((props) =>
+          props.append(`... ${remaining} more item${pluralize(remaining)}`),
+        );
       }
       return computation;
     }),
@@ -692,22 +758,36 @@ function showChunk(value: Conc<unknown>): ShowComputationChunk {
     }).chain(([remaining, chunk]) =>
       chunk
         .traverse(Z.Applicative)(_show)
-        .map((chunk) => (remaining > 0 ? chunk.append(`... ${remaining} more item${pluralize(remaining)}`) : chunk)),
+        .map((chunk) =>
+          remaining > 0 ? chunk.append(`... ${remaining} more item${pluralize(remaining)}`) : chunk,
+        ),
     ),
   );
 }
 
-export function showProperty(value: object, key: PropertyKey, type: number, desc?: PropertyDescriptor): ShowComputation {
+export function showProperty(
+  value: object,
+  key: PropertyKey,
+  type: number,
+  desc?: PropertyDescriptor,
+): ShowComputation {
   return Z.getsZ((context: ShowContext) =>
     pipe(
       Z.defer(() => {
         const descriptor = desc ||
-          Object.getOwnPropertyDescriptor(value, key) || { value: value[key as keyof typeof value], enumerable: true };
+          Object.getOwnPropertyDescriptor(value, key) || {
+            value: value[key as keyof typeof value],
+            enumerable: true,
+          };
 
         if (isDefined(descriptor.value)) {
-          const diff = context.compact !== true || (type !== OBJECT_TYPE && type !== PROTO_TYPE) ? 2 : 3;
+          const diff =
+            context.compact !== true || (type !== OBJECT_TYPE && type !== PROTO_TYPE) ? 2 : 3;
           return pipe(
-            Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel + diff }))
+            Z.update(
+              (_: ShowContext): ShowContext =>
+                _.copy({ indentationLevel: _.indentationLevel + diff }),
+            )
               .apSecond(_show(descriptor.value))
               .chain((shown: string) =>
                 Z.gets((_: ShowContext) =>
@@ -716,10 +796,17 @@ export function showProperty(value: object, key: PropertyKey, type: number, desc
                     : tuple(descriptor, " ", shown),
                 ),
               )
-              .apFirst(Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel - diff }))),
+              .apFirst(
+                Z.update(
+                  (_: ShowContext): ShowContext =>
+                    _.copy({ indentationLevel: _.indentationLevel - diff }),
+                ),
+              ),
           );
         } else if (isDefined(descriptor.get)) {
-          return Z.succeedNow(tuple(descriptor, " ", `[${descriptor.set ? "Getter/Settter" : "Getter"}]`));
+          return Z.succeedNow(
+            tuple(descriptor, " ", `[${descriptor.set ? "Getter/Settter" : "Getter"}]`),
+          );
         } else if (isDefined(descriptor.set)) {
           return Z.succeedNow(tuple(descriptor, " ", "Setter"));
         } else {
@@ -777,7 +864,10 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
     }
   }
   const actualMax = maxLength + separatorSpace;
-  if (actualMax * 3 + context.indentationLevel < context.breakLength && (totalLength / actualMax > 5 || maxLength <= 6)) {
+  if (
+    actualMax * 3 + context.indentationLevel < context.breakLength &&
+    (totalLength / actualMax > 5 || maxLength <= 6)
+  ) {
     const approxCharHeights = 2.5;
     const averageBias       = Math.sqrt(actualMax - totalLength / input.length);
     const biasedMax         = Math.max(actualMax - 3 - averageBias, 1);
@@ -830,8 +920,9 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
         str          += order.call(`${output.unsafeGet(k)}, `, padding, " ");
       }
       if (order === String.prototype.padStart) {
-        const padding = maxLineLength[k - i]! + output.unsafeGet(k).length - dataLength[k] - separatorSpace;
-        str          += output.unsafeGet(k).padStart(padding, " ");
+        const padding =
+          maxLineLength[k - i]! + output.unsafeGet(k).length - dataLength[k] - separatorSpace;
+        str += output.unsafeGet(k).padStart(padding, " ");
       } else {
         str += output.unsafeGet(k);
       }
@@ -870,7 +961,11 @@ function _showString(context: ShowContext, value: string): string {
     result          = result.slice(0, context.maxStringLength);
     trailer         = `... ${remaining} more character${pluralize(remaining)}`;
   }
-  if (context.compact !== true && result.length > 16 && result.length > context.breakLength - context.indentationLevel - 4) {
+  if (
+    context.compact !== true &&
+    result.length > 16 &&
+    result.length > context.breakLength - context.indentationLevel - 4
+  ) {
     return (
       result
         .split(/(?<=\n)/)

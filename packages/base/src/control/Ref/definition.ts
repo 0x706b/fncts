@@ -98,6 +98,10 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, 
 export function concrete<RA, RB, EA, EB, A, B>(
   _: PRef<RA, RB, EA, EB, A, B>,
   // @ts-expect-error
-): asserts _ is Atomic_<A | B> | Derived<EA, EB, A, B> | DerivedAll<EA, EB, A, B> | Synchro.PSynchronizedInternal<RA, RB, EA, EB, A, B> {
+): asserts _ is
+  | Atomic_<A | B>
+  | Derived<EA, EB, A, B>
+  | DerivedAll<EA, EB, A, B>
+  | Synchro.PSynchronizedInternal<RA, RB, EA, EB, A, B> {
   //
 }

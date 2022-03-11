@@ -72,7 +72,19 @@ export namespace HKT {
       this["S"],
       this["R"],
       this["E"],
-      Kind<G, D, this["K"], this["Q"], this["W"], this["X"], this["I"], this["S"], this["R"], this["E"], this["A"]>
+      Kind<
+        G,
+        D,
+        this["K"],
+        this["Q"],
+        this["W"],
+        this["X"],
+        this["I"],
+        this["S"],
+        this["R"],
+        this["E"],
+        this["A"]
+      >
     >;
   }
 
@@ -103,7 +115,18 @@ export namespace HKT {
   }
 
   export interface F<F> extends HKT {
-    readonly type: FK<F, this["K"], this["Q"], this["W"], this["X"], this["I"], this["S"], this["R"], this["E"], this["A"]>;
+    readonly type: FK<
+      F,
+      this["K"],
+      this["Q"],
+      this["W"],
+      this["X"],
+      this["I"],
+      this["S"],
+      this["R"],
+      this["E"],
+      this["A"]
+    >;
     readonly variance: {
       readonly K: "_";
       readonly Q: "_";
@@ -118,7 +141,18 @@ export namespace HKT {
   }
 
   export interface FCoE<F> extends HKT {
-    readonly type: FK<F, this["K"], this["Q"], this["W"], this["X"], this["I"], this["S"], this["R"], this["E"], this["A"]>;
+    readonly type: FK<
+      F,
+      this["K"],
+      this["Q"],
+      this["W"],
+      this["X"],
+      this["I"],
+      this["S"],
+      this["R"],
+      this["E"],
+      this["A"]
+    >;
     readonly variance: {
       readonly K: "_";
       readonly Q: "_";
@@ -133,7 +167,18 @@ export namespace HKT {
   }
 
   export interface FContraR<F> extends HKT {
-    readonly type: FK<F, this["K"], this["Q"], this["W"], this["X"], this["I"], this["S"], this["R"], this["E"], this["A"]>;
+    readonly type: FK<
+      F,
+      this["K"],
+      this["Q"],
+      this["W"],
+      this["X"],
+      this["I"],
+      this["S"],
+      this["R"],
+      this["E"],
+      this["A"]
+    >;
     readonly variance: {
       readonly K: "_";
       readonly Q: "_";
@@ -201,7 +246,9 @@ export namespace HKT {
     _: any;
   }
 
-  export type Low<F extends HKT, N extends ParamName> = F["variance"][N] extends Variance ? Lows[F["variance"][N]] : never;
+  export type Low<F extends HKT, N extends ParamName> = F["variance"][N] extends Variance
+    ? Lows[F["variance"][N]]
+    : never;
 
   /*
    * Type mixing for variance
@@ -222,9 +269,11 @@ export namespace HKT {
     "+": P[number];
     _: P[0];
   }
-  export type Mix<F extends HKT, N extends ParamName, P extends ReadonlyArray<unknown>> = F["variance"][N] extends Variance
-    ? Mixes<P>[F["variance"][N]]
-    : P[0];
+  export type Mix<
+    F extends HKT,
+    N extends ParamName,
+    P extends ReadonlyArray<unknown>,
+  > = F["variance"][N] extends Variance ? Mixes<P>[F["variance"][N]] : P[0];
 
   export type OrNever<K> = unknown extends K ? never : K;
 
@@ -246,7 +295,9 @@ export namespace HKT {
    * Type introduction for variance
    */
 
-  export type Intro<F extends HKT, N extends ParamName, A, B> = F["variance"][N] extends Variance ? Intros<A, B>[F["variance"][N]] : A;
+  export type Intro<F extends HKT, N extends ParamName, A, B> = F["variance"][N] extends Variance
+    ? Intros<A, B>[F["variance"][N]]
+    : A;
 
   /**
    * Type parameter constraint
@@ -272,14 +323,30 @@ export namespace HKT {
 
   export type OrFix<C, N extends ParamName, A> = C extends Fix<N, infer X> ? X : A;
 
-  export type OrExtend<C, N extends ParamName, A> = C extends Extend<N, infer X> ? (A extends X ? A : X) : A;
+  export type OrExtend<C, N extends ParamName, A> = C extends Extend<N, infer X>
+    ? A extends X
+      ? A
+      : X
+    : A;
 
   export type GetExtends<C, N extends ParamName, A> = C extends Extend<N, infer X> ? X : A;
 
   export type IndexFor<F extends HKT, K> = F extends { readonly index: unknown } ? F["index"] : K;
 
   export type InferKind<F extends HKT, FC, A> = [A] extends [
-    HKT.Kind<F, FC, infer K, infer Q, infer W, infer X, infer I, infer S, infer R, infer E, infer B>,
+    HKT.Kind<
+      F,
+      FC,
+      infer K,
+      infer Q,
+      infer W,
+      infer X,
+      infer I,
+      infer S,
+      infer R,
+      infer E,
+      infer B
+    >,
   ]
     ? HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, ReadonlyArray<B>>
     : never;
@@ -291,7 +358,9 @@ export namespace HKT {
   /**
    * @tsplus smart:identity
    */
-  export function instance<F>(_: Omit<F, typeof URI | typeof CURI | "_F" | "_G" | "_CF" | "_CG">): F {
+  export function instance<F>(
+    _: Omit<F, typeof URI | typeof CURI | "_F" | "_G" | "_CF" | "_CG">,
+  ): F {
     // @ts-expect-error: typelevel utility
     return _;
   }

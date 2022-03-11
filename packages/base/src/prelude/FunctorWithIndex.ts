@@ -22,7 +22,9 @@ export const FunctorWithIndex: FunctorWithIndexOps = {};
 /**
  * @tsplus static fncts.FunctorWithIndexOps __call
  */
-export function mkFunctorWithIndex<F extends HKT, C = HKT.None>(F: FunctorWithIndexMin<F, C>): FunctorWithIndex<F, C> {
+export function mkFunctorWithIndex<F extends HKT, C = HKT.None>(
+  F: FunctorWithIndexMin<F, C>,
+): FunctorWithIndex<F, C> {
   return HKT.instance<FunctorWithIndex<F, C>>({
     ...Functor(F),
     mapWithIndex_: F.mapWithIndex_,

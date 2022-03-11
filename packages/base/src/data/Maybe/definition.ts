@@ -58,7 +58,9 @@ export const Maybe: MaybeOps = {};
 /**
  * @tsplus unify fncts.data.Maybe
  */
-export function unifyMaybe<X extends Maybe<any>>(self: X): Maybe<[X] extends [Maybe<infer A>] ? A : never> {
+export function unifyMaybe<X extends Maybe<any>>(
+  self: X,
+): Maybe<[X] extends [Maybe<infer A>] ? A : never> {
   return self;
 }
 
@@ -67,7 +69,11 @@ export function unifyMaybe<X extends Maybe<any>>(self: X): Maybe<[X] extends [Ma
  */
 export function isMaybe(u: unknown): u is Maybe<unknown> {
   return (
-    isObject(u) && (MaybeTypeId in u || ("_tag" in u && typeof u["_tag"] === "string" && (u["_tag"] === "Nothing" || u["_tag"] === "Just")))
+    isObject(u) &&
+    (MaybeTypeId in u ||
+      ("_tag" in u &&
+        typeof u["_tag"] === "string" &&
+        (u["_tag"] === "Nothing" || u["_tag"] === "Just")))
   );
 }
 

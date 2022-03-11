@@ -8,7 +8,10 @@ import { And, FreeBooleanAlgebra, FreeBooleanAlgebraTag, Not, Or, Value } from "
  * @tsplus fluent fncts.data.FreeBooleanAlgebra and
  * @tsplus operator fncts.data.FreeBooleanAlgebra &&
  */
-export function and_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
+export function and_<A>(
+  left: FreeBooleanAlgebra<A>,
+  right: FreeBooleanAlgebra<A>,
+): FreeBooleanAlgebra<A> {
   return new And(left, right);
 }
 
@@ -26,8 +29,22 @@ export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgeb
   return self
     .fold<A, Either<FreeBooleanAlgebra<A>, FreeBooleanAlgebra<A>>>({
       Value: (a) => Either.right(FreeBooleanAlgebra.success(a)),
-      And: (l, r) => (l.isRight() ? (r.isRight() ? Either.right(l.right && r.right) : r) : r.isRight() ? l : Either.left(l.left && r.left)),
-      Or: (l, r) => (l.isRight() ? (r.isRight() ? Either.right(l.right || r.right) : l) : r.isRight() ? r : Either.left(l.left || r.left)),
+      And: (l, r) =>
+        l.isRight()
+          ? r.isRight()
+            ? Either.right(l.right && r.right)
+            : r
+          : r.isRight()
+          ? l
+          : Either.left(l.left && r.left),
+      Or: (l, r) =>
+        l.isRight()
+          ? r.isRight()
+            ? Either.right(l.right || r.right)
+            : l
+          : r.isRight()
+          ? r
+          : Either.left(l.left || r.left),
       Not: (v) => v.swap,
     })
     .match(Maybe.just, () => Nothing());
@@ -77,14 +94,20 @@ export function fold_<A, B>(
 /**
  * @tsplus fluent fncts.data.FreeBooleanAlgebra iff
  */
-export function iff_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
+export function iff_<A>(
+  left: FreeBooleanAlgebra<A>,
+  right: FreeBooleanAlgebra<A>,
+): FreeBooleanAlgebra<A> {
   return left.implies(right) && right.implies(left);
 }
 
 /**
  * @tsplus fluent fncts.data.FreeBooleanAlgebra implies
  */
-export function implies_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
+export function implies_<A>(
+  left: FreeBooleanAlgebra<A>,
+  right: FreeBooleanAlgebra<A>,
+): FreeBooleanAlgebra<A> {
   return left.invert || right;
 }
 
@@ -118,7 +141,10 @@ export function not<A>(self: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
  * @tsplus fluent fncts.data.FreeBooleanAlgebra or
  * @tsplus operator fncts.data.FreeBooleanAlgebra ||
  */
-export function or_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
+export function or_<A>(
+  left: FreeBooleanAlgebra<A>,
+  right: FreeBooleanAlgebra<A>,
+): FreeBooleanAlgebra<A> {
   return new Or(left, right);
 }
 

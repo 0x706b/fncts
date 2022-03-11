@@ -81,7 +81,9 @@ type JournalAnalysis = Invalid | ReadOnly | ReadWrite;
 export function analyzeJournal(journal: Journal): JournalAnalysis {
   let result: JournalAnalysis = ReadOnly;
   for (const entry of journal) {
-    result = entry[1].use((entry) => (entry.isInvalid() ? Invalid : entry.isChanged() ? ReadWrite : result));
+    result = entry[1].use((entry) =>
+      entry.isInvalid() ? Invalid : entry.isChanged() ? ReadWrite : result,
+    );
     if (result === Invalid) {
       return result;
     }
@@ -212,7 +214,12 @@ export function tryCommitSync<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, r: R
   }
 }
 
-function tryCommit<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, state: AtomicReference<CommitState<E, A>>, r: R): TryCommit<E, A> {
+function tryCommit<R, E, A>(
+  fiberId: FiberId,
+  stm: STM<R, E, A>,
+  state: AtomicReference<CommitState<E, A>>,
+  r: R,
+): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
   const analysis         = journal.analyze();

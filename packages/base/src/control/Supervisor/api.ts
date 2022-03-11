@@ -11,7 +11,12 @@ import { Supervisor } from "./definition";
 export function zip_<A, B>(fa: Supervisor<A>, fb: Supervisor<B>): Supervisor<readonly [A, B]> {
   return new (class extends Supervisor<readonly [A, B]> {
     value = fa.value.zip(fb.value);
-    unsafeOnStart<R, E, A>(environment: R, effect: IO<R, E, A>, parent: Maybe<RuntimeFiber<any, any>>, fiber: RuntimeFiber<E, A>) {
+    unsafeOnStart<R, E, A>(
+      environment: R,
+      effect: IO<R, E, A>,
+      parent: Maybe<RuntimeFiber<any, any>>,
+      fiber: RuntimeFiber<E, A>,
+    ) {
       try {
         fa.unsafeOnStart(environment, effect, parent, fiber);
       } finally {

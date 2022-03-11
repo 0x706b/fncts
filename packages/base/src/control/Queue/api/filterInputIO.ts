@@ -6,8 +6,18 @@ import { Just, Nothing } from "../../../data/Maybe";
 import { IO } from "../../IO";
 import { concrete, QueueInternal } from "../definition";
 
-export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends QueueInternal<RA & R2, RB, EA | E2, EB, A1, B> {
-  constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (_: A1) => IO<R2, E2, boolean>) {
+export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends QueueInternal<
+  RA & R2,
+  RB,
+  EA | E2,
+  EB,
+  A1,
+  B
+> {
+  constructor(
+    readonly queue: QueueInternal<RA, RB, EA, EB, A, B>,
+    readonly f: (_: A1) => IO<R2, E2, boolean>,
+  ) {
     super();
   }
 
@@ -77,7 +87,9 @@ export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
  * @tsplus dataFirst filterInputIO_
  */
 export function filterInputIO<A, A1 extends A, R2, E2>(f: (_: A1) => IO<R2, E2, boolean>) {
-  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA & R2, RB, EA | E2, EB, A1, B> => filterInputIO_(queue, f);
+  return <RA, RB, EA, EB, B>(
+    queue: PQueue<RA, RB, EA, EB, A, B>,
+  ): PQueue<RA & R2, RB, EA | E2, EB, A1, B> => filterInputIO_(queue, f);
 }
 /**
  * Applies a filter to elements enqueued into this queue. Elements that do not
@@ -85,6 +97,7 @@ export function filterInputIO<A, A1 extends A, R2, E2>(f: (_: A1) => IO<R2, E2, 
  * @tsplus dataFirst filterInput_
  */
 export function filterInput<A, A1 extends A>(f: (_: A1) => boolean) {
-  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A1, B> => filterInput_(queue, f);
+  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A1, B> =>
+    filterInput_(queue, f);
 }
 // codegen:end

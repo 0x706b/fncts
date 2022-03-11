@@ -111,7 +111,8 @@ export abstract class Strategy<A> {
  * are published and received by other subscribers.
  */
 export class BackPressure<A> extends Strategy<A> {
-  publishers: MutableQueue<readonly [A, Future<never, boolean>, boolean]> = MutableQueue.unbounded();
+  publishers: MutableQueue<readonly [A, Future<never, boolean>, boolean]> =
+    MutableQueue.unbounded();
 
   handleSurplus(
     hub: HubInternal<A>,
@@ -144,7 +145,11 @@ export class BackPressure<A> extends Strategy<A> {
     return IO.gen(function* (_) {
       const fiberId    = yield* _(IO.fiberId);
       const publishers = yield* _(IO.succeed(self.publishers.unsafeDequeueAll));
-      yield* _(IO.foreachC(publishers, ([_, future, last]) => (last ? future.interruptAs(fiberId) : IO.unit)));
+      yield* _(
+        IO.foreachC(publishers, ([_, future, last]) =>
+          last ? future.interruptAs(fiberId) : IO.unit,
+        ),
+      );
     });
   }
 
@@ -273,7 +278,9 @@ export class Sliding<A> extends Strategy<A> {
 class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never, never, A> {
   constructor(
     readonly hub: HubInternal<A>,
-    readonly subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
+    readonly subscribers: HashSet<
+      HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>
+    >,
     readonly subscription: HubInternal.Subscription<A>,
     readonly pollers: MutableQueue<Future<never, A>>,
     readonly shutdownHook: Future<never, void>,
@@ -326,7 +333,12 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
           return IO.defer(() => {
             this.pollers.enqueue(future);
             this.subscribers.add(new HashedPair(this.subscription, this.pollers));
-            this.strategy.unsafeCompletePollers(this.hub, this.subscribers, this.subscription, this.pollers);
+            this.strategy.unsafeCompletePollers(
+              this.hub,
+              this.subscribers,
+              this.subscription,
+              this.pollers,
+            );
             if (this.shutdownFlag.get) {
               return IO.interrupt;
             } else {
@@ -404,17 +416,29 @@ export function unsafeMakeSubscription<A>(
   shutdownFlag: AtomicBoolean,
   strategy: Strategy<A>,
 ): Queue.Dequeue<A> {
-  return new UnsafeSubscription(hub, subscribers, subscription, pollers, shutdownHook, shutdownFlag, strategy);
+  return new UnsafeSubscription(
+    hub,
+    subscribers,
+    subscription,
+    pollers,
+    shutdownHook,
+    shutdownFlag,
+    strategy,
+  );
 }
 
-export function subscribersHashSet<A>(): HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>> {
+export function subscribersHashSet<A>(): HashSet<
+  HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>
+> {
   return HashSet.empty<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>();
 }
 
 class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
   constructor(
     readonly hub: HubInternal<A>,
-    readonly subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
+    readonly subscribers: HashSet<
+      HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>
+    >,
     readonly releaseMap: ReleaseMap,
     readonly shutdownHook: Future<never, void>,
     readonly shutdownFlag: AtomicBoolean,
@@ -447,9 +471,12 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
     return IO.succeed(this.hub.size());
   });
 
-  subscribe: UManaged<Queue.Dequeue<A>> = Managed.fromIO(makeSubscription(this.hub, this.subscribers, this.strategy)).tap((dequeue) =>
-    Managed.bracketExit(this.releaseMap.add(Finalizer.get(() => dequeue.shutdown)), (finalizer, exit) =>
-      Finalizer.reverseGet(finalizer)(exit),
+  subscribe: UManaged<Queue.Dequeue<A>> = Managed.fromIO(
+    makeSubscription(this.hub, this.subscribers, this.strategy),
+  ).tap((dequeue) =>
+    Managed.bracketExit(
+      this.releaseMap.add(Finalizer.get(() => dequeue.shutdown)),
+      (finalizer, exit) => Finalizer.reverseGet(finalizer)(exit),
     ),
   );
 
@@ -464,7 +491,12 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
         return IO.succeedNow(true);
       }
 
-      return this.strategy.handleSurplus(this.hub, this.subscribers, Conc.single(a), this.shutdownFlag);
+      return this.strategy.handleSurplus(
+        this.hub,
+        this.subscribers,
+        Conc.single(a),
+        this.shutdownFlag,
+      );
     });
 
   publishAll = (as: Iterable<A>): IO<unknown, never, boolean> =>
@@ -503,6 +535,13 @@ export function makeHubInternal<A>(hub: HubInternal<A>, strategy: Strategy<A>): 
   return IO.gen(function* (_) {
     const releaseMap = yield* _(ReleaseMap.make);
     const future     = yield* _(Future.make<never, void>());
-    return unsafeMakeHub(hub, subscribersHashSet(), releaseMap, future, new AtomicBoolean(false), strategy);
+    return unsafeMakeHub(
+      hub,
+      subscribersHashSet(),
+      releaseMap,
+      future,
+      new AtomicBoolean(false),
+      strategy,
+    );
   });
 }

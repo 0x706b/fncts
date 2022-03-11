@@ -11,11 +11,20 @@ const sharedB: ArrayInt64 = { sign: 1, data: [0, 0] };
 const sharedC: ArrayInt64 = { sign: 1, data: [0, 0] };
 const sharedData          = [0, 0];
 
-function uniformLargeIntInternal(from: number, to: number, rangeSize: number, rng: RandomGenerator): number {
+function uniformLargeIntInternal(
+  from: number,
+  to: number,
+  rangeSize: number,
+  rng: RandomGenerator,
+): number {
   const rangeSizeArrayIntValue =
     rangeSize <= Number.MAX_SAFE_INTEGER
       ? fromNumberToArrayInt64(sharedC, rangeSize) // no possible overflow given rangeSize is in a safe range
-      : substractArrayInt64(sharedC, fromNumberToArrayInt64(sharedA, to), fromNumberToArrayInt64(sharedB, from)); // rangeSize might be incorrect, we compute a safer range
+      : substractArrayInt64(
+          sharedC,
+          fromNumberToArrayInt64(sharedA, to),
+          fromNumberToArrayInt64(sharedB, from),
+        ); // rangeSize might be incorrect, we compute a safer range
 
   // Adding 1 to the range
   if (rangeSizeArrayIntValue.data[1] === 0xffffffff) {

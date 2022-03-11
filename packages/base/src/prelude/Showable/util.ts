@@ -1,7 +1,9 @@
 import { Conc } from "../../collection/immutable/Conc";
 import { isFunction } from "../../util/predicates";
 
-const builtInObjects = new Set(Object.getOwnPropertyNames(globalThis).filter((e) => /^[A-Z][a-zA-Z0-9]+$/.test(e)));
+const builtInObjects = new Set(
+  Object.getOwnPropertyNames(globalThis).filter((e) => /^[A-Z][a-zA-Z0-9]+$/.test(e)),
+);
 
 export const addBacktickQuotes = String.surround("`");
 export const addSingleQuotes   = String.surround("'");
@@ -211,7 +213,11 @@ export function getPrototypeProperties(main: object, obj: object): Conc<Property
         return Conc.from(output);
       }
       const descriptor = Object.getOwnPropertyDescriptor(proto, "constructor");
-      if (descriptor !== undefined && isFunction(descriptor.value) && builtInObjects.has(descriptor.value.name)) {
+      if (
+        descriptor !== undefined &&
+        isFunction(descriptor.value) &&
+        builtInObjects.has(descriptor.value.name)
+      ) {
         return Conc.from(output);
       }
     }
@@ -224,7 +230,11 @@ export function getPrototypeProperties(main: object, obj: object): Conc<Property
     keys = Reflect.ownKeys(proto);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]!;
-      if (key === "constructor" || Object.prototype.hasOwnProperty.call(main, key) || (depth !== 0 && keySet.has(key))) {
+      if (
+        key === "constructor" ||
+        Object.prototype.hasOwnProperty.call(main, key) ||
+        (depth !== 0 && keySet.has(key))
+      ) {
         continue;
       }
       const desc = Object.getOwnPropertyDescriptor(proto, key);
@@ -269,7 +279,10 @@ export function getFunctionBase(value: Function, constructor: string | null, tag
   if (stringified.startsWith("class") && stringified.endsWith("}")) {
     const slice        = stringified.slice(5, -1);
     const bracketIndex = slice.indexOf("{");
-    if ((bracketIndex !== -1 && !slice.slice(0, bracketIndex).includes("(")) || classRegExp.test(slice.replace(stripCommentsRegExp, ""))) {
+    if (
+      (bracketIndex !== -1 && !slice.slice(0, bracketIndex).includes("(")) ||
+      classRegExp.test(slice.replace(stripCommentsRegExp, ""))
+    ) {
       return getClassBase(value, constructor, tag);
     }
   }

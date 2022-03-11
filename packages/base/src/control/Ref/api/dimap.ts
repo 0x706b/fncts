@@ -8,7 +8,10 @@ import { Either } from "../../../data/Either";
  * @tsplus fluent fncts.control.Ref contramap
  * @tsplus fluent fncts.control.Ref.Synchronized contramap
  */
-export function contramap_<RA, RB, EA, EB, B, A, C>(ref: PRef<RA, RB, EA, EB, A, B>, f: (_: C) => A): PRef<RA, RB, EA, EB, C, B> {
+export function contramap_<RA, RB, EA, EB, B, A, C>(
+  ref: PRef<RA, RB, EA, EB, A, B>,
+  f: (_: C) => A,
+): PRef<RA, RB, EA, EB, C, B> {
   return ref.contramapEither((c) => Either.right(f(c)));
 }
 
@@ -99,6 +102,9 @@ export function mapEither_<RA, RB, EA, EB, A, B, EC, C>(
  * @tsplus fluent fncts.control.Ref map
  * @tsplus fluent fncts.control.Ref.Synchronized map
  */
-export function map_<RA, RB, EA, EB, A, B, C>(ref: PRef<RA, RB, EA, EB, A, B>, f: (_: B) => C): PRef<RA, RB, EA, EB, A, C> {
+export function map_<RA, RB, EA, EB, A, B, C>(
+  ref: PRef<RA, RB, EA, EB, A, B>,
+  f: (_: B) => C,
+): PRef<RA, RB, EA, EB, A, C> {
   return ref.mapEither((b) => Either.right(f(b)));
 }

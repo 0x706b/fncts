@@ -7,7 +7,10 @@ import { concrete, isZError, Z, ZTag } from "./definition";
 
 class MatchFrame {
   readonly _zTag = "MatchFrame";
-  constructor(readonly failure: (e: any) => Z<any, any, any, any, any, any>, readonly apply: (a: any) => Z<any, any, any, any, any, any>) {}
+  constructor(
+    readonly failure: (e: any) => Z<any, any, any, any, any, any>,
+    readonly apply: (a: any) => Z<any, any, any, any, any, any>,
+  ) {}
 }
 
 class ApplyFrame {
@@ -23,7 +26,10 @@ type Frame = MatchFrame | ApplyFrame;
  *
  * @tsplus fluent fncts.control.Z unsafeRunAll
  */
-export function unsafeRunAll_<W, S1, S2, E, A>(ma: Z<W, S1, S2, unknown, E, A>, s: S1): readonly [Conc<W>, Exit<E, readonly [S2, A]>] {
+export function unsafeRunAll_<W, S1, S2, E, A>(
+  ma: Z<W, S1, S2, unknown, E, A>,
+  s: S1,
+): readonly [Conc<W>, Exit<E, readonly [S2, A]>] {
   let stack: Stack<Frame> | undefined = undefined;
   let s0          = s as any;
   let result: any = null;
@@ -232,7 +238,10 @@ export function unsafeRunAll_<W, S1, S2, E, A>(ma: Z<W, S1, S2, unknown, E, A>, 
  *
  * @tsplus fluent fncts.control.Z unsafeRun
  */
-export function unsafeRun_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, never, A>, s: S1): readonly [S2, A] {
+export function unsafeRun_<W, S1, S2, A>(
+  ma: Z<W, S1, S2, unknown, never, A>,
+  s: S1,
+): readonly [S2, A] {
   return ma.unsafeRunAll(s)[1].match((cause) => {
     // throw cause.squash
     throw new Error();
@@ -296,7 +305,9 @@ export function unsafeRunExit<E, A>(ma: Z<never, unknown, unknown, unknown, E, A
  *
  * @tsplus getter fncts.control.Z unsafeRunWriter
  */
-export function unsafeRunWriter<W, A>(ma: Z<W, unknown, unknown, unknown, never, A>): readonly [Conc<W>, A] {
+export function unsafeRunWriter<W, A>(
+  ma: Z<W, unknown, unknown, unknown, never, A>,
+): readonly [Conc<W>, A] {
   const [w, exit] = ma.unsafeRunAll({});
   return exit.match(
     () => {

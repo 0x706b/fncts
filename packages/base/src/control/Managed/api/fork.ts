@@ -15,15 +15,26 @@ import { ReleaseMap } from "../ReleaseMap";
  *
  * @tsplus getter fncts.control.Managed fork
  */
-export function fork<R, E, A>(self: Managed<R, E, A>, __tsplusTrace?: string): Managed<R, never, RuntimeFiber<E, A>> {
+export function fork<R, E, A>(
+  self: Managed<R, E, A>,
+  __tsplusTrace?: string,
+): Managed<R, never, RuntimeFiber<E, A>> {
   return new Managed(
     IO.uninterruptibleMask(({ restore }) =>
       IO.gen(function* (_) {
         const outerReleaseMap = yield* _(FiberRef.currentReleaseMap.get);
         const innerReleaseMap = yield* _(ReleaseMap.make);
-        const fiber           = yield* _(FiberRef.currentReleaseMap.locally(innerReleaseMap)(restore(self.io.map(([_, a]) => a).forkDaemon)));
+        const fiber           = yield* _(
+          FiberRef.currentReleaseMap.locally(innerReleaseMap)(
+            restore(self.io.map(([_, a]) => a).forkDaemon),
+          ),
+        );
         const releaseMapEntry = yield* _(
-          outerReleaseMap.add(Finalizer.get((e) => fiber.interrupt.apSecond(innerReleaseMap.releaseAll(e, ExecutionStrategy.sequential)))),
+          outerReleaseMap.add(
+            Finalizer.get((e) =>
+              fiber.interrupt.apSecond(innerReleaseMap.releaseAll(e, ExecutionStrategy.sequential)),
+            ),
+          ),
         );
         return tuple(releaseMapEntry, fiber);
       }),

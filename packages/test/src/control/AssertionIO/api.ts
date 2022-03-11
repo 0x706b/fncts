@@ -7,7 +7,10 @@ import { AssertionIO } from "./definition";
  * @tsplus operator fncts.test.control.AssertionIO &&
  */
 export function and_<A>(self: AssertionIO<A>, that: AssertionIO<A>): AssertionIO<A> {
-  return new AssertionIO(Render.infix(RenderParam(self), "&&", RenderParam(that)), (actual) => self.runIO(actual) && that.runIO(actual));
+  return new AssertionIO(
+    Render.infix(RenderParam(self), "&&", RenderParam(that)),
+    (actual) => self.runIO(actual) && that.runIO(actual),
+  );
 }
 
 /**
@@ -15,7 +18,10 @@ export function and_<A>(self: AssertionIO<A>, that: AssertionIO<A>): AssertionIO
  * @tsplus operator fncts.test.control.AssertionIO ||
  */
 export function or_<A>(self: AssertionIO<A>, that: AssertionIO<A>): AssertionIO<A> {
-  return new AssertionIO(Render.infix(RenderParam(self), "||", RenderParam(that)), (actual) => self.runIO(actual) || that.runIO(actual));
+  return new AssertionIO(
+    Render.infix(RenderParam(self), "||", RenderParam(that)),
+    (actual) => self.runIO(actual) || that.runIO(actual),
+  );
 }
 
 /**

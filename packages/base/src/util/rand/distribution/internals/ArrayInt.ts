@@ -27,13 +27,20 @@ export type ArrayInt = {
  */
 export function addArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt): ArrayInt {
   if (arrayIntA.sign !== arrayIntB.sign) {
-    return substractArrayIntToNew(arrayIntA, { sign: -arrayIntB.sign as -1 | 1, data: arrayIntB.data });
+    return substractArrayIntToNew(arrayIntA, {
+      sign: -arrayIntB.sign as -1 | 1,
+      data: arrayIntB.data,
+    });
   }
   const data   = [];
   let reminder = 0;
   const dataA  = arrayIntA.data;
   const dataB  = arrayIntB.data;
-  for (let indexA = dataA.length - 1, indexB = dataB.length - 1; indexA >= 0 || indexB >= 0; --indexA, --indexB) {
+  for (
+    let indexA = dataA.length - 1, indexB = dataB.length - 1;
+    indexA >= 0 || indexB >= 0;
+    --indexA, --indexB
+  ) {
     const vA      = indexA >= 0 ? dataA[indexA]! : 0;
     const vB      = indexB >= 0 ? dataB[indexB]! : 0;
     const current = vA + vB + reminder;
@@ -96,7 +103,11 @@ export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt)
   }
   const data   = [];
   let reminder = 0;
-  for (let indexA = dataA.length - 1, indexB = dataB.length - 1; indexA >= 0 || indexB >= 0; --indexA, --indexB) {
+  for (
+    let indexA = dataA.length - 1, indexB = dataB.length - 1;
+    indexA >= 0 || indexB >= 0;
+    --indexA, --indexB
+  ) {
     const vA      = indexA >= 0 ? dataA[indexA]! : 0;
     const vB      = indexB >= 0 ? dataB[indexB]! : 0;
     const current = vA - vB - reminder;
@@ -153,7 +164,11 @@ export function fromNumberToArrayInt64(out: ArrayInt64, n: number): ArrayInt64 {
  * With arrayIntA - arrayIntB >= 0
  * @internal
  */
-export function substractArrayInt64(out: ArrayInt64, arrayIntA: ArrayInt64, arrayIntB: ArrayInt64): ArrayInt64 {
+export function substractArrayInt64(
+  out: ArrayInt64,
+  arrayIntA: ArrayInt64,
+  arrayIntB: ArrayInt64,
+): ArrayInt64 {
   const lowA  = arrayIntA.data[1];
   const highA = arrayIntA.data[0];
   const signA = arrayIntA.sign;

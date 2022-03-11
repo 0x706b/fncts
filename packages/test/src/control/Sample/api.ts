@@ -18,7 +18,10 @@ import { Sample } from "./definition";
 /**
  * @tsplus fluent fncts.test.control.Sample chain
  */
-export function chain_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>): Sample<R & R1, B> {
+export function chain_<R, A, R1, B>(
+  ma: Sample<R, A>,
+  f: (a: A) => Sample<R1, B>,
+): Sample<R & R1, B> {
   const sample = f(ma.value);
   return new Sample(
     sample.value,
@@ -32,25 +35,37 @@ export function chain_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>
 /**
  * @tsplus fluent fncts.test.control.Sample filter
  */
-export function filter_<R, A>(ma: Sample<R, A>, f: Predicate<A>): Stream<R, never, Maybe<Sample<R, A>>> {
+export function filter_<R, A>(
+  ma: Sample<R, A>,
+  f: Predicate<A>,
+): Stream<R, never, Maybe<Sample<R, A>>> {
   if (f(ma.value)) {
     return Stream.succeedNow(
       Just(
         new Sample(
           ma.value,
-          ma.shrink.chain((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty)),
+          ma.shrink.chain((maybeSample) =>
+            maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty),
+          ),
         ),
       ),
     );
   } else {
-    return pipe(ma.shrink.chain((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty)));
+    return pipe(
+      ma.shrink.chain((maybeSample) =>
+        maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty),
+      ),
+    );
   }
 }
 
 /**
  * @tsplus fluent fncts.test.control.Sample foreach
  */
-export function foreach_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => IO<R1, never, B>): IO<R & R1, never, Sample<R & R1, B>> {
+export function foreach_<R, A, R1, B>(
+  ma: Sample<R, A>,
+  f: (a: A) => IO<R1, never, B>,
+): IO<R & R1, never, Sample<R & R1, B>> {
   return pipe(
     f(ma.value).map(
       (b) =>
@@ -93,7 +108,9 @@ export function shrinkSearch_<R, A>(ma: Sample<R, A>, p: Predicate<A>): Stream<R
               (v) => p(v.value),
             ),
           )
-          .chain((maybeSample) => maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty)),
+          .chain((maybeSample) =>
+            maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty),
+          ),
       ),
     );
   }
@@ -102,7 +119,10 @@ export function shrinkSearch_<R, A>(ma: Sample<R, A>, p: Predicate<A>): Stream<R
 /**
  * @tsplus static fncts.test.control.SampleOps unfold
  */
-export function unfold<R, A, S>(s: S, f: (s: S) => readonly [A, Stream<R, never, S>]): Sample<R, A> {
+export function unfold<R, A, S>(
+  s: S,
+  f: (s: S) => readonly [A, Stream<R, never, S>],
+): Sample<R, A> {
   const [value, shrink] = f(s);
   return new Sample(value, pipe(shrink.map((s) => Just(Sample.unfold(s, f)))));
 }
@@ -110,14 +130,21 @@ export function unfold<R, A, S>(s: S, f: (s: S) => readonly [A, Stream<R, never,
 /**
  * @tsplus fluent fncts.test.control.Sample zip
  */
-export function zip<R, A, R1, B>(ma: Sample<R, A>, mb: Sample<R1, B>): Sample<R & R1, readonly [A, B]> {
+export function zip<R, A, R1, B>(
+  ma: Sample<R, A>,
+  mb: Sample<R1, B>,
+): Sample<R & R1, readonly [A, B]> {
   return ma.zipWith(mb, tuple);
 }
 
 /**
  * @tsplus fluent fncts.test.control.Sample zipWith
  */
-export function zipWith_<R, A, R1, B, C>(ma: Sample<R, A>, mb: Sample<R1, B>, f: (a: A, b: B) => C): Sample<R & R1, C> {
+export function zipWith_<R, A, R1, B, C>(
+  ma: Sample<R, A>,
+  mb: Sample<R1, B>,
+  f: (a: A, b: B) => C,
+): Sample<R & R1, C> {
   return ma.chain((a) => map_(mb, (b) => f(a, b)));
 }
 
@@ -205,7 +232,9 @@ export function shrinkIntegral(smallest: number): (a: number) => Sample<unknown,
 /**
  * @tsplus static fncts.test.control.SampleOps shrinkArrayInt64
  */
-export function shrinkArrayInt64(target: ArrayInt64): (value: ArrayInt64) => Sample<unknown, ArrayInt64> {
+export function shrinkArrayInt64(
+  target: ArrayInt64,
+): (value: ArrayInt64) => Sample<unknown, ArrayInt64> {
   return (value) =>
     Sample.unfold(value, (max) =>
       tuple(
@@ -226,7 +255,10 @@ function mergeStream<R, A, R1, B>(
   left: Stream<R, never, Maybe<A>>,
   right: Stream<R1, never, Maybe<B>>,
 ): Stream<R & R1, never, Maybe<A | B>> {
-  return chainStream(Stream.fromChunk(Conc(Just<Stream<R & R1, never, Maybe<A | B>>>(left), Just(right))), identity);
+  return chainStream(
+    Stream.fromChunk(Conc(Just<Stream<R & R1, never, Maybe<A | B>>>(left), Just(right))),
+    identity,
+  );
 }
 
 /**
@@ -249,11 +281,21 @@ export function chainStream<R, A, R1, B>(
                     (value) =>
                       f(value)
                         .rechunk(1)
-                        .map((maybeB) => maybeB.match(() => Either.left(true), Either.right)).channel,
+                        .map((maybeB) => maybeB.match(() => Either.left(true), Either.right))
+                        .channel,
                   ),
                 )
-                .foldLeft(Channel.unit as Channel<R1, unknown, unknown, unknown, never, Conc<Either<boolean, B>>, unknown>, (a, b) =>
-                  a.apSecond(b),
+                .foldLeft(
+                  Channel.unit as Channel<
+                    R1,
+                    unknown,
+                    unknown,
+                    unknown,
+                    never,
+                    Conc<Either<boolean, B>>,
+                    unknown
+                  >,
+                  (a, b) => a.apSecond(b),
                 ),
             ),
           constVoid,
@@ -266,7 +308,9 @@ export function chainStream<R, A, R1, B>(
                   () => UpstreamPullStrategy.PullAfterNext(Nothing()),
                 ),
               (activeDownstreamCount) =>
-                UpstreamPullStrategy.PullAfterAllEnqueued(activeDownstreamCount > 0 ? Just(Conc.single(Either.left(false))) : Nothing()),
+                UpstreamPullStrategy.PullAfterAllEnqueued(
+                  activeDownstreamCount > 0 ? Just(Conc.single(Either.left(false))) : Nothing(),
+                ),
             ),
           (chunk: Conc<Either<boolean, B>>) =>
             chunk.head.match(

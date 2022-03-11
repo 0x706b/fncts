@@ -106,7 +106,12 @@ export function fromBitmap(bitmap: number, bit: number) {
  * -------------------------------------------------------------------------------------------------
  */
 
-export type Node<K, V> = LeafNode<K, V> | CollisionNode<K, V> | IndexedNode<K, V> | ArrayNode<K, V> | EmptyNode<K, V>;
+export type Node<K, V> =
+  | LeafNode<K, V>
+  | CollisionNode<K, V>
+  | IndexedNode<K, V>
+  | ArrayNode<K, V>
+  | EmptyNode<K, V>;
 
 export interface SizeRef {
   value: number;
@@ -114,7 +119,15 @@ export interface SizeRef {
 
 export class EmptyNode<K, V> {
   readonly _tag = "EmptyNode";
-  modify(edit: number, keyEq: KeyEq<K>, shift: number, f: UpdateFn<V>, hash: number, key: K, size: SizeRef) {
+  modify(
+    edit: number,
+    keyEq: KeyEq<K>,
+    shift: number,
+    f: UpdateFn<V>,
+    hash: number,
+    key: K,
+    size: SizeRef,
+  ) {
     const v = f(Nothing());
     if (v.isNothing()) return _EmptyNode;
     ++size.value;
@@ -128,7 +141,9 @@ export function isEmptyNode(a: unknown): a is EmptyNode<unknown, unknown> {
   return a === _EmptyNode;
 }
 
-export function isLeaf<K, V>(node: Node<K, V>): node is EmptyNode<K, V> | LeafNode<K, V> | CollisionNode<K, V> {
+export function isLeaf<K, V>(
+  node: Node<K, V>,
+): node is EmptyNode<K, V> | LeafNode<K, V> | CollisionNode<K, V> {
   return isEmptyNode(node) || node._tag === "LeafNode" || node._tag === "CollisionNode";
 }
 
@@ -142,9 +157,22 @@ export type UpdateFn<V> = (v: Maybe<V>) => Maybe<V>;
 
 export class LeafNode<K, V> {
   readonly _tag = "LeafNode";
-  constructor(readonly edit: number, readonly hash: number, readonly key: K, public value: Maybe<V>) {}
+  constructor(
+    readonly edit: number,
+    readonly hash: number,
+    readonly key: K,
+    public value: Maybe<V>,
+  ) {}
 
-  modify(edit: number, keyEq: KeyEq<K>, shift: number, f: UpdateFn<V>, hash: number, key: K, size: SizeRef): Node<K, V> {
+  modify(
+    edit: number,
+    keyEq: KeyEq<K>,
+    shift: number,
+    f: UpdateFn<V>,
+    hash: number,
+    key: K,
+    size: SizeRef,
+  ): Node<K, V> {
     if (keyEq(this.key, key)) {
       const v = f(this.value);
       if (v === this.value) {
@@ -170,10 +198,27 @@ export class CollisionNode<K, V> {
   readonly _tag = "CollisionNode";
   constructor(public edit: number, public hash: number, public children: Array<Node<K, V>>) {}
 
-  modify(edit: number, keyEq: KeyEq<K>, shift: number, f: UpdateFn<V>, hash: number, key: K, size: SizeRef): Node<K, V> {
+  modify(
+    edit: number,
+    keyEq: KeyEq<K>,
+    shift: number,
+    f: UpdateFn<V>,
+    hash: number,
+    key: K,
+    size: SizeRef,
+  ): Node<K, V> {
     if (hash === this.hash) {
       const canEdit = canEditNode(edit, this);
-      const list    = updateCollisionList(canEdit, edit, keyEq, this.hash, this.children, f, key, size);
+      const list    = updateCollisionList(
+        canEdit,
+        edit,
+        keyEq,
+        this.hash,
+        this.children,
+        f,
+        key,
+        size,
+      );
       if (list === this.children) return this;
 
       return list.length > 1 ? new CollisionNode(edit, this.hash, list) : list[0]!; // collapse single element collision list
@@ -220,7 +265,15 @@ class IndexedNode<K, V> {
   readonly _tag = "IndexedNode";
   constructor(public edit: number, public mask: number, public children: Array<Node<K, V>>) {}
 
-  modify(edit: number, keyEq: KeyEq<K>, shift: number, f: UpdateFn<V>, hash: number, key: K, size: SizeRef): Node<K, V> {
+  modify(
+    edit: number,
+    keyEq: KeyEq<K>,
+    shift: number,
+    f: UpdateFn<V>,
+    hash: number,
+    key: K,
+    size: SizeRef,
+  ): Node<K, V> {
     const mask     = this.mask;
     const children = this.children;
     const frag     = hashFragment(shift, hash);
@@ -266,7 +319,15 @@ export class ArrayNode<K, V> {
   readonly _tag = "ArrayNode";
   constructor(public edit: number, public size: number, public children: Array<Node<K, V>>) {}
 
-  modify(edit: number, keyEq: KeyEq<K>, shift: number, f: UpdateFn<V>, hash: number, key: K, size: SizeRef): Node<K, V> {
+  modify(
+    edit: number,
+    keyEq: KeyEq<K>,
+    shift: number,
+    f: UpdateFn<V>,
+    hash: number,
+    key: K,
+    size: SizeRef,
+  ): Node<K, V> {
     let count      = this.size;
     const children = this.children;
     const frag     = hashFragment(shift, hash);
@@ -318,7 +379,13 @@ function pack<K, V>(edit: number, count: number, removed: number, elements: Node
   return new IndexedNode(edit, bitmap, children);
 }
 
-function expand<K, V>(edit: number, frag: number, child: Node<K, V>, bitmap: number, subNodes: Node<K, V>[]) {
+function expand<K, V>(
+  edit: number,
+  frag: number,
+  child: Node<K, V>,
+  bitmap: number,
+  subNodes: Node<K, V>[],
+) {
   const arr = [];
   let bit   = bitmap;
   let count = 0;
@@ -330,7 +397,14 @@ function expand<K, V>(edit: number, frag: number, child: Node<K, V>, bitmap: num
   return new ArrayNode(edit, count + 1, arr);
 }
 
-function mergeLeaves<K, V>(edit: number, shift: number, h1: number, n1: Node<K, V>, h2: number, n2: Node<K, V>): Node<K, V> {
+function mergeLeaves<K, V>(
+  edit: number,
+  shift: number,
+  h1: number,
+  n1: Node<K, V>,
+  h2: number,
+  n2: Node<K, V>,
+): Node<K, V> {
   if (h1 === h2) return new CollisionNode(edit, h1, [n2, n1]);
 
   const subH1 = hashFragment(shift, h1);
@@ -339,6 +413,10 @@ function mergeLeaves<K, V>(edit: number, shift: number, h1: number, n1: Node<K, 
   return new IndexedNode(
     edit,
     toBitmap(subH1) | toBitmap(subH2),
-    subH1 === subH2 ? [mergeLeaves(edit, shift + SIZE, h1, n1, h2, n2)] : subH1 < subH2 ? [n1, n2] : [n2, n1],
+    subH1 === subH2
+      ? [mergeLeaves(edit, shift + SIZE, h1, n1, h2, n2)]
+      : subH1 < subH2
+      ? [n1, n2]
+      : [n2, n1],
   );
 }

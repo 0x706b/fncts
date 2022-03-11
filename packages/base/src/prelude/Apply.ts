@@ -86,7 +86,17 @@ export interface ap_<F extends HKT, FC = HKT.None> {
 }
 
 export interface ap<F extends HKT, FC = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, A>(fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>): <K2, Q2, W2, X2, I2, S2, R2, E2, B>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, A>(fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>): <
+    K2,
+    Q2,
+    W2,
+    X2,
+    I2,
+    S2,
+    R2,
+    E2,
+    B,
+  >(
     fab: HKT.Kind<
       F,
       FC,
@@ -147,7 +157,17 @@ export interface apFirst_<F extends HKT, FC = HKT.None> {
 }
 
 export interface apFirst<F extends HKT, FC = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <K2, Q2, W2, X2, I2, S2, R2, E2, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K2,
+    Q2,
+    W2,
+    X2,
+    I2,
+    S2,
+    R2,
+    E2,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       FC,
@@ -208,7 +228,17 @@ export interface apSecond_<F extends HKT, FC = HKT.None> {
 }
 
 export interface apSecond<F extends HKT, FC = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <K2, Q2, W2, X2, I2, S2, R2, E2, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K2,
+    Q2,
+    W2,
+    X2,
+    I2,
+    S2,
+    R2,
+    E2,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       FC,
@@ -270,16 +300,10 @@ export interface zipWith_<F extends HKT, FC = HKT.None> {
 }
 
 export interface zipWith<F extends HKT, FC = HKT.None> {
-  <A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>, f: (a: A, b: B) => C): <
-    K2,
-    Q2,
-    W2,
-    X2,
-    I2,
-    S2,
-    R2,
-    E2,
-  >(
+  <A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
+    fb: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
+    f: (a: A, b: B) => C,
+  ): <K2, Q2, W2, X2, I2, S2, R2, E2>(
     fa: HKT.Kind<
       F,
       FC,

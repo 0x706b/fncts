@@ -4,7 +4,10 @@ import { Conc } from "../../../collection/immutable/Conc";
 import { IO } from "../../IO";
 import { concrete } from "../definition";
 
-function takeRemainderLoop<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, n: number): IO<RB, EB, Conc<B>> {
+function takeRemainderLoop<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>,
+  n: number,
+): IO<RB, EB, Conc<B>> {
   concrete(queue);
   if (n <= 0) {
     return IO.succeedNow(Conc.empty());
@@ -20,7 +23,11 @@ function takeRemainderLoop<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A
  *
  * @tsplus fluent fncts.control.Queue takeBetween
  */
-export function takeBetween_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, min: number, max: number): IO<RB, EB, Conc<B>> {
+export function takeBetween_<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>,
+  min: number,
+  max: number,
+): IO<RB, EB, Conc<B>> {
   concrete(queue);
   if (max < min) {
     return IO.succeedNow(Conc.empty());
@@ -49,6 +56,7 @@ export function takeBetween_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB,
  * @tsplus dataFirst takeBetween_
  */
 export function takeBetween(min: number, max: number) {
-  return <RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): IO<RB, EB, Conc<B>> => takeBetween_(queue, min, max);
+  return <RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): IO<RB, EB, Conc<B>> =>
+    takeBetween_(queue, min, max);
 }
 // codegen:end

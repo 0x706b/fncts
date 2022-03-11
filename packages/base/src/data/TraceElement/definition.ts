@@ -31,7 +31,11 @@ export const NoLocation: TraceElement = {
 /**
  * @tsplus static fncts.data.TraceElementOps SourceLocation
  */
-export function SourceLocation(fileName: string, lineNumber: number, columnNumber: number): TraceElement {
+export function SourceLocation(
+  fileName: string,
+  lineNumber: number,
+  columnNumber: number,
+): TraceElement {
   return { _tag: "SourceLocation", fileName, lineNumber, columnNumber };
 }
 

@@ -18,7 +18,11 @@ import { ReadonlyArray } from "./definition";
 /**
  * @tsplus fluent fncts.collection.immutable.Array alignWith
  */
-export function alignWith_<A, B, C>(self: ReadonlyArray<A>, fb: ReadonlyArray<B>, f: (_: These<A, B>) => C): ReadonlyArray<C> {
+export function alignWith_<A, B, C>(
+  self: ReadonlyArray<A>,
+  fb: ReadonlyArray<B>,
+  f: (_: These<A, B>) => C,
+): ReadonlyArray<C> {
   const minlen = Math.min(self.length, fb.length);
   const maxlen = Math.max(self.length, fb.length);
   const ret    = Array<C>(maxlen);
@@ -42,21 +46,30 @@ export function alignWith_<A, B, C>(self: ReadonlyArray<A>, fb: ReadonlyArray<B>
 /**
  * @tsplus fluent fncts.collection.immutable.Array align
  */
-export function align_<A, B>(self: ReadonlyArray<A>, fb: ReadonlyArray<B>): ReadonlyArray<These<A, B>> {
+export function align_<A, B>(
+  self: ReadonlyArray<A>,
+  fb: ReadonlyArray<B>,
+): ReadonlyArray<These<A, B>> {
   return self.alignWith(fb, identity);
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array alt
  */
-export function alt_<A, B>(self: ReadonlyArray<A>, that: Lazy<ReadonlyArray<B>>): ReadonlyArray<A | B> {
+export function alt_<A, B>(
+  self: ReadonlyArray<A>,
+  that: Lazy<ReadonlyArray<B>>,
+): ReadonlyArray<A | B> {
   return (self as ReadonlyArray<A | B>).concat(that());
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array ap
  */
-export function ap_<A, B>(self: ReadonlyArray<(a: A) => B>, fa: ReadonlyArray<A>): ReadonlyArray<B> {
+export function ap_<A, B>(
+  self: ReadonlyArray<(a: A) => B>,
+  fa: ReadonlyArray<A>,
+): ReadonlyArray<B> {
   return self.chain((f) => fa.map(f));
 }
 
@@ -76,14 +89,21 @@ export function append_<A, B>(self: ReadonlyArray<A>, last: B): ReadonlyArray<A 
 /**
  * @tsplus fluent fncts.collection.immutable.Array crossWith
  */
-export function crossWith_<A, B, C>(self: ReadonlyArray<A>, fb: ReadonlyArray<B>, f: (a: A, b: B) => C): ReadonlyArray<C> {
+export function crossWith_<A, B, C>(
+  self: ReadonlyArray<A>,
+  fb: ReadonlyArray<B>,
+  f: (a: A, b: B) => C,
+): ReadonlyArray<C> {
   return self.chain((a) => fb.map((b) => f(a, b)));
 }
 
 /**
  * @tsplus static fncts.collection.immutable.ArrayOps chainRecDepthFirst
  */
-export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Either<A, B>>): ReadonlyArray<B> {
+export function chainRecDepthFirst<A, B>(
+  a: A,
+  f: (a: A) => ReadonlyArray<Either<A, B>>,
+): ReadonlyArray<B> {
   const buffer   = f(a).slice();
   const out: B[] = [];
 
@@ -102,7 +122,10 @@ export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Either
 /**
  * @tsplus static fncts.collection.immutable.ArrayOps chainRecBreadthFirst
  */
-export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Either<A, B>>): ReadonlyArray<B> {
+export function chainRecBreadthFirst<A, B>(
+  a: A,
+  f: (a: A) => ReadonlyArray<Either<A, B>>,
+): ReadonlyArray<B> {
   const initial                     = f(a);
   const buffer: Array<Either<A, B>> = [];
   const out: Array<B>               = [];
@@ -129,7 +152,10 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Eith
 /**
  * @tsplus fluent fncts.collection.immutable.Array chainWithIndex
  */
-export function chainWithIndex_<A, B>(self: ReadonlyArray<A>, f: (i: number, a: A) => ReadonlyArray<B>): ReadonlyArray<B> {
+export function chainWithIndex_<A, B>(
+  self: ReadonlyArray<A>,
+  f: (i: number, a: A) => ReadonlyArray<B>,
+): ReadonlyArray<B> {
   let outLen = 0;
   const len  = self.length;
   const temp = Array<Array<B>>(len);
@@ -155,7 +181,10 @@ export function chainWithIndex_<A, B>(self: ReadonlyArray<A>, f: (i: number, a: 
 /**
  * @tsplus fluent fncts.collection.immutable.Array chain
  */
-export function chain_<A, B>(self: ReadonlyArray<A>, f: (a: A) => ReadonlyArray<B>): ReadonlyArray<B> {
+export function chain_<A, B>(
+  self: ReadonlyArray<A>,
+  f: (a: A) => ReadonlyArray<B>,
+): ReadonlyArray<B> {
   return self.chainWithIndex((_, a) => f(a));
 }
 
@@ -173,7 +202,10 @@ export function flatten<A>(self: ReadonlyArray<ReadonlyArray<A>>): ReadonlyArray
  *
  * @tsplus fluent fncts.collection.immutable.Array chop
  */
-export function chop_<A, B>(as: ReadonlyArray<A>, f: (as: ReadonlyArray<A>) => readonly [B, ReadonlyArray<A>]): ReadonlyArray<B> {
+export function chop_<A, B>(
+  as: ReadonlyArray<A>,
+  f: (as: ReadonlyArray<A>) => readonly [B, ReadonlyArray<A>],
+): ReadonlyArray<B> {
   const result: Array<B>   = [];
   let cs: ReadonlyArray<A> = as;
   while (isNonEmpty(cs)) {
@@ -240,7 +272,11 @@ export function comprehension<A, B, R>(
   f: (a: A, b: B) => R,
   g?: (a: A, b: B) => boolean,
 ): ReadonlyArray<R>;
-export function comprehension<A, R>(input: [ReadonlyArray<A>], f: (a: A) => R, g?: (a: A) => boolean): ReadonlyArray<R>;
+export function comprehension<A, R>(
+  input: [ReadonlyArray<A>],
+  f: (a: A) => R,
+  g?: (a: A) => boolean,
+): ReadonlyArray<R>;
 export function comprehension<A, R>(
   input: ReadonlyArray<ReadonlyArray<A>>,
   f: (...xs: ReadonlyArray<A>) => R,
@@ -252,7 +288,10 @@ export function comprehension<A, R>(
 /**
  * @tsplus fluent fncts.collection.immutable.Array concat
  */
-export function concat_<A, B>(self: ReadonlyArray<A>, that: ReadonlyArray<B>): ReadonlyArray<A | B> {
+export function concat_<A, B>(
+  self: ReadonlyArray<A>,
+  that: ReadonlyArray<B>,
+): ReadonlyArray<A | B> {
   const lenx = self.length;
   if (lenx === 0) {
     return that;
@@ -283,7 +322,8 @@ export function deleteAt_<A>(as: ReadonlyArray<A>, i: number): Maybe<ReadonlyArr
  */
 export function difference_<A>(E: P.Eq<A>) {
   const elemE_ = elem_(E);
-  return (self: ReadonlyArray<A>, ys: ReadonlyArray<A>): ReadonlyArray<A> => self.filter((a) => !elemE_(ys, a));
+  return (self: ReadonlyArray<A>, ys: ReadonlyArray<A>): ReadonlyArray<A> =>
+    self.filter((a) => !elemE_(ys, a));
 }
 
 /**
@@ -356,7 +396,10 @@ export function elemSelf<A>(self: ReadonlyArray<A>) {
       elem_(E)(self, a);
 }
 
-export function every_<A, B extends A>(self: ReadonlyArray<A>, p: Refinement<A, B>): self is ReadonlyArray<B>;
+export function every_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: Refinement<A, B>,
+): self is ReadonlyArray<B>;
 export function every_<A>(self: ReadonlyArray<A>, p: Predicate<A>): boolean;
 export function every_<A>(self: ReadonlyArray<A>, p: Predicate<A>): boolean {
   return self.everyWithIndex((_, a) => p(a));
@@ -365,9 +408,18 @@ export function every_<A>(self: ReadonlyArray<A>, p: Predicate<A>): boolean {
 /**
  * @tsplus fluent fncts.collection.immutable.Array everyWithIndex
  */
-export function everyWithIndex_<A, B extends A>(self: ReadonlyArray<A>, p: RefinementWithIndex<number, A, B>): self is ReadonlyArray<B>;
-export function everyWithIndex_<A>(self: ReadonlyArray<A>, p: PredicateWithIndex<number, A>): boolean;
-export function everyWithIndex_<A>(self: ReadonlyArray<A>, p: PredicateWithIndex<number, A>): boolean {
+export function everyWithIndex_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: RefinementWithIndex<number, A, B>,
+): self is ReadonlyArray<B>;
+export function everyWithIndex_<A>(
+  self: ReadonlyArray<A>,
+  p: PredicateWithIndex<number, A>,
+): boolean;
+export function everyWithIndex_<A>(
+  self: ReadonlyArray<A>,
+  p: PredicateWithIndex<number, A>,
+): boolean {
   let result = true;
   let i      = 0;
   while (result && i < self.length) {
@@ -380,7 +432,10 @@ export function everyWithIndex_<A>(self: ReadonlyArray<A>, p: PredicateWithIndex
 /**
  * @tsplus fluent fncts.collection.immutable.Array exists
  */
-export function exists_<A>(self: ReadonlyArray<A>, p: Predicate<A>): self is ReadonlyNonEmptyArray<A> {
+export function exists_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): self is ReadonlyNonEmptyArray<A> {
   let result = false;
   let i      = 0;
   while (!result && i < self.length) {
@@ -393,7 +448,10 @@ export function exists_<A>(self: ReadonlyArray<A>, p: Predicate<A>): self is Rea
 /**
  * @tsplus fluent fncts.collection.immutable.Array filter
  */
-export function filter_<A, B extends A>(self: ReadonlyArray<A>, p: Refinement<A, B>): ReadonlyArray<B>;
+export function filter_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: Refinement<A, B>,
+): ReadonlyArray<B>;
 export function filter_<A>(self: ReadonlyArray<A>, p: Predicate<A>): ReadonlyArray<A>;
 export function filter_<A>(self: ReadonlyArray<A>, p: Predicate<A>): ReadonlyArray<A> {
   return self.filterWithIndex((_, a) => p(a));
@@ -402,9 +460,18 @@ export function filter_<A>(self: ReadonlyArray<A>, p: Predicate<A>): ReadonlyArr
 /**
  * @tsplus fluent fncts.collection.immutable.Array filterWithIndex
  */
-export function filterWithIndex_<A, B extends A>(self: ReadonlyArray<A>, p: RefinementWithIndex<number, A, B>): ReadonlyArray<B>;
-export function filterWithIndex_<A>(self: ReadonlyArray<A>, p: PredicateWithIndex<number, A>): ReadonlyArray<A>;
-export function filterWithIndex_<A>(self: ReadonlyArray<A>, p: PredicateWithIndex<number, A>): ReadonlyArray<A> {
+export function filterWithIndex_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: RefinementWithIndex<number, A, B>,
+): ReadonlyArray<B>;
+export function filterWithIndex_<A>(
+  self: ReadonlyArray<A>,
+  p: PredicateWithIndex<number, A>,
+): ReadonlyArray<A>;
+export function filterWithIndex_<A>(
+  self: ReadonlyArray<A>,
+  p: PredicateWithIndex<number, A>,
+): ReadonlyArray<A> {
   const result: Array<A> = [];
   for (let i = 0; i < self.length; i++) {
     const a = self[i]!;
@@ -418,7 +485,10 @@ export function filterWithIndex_<A>(self: ReadonlyArray<A>, p: PredicateWithInde
 /**
  * @tsplus fluent fncts.collection.immutable.Array filterMapWithIndex
  */
-export function filterMapWithIndex_<A, B>(fa: ReadonlyArray<A>, f: (i: number, a: A) => Maybe<B>): ReadonlyArray<B> {
+export function filterMapWithIndex_<A, B>(
+  fa: ReadonlyArray<A>,
+  f: (i: number, a: A) => Maybe<B>,
+): ReadonlyArray<B> {
   const result = [];
   for (let i = 0; i < fa.length; i++) {
     const maybeB = f(i, fa[i]!);
@@ -455,9 +525,15 @@ export function findIndex_<A>(as: ReadonlyArray<A>, predicate: Predicate<A>): Ma
 /**
  * @tsplus fluent fncts.collection.immutable.Array findWithIndex
  */
-export function findWithIndex_<A, B extends A>(as: ReadonlyArray<A>, p: RefinementWithIndex<number, A, B>): Maybe<B>;
+export function findWithIndex_<A, B extends A>(
+  as: ReadonlyArray<A>,
+  p: RefinementWithIndex<number, A, B>,
+): Maybe<B>;
 export function findWithIndex_<A>(as: ReadonlyArray<A>, p: PredicateWithIndex<number, A>): Maybe<A>;
-export function findWithIndex_<A>(as: ReadonlyArray<A>, p: PredicateWithIndex<number, A>): Maybe<A> {
+export function findWithIndex_<A>(
+  as: ReadonlyArray<A>,
+  p: PredicateWithIndex<number, A>,
+): Maybe<A> {
   const len = as.length;
   for (let i = 0; i < len; i++) {
     if (p(i, as[i]!)) {
@@ -477,7 +553,10 @@ export function findMap_<A, B>(as: ReadonlyArray<A>, f: (a: A) => Maybe<B>): May
 /**
  * @tsplus fluent fncts.collection.immutable.Array findMapWithIndex
  */
-export function findMapWithIndex_<A, B>(as: ReadonlyArray<A>, f: (index: number, a: A) => Maybe<B>): Maybe<B> {
+export function findMapWithIndex_<A, B>(
+  as: ReadonlyArray<A>,
+  f: (index: number, a: A) => Maybe<B>,
+): Maybe<B> {
   const len = as.length;
   for (let i = 0; i < len; i++) {
     const v = f(i, as[i]!);
@@ -520,7 +599,10 @@ export function findLastMap_<A, B>(as: ReadonlyArray<A>, f: (a: A) => Maybe<B>):
 /**
  * @tsplus fluent fncts.collection.immutable.Array findLastMapWithIndex
  */
-export function findLastMapWithIndex_<A, B>(as: ReadonlyArray<A>, f: (i: number, a: A) => Maybe<B>): Maybe<B> {
+export function findLastMapWithIndex_<A, B>(
+  as: ReadonlyArray<A>,
+  f: (i: number, a: A) => Maybe<B>,
+): Maybe<B> {
   const len = as.length;
   for (let i = len - 1; i >= 0; i--) {
     const v = f(i, as[i]!);
@@ -535,7 +617,11 @@ export function findLastMapWithIndex_<A, B>(as: ReadonlyArray<A>, f: (i: number,
  * @tsplus fluent fncts.collection.immutable.Array foldLeftWithIndex
  * @tsplus fluent fncts.collection.mutable.Array foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(self: ReadonlyArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
+export function foldLeftWithIndex_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  f: (i: number, b: B, a: A) => B,
+): B {
   const len = self.length;
   let r     = b;
   for (let i = 0; i < len; i++) {
@@ -556,7 +642,12 @@ export function foldLeft_<A, B>(self: ReadonlyArray<A>, b: B, f: (b: B, a: A) =>
  * @tsplus fluent fncts.collection.immutable.Array foldLeftWhile
  * @tsplus fluent fncts.collection.mutable.Array foldLeftWhile
  */
-export function foldLeftWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<B>, f: (b: B, a: A) => B): B {
+export function foldLeftWhile_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  p: Predicate<B>,
+  f: (b: B, a: A) => B,
+): B {
   return self.foldLeftWithIndexWhile(b, p, (_, b, a) => f(b, a));
 }
 
@@ -564,7 +655,12 @@ export function foldLeftWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<
  * @tsplus fluent fncts.collection.immutable.Array foldLeftWithIndexWhile
  * @tsplus fluent fncts.collection.mutable.Array foldLeftWithIndexWhile
  */
-export function foldLeftWithIndexWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<B>, f: (i: number, b: B, a: A) => B): B {
+export function foldLeftWithIndexWhile_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  p: Predicate<B>,
+  f: (i: number, b: B, a: A) => B,
+): B {
   let out  = b;
   let cont = p(out);
   for (let i = 0; cont && i < self.length; i++) {
@@ -628,7 +724,11 @@ export function foldMapSelf<A>(self: ReadonlyArray<A>) {
  * @tsplus fluent fncts.collection.immutable.Array foldRightWithIndex
  * @tsplus fluent fncts.collection.mutable.Array foldRightWithIndex
  */
-export function foldRightWithIndex_<A, B>(self: ReadonlyArray<A>, b: B, f: (i: number, a: A, b: B) => B): B {
+export function foldRightWithIndex_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  f: (i: number, a: A, b: B) => B,
+): B {
   let r = b;
   for (let i = self.length - 1; i >= 0; i--) {
     r = f(i, self[i]!, r);
@@ -648,7 +748,12 @@ export function foldRight_<A, B>(self: ReadonlyArray<A>, b: B, f: (a: A, b: B) =
  * @tsplus fluent fncts.collection.immutable.Array foldRighWhile
  * @tsplus fluent fncts.collection.mutable.Array foldRightWhile
  */
-export function foldRightWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate<B>, f: (a: A, b: B) => B): B {
+export function foldRightWhile_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  p: Predicate<B>,
+  f: (a: A, b: B) => B,
+): B {
   return self.foldRightWithIndexWhile(b, p, (_, a, b) => f(a, b));
 }
 
@@ -656,7 +761,12 @@ export function foldRightWhile_<A, B>(self: ReadonlyArray<A>, b: B, p: Predicate
  * @tsplus fluent fncts.collection.immutable.Array foldRightWithIndexWhile
  * @tsplus fluent fncts.collection.mutable.Array foldRightWithIndexWhile
  */
-export function foldRightWithIndexWhile_<A, B>(self: ReadonlyArray<A>, b: B, predicate: Predicate<B>, f: (i: number, a: A, b: B) => B): B {
+export function foldRightWithIndexWhile_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  predicate: Predicate<B>,
+  f: (i: number, a: A, b: B) => B,
+): B {
   let out  = b;
   let cont = predicate(out);
   for (let i = self.length - 1; cont && i >= 0; i--) {
@@ -681,7 +791,9 @@ export function get_<A>(self: ReadonlyArray<A>, i: number): Maybe<A> {
   return self.isOutOfBound(i) ? Nothing() : Just(self[i]!);
 }
 
-export function group<A>(E: P.Eq<A>): (self: ReadonlyArray<A>) => ReadonlyArray<ReadonlyNonEmptyArray<A>> {
+export function group<A>(
+  E: P.Eq<A>,
+): (self: ReadonlyArray<A>) => ReadonlyArray<ReadonlyNonEmptyArray<A>> {
   return chop((self) => {
     const h   = self[0]!;
     const out = [h] as NonEmptyArray<A>;
@@ -701,14 +813,20 @@ export function group<A>(E: P.Eq<A>): (self: ReadonlyArray<A>) => ReadonlyArray<
 /**
  * @tsplus fluent fncts.collection.immutable.Array group
  */
-export function chopSelf<A>(self: ReadonlyArray<A>, E: P.Eq<A>): ReadonlyArray<ReadonlyNonEmptyArray<A>> {
+export function chopSelf<A>(
+  self: ReadonlyArray<A>,
+  E: P.Eq<A>,
+): ReadonlyArray<ReadonlyNonEmptyArray<A>> {
   return group(E)(self);
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array groupBy
  */
-export function groupBy_<A>(self: ReadonlyArray<A>, f: (a: A) => string): Readonly<Record<string, ReadonlyNonEmptyArray<A>>> {
+export function groupBy_<A>(
+  self: ReadonlyArray<A>,
+  f: (a: A) => string,
+): Readonly<Record<string, ReadonlyNonEmptyArray<A>>> {
   const out: Record<string, NonEmptyArray<A>> = {};
   for (let i = 0; i < self.length; i++) {
     const a = self[i]!;
@@ -740,13 +858,18 @@ export function init<A>(self: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> {
 /**
  * @tsplus fluent fncts.collection.immutable.Array insertAt
  */
-export function insertAt_<A>(self: ReadonlyArray<A>, i: number, a: A): Maybe<ReadonlyNonEmptyArray<A>> {
+export function insertAt_<A>(
+  self: ReadonlyArray<A>,
+  i: number,
+  a: A,
+): Maybe<ReadonlyNonEmptyArray<A>> {
   return self.isOutOfBound(i) ? Nothing() : Just(self.unsafeInsertAt(i, a));
 }
 
 export function intersection_<A>(E: P.Eq<A>) {
   const elemE = elem_(E);
-  return (self: ReadonlyArray<A>, that: ReadonlyArray<A>): ReadonlyArray<A> => self.filter((a) => elemE(that, a));
+  return (self: ReadonlyArray<A>, that: ReadonlyArray<A>): ReadonlyArray<A> =>
+    self.filter((a) => elemE(that, a));
 }
 
 /**
@@ -822,7 +945,11 @@ export function map_<A, B>(self: ReadonlyArray<A>, f: (a: A) => B): ReadonlyArra
 /**
  * @tsplus fluent fncts.collection.immutable.Array mapAccum
  */
-export function mapAccum_<A, S, B>(self: ReadonlyArray<A>, s: S, f: (s: S, a: A) => readonly [B, S]): readonly [ReadonlyArray<B>, S] {
+export function mapAccum_<A, S, B>(
+  self: ReadonlyArray<A>,
+  s: S,
+  f: (s: S, a: A) => readonly [B, S],
+): readonly [ReadonlyArray<B>, S] {
   const bs  = Array<B>(self.length);
   let state = s;
   for (let i = 0; i < self.length; i++) {
@@ -836,7 +963,10 @@ export function mapAccum_<A, S, B>(self: ReadonlyArray<A>, s: S, f: (s: S, a: A)
 /**
  * @tsplus fluent fncts.collection.immutable.Array mapWithIndex
  */
-export function mapWithIndex_<A, B>(self: ReadonlyArray<A>, f: (i: number, a: A) => B): ReadonlyArray<B> {
+export function mapWithIndex_<A, B>(
+  self: ReadonlyArray<A>,
+  f: (i: number, a: A) => B,
+): ReadonlyArray<B> {
   const len = self.length;
   const bs  = Array<B>(len);
   for (let i = 0; i < len; i++) {
@@ -848,7 +978,11 @@ export function mapWithIndex_<A, B>(self: ReadonlyArray<A>, f: (i: number, a: A)
 /**
  * @tsplus fluent fncts.collection.immutable.Array modifyAt
  */
-export function modifyAt_<A>(self: ReadonlyArray<A>, i: number, f: (a: A) => A): Maybe<ReadonlyArray<A>> {
+export function modifyAt_<A>(
+  self: ReadonlyArray<A>,
+  i: number,
+  f: (a: A) => A,
+): Maybe<ReadonlyArray<A>> {
   return self.isOutOfBound(i) ? Nothing() : Just(self.unsafeModifyAt(i, f));
 }
 
@@ -899,9 +1033,18 @@ export function partitionWithIndex_<A>(
 /**
  * @tsplus fluent fncts.collection.immutable.Array partition
  */
-export function partition_<A, B extends A>(self: ReadonlyArray<A>, p: Refinement<A, B>): readonly [ReadonlyArray<A>, ReadonlyArray<B>];
-export function partition_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>];
-export function partition_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
+export function partition_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: Refinement<A, B>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<B>];
+export function partition_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>];
+export function partition_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
   return self.partitionWithIndex((_, a) => p(a));
 }
 
@@ -931,7 +1074,10 @@ export function partitionMapWithIndex_<A, B, C>(
 /**
  * @tsplus fluent fncts.collection.immutable.Array partitionMap
  */
-export function partitionMap_<A, B, C>(self: ReadonlyArray<A>, f: (a: A) => Either<B, C>): readonly [ReadonlyArray<B>, ReadonlyArray<C>] {
+export function partitionMap_<A, B, C>(
+  self: ReadonlyArray<A>,
+  f: (a: A) => Either<B, C>,
+): readonly [ReadonlyArray<B>, ReadonlyArray<C>] {
   return self.partitionMapWithIndex((_, a) => f(a));
 }
 
@@ -1008,7 +1154,11 @@ export function rotate_<A>(self: ReadonlyArray<A>, n: number): ReadonlyArray<A> 
 /**
  * @tsplus fluent fncts.collection.immutable.Array scanLeft
  */
-export function scanLeft_<A, B>(self: ReadonlyArray<A>, b: B, f: (b: B, a: A) => B): ReadonlyArray<B> {
+export function scanLeft_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  f: (b: B, a: A) => B,
+): ReadonlyArray<B> {
   const l = self.length;
   const r = Array(l + 1);
   r[0]    = b;
@@ -1021,7 +1171,11 @@ export function scanLeft_<A, B>(self: ReadonlyArray<A>, b: B, f: (b: B, a: A) =>
 /**
  * @tsplus fluent fncts.collection.immutable.Array scanRight
  */
-export function scanRight_<A, B>(self: ReadonlyArray<A>, b: B, f: (a: A, b: B) => B): ReadonlyArray<B> {
+export function scanRight_<A, B>(
+  self: ReadonlyArray<A>,
+  b: B,
+  f: (a: A, b: B) => B,
+): ReadonlyArray<B> {
   const l = self.length;
   const r = Array(l + 1);
   r[l]    = b;
@@ -1037,13 +1191,17 @@ export function sort<B>(O: P.Ord<B>) {
 }
 
 export function sortBy<B>(Os: ReadonlyArray<P.Ord<B>>) {
-  return <A extends B>(self: ReadonlyArray<A>): ReadonlyArray<A> => self.sortWith(Os.fold(P.Ord.getMonoid()));
+  return <A extends B>(self: ReadonlyArray<A>): ReadonlyArray<A> =>
+    self.sortWith(Os.fold(P.Ord.getMonoid()));
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array sortBy
  */
-export function sortBySelf<A extends B, B>(self: ReadonlyArray<A>, Os: ReadonlyArray<P.Ord<B>>): ReadonlyArray<A> {
+export function sortBySelf<A extends B, B>(
+  self: ReadonlyArray<A>,
+  Os: ReadonlyArray<P.Ord<B>>,
+): ReadonlyArray<A> {
   return sortBy(Os)(self);
 }
 
@@ -1057,9 +1215,18 @@ export function sortSelf<A extends B, B>(self: ReadonlyArray<A>, O: P.Ord<B>): R
 /**
  * @tsplus fluent fncts.collection.immutable.Array spanLeft
  */
-export function spanLeft_<A, B extends A>(self: ReadonlyArray<A>, p: Refinement<A, B>): readonly [ReadonlyArray<B>, ReadonlyArray<A>];
-export function spanLeft_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>];
-export function spanLeft_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
+export function spanLeft_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: Refinement<A, B>,
+): readonly [ReadonlyArray<B>, ReadonlyArray<A>];
+export function spanLeft_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>];
+export function spanLeft_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
   const i    = spanIndexLeft_(self, p);
   const init = Array<A>(i);
   for (let j = 0; j < i; j++) {
@@ -1076,9 +1243,18 @@ export function spanLeft_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly 
 /**
  * @tsplus fluent fncts.collection.immutable.Array spanRight
  */
-export function spanRight_<A, B extends A>(self: ReadonlyArray<A>, p: Refinement<A, B>): readonly [ReadonlyArray<A>, ReadonlyArray<B>];
-export function spanRight_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>];
-export function spanRight_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
+export function spanRight_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: Refinement<A, B>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<B>];
+export function spanRight_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>];
+export function spanRight_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
   const i    = spanIndexRight_(self, p);
   const l    = self.length;
   const tail = Array<A>(l - i - 1);
@@ -1122,14 +1298,20 @@ export function spanIndexRight_<A>(as: ReadonlyArray<A>, predicate: Predicate<A>
 /**
  * @tsplus fluent fncts.collection.immutable.Array splitAt
  */
-export function splitAt_<A>(as: ReadonlyArray<A>, n: number): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
+export function splitAt_<A>(
+  as: ReadonlyArray<A>,
+  n: number,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
   return [as.slice(0, n), as.slice(n)];
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array splitWhere
  */
-export function splitWhere_<A>(self: ReadonlyArray<A>, p: Predicate<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
+export function splitWhere_<A>(
+  self: ReadonlyArray<A>,
+  p: Predicate<A>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<A>] {
   let cont = true;
   let i    = 0;
   while (cont && i < self.length) {
@@ -1147,7 +1329,8 @@ export const sequence: P.sequence<ArrayF> = (A) => (self) => self.traverse(A)(id
 /**
  * @tsplus getter fncts.collection.immutable.Array sequence
  */
-export const sequenceSelf: P.sequenceSelf<ArrayF> = (self) => (A) => unsafeCoerce(self.traverse(A)(unsafeCoerce(identity)));
+export const sequenceSelf: P.sequenceSelf<ArrayF> = (self) => (A) =>
+  unsafeCoerce(self.traverse(A)(unsafeCoerce(identity)));
 
 /**
  * @tsplus getter fncts.collection.immutable.Array tail
@@ -1173,7 +1356,10 @@ export function takeLast_<A>(as: ReadonlyArray<A>, n: number): ReadonlyArray<A> 
 /**
  * @tsplus fluent fncts.collection.immutable.Array takeWhile
  */
-export function takeWhile_<A, B extends A>(self: ReadonlyArray<A>, p: Refinement<A, B>): ReadonlyArray<B>;
+export function takeWhile_<A, B extends A>(
+  self: ReadonlyArray<A>,
+  p: Refinement<A, B>,
+): ReadonlyArray<B>;
 export function takeWhile_<A>(self: ReadonlyArray<A>, p: Predicate<A>): ReadonlyArray<A>;
 export function takeWhile_<A>(self: ReadonlyArray<A>, p: Predicate<A>): ReadonlyArray<A> {
   const i    = self.spanIndexLeft(p);
@@ -1186,34 +1372,42 @@ export function takeWhile_<A>(self: ReadonlyArray<A>, p: Predicate<A>): Readonly
 
 export const traverseWithIndex_: P.traverseWithIndex_<ArrayF> = P.mkTraverseWithIndex_<ArrayF>()(
   (_) => (A) => (ta, f) =>
-    ta.foldLeftWithIndex(A.pure(ReadonlyArray.empty<typeof _.B>()), (i, fbs, a) => A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b))),
+    ta.foldLeftWithIndex(A.pure(ReadonlyArray.empty<typeof _.B>()), (i, fbs, a) =>
+      A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b)),
+    ),
 );
 
 /**
  * @tsplus dataFirst traverseWithIndex_
  */
-export const traverseWithIndex: P.traverseWithIndex<ArrayF> = (A) => (f) => (self) => traverseWithIndex_(A)(self, f);
+export const traverseWithIndex: P.traverseWithIndex<ArrayF> = (A) => (f) => (self) =>
+  traverseWithIndex_(A)(self, f);
 
 /**
  * @tsplus getter fncts.collection.immutable.Array traverseWithIndex
  */
-export const traverseWithIndexSelf: P.traverseWithIndexSelf<ArrayF> = (self) => (A) => (f) => traverseWithIndex_(A)(self, f);
+export const traverseWithIndexSelf: P.traverseWithIndexSelf<ArrayF> = (self) => (A) => (f) =>
+  traverseWithIndex_(A)(self, f);
 
-export const traverse_: P.traverse_<ArrayF> = (A) => (self, f) => self.traverseWithIndex(A)((_, a) => f(a));
+export const traverse_: P.traverse_<ArrayF> = (A) => (self, f) =>
+  self.traverseWithIndex(A)((_, a) => f(a));
 
 /**
  * @tsplus dataFirst traverse_
  */
-export const traverse: P.traverse<ArrayF> = (A) => (f) => (self) => self.traverseWithIndex(A)((_, a) => f(a));
+export const traverse: P.traverse<ArrayF> = (A) => (f) => (self) =>
+  self.traverseWithIndex(A)((_, a) => f(a));
 
 /**
  * @tsplus getter fncts.collection.immutable.Array traverse
  */
-export const traverseSelf: P.traverseSelf<ArrayF> = (self) => (A) => (f) => self.traverseWithIndex(A)((_, a) => f(a));
+export const traverseSelf: P.traverseSelf<ArrayF> = (self) => (A) => (f) =>
+  self.traverseWithIndex(A)((_, a) => f(a));
 
 export function union_<A>(E: P.Eq<A>) {
   const elemE = elem_(E);
-  return (self: ReadonlyArray<A>, that: ReadonlyArray<A>): ReadonlyArray<A> => self.concat(that.filter((a) => !elemE(self, a)));
+  return (self: ReadonlyArray<A>, that: ReadonlyArray<A>): ReadonlyArray<A> =>
+    self.concat(that.filter((a) => !elemE(self, a)));
 }
 
 export function uniq<A>(E: P.Eq<A>) {
@@ -1267,7 +1461,11 @@ export function unsafeDeleteAt_<A>(self: ReadonlyArray<A>, i: number): ReadonlyA
 /**
  * @tsplus fluent fncts.collection.immutable.Array unsafeInsertAt
  */
-export function unsafeInsertAt_<A>(as: ReadonlyArray<A>, i: number, a: A): ReadonlyNonEmptyArray<A> {
+export function unsafeInsertAt_<A>(
+  as: ReadonlyArray<A>,
+  i: number,
+  a: A,
+): ReadonlyNonEmptyArray<A> {
   return mutate_(as, (xs) => {
     xs.splice(i, 0, a);
   }) as unknown as ReadonlyNonEmptyArray<A>;
@@ -1276,7 +1474,11 @@ export function unsafeInsertAt_<A>(as: ReadonlyArray<A>, i: number, a: A): Reado
 /**
  * @tsplus fluent fncts.collection.immutable.Array unsafeModifyAt
  */
-export function unsafeModifyAt_<A>(as: ReadonlyArray<A>, i: number, f: (a: A) => A): ReadonlyArray<A> {
+export function unsafeModifyAt_<A>(
+  as: ReadonlyArray<A>,
+  i: number,
+  f: (a: A) => A,
+): ReadonlyArray<A> {
   const next = f(as[i]!);
   if (as[i] === next) {
     return as;
@@ -1302,7 +1504,9 @@ export function unsafeUpdateAt_<A>(as: ReadonlyArray<A>, i: number, a: A): Reado
 /**
  * @tsplus getter fncts.collection.immutable.Array unzip
  */
-export function unzip<A, B>(self: ReadonlyArray<readonly [A, B]>): readonly [ReadonlyArray<A>, ReadonlyArray<B>] {
+export function unzip<A, B>(
+  self: ReadonlyArray<readonly [A, B]>,
+): readonly [ReadonlyArray<A>, ReadonlyArray<B>] {
   const fa = Array<A>(self.length);
   const fb = Array<B>(self.length);
 
@@ -1331,37 +1535,43 @@ export const wilt: P.wilt<ArrayF> = (A) => (f) => (self) => self.wiltWithIndex(A
 /**
  * @tsplus fluent fncts.collection.immutable.Array wilt
  */
-export const wiltSelf: P.wiltSelf<ArrayF> = (self) => (A) => (f) => self.wiltWithIndex(A)((_, a) => f(a));
+export const wiltSelf: P.wiltSelf<ArrayF> = (self) => (A) => (f) =>
+  self.wiltWithIndex(A)((_, a) => f(a));
 
 export const wiltWithIndex_: P.wiltWithIndex_<ArrayF> = P.mkWiltWithIndex_<ArrayF>()(
   (_) => (A) => (self, f) =>
-    self.foldLeftWithIndex(A.pure([Array.empty<typeof _.B>(), Array.empty<typeof _.B2>()]), (i, fbs, a) =>
-      A.zipWith_(f(i, a), fbs, (eb, r) =>
-        eb.match(
-          (b1) => {
-            r[0].push(b1);
-            return r;
-          },
-          (b2) => {
-            r[1].push(b2);
-            return r;
-          },
+    self.foldLeftWithIndex(
+      A.pure([Array.empty<typeof _.B>(), Array.empty<typeof _.B2>()]),
+      (i, fbs, a) =>
+        A.zipWith_(f(i, a), fbs, (eb, r) =>
+          eb.match(
+            (b1) => {
+              r[0].push(b1);
+              return r;
+            },
+            (b2) => {
+              r[1].push(b2);
+              return r;
+            },
+          ),
         ),
-      ),
     ),
 );
 
 /**
  * @tsplus dataFirst wiltWithIndex_
  */
-export const wiltWithIndex: P.wiltWithIndex<ArrayF> = (A) => (f) => (self) => wiltWithIndex_(A)(self, f);
+export const wiltWithIndex: P.wiltWithIndex<ArrayF> = (A) => (f) => (self) =>
+  wiltWithIndex_(A)(self, f);
 
 /**
  * @tsplus getter fncts.collection.immutable.Array wiltWithIndex
  */
-export const wiltWithIndexSelf: P.wiltWithIndexSelf<ArrayF> = (self) => (A) => (f) => wiltWithIndex_(A)(self, f);
+export const wiltWithIndexSelf: P.wiltWithIndexSelf<ArrayF> = (self) => (A) => (f) =>
+  wiltWithIndex_(A)(self, f);
 
-export const wither_: P.wither_<ArrayF> = (A) => (self, f) => witherWithIndex_(A)(self, (_, a) => f(a));
+export const wither_: P.wither_<ArrayF> = (A) => (self, f) =>
+  witherWithIndex_(A)(self, (_, a) => f(a));
 
 /**
  * @tsplus dataFirst wither_
@@ -1371,7 +1581,8 @@ export const wither: P.wither<ArrayF> = (A) => (f) => (self) => wither_(A)(self,
 /**
  * @tsplus fluent fncts.collection.immutable.Array wither
  */
-export const witherSelf: P.witherSelf<ArrayF> = (self) => (A) => (f) => witherWithIndex_(A)(self, (_, a) => f(a));
+export const witherSelf: P.witherSelf<ArrayF> = (self) => (A) => (f) =>
+  witherWithIndex_(A)(self, (_, a) => f(a));
 
 export const witherWithIndex_: P.witherWithIndex_<ArrayF> = P.mkWitherWithIndex_<ArrayF>()(
   (_) => (A) => (self, f) =>
@@ -1383,24 +1594,33 @@ export const witherWithIndex_: P.witherWithIndex_<ArrayF> = P.mkWitherWithIndex_
 /**
  * @tsplus dataFirst witherWithIndex_
  */
-export const witherWithIndex: P.witherWithIndex<ArrayF> = (A) => (f) => (self) => witherWithIndex_(A)(self, f);
+export const witherWithIndex: P.witherWithIndex<ArrayF> = (A) => (f) => (self) =>
+  witherWithIndex_(A)(self, f);
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array witherWithIndex
  */
-export const witherWithIndexSelf: P.witherWithIndexSelf<ArrayF> = (self) => (A) => (f) => witherWithIndex_(A)(self, f);
+export const witherWithIndexSelf: P.witherWithIndexSelf<ArrayF> = (self) => (A) => (f) =>
+  witherWithIndex_(A)(self, f);
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array zip
  */
-export function zip_<A, B>(self: ReadonlyArray<A>, that: ReadonlyArray<B>): ReadonlyArray<readonly [A, B]> {
+export function zip_<A, B>(
+  self: ReadonlyArray<A>,
+  that: ReadonlyArray<B>,
+): ReadonlyArray<readonly [A, B]> {
   return self.zipWith(that, tuple);
 }
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array zipWith
  */
-export function zipWith_<A, B, C>(self: ReadonlyArray<A>, fb: ReadonlyArray<B>, f: (a: A, b: B) => C): ReadonlyArray<C> {
+export function zipWith_<A, B, C>(
+  self: ReadonlyArray<A>,
+  fb: ReadonlyArray<B>,
+  f: (a: A, b: B) => C,
+): ReadonlyArray<C> {
   const len = Math.min(self.length, fb.length);
   const fc  = Array<C>(len);
   for (let i = 0; i < len; i++) {
@@ -1518,7 +1738,9 @@ export function dropLastWhile<A>(p: Predicate<A>) {
 /**
  * @tsplus dataFirst every_
  */
-export function every<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => self is ReadonlyArray<B>;
+export function every<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: ReadonlyArray<A>) => self is ReadonlyArray<B>;
 /**
  * @tsplus dataFirst every_
  */
@@ -1532,11 +1754,15 @@ export function every<A>(p: Predicate<A>) {
 /**
  * @tsplus dataFirst everyWithIndex_
  */
-export function everyWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: ReadonlyArray<A>) => self is ReadonlyArray<B>;
+export function everyWithIndex<A, B extends A>(
+  p: RefinementWithIndex<number, A, B>,
+): (self: ReadonlyArray<A>) => self is ReadonlyArray<B>;
 /**
  * @tsplus dataFirst everyWithIndex_
  */
-export function everyWithIndex<A>(p: PredicateWithIndex<number, A>): (self: ReadonlyArray<A>) => boolean;
+export function everyWithIndex<A>(
+  p: PredicateWithIndex<number, A>,
+): (self: ReadonlyArray<A>) => boolean;
 /**
  * @tsplus dataFirst everyWithIndex_
  */
@@ -1552,7 +1778,9 @@ export function exists<A>(p: Predicate<A>) {
 /**
  * @tsplus dataFirst filter_
  */
-export function filter<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
+export function filter<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
 /**
  * @tsplus dataFirst filter_
  */
@@ -1566,11 +1794,15 @@ export function filter<A>(p: Predicate<A>) {
 /**
  * @tsplus dataFirst filterWithIndex_
  */
-export function filterWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
+export function filterWithIndex<A, B extends A>(
+  p: RefinementWithIndex<number, A, B>,
+): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
-export function filterWithIndex<A>(p: PredicateWithIndex<number, A>): (self: ReadonlyArray<A>) => ReadonlyArray<A>;
+export function filterWithIndex<A>(
+  p: PredicateWithIndex<number, A>,
+): (self: ReadonlyArray<A>) => ReadonlyArray<A>;
 /**
  * @tsplus dataFirst filterWithIndex_
  */
@@ -1612,11 +1844,15 @@ export function findIndex<A>(predicate: Predicate<A>) {
 /**
  * @tsplus dataFirst findWithIndex_
  */
-export function findWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (as: ReadonlyArray<A>) => Maybe<B>;
+export function findWithIndex<A, B extends A>(
+  p: RefinementWithIndex<number, A, B>,
+): (as: ReadonlyArray<A>) => Maybe<B>;
 /**
  * @tsplus dataFirst findWithIndex_
  */
-export function findWithIndex<A>(p: PredicateWithIndex<number, A>): (as: ReadonlyArray<A>) => Maybe<A>;
+export function findWithIndex<A>(
+  p: PredicateWithIndex<number, A>,
+): (as: ReadonlyArray<A>) => Maybe<A>;
 /**
  * @tsplus dataFirst findWithIndex_
  */
@@ -1688,7 +1924,11 @@ export function foldLeftWhile<A, B>(b: B, p: Predicate<B>, f: (b: B, a: A) => B)
 /**
  * @tsplus dataFirst foldLeftWithIndexWhile_
  */
-export function foldLeftWithIndexWhile<A, B>(b: B, p: Predicate<B>, f: (i: number, b: B, a: A) => B) {
+export function foldLeftWithIndexWhile<A, B>(
+  b: B,
+  p: Predicate<B>,
+  f: (i: number, b: B, a: A) => B,
+) {
   return (self: ReadonlyArray<A>): B => foldLeftWithIndexWhile_(self, b, p, f);
 }
 /**
@@ -1712,7 +1952,11 @@ export function foldRightWhile<A, B>(b: B, p: Predicate<B>, f: (a: A, b: B) => B
 /**
  * @tsplus dataFirst foldRightWithIndexWhile_
  */
-export function foldRightWithIndexWhile<A, B>(b: B, predicate: Predicate<B>, f: (i: number, a: A, b: B) => B) {
+export function foldRightWithIndexWhile<A, B>(
+  b: B,
+  predicate: Predicate<B>,
+  f: (i: number, a: A, b: B) => B,
+) {
   return (self: ReadonlyArray<A>): B => foldRightWithIndexWhile_(self, b, predicate, f);
 }
 /**
@@ -1731,7 +1975,8 @@ export function get(i: number) {
  * @tsplus dataFirst groupBy_
  */
 export function groupBy<A>(f: (a: A) => string) {
-  return (self: ReadonlyArray<A>): Readonly<Record<string, ReadonlyNonEmptyArray<A>>> => groupBy_(self, f);
+  return (self: ReadonlyArray<A>): Readonly<Record<string, ReadonlyNonEmptyArray<A>>> =>
+    groupBy_(self, f);
 }
 /**
  * @tsplus dataFirst insertAt_
@@ -1797,33 +2042,41 @@ export function partitionWithIndex<A>(
  * @tsplus dataFirst partitionWithIndex_
  */
 export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
-  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => partitionWithIndex_(self, p);
+  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] =>
+    partitionWithIndex_(self, p);
 }
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<B>];
+export function partition<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<B>];
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
+export function partition<A>(
+  p: Predicate<A>,
+): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
 /**
  * @tsplus dataFirst partition_
  */
 export function partition<A>(p: Predicate<A>) {
-  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => partition_(self, p);
+  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] =>
+    partition_(self, p);
 }
 /**
  * @tsplus dataFirst partitionMapWithIndex_
  */
 export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
-  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<B>, ReadonlyArray<C>] => partitionMapWithIndex_(self, f);
+  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<B>, ReadonlyArray<C>] =>
+    partitionMapWithIndex_(self, f);
 }
 /**
  * @tsplus dataFirst partitionMap_
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
-  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<B>, ReadonlyArray<C>] => partitionMap_(self, f);
+  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<B>, ReadonlyArray<C>] =>
+    partitionMap_(self, f);
 }
 /**
  * @tsplus dataFirst prepend_
@@ -1858,30 +2111,40 @@ export function scanRight<A, B>(b: B, f: (a: A, b: B) => B) {
 /**
  * @tsplus dataFirst spanLeft_
  */
-export function spanLeft<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<B>, ReadonlyArray<A>];
+export function spanLeft<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<B>, ReadonlyArray<A>];
 /**
  * @tsplus dataFirst spanLeft_
  */
-export function spanLeft<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
+export function spanLeft<A>(
+  p: Predicate<A>,
+): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
 /**
  * @tsplus dataFirst spanLeft_
  */
 export function spanLeft<A>(p: Predicate<A>) {
-  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => spanLeft_(self, p);
+  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] =>
+    spanLeft_(self, p);
 }
 /**
  * @tsplus dataFirst spanRight_
  */
-export function spanRight<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<B>];
+export function spanRight<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<B>];
 /**
  * @tsplus dataFirst spanRight_
  */
-export function spanRight<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
+export function spanRight<A>(
+  p: Predicate<A>,
+): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
 /**
  * @tsplus dataFirst spanRight_
  */
 export function spanRight<A>(p: Predicate<A>) {
-  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => spanRight_(self, p);
+  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] =>
+    spanRight_(self, p);
 }
 /**
  * @tsplus dataFirst spanIndexLeft_
@@ -1899,13 +2162,15 @@ export function spanIndexRight<A>(predicate: Predicate<A>) {
  * @tsplus dataFirst splitAt_
  */
 export function splitAt(n: number) {
-  return <A>(as: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => splitAt_(as, n);
+  return <A>(as: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] =>
+    splitAt_(as, n);
 }
 /**
  * @tsplus dataFirst splitWhere_
  */
 export function splitWhere<A>(p: Predicate<A>) {
-  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => splitWhere_(self, p);
+  return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] =>
+    splitWhere_(self, p);
 }
 /**
  * @tsplus dataFirst take_
@@ -1922,7 +2187,9 @@ export function takeLast(n: number) {
 /**
  * @tsplus dataFirst takeWhile_
  */
-export function takeWhile<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
+export function takeWhile<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
 /**
  * @tsplus dataFirst takeWhile_
  */

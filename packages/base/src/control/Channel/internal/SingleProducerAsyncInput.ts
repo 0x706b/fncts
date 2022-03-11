@@ -38,7 +38,11 @@ export class StateEmit<Err, Elem, Done> {
   constructor(readonly notifyConsumers: Queue<Future<Err, Either<Done, Elem>>>) {}
 }
 
-export type State<Err, Elem, Done> = StateEmpty | StateEmit<Err, Elem, Done> | StateError<Err> | StateDone<Done>;
+export type State<Err, Elem, Done> =
+  | StateEmpty
+  | StateEmit<Err, Elem, Done>
+  | StateError<Err>
+  | StateDone<Done>;
 
 /**
  * An MVar-like abstraction for sending data to channels asynchronously. Designed
@@ -58,7 +62,9 @@ export type State<Err, Elem, Done> = StateEmpty | StateEmit<Err, Elem, Done> | S
  *
  * @tsplus companion fncts.control.Channel.SingleProducerAsyncInputOps
  */
-export class SingleProducerAsyncInput<Err, Elem, Done> implements AsyncInputProducer<Err, Elem, Done>, AsyncInputConsumer<Err, Elem, Done> {
+export class SingleProducerAsyncInput<Err, Elem, Done>
+  implements AsyncInputProducer<Err, Elem, Done>, AsyncInputConsumer<Err, Elem, Done>
+{
   constructor(readonly ref: Ref<State<Err, Elem, Done>>) {}
 
   emit(el: Elem): UIO<unknown> {
@@ -136,7 +142,11 @@ export class SingleProducerAsyncInput<Err, Elem, Done> implements AsyncInputProd
     }).flatten;
   }
 
-  takeWith<X>(onError: (cause: Cause<Err>) => X, onElement: (element: Elem) => X, onDone: (done: Done) => X): UIO<X> {
+  takeWith<X>(
+    onError: (cause: Cause<Err>) => X,
+    onElement: (element: Elem) => X,
+    onDone: (done: Done) => X,
+  ): UIO<X> {
     return Future.make<Err, Either<Done, Elem>>().chain(
       (p) =>
         this.ref.modify((state) => {
@@ -155,7 +165,9 @@ export class SingleProducerAsyncInput<Err, Elem, Done> implements AsyncInputProd
             }
             case StateTag.Empty: {
               return tuple(
-                state.notifyProducer.succeed(undefined).apSecond(p.await.matchCause(onError, (de) => de.match(onDone, onElement))),
+                state.notifyProducer
+                  .succeed(undefined)
+                  .apSecond(p.await.matchCause(onError, (de) => de.match(onDone, onElement))),
                 new StateEmit(Queue.single(p)),
               );
             }
@@ -172,7 +184,9 @@ export class SingleProducerAsyncInput<Err, Elem, Done> implements AsyncInputProd
 
   close = IO.fiberId.chain((id) => this.error(Cause.interrupt(id)));
 
-  awaitRead: UIO<void> = this.ref.modify((s) => (s._stateTag === StateTag.Empty ? [s.notifyProducer.await, s] : [IO.unit, s]));
+  awaitRead: UIO<void> = this.ref.modify((s) =>
+    s._stateTag === StateTag.Empty ? [s.notifyProducer.await, s] : [IO.unit, s],
+  );
 }
 
 /**
@@ -180,7 +194,9 @@ export class SingleProducerAsyncInput<Err, Elem, Done> implements AsyncInputProd
  *
  * @tsplus static fncts.control.Channel.SingleProducerAsyncInputOps __call
  */
-export function makeSingleProducerAsyncInput<Err, Elem, Done>(): UIO<SingleProducerAsyncInput<Err, Elem, Done>> {
+export function makeSingleProducerAsyncInput<Err, Elem, Done>(): UIO<
+  SingleProducerAsyncInput<Err, Elem, Done>
+> {
   return Future.make<never, void>()
     .chain((p) => Ref.make<State<Err, Elem, Done>>(new StateEmpty(p)))
     .map((ref) => new SingleProducerAsyncInput(ref));

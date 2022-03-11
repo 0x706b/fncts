@@ -29,7 +29,9 @@ export const Queue: QueueOps = {};
 /**
  * @optimize remove
  */
-export function concrete<RA, RB, EA, EB, A, B>(_: PQueue<RA, RB, EA, EB, A, B>): asserts _ is QueueInternal<RA, RB, EA, EB, A, B> {
+export function concrete<RA, RB, EA, EB, A, B>(
+  _: PQueue<RA, RB, EA, EB, A, B>,
+): asserts _ is QueueInternal<RA, RB, EA, EB, A, B> {
   //
 }
 

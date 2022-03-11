@@ -90,7 +90,9 @@ export function filterOutputIO_<RA, RB, EA, EB, A, B, RC, EC>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<RC, EC, boolean>,
 ): PRef.Synchronized<RA, RB & RC, EA, Maybe<EC | EB>, A, B> {
-  return ref.matchIO(identity, Maybe.just, IO.succeedNow, (b) => f(b).asJustError.ifIO(IO.succeedNow(b), IO.failNow(Nothing())));
+  return ref.matchIO(identity, Maybe.just, IO.succeedNow, (b) =>
+    f(b).asJustError.ifIO(IO.succeedNow(b), IO.failNow(Nothing())),
+  );
 }
 
 /**

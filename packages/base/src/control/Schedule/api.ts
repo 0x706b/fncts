@@ -17,7 +17,12 @@ import { Interval } from "./Interval";
  */
 export function make<State, Env, In, Out>(
   initial: State,
-  step: (now: number, inp: In, state: State, __tsplusTrace?: string) => IO<Env, never, readonly [State, Out, Decision]>,
+  step: (
+    now: number,
+    inp: In,
+    state: State,
+    __tsplusTrace?: string,
+  ) => IO<Env, never, readonly [State, Out, Decision]>,
 ): Schedule.WithState<State, Env, In, Out> {
   return new (class extends Schedule<Env, In, Out> {
     readonly _State!: State;
@@ -69,12 +74,22 @@ export function andThenEither_<State, Env, In, Out, State1, Env1, In1, Out1>(
       if (onLeft) {
         return self.step(now, inp, s1).chain(([lState, out, decision]) =>
           decision.match(
-            () => that.step(now, inp, s2).map(([rState, out, decision]) => [[lState, rState, false], Either.right(out), decision]),
-            (interval) => IO.succeedNow([[lState, s2, true], Either.left(out), Decision.Continue(interval)]),
+            () =>
+              that
+                .step(now, inp, s2)
+                .map(([rState, out, decision]) => [
+                  [lState, rState, false],
+                  Either.right(out),
+                  decision,
+                ]),
+            (interval) =>
+              IO.succeedNow([[lState, s2, true], Either.left(out), Decision.Continue(interval)]),
           ),
         );
       } else {
-        return that.step(now, inp, s2).map(([rState, out, decision]) => [[s1, rState, false], Either.right(out), decision]);
+        return that
+          .step(now, inp, s2)
+          .map(([rState, out, decision]) => [[s1, rState, false], Either.right(out), decision]);
       }
     },
   );
@@ -111,7 +126,10 @@ export function checkIO_<State, Env, In, Out, Env1>(
     self.step(now, inp, state).chain(([state, out, decision]) =>
       decision.match(
         () => IO.succeedNow([state, out, decision]),
-        (interval) => test(inp, out).map((b) => (b ? [state, out, Decision.Continue(interval)] : [state, out, Decision.Done])),
+        (interval) =>
+          test(inp, out).map((b) =>
+            b ? [state, out, Decision.Continue(interval)] : [state, out, Decision.Done],
+          ),
       ),
     ),
   );
@@ -127,7 +145,10 @@ export function compose_<S, R, I, O, S1, R1, O2>(
   return Schedule([self.initial, that.initial], (now, inp, state) =>
     self.step(now, inp, state[0]).chain(([lState, out, decision]) =>
       decision.match(
-        () => that.step(now, out, state[1]).map(([rState, out2]) => [[lState, rState], out2, Decision.Done]),
+        () =>
+          that
+            .step(now, out, state[1])
+            .map(([rState, out2]) => [[lState, rState], out2, Decision.Done]),
         (interval) =>
           that.step(now, out, state[1]).map(([rState, out2, decision]) =>
             decision.match(
@@ -143,7 +164,10 @@ export function compose_<S, R, I, O, S1, R1, O2>(
 /**
  * @tsplus fluent fncts.control.Schedule contramap
  */
-export function contramap_<S, R, I, O, I2>(self: Schedule.WithState<S, R, I, O>, f: (inp: I2) => I): Schedule.WithState<S, R, I2, O> {
+export function contramap_<S, R, I, O, I2>(
+  self: Schedule.WithState<S, R, I, O>,
+  f: (inp: I2) => I,
+): Schedule.WithState<S, R, I2, O> {
   return self.contramapIO((inp2) => IO.succeed(f(inp2)));
 }
 
@@ -154,7 +178,9 @@ export function contramapEnvironment_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (env: R1) => R,
 ): Schedule.WithState<S, R1, I, O> {
-  return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).contramapEnvironment(f));
+  return Schedule(self.initial, (now, inp, state) =>
+    self.step(now, inp, state).contramapEnvironment(f),
+  );
 }
 
 /**
@@ -164,13 +190,17 @@ export function contramapIO_<S, R, I, O, R1, I2>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I2) => URIO<R1, I>,
 ): Schedule.WithState<S, R & R1, I2, O> {
-  return Schedule(self.initial, (now, inp2, state) => f(inp2).chain((inp) => self.step(now, inp, state)));
+  return Schedule(self.initial, (now, inp2, state) =>
+    f(inp2).chain((inp) => self.step(now, inp, state)),
+  );
 }
 
 /**
  * @tsplus static fncts.control.ScheduleOps delayed
  */
-export function delayed<S, R, I>(schedule: Schedule.WithState<S, R, I, number>): Schedule.WithState<S, R, I, number> {
+export function delayed<S, R, I>(
+  schedule: Schedule.WithState<S, R, I, number>,
+): Schedule.WithState<S, R, I, number> {
   return schedule.addDelay((x) => x);
 }
 
@@ -197,7 +227,9 @@ export function delayedIO_<S, R, I, O, R1>(
 /**
  * @tsplus getter fncts.control.Schedule delays
  */
-export function delays<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, number> {
+export function delays<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+): Schedule.WithState<S, R, I, number> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).chain(([state, _, decision]) =>
       decision.match(
@@ -252,22 +284,27 @@ export function duration(duration: number): Schedule.WithState<boolean, unknown,
 /**
  * @tsplus static fncts.control.ScheduleOps elapsed
  */
-export const elapsed: Schedule.WithState<Maybe<number>, unknown, unknown, number> = Schedule(Nothing(), (now, _, state) =>
-  IO.succeed(
-    state.match(
-      () => [Just(now), 0, Decision.Continue(Interval(now, Number.MAX_SAFE_INTEGER))],
-      (start) => {
-        const duration = now - start;
-        return [Just(start), duration, Decision.Continue(Interval(now, Number.MAX_SAFE_INTEGER))];
-      },
+export const elapsed: Schedule.WithState<Maybe<number>, unknown, unknown, number> = Schedule(
+  Nothing(),
+  (now, _, state) =>
+    IO.succeed(
+      state.match(
+        () => [Just(now), 0, Decision.Continue(Interval(now, Number.MAX_SAFE_INTEGER))],
+        (start) => {
+          const duration = now - start;
+          return [Just(start), duration, Decision.Continue(Interval(now, Number.MAX_SAFE_INTEGER))];
+        },
+      ),
     ),
-  ),
 );
 
 /**
  * @tsplus fluent fncts.control.Schedule ensuring
  */
-export function ensuring_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, finalizer: UIO<any>): Schedule.WithState<S, R, I, O> {
+export function ensuring_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  finalizer: UIO<any>,
+): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).chain(([state, out, decision]) =>
       decision.match(
@@ -281,7 +318,10 @@ export function ensuring_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, fina
 /**
  * @tsplus static fncts.control.ScheduleOps exponential
  */
-export function exponential(base: number, factor = 2): Schedule.WithState<number, unknown, unknown, number> {
+export function exponential(
+  base: number,
+  factor = 2,
+): Schedule.WithState<number, unknown, unknown, number> {
   return Schedule.delayed(Schedule.forever.map((i) => base * Math.pow(factor, i)));
 }
 
@@ -299,7 +339,14 @@ export function exponential(base: number, factor = 2): Schedule.WithState<number
  *
  * @tsplus static fncts.control.ScheduleOps fixed
  */
-export function fixed(interval: number): Schedule.WithState<readonly [Maybe<readonly [number, number]>, number], unknown, unknown, number> {
+export function fixed(
+  interval: number,
+): Schedule.WithState<
+  readonly [Maybe<readonly [number, number]>, number],
+  unknown,
+  unknown,
+  number
+> {
   return Schedule([Nothing(), 0], (now, inp, [ms, n]) =>
     IO.succeed(
       ms.match(
@@ -312,7 +359,11 @@ export function fixed(interval: number): Schedule.WithState<readonly [Maybe<read
           const boundary      = interval === 0 ? interval : interval - ((now - startMillis) % interval);
           const sleepTime     = boundary === 0 ? interval : boundary;
           const nextRun       = runningBehind ? now : now + sleepTime;
-          return [[Just([startMillis, nextRun]), n + 1], n, Decision.Continue(Interval.after(nextRun))];
+          return [
+            [Just([startMillis, nextRun]), n + 1],
+            n,
+            Decision.Continue(Interval.after(nextRun)),
+          ];
         },
       ),
     ),
@@ -351,7 +402,9 @@ export function foldIO_<S, R, I, O, Z, R1>(
 /**
  * @tsplus getter fncts.control.Schedule forever
  */
-export function foreverSelf<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, O> {
+export function foreverSelf<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).chain(([state, out, decision]) =>
       decision.match(
@@ -371,7 +424,9 @@ export const forever = Schedule.unfold(0, (n) => n + 1);
  * @tsplus static fncts.control.ScheduleOps identity
  */
 export function identity<A>(): Schedule.WithState<void, unknown, A, A> {
-  return Schedule(undefined, (now, inp, state) => IO.succeed([state, inp, Decision.Continue(Interval.after(now))]));
+  return Schedule(undefined, (now, inp, state) =>
+    IO.succeed([state, inp, Decision.Continue(Interval.after(now))]),
+  );
 }
 
 function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
@@ -393,14 +448,16 @@ function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
     return self.step(lInterval.endMilliseconds, inp, lState).chain(([lState, out, decision]) =>
       decision.match(
         () => IO.succeedNow([[lState, rState], [out, out2], Decision.Done]),
-        (lInterval) => intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
+        (lInterval) =>
+          intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
       ),
     );
   } else {
     return that.step(rInterval.endMilliseconds, inp, rState).chain(([rState, out2, decision]) =>
       decision.match(
         () => IO.succeedNow([[lState, rState], [out, out2], Decision.Done]),
-        (rInterval) => intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
+        (rInterval) =>
+          intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
       ),
     );
   }
@@ -420,7 +477,18 @@ export function intersectWith_<S, R, I, O, S1, R1, I1, O1>(
 
     return left.zipWith(right, ([lState, out, lDecision], [rState, out2, rDecision]) => {
       if (lDecision._tag === DecisionTag.Continue && rDecision._tag === DecisionTag.Continue) {
-        return intersectWithLoop(self, that, inp, lState, out, lDecision.interval, rState, out2, rDecision.interval, f);
+        return intersectWithLoop(
+          self,
+          that,
+          inp,
+          lState,
+          out,
+          lDecision.interval,
+          rState,
+          out2,
+          rDecision.interval,
+          f,
+        );
       } else {
         return IO.succeedNow([[lState, rState], [out, out2], Decision.Done] as const);
       }
@@ -453,7 +521,9 @@ export function mapIO_<State, Env, In, Out, Env1, Out1>(
   f: (out: Out) => URIO<Env1, Out1>,
 ): Schedule.WithState<State, Env & Env1, In, Out1> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) => f(out).map((out1) => [state, out1, decision])),
+    self
+      .step(now, inp, state)
+      .chain(([state, out, decision]) => f(out).map((out1) => [state, out1, decision])),
   );
 }
 
@@ -493,15 +563,22 @@ export function onDecision_<S, R, I, O, R1>(
   f: (state: S, out: O, decision: Decision) => URIO<R1, any>,
 ): Schedule.WithState<S, R & R1, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) => f(state, out, decision).as([state, out, decision])),
+    self
+      .step(now, inp, state)
+      .chain(([state, out, decision]) => f(state, out, decision).as([state, out, decision])),
   );
 }
 
 /**
  * @tsplus fluent fncts.control.Schedule provideEnvironment
  */
-export function provideEnvironment_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, env: R): Schedule.WithState<S, unknown, I, O> {
-  return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).provideEnvironment(env));
+export function provideEnvironment_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  env: R,
+): Schedule.WithState<S, unknown, I, O> {
+  return Schedule(self.initial, (now, inp, state) =>
+    self.step(now, inp, state).provideEnvironment(env),
+  );
 }
 
 /**
@@ -560,7 +637,9 @@ export function recurWhile<A>(f: (a: A) => boolean): Schedule.WithState<void, un
 /**
  * @tsplus static fncts.control.Schedule recurWhileIO
  */
-export function recurWhileIO<R, A>(f: (a: A) => URIO<R, boolean>): Schedule.WithState<void, R, A, A> {
+export function recurWhileIO<R, A>(
+  f: (a: A) => URIO<R, boolean>,
+): Schedule.WithState<void, R, A, A> {
   return identity<A>().whileInputIO(f);
 }
 
@@ -581,7 +660,9 @@ export function recurUntil<A>(f: (a: A) => boolean): Schedule.WithState<void, un
 /**
  * @tsplus static fncts.control.Schedule recurUntilIO
  */
-export function recurUntilIO<R, A>(f: (a: A) => URIO<R, boolean>): Schedule.WithState<void, R, A, A> {
+export function recurUntilIO<R, A>(
+  f: (a: A) => URIO<R, boolean>,
+): Schedule.WithState<void, R, A, A> {
   return identity<A>().untilInputIO(f);
 }
 
@@ -595,7 +676,9 @@ export function recurUntilEquals<A>(value: Lazy<A>): Schedule.WithState<void, un
 /**
  * @tsplus getter fncts.control.Schedule repetitions
  */
-export function repetitions<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<readonly [S, number], R, I, number> {
+export function repetitions<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+): Schedule.WithState<readonly [S, number], R, I, number> {
   return self.fold(0, (n, _) => n + 1);
 }
 
@@ -615,18 +698,27 @@ export function resetAfter_<S, R, I, O>(
 /**
  * @tsplus fluent fncts.control.Schedule resetWhen
  */
-export function resetWhen_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, f: (out: O) => boolean): Schedule.WithState<S, R, I, O> {
+export function resetWhen_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  f: (out: O) => boolean,
+): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self
       .step(now, inp, state)
-      .chain(([state, out, decision]) => (f(out) ? self.step(now, inp, self.initial) : IO.succeedNow([state, out, decision]))),
+      .chain(([state, out, decision]) =>
+        f(out) ? self.step(now, inp, self.initial) : IO.succeedNow([state, out, decision]),
+      ),
   );
 }
 
 /**
  * @tsplus fluent fncts.control.Schedule run
  */
-export function run_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, now: number, input: Iterable<I>): URIO<R, Conc<O>> {
+export function run_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  now: number,
+  input: Iterable<I>,
+): URIO<R, Conc<O>> {
   const loop = (now: number, xs: List<I>, state: S, acc: Conc<O>): URIO<R, Conc<O>> => {
     if (xs.isEmpty()) {
       return IO.succeedNow(acc);
@@ -673,7 +765,9 @@ export function tapOutput_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (out: O) => URIO<R1, any>,
 ): Schedule.WithState<S, R & R1, I, O> {
-  return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).tap(([_, out]) => f(out)));
+  return Schedule(self.initial, (now, inp, state) =>
+    self.step(now, inp, state).tap(([_, out]) => f(out)),
+  );
 }
 
 /**
@@ -720,7 +814,10 @@ export function unfold<A>(a: Lazy<A>, f: (a: A) => A): Schedule.WithState<A, unk
 /**
  * @tsplus fluent fncts.control.Schedule untilInput
  */
-export function untilInput_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, f: (inp: I) => boolean): Schedule.WithState<S, R, I, O> {
+export function untilInput_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  f: (inp: I) => boolean,
+): Schedule.WithState<S, R, I, O> {
   return self.check((inp) => !f(inp));
 }
 
@@ -737,7 +834,10 @@ export function untilInputIO_<S, R, I, O, R1>(
 /**
  * @tsplus fluent fncts.control.Schedule untilOutput
  */
-export function untilOutput_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, f: (out: O) => boolean): Schedule.WithState<S, R, I, O> {
+export function untilOutput_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  f: (out: O) => boolean,
+): Schedule.WithState<S, R, I, O> {
   return self.check((_, out) => !f(out));
 }
 
@@ -754,14 +854,19 @@ export function untilOutputIO_<S, R, I, O, R1>(
 /**
  * @tsplus static fncts.control.Schedule upTo
  */
-export function upTo(duration: number): Schedule.WithState<Maybe<number>, unknown, unknown, number> {
+export function upTo(
+  duration: number,
+): Schedule.WithState<Maybe<number>, unknown, unknown, number> {
   return Schedule.elapsed.whileOutput((n) => n < duration);
 }
 
 /**
  * @tsplus fluent fncts.control.Schedule whileInput
  */
-export function whileInput_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, f: (inp: I) => boolean): Schedule.WithState<S, R, I, O> {
+export function whileInput_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  f: (inp: I) => boolean,
+): Schedule.WithState<S, R, I, O> {
   return self.check((inp) => f(inp));
 }
 
@@ -778,7 +883,10 @@ export function whileInputIO_<S, R, I, O, R1>(
 /**
  * @tsplus fluent fncts.control.Schedule whileOutput
  */
-export function whileOutput_<S, R, I, O>(self: Schedule.WithState<S, R, I, O>, f: (out: O) => boolean): Schedule.WithState<S, R, I, O> {
+export function whileOutput_<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  f: (out: O) => boolean,
+): Schedule.WithState<S, R, I, O> {
   return self.check((_, out) => f(out));
 }
 
@@ -795,7 +903,9 @@ export function whileOutputIO_<S, R, I, O, R1>(
 /**
  * @tsplus static fncts.control.Schedule windowed
  */
-export function windowed(interval: number): Schedule.WithState<readonly [Maybe<number>, number], unknown, unknown, number> {
+export function windowed(
+  interval: number,
+): Schedule.WithState<readonly [Maybe<number>, number], unknown, unknown, number> {
   return Schedule([Nothing(), 0], (now, inp, [m, n]) =>
     IO.succeed(() =>
       m.match(

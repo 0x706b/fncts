@@ -9,7 +9,10 @@ import { IO } from "../definition";
  *
  * @tsplus fluent fncts.control.IO withRuntimeConfig
  */
-export function withRuntimeConfig_<R, E, A>(self: IO<R, E, A>, runtimeConfig: Lazy<RuntimeConfig>): IO<R, E, A> {
+export function withRuntimeConfig_<R, E, A>(
+  self: IO<R, E, A>,
+  runtimeConfig: Lazy<RuntimeConfig>,
+): IO<R, E, A> {
   return IO.runtimeConfig.chain((currentRuntimeConfig) =>
     IO.setRuntimeConfig(runtimeConfig)
       .apSecond(IO.yieldNow)

@@ -8,7 +8,11 @@ import { IO } from "../definition";
 /**
  * @tsplus fluent fncts.control.IO zipWithC
  */
-export function zipWithC_<R, E, A, R1, E1, B, C>(self: IO<R, E, A>, that: IO<R1, E1, B>, f: (a: A, b: B) => C): IO<R & R1, E | E1, C> {
+export function zipWithC_<R, E, A, R1, E1, B, C>(
+  self: IO<R, E, A>,
+  that: IO<R1, E1, B>,
+  f: (a: A, b: B) => C,
+): IO<R & R1, E | E1, C> {
   const g = (b: B, a: A) => f(a, b);
 
   return IO.transplant((graft) =>
@@ -23,12 +27,21 @@ export function zipWithC_<R, E, A, R1, E1, B, C>(self: IO<R, E, A>, that: IO<R1,
 }
 
 function coordinateZipWithC<E, E2>() {
-  return <B, X, Y>(fiberId: FiberId, f: (a: X, b: Y) => B, leftWinner: boolean, winner: Exit<E | E2, X>, loser: Fiber<E | E2, Y>) => {
+  return <B, X, Y>(
+    fiberId: FiberId,
+    f: (a: X, b: Y) => B,
+    leftWinner: boolean,
+    winner: Exit<E | E2, X>,
+    loser: Fiber<E | E2, Y>,
+  ) => {
     return winner.match(
       (cw) =>
         loser.interruptAs(fiberId).chain((exit) =>
           exit.match(
-            (cl) => (leftWinner ? IO.failCauseNow(Cause.both(cw, cl)) : IO.failCauseNow(Cause.both(cl, cw))),
+            (cl) =>
+              leftWinner
+                ? IO.failCauseNow(Cause.both(cw, cl))
+                : IO.failCauseNow(Cause.both(cl, cw)),
             () => IO.failCauseNow(cw),
           ),
         ),

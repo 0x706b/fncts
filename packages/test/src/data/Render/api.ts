@@ -24,7 +24,9 @@ export function infix(left: RenderParam, op: string, right: RenderParam): Render
 export function rendered(self: Render): string {
   switch (self._tag) {
     case RenderTag.Function:
-      return `${self.name}(${self.paramLists.map((ps) => ps.map((p) => p.rendered).join(", ")).join("")})`;
+      return `${self.name}(${self.paramLists
+        .map((ps) => ps.map((p) => p.rendered).join(", "))
+        .join("")})`;
     case RenderTag.Infix:
       return `(${self.left.rendered} ${self.op} ${self.right.rendered})`;
   }

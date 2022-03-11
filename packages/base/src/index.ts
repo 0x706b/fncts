@@ -1,2 +1,2 @@
-export {} from "./data/string"
-export {} from "./data/number"
+export {} from "./data/number";
+export {} from "./data/string";

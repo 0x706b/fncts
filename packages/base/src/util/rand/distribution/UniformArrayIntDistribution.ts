@@ -2,7 +2,12 @@ import type RandomGenerator from "../generator/RandomGenerator";
 import type Distribution from "./Distribution";
 import type { ArrayInt } from "./internals/ArrayInt";
 
-import { addArrayIntToNew, addOneToPositiveArrayInt, substractArrayIntToNew, trimArrayIntInplace } from "./internals/ArrayInt";
+import {
+  addArrayIntToNew,
+  addOneToPositiveArrayInt,
+  substractArrayIntToNew,
+  trimArrayIntInplace,
+} from "./internals/ArrayInt";
 import { uniformArrayIntDistributionInternal } from "./internals/UniformArrayIntDistributionInternal";
 
 /** @internal */

@@ -5,7 +5,9 @@ import { Conc } from "../../collection/immutable/Conc";
 import { Channel } from "../Channel";
 import { Sink } from "./definition";
 
-function collectLoop<Err, A>(state: Conc<A>): Channel<unknown, Err, Conc<A>, unknown, Err, Conc<never>, Conc<A>> {
+function collectLoop<Err, A>(
+  state: Conc<A>,
+): Channel<unknown, Err, Conc<A>, unknown, Err, Conc<never>, Conc<A>> {
   return Channel.readWithCause(
     (inp: Conc<A>) => collectLoop(state.concat(inp)),
     Channel.failCauseNow,
@@ -22,7 +24,15 @@ export function collectAll<Err, A>(): Sink<unknown, Err, A, never, Conc<A>> {
   return new Sink(collectLoop<Err, A>(Conc.empty()));
 }
 
-const drainLoop: Channel<unknown, never, Conc<unknown>, unknown, never, Conc<never>, void> = Channel.readWithCause(
+const drainLoop: Channel<
+  unknown,
+  never,
+  Conc<unknown>,
+  unknown,
+  never,
+  Conc<never>,
+  void
+> = Channel.readWithCause(
   () => drainLoop,
   Channel.failCauseNow,
   () => Channel.unit,
@@ -75,7 +85,9 @@ function foreachWhileLoop<R, Err, In>(
     return cont;
   }
   return Channel.fromIO(f(chunk.unsafeGet(idx)))
-    .chain((b) => (b ? foreachWhileLoop(f, chunk, idx + 1, len, cont) : Channel.writeNow(chunk.drop(idx))))
+    .chain((b) =>
+      b ? foreachWhileLoop(f, chunk, idx + 1, len, cont) : Channel.writeNow(chunk.drop(idx)),
+    )
     .catchAll((e) => Channel.writeNow(chunk.drop(idx)).apSecond(Channel.failNow(e)));
 }
 
@@ -85,7 +97,9 @@ function foreachWhileLoop<R, Err, In>(
  *
  * @tsplus static fncts.control.SinkOps foreachWhile
  */
-export function foreachWhile<R, Err, In>(f: (_: In) => IO<R, Err, boolean>): Sink<R, Err, In, In, void> {
+export function foreachWhile<R, Err, In>(
+  f: (_: In) => IO<R, Err, boolean>,
+): Sink<R, Err, In, In, void> {
   const process: Channel<R, Err, Conc<In>, unknown, Err, Conc<In>, void> = Channel.readWithCause(
     (inp: Conc<In>) => foreachWhileLoop(f, inp, 0, inp.length, process),
     Channel.failCauseNow,

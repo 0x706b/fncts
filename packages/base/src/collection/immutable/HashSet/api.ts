@@ -145,7 +145,9 @@ export function mapDefault<A, B>(self: HashSet<A>, f: (a: A) => B): HashSet<B> {
 /**
  * Map + Flatten
  */
-export function chain_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
+export function chain_<B>(
+  C: P.HashEq<B>,
+): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
   const r = make<B>(C);
   return (set, f) =>
     mutate_(r, (r) => {
@@ -212,7 +214,9 @@ export function filter_<A>(set: HashSet<A>, predicate: Predicate<A>): HashSet<A>
   });
 }
 
-export function filterMap_<B>(B: P.HashEq<B>): <A>(fa: HashSet<A>, f: (a: A) => Maybe<B>) => HashSet<B> {
+export function filterMap_<B>(
+  B: P.HashEq<B>,
+): <A>(fa: HashSet<A>, f: (a: A) => Maybe<B>) => HashSet<B> {
   return (fa, f) => {
     const out = beginMutation(make(B));
     forEach_(fa, (a) => {
@@ -230,9 +234,15 @@ export function filterMap_<B>(B: P.HashEq<B>): <A>(fa: HashSet<A>, f: (a: A) => 
  *
  * @tsplus fluent fncts.collection.immutable.HashSet partition
  */
-export function partition_<A, B extends A>(self: HashSet<A>, p: Refinement<A, B>): readonly [HashSet<A>, HashSet<B>];
+export function partition_<A, B extends A>(
+  self: HashSet<A>,
+  p: Refinement<A, B>,
+): readonly [HashSet<A>, HashSet<B>];
 export function partition_<A>(self: HashSet<A>, p: Predicate<A>): readonly [HashSet<A>, HashSet<A>];
-export function partition_<A>(self: HashSet<A>, p: Predicate<A>): readonly [HashSet<A>, HashSet<A>] {
+export function partition_<A>(
+  self: HashSet<A>,
+  p: Predicate<A>,
+): readonly [HashSet<A>, HashSet<A>] {
   const right = beginMutation(make(self.config));
   const left  = beginMutation(make(self.config));
   forEach_(self, (v) => {
@@ -424,12 +434,22 @@ function setTree<A>(set: HashSet<A>, newRoot: Node<A>, newSize: number) {
     set._size = newSize;
     return set;
   }
-  return newRoot === set._root ? set : new HashSet(set._editable, set._edit, set.config, newRoot, newSize);
+  return newRoot === set._root
+    ? set
+    : new HashSet(set._editable, set._edit, set.config, newRoot, newSize);
 }
 
 function modifyHash<A>(set: HashSet<A>, value: A, hash: number, remove: boolean): HashSet<A> {
   const size    = { value: set._size };
-  const newRoot = set._root.modify(remove, set._editable ? set._edit : NaN, set.config.equals_, 0, hash, value, size);
+  const newRoot = set._root.modify(
+    remove,
+    set._editable ? set._edit : NaN,
+    set.config.equals_,
+    0,
+    hash,
+    value,
+    size,
+  );
   return setTree(set, newRoot, size.value);
 }
 

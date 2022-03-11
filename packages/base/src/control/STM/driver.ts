@@ -5,7 +5,13 @@ import type { OnFailure, OnRetry, OnSuccess } from "../STM";
 import { TExit } from "../../data/TExit";
 import { Stack } from "../../internal/Stack";
 import { STM, STMTag } from "../STM";
-import { concrete, isFailException, isHaltException, isInterruptException, isRetryException } from "./definition";
+import {
+  concrete,
+  isFailException,
+  isHaltException,
+  isInterruptException,
+  isRetryException,
+} from "./definition";
 
 type Erased = STM<unknown, unknown, unknown>;
 type Cont =
@@ -17,7 +23,12 @@ export class STMDriver<R, E, A> {
   private contStack: Stack<Cont> | undefined;
   private envStack: Stack<unknown>;
 
-  constructor(readonly self: STM<R, E, A>, readonly journal: Journal, readonly fiberId: FiberId, r0: R) {
+  constructor(
+    readonly self: STM<R, E, A>,
+    readonly journal: Journal,
+    readonly fiberId: FiberId,
+    r0: R,
+  ) {
     this.envStack = Stack.make(r0);
   }
 

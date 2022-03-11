@@ -10,5 +10,7 @@ import { IO } from "../definition";
  * @tsplus fluent fncts.control.IO fulfill
  */
 export function fulfill_<R, E, A>(effect: IO<R, E, A>, p: Future<E, A>): IO<R, never, boolean> {
-  return IO.uninterruptibleMask(({ restore }) => restore(effect).result.chain((exit) => p.done(exit)));
+  return IO.uninterruptibleMask(({ restore }) =>
+    restore(effect).result.chain((exit) => p.done(exit)),
+  );
 }

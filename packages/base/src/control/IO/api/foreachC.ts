@@ -22,7 +22,10 @@ import { IO } from "../definition";
  *
  * @tsplus static fncts.control.IOOps foreachDiscardC
  */
-export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
+export function foreachDiscardC_<R, E, A>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, any>,
+): IO<R, E, void> {
   return IO.concurrencyWith((conc) =>
     conc.match(
       () => foreachConcurrentUnboundedDiscard(as, f),
@@ -39,7 +42,10 @@ export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E,
  *
  * @tsplus static fncts.control.IOOps foreachC
  */
-export function foreachC_<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
+export function foreachC_<R, E, A, B>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, B>,
+): IO<R, E, Conc<B>> {
   return IO.concurrencyWith((conc) =>
     conc.match(
       () => foreachConcurrentUnbounded(as, f),
@@ -48,7 +54,10 @@ export function foreachC_<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>)
   );
 }
 
-function foreachConcurrentUnboundedDiscard<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
+function foreachConcurrentUnboundedDiscard<R, E, A>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, any>,
+): IO<R, E, void> {
   return IO.defer(() => {
     const arr  = Array.from(as);
     const size = arr.length;
@@ -84,7 +93,9 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(as: Iterable<A>, f: (a: A) =
               Exit.collectAllC(exits).match(
                 () => IO.failCauseNow(cause.stripFailures),
                 (exit) =>
-                  exit.isFailure() ? IO.failCauseNow(Cause.both(cause.stripFailures, exit.cause)) : IO.failCauseNow(cause.stripFailures),
+                  exit.isFailure()
+                    ? IO.failCauseNow(Cause.both(cause.stripFailures, exit.cause))
+                    : IO.failCauseNow(cause.stripFailures),
               ),
             ),
           () => IO.foreachDiscard(fibers, (fiber) => fiber.inheritRefs),
@@ -94,7 +105,10 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(as: Iterable<A>, f: (a: A) =
   });
 }
 
-function foreachConcurrentUnbounded<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
+function foreachConcurrentUnbounded<R, E, A, B>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, B>,
+): IO<R, E, Conc<B>> {
   return IO.succeed<B[]>([])
     .chain((array) =>
       foreachConcurrentUnboundedDiscard(as.zipWithIndex, ([n, a]) =>
@@ -108,7 +122,10 @@ function foreachConcurrentUnbounded<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO
     .map(Conc.from);
 }
 
-function foreachConcurrentBoundedDiscardWorker<R, E, A>(queue: Queue<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
+function foreachConcurrentBoundedDiscardWorker<R, E, A>(
+  queue: Queue<A>,
+  f: (a: A) => IO<R, E, any>,
+): IO<R, E, void> {
   return queue.poll.chain((ma) =>
     ma.match(
       () => IO.unit,
@@ -117,7 +134,11 @@ function foreachConcurrentBoundedDiscardWorker<R, E, A>(queue: Queue<A>, f: (a: 
   );
 }
 
-function foreachConcurrentBoundedDiscard<R, E, A>(as: Iterable<A>, n: number, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
+function foreachConcurrentBoundedDiscard<R, E, A>(
+  as: Iterable<A>,
+  n: number,
+  f: (a: A) => IO<R, E, any>,
+): IO<R, E, void> {
   return IO.defer(() => {
     const size =
       "length" in as && typeof (as as Iterable<A> & { length: unknown })["length"] === "number"
@@ -131,7 +152,12 @@ function foreachConcurrentBoundedDiscard<R, E, A>(as: Iterable<A>, n: number, f:
     return IO.gen(function* (_) {
       const queue = yield* _(Queue.makeBounded<A>(size));
       yield* _(queue.offerAll(as));
-      yield* _(foreachConcurrentUnboundedDiscard(foreachConcurrentBoundedDiscardWorker(queue, f).replicate(n), identity));
+      yield* _(
+        foreachConcurrentUnboundedDiscard(
+          foreachConcurrentBoundedDiscardWorker(queue, f).replicate(n),
+          identity,
+        ),
+      );
     });
   });
 }
@@ -156,7 +182,11 @@ function foreachConcurrentBoundedWorker<R, E, A, B>(
   );
 }
 
-function foreachConcurrentBounded<R, E, A, B>(as: Iterable<A>, n: number, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
+function foreachConcurrentBounded<R, E, A, B>(
+  as: Iterable<A>,
+  n: number,
+  f: (a: A) => IO<R, E, B>,
+): IO<R, E, Conc<B>> {
   return IO.defer(() => {
     const size =
       "length" in as && typeof (as as Iterable<A> & { length: unknown })["length"] === "number"
@@ -170,7 +200,12 @@ function foreachConcurrentBounded<R, E, A, B>(as: Iterable<A>, n: number, f: (a:
       const array = yield* _(IO.succeed(new Array<B>(size)));
       const queue = yield* _(Queue.makeBounded<readonly [number, A]>(size));
       yield* _(queue.offerAll(as.zipWithIndex));
-      yield* _(foreachConcurrentUnboundedDiscard(foreachConcurrentBoundedWorker(queue, array, f).replicate(n), identity));
+      yield* _(
+        foreachConcurrentUnboundedDiscard(
+          foreachConcurrentBoundedWorker(queue, array, f).replicate(n),
+          identity,
+        ),
+      );
       return Conc.from(array);
     });
   });

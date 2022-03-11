@@ -15,13 +15,22 @@ function unifyHalt(halt: Halt): Unified {
 }
 
 function unifyInterrupt(interrupt: Interrupt): Unified {
-  return new Unified(interrupt.trace.fiberId, [`Interrupted by fiber ${interrupt.id.threadName}`], interrupt.trace.toJS);
+  return new Unified(
+    interrupt.trace.fiberId,
+    [`Interrupted by fiber ${interrupt.id.threadName}`],
+    interrupt.trace.toJS,
+  );
 }
 
 /**
  * @tsplus tailRec
  */
-function unifyLoop<E>(causes: List<Cause<E>>, fiberId: FiberId, stackless: boolean, result: List<Unified>): List<Unified> {
+function unifyLoop<E>(
+  causes: List<Cause<E>>,
+  fiberId: FiberId,
+  stackless: boolean,
+  result: List<Unified>,
+): List<Unified> {
   if (causes.isEmpty()) {
     return result;
   }

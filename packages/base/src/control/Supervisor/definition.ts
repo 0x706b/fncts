@@ -9,7 +9,12 @@ import type { IO, UIO } from "../IO";
  */
 export abstract class Supervisor<A> {
   abstract readonly value: UIO<A>;
-  abstract unsafeOnStart<R, E, A>(environment: R, effect: IO<R, E, A>, parent: Maybe<RuntimeFiber<E, A>>, fiber: RuntimeFiber<E, A>): void;
+  abstract unsafeOnStart<R, E, A>(
+    environment: R,
+    effect: IO<R, E, A>,
+    parent: Maybe<RuntimeFiber<E, A>>,
+    fiber: RuntimeFiber<E, A>,
+  ): void;
   abstract unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>): void;
   unsafeOnEffect<E, A>(_fiber: RuntimeFiber<E, A>, _effect: IO<any, any, any>): void {
     return;
@@ -47,7 +52,12 @@ export class ProxySupervisor<A> extends Supervisor<A> {
   constructor(readonly value: UIO<A>, readonly underlying: Supervisor<any>) {
     super();
   }
-  unsafeOnStart<R, E, A>(environment: R, effect: IO<R, E, A>, parent: Maybe<RuntimeFiber<E, A>>, fiber: RuntimeFiber<E, A>): void {
+  unsafeOnStart<R, E, A>(
+    environment: R,
+    effect: IO<R, E, A>,
+    parent: Maybe<RuntimeFiber<E, A>>,
+    fiber: RuntimeFiber<E, A>,
+  ): void {
     this.underlying.unsafeOnStart(environment, effect, parent, fiber);
   }
   unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>): void {

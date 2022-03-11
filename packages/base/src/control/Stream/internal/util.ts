@@ -2,7 +2,11 @@ import { Conc } from "../../../collection/immutable/Conc";
 import { Either } from "../../../data/Either";
 import { tuple } from "../../../data/function";
 
-export function zipChunks<A, B, C>(fa: Conc<A>, fb: Conc<B>, f: (a: A, b: B) => C): readonly [Conc<C>, Either<Conc<A>, Conc<B>>] {
+export function zipChunks<A, B, C>(
+  fa: Conc<A>,
+  fb: Conc<B>,
+  f: (a: A, b: B) => C,
+): readonly [Conc<C>, Either<Conc<A>, Conc<B>>] {
   let fc    = Conc.empty<C>();
   const len = Math.min(fa.length, fb.length);
   for (let i = 0; i < len; i++) {

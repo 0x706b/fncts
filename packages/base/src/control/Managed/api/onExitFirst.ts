@@ -24,15 +24,20 @@ export function onExitFirst_<R, E, A, R1>(
         const r1              = yield* _(IO.environment<R1>());
         const outerReleaseMap = yield* _(FiberRef.currentReleaseMap.get);
         const innerReleaseMap = yield* _(ReleaseMap.make);
-        const exitEA          = yield* _(FiberRef.currentReleaseMap.locally(innerReleaseMap)(restore(ma.io.map(([_, a]) => a)).result));
+        const exitEA          = yield* _(
+          FiberRef.currentReleaseMap.locally(innerReleaseMap)(
+            restore(ma.io.map(([_, a]) => a)).result,
+          ),
+        );
         const releaseMapEntry = yield* _(
           outerReleaseMap.add(
             Finalizer.get(
               (exit) =>
                 cleanup(exitEA)
                   .provideEnvironment(r1)
-                  .result.zipWith(innerReleaseMap.releaseAll(exit, ExecutionStrategy.sequential).result, (l, r) =>
-                    IO.fromExitNow(l.apSecond(r)),
+                  .result.zipWith(
+                    innerReleaseMap.releaseAll(exit, ExecutionStrategy.sequential).result,
+                    (l, r) => IO.fromExitNow(l.apSecond(r)),
                   ).flatten,
             ),
           ),

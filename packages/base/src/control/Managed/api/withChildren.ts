@@ -12,14 +12,18 @@ import { Managed } from "../definition";
  *
  * @tsplus static fncts.control.ManagedOps withChildren
  */
-export function withChildren<R, E, A>(get: (_: UIO<Conc<Fiber.Runtime<any, any>>>) => Managed<R, E, A>): Managed<R, E, A> {
+export function withChildren<R, E, A>(
+  get: (_: UIO<Conc<Fiber.Runtime<any, any>>>) => Managed<R, E, A>,
+): Managed<R, E, A> {
   return Managed.unwrap(
     Supervisor.track.map(
       (supervisor) =>
         new Managed(
-          get(supervisor.value.chain((children) => IO.descriptor.map((d) => children.filter((f) => f.id !== d.id)))).io.supervised(
-            supervisor,
-          ),
+          get(
+            supervisor.value.chain((children) =>
+              IO.descriptor.map((d) => children.filter((f) => f.id !== d.id)),
+            ),
+          ).io.supervised(supervisor),
         ),
     ),
   );

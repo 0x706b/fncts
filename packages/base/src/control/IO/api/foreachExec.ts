@@ -11,7 +11,11 @@ import { IO } from "../definition";
  *
  * @tsplus static fncts.control.IOOps foreachExec
  */
-export function foreachExec_<R, E, A, B>(as: Iterable<A>, es: ExecutionStrategy, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
+export function foreachExec_<R, E, A, B>(
+  as: Iterable<A>,
+  es: ExecutionStrategy,
+  f: (a: A) => IO<R, E, B>,
+): IO<R, E, Conc<B>> {
   return es.match(
     () => IO.foreach(as, f),
     () => IO.foreachC(as, f).withConcurrencyUnbounded,

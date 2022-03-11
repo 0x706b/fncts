@@ -16,14 +16,24 @@ import { Sample } from "../Sample";
 import { Gen } from "./definition";
 
 export const anyBigInt: Gen<Has<Random>, bigint> = fromIOSample(
-  Random.nextBigIntBetween(BigInt(-1) << BigInt(255), (BigInt(1) << BigInt(255)) - BigInt(1)).map(Sample.shrinkBigInt(BigInt(0))),
+  Random.nextBigIntBetween(BigInt(-1) << BigInt(255), (BigInt(1) << BigInt(255)) - BigInt(1)).map(
+    Sample.shrinkBigInt(BigInt(0)),
+  ),
 );
 
-export const anyDouble: Gen<Has<Random>, number> = Gen.fromIOSample(Random.nextDouble.map(Sample.shrinkFractional(0)));
+export const anyDouble: Gen<Has<Random>, number> = Gen.fromIOSample(
+  Random.nextDouble.map(Sample.shrinkFractional(0)),
+);
 
-export const anyInt: Gen<Has<Random>, number> = Gen.fromIOSample(Random.nextInt.map(Sample.shrinkIntegral(0)));
+export const anyInt: Gen<Has<Random>, number> = Gen.fromIOSample(
+  Random.nextInt.map(Sample.shrinkIntegral(0)),
+);
 
-export function bounded<R, A>(min: number, max: number, f: (n: number) => Gen<R, A>): Gen<R & Has<Random>, A> {
+export function bounded<R, A>(
+  min: number,
+  max: number,
+  f: (n: number) => Gen<R, A>,
+): Gen<R & Has<Random>, A> {
   return Gen.int({ min, max }).chain(f);
 }
 
@@ -42,7 +52,9 @@ export function chain_<R, A, R1, B>(ma: Gen<R, A>, f: (a: A) => Gen<R1, B>): Gen
     Sample.chainStream(ma.sample, (sample) => {
       const values  = f(sample.value).sample;
       const shrinks = new Gen(sample.shrink).chain((a) => f(a)).sample;
-      return values.map((maybeSample) => maybeSample.map((sample) => sample.chain((b) => new Sample(b, shrinks))));
+      return values.map((maybeSample) =>
+        maybeSample.map((sample) => sample.chain((b) => new Sample(b, shrinks))),
+      );
     }),
   );
 }
@@ -103,7 +115,9 @@ export function int(constraints: NumberConstraints = {}): Gen<Has<Random>, numbe
   );
 }
 
-export function memo<R, A>(builder: (maxDepth: number) => Gen<R, A>): (maxDepth?: number) => Gen<R, A> {
+export function memo<R, A>(
+  builder: (maxDepth: number) => Gen<R, A>,
+): (maxDepth?: number) => Gen<R, A> {
   const previous: { [depth: number]: Gen<R, A> } = {};
   let remainingDepth = 10;
   return (maxDepth?: number): Gen<R, A> => {
@@ -127,11 +141,15 @@ export function nat(max = 0x7fffffff): Gen<Has<Random>, number> {
 
 export function reshrink_<R, A, R1, B>(gen: Gen<R, A>, f: (a: A) => Sample<R1, B>): Gen<R & R1, B> {
   return new Gen(
-    (gen.sample as Stream<R & R1, never, Maybe<Sample<R, A>>>).map((maybeSample) => maybeSample.map((sample) => f(sample.value))),
+    (gen.sample as Stream<R & R1, never, Maybe<Sample<R, A>>>).map((maybeSample) =>
+      maybeSample.map((sample) => f(sample.value)),
+    ),
   );
 }
 
 /**
  * @tsplus static fncts.test.control.GenOps uniform
  */
-export const uniform: Gen<Has<Random>, number> = Gen.fromIOSample(Random.nextDouble.map(Sample.shrinkFractional(0.0)));
+export const uniform: Gen<Has<Random>, number> = Gen.fromIOSample(
+  Random.nextDouble.map(Sample.shrinkFractional(0.0)),
+);

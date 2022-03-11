@@ -37,7 +37,12 @@ export function done<E, A>(self: Take<E, A>): FIO<Maybe<E>, Conc<A>> {
  *
  * @tsplus fluent fncts.control.Stream.Take match
  */
-export function match_<E, A, Z>(self: Take<E, A>, end: Z, error: (cause: Cause<E>) => Z, value: (chunk: Conc<A>) => Z): Z {
+export function match_<E, A, Z>(
+  self: Take<E, A>,
+  end: Z,
+  error: (cause: Cause<E>) => Z,
+  value: (chunk: Conc<A>) => Z,
+): Z {
   return self.exit.match((cause) => cause.flipCauseMaybe.match(() => end, error), value);
 }
 
@@ -108,7 +113,10 @@ export function map_<E, A, B>(self: Take<E, A>, f: (a: A) => B): Take<E, B> {
  *
  * @tsplus fluent fncts.control.Stream.Take tap
  */
-export function tap_<R, E, E1, A>(self: Take<E, A>, f: (chunk: Conc<A>) => IO<R, E1, any>): IO<R, E1, void> {
+export function tap_<R, E, E1, A>(
+  self: Take<E, A>,
+  f: (chunk: Conc<A>) => IO<R, E1, any>,
+): IO<R, E1, void> {
   return self.exit.foreachIO(f);
 }
 

@@ -8,6 +8,10 @@ export class HashedPair<A, B> implements Hashable, Equatable {
   }
 
   [Symbol.equatable](that: unknown) {
-    return that instanceof HashedPair && Equatable.strictEquals(this.first, that.first) && Equatable.strictEquals(this.second, that.second);
+    return (
+      that instanceof HashedPair &&
+      Equatable.strictEquals(this.first, that.first) &&
+      Equatable.strictEquals(this.second, that.second)
+    );
   }
 }

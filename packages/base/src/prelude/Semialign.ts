@@ -33,7 +33,10 @@ export interface SemialignOps {}
 
 export const Semialign: SemialignOps = {};
 
-export type SemialignMin<F extends HKT, C = HKT.None> = ({ readonly alignWith_: alignWith_<F, C> } | { readonly align_: align_<F, C> }) &
+export type SemialignMin<F extends HKT, C = HKT.None> = (
+  | { readonly alignWith_: alignWith_<F, C> }
+  | { readonly align_: align_<F, C> }
+) &
   FunctorMin<F, C>;
 
 /**
@@ -63,7 +66,8 @@ export function mkSemialign<F>(F: SemialignMin<HKT.F<F>>): Semialign<HKT.F<F>> {
       zipAll: (fb, a, b) => (fa) => zipAll_(fa, fb, a, b),
     });
   } else {
-    const alignWith_: Semialign<HKT.F<F>>["alignWith_"] = (fa, fb, f) => F.map_(F.align_(fa, fb), f);
+    const alignWith_: Semialign<HKT.F<F>>["alignWith_"] = (fa, fb, f) =>
+      F.map_(F.align_(fa, fb), f);
     return HKT.instance<Semialign<HKT.F<F>>>({
       ...Functor(F),
       alignWith_,
@@ -114,7 +118,17 @@ export interface align_<F extends HKT, C = HKT.None> {
 }
 
 export interface align<F extends HKT, C = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <K, Q, W, X, I, S, R, E, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K,
+    Q,
+    W,
+    X,
+    I,
+    S,
+    R,
+    E,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       C,
@@ -176,16 +190,10 @@ export interface alignWith_<F extends HKT, TC = HKT.None> {
 }
 
 export interface alignWith<F extends HKT, TC = HKT.None> {
-  <A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(fb: HKT.Kind<F, TC, K1, Q1, W1, X1, I1, S1, R1, E1, B>, f: (th: These<A, B>) => C): <
-    K,
-    Q,
-    W,
-    X,
-    I,
-    S,
-    R,
-    E,
-  >(
+  <A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
+    fb: HKT.Kind<F, TC, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
+    f: (th: These<A, B>) => C,
+  ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<
       F,
       TC,
@@ -285,12 +293,17 @@ export interface alignCombine<F extends HKT, C = HKT.None> {
   >;
 }
 
-export function alignCombineF_<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): alignCombine_<F, C> {
+export function alignCombineF_<F extends HKT, C = HKT.None>(
+  F: SemialignMin<F, C>,
+): alignCombine_<F, C> {
   const alignWith_ = alignWithF_(F);
-  return (S) => (fa1, fa2) => alignWith_(fa1, fa2, (th) => th.match(identity, identity, S.combine_));
+  return (S) => (fa1, fa2) =>
+    alignWith_(fa1, fa2, (th) => th.match(identity, identity, S.combine_));
 }
 
-export function alignCombineF<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): alignCombine<F, C>;
+export function alignCombineF<F extends HKT, C = HKT.None>(
+  F: SemialignMin<F, C>,
+): alignCombine<F, C>;
 export function alignCombineF<F>(F: SemialignMin<HKT.F<F>>): alignCombine<HKT.F<F>> {
   return (S) => (fb) => (fa) => alignCombineF_(F)(S)(fa, fb);
 }
@@ -327,7 +340,17 @@ export interface padZip_<F extends HKT, C = HKT.None> {
 }
 
 export interface padZip<F extends HKT, C = HKT.None> {
-  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <K, Q, W, X, I, S, R, E, A>(
+  <K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>): <
+    K,
+    Q,
+    W,
+    X,
+    I,
+    S,
+    R,
+    E,
+    A,
+  >(
     fa: HKT.Kind<
       F,
       C,
@@ -431,7 +454,9 @@ export interface padZipWith<F extends HKT, C = HKT.None> {
   >;
 }
 
-export function padZipWithF_<F extends HKT, C = HKT.None>(F: SemialignMin<F, C>): padZipWith_<F, C> {
+export function padZipWithF_<F extends HKT, C = HKT.None>(
+  F: SemialignMin<F, C>,
+): padZipWith_<F, C> {
   const alignWith_ = alignWithF_(F);
   return (fa, fb, f) =>
     alignWith_(fa, fb, (th) =>
@@ -482,7 +507,11 @@ export interface zipAll_<F extends HKT, C = HKT.None> {
 }
 
 export interface zipAll<F extends HKT, C = HKT.None> {
-  <A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>, a: A, b: B): <K, Q, W, X, I, S, R, E>(
+  <A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
+    fb: HKT.Kind<F, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
+    a: A,
+    b: B,
+  ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<
       F,
       C,

@@ -10,7 +10,18 @@ import { Either } from "../Either";
 import { identity } from "../function";
 import { Just, Maybe, MaybeTag, Nothing } from "../Maybe";
 import { Trace } from "../Trace";
-import { _Empty, Both, Cause, CauseTag, Empty, Fail, Halt, Interrupt, Stackless, Then } from "./definition";
+import {
+  _Empty,
+  Both,
+  Cause,
+  CauseTag,
+  Empty,
+  Fail,
+  Halt,
+  Interrupt,
+  Stackless,
+  Then,
+} from "./definition";
 
 /**
  * @tsplus fluent fncts.data.Cause as
@@ -86,7 +97,9 @@ function containsEval<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): Eva
       return true;
     }
     return yield* _(
-      self.foldLeft(Eval.now(false), (computation, c) => Just(computation.chain((b) => (b ? Eval.now(b) : c.equalsEval(that))))),
+      self.foldLeft(Eval.now(false), (computation, c) =>
+        Just(computation.chain((b) => (b ? Eval.now(b) : c.equalsEval(that)))),
+      ),
     );
   });
 }
@@ -97,7 +110,9 @@ function containsEval<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): Eva
  * @tsplus getter fncts.data.Cause defects
  */
 export function defects<E>(self: Cause<E>): ReadonlyArray<unknown> {
-  return self.foldLeft([] as ReadonlyArray<unknown>, (a, c) => (c._tag === CauseTag.Halt ? Just([...a, c.value]) : Nothing()));
+  return self.foldLeft([] as ReadonlyArray<unknown>, (a, c) =>
+    c._tag === CauseTag.Halt ? Just([...a, c.value]) : Nothing(),
+  );
 }
 
 /**
@@ -138,7 +153,9 @@ export function failed<E>(self: Cause<E>): boolean {
  * @tsplus getter fncts.data.Cause failures
  */
 export function failures<E>(self: Cause<E>): ReadonlyArray<E> {
-  return self.foldLeft([] as readonly E[], (a, c) => (c._tag === CauseTag.Fail ? Just(a.append(c.value)) : Nothing()));
+  return self.foldLeft([] as readonly E[], (a, c) =>
+    c._tag === CauseTag.Fail ? Just(a.append(c.value)) : Nothing(),
+  );
 }
 
 /**
@@ -224,7 +241,11 @@ export function filterDefects_<E>(self: Cause<E>, p: Predicate<unknown>): Maybe<
 /**
  * @tsplus tailRec
  */
-function findLoop<A, B>(self: Cause<A>, f: (cause: Cause<A>) => Maybe<B>, stack: List<Cause<A>>): Maybe<B> {
+function findLoop<A, B>(
+  self: Cause<A>,
+  f: (cause: Cause<A>) => Maybe<B>,
+  stack: List<Cause<A>>,
+): Maybe<B> {
   const r = f(self);
   switch (r._tag) {
     case MaybeTag.Nothing: {
@@ -548,7 +569,12 @@ export function foldLeft_<A, B>(self: Cause<A>, b: B, f: (b: B, cause: Cause<A>)
  * @internal
  * @tsplus tailRec
  */
-function foldLeftLoop<A, B>(self: Cause<A>, b: B, f: (b: B, a: Cause<A>) => Maybe<B>, stack: List<Cause<A>>): B {
+function foldLeftLoop<A, B>(
+  self: Cause<A>,
+  b: B,
+  f: (b: B, a: Cause<A>) => Maybe<B>,
+  stack: List<Cause<A>>,
+): B {
   const z = f(b, self).getOrElse(b);
 
   switch (self._tag) {
@@ -688,7 +714,9 @@ export function interruptOption<E>(self: Cause<E>): Maybe<FiberId> {
  * @tsplus getter fncts.data.Cause interruptors
  */
 export function interruptors<E>(self: Cause<E>): ReadonlySet<FiberId> {
-  return self.foldLeft(new Set(), (s, c) => (c._tag === CauseTag.Interrupt ? Just(s.add(c.id)) : Nothing()));
+  return self.foldLeft(new Set(), (s, c) =>
+    c._tag === CauseTag.Interrupt ? Just(s.add(c.id)) : Nothing(),
+  );
 }
 
 /**
@@ -698,7 +726,9 @@ export function interruptors<E>(self: Cause<E>): ReadonlySet<FiberId> {
  * @tsplus getter fncts.data.Cause interruptedOnly
  */
 export function interruptedOnly<E>(self: Cause<E>): boolean {
-  return self.find((c) => (halted(c) || failed(c) ? Maybe.just(false) : Maybe.nothing())).getOrElse(true);
+  return self
+    .find((c) => (halted(c) || failed(c) ? Maybe.just(false) : Maybe.nothing()))
+    .getOrElse(true);
 }
 
 /**
@@ -830,7 +860,9 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
       );
     }
     case CauseTag.Stackless: {
-      return Eval.defer(sequenceCauseEitherEval(self.cause)).map((_) => _.mapLeft((cause) => Stackless(cause, self.stackless)));
+      return Eval.defer(sequenceCauseEitherEval(self.cause)).map((_) =>
+        _.mapLeft((cause) => Stackless(cause, self.stackless)),
+      );
     }
   }
 }
@@ -887,7 +919,9 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
       );
     }
     case CauseTag.Stackless: {
-      return Eval.defer(sequenceCauseMaybeEval(self.cause)).map((_) => _.map((cause) => Stackless(cause, self.stackless)));
+      return Eval.defer(sequenceCauseMaybeEval(self.cause)).map((_) =>
+        _.map((cause) => Stackless(cause, self.stackless)),
+      );
     }
   }
 }
@@ -1042,4 +1076,7 @@ export function mapTrace(f: (trace: Trace) => Trace) {
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/fold";
 export * from "./api/isEmpty";
+export * from "./api/linearize";
+export * from "./api/prettyPrint";
+export * from "./api/unified";
 // codegen:end

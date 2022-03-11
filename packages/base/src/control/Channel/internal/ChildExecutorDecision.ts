@@ -50,7 +50,12 @@ export const ChildExecutorDecision: ChildExecutorDecisionOps = {};
 /**
  * @tsplus fluent fncts.control.Channel.ChildExecutorDecision match
  */
-export function match_<A, B, C>(d: ChildExecutorDecision, onContinue: () => A, onClose: (value: any) => B, onYield: () => C): A | B | C {
+export function match_<A, B, C>(
+  d: ChildExecutorDecision,
+  onContinue: () => A,
+  onClose: (value: any) => B,
+  onYield: () => C,
+): A | B | C {
   switch (d._tag) {
     case "Continue": {
       return onContinue();
@@ -64,6 +69,10 @@ export function match_<A, B, C>(d: ChildExecutorDecision, onContinue: () => A, o
   }
 }
 
-export function match<A, B, C>(onContinue: () => A, onClose: (value: any) => B, onYield: () => C): (d: ChildExecutorDecision) => A | B | C {
+export function match<A, B, C>(
+  onContinue: () => A,
+  onClose: (value: any) => B,
+  onYield: () => C,
+): (d: ChildExecutorDecision) => A | B | C {
   return (d) => match_(d, onContinue, onClose, onYield);
 }

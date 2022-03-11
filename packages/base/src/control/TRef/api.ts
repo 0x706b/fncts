@@ -31,10 +31,14 @@ export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<unknown, EB, B>
       });
     }
     case "Derived": {
-      return self.use((getEither, _setEither, value, _atomic) => get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)));
+      return self.use((getEither, _setEither, value, _atomic) =>
+        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
+      );
     }
     case "DerivedAll": {
-      return self.use((getEither, _setEither, value, _atomic) => get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)));
+      return self.use((getEither, _setEither, value, _atomic) =>
+        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
+      );
     }
   }
 }
@@ -45,7 +49,10 @@ export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<unknown, EB, B>
  *
  * @tsplus fluent fncts.control.TRef modify
  */
-export function modify_<E, A, B>(self: TRef<E, E, A, A>, f: (a: A) => readonly [B, A]): STM<unknown, E, B> {
+export function modify_<E, A, B>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => readonly [B, A],
+): STM<unknown, E, B> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -107,7 +114,9 @@ export function set_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, a: A): STM<unknown,
       });
     }
     case "Derived": {
-      return self.use((_getEither, setEither, value, _atomic) => setEither(a).match(STM.failNow, (s) => set_(value, s)));
+      return self.use((_getEither, setEither, value, _atomic) =>
+        setEither(a).match(STM.failNow, (s) => set_(value, s)),
+      );
     }
     case "DerivedAll": {
       return self.use((_getEither, setEither, value, _atomic) =>
@@ -133,7 +142,9 @@ export function unsafeGet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Jour
     case "Atomic":
       return getOrMakeEntry(self.atomic, journal).use((entry) => entry.unsafeGet<A>());
     default:
-      return self.use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal)).use((entry) => entry.unsafeGet());
+      return self
+        .use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal))
+        .use((entry) => entry.unsafeGet());
   }
 }
 
@@ -143,7 +154,11 @@ export function unsafeGet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Jour
  *
  * @tsplus fluent fncts.control.TRef modifyJust
  */
-export function modifyJust_<E, A, B>(self: TRef<E, E, A, A>, b: B, f: (a: A) => Maybe<readonly [B, A]>): STM<unknown, E, B> {
+export function modifyJust_<E, A, B>(
+  self: TRef<E, E, A, A>,
+  b: B,
+  f: (a: A) => Maybe<readonly [B, A]>,
+): STM<unknown, E, B> {
   return self.modify((a) => f(a).getOrElse([b, a]));
 }
 
@@ -197,7 +212,10 @@ export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
  *
  * @tsplus fluent fncts.control.TRef getAndUpdateJust
  */
-export function getAndUpdateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, A> {
+export function getAndUpdateJust_<E, A>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => Maybe<A>,
+): STM<unknown, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -247,7 +265,10 @@ export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unkno
  *
  * @tsplus fluent fncts.control.TRef updateJust
  */
-export function updateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, void> {
+export function updateJust_<E, A>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => Maybe<A>,
+): STM<unknown, E, void> {
   return self.update((a) => f(a).getOrElse(a));
 }
 
@@ -282,7 +303,10 @@ export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
  *
  * @tsplus fluent fncts.control.TRef updateJustAndGet
  */
-export function updateJustAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, A> {
+export function updateJustAndGet_<E, A>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => Maybe<A>,
+): STM<unknown, E, A> {
   return self.updateAndGet((a) => f(a).getOrElse(a));
 }
 
@@ -295,6 +319,8 @@ export function unsafeSet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Jour
     case "Atomic":
       return getOrMakeEntry(self.atomic, journal).use((entry) => entry.unsafeSet(a));
     default:
-      return self.use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal)).use((entry) => entry.unsafeSet(a));
+      return self
+        .use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal))
+        .use((entry) => entry.unsafeSet(a));
   }
 }

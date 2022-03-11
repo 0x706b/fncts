@@ -14,7 +14,12 @@ export class TestAnnotation<V> implements Hashable, Equatable {
   readonly _typeId: TestAnnotationTypeId = TestAnnotationTypeId;
   readonly _V!: () => V;
 
-  constructor(readonly tag: Tag<V>, readonly identifier: string, readonly initial: V, readonly combine: (v1: V, v2: V) => V) {}
+  constructor(
+    readonly tag: Tag<V>,
+    readonly identifier: string,
+    readonly initial: V,
+    readonly combine: (v1: V, v2: V) => V,
+  ) {}
 
   get [Symbol.hashable]() {
     return Hashable.combineHash(Hashable.hashString(this.identifier), Hashable.hash(this.tag));

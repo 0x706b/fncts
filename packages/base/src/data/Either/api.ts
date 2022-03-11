@@ -11,28 +11,45 @@ import { EitherTag, EitherTypeId, Left, Right } from "./definition";
 /**
  * @tsplus fluent fncts.data.Either ap
  */
-export function ap_<E1, A, E2, B>(self: Either<E1, (a: A) => B>, fa: Either<E2, A>): Either<E1 | E2, B> {
-  return self._tag === EitherTag.Left ? self : fa._tag === EitherTag.Left ? fa : Right(self.right(fa.right));
+export function ap_<E1, A, E2, B>(
+  self: Either<E1, (a: A) => B>,
+  fa: Either<E2, A>,
+): Either<E1 | E2, B> {
+  return self._tag === EitherTag.Left
+    ? self
+    : fa._tag === EitherTag.Left
+    ? fa
+    : Right(self.right(fa.right));
 }
 
 /**
  * @tsplus fluent fncts.data.Either bimap
  */
-export function bimap_<E1, A, E2, B>(self: Either<E1, A>, f: (e: E1) => E2, g: (a: A) => B): Either<E2, B> {
+export function bimap_<E1, A, E2, B>(
+  self: Either<E1, A>,
+  f: (e: E1) => E2,
+  g: (a: A) => B,
+): Either<E2, B> {
   return self._tag === EitherTag.Left ? Left(f(self.left)) : Right(g(self.right));
 }
 
 /**
  * @tsplus fluent fncts.data.Either catchAll
  */
-export function catchAll_<E1, A, E2, B>(self: Either<E1, A>, f: (e: E1) => Either<E2, B>): Either<E2, A | B> {
+export function catchAll_<E1, A, E2, B>(
+  self: Either<E1, A>,
+  f: (e: E1) => Either<E2, B>,
+): Either<E2, A | B> {
   return self._tag === EitherTag.Left ? f(self.left) : self;
 }
 
 /**
  * @tsplus fluent fncts.data.Either catchJust
  */
-export function catchJust_<E1, A, E2, B>(self: Either<E1, A>, f: (e: E1) => Maybe<Either<E2, B>>): Either<E1 | E2, A | B> {
+export function catchJust_<E1, A, E2, B>(
+  self: Either<E1, A>,
+  f: (e: E1) => Maybe<Either<E2, B>>,
+): Either<E1 | E2, A | B> {
   return self.catchAll((e): Either<E1 | E2, A | B> => f(e).getOrElse(self));
 }
 
@@ -46,7 +63,10 @@ export function catchMap_<E, A, B>(self: Either<E, A>, f: (e: E) => B): Either<n
 /**
  * @tsplus fluent fncts.data.Either chain
  */
-export function chain_<E1, A, E2, B>(self: Either<E1, A>, f: (a: A) => Either<E2, B>): Either<E1 | E2, B> {
+export function chain_<E1, A, E2, B>(
+  self: Either<E1, A>,
+  f: (a: A) => Either<E2, B>,
+): Either<E1 | E2, B> {
   return self._tag === EitherTag.Left ? self : f(self.right);
 }
 
@@ -68,7 +88,8 @@ export function foldRight_<E, A, B>(self: Either<E, A>, b: B, f: (a: A, b: B) =>
  * @constrained
  */
 export function foldMap_<M>(M: P.Monoid<M>) {
-  return <E, A>(self: Either<E, A>, f: (a: A) => M): M => (self._tag === EitherTag.Left ? M.nat : f(self.right));
+  return <E, A>(self: Either<E, A>, f: (a: A) => M): M =>
+    self._tag === EitherTag.Left ? M.nat : f(self.right);
 }
 
 /**
@@ -134,7 +155,10 @@ export function merge<E, A>(self: Either<E, A>): E | A {
 /**
  * @tsplus fluent fncts.data.Either orElse
  */
-export function orElse_<E1, A, E2, B>(self: Either<E1, A>, that: Lazy<Either<E2, B>>): Either<E1 | E2, A | B> {
+export function orElse_<E1, A, E2, B>(
+  self: Either<E1, A>,
+  that: Lazy<Either<E2, B>>,
+): Either<E1 | E2, A | B> {
   return self._tag === EitherTag.Left ? that() : self;
 }
 
@@ -143,7 +167,8 @@ export const sequence: P.sequence<EitherF> = (A) => (self) => traverse_(A)(self,
 /**
  * @tsplus getter fncts.data.Either sequence
  */
-export const sequenceSelf: P.sequenceSelf<EitherF> = (self) => (A) => unsafeCoerce(traverse_(A)(self, unsafeCoerce(identity)));
+export const sequenceSelf: P.sequenceSelf<EitherF> = (self) => (A) =>
+  unsafeCoerce(traverse_(A)(self, unsafeCoerce(identity)));
 
 /**
  * @tsplus getter fncts.data.Either swap
@@ -169,8 +194,16 @@ export const traverse: P.traverse<EitherF> = (A) => (f) => (self) => traverse_(A
  */
 export const traverseSelf: P.traverseSelf<EitherF> = (self) => (A) => (f) => traverse_(A)(self, f);
 
-export function zipWith_<E1, A, E2, B, C>(self: Either<E1, A>, fb: Either<E2, B>, f: (a: A, b: B) => C): Either<E1 | E2, C> {
-  return self._tag === EitherTag.Left ? self : fb._tag === EitherTag.Left ? fb : Right(f(self.right, fb.right));
+export function zipWith_<E1, A, E2, B, C>(
+  self: Either<E1, A>,
+  fb: Either<E2, B>,
+  f: (a: A, b: B) => C,
+): Either<E1 | E2, C> {
+  return self._tag === EitherTag.Left
+    ? self
+    : fb._tag === EitherTag.Left
+    ? fb
+    : Right(f(self.right, fb.right));
 }
 
 // codegen:start { preset: pipeable }

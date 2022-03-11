@@ -50,14 +50,19 @@ export class Runtime<R> {
     context.nextIO = concrete(io);
     context.run();
     context.unsafeOnDone((exit) => k(exit.flatten));
-    return (fiberId) => (k) => this.unsafeRunAsyncWith(context.interruptAs(fiberId), (exit) => k(exit.flatten));
+    return (fiberId) => (k) =>
+      this.unsafeRunAsyncWith(context.interruptAs(fiberId), (exit) => k(exit.flatten));
   };
 
   unsafeRunAsync = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => {
     this.unsafeRunAsyncWith(io, () => void 0);
   };
 
-  unsafeRunAsyncWith = <E, A>(io: IO<R, E, A>, k: (exit: Exit<E, A>) => any, __tsplusTrace?: string) => {
+  unsafeRunAsyncWith = <E, A>(
+    io: IO<R, E, A>,
+    k: (exit: Exit<E, A>) => any,
+    __tsplusTrace?: string,
+  ) => {
     this.unsafeRunWith(io, k);
   };
 
@@ -71,7 +76,9 @@ export class Runtime<R> {
  * @tsplus static fncts.control.IOOps runtime
  */
 export function runtime<R>(__tsplusTrace?: string): URIO<R, Runtime<R>> {
-  return IO.environmentWithIO((environment: R) => IO.runtimeConfig.map((config) => new Runtime(environment, config)));
+  return IO.environmentWithIO((environment: R) =>
+    IO.runtimeConfig.map((config) => new Runtime(environment, config)),
+  );
 }
 
 export const defaultRuntimeConfig = new RuntimeConfig({
@@ -79,7 +86,9 @@ export const defaultRuntimeConfig = new RuntimeConfig({
   supervisor: Supervisor.unsafeTrack(),
   flags: RuntimeConfigFlags.empty,
   yieldOpCount: 2048,
-  logger: Logger.defaultString.map((s) => console.log(s)).filterLogLevel((level) => level >= LogLevel.Info),
+  logger: Logger.defaultString
+    .map((s) => console.log(s))
+    .filterLogLevel((level) => level >= LogLevel.Info),
 });
 
 export const defaultRuntime = new Runtime(

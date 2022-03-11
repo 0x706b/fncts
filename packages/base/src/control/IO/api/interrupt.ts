@@ -31,7 +31,11 @@ export const interrupt: IO<unknown, never, never> = IO.fiberId.chain(IO.interrup
  *
  * @tsplus fluent fncts.control.IO setInterruptStatus
  */
-export function setInterruptStatus_<R, E, A>(self: IO<R, E, A>, flag: InterruptStatus, __tsplusTrace?: string): IO<R, E, A> {
+export function setInterruptStatus_<R, E, A>(
+  self: IO<R, E, A>,
+  flag: InterruptStatus,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
   return new SetInterrupt(self, flag, __tsplusTrace);
 }
 
@@ -73,7 +77,9 @@ export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: stri
  *
  * @tsplus static fncts.control.IOOps uninterruptibleMask
  */
-export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore) => IO<R, E, A>): IO<R, E, A> {
+export function uninterruptibleMask<R, E, A>(
+  f: (restore: InterruptStatusRestore) => IO<R, E, A>,
+): IO<R, E, A> {
   return IO.checkInterruptible((flag) => f(new InterruptStatusRestore(flag)).uninterruptible);
 }
 
@@ -88,7 +94,10 @@ export function onInterrupt_<R, E, A, R1>(
   cleanup: (interruptors: ReadonlySet<FiberId>) => IO<R1, never, any>,
 ): IO<R & R1, E, A> {
   return uninterruptibleMask(({ restore }) =>
-    restore(ma).matchCauseIO((cause) => (cause.interrupted ? cleanup(cause.interruptors) : IO.failCauseNow(cause)), IO.succeedNow),
+    restore(ma).matchCauseIO(
+      (cause) => (cause.interrupted ? cleanup(cause.interruptors) : IO.failCauseNow(cause)),
+      IO.succeedNow,
+    ),
   );
 }
 
@@ -98,10 +107,16 @@ export function onInterrupt_<R, E, A, R1>(
  *
  * @tsplus fluent fncts.control.IO onInterruptExtended
  */
-export function onInterruptExtended_<R, E, A, R2, E2>(self: IO<R, E, A>, cleanup: Lazy<IO<R2, E2, any>>): IO<R & R2, E | E2, A> {
+export function onInterruptExtended_<R, E, A, R2, E2>(
+  self: IO<R, E, A>,
+  cleanup: Lazy<IO<R2, E2, any>>,
+): IO<R & R2, E | E2, A> {
   return uninterruptibleMask(({ restore }) =>
     restore(self).matchCauseIO(
-      (cause) => (cause.interrupted ? cleanup().matchCauseIO(IO.failCauseNow, () => IO.failCauseNow(cause)) : IO.failCauseNow(cause)),
+      (cause) =>
+        cause.interrupted
+          ? cleanup().matchCauseIO(IO.failCauseNow, () => IO.failCauseNow(cause))
+          : IO.failCauseNow(cause),
       IO.succeedNow,
     ),
   );
@@ -125,7 +140,9 @@ export function onInterruptExtended_<R, E, A, R2, E2>(self: IO<R, E, A>, cleanup
 export function disconnect<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return uninterruptibleMask(({ restore }) =>
     IO.fiberId.chain((id) =>
-      restore(self).forkDaemon.chain((fiber) => restore(fiber.join).onInterrupt(() => fiber.interruptAs(id).forkDaemon)),
+      restore(self).forkDaemon.chain((fiber) =>
+        restore(fiber.join).onInterrupt(() => fiber.interruptAs(id).forkDaemon),
+      ),
     ),
   );
 }

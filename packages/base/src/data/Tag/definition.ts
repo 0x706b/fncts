@@ -20,7 +20,8 @@ export class Tag<T> {
   readonly fixed       = (): Tag<T> => new Tag(false, this.key);
   readonly refine      = <T1 extends T>(): Tag<T1> => new Tag(this.def, this.key);
   readonly read        = (r: Has<T>): T => r[this.key as HasTypeId] as any;
-  readonly readOption  = (r: unknown): Maybe<T> => (isObject(r) ? Maybe.fromNullable(r[this.key]) : Nothing());
-  readonly setKey      = (s: PropertyKey): Tag<T> => new Tag(this.def, s);
-  readonly of          = (_: T): Has<T> => ({ [this.key]: _ } as any);
+  readonly readOption  = (r: unknown): Maybe<T> =>
+    isObject(r) ? Maybe.fromNullable(r[this.key]) : Nothing();
+  readonly setKey = (s: PropertyKey): Tag<T> => new Tag(this.def, s);
+  readonly of     = (_: T): Has<T> => ({ [this.key]: _ } as any);
 }

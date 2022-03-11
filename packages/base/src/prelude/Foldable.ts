@@ -31,7 +31,8 @@ export type FoldableMin<F extends HKT, FC = HKT.None> = {
  * @tsplus static fncts.FoldableOps __call
  */
 export function mkFoldable<F extends HKT, FC = HKT.None>(F: FoldableMin<F, FC>): Foldable<F, FC> {
-  const foldMap_: foldMap_<F, FC> = (M) => (fa, f) => F.foldLeft_(fa, M.nat, (b, a) => M.combine_(b, f(a)));
+  const foldMap_: foldMap_<F, FC> = (M) => (fa, f) =>
+    F.foldLeft_(fa, M.nat, (b, a) => M.combine_(b, f(a)));
 
   return HKT.instance<Foldable<F, FC>>({
     foldLeft_: F.foldLeft_,
@@ -44,25 +45,42 @@ export function mkFoldable<F extends HKT, FC = HKT.None>(F: FoldableMin<F, FC>):
 }
 
 export interface foldLeft_<F extends HKT, FC = HKT.None> {
-  <K, Q, W, X, I, S, R, E, A, B>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, b: B, f: (b: B, a: A) => B): B;
+  <K, Q, W, X, I, S, R, E, A, B>(
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+    b: B,
+    f: (b: B, a: A) => B,
+  ): B;
 }
 
 export interface foldLeft<F extends HKT, FC = HKT.None> {
-  <A, B>(b: B, f: (b: B, a: A) => B): <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>) => B;
+  <A, B>(b: B, f: (b: B, a: A) => B): <K, Q, W, X, I, S, R, E>(
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => B;
 }
 
 export interface foldRight_<F extends HKT, FC = HKT.None> {
-  <K, Q, W, X, I, S, R, E, A, B>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>): Eval<B>;
+  <K, Q, W, X, I, S, R, E, A, B>(
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+    b: Eval<B>,
+    f: (a: A, b: Eval<B>) => Eval<B>,
+  ): Eval<B>;
 }
 
 export interface foldRight<F extends HKT, FC = HKT.None> {
-  <A, B>(b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>): <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>) => Eval<B>;
+  <A, B>(b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>): <K, Q, W, X, I, S, R, E>(
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => Eval<B>;
 }
 
 export interface foldMap_<F extends HKT, C = HKT.None> {
-  <M>(M: Monoid<M>): <K, Q, W, X, I, S, R, E, A>(fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>, f: (a: A) => M) => M;
+  <M>(M: Monoid<M>): <K, Q, W, X, I, S, R, E, A>(
+    fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>,
+    f: (a: A) => M,
+  ) => M;
 }
 
 export interface foldMap<F extends HKT, C = HKT.None> {
-  <M>(M: Monoid<M>): <A>(f: (a: A) => M) => <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>) => M;
+  <M>(M: Monoid<M>): <A>(
+    f: (a: A) => M,
+  ) => <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, C, K, Q, W, X, I, S, R, E, A>) => M;
 }

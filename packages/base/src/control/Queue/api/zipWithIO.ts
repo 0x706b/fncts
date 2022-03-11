@@ -6,14 +6,23 @@ import { tuple } from "../../../data/function";
 import { IO } from "../../IO";
 import { concrete, QueueInternal } from "../definition";
 
-export class ZipWithIO<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, R3, E3, D, A> extends QueueInternal<
-  RA & RA1,
-  RB & RB1 & R3,
-  EA | EA1,
-  E3 | EB | EB1,
-  A1,
-  D
-> {
+export class ZipWithIO<
+  RA,
+  RB,
+  EA,
+  EB,
+  RA1,
+  RB1,
+  EA1,
+  EB1,
+  A1 extends A,
+  C,
+  B,
+  R3,
+  E3,
+  D,
+  A,
+> extends QueueInternal<RA & RA1, RB & RB1 & R3, EA | EA1, E3 | EB | EB1, A1, D> {
   constructor(
     readonly fa: QueueInternal<RA, RB, EA, EB, A, B>,
     readonly fb: QueueInternal<RA1, RB1, EA1, EB1, A1, C>,
@@ -40,7 +49,9 @@ export class ZipWithIO<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, R
 
   size: UIO<number> = this.fa.size.zipWithC(this.fb.size, (x, y) => Math.max(x, y));
 
-  take: IO<RB & RB1 & R3, E3 | EB | EB1, D> = this.fa.take.zipC(this.fb.take).chain(([b, c]) => this.f(b, c));
+  take: IO<RB & RB1 & R3, E3 | EB | EB1, D> = this.fa.take
+    .zipC(this.fb.take)
+    .chain(([b, c]) => this.f(b, c));
 
   takeAll: IO<RB & RB1 & R3, E3 | EB | EB1, Conc<D>> = this.fa.takeAll
     .zipC(this.fb.takeAll)
@@ -115,23 +126,31 @@ export function zipWithIO<RA1, RB1, EA1, EB1, A1 extends A, C, B, R3, E3, D, A>(
   fb: PQueue<RA1, RB1, EA1, EB1, A1, C>,
   f: (b: B, c: C) => IO<R3, E3, D>,
 ) {
-  return <RA, RB, EA, EB>(fa: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA & RA1, RB & RB1 & R3, EA | EA1, E3 | EB | EB1, A1, D> =>
-    zipWithIO_(fa, fb, f);
+  return <RA, RB, EA, EB>(
+    fa: PQueue<RA, RB, EA, EB, A, B>,
+  ): PQueue<RA & RA1, RB & RB1 & R3, EA | EA1, E3 | EB | EB1, A1, D> => zipWithIO_(fa, fb, f);
 }
 /**
  * Like `zipWithM`, but uses a pure function.
  * @tsplus dataFirst zipWith_
  */
-export function zipWith<RA1, RB1, EA1, EB1, A1 extends A, C, B, D, A>(that: PQueue<RA1, RB1, EA1, EB1, A1, C>, f: (b: B, c: C) => D) {
-  return <RA, RB, EA, EB>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA & RA1, RB & RB1, EA | EA1, EB | EB1, A1, D> =>
-    zipWith_(queue, that, f);
+export function zipWith<RA1, RB1, EA1, EB1, A1 extends A, C, B, D, A>(
+  that: PQueue<RA1, RB1, EA1, EB1, A1, C>,
+  f: (b: B, c: C) => D,
+) {
+  return <RA, RB, EA, EB>(
+    queue: PQueue<RA, RB, EA, EB, A, B>,
+  ): PQueue<RA & RA1, RB & RB1, EA | EA1, EB | EB1, A1, D> => zipWith_(queue, that, f);
 }
 /**
  * Like `zipWith`, but tuples the elements instead of applying a function.
  * @tsplus dataFirst zip_
  */
-export function zip<RA1, RB1, EA1, EB1, A1 extends A, C, A>(that: PQueue<RA1, RB1, EA1, EB1, A1, C>) {
-  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA & RA1, RB & RB1, EA | EA1, EB | EB1, A1, readonly [B, C]> =>
-    zip_(queue, that);
+export function zip<RA1, RB1, EA1, EB1, A1 extends A, C, A>(
+  that: PQueue<RA1, RB1, EA1, EB1, A1, C>,
+) {
+  return <RA, RB, EA, EB, B>(
+    queue: PQueue<RA, RB, EA, EB, A, B>,
+  ): PQueue<RA & RA1, RB & RB1, EA | EA1, EB | EB1, A1, readonly [B, C]> => zip_(queue, that);
 }
 // codegen:end

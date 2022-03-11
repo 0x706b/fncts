@@ -277,7 +277,11 @@ export class Stackless<E> {
 }
 
 export class Unified {
-  constructor(readonly fiberId: FiberId, readonly message: ReadonlyArray<string>, readonly trace: Conc<string>) {}
+  constructor(
+    readonly fiberId: FiberId,
+    readonly message: ReadonlyArray<string>,
+    readonly trace: Conc<string>,
+  ) {}
 }
 
 /*
@@ -286,7 +290,9 @@ export class Unified {
  * -------------------------------------------------------------------------------------------------
  */
 
-function structuralSymmetric<Id, A>(f: (x: Cause<A>, y: Cause<A>) => Eval<boolean>): (x: Cause<A>, y: Cause<A>) => Eval<boolean> {
+function structuralSymmetric<Id, A>(
+  f: (x: Cause<A>, y: Cause<A>) => Eval<boolean>,
+): (x: Cause<A>, y: Cause<A>) => Eval<boolean> {
   return (x, y) => f(x, y).zipWith(f(y, x), (a, b) => a || b);
 }
 
@@ -305,7 +311,12 @@ function structuralEqualEmpty<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 }
 
 function structuralThenAssociate<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
-  if (l._tag === CauseTag.Then && l.left._tag === CauseTag.Then && r._tag === CauseTag.Then && r.right._tag === CauseTag.Then) {
+  if (
+    l._tag === CauseTag.Then &&
+    l.left._tag === CauseTag.Then &&
+    r._tag === CauseTag.Then &&
+    r.right._tag === CauseTag.Then
+  ) {
     return Eval.sequenceArray([
       l.left.left.equalsEval(r.left),
       l.left.right.equalsEval(r.right.left),
@@ -357,7 +368,12 @@ function structuralEqualThen<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 }
 
 function structuralBothAssociate<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
-  if (l._tag === CauseTag.Both && l.left._tag === CauseTag.Both && r._tag === CauseTag.Both && r.right._tag === CauseTag.Both) {
+  if (
+    l._tag === CauseTag.Both &&
+    l.left._tag === CauseTag.Both &&
+    r._tag === CauseTag.Both &&
+    r.right._tag === CauseTag.Both
+  ) {
     return Eval.sequenceArray([
       l.left.left.equalsEval(r.left),
       l.left.right.equalsEval(r.right.left),
@@ -481,7 +497,10 @@ function step<Id, A>(cause: Cause<A>): readonly [HashSet<Cause<A>>, List<Cause<A
   return stepLoop(cause, Nil(), HashSet.makeDefault(), Nil());
 }
 
-function flattenLoop<Id, A>(causes: List<Cause<A>>, flattened: List<HashSet<Cause<A>>>): List<HashSet<Cause<A>>> {
+function flattenLoop<Id, A>(
+  causes: List<Cause<A>>,
+  flattened: List<HashSet<Cause<A>>>,
+): List<HashSet<Cause<A>>> {
   // eslint-disable-next-line no-constant-condition
   while (1) {
     const [parallel, sequential] = causes.foldLeft(

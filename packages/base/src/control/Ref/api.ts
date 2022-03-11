@@ -20,7 +20,9 @@ export * from "./api/set";
  * @tsplus getter fncts.control.Ref readOnly
  * @tsplus getter fncts.control.Ref.Synchronized readOnly
  */
-export function readOnly<RA, RB, EA, EB, A, B>(ref: PRef<RA, RB, EA, EB, A, B>): PRef<RA, RB, EA, EB, never, B> {
+export function readOnly<RA, RB, EA, EB, A, B>(
+  ref: PRef<RA, RB, EA, EB, A, B>,
+): PRef<RA, RB, EA, EB, never, B> {
   return ref;
 }
 
@@ -30,7 +32,9 @@ export function readOnly<RA, RB, EA, EB, A, B>(ref: PRef<RA, RB, EA, EB, A, B>):
  * @tsplus getter fncts.control.Ref writeOnly
  * @tsplus getter fncts.control.Ref.Synchronized writeOnly
  */
-export function writeOnly<RA, RB, EA, EB, A, B>(ref: PRef<RA, RB, EA, EB, A, B>): PRef<RA, RB, EA, void, A, never> {
+export function writeOnly<RA, RB, EA, EB, A, B>(
+  ref: PRef<RA, RB, EA, EB, A, B>,
+): PRef<RA, RB, EA, void, A, never> {
   return ref.match(
     identity,
     () => undefined,

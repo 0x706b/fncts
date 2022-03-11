@@ -20,12 +20,16 @@ export class AssertionData<A> {
  * @tsplus getter fncts.test.data.AssertionData asSuccess
  */
 export function asSuccess<A>(self: AssertionData<A>): FreeBooleanAlgebra<AssertionValue<A>> {
-  return FreeBooleanAlgebra.success(new AssertionValue(self.value, LazyValue(self.assertion), LazyValue(self.asSuccess)));
+  return FreeBooleanAlgebra.success(
+    new AssertionValue(self.value, LazyValue(self.assertion), LazyValue(self.asSuccess)),
+  );
 }
 
 /**
  * @tsplus getter fncts.test.data.AssertionData asFailure
  */
 export function asFailure<A>(self: AssertionData<A>): FreeBooleanAlgebra<AssertionValue<A>> {
-  return FreeBooleanAlgebra.failure(new AssertionValue(self.value, LazyValue(self.assertion), LazyValue(self.asFailure)));
+  return FreeBooleanAlgebra.failure(
+    new AssertionValue(self.value, LazyValue(self.assertion), LazyValue(self.asFailure)),
+  );
 }

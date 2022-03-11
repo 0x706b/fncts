@@ -38,7 +38,12 @@ export type EqualityComparator = (a: any, b: any, meta?: any) => boolean;
  * @param meta the meta provided
  * @returns does the pair exist in the pairs provided
  */
-export function hasPair(pairs: [any, any][], pairToMatch: [any, any], isEqual: EqualityComparator, meta: any) {
+export function hasPair(
+  pairs: [any, any][],
+  pairToMatch: [any, any],
+  isEqual: EqualityComparator,
+  meta: any,
+) {
   const { length } = pairs;
 
   let pair: [any, any];
@@ -286,7 +291,12 @@ export function areArraysEqual(a: any[], b: any[], isEqual: EqualityComparator, 
  * @param meta the meta map to pass through
  * @returns are the maps equal
  */
-export function areMapsEqual(a: Map<any, any>, b: Map<any, any>, isEqual: EqualityComparator, meta: any) {
+export function areMapsEqual(
+  a: Map<any, any>,
+  b: Map<any, any>,
+  isEqual: EqualityComparator,
+  meta: any,
+) {
   if (a.size !== b.size) {
     return false;
   }
@@ -297,7 +307,10 @@ export function areMapsEqual(a: Map<any, any>, b: Map<any, any>, isEqual: Equali
   const { length } = pairsA;
 
   for (let index = 0; index < length; index++) {
-    if (!hasPair(pairsB, pairsA[index]!, isEqual, meta) || !hasPair(pairsA, pairsB[index]!, isEqual, meta)) {
+    if (
+      !hasPair(pairsB, pairsA[index]!, isEqual, meta) ||
+      !hasPair(pairsA, pairsB[index]!, isEqual, meta)
+    ) {
       return false;
     }
   }
@@ -312,7 +325,10 @@ type Dictionary<Type> = {
 
 const OWNER = "_owner";
 
-const hasOwnProperty = Function.prototype.bind.call(Function.prototype.call, Object.prototype.hasOwnProperty);
+const hasOwnProperty = Function.prototype.bind.call(
+  Function.prototype.call,
+  Object.prototype.hasOwnProperty,
+);
 
 /**
  * @function areObjectsEqual
@@ -326,7 +342,12 @@ const hasOwnProperty = Function.prototype.bind.call(Function.prototype.call, Obj
  * @param meta the meta object to pass through
  * @returns are the objects equal
  */
-export function areObjectsEqual(a: Dictionary<any>, b: Dictionary<any>, isEqual: EqualityComparator, meta: any) {
+export function areObjectsEqual(
+  a: Dictionary<any>,
+  b: Dictionary<any>,
+  isEqual: EqualityComparator,
+  meta: any,
+) {
   const keysA = keys(a);
 
   const { length } = keysA;
@@ -401,7 +422,10 @@ export function areSetsEqual(a: Set<any>, b: Set<any>, isEqual: EqualityComparat
   const { length } = valuesA;
 
   for (let index = 0; index < length; index++) {
-    if (!hasValue(valuesB, valuesA[index], isEqual, meta) || !hasValue(valuesA, valuesB[index], isEqual, meta)) {
+    if (
+      !hasValue(valuesB, valuesA[index], isEqual, meta) ||
+      !hasValue(valuesA, valuesB[index], isEqual, meta)
+    ) {
       return false;
     }
   }

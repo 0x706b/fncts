@@ -50,7 +50,9 @@ export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>): UIO<boo
  * @tsplus fluent fncts.control.Future fulfill
  */
 export function fulfill_<R, E, A>(future: Future<E, A>, io: IO<R, E, A>): IO<R, never, boolean> {
-  return IO.uninterruptibleMask(({ restore }) => restore(io).result.chain((exit) => future.done(exit)));
+  return IO.uninterruptibleMask(({ restore }) =>
+    restore(io).result.chain((exit) => future.done(exit)),
+  );
 }
 
 /**
@@ -197,7 +199,10 @@ export function wait<E, A>(future: Future<E, A>): IO<unknown, E, A> {
   }, future.blockingOn);
 }
 
-function interruptJoiner<E, A>(future: Future<E, A>, joiner: (a: FIO<E, A>) => void): Canceler<unknown> {
+function interruptJoiner<E, A>(
+  future: Future<E, A>,
+  joiner: (a: FIO<E, A>) => void,
+): Canceler<unknown> {
   return IO.succeed(() => {
     switch (future.state._tag) {
       case FutureStateTag.Pending: {

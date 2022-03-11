@@ -31,7 +31,9 @@ export type TraversableMin<F extends HKT, FC = HKT.None> = FunctorMin<F, FC> &
 /**
  * @tsplus static fncts.TraversableOps __call
  */
-export function mkTraversable<F extends HKT, FC = HKT.None>(F: TraversableMin<F, FC>): Traversable<F, FC> {
+export function mkTraversable<F extends HKT, FC = HKT.None>(
+  F: TraversableMin<F, FC>,
+): Traversable<F, FC> {
   const sequence: sequence<F, FC> = (A) => {
     const traverse_ = F.traverse_(A);
     return (ta) => traverse_(ta, identity);
@@ -49,18 +51,64 @@ export function mkTraversable<F extends HKT, FC = HKT.None>(F: TraversableMin<F,
 }
 
 export interface traverse_<F extends HKT, FC = HKT.None> {
-  <G extends HKT, GC = HKT.None>(A: Applicative<G, GC>): <KF, QF, WF, XF, IF, SF, RF, EF, KG, QG, WG, XG, IG, SG, RG, EG, A, B>(
+  <G extends HKT, GC = HKT.None>(A: Applicative<G, GC>): <
+    KF,
+    QF,
+    WF,
+    XF,
+    IF,
+    SF,
+    RF,
+    EF,
+    KG,
+    QG,
+    WG,
+    XG,
+    IG,
+    SG,
+    RG,
+    EG,
+    A,
+    B,
+  >(
     ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
     f: (a: A) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, B>,
-  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>;
+  ) => HKT.Kind<
+    G,
+    GC,
+    KG,
+    QG,
+    WG,
+    XG,
+    IG,
+    SG,
+    RG,
+    EG,
+    HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>
+  >;
 }
 
 export interface traverseSelf<F extends HKT, FC = HKT.None> {
-  <KF, QF, WF, XF, IF, SF, RF, EF, A>(ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>): <G extends HKT, GC = HKT.None>(
+  <KF, QF, WF, XF, IF, SF, RF, EF, A>(ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>): <
+    G extends HKT,
+    GC = HKT.None,
+  >(
     A: Applicative<G, GC>,
   ) => <KG, QG, WG, XG, IG, SG, RG, EG, B>(
     f: (a: A) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, B>,
-  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>;
+  ) => HKT.Kind<
+    G,
+    GC,
+    KG,
+    QG,
+    WG,
+    XG,
+    IG,
+    SG,
+    RG,
+    EG,
+    HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>
+  >;
 }
 
 export interface traverse<F extends HKT, FC = HKT.None> {
@@ -68,7 +116,19 @@ export interface traverse<F extends HKT, FC = HKT.None> {
     f: (a: A) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, B>,
   ) => <KF, QF, WF, XF, IF, SF, RF, EF>(
     ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
-  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>;
+  ) => HKT.Kind<
+    G,
+    GC,
+    KG,
+    QG,
+    WG,
+    XG,
+    IG,
+    SG,
+    RG,
+    EG,
+    HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>
+  >;
 }
 
 export function mkTraverse_<F extends HKT, FC = HKT.None>(): (
@@ -112,22 +172,95 @@ export function mkTraverse<F extends HKT, FC = HKT.None>(): (
     G: Applicative<HKT.F<G>>,
   ) => (
     f: (a: A) => HKT.FK1<G, B>,
-  ) => (ta: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>) => HKT.FK1<G, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>>,
+  ) => (
+    ta: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.FK1<G, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>>,
 ) => traverse<F, FC>;
 export function mkTraverse() {
   return (i: any) => i();
 }
 
 export interface sequence<F extends HKT, FC = HKT.None> {
-  <G extends HKT, GC = HKT.None>(A: Applicative<G, GC>): <KF, QF, WF, XF, IF, SF, RF, EF, KG, QG, WG, XG, IG, SG, RG, EG, A>(
-    ta: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, A>>,
-  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>>;
+  <G extends HKT, GC = HKT.None>(A: Applicative<G, GC>): <
+    KF,
+    QF,
+    WF,
+    XF,
+    IF,
+    SF,
+    RF,
+    EF,
+    KG,
+    QG,
+    WG,
+    XG,
+    IG,
+    SG,
+    RG,
+    EG,
+    A,
+  >(
+    ta: HKT.Kind<
+      F,
+      FC,
+      KF,
+      QF,
+      WF,
+      XF,
+      IF,
+      SF,
+      RF,
+      EF,
+      HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, A>
+    >,
+  ) => HKT.Kind<
+    G,
+    GC,
+    KG,
+    QG,
+    WG,
+    XG,
+    IG,
+    SG,
+    RG,
+    EG,
+    HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>
+  >;
 }
 
 export interface sequenceSelf<F extends HKT, FC = HKT.None> {
-  <KF, QF, WF, XF, IF, SF, RF, EF, A>(self: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>): <G extends HKT, GC = HKT.None>(
+  <KF, QF, WF, XF, IF, SF, RF, EF, A>(self: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>): <
+    G extends HKT,
+    GC = HKT.None,
+  >(
     A: CompatibleApplicative<G, GC, A>,
-  ) => [A] extends [HKT.Kind<G, GC, infer KG, infer QG, infer WG, infer XG, infer IG, infer SG, infer RG, infer EG, infer B>]
-    ? HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>
+  ) => [A] extends [
+    HKT.Kind<
+      G,
+      GC,
+      infer KG,
+      infer QG,
+      infer WG,
+      infer XG,
+      infer IG,
+      infer SG,
+      infer RG,
+      infer EG,
+      infer B
+    >,
+  ]
+    ? HKT.Kind<
+        G,
+        GC,
+        KG,
+        QG,
+        WG,
+        XG,
+        IG,
+        SG,
+        RG,
+        EG,
+        HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>
+      >
     : never;
 }

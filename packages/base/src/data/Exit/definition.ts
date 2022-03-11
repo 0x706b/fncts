@@ -96,6 +96,9 @@ export function isSuccess<E, A>(exit: Exit<E, A>): exit is Success<A> {
  */
 export function unifyExit<X extends Exit<any, any>>(
   _: X,
-): Exit<[X] extends [Exit<infer E, any>] ? E : never, [X] extends [Exit<any, infer A>] ? A : never> {
+): Exit<
+  [X] extends [Exit<infer E, any>] ? E : never,
+  [X] extends [Exit<any, infer A>] ? A : never
+> {
   return _;
 }

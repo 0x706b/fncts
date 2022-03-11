@@ -41,7 +41,9 @@ export function ap_<A, B>(self: Eval<(a: A) => B>, fa: Eval<A>): Eval<B> {
 /**
  * @tsplus static fncts.EvalOps sequenceT
  */
-export function sequenceT<A extends Array<Eval<any>>>(...computations: A): Eval<{ [K in keyof A]: _A<A[K]> }> {
+export function sequenceT<A extends Array<Eval<any>>>(
+  ...computations: A
+): Eval<{ [K in keyof A]: _A<A[K]> }> {
   return Eval.defer(Eval.now(computations.map((e) => e.run)) as Eval<any>);
 }
 
@@ -71,7 +73,9 @@ function runGenEval<T extends GenEval<A>, A>(
 /**
  * @tsplus static fncts.EvalOps gen
  */
-export function gen<T extends GenEval<any>, A>(f: (i: { <A>(_: Eval<A>): GenEval<A> }) => Generator<T, A, any>): Eval<A> {
+export function gen<T extends GenEval<any>, A>(
+  f: (i: { <A>(_: Eval<A>): GenEval<A> }) => Generator<T, A, any>,
+): Eval<A> {
   return Eval.defer(() => {
     const iterator = f(__adapter);
     const state    = iterator.next();

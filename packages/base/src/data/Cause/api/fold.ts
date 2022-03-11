@@ -49,17 +49,41 @@ function foldLoop<E, Z>(
       case CauseTag.Empty:
         return foldLoop(cases, causes, out.prepend(Either.right(cases.Empty())));
       case CauseTag.Fail:
-        return foldLoop(cases, causes, out.prepend(Either.right(cases.Fail(head.value, head.trace))));
+        return foldLoop(
+          cases,
+          causes,
+          out.prepend(Either.right(cases.Fail(head.value, head.trace))),
+        );
       case CauseTag.Halt:
-        return foldLoop(cases, causes, out.prepend(Either.right(cases.Halt(head.value, head.trace))));
+        return foldLoop(
+          cases,
+          causes,
+          out.prepend(Either.right(cases.Halt(head.value, head.trace))),
+        );
       case CauseTag.Interrupt:
-        return foldLoop(cases, causes, out.prepend(Either.right(cases.Interrupt(head.id, head.trace))));
+        return foldLoop(
+          cases,
+          causes,
+          out.prepend(Either.right(cases.Interrupt(head.id, head.trace))),
+        );
       case CauseTag.Both:
-        return foldLoop(cases, Cons(head.left, Cons(head.right, causes)), out.prepend(Either.left(_BothCase)));
+        return foldLoop(
+          cases,
+          Cons(head.left, Cons(head.right, causes)),
+          out.prepend(Either.left(_BothCase)),
+        );
       case CauseTag.Then:
-        return foldLoop(cases, Cons(head.left, Cons(head.right, causes)), out.prepend(Either.left(_ThenCase)));
+        return foldLoop(
+          cases,
+          Cons(head.left, Cons(head.right, causes)),
+          out.prepend(Either.left(_ThenCase)),
+        );
       case CauseTag.Stackless:
-        return foldLoop(cases, causes.prepend(head.cause), out.prepend(Either.left(new StacklessCase(head.stackless))));
+        return foldLoop(
+          cases,
+          causes.prepend(head.cause),
+          out.prepend(Either.left(new StacklessCase(head.stackless))),
+        );
     }
   } else {
     return out.foldLeft(List.empty(), (acc, v) => {

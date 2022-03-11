@@ -9,12 +9,18 @@ import type { IO } from "../../IO";
  * @tsplus companion fncts.control.Managed.ReservationOps
  */
 export class Reservation<R, E, A> {
-  constructor(readonly acquire: IO<R, E, A>, readonly release: (exit: Exit<any, any>) => IO<R, never, any>) {}
+  constructor(
+    readonly acquire: IO<R, E, A>,
+    readonly release: (exit: Exit<any, any>) => IO<R, never, any>,
+  ) {}
 }
 
 /**
  * @tsplus static fncts.control.Managed.ReservationOps make
  */
-export function make<R, E, A>(acquire: IO<R, E, A>, release: (exit: Exit<any, any>) => IO<R, never, any>): Reservation<R, E, A> {
+export function make<R, E, A>(
+  acquire: IO<R, E, A>,
+  release: (exit: Exit<any, any>) => IO<R, never, any>,
+): Reservation<R, E, A> {
   return new Reservation(acquire, release);
 }

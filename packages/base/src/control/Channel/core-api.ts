@@ -9,7 +9,9 @@ import { Channel, ContinuationK, Done, Fail, Fold } from "./definition";
  *
  * @tsplus static fncts.control.ChannelOps failCause
  */
-export function failCause<E>(result: Lazy<Cause<E>>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
+export function failCause<E>(
+  result: Lazy<Cause<E>>,
+): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return new Fail(result);
 }
 
@@ -18,7 +20,9 @@ export function failCause<E>(result: Lazy<Cause<E>>): Channel<unknown, unknown, 
  *
  * @tsplus static fncts.control.ChannelOps failCauseNow
  */
-export function failCauseNow<E>(result: Cause<E>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
+export function failCauseNow<E>(
+  result: Cause<E>,
+): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return Channel.failCause(result);
 }
 
@@ -27,7 +31,9 @@ export function failCauseNow<E>(result: Cause<E>): Channel<unknown, unknown, unk
  *
  * @tsplus static fncts.control.ChannelOps end
  */
-export function end<OutDone>(result: Lazy<OutDone>): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
+export function end<OutDone>(
+  result: Lazy<OutDone>,
+): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
   return new Done(result);
 }
 
@@ -36,7 +42,9 @@ export function end<OutDone>(result: Lazy<OutDone>): Channel<unknown, unknown, u
  *
  * @tsplus static fncts.control.ChannelOps endNow
  */
-export function endNow<OutDone>(result: OutDone): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
+export function endNow<OutDone>(
+  result: OutDone,
+): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
   return Channel.end(result);
 }
 
@@ -45,7 +53,9 @@ export function endNow<OutDone>(result: OutDone): Channel<unknown, unknown, unkn
  *
  * @tsplus static fncts.control.ChannelOps succeed
  */
-export function succeed<Z>(z: Lazy<Z>): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
+export function succeed<Z>(
+  z: Lazy<Z>,
+): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
   return Channel.end(z);
 }
 
@@ -80,10 +90,33 @@ export function map_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDo
  *
  * @tsplus fluent fncts.control.Channel chain
  */
-export function chain_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone2>(
+export function chain_<
+  Env,
+  InErr,
+  InElem,
+  InDone,
+  OutErr,
+  OutElem,
+  OutDone,
+  Env1,
+  InErr1,
+  InElem1,
+  InDone1,
+  OutErr1,
+  OutElem1,
+  OutDone2,
+>(
   channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (d: OutDone) => Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone2>,
-): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem | OutElem1, OutDone2> {
+): Channel<
+  Env & Env1,
+  InErr & InErr1,
+  InElem & InElem1,
+  InDone & InDone1,
+  OutErr | OutErr1,
+  OutElem | OutElem1,
+  OutDone2
+> {
   return new Fold<
     Env & Env1,
     InErr & InErr1,
@@ -103,7 +136,22 @@ export function chain_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env
  *
  * @tsplus fluent fncts.control.Channel cross
  */
-export function cross_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+export function cross_<
+  Env,
+  Env1,
+  InErr,
+  InErr1,
+  InElem,
+  InElem1,
+  InDone,
+  InDone1,
+  OutErr,
+  OutErr1,
+  OutElem,
+  OutElem1,
+  OutDone,
+  OutDone1,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
@@ -124,10 +172,33 @@ export function cross_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone
  *
  * @tsplus fluent fncts.control.Channel apFirst
  */
-export function apFirst_<Env, Env1, InErr, InErr1, InElem, InElem1, InDone, InDone1, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
+export function apFirst_<
+  Env,
+  Env1,
+  InErr,
+  InErr1,
+  InElem,
+  InElem1,
+  InDone,
+  InDone1,
+  OutErr,
+  OutErr1,
+  OutElem,
+  OutElem1,
+  OutDone,
+  OutDone1,
+>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem | OutElem1, OutDone> {
+): Channel<
+  Env & Env1,
+  InErr & InErr1,
+  InElem & InElem1,
+  InDone & InDone1,
+  OutErr | OutErr1,
+  OutElem | OutElem1,
+  OutDone
+> {
   return self.chain((a) => that.map(() => a));
 }
 
@@ -155,6 +226,14 @@ export function apSecond_<
 >(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr1 | OutErr, OutElem1 | OutElem, OutDone1> {
+): Channel<
+  Env & Env1,
+  InErr & InErr1,
+  InElem & InElem1,
+  InDone & InDone1,
+  OutErr1 | OutErr,
+  OutElem1 | OutElem,
+  OutDone1
+> {
   return self.chain(() => that);
 }

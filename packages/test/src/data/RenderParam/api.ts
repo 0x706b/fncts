@@ -1,4 +1,4 @@
-import type { AssertionIO} from "../../control/AssertionIO/definition";
+import type { AssertionIO } from "../../control/AssertionIO/definition";
 import type { RenderParam } from "./definition";
 
 import { show } from "@fncts/base/prelude/Showable";

@@ -14,13 +14,37 @@ import { Exit } from "../../../data/Exit";
 import { identity } from "../../../data/function";
 import { Stack } from "../../../internal/Stack";
 import { IO } from "../../IO";
-import { Channel, ChannelTag, concrete, concreteContinuation, ContinuationFinalizer } from "../definition";
+import {
+  Channel,
+  ChannelTag,
+  concrete,
+  concreteContinuation,
+  ContinuationFinalizer,
+} from "../definition";
 import * as State from "./ChannelState";
 import { UpstreamPullRequest } from "./UpstreamPullRequest";
 
 type ErasedChannel<R> = Channel<R, unknown, unknown, unknown, unknown, unknown, unknown>;
-export type ErasedExecutor<R> = ChannelExecutor<R, unknown, unknown, unknown, unknown, unknown, unknown>;
-type ErasedContinuation<R> = Continuation<R, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
+export type ErasedExecutor<R> = ChannelExecutor<
+  R,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown
+>;
+type ErasedContinuation<R> = Continuation<
+  R,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown,
+  unknown
+>;
 
 type Finalizer<R> = (exit: Exit<unknown, unknown>) => URIO<R, unknown>;
 
@@ -53,23 +77,28 @@ class PullFromUpstream<R> {
   ) {}
   close(ex: Exit<unknown, unknown>): URIO<R, unknown> | null {
     const fin1 = this.upstreamExecutor.close(ex);
-    const fins = this.activeChildExecutors.map((child) => (child !== null ? child.childExecutor.close(ex) : null)).enqueue(fin1);
+    const fins = this.activeChildExecutors
+      .map((child) => (child !== null ? child.childExecutor.close(ex) : null))
+      .enqueue(fin1);
 
-    const finalizer = fins.foldLeft(null as URIO<R, Exit<never, any>> | null, (acc, next): URIO<R, Exit<never, any>> | null => {
-      if (acc === null) {
-        if (next === null) {
-          return null;
+    const finalizer = fins.foldLeft(
+      null as URIO<R, Exit<never, any>> | null,
+      (acc, next): URIO<R, Exit<never, any>> | null => {
+        if (acc === null) {
+          if (next === null) {
+            return null;
+          } else {
+            return next.result;
+          }
         } else {
-          return next.result;
+          if (next === null) {
+            return acc;
+          } else {
+            return acc.zipWith(next.result, (a, b) => a.apSecond(b));
+          }
         }
-      } else {
-        if (next === null) {
-          return acc;
-        } else {
-          return acc.zipWith(next.result, (a, b) => a.apSecond(b));
-        }
-      }
-    });
+      },
+    );
     if (finalizer) {
       return finalizer.chain(IO.fromExitNow);
     } else {
@@ -136,23 +165,28 @@ class DrainChildExecutors<R> {
 
   close(ex: Exit<unknown, unknown>): URIO<R, Exit<unknown, unknown>> | null {
     const fin1 = this.upstreamExecutor.close(ex);
-    const fins = this.activeChildExecutors.map((child) => (child !== null ? child.childExecutor.close(ex) : null)).enqueue(fin1);
+    const fins = this.activeChildExecutors
+      .map((child) => (child !== null ? child.childExecutor.close(ex) : null))
+      .enqueue(fin1);
     return pipe(
-      fins.foldLeft(null as URIO<R, Exit<unknown, unknown>> | null, (acc, next): URIO<R, Exit<unknown, unknown>> | null => {
-        if (acc === null) {
-          if (next === null) {
-            return null;
+      fins.foldLeft(
+        null as URIO<R, Exit<unknown, unknown>> | null,
+        (acc, next): URIO<R, Exit<unknown, unknown>> | null => {
+          if (acc === null) {
+            if (next === null) {
+              return null;
+            } else {
+              return next.result;
+            }
           } else {
-            return next.result;
+            if (next === null) {
+              return acc;
+            } else {
+              return acc.zipWith(next.result, (a, b) => a.apSecond(b));
+            }
           }
-        } else {
-          if (next === null) {
-            return acc;
-          } else {
-            return acc.zipWith(next.result, (a, b) => a.apSecond(b));
-          }
-        }
-      }),
+        },
+      ),
     );
   }
 
@@ -314,7 +348,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                         );
                       }
                       case State.ChannelStateTag.Emit: {
-                        return currentChannel.input.emit(inputExecutor.getEmit()).chain(() => drainer);
+                        return currentChannel.input
+                          .emit(inputExecutor.getEmit())
+                          .chain(() => drainer);
                       }
                       case State.ChannelStateTag.Effect: {
                         return state.effect.matchCauseIO(
@@ -323,7 +359,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                         );
                       }
                       case State.ChannelStateTag.Read: {
-                        return readUpstream(state, () => drainer).catchAllCause((cause) => currentChannel.input.error(cause));
+                        return readUpstream(state, () => drainer).catchAllCause((cause) =>
+                          currentChannel.input.error(cause),
+                        );
                       }
                     }
                   }),
@@ -351,9 +389,11 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
             }
             case ChannelTag.PipeTo: {
               const previousInput = this.input;
-              const leftExec      = new ChannelExecutor(currentChannel.left, this.providedEnv, (_) => this.executeCloseLastSubstream(_));
-              leftExec.input      = previousInput;
-              this.input          = leftExec;
+              const leftExec      = new ChannelExecutor(currentChannel.left, this.providedEnv, (_) =>
+                this.executeCloseLastSubstream(_),
+              );
+              leftExec.input = previousInput;
+              this.input     = leftExec;
               this.addFinalizer((exit) => {
                 const effect = this.restorePipe(exit, previousInput);
                 if (effect !== null) {
@@ -390,8 +430,11 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               break;
             }
             case ChannelTag.FromIO: {
-              const pio = this.providedEnv === null ? currentChannel.io : currentChannel.io.provideEnvironment(this.providedEnv as Env);
-              result    = new State.Effect(
+              const pio =
+                this.providedEnv === null
+                  ? currentChannel.io
+                  : currentChannel.io.provideEnvironment(this.providedEnv as Env);
+              result = new State.Effect(
                 pio.matchCauseIO(
                   (cause) => {
                     const state = this.doneHalt(cause);
@@ -418,9 +461,10 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               break;
             }
             case ChannelTag.Emit: {
-              this.emitted        = currentChannel.out();
-              this.currentChannel = this.activeSubexecutor !== null ? null : Channel.endNow(undefined);
-              result              = State._Emit;
+              this.emitted = currentChannel.out();
+              this.currentChannel =
+                this.activeSubexecutor !== null ? null : Channel.endNow(undefined);
+              result = State._Emit;
               break;
             }
             case ChannelTag.Ensuring: {
@@ -430,10 +474,15 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
             case ChannelTag.ConcatAll: {
               const innerExecuteLastClose = (f: URIO<Env, any>) =>
                 IO.succeed(() => {
-                  const prevLastClose     = this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
+                  const prevLastClose =
+                    this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
                   this.closeLastSubstream = prevLastClose.chain(() => f);
                 });
-              const exec             = new ChannelExecutor(() => currentChannel.value, this.providedEnv, innerExecuteLastClose);
+              const exec = new ChannelExecutor(
+                () => currentChannel.value,
+                this.providedEnv,
+                innerExecuteLastClose,
+              );
               exec.input             = this.input;
               this.activeSubexecutor = new PullFromUpstream(
                 exec,
@@ -476,7 +525,10 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     return result as ChannelState<Env, OutErr>;
   }
 
-  private restorePipe(exit: Exit<unknown, unknown>, prev: ErasedExecutor<Env> | null): IO<Env, never, unknown> | null {
+  private restorePipe(
+    exit: Exit<unknown, unknown>,
+    prev: ErasedExecutor<Env> | null,
+  ): IO<Env, never, unknown> | null {
     const currInput = this.input;
     this.input      = prev;
     return currInput !== null ? currInput.close(exit) : IO.unit;
@@ -486,7 +538,10 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     /**
      * @tsplus tailrec
      */
-    const unwind = (acc: IO<Env, never, Exit<never, any>>, conts: List<ErasedContinuation<Env>>): IO<Env, never, Exit<never, unknown>> => {
+    const unwind = (
+      acc: IO<Env, never, Exit<never, any>>,
+      conts: List<ErasedContinuation<Env>>,
+    ): IO<Env, never, Exit<never, unknown>> => {
       if (conts.isEmpty()) {
         return acc;
       } else {
@@ -499,7 +554,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         }
       }
     };
-    const effect   = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).chain(IO.fromExitNow);
+    const effect = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).chain(
+      IO.fromExitNow,
+    );
     this.doneStack = Nil();
     this.storeInProgressFinalizer(effect);
     return effect;
@@ -542,9 +599,12 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 
   close(exit: Exit<unknown, unknown>): IO<Env, never, unknown> | null {
     const runInProgressFinalizers =
-      this.inProgressFinalizer !== null ? this.inProgressFinalizer.ensuring(IO.succeed(this.clearInProgressFinalizer())) : null;
+      this.inProgressFinalizer !== null
+        ? this.inProgressFinalizer.ensuring(IO.succeed(this.clearInProgressFinalizer()))
+        : null;
 
-    const closeSubexecutors: URIO<Env, unknown> | null = this.activeSubexecutor === null ? null : this.activeSubexecutor.close(exit);
+    const closeSubexecutors: URIO<Env, unknown> | null =
+      this.activeSubexecutor === null ? null : this.activeSubexecutor.close(exit);
 
     let closeSelf: URIO<Env, unknown> | null = null;
 
@@ -651,10 +711,16 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
   ): readonly [Maybe<any>, Queue<PullFromChild<Env> | null>] {
     switch (strategy._tag) {
       case "PullAfterNext": {
-        return [strategy.emitSeparator, !upstreamFinished || queue.exists((_) => _ !== null) ? queue.prepend(null) : queue];
+        return [
+          strategy.emitSeparator,
+          !upstreamFinished || queue.exists((_) => _ !== null) ? queue.prepend(null) : queue,
+        ];
       }
       case "PullAfterAllEnqueued": {
-        return [strategy.emitSeparator, !upstreamFinished || queue.exists((_) => _ !== null) ? queue.enqueue(null) : queue];
+        return [
+          strategy.emitSeparator,
+          !upstreamFinished || queue.exists((_) => _ !== null) ? queue.enqueue(null) : queue,
+        ];
       }
     }
   }
@@ -903,7 +969,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
           const modifiedParent = new PullFromUpstream(
             parentSubexecutor.upstreamExecutor,
             parentSubexecutor.createChild,
-            parentSubexecutor.lastDone !== null ? parentSubexecutor.combineChildResults(parentSubexecutor.lastDone, doneValue) : doneValue,
+            parentSubexecutor.lastDone !== null
+              ? parentSubexecutor.combineChildResults(parentSubexecutor.lastDone, doneValue)
+              : doneValue,
             parentSubexecutor.activeChildExecutors,
             parentSubexecutor.combineChildResults,
             parentSubexecutor.combineWithChildResult,
@@ -917,7 +985,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         case SubexecutorStackTag.DrainChildExecutors: {
           const modifiedParent = new DrainChildExecutors(
             parentSubexecutor.upstreamExecutor,
-            parentSubexecutor.lastDone !== null ? parentSubexecutor.combineChildResults(parentSubexecutor.lastDone, doneValue) : doneValue,
+            parentSubexecutor.lastDone !== null
+              ? parentSubexecutor.combineChildResults(parentSubexecutor.lastDone, doneValue)
+              : doneValue,
             parentSubexecutor.activeChildExecutors,
             parentSubexecutor.upstreamDone,
             parentSubexecutor.combineChildResults,
@@ -1050,7 +1120,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     this.doneStack = this.doneStack.prepend(new ContinuationFinalizer(f));
   }
 
-  private runBracketOut(bracketOut: BracketOut<Env, unknown, unknown, unknown>): ChannelState<Env, unknown> | null {
+  private runBracketOut(
+    bracketOut: BracketOut<Env, unknown, unknown, unknown>,
+  ): ChannelState<Env, unknown> | null {
     return new State.Effect(
       IO.uninterruptibleMask(({ restore }) =>
         restore(bracketOut.acquire).matchCauseIO(

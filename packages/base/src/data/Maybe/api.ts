@@ -14,7 +14,9 @@ import { Just, Maybe, MaybeTag, Nothing } from "./definition.js";
  * @tsplus fluent fncts.data.Maybe ap
  */
 export function ap_<A, B>(self: Maybe<(a: A) => B>, fa: Maybe<A>): Maybe<B> {
-  return self._tag === MaybeTag.Just && fa._tag === MaybeTag.Just ? Just(self.value(fa.value)) : Nothing();
+  return self._tag === MaybeTag.Just && fa._tag === MaybeTag.Just
+    ? Just(self.value(fa.value))
+    : Nothing();
 }
 
 /**
@@ -36,7 +38,8 @@ export function chain_<A, B>(self: Maybe<A>, f: (a: A) => Maybe<B>): Maybe<B> {
  * @constrained
  */
 export function elem_<A>(E: Eq<A>) {
-  return (self: Maybe<A>, elem: A): boolean => (self._tag === MaybeTag.Just ? E.equals_(self.value, elem) : false);
+  return (self: Maybe<A>, elem: A): boolean =>
+    self._tag === MaybeTag.Just ? E.equals_(self.value, elem) : false;
 }
 
 /**
@@ -83,7 +86,10 @@ export function flatten<A>(self: Maybe<Maybe<A>>): Maybe<A> {
  * @tsplus fluent fncts.data.Maybe partition
  */
 export function partition_<A>(self: Maybe<A>, p: Predicate<A>): readonly [Maybe<A>, Maybe<A>];
-export function partition_<A, B extends A>(self: Maybe<A>, p: Refinement<A, B>): readonly [Maybe<A>, Maybe<B>];
+export function partition_<A, B extends A>(
+  self: Maybe<A>,
+  p: Refinement<A, B>,
+): readonly [Maybe<A>, Maybe<B>];
 export function partition_<A>(self: Maybe<A>, p: Predicate<A>): readonly [Maybe<A>, Maybe<A>] {
   return self._tag === MaybeTag.Just && p(self.value) ? [Nothing(), self] : [self, Nothing()];
 }
@@ -91,7 +97,10 @@ export function partition_<A>(self: Maybe<A>, p: Predicate<A>): readonly [Maybe<
 /**
  * @tsplus fluent fncts.data.Maybe partitionMap
  */
-export function partitionMap_<A, B, C>(self: Maybe<A>, f: (a: A) => Either<B, C>): readonly [Maybe<B>, Maybe<C>] {
+export function partitionMap_<A, B, C>(
+  self: Maybe<A>,
+  f: (a: A) => Either<B, C>,
+): readonly [Maybe<B>, Maybe<C>] {
   if (self._tag === MaybeTag.Just) {
     return f(self.value).match(
       (b) => [Just(b), Nothing()],
@@ -120,7 +129,8 @@ export function foldRight_<A, B>(self: Maybe<A>, b: B, f: (a: A, b: B) => B): B 
  * @constrained
  */
 export function foldMap_<M>(M: Monoid<M>) {
-  return <A>(self: Maybe<A>, f: (a: A) => M): M => (self._tag === MaybeTag.Just ? f(self.value) : M.nat);
+  return <A>(self: Maybe<A>, f: (a: A) => M): M =>
+    self._tag === MaybeTag.Just ? f(self.value) : M.nat;
 }
 
 /**
@@ -155,7 +165,10 @@ export function map_<A, B>(self: Maybe<A>, f: (a: A) => B): Maybe<B> {
  *
  * @tsplus fluent fncts.data.Maybe mapNullable
  */
-export function mapNullable_<A, B>(self: Maybe<A>, f: (a: A) => Nullable<B>): Maybe<NonNullable<B>> {
+export function mapNullable_<A, B>(
+  self: Maybe<A>,
+  f: (a: A) => Nullable<B>,
+): Maybe<NonNullable<B>> {
   return self.chain(Maybe.fromNullableK(f));
 }
 
@@ -179,7 +192,9 @@ export function toUndefined<A>(self: Maybe<A>): A | undefined {
  * @tsplus fluent fncts.data.Maybe zipWith
  */
 export function zipWith_<A, B, C>(self: Maybe<A>, fb: Maybe<B>, f: (a: A, b: B) => C): Maybe<C> {
-  return self._tag === MaybeTag.Just && fb._tag === MaybeTag.Just ? Just(f(self.value, fb.value)) : Nothing();
+  return self._tag === MaybeTag.Just && fb._tag === MaybeTag.Just
+    ? Just(f(self.value, fb.value))
+    : Nothing();
 }
 
 /**
@@ -238,7 +253,9 @@ export function partition<A>(p: Predicate<A>): (self: Maybe<A>) => readonly [May
 /**
  * @tsplus dataFirst partition_
  */
-export function partition<A, B extends A>(p: Refinement<A, B>): (self: Maybe<A>) => readonly [Maybe<A>, Maybe<B>];
+export function partition<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: Maybe<A>) => readonly [Maybe<A>, Maybe<B>];
 /**
  * @tsplus dataFirst partition_
  */

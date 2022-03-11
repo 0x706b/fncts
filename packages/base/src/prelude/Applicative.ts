@@ -19,7 +19,9 @@ export type ApplicativeMin<F extends HKT, FC = HKT.None> = ApplyMin<F, FC> & Poi
 /**
  * @tsplus static fncts.ApplicativeOps __call
  */
-export function mkApplicative<F extends HKT, FC = HKT.None>(F: ApplicativeMin<F, FC>): Applicative<F, FC> {
+export function mkApplicative<F extends HKT, FC = HKT.None>(
+  F: ApplicativeMin<F, FC>,
+): Applicative<F, FC> {
   return HKT.instance<Applicative<F, FC>>({
     ...Pointed(F),
     ...Apply(F),
@@ -27,4 +29,6 @@ export function mkApplicative<F extends HKT, FC = HKT.None>(F: ApplicativeMin<F,
 }
 
 export type CompatibleApplicative<F extends HKT, C, A> = Applicative<F, C> &
-  ([A] extends [HKT.Kind<F, any, any, any, any, any, any, any, any, any, any>] ? unknown : ["invalid Applicative instance for", A]);
+  ([A] extends [HKT.Kind<F, any, any, any, any, any, any, any, any, any, any>]
+    ? unknown
+    : ["invalid Applicative instance for", A]);

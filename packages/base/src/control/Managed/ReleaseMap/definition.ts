@@ -8,12 +8,20 @@ import { Newtype } from "../../../data/Newtype";
 
 export class Exited {
   readonly _tag = "Exited";
-  constructor(readonly nextKey: number, readonly exit: Exit<any, any>, readonly update: (_: Finalizer) => Finalizer) {}
+  constructor(
+    readonly nextKey: number,
+    readonly exit: Exit<any, any>,
+    readonly update: (_: Finalizer) => Finalizer,
+  ) {}
 }
 
 export class Running {
   readonly _tag = "Running";
-  constructor(readonly nextKey: number, readonly finalizers: HashMap<number, Finalizer>, readonly update: (_: Finalizer) => Finalizer) {}
+  constructor(
+    readonly nextKey: number,
+    readonly finalizers: HashMap<number, Finalizer>,
+    readonly update: (_: Finalizer) => Finalizer,
+  ) {}
 }
 
 export type State = Exited | Running;

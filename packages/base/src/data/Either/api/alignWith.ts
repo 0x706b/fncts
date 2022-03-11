@@ -6,7 +6,11 @@ import { EitherTag, Right } from "../definition";
 /**
  * @tsplus fluent fncts.data.Either alignWith
  */
-export function alignWith_<E1, A, E2, B, C>(self: Either<E1, A>, fb: Either<E2, B>, f: (_: These<A, B>) => C): Either<E1 | E2, C> {
+export function alignWith_<E1, A, E2, B, C>(
+  self: Either<E1, A>,
+  fb: Either<E2, B>,
+  f: (_: These<A, B>) => C,
+): Either<E1 | E2, C> {
   return self._tag === EitherTag.Left
     ? fb._tag === EitherTag.Left
       ? self

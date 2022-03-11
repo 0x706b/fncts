@@ -1,4 +1,6 @@
-import {Conc, Empty} from "../definition";
+import type { Conc} from "../definition";
+
+import { Empty } from "../definition";
 
 /**
  * @tsplus static fncts.collection.immutable.ConcOps empty
