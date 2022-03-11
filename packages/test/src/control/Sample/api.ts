@@ -4,8 +4,8 @@ import type { ArrayInt64 } from "@fncts/base/util/rand";
 
 import { Conc } from "@fncts/base/collection/immutable/Conc";
 import { Channel } from "@fncts/base/control/Channel";
-import { ChildExecutorDecision } from "@fncts/base/control/Channel/internal/ChildExecutorDecision";
-import { UpstreamPullStrategy } from "@fncts/base/control/Channel/internal/UpstreamPullStrategy";
+import { ChildExecutorDecision } from "@fncts/base/control/Channel/ChildExecutorDecision";
+import { UpstreamPullStrategy } from "@fncts/base/control/Channel/UpstreamPullStrategy";
 import { IO } from "@fncts/base/control/IO";
 import { Stream } from "@fncts/base/control/Stream";
 import { Either } from "@fncts/base/data/Either";

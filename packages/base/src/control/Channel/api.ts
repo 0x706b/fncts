@@ -8,7 +8,7 @@ import type { Managed } from "../Managed";
 import type { Queue } from "../Queue";
 import type { AsyncInputConsumer } from "./internal/AsyncInputConsumer";
 import type { AsyncInputProducer } from "./internal/AsyncInputProducer";
-import type { UpstreamPullRequest } from "./UpstreamPullRequest/definition";
+import type { UpstreamPullRequest } from "./UpstreamPullRequest";
 
 import { Conc } from "../../collection/immutable/Conc";
 import { Cause } from "../../data/Cause";
@@ -22,7 +22,7 @@ import { FiberRef } from "../FiberRef";
 import { IO } from "../IO";
 import { ReleaseMap } from "../Managed/ReleaseMap";
 import { Ref } from "../Ref";
-import { ChildExecutorDecision } from "./ChildExecutorDecision/definition";
+import { ChildExecutorDecision } from "./ChildExecutorDecision";
 import {
   BracketOut,
   Bridge,
@@ -39,7 +39,7 @@ import {
   Provide,
   Read,
 } from "./definition";
-import { UpstreamPullStrategy } from "./internal/UpstreamPullStrategy";
+import { UpstreamPullStrategy } from "./UpstreamPullStrategy/definition";
 
 /**
  * Returns a new channel that is the same as this one, except the terminal value of the channel

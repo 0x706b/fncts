@@ -7,11 +7,11 @@ import { identity } from "../../data/function";
 import { Just, Maybe, Nothing } from "../../data/Maybe";
 import { TxnId } from "../../data/TxnId";
 import { AtomicReference } from "../../internal/AtomicReference";
-import { CommitState } from "../../internal/CommitState";
-import { tryCommitAsync, tryCommitSync } from "../../internal/Journal";
-import { TryCommitTag } from "../../internal/TryCommit";
 import { IO } from "../IO";
 import { ContramapEnvironment, Effect, HaltException, STM } from "./definition";
+import { CommitState } from "./internal/CommitState";
+import { tryCommitAsync, tryCommitSync } from "./internal/Journal";
+import { TryCommitTag } from "./internal/TryCommit";
 
 /**
  * Maps the success value of this effect to the specified constant value.

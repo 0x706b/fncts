@@ -1,4 +1,4 @@
-import type { Atomic } from "../control/TRef";
+import type { Atomic } from "../../TRef";
 
 import { Versioned } from "./Versioned";
 

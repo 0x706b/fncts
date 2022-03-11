@@ -6,7 +6,8 @@
     "declaration": true,
     "declarationDir": "./build/dts",
     "sourceMap": true,
-    "composite": true
+    "composite": true,
+    "types": ["@fncts/base/global-augmentation"],
   },
   "include": ["./src"],
   "references": [

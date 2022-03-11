@@ -3,8 +3,10 @@
   "compilerOptions": {
     "declaration": true,
     "declarationDir": "./build/dts",
+    "outDir": "./build/esm",
     "emitDeclarationOnly": true,
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "composite": true
   },
   "include": ["./src"]
 }

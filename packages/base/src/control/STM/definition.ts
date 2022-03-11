@@ -1,6 +1,6 @@
 import type { FiberId } from "../../data/FiberId";
-import type { Journal } from "../../internal/Journal";
 import type { _A, _E, _R } from "../../types";
+import type { Journal } from "./internal/Journal";
 
 import { hasTypeId } from "../../util/predicates";
 

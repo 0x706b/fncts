@@ -1,10 +1,10 @@
 import type { Cause } from "../../data/Cause";
 import type { Exit } from "../../data/Exit";
 import type { IO, URIO } from "../IO";
-import type { ChildExecutorDecision } from "./ChildExecutorDecision/definition";
+import type { ChildExecutorDecision } from "./ChildExecutorDecision";
 import type { AsyncInputProducer } from "./internal/AsyncInputProducer";
-import type { UpstreamPullStrategy } from "./internal/UpstreamPullStrategy";
-import type { UpstreamPullRequest } from "./UpstreamPullRequest/definition";
+import type { UpstreamPullRequest } from "./UpstreamPullRequest";
+import type { UpstreamPullStrategy } from "./UpstreamPullStrategy";
 
 export const enum ChannelTag {
   PipeTo = "PipeTo",

@@ -1,6 +1,12 @@
 {
   "name": "@fncts/typelevel",
-  "types": "./build/dts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./build/dts/*"
+      ]
+    }
+  },
   "scripts": {
     "build": "tsc -b tsconfig.json"
   },

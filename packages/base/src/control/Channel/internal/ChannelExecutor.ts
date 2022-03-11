@@ -2,10 +2,10 @@ import type { List } from "../../../collection/immutable/List";
 import type { Cause } from "../../../data/Cause";
 import type { Maybe } from "../../../data/Maybe";
 import type { URIO } from "../../IO";
-import type { ChildExecutorDecision } from "../ChildExecutorDecision/definition";
+import type { ChildExecutorDecision } from "../ChildExecutorDecision";
 import type { BracketOut, Continuation, Ensuring } from "../definition";
+import type { UpstreamPullStrategy } from "../UpstreamPullStrategy";
 import type { ChannelState } from "./ChannelState";
-import type { UpstreamPullStrategy } from "./UpstreamPullStrategy";
 
 import { Nil } from "../../../collection/immutable/List";
 import { Queue } from "../../../collection/immutable/Queue";
@@ -21,7 +21,7 @@ import {
   concreteContinuation,
   ContinuationFinalizer,
 } from "../definition";
-import { UpstreamPullRequest } from "../UpstreamPullRequest/definition";
+import { UpstreamPullRequest } from "../UpstreamPullRequest";
 import * as State from "./ChannelState";
 
 type ErasedChannel<R> = Channel<R, unknown, unknown, unknown, unknown, unknown, unknown>;

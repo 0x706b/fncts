@@ -1,6 +1,6 @@
 import type { FiberId } from "../../data/FiberId";
-import type { Journal } from "../../internal/Journal";
 import type { OnFailure, OnRetry, OnSuccess } from "../STM";
+import type { Journal } from "./internal/Journal";
 
 import { TExit } from "../../data/TExit";
 import { Stack } from "../../internal/Stack";

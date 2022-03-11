@@ -1,7 +1,7 @@
-import type { TExit } from "../data/TExit";
+import type { TExit } from "../../../data/TExit";
 
-import { Exit } from "../data/Exit";
-import { TExitTag } from "../data/TExit";
+import { Exit } from "../../../data/Exit";
+import { TExitTag } from "../../../data/TExit";
 
 export interface Done<E, A> {
   readonly _tag: "Done";

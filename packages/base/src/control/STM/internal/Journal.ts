@@ -1,18 +1,18 @@
-import type { STM } from "../control/STM";
-import type { Atomic } from "../control/TRef";
-import type { FiberId } from "../data/FiberId";
-import type { TxnId } from "../data/TxnId";
-import type { AtomicReference } from "./AtomicReference";
+import type { FiberId } from "../../../data/FiberId";
+import type { TxnId } from "../../../data/TxnId";
+import type { AtomicReference } from "../../../internal/AtomicReference";
+import type { STM } from "../../STM";
+import type { Atomic } from "../../TRef";
 import type { Entry } from "./Entry";
 import type { TryCommit } from "./TryCommit";
 
-import { HashMap } from "../collection/immutable/HashMap";
-import { IO } from "../control/IO";
-import { STMDriver } from "../control/STM/driver";
-import { Exit } from "../data/Exit";
-import { TExitTag } from "../data/TExit";
+import { HashMap } from "../../../collection/immutable/HashMap";
+import { Exit } from "../../../data/Exit";
+import { TExitTag } from "../../../data/TExit";
+import { defaultScheduler } from "../../../internal/Scheduler";
+import { IO } from "../../IO";
+import { STMDriver } from "../driver";
 import { CommitState } from "./CommitState";
-import { defaultScheduler } from "./Scheduler";
 import { Done, Suspend } from "./TryCommit";
 
 /**

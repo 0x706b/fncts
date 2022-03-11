@@ -1,8 +1,8 @@
 import type { HashMap } from "../../collection/immutable/HashMap";
 import type { TxnId } from "../../data/TxnId";
 import type { AtomicReference } from "../../internal/AtomicReference";
-import type { Todo } from "../../internal/Journal";
-import type { Versioned } from "../../internal/Versioned";
+import type { Todo } from "../STM/internal/Journal";
+import type { Versioned } from "../STM/internal/Versioned";
 
 import { Either } from "../../data/Either";
 

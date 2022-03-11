@@ -10,12 +10,6 @@
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "skipLibCheck": true,
-    "preserveSymlinks": true,
-    "baseUrl": ".",
-    "paths": {
-      "@fncts/typelevel/*": ["../typelevel/build/dts/*"],
-      "@fncts/base/*": ["../base/build/dts/*"]
-    }
+    "preserveSymlinks": true
   },
-  "exclude": ["node_modules", "build"]
 }

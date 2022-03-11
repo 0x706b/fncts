@@ -4,10 +4,10 @@ import type { STM } from "../STM/definition";
 import type { UTRef } from "./definition";
 
 import { AtomicReference } from "../../internal/AtomicReference";
-import { Entry } from "../../internal/Entry";
-import { Journal } from "../../internal/Journal";
-import { Versioned } from "../../internal/Versioned";
 import { Effect } from "../STM/definition";
+import { Entry } from "../STM/internal/Entry";
+import { Journal } from "../STM/internal/Journal";
+import { Versioned } from "../STM/internal/Versioned";
 import { Atomic } from "./definition";
 
 /**

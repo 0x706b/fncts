@@ -1,10 +1,10 @@
 import type { Maybe } from "../../data/Maybe";
-import type { Journal } from "../../internal/Journal";
+import type { Journal } from "../STM/internal/Journal";
 import type { Atomic, TRef } from "../TRef/definition";
 
 import { Either } from "../../data/Either";
-import { Entry } from "../../internal/Entry";
 import { Effect, STM } from "../STM/definition";
+import { Entry } from "../STM/internal/Entry";
 import { concrete } from "../TRef/definition";
 
 function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal): Entry {
