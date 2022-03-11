@@ -7,6 +7,6 @@
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "typescript": "4.6.0"
+    "typescript": "^4.6.2"
   }
 }

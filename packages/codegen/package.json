@@ -26,6 +26,6 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "^2.5.1",
-    "typescript": "4.6.0"
+    "typescript": "^4.6.2"
   }
 }

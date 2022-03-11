@@ -1105,9 +1105,9 @@ export function either<R, E, A>(stream: Stream<R, E, A>): Stream<R, never, Eithe
 }
 
 /**
- * Empty stream
+ * @tsplus static fncts.control.StreamOps empty
  */
-export const empty = Stream.fromChunkNow(Conc.empty<never>());
+export const empty: Stream<unknown, never, never> = Stream.fromChunkNow(Conc.empty<never>());
 
 function endWhenWriter<E, A, E1>(fiber: Fiber<E1, any>): Channel<unknown, E | E1, Conc<A>, unknown, E | E1, Conc<A>, void> {
   return Channel.unwrap(

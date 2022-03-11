@@ -6,7 +6,7 @@
   "include": ["./src/**/*"],
   "references": [
     {
-      "path": "../base"
+      "path": "../base/tsconfig.json"
     }
-  ],
+  ]
 }

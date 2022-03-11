@@ -1,0 +1,234 @@
+import type { Cause } from "@fncts/base/data/Cause";
+import type { Either } from "@fncts/base/data/Either";
+import type { Exit } from "@fncts/base/data/Exit";
+import type { Maybe } from "@fncts/base/data/Maybe";
+import type { Eq} from "@fncts/base/prelude";
+
+import {} from "@fncts/base/collection/Array";
+import { Conc } from "@fncts/base/collection/immutable/Conc";
+import {} from "@fncts/base/collection/Iterable";
+import { LazyValue } from "@fncts/base/control/LazyValue";
+import { identity } from "@fncts/base/data/function";
+import { Just, Nothing } from "@fncts/base/data/Maybe";
+import { Equatable } from "@fncts/base/prelude";
+
+import { AssertionData } from "../../data/AssertionData";
+import { AssertionValue } from "../../data/AssertionValue";
+import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra";
+import { Render } from "../../data/Render";
+import { RenderParam } from "../../data/RenderParam";
+import { Assertion } from "./definition";
+
+/**
+ * @tsplus fluent fncts.test.control.Assertion and
+ * @tsplus operator fncts.test.control.Assertion &&
+ */
+export function and_<A>(self: Assertion<A>, that: Assertion<A>): Assertion<A> {
+  return new Assertion(Render.infix(RenderParam(self), "&&", RenderParam(that)), (actual) => self.run(actual) && that.run(actual));
+}
+
+/**
+ * @tsplus static fncts.test.control.AssertionOps anything
+ */
+export const anything: Assertion<any> = Assertion.make("anything", [], () => true);
+
+/**
+ * @tsplus static fncts.test.control.AssertionOps approximatelyEquals
+ */
+export function approximatelyEquals(reference: number, tolerance: number): Assertion<number> {
+  return Assertion.make("approximatelyEquals", [RenderParam(reference), RenderParam(tolerance)], (actual) => {
+    const max = reference + tolerance;
+    const min = reference - tolerance;
+    return actual >= min && actual <= max;
+  });
+}
+
+/**
+ * @tsplus static fncts.test.control.AssertionOps make
+ */
+export function assertion<A>(name: string, params: ReadonlyArray<RenderParam>, run: (actual: A) => boolean): Assertion<A> {
+  const assertion: LazyValue<Assertion<A>> = LazyValue(() => {
+    return Assertion.direct(name, params, (actual) => {
+      const result: LazyValue<FreeBooleanAlgebra<AssertionValue<A>>> = LazyValue(() => {
+        if (run(actual)) {
+          return FreeBooleanAlgebra.success(new AssertionValue(actual, assertion, result));
+        } else {
+          return FreeBooleanAlgebra.failure(new AssertionValue(actual, assertion, result));
+        }
+      });
+      return result.value;
+    });
+  });
+  return assertion.value;
+}
+
+/**
+ * @tsplus static fncts.test.control.AssertionOps direct
+ */
+export function assertionDirect<A>(
+  name: string,
+  params: ReadonlyArray<RenderParam>,
+  run: (actual: A) => FreeBooleanAlgebra<AssertionValue<A>>,
+): Assertion<A> {
+  return new Assertion(Render.fn(name, Conc.single(Conc.from(params))), run);
+}
+
+/**
+ * @tsplus static fncts.test.control.AssertionOps rec
+ */
+export function assertionRec<A, B>(
+  name: string,
+  params: ReadonlyArray<RenderParam>,
+  assertion: Assertion<B>,
+  get: (a: A) => Maybe<B>,
+  orElse: (data: AssertionData<A>) => FreeBooleanAlgebra<AssertionValue<A>> = (_) => _.asFailure,
+): Assertion<A> {
+  const resultAssertion: LazyValue<Assertion<A>> = LazyValue(() =>
+    Assertion.direct(name, params, (a) =>
+      get(a).match(
+        () => orElse(new AssertionData(a, resultAssertion.value)),
+        (b) => {
+          const innerResult = assertion.run(b);
+          const result: LazyValue<FreeBooleanAlgebra<AssertionValue<any>>> = LazyValue(() => {
+            if (innerResult.isSuccess) {
+              return FreeBooleanAlgebra.success(new AssertionValue(a, resultAssertion, result));
+            } else {
+              return FreeBooleanAlgebra.failure(new AssertionValue(b, LazyValue(assertion), LazyValue(innerResult)));
+            }
+          });
+          return result.value;
+        },
+      ),
+    ),
+  );
+  return resultAssertion.value;
+}
+
+export function contains<A>(element: A): Assertion<Iterable<A>> {
+  return Assertion.make("contains", [RenderParam(element)], (ia) => ia.find((a) => Equatable.deepEquals(a, element)).isJust());
+}
+
+export function containsCause<E>(cause: Cause<E>): Assertion<Cause<E>> {
+  return Assertion.make("containsCause", [RenderParam(cause)], (c) => c.contains(cause));
+}
+
+export function containsString(element: string): Assertion<string> {
+  return Assertion.make("containsString", [RenderParam(element)], (str) => str.includes(element));
+}
+
+export function exists<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
+  return Assertion.rec("exists", [RenderParam(assertion)], assertion, (ia) => ia.find((a) => assertion.test(a)));
+}
+
+export function fails<E>(assertion: Assertion<E>): Assertion<Exit<E, any>> {
+  return Assertion.rec("fails", [RenderParam(assertion)], assertion, (exit) =>
+    exit.match(
+      (cause) => cause.failures.head,
+      () => Nothing(),
+    ),
+  );
+}
+
+export function forall<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
+  return Assertion.rec(
+    "forall",
+    [RenderParam(assertion)],
+    assertion,
+    (ia) => ia.find((a) => !assertion.test(a)),
+    (data) => data.asSuccess,
+  );
+}
+
+export function halts(assertion: Assertion<any>): Assertion<Exit<any, any>> {
+  return Assertion.rec("halts", [RenderParam(assertion)], assertion, (exit) =>
+    exit.match(
+      (c) => c.haltMaybe,
+      () => Nothing(),
+    ),
+  );
+}
+
+export function strictEqualTo<A>(expected: A): Assertion<A> {
+  return Assertion.make("strictEqualTo", [RenderParam(expected)], (actual) => Equatable.strictEquals(actual, expected));
+}
+
+export function deepEqualTo<A>(expected: A): Assertion<A> {
+  return Assertion.make("deepEqualTo", [RenderParam(expected)], (actual) => Equatable.deepEquals(actual, expected));
+}
+
+export function equals<A>(expected: A, E: Eq<A>): Assertion<A> {
+  return Assertion.make("equals", [RenderParam(expected)], (actual) => E.equals_(actual, expected));
+}
+
+export const isFalse: Assertion<boolean> = Assertion.make("isFale", [], (b) => !b);
+
+export const isInterrupted: Assertion<Exit<any, any>> = Assertion.make("isInterrupted", [], (exit) =>
+  exit.match(
+    (cause) => cause.interrupted,
+    () => false,
+  ),
+);
+
+export function isLeft<A>(assertion: Assertion<A>): Assertion<Either<A, any>> {
+  return Assertion.rec("isLeft", [RenderParam(assertion)], assertion, (actual) =>
+    actual.match(
+      (a) => Just(a),
+      () => Nothing(),
+    ),
+  );
+}
+
+export function isJust<A>(assertion: Assertion<A>): Assertion<Maybe<A>> {
+  return Assertion.rec("isJust", [RenderParam(assertion)], assertion, identity);
+}
+
+export const isNothing: Assertion<Maybe<any>> = Assertion.make("isNothing", [], (actual) => actual.isNothing());
+
+export function isRight<A>(assertion: Assertion<A>): Assertion<Either<any, A>> {
+  return Assertion.rec("isRight", [RenderParam(assertion)], assertion, (actual) =>
+    actual.match(
+      () => Nothing(),
+      (a) => Just(a),
+    ),
+  );
+}
+
+export const isTrue: Assertion<boolean> = Assertion.make("isTrue", [], identity);
+
+/**
+ * @tsplus fluent fncts.test.control.Assertion label
+ */
+export function label_<A>(self: Assertion<A>, label: string): Assertion<A> {
+  return new Assertion(Render.infix(RenderParam(self), ":", RenderParam(label)), self.run);
+}
+
+/**
+ * @tsplus getter fncts.test.control.Assertion invert
+ */
+export function not<A>(assertion: Assertion<A>): Assertion<A> {
+  return Assertion.direct("not", [RenderParam(assertion)], (actual) => assertion.run(actual).invert);
+}
+
+/**
+ * @tsplus fluent fncts.test.control.Assertion or
+ * @tsplus operator fncts.test.control.Assertion ||
+ */
+export function or_<A>(self: Assertion<A>, that: Assertion<A>): Assertion<A> {
+  return new Assertion(Render.infix(RenderParam(self), "||", RenderParam(that)), (actual) => self.run(actual) || that.run(actual));
+}
+
+export function succeeds<A>(assertion: Assertion<A>): Assertion<Exit<any, A>> {
+  return Assertion.rec("succeeds", [RenderParam(assertion)], assertion, (exit) =>
+    exit.match(
+      () => Nothing(),
+      (a) => Just(a),
+    ),
+  );
+}
+
+/**
+ * @tsplus fluent fncts.test.control.Assertion test
+ */
+export function test_<A>(self: Assertion<A>, actual: A): boolean {
+  return self.run(actual).isSuccess;
+}

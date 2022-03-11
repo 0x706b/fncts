@@ -6,7 +6,6 @@ module.exports = {
   extends: ["plugin:@typescript-eslint/recommended"],
   plugins: [
     "@0x706b/align-assignments",
-    "import",
     "simple-import-sort",
     "@typescript-eslint",
     "codegen",
@@ -35,23 +34,9 @@ module.exports = {
       "warn",
       { groups: [["^.*\\u0000$"], ["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."]] },
     ],
-    "import/first": "error",
-    "import/no-duplicates": "error",
-    "import/no-unresolved": "error",
-    "import/order": "off",
     "codegen/codegen": [
       "error",
       { presets: require("../codegen/build/cjs/autoPipe") },
     ],
-  },
-  settings: {
-    "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"]
-    },
-    "import/resolver": {
-      typescript: {
-        alwaysTryTypes: true
-      }
-    }
   }
 };

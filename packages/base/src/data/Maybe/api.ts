@@ -73,6 +73,13 @@ export function filterMap_<A, B>(self: Maybe<A>, f: (a: A) => Maybe<B>): Maybe<B
 }
 
 /**
+ * @tsplus getter fncts.data.Maybe flatten
+ */
+export function flatten<A>(self: Maybe<Maybe<A>>): Maybe<A> {
+  return self.chain(identity);
+}
+
+/**
  * @tsplus fluent fncts.data.Maybe partition
  */
 export function partition_<A>(self: Maybe<A>, p: Predicate<A>): readonly [Maybe<A>, Maybe<A>];

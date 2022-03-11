@@ -13,6 +13,7 @@
  */
 
 /**
+ * @tsplus type fncts.collection.immutable.List.Cons
  * @tsplus companion fncts.ConsOps
  */
 export class Cons<A> implements Iterable<A> {
@@ -47,6 +48,7 @@ export class Cons<A> implements Iterable<A> {
 }
 
 /**
+ * @tsplus type fncts.collection.immutable.List.Nil
  * @tsplus companion fncts.NilOps
  */
 export class Nil<A> implements Iterable<A> {
