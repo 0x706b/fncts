@@ -5,11 +5,6 @@ import * as fs from "fs";
 import * as ts from "typescript";
 import { format } from "prettier";
 
-declare global {
-  interface Array<T> extends ESArray<T> {}
-  interface ReadonlyArray<T> extends ESReadonlyArray<T> {}
-}
-
 /**
  * A simple static analysis that tries to infer
  * which generic type declarations are actually used by the signature

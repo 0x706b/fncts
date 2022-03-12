@@ -4,9 +4,7 @@ import type { Exit } from "@fncts/base/data/Exit";
 import type { Maybe } from "@fncts/base/data/Maybe";
 import type { Eq } from "@fncts/base/prelude";
 
-import {} from "@fncts/base/collection/Array";
 import { Conc } from "@fncts/base/collection/immutable/Conc";
-import {} from "@fncts/base/collection/Iterable";
 import { LazyValue } from "@fncts/base/control/LazyValue";
 import { identity } from "@fncts/base/data/function";
 import { Just, Nothing } from "@fncts/base/data/Maybe";

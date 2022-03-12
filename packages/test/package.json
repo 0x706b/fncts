@@ -3,7 +3,7 @@
   "type": "module",
   "types": "./build/dts",
   "scripts": {
-    "build": "tsc -b ./tsconfig.build.json",
+    "build": "tsc -b ./tsconfig.json",
     "format:write": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts",
     "circular": "madge --circular --no-spinner --warning build/esm"
   },

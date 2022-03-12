@@ -6,6 +6,7 @@ module.exports = {
   extends: ["plugin:@typescript-eslint/recommended"],
   plugins: [
     "@0x706b/align-assignments",
+    "import",
     "simple-import-sort",
     "@typescript-eslint",
     "codegen",
@@ -38,5 +39,18 @@ module.exports = {
       "error",
       { presets: require("../codegen/build/cjs/autoPipe") },
     ],
-  }
+    "import/order": "off",
+    "import/no-unresolved": "error",
+  },
+  settings: {
+    "import/parsers": {
+      "@typescript/eslint": [".ts", ".tsx"],
+    },
+    "import/resolver": {
+      typescript: {
+        alwaysTryTypes: true,
+        project: `${__dirname}/../config/tsconfig.base.json`,
+      },
+    },
+  },
 };
