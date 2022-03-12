@@ -1,9 +1,9 @@
-import type { Conc } from "../../collection/immutable/Conc";
-import type { Cause } from "../../data/Cause";
-import type { HKT } from "../../prelude";
-import type { _A, _E, _R, _S1, _S2, _W } from "../../types";
+import type { Conc } from "../../collection/immutable/Conc.js";
+import type { Cause } from "../../data/Cause.js";
+import type { HKT } from "../../prelude.js";
+import type { _A, _E, _R, _S1, _S2, _W } from "../../types.js";
 
-import { hasTypeId } from "../../util/predicates";
+import { hasTypeId } from "../../util/predicates.js";
 
 export interface ZF extends HKT {
   readonly type: Z<this["W"], this["S"], this["S"], this["R"], this["E"], this["A"]>;

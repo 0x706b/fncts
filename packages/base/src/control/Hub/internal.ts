@@ -1,23 +1,23 @@
-import type { Hub as HubInternal } from "../../internal/Hub";
-import type { UIO } from "../IO";
-import type { UManaged } from "../Managed";
-import type { Queue } from "../Queue";
-import type { Hub } from "./definition";
+import type { Hub as HubInternal } from "../../internal/Hub.js";
+import type { UIO } from "../IO.js";
+import type { UManaged } from "../Managed.js";
+import type { Queue } from "../Queue.js";
+import type { Hub } from "./definition.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { HashSet } from "../../collection/mutable/HashSet";
-import { ExecutionStrategy } from "../../data/ExecutionStrategy";
-import { Exit } from "../../data/Exit";
-import { AtomicBoolean } from "../../internal/AtomicBoolean";
-import { HashedPair } from "../../internal/HashedPair";
-import { MutableQueue } from "../../internal/MutableQueue";
-import { Future } from "../Future";
-import { IO } from "../IO";
-import { Managed } from "../Managed";
-import { Finalizer } from "../Managed/Finalizer";
-import { ReleaseMap } from "../Managed/ReleaseMap";
-import { QueueInternal } from "../Queue";
-import { PHubInternal } from "./definition";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { HashSet } from "../../collection/mutable/HashSet.js";
+import { ExecutionStrategy } from "../../data/ExecutionStrategy.js";
+import { Exit } from "../../data/Exit.js";
+import { AtomicBoolean } from "../../internal/AtomicBoolean.js";
+import { HashedPair } from "../../internal/HashedPair.js";
+import { MutableQueue } from "../../internal/MutableQueue.js";
+import { Future } from "../Future.js";
+import { IO } from "../IO.js";
+import { Managed } from "../Managed.js";
+import { Finalizer } from "../Managed/Finalizer.js";
+import { ReleaseMap } from "../Managed/ReleaseMap.js";
+import { QueueInternal } from "../Queue.js";
+import { PHubInternal } from "./definition.js";
 
 /**
  * A `Strategy<A>` describes the protocol for how publishers and subscribers

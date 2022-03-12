@@ -1,5 +1,5 @@
 // codegen:start { preset: barrel, include: ./string/*.ts }
-export * from "./string/api";
-export * from "./string/definition";
-export * from "./string/instances";
+export * from "./string/api.js";
+export * from "./string/definition.js";
+export * from "./string/instances.js";
 // codegen:end

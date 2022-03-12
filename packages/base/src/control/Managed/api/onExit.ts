@@ -1,11 +1,11 @@
-import type { Exit } from "../../../data/Exit";
+import type { Exit } from "../../../data/Exit.js";
 
-import { ExecutionStrategy } from "../../../data/ExecutionStrategy";
-import { FiberRef } from "../../FiberRef";
-import { IO } from "../../IO";
-import { Managed } from "../definition";
-import { Finalizer } from "../Finalizer";
-import { ReleaseMap } from "../ReleaseMap";
+import { ExecutionStrategy } from "../../../data/ExecutionStrategy.js";
+import { FiberRef } from "../../FiberRef.js";
+import { IO } from "../../IO.js";
+import { Managed } from "../definition.js";
+import { Finalizer } from "../Finalizer.js";
+import { ReleaseMap } from "../ReleaseMap.js";
 
 /**
  * Ensures that a cleanup function runs when this ZManaged is finalized, after

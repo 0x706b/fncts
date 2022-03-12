@@ -1,13 +1,13 @@
-import type { HashSet } from "../../collection/immutable/HashSet";
-import type { Exit } from "../../data/Exit";
-import type { Maybe } from "../../data/Maybe";
-import type { AtomicReference } from "../../internal/AtomicReference";
-import type { RuntimeFiber } from "../Fiber";
-import type { UIO } from "../IO";
+import type { HashSet } from "../../collection/immutable/HashSet.js";
+import type { Exit } from "../../data/Exit.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { AtomicReference } from "../../internal/AtomicReference.js";
+import type { RuntimeFiber } from "../Fiber.js";
+import type { UIO } from "../IO.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { IO } from "../IO";
-import { ConstSupervisor, Supervisor } from "./definition";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { IO } from "../IO.js";
+import { ConstSupervisor, Supervisor } from "./definition.js";
 
 /**
  * @tsplus static fncts.control.SupervisorOps unsafeTrack

@@ -1,7 +1,7 @@
-import type { Cause } from "../definition";
+import type { Cause } from "../definition.js";
 
-import { Stack } from "../../../internal/Stack";
-import { CauseTag } from "../definition";
+import { Stack } from "../../../internal/Stack.js";
+import { CauseTag } from "../definition.js";
 
 /**
  * Determines whether the `Cause` is `Empty` by recursively traversing the `Cause`

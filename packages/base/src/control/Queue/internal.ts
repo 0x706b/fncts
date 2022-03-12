@@ -1,14 +1,14 @@
-import type { MutableQueue } from "../../internal/MutableQueue";
-import type { UIO } from "../IO";
-import type { Queue } from "./definition";
-import type { Strategy } from "./strategy";
+import type { MutableQueue } from "../../internal/MutableQueue.js";
+import type { UIO } from "../IO.js";
+import type { Queue } from "./definition.js";
+import type { Strategy } from "./strategy.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { AtomicBoolean } from "../../internal/AtomicBoolean";
-import { unbounded } from "../../internal/MutableQueue";
-import { Future } from "../Future";
-import { IO } from "../IO";
-import { QueueInternal } from "./definition";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { AtomicBoolean } from "../../internal/AtomicBoolean.js";
+import { unbounded } from "../../internal/MutableQueue.js";
+import { Future } from "../Future.js";
+import { IO } from "../IO.js";
+import { QueueInternal } from "./definition.js";
 
 class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A> {
   constructor(

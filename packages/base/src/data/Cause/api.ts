@@ -1,15 +1,15 @@
-import type { List } from "../../collection/immutable/List";
-import type { FiberId } from "../FiberId";
-import type { Lazy } from "../function";
-import type { Predicate } from "../Predicate";
+import type { List } from "../../collection/immutable/List.js";
+import type { FiberId } from "../FiberId.js";
+import type { Lazy } from "../function.js";
+import type { Predicate } from "../Predicate.js";
 
-import { Nil } from "../../collection/immutable/List";
-import { Eval } from "../../control/Eval";
-import { Stack } from "../../internal/Stack";
-import { Either } from "../Either";
-import { identity } from "../function";
-import { Just, Maybe, MaybeTag, Nothing } from "../Maybe";
-import { Trace } from "../Trace";
+import { Nil } from "../../collection/immutable/List.js";
+import { Eval } from "../../control/Eval.js";
+import { Stack } from "../../internal/Stack.js";
+import { Either } from "../Either.js";
+import { identity } from "../function.js";
+import { Just, Maybe, MaybeTag, Nothing } from "../Maybe.js";
+import { Trace } from "../Trace.js";
 import {
   _Empty,
   Both,
@@ -21,7 +21,7 @@ import {
   Interrupt,
   Stackless,
   Then,
-} from "./definition";
+} from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.Cause as
@@ -1074,9 +1074,9 @@ export function mapTrace(f: (trace: Trace) => Trace) {
 // codegen:end
 
 // codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/fold";
-export * from "./api/isEmpty";
-export * from "./api/linearize";
-export * from "./api/prettyPrint";
-export * from "./api/unified";
+export * from "./api/fold.js";
+export * from "./api/isEmpty.js";
+export * from "./api/linearize.js";
+export * from "./api/prettyPrint.js";
+export * from "./api/unified.js";
 // codegen:end

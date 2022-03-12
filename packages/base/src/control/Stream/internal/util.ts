@@ -1,6 +1,6 @@
-import { Conc } from "../../../collection/immutable/Conc";
-import { Either } from "../../../data/Either";
-import { tuple } from "../../../data/function";
+import { Conc } from "../../../collection/immutable/Conc.js";
+import { Either } from "../../../data/Either.js";
+import { tuple } from "../../../data/function.js";
 
 export function zipChunks<A, B, C>(
   fa: Conc<A>,

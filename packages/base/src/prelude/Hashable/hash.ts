@@ -1,6 +1,6 @@
-import { PCGRandom } from "../../util/PCGRandom";
-import { isArray, isDefined, isIterable, isPlain } from "../../util/predicates";
-import { isHashable } from "./definition";
+import { PCGRandom } from "../../util/PCGRandom.js";
+import { isArray, isDefined, isIterable, isPlain } from "../../util/predicates.js";
+import { isHashable } from "./definition.js";
 
 const CACHE  = new WeakMap<any, number>();
 const RANDOM = new PCGRandom((Math.random() * 4294967296) >>> 0);

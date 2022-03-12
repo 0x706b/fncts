@@ -1,9 +1,9 @@
-import type { ApplyMin } from "./Apply";
-import type { PointedMin } from "./Pointed";
+import type { ApplyMin } from "./Apply.js";
+import type { PointedMin } from "./Pointed.js";
 
-import { Apply } from "./Apply";
-import { HKT } from "./HKT";
-import { Pointed } from "./Pointed";
+import { Apply } from "./Apply.js";
+import { HKT } from "./HKT.js";
+import { Pointed } from "./Pointed.js";
 
 export interface Applicative<F extends HKT, FC = HKT.None> extends Apply<F, FC>, Pointed<F, FC> {}
 

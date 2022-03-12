@@ -1,7 +1,7 @@
-import type { Fiber } from "../definition";
+import type { Fiber } from "../definition.js";
 
-import { Future } from "../../Future";
-import { IO } from "../../IO";
+import { Future } from "../../Future.js";
+import { IO } from "../../IO.js";
 
 /**
  * A fully-featured, but much slower version of `evalOn`, which is useful

@@ -1,9 +1,9 @@
-import type { USTM } from "../STM/definition";
+import type { USTM } from "../STM/definition.js";
 
-import { assert } from "../../util/assert";
-import { IO } from "../IO";
-import { Effect, RetryException } from "../STM/definition";
-import { TSemaphore } from "./definition";
+import { assert } from "../../util/assert.js";
+import { IO } from "../IO.js";
+import { Effect, RetryException } from "../STM/definition.js";
+import { TSemaphore } from "./definition.js";
 
 /**
  * @tsplus getter fncts.control.TSemaphore acquire

@@ -1,4 +1,4 @@
-import { Equatable, Hashable } from "../prelude";
+import { Equatable, Hashable } from "../prelude.js";
 
 export class HashedPair<A, B> implements Hashable, Equatable {
   constructor(readonly first: A, readonly second: B) {}

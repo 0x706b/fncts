@@ -1,10 +1,10 @@
-import type { Logger } from "../control/Logger";
-import type { Supervisor } from "../control/Supervisor";
-import type { Cause } from "./Cause";
-import type { FiberId } from "./FiberId";
+import type { Logger } from "../control/Logger.js";
+import type { Supervisor } from "../control/Supervisor.js";
+import type { Cause } from "./Cause.js";
+import type { FiberId } from "./FiberId.js";
 
-import { HashSet } from "../collection/immutable/HashSet";
-import { CaseClass } from "./CaseClass";
+import { HashSet } from "../collection/immutable/HashSet.js";
+import { CaseClass } from "./CaseClass.js";
 
 export const RuntimeConfigFlag = {
   EnableCurrentFiber: Symbol.for("fncta.data.RuntimeConfigFlag.EnableCurrentFiber"),

@@ -1,5 +1,5 @@
 // codegen:start { preset: barrel, include: FiberId/*.ts }
-export * from "./FiberId/api";
-export * from "./FiberId/constructors";
-export * from "./FiberId/definition";
+export * from "./FiberId/api.js";
+export * from "./FiberId/constructors.js";
+export * from "./FiberId/definition.js";
 // codegen:end

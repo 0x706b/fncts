@@ -1,5 +1,5 @@
-import type { IO } from "../../IO";
-import type { Channel } from "../definition";
+import type { IO } from "../../IO.js";
+import type { Channel } from "../definition.js";
 
 /**
  * Runs a channel until the end is received

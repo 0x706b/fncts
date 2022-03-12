@@ -1,11 +1,11 @@
-import type { UIO } from "../../IO";
-import type { State } from "./definition";
+import type { UIO } from "../../IO.js";
+import type { State } from "./definition.js";
 
-import { HashMap } from "../../../collection/immutable/HashMap";
-import { identity } from "../../../data/function";
-import { IO } from "../../IO";
-import { Ref } from "../../Ref";
-import { ReleaseMap, Running } from "./definition";
+import { HashMap } from "../../../collection/immutable/HashMap.js";
+import { identity } from "../../../data/function.js";
+import { IO } from "../../IO.js";
+import { Ref } from "../../Ref.js";
+import { ReleaseMap, Running } from "./definition.js";
 
 /**
  * @tsplus static fncts.control.Managed.ReleaseMapOps unsafeMake

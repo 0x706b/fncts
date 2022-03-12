@@ -1,11 +1,11 @@
-import type { Exit } from "../../../data/Exit";
-import type { Maybe } from "../../../data/Maybe";
-import type { UIO } from "../../IO";
+import type { Exit } from "../../../data/Exit.js";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { UIO } from "../../IO.js";
 
-import { Just, Nothing } from "../../../data/Maybe";
-import { IO } from "../../IO";
-import { Finalizer } from "../Finalizer";
-import { Exited, ReleaseMap, Running, State } from "./definition";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { IO } from "../../IO.js";
+import { Finalizer } from "../Finalizer.js";
+import { Exited, ReleaseMap, Running, State } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.control.Managed.ReleaseMap addIfOpen

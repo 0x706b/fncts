@@ -1,28 +1,28 @@
-import type { ConcBuilder } from "../../collection/immutable/Conc";
-import type { FiberId } from "../../data/FiberId";
-import type { Lazy } from "../../data/function";
-import type { Maybe } from "../../data/Maybe";
-import type { Predicate } from "../../data/Predicate";
-import type { URIO } from "../IO";
-import type { Managed } from "../Managed";
-import type { Queue } from "../Queue";
-import type { AsyncInputConsumer } from "./internal/AsyncInputConsumer";
-import type { AsyncInputProducer } from "./internal/AsyncInputProducer";
-import type { UpstreamPullRequest } from "./UpstreamPullRequest";
+import type { ConcBuilder } from "../../collection/immutable/Conc.js";
+import type { FiberId } from "../../data/FiberId.js";
+import type { Lazy } from "../../data/function.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { Predicate } from "../../data/Predicate.js";
+import type { URIO } from "../IO.js";
+import type { Managed } from "../Managed.js";
+import type { Queue } from "../Queue.js";
+import type { AsyncInputConsumer } from "./internal/AsyncInputConsumer.js";
+import type { AsyncInputProducer } from "./internal/AsyncInputProducer.js";
+import type { UpstreamPullRequest } from "./UpstreamPullRequest.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { Cause } from "../../data/Cause";
-import { Either } from "../../data/Either";
-import { ExecutionStrategy } from "../../data/ExecutionStrategy";
-import { Exit } from "../../data/Exit";
-import { identity, tuple } from "../../data/function";
-import { Nothing } from "../../data/Maybe";
-import { hasTypeId } from "../../util/predicates";
-import { FiberRef } from "../FiberRef";
-import { IO } from "../IO";
-import { ReleaseMap } from "../Managed/ReleaseMap";
-import { Ref } from "../Ref";
-import { ChildExecutorDecision } from "./ChildExecutorDecision";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { Cause } from "../../data/Cause.js";
+import { Either } from "../../data/Either.js";
+import { ExecutionStrategy } from "../../data/ExecutionStrategy.js";
+import { Exit } from "../../data/Exit.js";
+import { identity, tuple } from "../../data/function.js";
+import { Nothing } from "../../data/Maybe.js";
+import { hasTypeId } from "../../util/predicates.js";
+import { FiberRef } from "../FiberRef.js";
+import { IO } from "../IO.js";
+import { ReleaseMap } from "../Managed/ReleaseMap.js";
+import { Ref } from "../Ref.js";
+import { ChildExecutorDecision } from "./ChildExecutorDecision.js";
 import {
   BracketOut,
   Bridge,
@@ -38,8 +38,8 @@ import {
   PipeTo,
   Provide,
   Read,
-} from "./definition";
-import { UpstreamPullStrategy } from "./UpstreamPullStrategy/definition";
+} from "./definition.js";
+import { UpstreamPullStrategy } from "./UpstreamPullStrategy/definition.js";
 
 /**
  * Returns a new channel that is the same as this one, except the terminal value of the channel

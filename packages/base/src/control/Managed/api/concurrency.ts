@@ -1,9 +1,9 @@
-import type { Maybe } from "../../../data/Maybe";
-import type { UManaged } from "../definition";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { UManaged } from "../definition.js";
 
-import { Just, Nothing } from "../../../data/Maybe";
-import { Concurrency, IO } from "../../IO";
-import { Managed } from "../definition";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { Concurrency, IO } from "../../IO.js";
+import { Managed } from "../definition.js";
 
 /**
  * @tsplus static fncts.control.ManagedOps concurrency

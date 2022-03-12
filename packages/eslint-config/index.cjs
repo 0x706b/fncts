@@ -6,6 +6,7 @@ module.exports = {
   extends: ["plugin:@typescript-eslint/recommended"],
   plugins: [
     "@0x706b/align-assignments",
+    "@0x706b/module-specifier-extensions",
     "import",
     "simple-import-sort",
     "@typescript-eslint",
@@ -19,6 +20,12 @@ module.exports = {
   },
   rules: {
     "@0x706b/align-assignments/align-assignments": "error",
+    "@0x706b/module-specifier-extensions/module-specifier-extensions": [
+      "error",
+      {
+        includeTypeImports: true,
+      },
+    ],
     "@typescript-eslint/consistent-type-imports": "warn",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
@@ -37,7 +44,12 @@ module.exports = {
     ],
     "codegen/codegen": [
       "error",
-      { presets: require("../codegen/build/cjs/autoPipe") },
+      {
+        presets: {
+          pipeable: require("../codegen/build/cjs/pipeable"),
+          barrel: require("../codegen/build/cjs/barrel"),
+        },
+      },
     ],
     "import/order": "off",
     "import/no-unresolved": "error",

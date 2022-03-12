@@ -1,6 +1,6 @@
-import type { Maybe } from "../../data/Maybe";
+import type { Maybe } from "../../data/Maybe.js";
 
-import { Just, Nothing } from "../../data/Maybe";
+import { Just, Nothing } from "../../data/Maybe.js";
 
 /**
  * @tsplus type fncts.control.Schedule.Interval

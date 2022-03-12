@@ -1,8 +1,8 @@
-import type { IO, UIO } from "../IO";
-import type { Managed } from "../Managed";
-import type { PQueue } from "../Queue";
+import type { IO, UIO } from "../IO.js";
+import type { Managed } from "../Managed.js";
+import type { PQueue } from "../Queue.js";
 
-import { Queue } from "../Queue";
+import { Queue } from "../Queue.js";
 
 export const HubTypeId = Symbol.for("fncts.control.Hub");
 export type HubTypeId = typeof HubTypeId;

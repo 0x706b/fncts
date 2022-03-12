@@ -1,6 +1,6 @@
-import type { FiberContext } from "../Fiber/FiberContext";
+import type { FiberContext } from "../Fiber/FiberContext.js";
 
-import { FiberId } from "../../data/FiberId";
+import { FiberId } from "../../data/FiberId.js";
 
 /**
  * A `Scope` represents the scope of a fiber lifetime. The scope of a fiber can

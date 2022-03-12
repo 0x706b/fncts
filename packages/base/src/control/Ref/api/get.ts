@@ -1,7 +1,7 @@
-import type { IO } from "../../IO";
-import type { PRef } from "../definition";
+import type { IO } from "../../IO.js";
+import type { PRef } from "../definition.js";
 
-import { concrete } from "../definition";
+import { concrete } from "../definition.js";
 
 /**
  * Reads the value from the `Ref`.

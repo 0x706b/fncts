@@ -1,10 +1,10 @@
-import type { UIO } from "../IO";
-import type { Queue } from "./definition";
+import type { UIO } from "../IO.js";
+import type { Queue } from "./definition.js";
 
-import { bounded, unbounded } from "../../internal/MutableQueue";
-import { IO } from "../IO";
-import { _makeQueue } from "./internal";
-import { BackPressureStrategy, DroppingStrategy, SlidingStrategy } from "./strategy";
+import { bounded, unbounded } from "../../internal/MutableQueue.js";
+import { IO } from "../IO.js";
+import { _makeQueue } from "./internal.js";
+import { BackPressureStrategy, DroppingStrategy, SlidingStrategy } from "./strategy.js";
 
 /**
  * @tsplus static fncts.control.QueueOps makeSliding

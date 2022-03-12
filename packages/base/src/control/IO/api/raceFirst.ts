@@ -1,4 +1,4 @@
-import { IO } from "../definition";
+import { IO } from "../definition.js";
 
 /**
  * Returns an IO that races this effect with the specified effect,

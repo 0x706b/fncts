@@ -1,4 +1,4 @@
-import * as Ansi from "../../util/AnsiFormat";
+import * as Ansi from "../../util/AnsiFormat.js";
 
 export type Style =
   | "red"

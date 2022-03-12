@@ -1,4 +1,4 @@
-import type { RandomGenerator } from "../generator/RandomGenerator";
+import type { RandomGenerator } from "../generator/RandomGenerator.js";
 
 /**
  * Generate random value based on a given RandomGenerator.

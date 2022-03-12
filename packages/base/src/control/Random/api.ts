@@ -1,9 +1,9 @@
-import type { Has } from "../../prelude";
-import type { ArrayInt } from "../../util/rand";
+import type { Has } from "../../prelude.js";
+import type { ArrayInt } from "../../util/rand.js";
 
-import { IO } from "../IO";
-import { Random } from "./definition";
-import { LiveRandom } from "./live";
+import { IO } from "../IO.js";
+import { Random } from "./definition.js";
+import { LiveRandom } from "./live.js";
 
 /**
  * @tsplus static fncts.control.RandomOps live

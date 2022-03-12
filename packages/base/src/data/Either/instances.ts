@@ -1,9 +1,9 @@
-import type { Predicate } from "../Predicate";
-import type { Either } from "./definition";
+import type { Predicate } from "../Predicate.js";
+import type { Either } from "./definition.js";
 
-import * as P from "../../prelude";
-import { map_ } from "./api";
-import { EitherTag, Left, Right } from "./definition";
+import * as P from "../../prelude.js";
+import { map_ } from "./api.js";
+import { EitherTag, Left, Right } from "./definition.js";
 
 export interface EitherF extends P.HKT {
   readonly type: Either<this["E"], this["A"]>;

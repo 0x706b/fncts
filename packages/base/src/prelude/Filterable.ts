@@ -1,11 +1,11 @@
-import type { Either } from "../data/Either";
-import type { Maybe } from "../data/Maybe";
-import type { Predicate } from "../data/Predicate";
-import type { Refinement } from "../data/Refinement";
-import type { FunctorMin } from "./Functor";
+import type { Either } from "../data/Either.js";
+import type { Maybe } from "../data/Maybe.js";
+import type { Predicate } from "../data/Predicate.js";
+import type { Refinement } from "../data/Refinement.js";
+import type { FunctorMin } from "./Functor.js";
 
-import { Functor } from "./Functor";
-import { HKT } from "./HKT";
+import { Functor } from "./Functor.js";
+import { HKT } from "./HKT.js";
 
 /**
  * @tsplus type fncts.Filterable

@@ -1,8 +1,8 @@
-import type { Maybe } from "../../../data/Maybe";
-import type { ReadonlyNonEmptyArray } from "./definition";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { ReadonlyNonEmptyArray } from "./definition.js";
 
-import { Just, Nothing } from "../../../data/Maybe";
-import { NonEmptyArray } from "./definition";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { NonEmptyArray } from "./definition.js";
 
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps allocWithHead

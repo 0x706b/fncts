@@ -1,30 +1,30 @@
-import type { ConcBuilder } from "../../collection/immutable/Conc";
-import type { ReadonlyNonEmptyArray } from "../../collection/immutable/NonEmptyArray";
-import type { FiberDescriptor } from "../../data/FiberDescriptor";
-import type { Lazy } from "../../data/function";
-import type { InterruptStatus } from "../../data/InterruptStatus";
-import type { Predicate } from "../../data/Predicate";
-import type { Refinement } from "../../data/Refinement";
-import type { RuntimeConfig } from "../../data/RuntimeConfig";
-import type { Tag } from "../../data/Tag";
-import type * as P from "../../prelude";
-import type { Has } from "../../prelude/Has";
-import type { _E, _R } from "../../types";
-import type { Eval } from "../Eval";
-import type { FiberContext } from "../Fiber/FiberContext";
-import type { Supervisor } from "../Supervisor";
-import type { Canceler, FIO, UIO, URIO } from "./definition";
+import type { ConcBuilder } from "../../collection/immutable/Conc.js";
+import type { ReadonlyNonEmptyArray } from "../../collection/immutable/NonEmptyArray.js";
+import type { FiberDescriptor } from "../../data/FiberDescriptor.js";
+import type { Lazy } from "../../data/function.js";
+import type { InterruptStatus } from "../../data/InterruptStatus.js";
+import type { Predicate } from "../../data/Predicate.js";
+import type { Refinement } from "../../data/Refinement.js";
+import type { RuntimeConfig } from "../../data/RuntimeConfig.js";
+import type { Tag } from "../../data/Tag.js";
+import type * as P from "../../prelude.js";
+import type { Has } from "../../prelude/Has.js";
+import type { _E, _R } from "../../types.js";
+import type { Eval } from "../Eval.js";
+import type { FiberContext } from "../Fiber/FiberContext.js";
+import type { Supervisor } from "../Supervisor.js";
+import type { Canceler, FIO, UIO, URIO } from "./definition.js";
 import type { Intersection } from "@fncts/typelevel";
 
-import { ReadonlyArray } from "../../collection/Array";
-import { Conc } from "../../collection/immutable/Conc";
-import { Cause } from "../../data/Cause";
-import { Either } from "../../data/Either";
-import { Exit } from "../../data/Exit";
-import { FiberId } from "../../data/FiberId";
-import { identity, tuple } from "../../data/function";
-import { Just, Maybe, Nothing } from "../../data/Maybe";
-import { Trace } from "../../data/Trace";
+import { ReadonlyArray } from "../../collection/Array.js";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { Cause } from "../../data/Cause.js";
+import { Either } from "../../data/Either.js";
+import { Exit } from "../../data/Exit.js";
+import { FiberId } from "../../data/FiberId.js";
+import { identity, tuple } from "../../data/function.js";
+import { Just, Maybe, Nothing } from "../../data/Maybe.js";
+import { Trace } from "../../data/Trace.js";
 import {
   Async,
   Chain,
@@ -46,7 +46,7 @@ import {
   SucceedNow,
   Supervise,
   Yield,
-} from "./definition";
+} from "./definition.js";
 
 /**
  * Imports an asynchronous side-effect into a `IO`

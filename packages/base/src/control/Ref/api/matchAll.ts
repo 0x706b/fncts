@@ -1,7 +1,7 @@
-import type { Either } from "../../../data/Either";
-import type { PRef } from "../definition";
+import type { Either } from "../../../data/Either.js";
+import type { PRef } from "../definition.js";
 
-import { concrete } from "../definition";
+import { concrete } from "../definition.js";
 
 /**
  * Folds over the error and value types of the `Ref`, allowing access to

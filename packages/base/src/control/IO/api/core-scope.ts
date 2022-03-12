@@ -1,11 +1,11 @@
-import type { Exit } from "../../../data/Exit";
-import type { Maybe } from "../../../data/Maybe";
-import type { Fiber, RuntimeFiber } from "../../Fiber";
-import type { UIO, URIO } from "../definition";
+import type { Exit } from "../../../data/Exit.js";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { Fiber, RuntimeFiber } from "../../Fiber.js";
+import type { UIO, URIO } from "../definition.js";
 
-import { Just, Nothing } from "../../../data/Maybe";
-import { Scope } from "../../Scope";
-import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { Scope } from "../../Scope.js";
+import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";
 
 /**
  * Retrieves the scope that will be used to supervise forked effects.

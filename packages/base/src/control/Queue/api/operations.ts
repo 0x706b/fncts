@@ -1,7 +1,7 @@
-import type { IO, UIO } from "../../IO";
-import type { PQueue } from "../definition";
+import type { IO, UIO } from "../../IO.js";
+import type { PQueue } from "../definition.js";
 
-import { concrete } from "../definition";
+import { concrete } from "../definition.js";
 
 /**
  * Waits until the queue is shutdown.

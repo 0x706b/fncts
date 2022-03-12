@@ -1,8 +1,8 @@
-import type { EvalF } from "./definition";
+import type { EvalF } from "./definition.js";
 
-import * as P from "../../prelude";
-import { ap_, map_, zipWith_ } from "./api";
-import { now } from "./constructors";
+import * as P from "../../prelude.js";
+import { ap_, map_, zipWith_ } from "./api.js";
+import { now } from "./constructors.js";
 
 /**
  * @tsplus static fncts.EvalOps Functor

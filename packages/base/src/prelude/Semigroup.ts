@@ -1,4 +1,4 @@
 // codegen:start { preset: barrel, include: Semigroup/*.ts }
-export * from "./Semigroup/api";
-export * from "./Semigroup/definition";
+export * from "./Semigroup/api.js";
+export * from "./Semigroup/definition.js";
 // codegen:end

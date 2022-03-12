@@ -1,22 +1,22 @@
 // codegen:start { preset: barrel, include: Fiber/*.ts }
-export * from "./Fiber/constructors";
-export * from "./Fiber/definition";
-export * from "./Fiber/FiberContext";
+export * from "./Fiber/constructors.js";
+export * from "./Fiber/definition.js";
+export * from "./Fiber/FiberContext.js";
 // codegen:end
 
 // codegen:start { preset: barrel, include: Fiber/api/*.ts }
-export * from "./Fiber/api/awaitAll";
-export * from "./Fiber/api/collectAll";
-export * from "./Fiber/api/evalOn";
-export * from "./Fiber/api/evalOnIO";
-export * from "./Fiber/api/fromIO";
-export * from "./Fiber/api/interrupt";
-export * from "./Fiber/api/interruptAll";
-export * from "./Fiber/api/interruptFork";
-export * from "./Fiber/api/join";
-export * from "./Fiber/api/joinAll";
-export * from "./Fiber/api/mapFiber";
-export * from "./Fiber/api/mapIO";
-export * from "./Fiber/api/never";
-export * from "./Fiber/api/zipWith";
+export * from "./Fiber/api/awaitAll.js";
+export * from "./Fiber/api/collectAll.js";
+export * from "./Fiber/api/evalOn.js";
+export * from "./Fiber/api/evalOnIO.js";
+export * from "./Fiber/api/fromIO.js";
+export * from "./Fiber/api/interrupt.js";
+export * from "./Fiber/api/interruptAll.js";
+export * from "./Fiber/api/interruptFork.js";
+export * from "./Fiber/api/join.js";
+export * from "./Fiber/api/joinAll.js";
+export * from "./Fiber/api/mapFiber.js";
+export * from "./Fiber/api/mapIO.js";
+export * from "./Fiber/api/never.js";
+export * from "./Fiber/api/zipWith.js";
 // codegen:end

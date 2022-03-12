@@ -1,6 +1,6 @@
-import type { RuntimeFiber } from "../../Fiber";
-import type { Managed } from "../../Managed";
-import type { IO } from "../definition";
+import type { RuntimeFiber } from "../../Fiber.js";
+import type { Managed } from "../../Managed.js";
+import type { IO } from "../definition.js";
 
 /**
  * @tsplus getter fncts.control.IO forkManaged

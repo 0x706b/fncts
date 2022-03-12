@@ -1,7 +1,7 @@
-import type { HashSet } from "../../collection/immutable/HashSet";
+import type { HashSet } from "../../collection/immutable/HashSet.js";
 
-import { Equatable, Hashable } from "../../prelude";
-import { hasTypeId, isObject } from "../../util/predicates";
+import { Equatable, Hashable } from "../../prelude.js";
+import { hasTypeId, isObject } from "../../util/predicates.js";
 
 export const FiberIdTypeId = Symbol.for("fncts.data.FiberId");
 export type FiberIdTypeId = typeof FiberIdTypeId;

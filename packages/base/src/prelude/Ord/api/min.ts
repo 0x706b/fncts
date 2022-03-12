@@ -1,4 +1,4 @@
-import type { Ord } from "../definition";
+import type { Ord } from "../definition.js";
 
 /**
  * @tsplus static fncts.OrdOps min

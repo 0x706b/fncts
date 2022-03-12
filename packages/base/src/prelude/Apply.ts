@@ -1,10 +1,10 @@
-import type { FunctorMin } from "./Functor";
-import type { Semimonoidal } from "./Semimonoidal";
+import type { FunctorMin } from "./Functor.js";
+import type { Semimonoidal } from "./Semimonoidal.js";
 import type { Object } from "@fncts/typelevel";
 
-import { tuple, unsafeCoerce } from "../data/function";
-import { Functor } from "./Functor";
-import { HKT } from "./HKT";
+import { tuple, unsafeCoerce } from "../data/function.js";
+import { Functor } from "./Functor.js";
+import { HKT } from "./HKT.js";
 
 /**
  * @tsplus type fncts.Apply

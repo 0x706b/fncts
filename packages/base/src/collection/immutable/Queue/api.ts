@@ -1,10 +1,10 @@
-import type { Maybe } from "../../../data/Maybe";
-import type { Predicate } from "../../../data/Predicate";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { Predicate } from "../../../data/Predicate.js";
 
-import { NoSuchElementError } from "../../../data/exceptions";
-import { Just, Nothing } from "../../../data/Maybe";
-import { List, Nil } from "../List";
-import { Queue } from "./definition";
+import { NoSuchElementError } from "../../../data/exceptions.js";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { List, Nil } from "../List.js";
+import { Queue } from "./definition.js";
 
 /**
  * @tsplus getter fncts.collection.immutable.Queue length

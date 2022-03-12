@@ -1,8 +1,8 @@
 // codegen:start { preset: barrel, include: exceptions/*.ts }
-export * from "./exceptions/ArrayIndexOutOfBoundsError";
-export * from "./exceptions/IllegalArgumentError";
-export * from "./exceptions/IndexOutOfBoundsError";
-export * from "./exceptions/InterruptedException";
-export * from "./exceptions/InvalidCapacityError";
-export * from "./exceptions/NoSuchElementError";
+export * from "./exceptions/ArrayIndexOutOfBoundsError.js";
+export * from "./exceptions/IllegalArgumentError.js";
+export * from "./exceptions/IndexOutOfBoundsError.js";
+export * from "./exceptions/InterruptedException.js";
+export * from "./exceptions/InvalidCapacityError.js";
+export * from "./exceptions/NoSuchElementError.js";
 // codegen:end

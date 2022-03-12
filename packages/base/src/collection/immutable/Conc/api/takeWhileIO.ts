@@ -1,5 +1,5 @@
-import { IO } from "../../../../control/IO";
-import { Conc, concrete } from "../definition";
+import { IO } from "../../../../control/IO.js";
+import { Conc, concrete } from "../definition.js";
 
 /**
  * @tsplus fluent fncts.collection.immutable.Conc takeWhileIO

@@ -1,11 +1,11 @@
-import type { Applicative, CompatibleApplicative } from "./Applicative";
-import type { FoldableMin } from "./Foldable";
-import type { FunctorMin } from "./Functor";
+import type { Applicative, CompatibleApplicative } from "./Applicative.js";
+import type { FoldableMin } from "./Foldable.js";
+import type { FunctorMin } from "./Functor.js";
 
-import { identity } from "../data/function";
-import { Foldable } from "./Foldable";
-import { Functor } from "./Functor";
-import { HKT } from "./HKT";
+import { identity } from "../data/function.js";
+import { Foldable } from "./Foldable.js";
+import { Functor } from "./Functor.js";
+import { HKT } from "./HKT.js";
 
 /**
  * @tsplus type fncts.Traversable

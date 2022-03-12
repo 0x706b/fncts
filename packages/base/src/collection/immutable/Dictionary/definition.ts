@@ -1,7 +1,7 @@
-import type { NewtypeIso } from "../../../data/Newtype";
-import type { HKT } from "../../../prelude";
+import type { NewtypeIso } from "../../../data/Newtype.js";
+import type { HKT } from "../../../prelude.js";
 
-import { Newtype } from "../../../data/Newtype";
+import { Newtype } from "../../../data/Newtype.js";
 
 interface DictionaryN extends HKT {
   readonly type: Dictionary<this["A"]>;

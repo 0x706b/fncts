@@ -1,19 +1,19 @@
-import type { Either } from "../../data/Either";
-import type { Lazy } from "../../data/function";
-import type { Maybe } from "../../data/Maybe";
-import type { Predicate, PredicateWithIndex } from "../../data/Predicate";
-import type { Refinement, RefinementWithIndex } from "../../data/Refinement";
-import type { Monoid } from "../../prelude";
-import type { NonEmptyArray } from "../immutable/NonEmptyArray";
-import type { ArrayF, ReadonlyNonEmptyArray } from "./definition";
+import type { Either } from "../../data/Either.js";
+import type { Lazy } from "../../data/function.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { Predicate, PredicateWithIndex } from "../../data/Predicate.js";
+import type { Refinement, RefinementWithIndex } from "../../data/Refinement.js";
+import type { Monoid } from "../../prelude.js";
+import type { NonEmptyArray } from "../immutable/NonEmptyArray.js";
+import type { ArrayF, ReadonlyNonEmptyArray } from "./definition.js";
 
-import { Eval } from "../../control/Eval";
-import { EitherTag } from "../../data/Either";
-import { identity, tuple, unsafeCoerce } from "../../data/function";
-import { Just, Nothing } from "../../data/Maybe";
-import { These } from "../../data/These";
-import * as P from "../../prelude";
-import { ReadonlyArray } from "./definition";
+import { Eval } from "../../control/Eval.js";
+import { EitherTag } from "../../data/Either.js";
+import { identity, tuple, unsafeCoerce } from "../../data/function.js";
+import { Just, Nothing } from "../../data/Maybe.js";
+import { These } from "../../data/These.js";
+import * as P from "../../prelude.js";
+import { ReadonlyArray } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array alignWith

@@ -1,11 +1,11 @@
-import type { FiberId } from "../../FiberId";
-import type { Trace } from "../../Trace";
-import type { Cause } from "../definition";
+import type { FiberId } from "../../FiberId.js";
+import type { Trace } from "../../Trace.js";
+import type { Cause } from "../definition.js";
 
-import { _Nil, Cons, List } from "../../../collection/immutable/List";
-import { Eval } from "../../../control/Eval";
-import { Either } from "../../Either";
-import { CauseTag } from "../definition";
+import { _Nil, Cons, List } from "../../../collection/immutable/List.js";
+import { Eval } from "../../../control/Eval.js";
+import { Either } from "../../Either.js";
+import { CauseTag } from "../definition.js";
 
 class BothCase {
   readonly _tag = "BothCase";

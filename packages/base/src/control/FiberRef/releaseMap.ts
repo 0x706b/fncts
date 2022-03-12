@@ -1,5 +1,5 @@
-import { ReleaseMap } from "../Managed/ReleaseMap";
-import { FiberRef } from "./definition";
+import { ReleaseMap } from "../Managed/ReleaseMap.js";
+import { FiberRef } from "./definition.js";
 
 /**
  * @tsplus static fncts.control.FiberRefOps currentReleaseMap

@@ -1,12 +1,12 @@
-import type { Predicate } from "../../data/Predicate";
-import type { FIO, IO } from "../IO";
-import type { PFiberRef } from "./definition";
+import type { Predicate } from "../../data/Predicate.js";
+import type { FIO, IO } from "../IO.js";
+import type { PFiberRef } from "./definition.js";
 
-import { Either } from "../../data/Either";
-import { identity, tuple } from "../../data/function";
-import { Maybe, Nothing } from "../../data/Maybe";
-import { matchTag_ } from "../../util/pattern";
-import { concrete } from "./definition";
+import { Either } from "../../data/Either.js";
+import { identity, tuple } from "../../data/function.js";
+import { Maybe, Nothing } from "../../data/Maybe.js";
+import { matchTag_ } from "../../util/pattern.js";
+import { concrete } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.control.FiberRef modify

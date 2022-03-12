@@ -6,7 +6,7 @@ import { HashSet } from "@fncts/base/collection/immutable/HashSet";
 import { Either } from "@fncts/base/data/Either";
 import { Tag } from "@fncts/base/data/Tag";
 
-import { TestAnnotation } from "./definition";
+import { TestAnnotation } from "./definition.js";
 
 export const IgnoredTag = Tag<number>();
 /**

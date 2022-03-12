@@ -1,7 +1,7 @@
-import type { FiberId } from "../FiberId";
-import type { FiberStatus } from "./definition";
+import type { FiberId } from "../FiberId.js";
+import type { FiberStatus } from "./definition.js";
 
-import { Done, Finishing, Running, Suspended } from "./definition";
+import { Done, Finishing, Running, Suspended } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.FiberStatusOps done

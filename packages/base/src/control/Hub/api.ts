@@ -1,16 +1,16 @@
-import type { UIO } from "../IO";
-import type { Managed } from "../Managed";
-import type { Hub, PHub } from "./definition";
+import type { UIO } from "../IO.js";
+import type { Managed } from "../Managed.js";
+import type { Hub, PHub } from "./definition.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { FiberId } from "../../data/FiberId";
-import { AtomicBoolean } from "../../internal/AtomicBoolean";
-import { Hub as HubInternal } from "../../internal/Hub";
-import { Future } from "../Future";
-import { IO } from "../IO";
-import { ReleaseMap } from "../Managed/ReleaseMap";
-import { QueueInternal } from "../Queue";
-import { concrete, PHubInternal } from "./definition";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { FiberId } from "../../data/FiberId.js";
+import { AtomicBoolean } from "../../internal/AtomicBoolean.js";
+import { Hub as HubInternal } from "../../internal/Hub.js";
+import { Future } from "../Future.js";
+import { IO } from "../IO.js";
+import { ReleaseMap } from "../Managed/ReleaseMap.js";
+import { QueueInternal } from "../Queue.js";
+import { concrete, PHubInternal } from "./definition.js";
 import {
   BackPressure,
   Dropping,
@@ -18,7 +18,7 @@ import {
   Sliding,
   subscribersHashSet,
   unsafeMakeHub,
-} from "./internal";
+} from "./internal.js";
 
 /**
  * Waits for the hub to be shut down.

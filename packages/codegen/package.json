@@ -15,6 +15,8 @@
     "@babel/parser": "^7.17.0",
     "@types/babel__generator": "^7.6.4",
     "@types/benchmark": "^2.1.1",
+    "@types/glob": "^7.2.0",
+    "@types/lodash": "^4.14.179",
     "@types/prettier": "^2.4.3",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/experimental-utils": "^5.10.2",
@@ -27,5 +29,10 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "prettier": "^2.5.1",
     "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "glob": "^7.2.0",
+    "io-ts-extra": "^0.11.6",
+    "lodash": "^4.17.21"
   }
 }

@@ -1,6 +1,6 @@
-import type { PRef } from "../definition";
+import type { PRef } from "../definition.js";
 
-import { Either } from "../../../data/Either";
+import { Either } from "../../../data/Either.js";
 
 /**
  * Transforms the `set` value of the `Ref` with the specified function.

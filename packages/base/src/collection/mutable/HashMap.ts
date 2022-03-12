@@ -12,13 +12,13 @@
  * for more information regarding copyright ownership
  */
 
-import type { Maybe } from "../../data/Maybe";
+import type { Maybe } from "../../data/Maybe.js";
 
-import { unsafeCoerce } from "../../data/function";
-import { Just, Nothing } from "../../data/Maybe";
-import { HashEq } from "../../prelude/HashEq";
-import { assert } from "../../util/assert";
-import { copyOfArray, improveHash, tableSizeFor } from "./internal";
+import { unsafeCoerce } from "../../data/function.js";
+import { Just, Nothing } from "../../data/Maybe.js";
+import { HashEq } from "../../prelude/HashEq.js";
+import { assert } from "../../util/assert.js";
+import { copyOfArray, improveHash, tableSizeFor } from "./internal.js";
 
 const DEFAULT_INITIAL_CAPACITY = 16;
 const DEFAULT_LOAD_FACTOR      = 0.75;

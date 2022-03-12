@@ -1,6 +1,6 @@
-import type { IO } from "../definition";
+import type { IO } from "../definition.js";
 
-import { tuple } from "../../../data/function";
+import { tuple } from "../../../data/function.js";
 
 /**
  * @tsplus fluent fncts.control.IO zipC

@@ -1,7 +1,7 @@
-import type { Either } from "../definition";
+import type { Either } from "../definition.js";
 
-import { These } from "../../These";
-import { EitherTag, Right } from "../definition";
+import { These } from "../../These.js";
+import { EitherTag, Right } from "../definition.js";
 
 /**
  * @tsplus fluent fncts.data.Either alignWith

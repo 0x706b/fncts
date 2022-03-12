@@ -1,7 +1,7 @@
-import type { FiberId } from "./definition";
+import type { FiberId } from "./definition.js";
 
-import { HashSet } from "../../collection/immutable/HashSet";
-import { Composite, isComposite, isNone } from "./definition";
+import { HashSet } from "../../collection/immutable/HashSet.js";
+import { Composite, isComposite, isNone } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.FiberId combine

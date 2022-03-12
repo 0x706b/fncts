@@ -1,9 +1,9 @@
-import type { FIO } from "../IO";
-import type { UIO } from "../IO/definition";
+import type { FIO } from "../IO.js";
+import type { UIO } from "../IO/definition.js";
 
-import { Either } from "../../data/Either";
-import { IO } from "../IO";
-import { FiberRefDelete, FiberRefLocally, FiberRefModify, FiberRefWith } from "../IO/definition";
+import { Either } from "../../data/Either.js";
+import { IO } from "../IO.js";
+import { FiberRefDelete, FiberRefLocally, FiberRefModify, FiberRefWith } from "../IO/definition.js";
 
 /**
  * @tsplus type fncts.control.FiberRef

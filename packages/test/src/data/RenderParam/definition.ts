@@ -1,4 +1,4 @@
-import type { AssertionIO } from "../../control/AssertionIO/definition";
+import type { AssertionIO } from "../../control/AssertionIO/definition.js";
 
 export const enum RenderParamTag {
   AssertionIO = "AssertionIO",

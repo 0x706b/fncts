@@ -1,6 +1,6 @@
-import type { Either } from "./definition";
+import type { Either } from "./definition.js";
 
-import { EitherTag } from "./definition";
+import { EitherTag } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.Either match

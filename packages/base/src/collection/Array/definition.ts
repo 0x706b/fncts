@@ -1,4 +1,4 @@
-import type { HKT } from "../../prelude";
+import type { HKT } from "../../prelude.js";
 
 declare global {
   /**

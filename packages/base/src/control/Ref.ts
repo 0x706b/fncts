@@ -1,8 +1,8 @@
 // codegen:start { preset: barrel, include: Ref/*.ts }
-export * from "./Ref/api";
-export * from "./Ref/Atomic";
-export * from "./Ref/constructors";
-export * from "./Ref/definition";
-export * from "./Ref/Derived";
-export * from "./Ref/DerivedAll";
+export * from "./Ref/api.js";
+export * from "./Ref/Atomic.js";
+export * from "./Ref/constructors.js";
+export * from "./Ref/definition.js";
+export * from "./Ref/Derived.js";
+export * from "./Ref/DerivedAll.js";
 // codegen:end

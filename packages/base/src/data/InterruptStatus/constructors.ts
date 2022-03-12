@@ -1,4 +1,4 @@
-import { InterruptStatus } from "./definition";
+import { InterruptStatus } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.InterruptStatusOps interruptible

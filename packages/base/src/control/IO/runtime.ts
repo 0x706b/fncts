@@ -1,21 +1,21 @@
-import type { Exit } from "../../data/Exit";
-import type { Has } from "../../prelude";
-import type { URIO } from "./definition";
+import type { Exit } from "../../data/Exit.js";
+import type { Has } from "../../prelude.js";
+import type { URIO } from "./definition.js";
 
-import { FiberId } from "../../data/FiberId";
-import { InterruptStatus } from "../../data/InterruptStatus";
-import { LogLevel } from "../../data/LogLevel";
-import { Nothing } from "../../data/Maybe";
-import { RuntimeConfig, RuntimeConfigFlags } from "../../data/RuntimeConfig";
-import { Stack } from "../../internal/Stack";
-import { Clock } from "../Clock";
-import { FiberContext } from "../Fiber";
-import { FiberRef } from "../FiberRef";
-import { Logger } from "../Logger";
-import { Random } from "../Random";
-import { Scope } from "../Scope";
-import { Supervisor } from "../Supervisor";
-import { concrete, IO } from "./definition";
+import { FiberId } from "../../data/FiberId.js";
+import { InterruptStatus } from "../../data/InterruptStatus.js";
+import { LogLevel } from "../../data/LogLevel.js";
+import { Nothing } from "../../data/Maybe.js";
+import { RuntimeConfig, RuntimeConfigFlags } from "../../data/RuntimeConfig.js";
+import { Stack } from "../../internal/Stack.js";
+import { Clock } from "../Clock.js";
+import { FiberContext } from "../Fiber.js";
+import { FiberRef } from "../FiberRef.js";
+import { Logger } from "../Logger.js";
+import { Random } from "../Random.js";
+import { Scope } from "../Scope.js";
+import { Supervisor } from "../Supervisor.js";
+import { concrete, IO } from "./definition.js";
 
 export class Runtime<R> {
   constructor(readonly environment: R, readonly runtimeConfig: RuntimeConfig) {}

@@ -1,4 +1,4 @@
-import { Tag } from "./definition";
+import { Tag } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.TagOps __call

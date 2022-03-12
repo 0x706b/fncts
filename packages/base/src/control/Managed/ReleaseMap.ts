@@ -1,5 +1,5 @@
 // codegen:start { preset: barrel, include: ReleaseMap/*.ts }
-export * from "./ReleaseMap/api";
-export * from "./ReleaseMap/constructors";
-export * from "./ReleaseMap/definition";
+export * from "./ReleaseMap/api.js";
+export * from "./ReleaseMap/constructors.js";
+export * from "./ReleaseMap/definition.js";
 // codegen:end

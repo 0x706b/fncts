@@ -1,6 +1,6 @@
-import type { These } from "./definition";
+import type { These } from "./definition.js";
 
-import { TheseTag } from "./definition";
+import { TheseTag } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.These match

@@ -1,4 +1,4 @@
-import type { NumberConstraints } from "./constraints";
+import type { NumberConstraints } from "./constraints.js";
 import type { Lazy } from "@fncts/base/data/function";
 import type { Predicate } from "@fncts/base/data/Predicate";
 import type { Refinement } from "@fncts/base/data/Refinement";
@@ -11,9 +11,9 @@ import { IllegalArgumentError } from "@fncts/base/data/exceptions";
 import { identity } from "@fncts/base/data/function";
 import { Just, Maybe } from "@fncts/base/data/Maybe";
 
-import { clamp } from "../../util/math";
-import { Sample } from "../Sample";
-import { Gen } from "./definition";
+import { clamp } from "../../util/math.js";
+import { Sample } from "../Sample.js";
+import { Gen } from "./definition.js";
 
 export const anyBigInt: Gen<Has<Random>, bigint> = fromIOSample(
   Random.nextBigIntBetween(BigInt(-1) << BigInt(255), (BigInt(1) << BigInt(255)) - BigInt(1)).map(

@@ -1,5 +1,5 @@
-import { Either } from "../../../data/Either";
-import { OnFailure, OnSuccess, STM } from "../definition";
+import { Either } from "../../../data/Either.js";
+import { OnFailure, OnSuccess, STM } from "../definition.js";
 
 /**
  * Recovers from all errors.

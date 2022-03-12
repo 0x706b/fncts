@@ -1,9 +1,9 @@
-import type { IO } from "../../IO";
-import type { Managed } from "../definition";
+import type { IO } from "../../IO.js";
+import type { Managed } from "../definition.js";
 
-import { ExecutionStrategy } from "../../../data/ExecutionStrategy";
-import { FiberRef } from "../../FiberRef";
-import { ReleaseMap } from "../ReleaseMap";
+import { ExecutionStrategy } from "../../../data/ExecutionStrategy.js";
+import { FiberRef } from "../../FiberRef.js";
+import { ReleaseMap } from "../ReleaseMap.js";
 
 /**
  * @tsplus fluent fncts.control.Managed use

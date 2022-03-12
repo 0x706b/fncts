@@ -1,9 +1,9 @@
-import type { Lazy } from "../../data/function";
-import type { UIO } from "../IO";
-import type { PRef, Ref } from "./definition";
+import type { Lazy } from "../../data/function.js";
+import type { UIO } from "../IO.js";
+import type { PRef, Ref } from "./definition.js";
 
-import { IO } from "../IO";
-import { Atomic } from "./Atomic";
+import { IO } from "../IO.js";
+import { Atomic } from "./Atomic.js";
 
 /**
  * @tsplus static fncts.control.RefOps make

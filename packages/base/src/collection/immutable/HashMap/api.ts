@@ -1,15 +1,15 @@
-import type { Either } from "../../../data/Either";
-import type { Maybe } from "../../../data/Maybe";
-import type { Predicate, PredicateWithIndex } from "../../../data/Predicate";
-import type { Refinement, RefinementWithIndex } from "../../../data/Refinement";
-import type { HashMapF } from "./definition";
-import type { Node, UpdateFn } from "./internal";
+import type { Either } from "../../../data/Either.js";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { Predicate, PredicateWithIndex } from "../../../data/Predicate.js";
+import type { Refinement, RefinementWithIndex } from "../../../data/Refinement.js";
+import type { HashMapF } from "./definition.js";
+import type { Node, UpdateFn } from "./internal.js";
 
-import { Just, Nothing } from "../../../data/Maybe";
-import * as P from "../../../prelude";
-import { HashSet } from "../HashSet/definition";
-import { HashMap, HashMapIterator } from "./definition";
-import { _EmptyNode, fromBitmap, hashFragment, isEmptyNode, SIZE, toBitmap } from "./internal";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import * as P from "../../../prelude.js";
+import { HashSet } from "../HashSet/definition.js";
+import { HashMap, HashMapIterator } from "./definition.js";
+import { _EmptyNode, fromBitmap, hashFragment, isEmptyNode, SIZE, toBitmap } from "./internal.js";
 
 /**
  * Does `map` contain any elements?

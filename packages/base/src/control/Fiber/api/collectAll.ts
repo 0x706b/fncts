@@ -1,9 +1,9 @@
-import { Conc } from "../../../collection/immutable/Conc";
-import { Cause } from "../../../data/Cause";
-import { Exit } from "../../../data/Exit";
-import { Just, Nothing } from "../../../data/Maybe";
-import { IO } from "../../IO";
-import { Fiber } from "../definition";
+import { Conc } from "../../../collection/immutable/Conc.js";
+import { Cause } from "../../../data/Cause.js";
+import { Exit } from "../../../data/Exit.js";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { IO } from "../../IO.js";
+import { Fiber } from "../definition.js";
 
 /**
  * Collects all fibers into a single fiber producing an in-order list of the

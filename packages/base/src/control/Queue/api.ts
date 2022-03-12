@@ -1,9 +1,9 @@
 // codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/dimapIO";
-export * from "./api/filterInputIO";
-export * from "./api/filterOutputIO";
-export * from "./api/operations";
-export * from "./api/poll";
-export * from "./api/takeBetween";
-export * from "./api/zipWithIO";
+export * from "./api/dimapIO.js";
+export * from "./api/filterInputIO.js";
+export * from "./api/filterOutputIO.js";
+export * from "./api/operations.js";
+export * from "./api/poll.js";
+export * from "./api/takeBetween.js";
+export * from "./api/zipWithIO.js";
 // codegen:end

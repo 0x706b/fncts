@@ -1,7 +1,7 @@
-import type { FiberId } from "../FiberId";
+import type { FiberId } from "../FiberId.js";
 
-import * as P from "../../prelude";
-import { hasTypeId } from "../../util/predicates";
+import * as P from "../../prelude.js";
+import { hasTypeId } from "../../util/predicates.js";
 
 /**
  * @tsplus type fncts.data.TExit

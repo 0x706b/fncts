@@ -2,7 +2,7 @@ import { Eval } from "@fncts/base/control/Eval";
 import { Either } from "@fncts/base/data/Either";
 import { Maybe, Nothing } from "@fncts/base/data/Maybe";
 
-import { And, FreeBooleanAlgebra, FreeBooleanAlgebraTag, Not, Or, Value } from "./definition";
+import { And, FreeBooleanAlgebra, FreeBooleanAlgebraTag, Not, Or, Value } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.FreeBooleanAlgebra and

@@ -1,4 +1,4 @@
 // codegen:start { preset: barrel, include: HashSet/*.ts }
-export * from "./HashSet/api";
-export * from "./HashSet/definition";
+export * from "./HashSet/api.js";
+export * from "./HashSet/definition.js";
 // codegen:end

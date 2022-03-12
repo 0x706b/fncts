@@ -1,8 +1,8 @@
-import type { FiberId } from "../../../data/FiberId";
-import type { UIO } from "../../IO";
+import type { FiberId } from "../../../data/FiberId.js";
+import type { UIO } from "../../IO.js";
 
-import { IO } from "../../IO";
-import { Fiber } from "../definition";
+import { IO } from "../../IO.js";
+import { Fiber } from "../definition.js";
 
 /**
  * Interrupts all fibers as by the specified fiber, awaiting their interruption.

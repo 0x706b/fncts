@@ -1,4 +1,4 @@
-import { AtomicReference } from "./AtomicReference";
+import { AtomicReference } from "./AtomicReference.js";
 
 export class AtomicNumber extends AtomicReference<number> {
   constructor(n: number) {

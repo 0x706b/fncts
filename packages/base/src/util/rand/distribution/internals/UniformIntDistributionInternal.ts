@@ -1,4 +1,4 @@
-import type RandomGenerator from "../../generator/RandomGenerator";
+import type RandomGenerator from "../../generator/RandomGenerator.js";
 
 /**
  * Uniformly generate number in range [0 ; rangeSize[

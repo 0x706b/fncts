@@ -1,4 +1,4 @@
-import type { IO } from "../definition";
+import type { IO } from "../definition.js";
 
 /**
  * When this IO represents acquisition of a resource (for example,

@@ -1,5 +1,5 @@
-import * as P from "../../prelude";
-import { EQ, GT, LT } from "../../prelude";
+import * as P from "../../prelude.js";
+import { EQ, GT, LT } from "../../prelude.js";
 
 /**
  * @tsplus static fncts.data.NumberOps Eq

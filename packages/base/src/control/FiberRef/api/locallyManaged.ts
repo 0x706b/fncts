@@ -1,9 +1,9 @@
-import type { FiberRef, PFiberRef } from "../definition";
+import type { FiberRef, PFiberRef } from "../definition.js";
 
-import { matchTag_ } from "../../../util/pattern";
-import { IO } from "../../IO";
-import { Managed } from "../../Managed";
-import { concrete } from "../definition";
+import { matchTag_ } from "../../../util/pattern.js";
+import { IO } from "../../IO.js";
+import { Managed } from "../../Managed.js";
+import { concrete } from "../definition.js";
 
 /**
  * @tsplus fluent fncts.control.FiberRef locallyManaged

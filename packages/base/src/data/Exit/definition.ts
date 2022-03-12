@@ -1,7 +1,7 @@
-import type { Cause } from "../Cause";
+import type { Cause } from "../Cause.js";
 
-import * as P from "../../prelude";
-import { hasTypeId } from "../../util/predicates";
+import * as P from "../../prelude.js";
+import { hasTypeId } from "../../util/predicates.js";
 
 export const ExitTypeId = Symbol.for("fncts.data.Exit");
 export type ExitTypeId = typeof ExitTypeId;

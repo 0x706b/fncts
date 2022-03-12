@@ -1,8 +1,8 @@
-import type { FreeBooleanAlgebraIO } from "./definition";
+import type { FreeBooleanAlgebraIO } from "./definition.js";
 
 import { IO } from "@fncts/base/control/IO";
 
-import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra";
+import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
 
 /**
  * @tsplus fluent fncts.test.control.FreeBooleanAlgebraIO and

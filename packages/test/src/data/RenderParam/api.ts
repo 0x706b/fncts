@@ -1,10 +1,10 @@
-import type { AssertionIO } from "../../control/AssertionIO/definition";
-import type { RenderParam } from "./definition";
+import type { AssertionIO } from "../../control/AssertionIO/definition.js";
+import type { RenderParam } from "./definition.js";
 
 import { show } from "@fncts/base/prelude/Showable";
 
-import { isAssertionIO } from "../../control/AssertionIO/definition";
-import { RenderAssertionIO, RenderParamTag, RenderValue } from "./definition";
+import { isAssertionIO } from "../../control/AssertionIO/definition.js";
+import { RenderAssertionIO, RenderParamTag, RenderValue } from "./definition.js";
 
 /**
  * @tsplus static fncts.test.data.RenderParamOps __call

@@ -1,5 +1,5 @@
-import type { Conc } from "../../collection/immutable/Conc";
-import type { IO, UIO } from "../IO";
+import type { Conc } from "../../collection/immutable/Conc.js";
+import type { IO, UIO } from "../IO.js";
 
 /**
  * A `PQueue<RA, RB, EA, EB, A, B>` is a lightweight, asynchronous queue into which values of

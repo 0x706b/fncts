@@ -1,5 +1,5 @@
-import { IO } from "../../IO";
-import { Managed } from "../definition";
+import { IO } from "../../IO.js";
+import { Managed } from "../definition.js";
 
 /**
  * Lifts a `IO<R, E, A>` into `Managed<R, E, A>` with a release action.

@@ -1,4 +1,4 @@
-import type { FiberId } from "../FiberId";
+import type { FiberId } from "../FiberId.js";
 
 export const enum FiberStatusTag {
   Done = "Done",

@@ -1,21 +1,21 @@
-import type { Conc } from "../../collection/immutable/Conc";
-import type { FiberId } from "../../data/FiberId";
-import type { Lazy } from "../../data/function";
-import type * as P from "../../prelude";
-import type { _E, _R } from "../../types";
-import type { URManaged } from "./definition";
+import type { Conc } from "../../collection/immutable/Conc.js";
+import type { FiberId } from "../../data/FiberId.js";
+import type { Lazy } from "../../data/function.js";
+import type * as P from "../../prelude.js";
+import type { _E, _R } from "../../types.js";
+import type { URManaged } from "./definition.js";
 import type { Intersection } from "@fncts/typelevel";
 
-import { Cause } from "../../data/Cause";
-import { Either } from "../../data/Either";
-import { Exit } from "../../data/Exit";
-import { identity } from "../../data/function";
-import { Just, Maybe, Nothing } from "../../data/Maybe";
-import { hasTypeId } from "../../util/predicates";
-import { FiberRef } from "../FiberRef";
-import { IO } from "../IO";
-import { Managed, ManagedTypeId } from "./definition";
-import { Finalizer } from "./Finalizer";
+import { Cause } from "../../data/Cause.js";
+import { Either } from "../../data/Either.js";
+import { Exit } from "../../data/Exit.js";
+import { identity } from "../../data/function.js";
+import { Just, Maybe, Nothing } from "../../data/Maybe.js";
+import { hasTypeId } from "../../util/predicates.js";
+import { FiberRef } from "../FiberRef.js";
+import { IO } from "../IO.js";
+import { Managed, ManagedTypeId } from "./definition.js";
+import { Finalizer } from "./Finalizer.js";
 
 /**
  * Maps this effect to the specified constant while preserving the

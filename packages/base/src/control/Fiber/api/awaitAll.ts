@@ -1,8 +1,8 @@
-import type { Conc } from "../../../collection/immutable/Conc";
-import type { Exit } from "../../../data/Exit";
-import type { Fiber } from "../definition";
+import type { Conc } from "../../../collection/immutable/Conc.js";
+import type { Exit } from "../../../data/Exit.js";
+import type { Fiber } from "../definition.js";
 
-import { IO } from "../../IO";
+import { IO } from "../../IO.js";
 
 /**
  * Awaits on all fibers to be completed, successfully or not.

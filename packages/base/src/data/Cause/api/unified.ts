@@ -1,10 +1,10 @@
-import type { List } from "../../../collection/immutable/List";
-import type { Cause, Fail, Halt, Interrupt } from "../definition";
+import type { List } from "../../../collection/immutable/List.js";
+import type { Cause, Fail, Halt, Interrupt } from "../definition.js";
 
-import { _Nil, Cons } from "../../../collection/immutable/List";
-import { show } from "../../../prelude/Showable";
-import { FiberId } from "../../FiberId";
-import { CauseTag, Unified } from "../definition";
+import { _Nil, Cons } from "../../../collection/immutable/List.js";
+import { show } from "../../../prelude/Showable.js";
+import { FiberId } from "../../FiberId.js";
+import { CauseTag, Unified } from "../definition.js";
 
 function unifyFail<E>(fail: Fail<E>): Unified {
   return new Unified(fail.trace.fiberId, show(fail.value).split("\n"), fail.trace.toJS);

@@ -1,6 +1,6 @@
-import type { Conc } from "../../collection/immutable/Conc";
-import type { _A, _E, _R } from "../../types";
-import type { Channel } from "../Channel";
+import type { Conc } from "../../collection/immutable/Conc.js";
+import type { _A, _E, _R } from "../../types.js";
+import type { Channel } from "../Channel.js";
 
 export const StreamTypeId = Symbol.for("@principia/base/IO/Stream");
 export type StreamTypeId = typeof StreamTypeId;

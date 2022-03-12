@@ -1,10 +1,10 @@
-import type { Maybe } from "../../data/Maybe";
-import type { USTM } from "../STM";
+import type { Maybe } from "../../data/Maybe.js";
+import type { USTM } from "../STM.js";
 
-import { Either } from "../../data/Either";
-import { Just } from "../../data/Maybe";
-import { STM } from "../STM";
-import { TFuture } from "./definition";
+import { Either } from "../../data/Either.js";
+import { Just } from "../../data/Maybe.js";
+import { STM } from "../STM.js";
+import { TFuture } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.control.TFuture done

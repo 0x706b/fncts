@@ -1,7 +1,7 @@
-import type { FIO } from "../../IO";
-import type { Fiber } from "../definition";
+import type { FIO } from "../../IO.js";
+import type { Fiber } from "../definition.js";
 
-import { IO } from "../../IO";
+import { IO } from "../../IO.js";
 
 /**
  * Joins the fiber, which suspends the joining fiber until the result of the

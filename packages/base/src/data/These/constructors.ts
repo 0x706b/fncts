@@ -1,6 +1,6 @@
-import type { These } from "./definition";
+import type { These } from "./definition.js";
 
-import { Both, Left, Right } from "./definition";
+import { Both, Left, Right } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.TheseOps left

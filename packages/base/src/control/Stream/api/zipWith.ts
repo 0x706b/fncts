@@ -1,6 +1,6 @@
-import type { Stream } from "../definition";
+import type { Stream } from "../definition.js";
 
-import { zipChunks } from "../internal/util";
+import { zipChunks } from "../internal/util.js";
 
 /**
  * @tsplus fluent fncts.control.Stream zipWith

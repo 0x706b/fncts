@@ -1,7 +1,7 @@
-import type { ZF } from "./definition";
+import type { ZF } from "./definition.js";
 
-import * as P from "../../prelude";
-import { ap_, crossWith_, map_, succeedNow } from "./api";
+import * as P from "../../prelude.js";
+import { ap_, crossWith_, map_, succeedNow } from "./api.js";
 
 /**
  * @tsplus static fncts.control.ZOps Applicative

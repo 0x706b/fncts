@@ -1,6 +1,6 @@
-import type { ShowComputationExternal } from "./show";
+import type { ShowComputationExternal } from "./show.js";
 
-import { isObject } from "../../util/predicates";
+import { isObject } from "../../util/predicates.js";
 
 export const showable = Symbol("fncts.prelude.Showable");
 

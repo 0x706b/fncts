@@ -1,8 +1,8 @@
-import type { Nullable } from "../../types/Nullable";
-import type { Predicate } from "../Predicate";
-import type { Refinement } from "../Refinement";
+import type { Nullable } from "../../types/Nullable.js";
+import type { Predicate } from "../Predicate.js";
+import type { Refinement } from "../Refinement.js";
 
-import { Just, Maybe, Nothing } from "./definition";
+import { Just, Maybe, Nothing } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.MaybeOps just

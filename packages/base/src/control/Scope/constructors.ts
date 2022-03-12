@@ -1,7 +1,7 @@
-import type { FiberContext } from "../Fiber/FiberContext";
-import type { Scope } from "./definition";
+import type { FiberContext } from "../Fiber/FiberContext.js";
+import type { Scope } from "./definition.js";
 
-import { Global, Local } from "./definition";
+import { Global, Local } from "./definition.js";
 
 /**
  * The global scope. Anything forked onto the global scope is not supervised,

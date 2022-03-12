@@ -1,9 +1,9 @@
-import type { Predicate } from "../../data/Predicate";
-import type { IO } from "../IO";
+import type { Predicate } from "../../data/Predicate.js";
+import type { IO } from "../IO.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { Channel } from "../Channel";
-import { Sink } from "./definition";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { Channel } from "../Channel.js";
+import { Sink } from "./definition.js";
 
 function collectLoop<Err, A>(
   state: Conc<A>,

@@ -1,4 +1,4 @@
-import { AtomicNumber } from "../internal/AtomicNumber";
+import { AtomicNumber } from "../internal/AtomicNumber.js";
 
 export type TxnId = number;
 

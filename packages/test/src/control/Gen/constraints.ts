@@ -1,4 +1,4 @@
-import type { Gen } from "./definition";
+import type { Gen } from "./definition.js";
 import type { Eq } from "@fncts/base/prelude";
 
 export interface LengthConstraints {

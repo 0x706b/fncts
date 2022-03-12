@@ -1,12 +1,12 @@
-import type { RuntimeFiber } from "../../Fiber";
+import type { RuntimeFiber } from "../../Fiber.js";
 
-import { ExecutionStrategy } from "../../../data/ExecutionStrategy";
-import { tuple } from "../../../data/function";
-import { FiberRef } from "../../FiberRef";
-import { IO } from "../../IO";
-import { Managed } from "../definition";
-import { Finalizer } from "../Finalizer";
-import { ReleaseMap } from "../ReleaseMap";
+import { ExecutionStrategy } from "../../../data/ExecutionStrategy.js";
+import { tuple } from "../../../data/function.js";
+import { FiberRef } from "../../FiberRef.js";
+import { IO } from "../../IO.js";
+import { Managed } from "../definition.js";
+import { Finalizer } from "../Finalizer.js";
+import { ReleaseMap } from "../ReleaseMap.js";
 
 /**
  * Creates a `Managed` value that acquires the original resource in a fiber,

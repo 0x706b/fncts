@@ -1,6 +1,6 @@
-import type { Managed } from "../definition";
+import type { Managed } from "../definition.js";
 
-import { IO } from "../../IO";
+import { IO } from "../../IO.js";
 
 /**
  * @tsplus getter fncts.control.Managed useNow

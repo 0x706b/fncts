@@ -1,6 +1,6 @@
-import type { AssertionValue } from "../../data/AssertionValue";
-import type { Render } from "../../data/Render";
-import type { FreeBooleanAlgebraIO } from "../FreeBooleanAlgebraIO";
+import type { AssertionValue } from "../../data/AssertionValue.js";
+import type { Render } from "../../data/Render.js";
+import type { FreeBooleanAlgebraIO } from "../FreeBooleanAlgebraIO.js";
 
 import { hasTypeId } from "@fncts/base/util/predicates";
 

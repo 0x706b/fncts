@@ -1,12 +1,12 @@
-import { Conc } from "../../../collection/immutable/Conc";
-import { Cause } from "../../../data/Cause";
-import { Exit } from "../../../data/Exit";
-import { FiberId } from "../../../data/FiberId";
-import { identity } from "../../../data/function";
-import { AtomicNumber } from "../../../internal/AtomicNumber";
-import { Future } from "../../Future";
-import { PQueue, Queue } from "../../Queue";
-import { IO } from "../definition";
+import { Conc } from "../../../collection/immutable/Conc.js";
+import { Cause } from "../../../data/Cause.js";
+import { Exit } from "../../../data/Exit.js";
+import { FiberId } from "../../../data/FiberId.js";
+import { identity } from "../../../data/function.js";
+import { AtomicNumber } from "../../../internal/AtomicNumber.js";
+import { Future } from "../../Future.js";
+import { PQueue, Queue } from "../../Queue.js";
+import { IO } from "../definition.js";
 
 /**
  * Applies the function `f` to each element of the `Iterable<A>` and runs

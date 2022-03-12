@@ -1,8 +1,8 @@
-import type { Exit } from "../../../data/Exit";
-import type { HKT } from "../../../prelude";
+import type { Exit } from "../../../data/Exit.js";
+import type { HKT } from "../../../prelude.js";
 
-import { Newtype } from "../../../data/Newtype";
-import { IO } from "../../IO";
+import { Newtype } from "../../../data/Newtype.js";
+import { IO } from "../../IO.js";
 
 interface FinalizerN extends HKT {
   readonly type: Finalizer;

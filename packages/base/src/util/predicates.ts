@@ -1,4 +1,4 @@
-import type { Constructor, Primitive } from "../types";
+import type { Constructor, Primitive } from "../types.js";
 
 export function isDefined<A>(value: A | undefined): value is A {
   return value !== undefined;

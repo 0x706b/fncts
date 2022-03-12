@@ -1,10 +1,10 @@
-import type { Either } from "../../data/Either";
-import type { Maybe } from "../../data/Maybe";
-import type { USTM } from "../STM";
+import type { Either } from "../../data/Either.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { USTM } from "../STM.js";
 
-import { Nothing } from "../../data/Maybe";
-import { TRef } from "../TRef";
-import { TFuture } from "./definition";
+import { Nothing } from "../../data/Maybe.js";
+import { TRef } from "../TRef.js";
+import { TFuture } from "./definition.js";
 
 /**
  * @tsplus static fncts.control.TFutureOps make

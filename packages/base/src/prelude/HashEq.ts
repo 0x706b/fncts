@@ -1,9 +1,9 @@
-import type { EqMin } from "./Eq";
-import type { Hash } from "./Hash";
+import type { EqMin } from "./Eq.js";
+import type { Hash } from "./Hash.js";
 
-import { Eq } from "./Eq";
-import { Equatable } from "./Equatable";
-import { Hashable } from "./Hashable";
+import { Eq } from "./Eq.js";
+import { Equatable } from "./Equatable.js";
+import { Hashable } from "./Hashable.js";
 
 /**
  * @tsplus type fncts.prelude.HashEq

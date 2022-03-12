@@ -1,6 +1,6 @@
-import type { Future } from "../../Future";
+import type { Future } from "../../Future.js";
 
-import { IO } from "../definition";
+import { IO } from "../definition.js";
 
 /**
  * Returns an IO that keeps or breaks a promise based on the result of

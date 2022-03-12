@@ -8,9 +8,10 @@
     "noUncheckedIndexedAccess": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
     "skipLibCheck": true,
     "baseUrl": ".",
+    "moduleResolution": "node",
+    "tsPlusModuleDiscoveryLocalSuffix": "js",
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/build/dts/*"],
       "@fncts/base/*": ["../base/build/dts/*"]

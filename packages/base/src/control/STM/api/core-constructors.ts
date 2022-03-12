@@ -1,6 +1,6 @@
-import type { FiberId } from "../../../data/FiberId";
-import type { Lazy } from "../../../data/function";
-import type { STM } from "../definition";
+import type { FiberId } from "../../../data/FiberId.js";
+import type { Lazy } from "../../../data/function.js";
+import type { STM } from "../definition.js";
 
 import {
   Effect,
@@ -9,7 +9,7 @@ import {
   RetryException,
   Succeed,
   SucceedNow,
-} from "../definition";
+} from "../definition.js";
 
 /**
  * Returns a value that models failure in the transaction.

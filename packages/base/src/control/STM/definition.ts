@@ -1,8 +1,8 @@
-import type { FiberId } from "../../data/FiberId";
-import type { _A, _E, _R } from "../../types";
-import type { Journal } from "./internal/Journal";
+import type { FiberId } from "../../data/FiberId.js";
+import type { _A, _E, _R } from "../../types.js";
+import type { Journal } from "./internal/Journal.js";
 
-import { hasTypeId } from "../../util/predicates";
+import { hasTypeId } from "../../util/predicates.js";
 
 export const enum STMTag {
   Effect = "Effect",

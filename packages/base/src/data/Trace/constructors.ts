@@ -1,9 +1,9 @@
-import type { Monoid } from "../../prelude";
-import type { TraceElement } from "../TraceElement";
+import type { Monoid } from "../../prelude.js";
+import type { TraceElement } from "../TraceElement.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { FiberId } from "../FiberId";
-import { Trace } from "./definition";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { FiberId } from "../FiberId.js";
+import { Trace } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.TraceOps __call

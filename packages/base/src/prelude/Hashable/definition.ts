@@ -1,4 +1,4 @@
-import { isObject } from "../../util/predicates";
+import { isObject } from "../../util/predicates.js";
 
 export const hashable = Symbol.for("fncts.prelude.Hashable");
 

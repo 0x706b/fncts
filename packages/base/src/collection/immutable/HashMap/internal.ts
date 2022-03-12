@@ -1,7 +1,7 @@
-import type { Maybe } from "../../../data/Maybe";
-import type { Eq } from "../../../prelude";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { Eq } from "../../../prelude.js";
 
-import { Nothing } from "../../../data/Maybe";
+import { Nothing } from "../../../data/Maybe.js";
 
 /*
  * -------------------------------------------------------------------------------------------------

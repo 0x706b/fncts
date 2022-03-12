@@ -1,6 +1,6 @@
-import type { FiberState } from "./definition";
+import type { FiberState } from "./definition.js";
 
-import { Cause } from "../Cause";
+import { Cause } from "../Cause.js";
 
 /**
  * @tsplus getter fncts.data.FiberState interruptorsCause

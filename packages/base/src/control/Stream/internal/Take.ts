@@ -1,11 +1,11 @@
-import type { Cause } from "../../../data/Cause";
-import type { FIO, URIO } from "../../IO";
-import type { Pull } from "./Pull";
+import type { Cause } from "../../../data/Cause.js";
+import type { FIO, URIO } from "../../IO.js";
+import type { Pull } from "./Pull.js";
 
-import { Conc } from "../../../collection/immutable/Conc";
-import { Exit } from "../../../data/Exit";
-import { Just, Maybe, Nothing } from "../../../data/Maybe";
-import { IO } from "../../IO";
+import { Conc } from "../../../collection/immutable/Conc.js";
+import { Exit } from "../../../data/Exit.js";
+import { Just, Maybe, Nothing } from "../../../data/Maybe.js";
+import { IO } from "../../IO.js";
 
 /**
  * A `Take<E, A>` represents a single `take` from a queue modeling a stream of

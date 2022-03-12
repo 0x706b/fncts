@@ -1,8 +1,8 @@
-import type { FiberId } from "../../data/FiberId";
+import type { FiberId } from "../../data/FiberId.js";
 
-import { List } from "../../collection/immutable/List";
-import { IO } from "../IO";
-import { Future, Pending } from "./definition";
+import { List } from "../../collection/immutable/List.js";
+import { IO } from "../IO.js";
+import { Future, Pending } from "./definition.js";
 
 /**
  * Makes a new future to be completed by the fiber creating the future.

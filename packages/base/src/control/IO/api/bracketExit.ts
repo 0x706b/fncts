@@ -1,7 +1,7 @@
-import type { Exit } from "../../../data/Exit";
+import type { Exit } from "../../../data/Exit.js";
 
-import { Cause } from "../../../data/Cause";
-import { IO } from "../definition";
+import { Cause } from "../../../data/Cause.js";
+import { IO } from "../definition.js";
 
 /**
  * Acquires a resource, uses the resource, and then releases the resource.

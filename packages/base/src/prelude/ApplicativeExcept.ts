@@ -1,11 +1,11 @@
-import type { Maybe } from "../data/Maybe";
-import type { ApplicativeMin } from "./Applicative";
-import type { Fail, FailMin } from "./Fail";
+import type { Maybe } from "../data/Maybe.js";
+import type { ApplicativeMin } from "./Applicative.js";
+import type { Fail, FailMin } from "./Fail.js";
 
-import { Either, Left } from "../data/Either/definition";
-import { identity } from "../data/function";
-import { Applicative } from "./Applicative";
-import { HKT } from "./HKT";
+import { Either, Left } from "../data/Either/definition.js";
+import { identity } from "../data/function.js";
+import { Applicative } from "./Applicative.js";
+import { HKT } from "./HKT.js";
 
 /**
  * @tsplus type fncts.prelude.ApplicativeExcept

@@ -1,12 +1,12 @@
-import Distribution from "./rand/distribution/Distribution";
-import { uniformArrayIntDistribution } from "./rand/distribution/UniformArrayIntDistribution";
-import { uniformBigIntDistribution } from "./rand/distribution/UniformBigIntDistribution";
-import { uniformIntDistribution } from "./rand/distribution/UniformIntDistribution";
-import { MersenneTwister } from "./rand/generator/MersenneTwister";
-import { generateN, RandomGenerator, skipN } from "./rand/generator/RandomGenerator";
+import Distribution from "./rand/distribution/Distribution.js";
+import { uniformArrayIntDistribution } from "./rand/distribution/UniformArrayIntDistribution.js";
+import { uniformBigIntDistribution } from "./rand/distribution/UniformBigIntDistribution.js";
+import { uniformIntDistribution } from "./rand/distribution/UniformIntDistribution.js";
+import { MersenneTwister } from "./rand/generator/MersenneTwister.js";
+import { generateN, RandomGenerator, skipN } from "./rand/generator/RandomGenerator.js";
 
-export * from "./rand/distribution/internals/ArrayInt";
-export * from "./rand/Random";
+export * from "./rand/distribution/internals/ArrayInt.js";
+export * from "./rand/Random.js";
 
 export {
   Distribution,

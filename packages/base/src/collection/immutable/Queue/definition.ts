@@ -12,9 +12,9 @@
  * for more information regarding copyright ownership
  */
 
-import type { List } from "../List";
+import type { List } from "../List.js";
 
-import { _Nil } from "../List";
+import { _Nil } from "../List.js";
 
 /**
  * @tsplus type fncts.collection.immutable.Queue

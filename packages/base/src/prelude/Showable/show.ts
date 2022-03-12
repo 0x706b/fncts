@@ -1,11 +1,11 @@
-import type { TypedArray } from "../../util/predicates";
-import type { StyleFunction } from "./styles";
+import type { TypedArray } from "../../util/predicates.js";
+import type { StyleFunction } from "./styles.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { HashMap } from "../../collection/immutable/HashMap";
-import { Z } from "../../control/Z";
-import { CaseClass } from "../../data/CaseClass";
-import { tuple } from "../../data/function";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { HashMap } from "../../collection/immutable/HashMap.js";
+import { Z } from "../../control/Z.js";
+import { CaseClass } from "../../data/CaseClass.js";
+import { tuple } from "../../data/function.js";
 import {
   isAnyArrayBuffer,
   isArray,
@@ -23,9 +23,9 @@ import {
   isTypedArray,
   isWeakMap,
   isWeakSet,
-} from "../../util/predicates";
-import { isShowable } from "./definition";
-import { stylizeNoColor, stylizeWithColor } from "./styles";
+} from "../../util/predicates.js";
+import { isShowable } from "./definition.js";
+import { stylizeNoColor, stylizeWithColor } from "./styles.js";
 import {
   ARRAY_EXTRAS_TYPE,
   ARRAY_TYPE,
@@ -44,7 +44,7 @@ import {
   PROTO_TYPE,
   strEscape,
   strEscapeSequencesReplacer,
-} from "./util";
+} from "./util.js";
 
 export interface ShowContextArgs {
   readonly stylize: StyleFunction;

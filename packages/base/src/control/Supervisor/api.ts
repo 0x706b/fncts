@@ -1,9 +1,9 @@
-import type { Exit } from "../../data/Exit";
-import type { Maybe } from "../../data/Maybe";
-import type { RuntimeFiber } from "../Fiber";
-import type { IO } from "../IO";
+import type { Exit } from "../../data/Exit.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { RuntimeFiber } from "../Fiber.js";
+import type { IO } from "../IO.js";
 
-import { Supervisor } from "./definition";
+import { Supervisor } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.control.Supervisor zip

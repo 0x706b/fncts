@@ -1,4 +1,4 @@
-import type { FreeBooleanAlgebra } from "./FreeBooleanAlgebra";
+import type { FreeBooleanAlgebra } from "./FreeBooleanAlgebra.js";
 
 export const enum TestSuccessTag {
   Succeeded = "Succeeded",

@@ -1,4 +1,4 @@
-import type { HKT } from "../../prelude";
+import type { HKT } from "../../prelude.js";
 
 export const EvalTypeId = Symbol.for("@fncts.base/control/Eval");
 export type EvalTypeId = typeof EvalTypeId;

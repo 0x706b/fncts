@@ -1,5 +1,5 @@
-import type { Cause } from "../../../data/Cause";
-import type { UIO } from "../../IO";
+import type { Cause } from "../../../data/Cause.js";
+import type { UIO } from "../../IO.js";
 
 export interface AsyncInputProducer<Err, Elem, Done> {
   emit(el: Elem): UIO<unknown>;

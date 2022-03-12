@@ -1,4 +1,4 @@
-import * as P from "../../prelude";
+import * as P from "../../prelude.js";
 
 /**
  * @tsplus static fncts.data.StringOps Eq

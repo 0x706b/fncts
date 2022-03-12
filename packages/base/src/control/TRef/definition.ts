@@ -1,10 +1,10 @@
-import type { HashMap } from "../../collection/immutable/HashMap";
-import type { TxnId } from "../../data/TxnId";
-import type { AtomicReference } from "../../internal/AtomicReference";
-import type { Todo } from "../STM/internal/Journal";
-import type { Versioned } from "../STM/internal/Versioned";
+import type { HashMap } from "../../collection/immutable/HashMap.js";
+import type { TxnId } from "../../data/TxnId.js";
+import type { AtomicReference } from "../../internal/AtomicReference.js";
+import type { Todo } from "../STM/internal/Journal.js";
+import type { Versioned } from "../STM/internal/Versioned.js";
 
-import { Either } from "../../data/Either";
+import { Either } from "../../data/Either.js";
 
 export const TRefTypeId = Symbol.for("fncts.control.TRef");
 export type TRefTypeId = typeof TRefTypeId;

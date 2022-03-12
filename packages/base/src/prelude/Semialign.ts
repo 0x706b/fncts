@@ -1,12 +1,12 @@
-import type { Maybe } from "../data/Maybe";
-import type { These } from "../data/These";
-import type { FunctorMin } from "./Functor";
-import type { Semigroup } from "./Semigroup";
+import type { Maybe } from "../data/Maybe.js";
+import type { These } from "../data/These.js";
+import type { FunctorMin } from "./Functor.js";
+import type { Semigroup } from "./Semigroup.js";
 
-import { identity, tuple } from "../data/function";
-import { Just, Nothing } from "../data/Maybe/definition";
-import { Functor } from "./Functor";
-import { HKT } from "./HKT";
+import { identity, tuple } from "../data/function.js";
+import { Just, Nothing } from "../data/Maybe/definition.js";
+import { Functor } from "./Functor.js";
+import { HKT } from "./HKT.js";
 
 /**
  * @tsplus type fncts.prelude.Semialign

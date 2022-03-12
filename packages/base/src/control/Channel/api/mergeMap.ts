@@ -1,5 +1,5 @@
-import type { Channel } from "../definition";
-import type { MergeStrategy } from "./mergeAllWith";
+import type { Channel } from "../definition.js";
+import type { MergeStrategy } from "./mergeAllWith.js";
 
 /**
  * @tsplus fluent fncts.control.Channel mergeMap

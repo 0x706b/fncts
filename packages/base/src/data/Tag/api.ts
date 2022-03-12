@@ -1,8 +1,8 @@
-import type { Has, HasTypeId } from "../../prelude";
-import type { Tag } from "./definition";
+import type { Has, HasTypeId } from "../../prelude.js";
+import type { Tag } from "./definition.js";
 
-import { hasTypeId } from "../../util/predicates";
-import { TagTypeId } from "./definition";
+import { hasTypeId } from "../../util/predicates.js";
+import { TagTypeId } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.TagOps isTag

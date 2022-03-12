@@ -1,7 +1,7 @@
-import type { Has, HasTypeId } from "../../prelude";
+import type { Has, HasTypeId } from "../../prelude.js";
 
-import { isObject } from "../../util/predicates";
-import { Maybe, Nothing } from "../Maybe";
+import { isObject } from "../../util/predicates.js";
+import { Maybe, Nothing } from "../Maybe.js";
 
 export const TagTypeId = Symbol.for("fncts.data.Tag");
 export type TagTypeId = typeof TagTypeId;

@@ -1,9 +1,9 @@
-import type { ApplicativeMin } from "./Applicative";
-import type { ChainMin } from "./Chain";
+import type { ApplicativeMin } from "./Applicative.js";
+import type { ChainMin } from "./Chain.js";
 
-import { Applicative } from "./Applicative";
-import { Chain } from "./Chain";
-import { HKT } from "./HKT";
+import { Applicative } from "./Applicative.js";
+import { Chain } from "./Chain.js";
+import { HKT } from "./HKT.js";
 
 export interface Monad<F extends HKT, FC = HKT.None> extends Applicative<F, FC>, Chain<F, FC> {}
 

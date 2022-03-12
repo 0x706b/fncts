@@ -1,4 +1,4 @@
-import { Ord } from "../../prelude";
+import { Ord } from "../../prelude.js";
 
 /**
  * Capitalize the first letter of the string

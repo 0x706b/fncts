@@ -1,7 +1,7 @@
-import type { Conc } from "../../collection/immutable/Conc";
-import type { Monoid, Semigroup } from "../../prelude";
-import type { FiberId } from "../FiberId";
-import type { TraceElement } from "../TraceElement";
+import type { Conc } from "../../collection/immutable/Conc.js";
+import type { Monoid, Semigroup } from "../../prelude.js";
+import type { FiberId } from "../FiberId.js";
+import type { TraceElement } from "../TraceElement.js";
 
 /**
  * @tsplus type fncts.data.Trace

@@ -8,6 +8,10 @@
       ]
     }
   },
+  "exports": {
+    "./*": "./build/esm/*.js",
+    "./*.js": "./build/esm/*.js"
+  },
   "scripts": {
     "build": "tsc -b ./tsconfig.json",
     "format:write": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts",

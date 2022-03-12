@@ -1,8 +1,8 @@
-import type { NewtypeIso } from "../../data/Newtype";
-import type { HKT } from "../../prelude";
-import type { UTRef } from "../TRef";
+import type { NewtypeIso } from "../../data/Newtype.js";
+import type { HKT } from "../../prelude.js";
+import type { UTRef } from "../TRef.js";
 
-import { Newtype } from "../../data/Newtype";
+import { Newtype } from "../../data/Newtype.js";
 
 interface TSemaphoreN extends HKT {
   readonly type: TSemaphore;

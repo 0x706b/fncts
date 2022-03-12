@@ -1,6 +1,6 @@
-import type { FIO, UIO } from "../../IO";
+import type { FIO, UIO } from "../../IO.js";
 
-import { Fiber } from "../definition";
+import { Fiber } from "../definition.js";
 
 /**
  * Lifts an `IO` into a `Fiber`.

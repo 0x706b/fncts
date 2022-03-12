@@ -1,8 +1,8 @@
-import type { Nil, NilMin } from "./Nil";
-import type { SemialignMin } from "./Semialign";
+import type { Nil, NilMin } from "./Nil.js";
+import type { SemialignMin } from "./Semialign.js";
 
-import { HKT } from "./HKT";
-import { Semialign } from "./Semialign";
+import { HKT } from "./HKT.js";
+import { Semialign } from "./Semialign.js";
 
 /**
  * @tsplus type fncts.prelude.Align

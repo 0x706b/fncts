@@ -1,5 +1,5 @@
-import { IO } from "./control/IO";
-import { Left } from "./data/Either";
+import { IO } from "./control/IO.js";
+import { Left } from "./data/Either.js";
 
 const list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 

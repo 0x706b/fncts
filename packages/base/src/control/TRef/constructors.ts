@@ -1,14 +1,14 @@
-import type { Lazy } from "../../data/function";
-import type { UIO } from "../IO";
-import type { STM } from "../STM/definition";
-import type { UTRef } from "./definition";
+import type { Lazy } from "../../data/function.js";
+import type { UIO } from "../IO.js";
+import type { STM } from "../STM/definition.js";
+import type { UTRef } from "./definition.js";
 
-import { AtomicReference } from "../../internal/AtomicReference";
-import { Effect } from "../STM/definition";
-import { Entry } from "../STM/internal/Entry";
-import { Journal } from "../STM/internal/Journal";
-import { Versioned } from "../STM/internal/Versioned";
-import { Atomic } from "./definition";
+import { AtomicReference } from "../../internal/AtomicReference.js";
+import { Effect } from "../STM/definition.js";
+import { Entry } from "../STM/internal/Entry.js";
+import { Journal } from "../STM/internal/Journal.js";
+import { Versioned } from "../STM/internal/Versioned.js";
+import { Atomic } from "./definition.js";
 
 /**
  * Makes a new `TRef` that is initialized to the specified value.

@@ -1,11 +1,11 @@
-import type { Conc } from "../../../collection/immutable/Conc";
-import type { Either } from "../../../data/Either";
-import type { Maybe } from "../../../data/Maybe";
-import type { Stream } from "../definition";
+import type { Conc } from "../../../collection/immutable/Conc.js";
+import type { Either } from "../../../data/Either.js";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { Stream } from "../definition.js";
 
-import { Exit } from "../../../data/Exit";
-import { IO } from "../../IO";
-import { zipChunks } from "../internal/util";
+import { Exit } from "../../../data/Exit.js";
+import { IO } from "../../IO.js";
+import { zipChunks } from "../internal/util.js";
 
 class PullBoth {
   readonly _tag = "PullBoth";

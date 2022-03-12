@@ -1,7 +1,7 @@
 import type { Equals } from "@fncts/typelevel/Any";
 
-import { Equatable, Hashable } from "../prelude";
-import { hasTypeId } from "../util/predicates";
+import { Equatable, Hashable } from "../prelude.js";
+import { hasTypeId } from "../util/predicates.js";
 
 export const CaseClassTypeId = Symbol.for("fncts.data.CaseClass");
 export type CaseClassTypeId = typeof CaseClassTypeId;

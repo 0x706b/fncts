@@ -1,17 +1,17 @@
-import type { PRef } from "./definition";
+import type { PRef } from "./definition.js";
 
-import { Either } from "../../data/Either";
-import { identity } from "../../data/function";
+import { Either } from "../../data/Either.js";
+import { identity } from "../../data/function.js";
 
 // codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/collect";
-export * from "./api/dimap";
-export * from "./api/filter";
-export * from "./api/get";
-export * from "./api/match";
-export * from "./api/matchAll";
-export * from "./api/modify";
-export * from "./api/set";
+export * from "./api/collect.js";
+export * from "./api/dimap.js";
+export * from "./api/filter.js";
+export * from "./api/get.js";
+export * from "./api/match.js";
+export * from "./api/matchAll.js";
+export * from "./api/modify.js";
+export * from "./api/set.js";
 // codegen:end
 
 /**

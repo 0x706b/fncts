@@ -1,8 +1,8 @@
-import type { IO } from "../IO";
-import type { Finalizer } from "./Finalizer";
+import type { IO } from "../IO.js";
+import type { Finalizer } from "./Finalizer.js";
 
-import { _A, _E, _R } from "../../types";
-import { hasTypeId } from "../../util/predicates";
+import { _A, _E, _R } from "../../types.js";
+import { hasTypeId } from "../../util/predicates.js";
 
 export const ManagedTypeId = Symbol.for("fncts.control.Managed");
 export type ManagedTypeId = typeof ManagedTypeId;

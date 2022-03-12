@@ -1,7 +1,7 @@
-import type { Eval } from "../control/Eval";
-import type { Monoid } from "./Monoid";
+import type { Eval } from "../control/Eval.js";
+import type { Monoid } from "./Monoid.js";
 
-import { HKT } from "./HKT";
+import { HKT } from "./HKT.js";
 
 /**
  * @tsplus type fncts.Foldable

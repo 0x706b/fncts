@@ -1,4 +1,4 @@
-import type { Queue } from "./definition";
+import type { Queue } from "./definition.js";
 
 /**
  * @tsplus getter fncts.collection.immutable.Queue isEmpty

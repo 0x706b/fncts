@@ -1,11 +1,11 @@
-import type { FIO, UIO } from "../IO";
-import type { Atomic } from "./Atomic/Atomic";
-import type { PRef } from "./definition";
+import type { FIO, UIO } from "../IO.js";
+import type { Atomic } from "./Atomic/Atomic.js";
+import type { PRef } from "./definition.js";
 
-import { Either } from "../../data/Either";
-import { IO } from "../IO";
-import { RefInternal } from "./definition";
-import { DerivedAll } from "./DerivedAll";
+import { Either } from "../../data/Either.js";
+import { IO } from "../IO.js";
+import { RefInternal } from "./definition.js";
+import { DerivedAll } from "./DerivedAll.js";
 
 export class Derived<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, EB, A, B> {
   readonly _tag = "Derived";

@@ -1,28 +1,28 @@
-import type { List } from "../../../collection/immutable/List";
-import type { Cause } from "../../../data/Cause";
-import type { Maybe } from "../../../data/Maybe";
-import type { URIO } from "../../IO";
-import type { ChildExecutorDecision } from "../ChildExecutorDecision";
-import type { BracketOut, Continuation, Ensuring } from "../definition";
-import type { UpstreamPullStrategy } from "../UpstreamPullStrategy";
-import type { ChannelState } from "./ChannelState";
+import type { List } from "../../../collection/immutable/List.js";
+import type { Cause } from "../../../data/Cause.js";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { URIO } from "../../IO.js";
+import type { ChildExecutorDecision } from "../ChildExecutorDecision.js";
+import type { BracketOut, Continuation, Ensuring } from "../definition.js";
+import type { UpstreamPullStrategy } from "../UpstreamPullStrategy.js";
+import type { ChannelState } from "./ChannelState.js";
 
-import { Nil } from "../../../collection/immutable/List";
-import { Queue } from "../../../collection/immutable/Queue";
-import { ListBuffer } from "../../../collection/mutable/ListBuffer";
-import { Exit } from "../../../data/Exit";
-import { identity } from "../../../data/function";
-import { Stack } from "../../../internal/Stack";
-import { IO } from "../../IO";
+import { Nil } from "../../../collection/immutable/List.js";
+import { Queue } from "../../../collection/immutable/Queue.js";
+import { ListBuffer } from "../../../collection/mutable/ListBuffer.js";
+import { Exit } from "../../../data/Exit.js";
+import { identity } from "../../../data/function.js";
+import { Stack } from "../../../internal/Stack.js";
+import { IO } from "../../IO.js";
 import {
   Channel,
   ChannelTag,
   concrete,
   concreteContinuation,
   ContinuationFinalizer,
-} from "../definition";
-import { UpstreamPullRequest } from "../UpstreamPullRequest";
-import * as State from "./ChannelState";
+} from "../definition.js";
+import { UpstreamPullRequest } from "../UpstreamPullRequest.js";
+import * as State from "./ChannelState.js";
 
 type ErasedChannel<R> = Channel<R, unknown, unknown, unknown, unknown, unknown, unknown>;
 export type ErasedExecutor<R> = ChannelExecutor<

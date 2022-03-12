@@ -1,4 +1,4 @@
-import { HKT } from "./HKT";
+import { HKT } from "./HKT.js";
 
 /**
  * @tsplus type fncts.prelude.Fail

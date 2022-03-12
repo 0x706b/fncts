@@ -1,14 +1,14 @@
-import type { Cause } from "../../data/Cause";
-import type { Exit } from "../../data/Exit";
-import type { FiberId } from "../../data/FiberId";
-import type { Maybe } from "../../data/Maybe";
-import type { Canceler, FIO, UIO } from "../IO";
-import type { Future } from "./definition";
+import type { Cause } from "../../data/Cause.js";
+import type { Exit } from "../../data/Exit.js";
+import type { FiberId } from "../../data/FiberId.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { Canceler, FIO, UIO } from "../IO.js";
+import type { Future } from "./definition.js";
 
-import { Either } from "../../data/Either";
-import { Just, Nothing } from "../../data/Maybe";
-import { IO } from "../IO";
-import { Done, FutureStateTag, Pending } from "./definition";
+import { Either } from "../../data/Either.js";
+import { Just, Nothing } from "../../data/Maybe.js";
+import { IO } from "../IO.js";
+import { Done, FutureStateTag, Pending } from "./definition.js";
 
 /**
  * Exits the future with the specified exit, which will be propagated to all

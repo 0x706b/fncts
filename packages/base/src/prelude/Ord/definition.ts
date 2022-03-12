@@ -1,9 +1,9 @@
-import type { equals_ } from "../Eq";
-import type { Ordering } from "../Ordering";
+import type { equals_ } from "../Eq.js";
+import type { Ordering } from "../Ordering.js";
 
-import { Eq } from "../Eq";
-import { Monoid } from "../Monoid";
-import { Semigroup } from "../Semigroup";
+import { Eq } from "../Eq.js";
+import { Monoid } from "../Monoid.js";
+import { Semigroup } from "../Semigroup.js";
 
 /**
  * @tsplus type fncts.Ord

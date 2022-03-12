@@ -1,6 +1,6 @@
-import type { UIO } from "../../IO";
+import type { UIO } from "../../IO.js";
 
-import { Fiber } from "../definition";
+import { Fiber } from "../definition.js";
 
 /**
  * Passes the success of this fiber to the specified callback, and continues

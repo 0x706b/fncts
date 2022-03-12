@@ -1,8 +1,8 @@
-import type { RenderParam } from "../RenderParam";
-import type { Render } from "./definition";
+import type { RenderParam } from "../RenderParam.js";
+import type { Render } from "./definition.js";
 import type { Conc } from "@fncts/base/collection/immutable/Conc";
 
-import { RenderFunction, RenderInfix, RenderTag } from "./definition";
+import { RenderFunction, RenderInfix, RenderTag } from "./definition.js";
 
 /**
  * @tsplus static fncts.test.data.RenderOps fn

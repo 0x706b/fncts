@@ -1,10 +1,10 @@
-import type { Maybe } from "../../../data/Maybe";
-import type { PRef } from "../definition";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { PRef } from "../definition.js";
 
-import { Either } from "../../../data/Either";
-import { tuple } from "../../../data/function";
-import { IO } from "../../IO";
-import { concrete } from "../definition";
+import { Either } from "../../../data/Either.js";
+import { tuple } from "../../../data/function.js";
+import { IO } from "../../IO.js";
+import { concrete } from "../definition.js";
 
 /**
  * Atomically modifies the `Ref` with the specified function, which

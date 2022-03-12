@@ -1,6 +1,6 @@
-import type { Closure, combine_ } from "../Closure";
+import type { Closure, combine_ } from "../Closure.js";
 
-import { mkClosure } from "../Closure";
+import { mkClosure } from "../Closure.js";
 
 /**
  * @tsplus type fncts.Semigroup

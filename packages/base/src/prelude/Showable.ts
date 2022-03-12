@@ -1,2 +1,2 @@
-export * from "./Showable/definition";
-export * from "./Showable/show";
+export * from "./Showable/definition.js";
+export * from "./Showable/show.js";

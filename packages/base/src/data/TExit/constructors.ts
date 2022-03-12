@@ -1,7 +1,7 @@
-import type { FiberId } from "../FiberId";
-import type { TExit } from "./definition";
+import type { FiberId } from "../FiberId.js";
+import type { TExit } from "./definition.js";
 
-import { Fail, Halt, Interrupt, Retry, Succeed } from "./definition";
+import { Fail, Halt, Interrupt, Retry, Succeed } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.TExitOps unit

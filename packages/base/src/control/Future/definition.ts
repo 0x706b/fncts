@@ -1,6 +1,6 @@
-import type { List } from "../../collection/immutable/List";
-import type { FiberId } from "../../data/FiberId";
-import type { FIO } from "../IO";
+import type { List } from "../../collection/immutable/List.js";
+import type { FiberId } from "../../data/FiberId.js";
+import type { FIO } from "../IO.js";
 
 /**
  * @tsplus type fncts.control.Future

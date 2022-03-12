@@ -1,10 +1,10 @@
-import type { Lazy } from "../../../data/function";
-import type { UIO } from "../../IO";
+import type { Lazy } from "../../../data/function.js";
+import type { UIO } from "../../IO.js";
 
-import { IO } from "../../IO";
-import { TSemaphore } from "../../TSemaphore";
-import { Ref } from "../definition";
-import { PSynchronizedInternal } from "./definition";
+import { IO } from "../../IO.js";
+import { TSemaphore } from "../../TSemaphore.js";
+import { Ref } from "../definition.js";
+import { PSynchronizedInternal } from "./definition.js";
 
 /**
  * @tsplus static fncts.control.Ref.SynchronizedOps make

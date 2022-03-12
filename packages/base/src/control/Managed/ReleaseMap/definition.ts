@@ -1,10 +1,10 @@
-import type { HashMap } from "../../../collection/immutable/HashMap";
-import type { Exit } from "../../../data/Exit";
-import type { HKT } from "../../../prelude";
-import type { Ref } from "../../Ref";
-import type { Finalizer } from "../Finalizer";
+import type { HashMap } from "../../../collection/immutable/HashMap.js";
+import type { Exit } from "../../../data/Exit.js";
+import type { HKT } from "../../../prelude.js";
+import type { Ref } from "../../Ref.js";
+import type { Finalizer } from "../Finalizer.js";
 
-import { Newtype } from "../../../data/Newtype";
+import { Newtype } from "../../../data/Newtype.js";
 
 export class Exited {
   readonly _tag = "Exited";

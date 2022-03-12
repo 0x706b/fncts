@@ -1,4 +1,4 @@
-import type { RenderParam } from "../RenderParam";
+import type { RenderParam } from "../RenderParam.js";
 import type { Conc } from "@fncts/base/collection/immutable/Conc";
 
 export const enum RenderTag {

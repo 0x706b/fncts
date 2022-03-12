@@ -1,10 +1,10 @@
-import type { AssertionValue } from "../../data/AssertionValue";
-import type { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra";
-import type { Render } from "../../data/Render";
+import type { AssertionValue } from "../../data/AssertionValue.js";
+import type { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
+import type { Render } from "../../data/Render.js";
 
 import { IO } from "@fncts/base/control/IO";
 
-import { AssertionIO } from "../AssertionIO";
+import { AssertionIO } from "../AssertionIO.js";
 
 /**
  * @tsplus type fncts.data.FreeBooleanAlgebra

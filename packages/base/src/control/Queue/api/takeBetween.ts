@@ -1,8 +1,8 @@
-import type { PQueue } from "../definition";
+import type { PQueue } from "../definition.js";
 
-import { Conc } from "../../../collection/immutable/Conc";
-import { IO } from "../../IO";
-import { concrete } from "../definition";
+import { Conc } from "../../../collection/immutable/Conc.js";
+import { IO } from "../../IO.js";
+import { concrete } from "../definition.js";
 
 function takeRemainderLoop<RA, RB, EA, EB, A, B>(
   queue: PQueue<RA, RB, EA, EB, A, B>,

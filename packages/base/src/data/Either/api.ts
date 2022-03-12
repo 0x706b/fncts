@@ -1,12 +1,12 @@
-import type * as P from "../../prelude";
-import type { Lazy } from "../function";
-import type { Maybe } from "../Maybe";
-import type { Either } from "./definition";
-import type { EitherF } from "./instances";
+import type * as P from "../../prelude.js";
+import type { Lazy } from "../function.js";
+import type { Maybe } from "../Maybe.js";
+import type { Either } from "./definition.js";
+import type { EitherF } from "./instances.js";
 
-import { hasTypeId } from "../../util/predicates";
-import { identity, unsafeCoerce } from "../function";
-import { EitherTag, EitherTypeId, Left, Right } from "./definition";
+import { hasTypeId } from "../../util/predicates.js";
+import { identity, unsafeCoerce } from "../function.js";
+import { EitherTag, EitherTypeId, Left, Right } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.Either ap
@@ -297,6 +297,6 @@ export function foldMap<M>(M: P.Monoid<M>) {
 // codegen:end
 
 // codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/align";
-export * from "./api/alignWith";
+export * from "./api/align.js";
+export * from "./api/alignWith.js";
 // codegen:end

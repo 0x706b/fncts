@@ -1,7 +1,7 @@
-import type { Byte } from "../../../data/Byte";
+import type { Byte } from "../../../data/Byte.js";
 
-import { ReadonlyArray } from "../../Array";
-import { ByteChunk, Chunk, Conc, Empty, Singleton } from "./definition";
+import { ReadonlyArray } from "../../Array.js";
+import { ByteChunk, Chunk, Conc, Empty, Singleton } from "./definition.js";
 
 /**
  * @tsplus static fncts.collection.immutable.ConcOps from

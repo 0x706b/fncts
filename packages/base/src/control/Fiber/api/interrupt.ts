@@ -1,8 +1,8 @@
-import type { Exit } from "../../../data/Exit";
-import type { UIO } from "../../IO";
-import type { Fiber } from "../definition";
+import type { Exit } from "../../../data/Exit.js";
+import type { UIO } from "../../IO.js";
+import type { Fiber } from "../definition.js";
 
-import { IO } from "../../IO";
+import { IO } from "../../IO.js";
 
 /**
  * Interrupts the fiber from whichever fiber is calling this method. If the

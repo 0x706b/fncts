@@ -1,5 +1,5 @@
-import { Equatable, Hashable } from "../../prelude";
-import { isObject } from "../../util/predicates";
+import { Equatable, Hashable } from "../../prelude.js";
+import { isObject } from "../../util/predicates.js";
 
 export const enum MaybeTag {
   Just = "Just",

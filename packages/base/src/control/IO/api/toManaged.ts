@@ -1,6 +1,6 @@
-import type { IO, URIO } from "../definition";
+import type { IO, URIO } from "../definition.js";
 
-import { Managed } from "../../Managed";
+import { Managed } from "../../Managed.js";
 
 /**
  * @tsplus getter fncts.control.IO toManaged

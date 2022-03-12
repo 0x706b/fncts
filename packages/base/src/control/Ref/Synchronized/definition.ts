@@ -1,10 +1,10 @@
-import type { Either } from "../../../data/Either";
-import type { TSemaphore } from "../../TSemaphore";
-import type { PRef } from "../definition";
+import type { Either } from "../../../data/Either.js";
+import type { TSemaphore } from "../../TSemaphore.js";
+import type { PRef } from "../definition.js";
 
-import { IO } from "../../IO";
-import { STM } from "../../STM";
-import { RefInternal } from "../definition";
+import { IO } from "../../IO.js";
+import { STM } from "../../STM.js";
+import { RefInternal } from "../definition.js";
 
 /**
  * @tsplus type fncts.control.Ref.Synchronized

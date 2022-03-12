@@ -1,6 +1,6 @@
-import type { Done, FiberStatus } from "./definition";
+import type { Done, FiberStatus } from "./definition.js";
 
-import { FiberStatusTag, Finishing, Running, Suspended } from "./definition";
+import { FiberStatusTag, Finishing, Running, Suspended } from "./definition.js";
 
 /**
  * @tsplus getter fncts.data.FiberStatus isInterrupting

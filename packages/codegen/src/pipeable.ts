@@ -343,7 +343,7 @@ function printNode(node: ts.Node, sourceFile: ts.SourceFile): string {
   return printer.printNode(ts.EmitHint.Unspecified, node, sourceFile);
 }
 
-export const pipeable: Preset<{
+const pipeable: Preset<{
   exclude?: string;
 }> = ({ meta, options }) => {
   try {
@@ -517,3 +517,5 @@ function filterMap<A, B>(
   }
   return bs;
 }
+
+module.exports = pipeable;

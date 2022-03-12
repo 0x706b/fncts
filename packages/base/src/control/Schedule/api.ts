@@ -1,16 +1,16 @@
-import type { Lazy } from "../../data/function";
-import type { Maybe } from "../../data/Maybe";
-import type { UIO, URIO } from "../IO";
+import type { Lazy } from "../../data/function.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { UIO, URIO } from "../IO.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { List } from "../../collection/immutable/List";
-import { Either } from "../../data/Either";
-import { Just, Nothing } from "../../data/Maybe";
-import { Equatable, wiltSelf } from "../../prelude";
-import { IO } from "../IO";
-import { Decision, DecisionTag } from "./Decision";
-import { Schedule } from "./definition";
-import { Interval } from "./Interval";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { List } from "../../collection/immutable/List.js";
+import { Either } from "../../data/Either.js";
+import { Just, Nothing } from "../../data/Maybe.js";
+import { Equatable, wiltSelf } from "../../prelude.js";
+import { IO } from "../IO.js";
+import { Decision, DecisionTag } from "./Decision.js";
+import { Schedule } from "./definition.js";
+import { Interval } from "./Interval.js";
 
 /**
  * @tsplus static fncts.control.ScheduleOps __call

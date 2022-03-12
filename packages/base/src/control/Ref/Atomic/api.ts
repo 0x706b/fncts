@@ -1,8 +1,8 @@
-import type { Maybe } from "../../../data/Maybe";
-import type { UIO } from "../../IO";
-import type { Atomic } from "./Atomic";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { UIO } from "../../IO.js";
+import type { Atomic } from "./Atomic.js";
 
-import { IO } from "../../IO";
+import { IO } from "../../IO.js";
 
 /**
  * @tsplus fluent fncts.control.Ref.Atomic getAndSet

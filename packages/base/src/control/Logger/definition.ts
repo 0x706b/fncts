@@ -1,11 +1,11 @@
-import type { HashMap } from "../../collection/immutable/HashMap";
-import type { List } from "../../collection/immutable/List";
-import type { Cause } from "../../data/Cause";
-import type { FiberId } from "../../data/FiberId";
-import type { LogLevel } from "../../data/LogLevel";
-import type { LogSpan } from "../../data/LogSpan";
-import type { TraceElement } from "../../data/TraceElement";
-import type { FiberRef } from "../FiberRef";
+import type { HashMap } from "../../collection/immutable/HashMap.js";
+import type { List } from "../../collection/immutable/List.js";
+import type { Cause } from "../../data/Cause.js";
+import type { FiberId } from "../../data/FiberId.js";
+import type { LogLevel } from "../../data/LogLevel.js";
+import type { LogSpan } from "../../data/LogSpan.js";
+import type { TraceElement } from "../../data/TraceElement.js";
+import type { FiberRef } from "../FiberRef.js";
 
 /**
  * @tsplus type fncts.control.Logger

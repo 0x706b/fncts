@@ -1,5 +1,5 @@
 // codegen:start { preset: barrel, include: Future/*.ts }
-export * from "./Future/api";
-export * from "./Future/constructors";
-export * from "./Future/definition";
+export * from "./Future/api.js";
+export * from "./Future/constructors.js";
+export * from "./Future/definition.js";
 // codegen:end

@@ -1,4 +1,4 @@
-import type { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra";
+import type { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
 import type { IO } from "@fncts/base/control/IO";
 
 /**

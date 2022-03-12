@@ -1,8 +1,8 @@
-import type { Exit } from "../../../data/Exit";
-import type { UIO } from "../../IO";
-import type { ErasedExecutor } from "./ChannelExecutor";
+import type { Exit } from "../../../data/Exit.js";
+import type { UIO } from "../../IO.js";
+import type { ErasedExecutor } from "./ChannelExecutor.js";
 
-import { IO } from "../../IO";
+import { IO } from "../../IO.js";
 
 export const enum ChannelStateTag {
   Emit = "Emit",

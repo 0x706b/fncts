@@ -1,7 +1,7 @@
-import type { Lazy } from "../../../data/function";
-import type { RuntimeConfig } from "../../../data/RuntimeConfig";
+import type { Lazy } from "../../../data/function.js";
+import type { RuntimeConfig } from "../../../data/RuntimeConfig.js";
 
-import { IO } from "../definition";
+import { IO } from "../definition.js";
 
 /**
  * Runs the specified effect on the specified runtime configuration, restoring

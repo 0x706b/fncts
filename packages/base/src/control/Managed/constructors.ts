@@ -1,15 +1,15 @@
-import type { Cause } from "../../data/Cause";
-import type { Exit } from "../../data/Exit";
-import type { Lazy } from "../../data/function";
-import type { URIO } from "../IO";
-import type { Reservation } from "./Reservation";
+import type { Cause } from "../../data/Cause.js";
+import type { Exit } from "../../data/Exit.js";
+import type { Lazy } from "../../data/function.js";
+import type { URIO } from "../IO.js";
+import type { Reservation } from "./Reservation.js";
 
-import { identity, tuple } from "../../data/function";
-import { FiberRef } from "../FiberRef";
-import { IO } from "../IO";
-import { Ref } from "../Ref";
-import { Managed } from "./definition";
-import { Finalizer } from "./Finalizer";
+import { identity, tuple } from "../../data/function.js";
+import { FiberRef } from "../FiberRef.js";
+import { IO } from "../IO.js";
+import { Ref } from "../Ref.js";
+import { Managed } from "./definition.js";
+import { Finalizer } from "./Finalizer.js";
 
 /**
  * Accesses the whole environment of the effect.

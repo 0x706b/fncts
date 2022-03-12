@@ -1,6 +1,6 @@
-import type { Atomic } from "../../TRef";
+import type { Atomic } from "../../TRef.js";
 
-import { Versioned } from "./Versioned";
+import { Versioned } from "./Versioned.js";
 
 export const EntryTypeId = Symbol.for("fncts.data.Entry");
 export type EntryTypeId = typeof EntryTypeId;

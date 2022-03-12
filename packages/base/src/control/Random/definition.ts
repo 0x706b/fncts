@@ -1,9 +1,9 @@
-import type { Has } from "../../prelude";
-import type { ArrayInt } from "../../util/rand";
-import type { UIO } from "../IO";
+import type { Has } from "../../prelude.js";
+import type { ArrayInt } from "../../util/rand.js";
+import type { UIO } from "../IO.js";
 
-import { tag } from "../../data/Tag";
-import { IO } from "../IO";
+import { tag } from "../../data/Tag.js";
+import { IO } from "../IO.js";
 
 /**
  * @tsplus static fncts.control.RandomOps Tag

@@ -1,5 +1,5 @@
-import { Conc } from "../../collection/immutable/Conc";
-import { isFunction } from "../../util/predicates";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { isFunction } from "../../util/predicates.js";
 
 const builtInObjects = new Set(
   Object.getOwnPropertyNames(globalThis).filter((e) => /^[A-Z][a-zA-Z0-9]+$/.test(e)),

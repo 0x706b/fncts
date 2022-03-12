@@ -1,8 +1,8 @@
-import type { PRef, Ref } from "../definition";
+import type { PRef, Ref } from "../definition.js";
 
-import { Either } from "../../../data/Either";
-import { identity } from "../../../data/function";
-import { Maybe, Nothing } from "../../../data/Maybe";
+import { Either } from "../../../data/Either.js";
+import { identity } from "../../../data/function.js";
+import { Maybe, Nothing } from "../../../data/Maybe.js";
 
 /**
  * Filters the `set` value of the `Ref` with the specified predicate,

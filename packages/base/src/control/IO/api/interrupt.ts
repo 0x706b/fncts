@@ -1,10 +1,10 @@
-import type { FiberId } from "../../../data/FiberId";
-import type { Lazy } from "../../../data/function";
-import type { FIO } from "../definition";
+import type { FiberId } from "../../../data/FiberId.js";
+import type { Lazy } from "../../../data/function.js";
+import type { FIO } from "../definition.js";
 
-import { Cause } from "../../../data/Cause";
-import { InterruptStatus } from "../../../data/InterruptStatus";
-import { IO, SetInterrupt } from "../definition";
+import { Cause } from "../../../data/Cause.js";
+import { InterruptStatus } from "../../../data/InterruptStatus.js";
+import { IO, SetInterrupt } from "../definition.js";
 
 /**
  * Returns an effect that is interrupted as if by the specified fiber.

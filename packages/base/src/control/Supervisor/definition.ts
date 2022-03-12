@@ -1,7 +1,7 @@
-import type { Exit } from "../../data/Exit";
-import type { Maybe } from "../../data/Maybe";
-import type { RuntimeFiber } from "../Fiber";
-import type { IO, UIO } from "../IO";
+import type { Exit } from "../../data/Exit.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { RuntimeFiber } from "../Fiber.js";
+import type { IO, UIO } from "../IO.js";
 
 /**
  * @tsplus type fncts.control.Supervisor

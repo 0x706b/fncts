@@ -1,10 +1,10 @@
-import type { Either } from "../data/Either";
-import type { ApplicativeExceptMin } from "./ApplicativeExcept";
-import type { MonadMin } from "./Monad";
+import type { Either } from "../data/Either.js";
+import type { ApplicativeExceptMin } from "./ApplicativeExcept.js";
+import type { MonadMin } from "./Monad.js";
 
-import { ApplicativeExcept } from "./ApplicativeExcept";
-import { HKT } from "./HKT";
-import { Monad } from "./Monad";
+import { ApplicativeExcept } from "./ApplicativeExcept.js";
+import { HKT } from "./HKT.js";
+import { Monad } from "./Monad.js";
 
 /**
  * @tsplus type fncts.prelude.MonadExcept

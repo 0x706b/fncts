@@ -1,7 +1,7 @@
 import type { ArrayF } from "./definition.js";
 
 import * as P from "../../prelude.js";
-import { empty } from "./constructors";
+import { empty } from "./constructors.js";
 import {
   alignWith_,
   alt_,
@@ -30,7 +30,7 @@ import {
   wiltWithIndex_,
   wither_,
   witherWithIndex_,
-} from "./immutable-api";
+} from "./immutable-api.js";
 
 export const Align = P.Align<ArrayF>({
   map_,

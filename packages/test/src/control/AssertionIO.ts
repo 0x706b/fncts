@@ -1,4 +1,4 @@
 // codegen:start { preset: barrel, include: ./AssertionIO/*.ts }
-export * from "./AssertionIO/api";
-export * from "./AssertionIO/definition";
+export * from "./AssertionIO/api.js";
+export * from "./AssertionIO/definition.js";
 // codegen:end

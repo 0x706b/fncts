@@ -1,6 +1,6 @@
-import type { Conc } from "../../../collection/immutable/Conc";
-import type { IO } from "../../IO";
-import type { Channel } from "../definition";
+import type { Conc } from "../../../collection/immutable/Conc.js";
+import type { IO } from "../../IO.js";
+import type { Channel } from "../definition.js";
 
 /**
  * @tsplus getter fncts.control.Channel runCollect

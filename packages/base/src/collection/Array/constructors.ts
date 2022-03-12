@@ -1,4 +1,4 @@
-import { ReadonlyArray } from "./definition";
+import { ReadonlyArray } from "./definition.js";
 
 /**
  * @tsplus static fncts.collection.immutable.ArrayOps empty

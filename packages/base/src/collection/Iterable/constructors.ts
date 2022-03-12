@@ -1,4 +1,4 @@
-import { Iterable } from "./definition";
+import { Iterable } from "./definition.js";
 
 /**
  * @tsplus static fncts.collection.immutable.IterableOps make

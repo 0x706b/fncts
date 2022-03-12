@@ -1,21 +1,21 @@
-import type { Either } from "../../../data/Either";
-import type { Maybe } from "../../../data/Maybe";
-import type { Fiber } from "../../Fiber";
-import type { MergeDecision } from "../internal/MergeDecision";
+import type { Either } from "../../../data/Either.js";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { Fiber } from "../../Fiber.js";
+import type { MergeDecision } from "../internal/MergeDecision.js";
 
-import { Exit } from "../../../data/Exit";
-import { identity } from "../../../data/function";
-import { Just, Nothing } from "../../../data/Maybe";
-import { Future } from "../../Future";
-import { IO } from "../../IO";
-import { Managed } from "../../Managed";
-import { Queue } from "../../Queue";
-import { Ref } from "../../Ref";
-import { TSemaphore } from "../../TSemaphore";
-import { Channel } from "../definition";
-import { MergeDecisionTag } from "../internal/MergeDecision";
-import { MergeState, MergeStateTag } from "../internal/MergeState";
-import { SingleProducerAsyncInput } from "../internal/SingleProducerAsyncInput";
+import { Exit } from "../../../data/Exit.js";
+import { identity } from "../../../data/function.js";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { Future } from "../../Future.js";
+import { IO } from "../../IO.js";
+import { Managed } from "../../Managed.js";
+import { Queue } from "../../Queue.js";
+import { Ref } from "../../Ref.js";
+import { TSemaphore } from "../../TSemaphore.js";
+import { Channel } from "../definition.js";
+import { MergeDecisionTag } from "../internal/MergeDecision.js";
+import { MergeState, MergeStateTag } from "../internal/MergeState.js";
+import { SingleProducerAsyncInput } from "../internal/SingleProducerAsyncInput.js";
 
 /**
  * Returns a new channel, which is the merge of this channel and the specified channel, where

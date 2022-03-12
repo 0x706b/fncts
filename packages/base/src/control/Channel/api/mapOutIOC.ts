@@ -1,11 +1,11 @@
-import { Either } from "../../../data/Either";
-import { Fiber } from "../../Fiber";
-import { Future } from "../../Future";
-import { IO } from "../../IO";
-import { Managed } from "../../Managed";
-import { Queue } from "../../Queue";
-import { TSemaphore } from "../../TSemaphore";
-import { Channel } from "../definition";
+import { Either } from "../../../data/Either.js";
+import { Fiber } from "../../Fiber.js";
+import { Future } from "../../Future.js";
+import { IO } from "../../IO.js";
+import { Managed } from "../../Managed.js";
+import { Queue } from "../../Queue.js";
+import { TSemaphore } from "../../TSemaphore.js";
+import { Channel } from "../definition.js";
 
 /**
  * @tsplus fluent fncts.control.Channel mapOutIOC

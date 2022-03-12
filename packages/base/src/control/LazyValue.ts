@@ -1,4 +1,4 @@
-import type { Lazy } from "../data/function";
+import type { Lazy } from "../data/function.js";
 
 /**
  * @tsplus type fncts.control.LazyValue

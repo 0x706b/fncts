@@ -1,9 +1,9 @@
-import type { Either } from "../../data/Either";
-import type { IO } from "../IO";
-import type { Atomic as Atomic_ } from "./Atomic/Atomic";
-import type { Derived } from "./Derived";
-import type { DerivedAll } from "./DerivedAll";
-import type * as Synchro from "./Synchronized/definition";
+import type { Either } from "../../data/Either.js";
+import type { IO } from "../IO.js";
+import type { Atomic as Atomic_ } from "./Atomic/Atomic.js";
+import type { Derived } from "./Derived.js";
+import type { DerivedAll } from "./DerivedAll.js";
+import type * as Synchro from "./Synchronized/definition.js";
 
 export const RefTypeId = Symbol.for("fncts.control.Ref");
 export type RefTypeId = typeof RefTypeId;
@@ -97,7 +97,10 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, 
  */
 export function concrete<RA, RB, EA, EB, A, B>(
   _: PRef<RA, RB, EA, EB, A, B>,
-): asserts _ is // @ts-expect-error
-Atomic_<A | B> | Derived<EA, EB, A, B> | DerivedAll<EA, EB, A, B> | Synchro.PSynchronizedInternal<RA, RB, EA, EB, A, B> {
+): asserts _ is  // @ts-expect-error
+  | Atomic_<A | B>
+  | Derived<EA, EB, A, B>
+  | DerivedAll<EA, EB, A, B>
+  | Synchro.PSynchronizedInternal<RA, RB, EA, EB, A, B> {
   //
 }

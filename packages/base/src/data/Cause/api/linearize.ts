@@ -1,7 +1,7 @@
-import type { Cause } from "../definition";
+import type { Cause } from "../definition.js";
 
-import { HashSet } from "../../../collection/immutable/HashSet";
-import { Fail, Halt, Interrupt, Stackless, Then } from "../definition";
+import { HashSet } from "../../../collection/immutable/HashSet.js";
+import { Fail, Halt, Interrupt, Stackless, Then } from "../definition.js";
 
 /**
  * @tsplus getter fncts.data.Cause linearize

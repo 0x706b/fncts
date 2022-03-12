@@ -1,9 +1,9 @@
-import type { Maybe } from "../../../../data/Maybe";
-import type { Conc } from "../definition";
+import type { Maybe } from "../../../../data/Maybe.js";
+import type { Conc } from "../definition.js";
 
-import { IO } from "../../../../control/IO";
-import { Just, Nothing } from "../../../../data/Maybe";
-import { concrete } from "../definition";
+import { IO } from "../../../../control/IO.js";
+import { Just, Nothing } from "../../../../data/Maybe.js";
+import { concrete } from "../definition.js";
 
 function findIOLoop_<R, E, A>(
   iterator: Iterator<ArrayLike<A>>,

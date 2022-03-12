@@ -1,9 +1,9 @@
-import type { FIO } from "../../IO";
-import type { Fiber } from "../definition";
+import type { FIO } from "../../IO.js";
+import type { Fiber } from "../definition.js";
 
-import { Exit } from "../../../data/Exit";
-import { Maybe, Nothing } from "../../../data/Maybe";
-import { IO } from "../../IO";
+import { Exit } from "../../../data/Exit.js";
+import { Maybe, Nothing } from "../../../data/Maybe.js";
+import { IO } from "../../IO.js";
 
 /**
  * Effectfully maps over the value the fiber computes.

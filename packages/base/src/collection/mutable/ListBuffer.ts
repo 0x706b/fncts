@@ -12,11 +12,11 @@
  * for more information regarding copyright ownership
  */
 
-import type { List } from "../immutable/List/definition";
+import type { List } from "../immutable/List/definition.js";
 
-import { IndexOutOfBoundsError, NoSuchElementError } from "../../data/exceptions";
-import { assert } from "../../util/assert";
-import { _Nil, Cons } from "../immutable/List/definition";
+import { IndexOutOfBoundsError, NoSuchElementError } from "../../data/exceptions.js";
+import { assert } from "../../util/assert.js";
+import { _Nil, Cons } from "../immutable/List/definition.js";
 
 export class ListBuffer<A> implements Iterable<A> {
   private first: List<A>             = _Nil;

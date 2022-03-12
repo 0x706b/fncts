@@ -1,14 +1,14 @@
-import type { Conc } from "../../collection/immutable/Conc";
-import type { FiberId } from "../FiberId";
-import type { Trace } from "../Trace";
+import type { Conc } from "../../collection/immutable/Conc.js";
+import type { FiberId } from "../FiberId.js";
+import type { Trace } from "../Trace.js";
 
-import { HashSet } from "../../collection/immutable/HashSet";
-import { Cons, List, Nil } from "../../collection/immutable/List";
-import { Eval } from "../../control/Eval";
-import * as P from "../../prelude";
-import { Hashable } from "../../prelude";
-import { isObject } from "../../util/predicates";
-import { tuple } from "../function";
+import { HashSet } from "../../collection/immutable/HashSet.js";
+import { Cons, List, Nil } from "../../collection/immutable/List.js";
+import { Eval } from "../../control/Eval.js";
+import * as P from "../../prelude.js";
+import { Hashable } from "../../prelude.js";
+import { isObject } from "../../util/predicates.js";
+import { tuple } from "../function.js";
 
 export const CauseTypeId = Symbol.for("fncts.data.Cause");
 export type CauseTypeId = typeof CauseTypeId;

@@ -1,4 +1,4 @@
 // codegen:start { preset: barrel, include: ./FreeBooleanAlgebraIO/*.ts }
-export * from "./FreeBooleanAlgebraIO/api";
-export * from "./FreeBooleanAlgebraIO/definition";
+export * from "./FreeBooleanAlgebraIO/api.js";
+export * from "./FreeBooleanAlgebraIO/definition.js";
 // codegen:end

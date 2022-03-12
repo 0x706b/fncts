@@ -1,11 +1,11 @@
-import type { Channel } from "../definition";
-import type { ChannelState } from "../internal/ChannelState";
+import type { Channel } from "../definition.js";
+import type { ChannelState } from "../internal/ChannelState.js";
 
-import { identity } from "../../../data/function";
-import { IO } from "../../IO";
-import { Managed } from "../../Managed";
-import { ChannelExecutor, readUpstream } from "../internal/ChannelExecutor";
-import { ChannelStateTag } from "../internal/ChannelState";
+import { identity } from "../../../data/function.js";
+import { IO } from "../../IO.js";
+import { Managed } from "../../Managed.js";
+import { ChannelExecutor, readUpstream } from "../internal/ChannelExecutor.js";
+import { ChannelStateTag } from "../internal/ChannelState.js";
 
 function runManagedInterpret<Env, InErr, InDone, OutErr, OutDone>(
   channelState: ChannelState<Env, OutErr>,

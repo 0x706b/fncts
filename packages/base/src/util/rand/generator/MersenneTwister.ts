@@ -44,7 +44,7 @@
   email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
 */
 
-import type { RandomGenerator } from "./RandomGenerator";
+import type { RandomGenerator } from "./RandomGenerator.js";
 
 const MAX_INT    = 4294967296.0;
 const N          = 624;

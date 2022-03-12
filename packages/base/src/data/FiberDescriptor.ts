@@ -1,7 +1,7 @@
-import type { Scope } from "../control/Scope";
-import type { FiberId } from "./FiberId";
-import type { FiberStatus } from "./FiberStatus";
-import type { InterruptStatus } from "./InterruptStatus";
+import type { Scope } from "../control/Scope.js";
+import type { FiberId } from "./FiberId.js";
+import type { FiberStatus } from "./FiberStatus.js";
+import type { InterruptStatus } from "./InterruptStatus.js";
 
 /**
  * A record containing information about a `Fiber`.

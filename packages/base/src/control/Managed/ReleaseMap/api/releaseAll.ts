@@ -1,11 +1,11 @@
-import type { ExecutionStrategy } from "../../../../data/ExecutionStrategy";
-import type { UIO } from "../../../IO";
+import type { ExecutionStrategy } from "../../../../data/ExecutionStrategy.js";
+import type { UIO } from "../../../IO.js";
 
-import { Conc } from "../../../../collection/immutable/Conc";
-import { Exit } from "../../../../data/Exit";
-import { IO } from "../../../IO";
-import { Finalizer } from "../../Finalizer";
-import { Exited, ReleaseMap } from "../definition";
+import { Conc } from "../../../../collection/immutable/Conc.js";
+import { Exit } from "../../../../data/Exit.js";
+import { IO } from "../../../IO.js";
+import { Finalizer } from "../../Finalizer.js";
+import { Exited, ReleaseMap } from "../definition.js";
 
 /**
  * @tsplus fluent fncts.control.Managed.ReleaseMap releaseAll

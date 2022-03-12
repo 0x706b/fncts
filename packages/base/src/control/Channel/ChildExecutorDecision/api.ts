@@ -1,4 +1,4 @@
-import type { ChildExecutorDecision } from "./definition";
+import type { ChildExecutorDecision } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.control.Channel.ChildExecutorDecision match

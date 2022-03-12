@@ -1,12 +1,12 @@
-import type { UIO } from "../../control/IO";
-import type { Exit } from "../Exit";
-import type { FiberId } from "../FiberId";
-import type { Callback, FiberState } from "./definition";
+import type { UIO } from "../../control/IO.js";
+import type { Exit } from "../Exit.js";
+import type { FiberId } from "../FiberId.js";
+import type { Callback, FiberState } from "./definition.js";
 
-import { CancellerState } from "../CancellerState";
-import { Cause } from "../Cause";
-import { FiberStatus } from "../FiberStatus";
-import { Done, Executing } from "./definition";
+import { CancellerState } from "../CancellerState.js";
+import { Cause } from "../Cause.js";
+import { FiberStatus } from "../FiberStatus.js";
+import { Done, Executing } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.FiberStateOps initial

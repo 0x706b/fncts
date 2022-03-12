@@ -1,19 +1,19 @@
-import type { FiberId } from "../../../data/FiberId";
-import type { TxnId } from "../../../data/TxnId";
-import type { AtomicReference } from "../../../internal/AtomicReference";
-import type { STM } from "../../STM";
-import type { Atomic } from "../../TRef";
-import type { Entry } from "./Entry";
-import type { TryCommit } from "./TryCommit";
+import type { FiberId } from "../../../data/FiberId.js";
+import type { TxnId } from "../../../data/TxnId.js";
+import type { AtomicReference } from "../../../internal/AtomicReference.js";
+import type { STM } from "../../STM.js";
+import type { Atomic } from "../../TRef.js";
+import type { Entry } from "./Entry.js";
+import type { TryCommit } from "./TryCommit.js";
 
-import { HashMap } from "../../../collection/immutable/HashMap";
-import { Exit } from "../../../data/Exit";
-import { TExitTag } from "../../../data/TExit";
-import { defaultScheduler } from "../../../internal/Scheduler";
-import { IO } from "../../IO";
-import { STMDriver } from "../driver";
-import { CommitState } from "./CommitState";
-import { Done, Suspend } from "./TryCommit";
+import { HashMap } from "../../../collection/immutable/HashMap.js";
+import { Exit } from "../../../data/Exit.js";
+import { TExitTag } from "../../../data/TExit.js";
+import { defaultScheduler } from "../../../internal/Scheduler.js";
+import { IO } from "../../IO.js";
+import { STMDriver } from "../driver.js";
+import { CommitState } from "./CommitState.js";
+import { Done, Suspend } from "./TryCommit.js";
 
 /**
  * @tsplus type fncts.control.Journal

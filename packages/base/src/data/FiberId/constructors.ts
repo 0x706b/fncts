@@ -1,5 +1,5 @@
-import { AtomicNumber } from "../../internal/AtomicNumber";
-import { None, Runtime } from "./definition";
+import { AtomicNumber } from "../../internal/AtomicNumber.js";
+import { None, Runtime } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.FiberIdOps none

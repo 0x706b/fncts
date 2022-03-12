@@ -1,9 +1,9 @@
-import type { Maybe } from "../../../data/Maybe";
-import type { UIO } from "../definition";
+import type { Maybe } from "../../../data/Maybe.js";
+import type { UIO } from "../definition.js";
 
-import { Just, Nothing } from "../../../data/Maybe";
-import { FiberRef } from "../../FiberRef";
-import { IO } from "../definition";
+import { Just, Nothing } from "../../../data/Maybe.js";
+import { FiberRef } from "../../FiberRef.js";
+import { IO } from "../definition.js";
 
 /**
  * The number of fibers used for concurrent operators.

@@ -1,6 +1,6 @@
-import type { IO } from "../IO";
-import type { Decision } from "./Decision";
-import type { Driver as Driver_ } from "./Driver";
+import type { IO } from "../IO.js";
+import type { Decision } from "./Decision.js";
+import type { Driver as Driver_ } from "./Driver.js";
 
 /**
  * A `Schedule<Env, In, Out>` defines a recurring schedule, which consumes

@@ -1,7 +1,7 @@
-import type { FunctorMin } from "./Functor";
+import type { FunctorMin } from "./Functor.js";
 
-import { Functor } from "./Functor";
-import { HKT } from "./HKT";
+import { Functor } from "./Functor.js";
+import { HKT } from "./HKT.js";
 
 export interface FunctorWithIndex<F extends HKT, C = HKT.None> extends Functor<F, C> {
   readonly mapWithIndex_: mapWithIndex_<F, C>;

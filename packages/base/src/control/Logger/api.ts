@@ -1,9 +1,9 @@
-import type { LogLevel } from "../../data/LogLevel";
-import type { Maybe } from "../../data/Maybe";
-import type { Predicate } from "../../data/Predicate";
+import type { LogLevel } from "../../data/LogLevel.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { Predicate } from "../../data/Predicate.js";
 
-import { Just, Nothing } from "../../data/Maybe";
-import { Logger } from "./definition";
+import { Just, Nothing } from "../../data/Maybe.js";
+import { Logger } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.control.Logger filterLogLevel

@@ -1,10 +1,10 @@
-import type { Exit } from "../../data/Exit";
-import type { FiberId } from "../../data/FiberId";
-import type { FiberStatus } from "../../data/FiberStatus";
-import type { Maybe } from "../../data/Maybe";
-import type { FiberRef } from "../FiberRef";
-import type { UIO } from "../IO";
-import type { Scope } from "../Scope";
+import type { Exit } from "../../data/Exit.js";
+import type { FiberId } from "../../data/FiberId.js";
+import type { FiberStatus } from "../../data/FiberStatus.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { FiberRef } from "../FiberRef.js";
+import type { UIO } from "../IO.js";
+import type { Scope } from "../Scope.js";
 
 export interface CommonFiber<E, A> {
   /**

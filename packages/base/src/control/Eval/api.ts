@@ -1,7 +1,7 @@
-import type { _A } from "../../types/extractions";
+import type { _A } from "../../types/extractions.js";
 
-import { identity } from "../../data/function";
-import { Chain, Eval } from "./definition";
+import { identity } from "../../data/function.js";
+import { Chain, Eval } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.Eval chain
@@ -111,5 +111,5 @@ export function ap<A>(fa: Eval<A>) {
 // codegen:end
 
 // codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/sequenceArray";
+export * from "./api/sequenceArray.js";
 // codegen:end

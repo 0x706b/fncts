@@ -12,8 +12,8 @@ import { Either } from "@fncts/base/data/Either";
 import { constVoid, identity, tuple } from "@fncts/base/data/function";
 import { Just, Nothing } from "@fncts/base/data/Maybe";
 
-import { add64, halve64, isEqual64, substract64 } from "../../util/math";
-import { Sample } from "./definition";
+import { add64, halve64, isEqual64, substract64 } from "../../util/math.js";
+import { Sample } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.test.control.Sample chain

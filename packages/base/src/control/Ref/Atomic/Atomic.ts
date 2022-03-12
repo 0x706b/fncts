@@ -1,11 +1,11 @@
-import type { Either } from "../../../data/Either";
-import type { UIO } from "../../IO";
-import type { PRef } from "../definition";
+import type { Either } from "../../../data/Either.js";
+import type { UIO } from "../../IO.js";
+import type { PRef } from "../definition.js";
 
-import { IO } from "../../IO";
-import { RefInternal } from "../definition";
-import { Derived } from "../Derived";
-import { DerivedAll } from "../DerivedAll";
+import { IO } from "../../IO.js";
+import { RefInternal } from "../definition.js";
+import { Derived } from "../Derived.js";
+import { DerivedAll } from "../DerivedAll.js";
 
 /**
  * @tsplus type fncts.control.Ref.Atomic

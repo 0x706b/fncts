@@ -1,4 +1,4 @@
-import type { Maybe } from "../../../data/Maybe";
+import type { Maybe } from "../../../data/Maybe.js";
 
 export interface PullAfterNext<A> {
   readonly _tag: "PullAfterNext";

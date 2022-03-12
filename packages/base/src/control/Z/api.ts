@@ -1,11 +1,11 @@
-import type { Lazy } from "../../data/function";
-import type { Maybe } from "../../data/Maybe";
-import type { Predicate } from "../../data/Predicate";
+import type { Lazy } from "../../data/function.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { Predicate } from "../../data/Predicate.js";
 
-import { Conc } from "../../collection/immutable/Conc";
-import { Cause } from "../../data/Cause";
-import { Either } from "../../data/Either";
-import { identity, tuple } from "../../data/function";
+import { Conc } from "../../collection/immutable/Conc.js";
+import { Cause } from "../../data/Cause.js";
+import { Either } from "../../data/Either.js";
+import { identity, tuple } from "../../data/function.js";
 import {
   Chain,
   Defer,
@@ -19,7 +19,7 @@ import {
   SucceedNow,
   Tell,
   Z,
-} from "./definition";
+} from "./definition.js";
 
 /**
  * @tsplus getter fncts.control.Z absolve

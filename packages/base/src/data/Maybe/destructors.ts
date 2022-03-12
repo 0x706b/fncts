@@ -1,6 +1,6 @@
-import type { Maybe } from "./definition";
+import type { Maybe } from "./definition.js";
 
-import { MaybeTag } from "./definition";
+import { MaybeTag } from "./definition.js";
 
 /**
  * Matches on each case of a `Maybe`, returning the result of `nothing` if the `Maybe`

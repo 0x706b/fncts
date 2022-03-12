@@ -1,7 +1,7 @@
-import type { Conc } from "../../../collection/immutable/Conc";
+import type { Conc } from "../../../collection/immutable/Conc.js";
 
-import { Fiber } from "../../Fiber";
-import { IO } from "../../IO";
+import { Fiber } from "../../Fiber.js";
+import { IO } from "../../IO.js";
 
 /**
  * Joins all fibers, awaiting their _successful_ completion.

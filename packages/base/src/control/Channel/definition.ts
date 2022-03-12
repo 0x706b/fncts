@@ -1,10 +1,10 @@
-import type { Cause } from "../../data/Cause";
-import type { Exit } from "../../data/Exit";
-import type { IO, URIO } from "../IO";
-import type { ChildExecutorDecision } from "./ChildExecutorDecision";
-import type { AsyncInputProducer } from "./internal/AsyncInputProducer";
-import type { UpstreamPullRequest } from "./UpstreamPullRequest";
-import type { UpstreamPullStrategy } from "./UpstreamPullStrategy";
+import type { Cause } from "../../data/Cause.js";
+import type { Exit } from "../../data/Exit.js";
+import type { IO, URIO } from "../IO.js";
+import type { ChildExecutorDecision } from "./ChildExecutorDecision.js";
+import type { AsyncInputProducer } from "./internal/AsyncInputProducer.js";
+import type { UpstreamPullRequest } from "./UpstreamPullRequest.js";
+import type { UpstreamPullStrategy } from "./UpstreamPullStrategy.js";
 
 export const enum ChannelTag {
   PipeTo = "PipeTo",

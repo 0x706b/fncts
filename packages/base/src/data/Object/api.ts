@@ -1,4 +1,4 @@
-import { Struct } from "./definition";
+import { Struct } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.Struct map

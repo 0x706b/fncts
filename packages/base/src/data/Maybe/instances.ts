@@ -1,7 +1,7 @@
-import type { HKT } from "../../prelude";
-import type { Maybe } from "./definition";
+import type { HKT } from "../../prelude.js";
+import type { Maybe } from "./definition.js";
 
-import * as P from "../../prelude";
+import * as P from "../../prelude.js";
 import {
   ap_,
   chain_,
@@ -13,8 +13,8 @@ import {
   partition_,
   partitionMap_,
   zipWith_,
-} from "./api";
-import { just } from "./constructors";
+} from "./api.js";
+import { just } from "./constructors.js";
 
 export interface MaybeF extends HKT {
   readonly type: Maybe<this["A"]>;

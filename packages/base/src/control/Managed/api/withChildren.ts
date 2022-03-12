@@ -1,10 +1,10 @@
-import type { Conc } from "../../../collection/immutable/Conc";
-import type { Fiber } from "../../Fiber";
-import type { UIO } from "../../IO";
+import type { Conc } from "../../../collection/immutable/Conc.js";
+import type { Fiber } from "../../Fiber.js";
+import type { UIO } from "../../IO.js";
 
-import { IO } from "../../IO";
-import { Supervisor } from "../../Supervisor";
-import { Managed } from "../definition";
+import { IO } from "../../IO.js";
+import { Supervisor } from "../../Supervisor.js";
+import { Managed } from "../definition.js";
 
 /**
  * Locally installs a supervisor and an effect that succeeds with all the

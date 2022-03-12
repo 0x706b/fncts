@@ -1,16 +1,16 @@
-import type { Lazy } from "../../data/function";
-import type { Maybe } from "../../data/Maybe";
-import type { Has } from "../../prelude";
-import type { UIO, URIO } from "../IO";
-import type { Schedule } from "../Schedule/definition";
+import type { Lazy } from "../../data/function.js";
+import type { Maybe } from "../../data/Maybe.js";
+import type { Has } from "../../prelude.js";
+import type { UIO, URIO } from "../IO.js";
+import type { Schedule } from "../Schedule/definition.js";
 
-import { Either } from "../../data/Either";
-import { NoSuchElementError } from "../../data/exceptions";
-import { Just, Nothing } from "../../data/Maybe";
-import { tag } from "../../data/Tag";
-import { IO } from "../IO";
-import { Ref } from "../Ref";
-import { Driver } from "../Schedule/Driver";
+import { Either } from "../../data/Either.js";
+import { NoSuchElementError } from "../../data/exceptions.js";
+import { Just, Nothing } from "../../data/Maybe.js";
+import { tag } from "../../data/Tag.js";
+import { IO } from "../IO.js";
+import { Ref } from "../Ref.js";
+import { Driver } from "../Schedule/Driver.js";
 
 /**
  * @tsplus type fncts.control.Clock

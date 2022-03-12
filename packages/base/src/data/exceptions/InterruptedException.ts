@@ -1,4 +1,4 @@
-import { hasTypeId } from "../../util/predicates";
+import { hasTypeId } from "../../util/predicates.js";
 
 export const InterruptedExceptionTypeId = Symbol.for("fncts.data.InterruptedException");
 export type InterruptedExceptionTypeId = typeof InterruptedExceptionTypeId;

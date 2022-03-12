@@ -1,9 +1,9 @@
-import type { PRef } from "../definition";
+import type { PRef } from "../definition.js";
 
-import { identity, tuple } from "../../../data/function";
-import { Just, Maybe, Nothing } from "../../../data/Maybe";
-import { IO } from "../../IO";
-import { concrete } from "./definition";
+import { identity, tuple } from "../../../data/function.js";
+import { Just, Maybe, Nothing } from "../../../data/Maybe.js";
+import { IO } from "../../IO.js";
+import { concrete } from "./definition.js";
 
 /**
  * Maps and filters the `get` value of the `SRef` with the specified

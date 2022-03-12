@@ -1,7 +1,7 @@
-import type { These } from "../../These";
-import type { Either } from "../definition";
+import type { These } from "../../These.js";
+import type { Either } from "../definition.js";
 
-import { identity } from "../../function";
+import { identity } from "../../function.js";
 
 export function align_<E1, A, E2, B>(
   self: Either<E1, A>,

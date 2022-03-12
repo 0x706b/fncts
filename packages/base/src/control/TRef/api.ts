@@ -1,11 +1,11 @@
-import type { Maybe } from "../../data/Maybe";
-import type { Journal } from "../STM/internal/Journal";
-import type { Atomic, TRef } from "../TRef/definition";
+import type { Maybe } from "../../data/Maybe.js";
+import type { Journal } from "../STM/internal/Journal.js";
+import type { Atomic, TRef } from "../TRef/definition.js";
 
-import { Either } from "../../data/Either";
-import { Effect, STM } from "../STM/definition";
-import { Entry } from "../STM/internal/Entry";
-import { concrete } from "../TRef/definition";
+import { Either } from "../../data/Either.js";
+import { Effect, STM } from "../STM/definition.js";
+import { Entry } from "../STM/internal/Entry.js";
+import { concrete } from "../TRef/definition.js";
 
 function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal): Entry {
   if (journal.has(self)) {

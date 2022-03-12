@@ -1,16 +1,16 @@
-import type { Either } from "../../../data/Either";
-import type { Predicate, PredicateWithIndex } from "../../../data/Predicate";
-import type { Refinement, RefinementWithIndex } from "../../../data/Refinement";
-import type { Concat, ConcF } from "./definition";
+import type { Either } from "../../../data/Either.js";
+import type { Predicate, PredicateWithIndex } from "../../../data/Predicate.js";
+import type { Refinement, RefinementWithIndex } from "../../../data/Refinement.js";
+import type { Concat, ConcF } from "./definition.js";
 
-import { EitherTag } from "../../../data/Either";
-import { ArrayIndexOutOfBoundsError } from "../../../data/exceptions";
-import { identity, tuple } from "../../../data/function";
-import { Just, Maybe, Nothing } from "../../../data/Maybe";
-import { These } from "../../../data/These";
-import { Stack } from "../../../internal/Stack";
-import * as P from "../../../prelude";
-import { Iterable } from "../../Iterable/definition";
+import { EitherTag } from "../../../data/Either.js";
+import { ArrayIndexOutOfBoundsError } from "../../../data/exceptions.js";
+import { identity, tuple } from "../../../data/function.js";
+import { Just, Maybe, Nothing } from "../../../data/Maybe.js";
+import { These } from "../../../data/These.js";
+import { Stack } from "../../../internal/Stack.js";
+import * as P from "../../../prelude.js";
+import { Iterable } from "../../Iterable/definition.js";
 import {
   _Empty,
   BUFFER_SIZE,
@@ -20,7 +20,7 @@ import {
   ConcTag,
   Singleton,
   Slice,
-} from "./definition";
+} from "./definition.js";
 
 /**
  * @tsplus fluent fncts.collection.immutable.Conc align

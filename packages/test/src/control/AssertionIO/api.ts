@@ -1,6 +1,6 @@
-import { Render } from "../../data/Render";
-import { RenderParam } from "../../data/RenderParam";
-import { AssertionIO } from "./definition";
+import { Render } from "../../data/Render.js";
+import { RenderParam } from "../../data/RenderParam.js";
+import { AssertionIO } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.test.control.AssertionIO and

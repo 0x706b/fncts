@@ -10,12 +10,12 @@ import { identity } from "@fncts/base/data/function";
 import { Just, Nothing } from "@fncts/base/data/Maybe";
 import { Equatable } from "@fncts/base/prelude";
 
-import { AssertionData } from "../../data/AssertionData";
-import { AssertionValue } from "../../data/AssertionValue";
-import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra";
-import { Render } from "../../data/Render";
-import { RenderParam } from "../../data/RenderParam";
-import { Assertion } from "./definition";
+import { AssertionData } from "../../data/AssertionData.js";
+import { AssertionValue } from "../../data/AssertionValue.js";
+import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
+import { Render } from "../../data/Render.js";
+import { RenderParam } from "../../data/RenderParam.js";
+import { Assertion } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.test.control.Assertion and

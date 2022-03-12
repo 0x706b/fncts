@@ -1,8 +1,8 @@
-import type { Fiber } from "../definition";
+import type { Fiber } from "../definition.js";
 
-import { Cause } from "../../../data/Cause";
-import { IO } from "../../IO";
-import { SyntheticFiber } from "../definition";
+import { Cause } from "../../../data/Cause.js";
+import { IO } from "../../IO.js";
+import { SyntheticFiber } from "../definition.js";
 
 /**
  * Zips this fiber with the specified fiber, combining their results using
