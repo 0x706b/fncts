@@ -1,6 +1,7 @@
 import type { Either } from "../../../data/Either.js";
 import type { Predicate, PredicateWithIndex } from "../../../data/Predicate.js";
 import type { Refinement, RefinementWithIndex } from "../../../data/Refinement.js";
+import type { Eq } from "../../../prelude.js";
 import type { Concat, ConcF } from "./definition.js";
 
 import { EitherTag } from "../../../data/Either.js";
@@ -215,6 +216,32 @@ export function concat_<A, B>(self: Conc<A>, that: Conc<B>): Conc<A | B> {
   concrete(self);
   concrete(that);
   return self.concat(that);
+}
+
+/**
+ * @tsplus getter fncts.collection.immutable.Conc elem
+ */
+export function elem_<A>(self: Conc<A>) {
+  return (E: Eq<A>) =>
+    (a: A): boolean =>
+      self.exists((el) => E.equals_(el, a));
+}
+
+/**
+ * @tsplus fluent fncts.collection.immutable.Conc exists
+ */
+export function exists_<A>(as: Conc<A>, predicate: Predicate<A>): boolean {
+  concrete(as);
+  const iterator = as.arrayIterator();
+  let exists     = false;
+  let result: IteratorResult<ArrayLike<A>>;
+  while (!exists && !(result = iterator.next()).done) {
+    const array = result.value;
+    for (let i = 0; !exists && i < array.length; i++) {
+      exists = predicate(array[i]!);
+    }
+  }
+  return exists;
 }
 
 /**
@@ -1220,6 +1247,12 @@ export function collectWhile<A, B>(f: (a: A) => Maybe<B>) {
  */
 export function concat<B>(that: Conc<B>) {
   return <A>(self: Conc<A>): Conc<A | B> => concat_(self, that);
+}
+/**
+ * @tsplus dataFirst exists_
+ */
+export function exists<A>(predicate: Predicate<A>) {
+  return (as: Conc<A>): boolean => exists_(as, predicate);
 }
 /**
  * @tsplus dataFirst drop_

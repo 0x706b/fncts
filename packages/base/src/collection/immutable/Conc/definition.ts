@@ -820,6 +820,9 @@ export function corresponds_<A, B>(
   return equal;
 }
 
+/**
+ * @tsplus getter fncts.collection.immutable.Conc toArray
+ */
 export function toArray<A>(conc: Conc<A>): ReadonlyArray<A> {
   concrete(conc);
   return conc.array();

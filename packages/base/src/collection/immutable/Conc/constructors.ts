@@ -7,6 +7,7 @@ import { ByteChunk, Chunk, Conc, Empty, Singleton } from "./definition.js";
  * @tsplus static fncts.collection.immutable.ConcOps from
  */
 export function from<A>(as: Iterable<A>): Conc<A> {
+  if (Array.isArray(as)) return new Chunk(as);
   return new Chunk(Array.from(as));
 }
 
