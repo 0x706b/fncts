@@ -9,6 +9,7 @@ import type { Canceler, UIO } from "../IO.js";
 import type { UManaged } from "../Managed.js";
 import type { PQueue } from "../Queue.js";
 import type { SinkEndReason } from "./internal/SinkEndReason.js";
+import type { Erase } from "@fncts/typelevel/Intersection.js";
 
 import { Conc } from "../../collection/immutable/Conc.js";
 import { HashMap } from "../../collection/immutable/HashMap.js";
@@ -23,6 +24,7 @@ import { Clock } from "../Clock.js";
 import { Future } from "../Future.js";
 import { Hub } from "../Hub.js";
 import { IO } from "../IO.js";
+import { Layer } from "../Layer.js";
 import { Managed } from "../Managed.js";
 import { Queue } from "../Queue.js";
 import { Ref } from "../Ref.js";
@@ -2494,6 +2496,29 @@ export function pipeThrough_<R, E, A, R1, E1, L, Z>(
  */
 export function provideEnvironment_<R, E, A>(ra: Stream<R, E, A>, r: R): Stream<unknown, E, A> {
   return new Stream(ra.channel.provideEnvironment(r));
+}
+
+/**
+ * @tsplus fluent fncts.control.Stream provideLayer
+ */
+export function provideLayer_<RIn, E, ROut, E1, A>(
+  self: Stream<ROut, E, A>,
+  layer: Layer<RIn, E1, ROut>,
+  __tsplusTrace?: string,
+): Stream<RIn, E | E1, A> {
+  return new Stream(Channel.managed(layer.build, (r) => self.channel.provideEnvironment(r)));
+}
+
+/**
+ * @tsplus fluent fncts.control.Stream provideSomeLayer
+ */
+export function provideSomeLayer_<R, E, A, RIn, E1, ROut>(
+  self: Stream<R, E, A>,
+  layer: Layer<RIn, E1, ROut>,
+  __tsplusTrace?: string,
+): Stream<RIn & Erase<R, ROut>, E | E1, A> {
+  // @ts-expect-error
+  return self.provideLayer(Layer.environment<RIn>().and(layer));
 }
 
 class Rechunker<A> {
