@@ -9,7 +9,7 @@ import { Random } from "@fncts/base/control/Random";
 import { Stream } from "@fncts/base/control/Stream";
 import { IllegalArgumentError } from "@fncts/base/data/exceptions";
 import { identity } from "@fncts/base/data/function";
-import { Just, Maybe } from "@fncts/base/data/Maybe";
+import { Just, Maybe, Nothing } from "@fncts/base/data/Maybe";
 
 import { clamp } from "../../util/math.js";
 import { Sample } from "../Sample.js";
@@ -71,10 +71,20 @@ export function defer<R, A>(gen: Lazy<Gen<R, A>>): Gen<R, A> {
  */
 export const empty: Gen<unknown, never> = new Gen(Stream.empty);
 
+/**
+ * @tsplus fluent fncts.test.control.Gen filter
+ */
 export function filter_<R, A, B extends A>(fa: Gen<R, A>, p: Refinement<A, B>): Gen<R, B>;
 export function filter_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A>;
 export function filter_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A> {
   return fa.chain((a) => (p(a) ? Gen.constant(a) : Gen.empty));
+}
+
+/**
+ * @tsplus fluent fncts.test.control.Gen filterNot
+ */
+export function filterNot_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A> {
+  return fa.filter((a) => !p(a));
 }
 
 /**
@@ -112,6 +122,30 @@ export function int(constraints: NumberConstraints = {}): Gen<Has<Random>, numbe
         return Random.nextIntBetween(min, max).map(Sample.shrinkIntegral(min));
       }
     }),
+  );
+}
+
+/**
+ * @tsplus fluent fncts.test.control.Gen map
+ */
+export function map_<R, A, B>(self: Gen<R, A>, f: (a: A) => B): Gen<R, B> {
+  return new Gen(self.sample.map((maybeSample) => maybeSample.map((sample) => sample.map(f))));
+}
+
+/**
+ * @tsplus fluent fncts.test.control.Gen mapIO
+ */
+export function mapIO_<R, A, R1, B>(
+  self: Gen<R, A>,
+  f: (a: A) => IO<R1, never, B>,
+): Gen<R & R1, B> {
+  return new Gen(
+    self.sample.mapIO((maybeSample) =>
+      maybeSample.match(
+        () => IO.succeedNow(Nothing()),
+        (sample) => sample.foreach(f).map(Maybe.just),
+      ),
+    ),
   );
 }
 
@@ -153,3 +187,14 @@ export function reshrink_<R, A, R1, B>(gen: Gen<R, A>, f: (a: A) => Sample<R1, B
 export const uniform: Gen<Has<Random>, number> = Gen.fromIOSample(
   Random.nextDouble.map(Sample.shrinkFractional(0.0)),
 );
+
+/**
+ * @tsplus fluent fncts.test.control.Gen zipWith
+ */
+export function zipWith_<R, A, R1, B, C>(
+  self: Gen<R, A>,
+  that: Gen<R1, B>,
+  f: (a: A, b: B) => C,
+): Gen<R & R1, C> {
+  return self.chain((a) => that.map((b) => f(a, b)));
+}

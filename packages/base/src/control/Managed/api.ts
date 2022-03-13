@@ -1,9 +1,12 @@
 import type { Conc } from "../../collection/immutable/Conc.js";
 import type { FiberId } from "../../data/FiberId.js";
 import type { Lazy } from "../../data/function.js";
+import type { Tag } from "../../data/Tag.js";
 import type * as P from "../../prelude.js";
+import type { Has } from "../../prelude.js";
 import type { _E, _R } from "../../types.js";
-import type { URManaged } from "./definition.js";
+import type { UManaged, URManaged } from "./definition.js";
+import type { ReleaseMap } from "./ReleaseMap.js";
 import type { Intersection } from "@fncts/typelevel";
 
 import { Cause } from "../../data/Cause.js";
@@ -925,6 +928,13 @@ export function rejectManaged_<R, E, A, R1, E1>(
 }
 
 /**
+ * @tsplus static fncts.control.ManagedOps releaseMap
+ */
+export const releaseMap: UManaged<ReleaseMap> = new Managed(
+  FiberRef.currentReleaseMap.get.map((releaseMap) => [Finalizer.noop, releaseMap]),
+);
+
+/**
  * @tsplus fluent fncts.control.Managed require
  */
 export function require_<R, E, A>(
@@ -1016,6 +1026,24 @@ export function sandboxWith<R, E, A, R1, E1, B>(
   __tsplusTrace?: string,
 ): Managed<R & R1, E | E1, B> {
   return f(self.sandbox).unsandbox;
+}
+
+/**
+ * @tsplus static fncts.control.ManagedOps service
+ */
+export function service<T>(tag: Tag<T>): Managed<Has<T>, never, T> {
+  return Managed.environmentWith((service: Has<T>) => tag.read(service));
+}
+
+/**
+ * @tsplus static fncts.control.ManagedOps serviceWithManaged
+ */
+export function serviceWithManaged<T>(tag: Tag<T>) {
+  return <R, E, A>(
+    f: (service: T) => Managed<R, E, A>,
+    __tsplusTrace?: string,
+  ): Managed<R & Has<T>, E, A> =>
+    Managed.environmentWithManaged((service: Has<T>) => f(tag.read(service)));
 }
 
 /**
