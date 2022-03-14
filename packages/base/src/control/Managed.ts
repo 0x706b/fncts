@@ -7,12 +7,15 @@ export * from "./Managed/definition.js";
 // codegen:start { preset: barrel, include: ./Managed/api/*.ts }
 export * from "./Managed/api/bracketExitInterruptible.js";
 export * from "./Managed/api/concurrency.js";
+export * from "./Managed/api/foreachC.js";
+export * from "./Managed/api/foreachExec.js";
 export * from "./Managed/api/fork.js";
 export * from "./Managed/api/memoize.js";
 export * from "./Managed/api/onExit.js";
 export * from "./Managed/api/onExitFirst.js";
 export * from "./Managed/api/provideLayer.js";
 export * from "./Managed/api/provideSomeLayer.js";
+export * from "./Managed/api/release.js";
 export * from "./Managed/api/use.js";
 export * from "./Managed/api/useNow.js";
 export * from "./Managed/api/withChildren.js";

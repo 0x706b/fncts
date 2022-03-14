@@ -897,7 +897,7 @@ export function partitionWithIndex_<A>(
 /**
  * @tsplus fluent fncts.collection.immutable.Conc prepend
  */
-export function prepend_<A>(self: Conc<A>, a: A): Conc<A> {
+export function prepend_<A, B>(self: Conc<A>, a: B): Conc<A | B> {
   concrete(self);
   return self.prepend(a);
 }

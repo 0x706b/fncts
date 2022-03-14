@@ -386,8 +386,10 @@ export function isSubset_<A>(x: HashSet<A>, y: HashSet<A>): boolean {
 
 /**
  * true if one or more elements match predicate
+ *
+ * @tsplus fluent fncts.collection.immutable.HashSet exists
  */
-export function some_<A>(set: HashSet<A>, predicate: Predicate<A>): boolean {
+export function exists_<A>(set: HashSet<A>, predicate: Predicate<A>): boolean {
   let found = false;
   for (const e of set) {
     found = predicate(e);
