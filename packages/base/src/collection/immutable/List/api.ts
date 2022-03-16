@@ -177,6 +177,16 @@ export function head<A>(self: List<A>): Maybe<A> {
 }
 
 /**
+ * @tsplus fluent fncts.List join
+ */
+export function join(self: List<string>, separator: string): string {
+  if (self.isEmpty()) {
+    return "";
+  }
+  return self.unsafeTail.foldLeft(self.unsafeHead, (acc, s) => acc + separator + s);
+}
+
+/**
  * @tsplus getter fncts.List length
  */
 export function length<A>(list: List<A>): number {

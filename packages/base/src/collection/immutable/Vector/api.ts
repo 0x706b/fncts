@@ -2,10 +2,12 @@
 import type { Predicate } from "../../../data/Predicate.js";
 import type { Refinement } from "../../../data/Refinement.js";
 import type { Eq, Monoid, Ord, Ordering } from "../../../prelude.js";
+import type { List } from "../List.js";
 import type { MutableVector } from "./definition.js";
 
 import { Maybe } from "../../../data/Maybe.js";
 import { Equatable } from "../../../prelude.js";
+import { ListBuffer } from "../../mutable/ListBuffer.js";
 import { Vector } from "./definition.js";
 import {
   affixPush,
@@ -560,6 +562,7 @@ export function foldMapWithIndex_<A>(self: Vector<A>) {
  * Folds a function over a Vector. Right-associative.
  *
  * @complexity O(n)
+ * @tsplus fluent fncts.collection.immutable.Vector foldRight
  */
 export function foldRight_<A, B>(fa: Vector<A>, initial: B, f: (value: A, acc: B) => B): B {
   return fa.foldRightWithIndex(initial, (_, a, b) => f(a, b));
@@ -1217,6 +1220,20 @@ export function takeLastWhile_<A>(as: Vector<A>, predicate: Predicate<A>): Vecto
  */
 export function toArray<A>(self: Vector<A>): ReadonlyArray<A> {
   return self.foldLeft<A, A[]>([], arrayPush);
+}
+
+/**
+ * Converts a Vector into a List.
+ *
+ * @complexity `O(n)`
+ * @tsplus getter fncts.collection.immutable.Vector toList
+ */
+export function toList<A>(self: Vector<A>): List<A> {
+  const buffer = new ListBuffer<A>();
+  self.forEach((a) => {
+    buffer.append(a);
+  });
+  return buffer.toList;
 }
 
 /**
