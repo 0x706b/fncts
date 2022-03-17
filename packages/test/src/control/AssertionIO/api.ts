@@ -30,10 +30,3 @@ export function or_<A>(self: AssertionIO<A>, that: AssertionIO<A>): AssertionIO<
 export function label_<A>(self: AssertionIO<A>, label: string): AssertionIO<A> {
   return new AssertionIO(Render.infix(RenderParam(self), ":", RenderParam(label)), self.runIO);
 }
-
-/**
- * @tsplus getter fncts.test.control.AssertionIO rendered
- */
-export function rendered<A>(self: AssertionIO<A>): string {
-  return self.render.rendered;
-}

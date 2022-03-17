@@ -41,7 +41,7 @@ export const TimingTag = Tag<number>();
 export const Timing = new TestAnnotation(TimingTag, "timing", 0, (x, y) => x + y);
 
 export const FibersTag = Tag<Either<number, Conc<Ref<HashSet<RuntimeFiber<any, any>>>>>>();
-/*
+/**
  * @tsplus static fncts.data.TestAnnotationOps Fibers
  */
 export const Fibers = new TestAnnotation(FibersTag, "fibers", Either.left(0), (left, right) => {

@@ -4,6 +4,9 @@ import type { GenFailureDetails } from "./GenFailureDetails.js";
 import type { Cons } from "@fncts/base/collection/immutable/List";
 import type { Maybe } from "@fncts/base/data/Maybe.js";
 
+/**
+ * @tsplus type fncts.data.FreeBooleanAlgebra
+ */
 export type TestResult = FreeBooleanAlgebra<FailureDetails>;
 
 export class FailureDetails {

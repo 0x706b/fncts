@@ -1,4 +1,6 @@
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
+import type { TestFailure } from "../../data/TestFailure.js";
+import type { TestSuccess } from "../../data/TestSuccess.js";
 import type { Conc } from "@fncts/base/collection/immutable/Conc";
 import type { IO } from "@fncts/base/control/IO";
 import type { Managed } from "@fncts/base/control/Managed";
@@ -23,6 +25,11 @@ export class PSpec<R, E, T> {
 export interface SpecOps {}
 
 export const Spec: SpecOps = {};
+
+/**
+ * @tsplus type fncts.test.control.PSpec
+ */
+export type Spec<R, E> = PSpec<R, TestFailure<E>, TestSuccess>;
 
 export const enum SpecCaseTag {
   Exec = "Exec",

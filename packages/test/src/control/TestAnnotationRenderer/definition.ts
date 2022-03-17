@@ -48,7 +48,7 @@ export class CompositeRenderer {
 export type TestAnnotationRenderer = LeafRenderer | CompositeRenderer;
 
 /**
- * @tsplus companion fncts.test.control.TestAnnotationRendererOps
+ * @tsplus type fncts.test.control.TestAnnotationRendererOps
  */
 export interface TestAnnotationRendererOps {}
 

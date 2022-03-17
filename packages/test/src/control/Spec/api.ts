@@ -1,23 +1,43 @@
+import type { Annotated } from "../Annotations.js";
 import type { SpecCase } from "./definition.js";
 import type { Layer } from "@fncts/base/control/Layer.js";
 import type { Cause } from "@fncts/base/data/Cause";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 import type { Maybe } from "@fncts/base/data/Maybe";
+import type { Has } from "@fncts/base/prelude";
 
 import { Conc } from "@fncts/base/collection/immutable/Conc";
 import { IO } from "@fncts/base/control/IO";
 import { Managed } from "@fncts/base/control/Managed";
-import { identity } from "@fncts/base/data/function";
+import { identity, tuple } from "@fncts/base/data/function";
 import { Nothing } from "@fncts/base/data/Maybe";
 import { Just } from "@fncts/base/data/Maybe";
 import { matchTag, matchTag_ } from "@fncts/base/util/pattern";
 
 import { TestAnnotation } from "../../data/TestAnnotation.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
-import { TestSuccess } from "../../data/TestSuccess.js";
-import { SpecCaseTag } from "./definition.js";
+import { Annotations } from "../Annotations.js";
 import { Spec } from "./definition.js";
 import { ExecCase, LabeledCase, ManagedCase, MultipleCase, PSpec, TestCase } from "./definition.js";
+
+/**
+ * @tsplus getter fncts.test.control.PSpec annotated
+ */
+export function annotated<R, E, T>(
+  spec: PSpec<R, E, T>,
+): PSpec<R & Has<Annotations>, Annotated<E>, Annotated<T>> {
+  return spec.transform(
+    matchTag(
+      {
+        Managed: ({ managed }) =>
+          new ManagedCase(managed.mapError((e) => tuple(e, TestAnnotationMap.empty))),
+        Test: ({ test, annotations }) =>
+          new TestCase(Annotations.withAnnotations(test), annotations),
+      },
+      identity,
+    ),
+  );
+}
 
 /**
  * @tsplus fluent fncts.test.control.PSpec combine
@@ -78,7 +98,7 @@ export function countTests_<R, E, T>(
 /**
  * @tsplus static fncts.test.control.PSpecOps empty
  */
-export const empty: PSpec<unknown, never, never> = multiple(Conc.empty());
+export const empty: PSpec<unknown, never, never> = multipleCase(Conc.empty());
 
 /**
  * @tsplus fluent fncts.test.control.PSpec exec
@@ -228,17 +248,19 @@ export function foreachExec_<R, E, T, R1, E1, A, R2, E2, B>(
 
 /**
  * @tsplus fluent fncts.test.control.PSpec labeled
+ * @tsplus static fncts.test.control.PSpecOps labeled
  * @tsplus static fncts.test.control.PSpec.LabeledCaseOps __call
  */
-export function labeled<R, E, T>(spec: PSpec<R, E, T>, label: string): PSpec<R, E, T> {
+export function labeledCase<R, E, T>(spec: PSpec<R, E, T>, label: string): PSpec<R, E, T> {
   return new PSpec(new LabeledCase(label, spec));
 }
 
 /**
  * @tsplus fluent fncts.test.control.PSpec managed
+ * @tsplus static fncts.test.control.PSpecOps managed
  * @tsplus static fncts.test.control.PSpec.ManagedCaseOps __call
  */
-export function managed<R, E, T>(managed: Managed<R, E, PSpec<R, E, T>>): PSpec<R, E, T> {
+export function managedCase<R, E, T>(managed: Managed<R, E, PSpec<R, E, T>>): PSpec<R, E, T> {
   return new PSpec(new ManagedCase(managed));
 }
 
@@ -275,9 +297,10 @@ export function mapSpecCase_<R, E, T, A, B>(
 
 /**
  * @tsplus fluent fncts.test.control.PSpec multiple
+ * @tsplus static fncts.test.control.PSpecOps multiple
  * @tsplus static fncts.test.control.PSpec.MultipleCaseOps __call
  */
-export function multiple<R, E, T>(specs: Conc<PSpec<R, E, T>>): PSpec<R, E, T> {
+export function multipleCase<R, E, T>(specs: Conc<PSpec<R, E, T>>): PSpec<R, E, T> {
   return new PSpec(new MultipleCase(specs));
 }
 
@@ -308,9 +331,13 @@ export function provideLayer_<RIn, E, ROut, R, E1, T>(
 
 /**
  * @tsplus fluent fncts.test.control.PSpec test
+ * @tsplus static fncts.test.control.PSpecOps test
  * @tsplus static fncts.test.control.PSpec.TestCaseOps __call
  */
-export function test<R, E, T>(test: IO<R, E, T>, annotations: TestAnnotationMap): PSpec<R, E, T> {
+export function testCase<R, E, T>(
+  test: IO<R, E, T>,
+  annotations: TestAnnotationMap,
+): PSpec<R, E, T> {
   return new PSpec(new TestCase(test, annotations));
 }
 

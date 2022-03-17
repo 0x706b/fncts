@@ -17,17 +17,3 @@ export function fn(name: string, paramLists: Conc<Conc<RenderParam>>): Render {
 export function infix(left: RenderParam, op: string, right: RenderParam): Render {
   return new RenderInfix(left, op, right);
 }
-
-/**
- * @tsplus getter fncts.test.data.Render rendered
- */
-export function rendered(self: Render): string {
-  switch (self._tag) {
-    case RenderTag.Function:
-      return `${self.name}(${self.paramLists
-        .map((ps) => ps.map((p) => p.rendered).join(", "))
-        .join("")})`;
-    case RenderTag.Infix:
-      return `(${self.left.rendered} ${self.op} ${self.right.rendered})`;
-  }
-}

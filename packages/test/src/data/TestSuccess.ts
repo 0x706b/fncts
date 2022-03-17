@@ -10,7 +10,9 @@ export class Succeeded {
   constructor(readonly result: FreeBooleanAlgebra<void>) {}
 }
 
-export class Ignored {}
+export class Ignored {
+  readonly _tag = TestSuccessTag.Ignored;
+}
 
 /**
  * @tsplus type fncts.data.TestSuccess

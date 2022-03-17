@@ -16,6 +16,21 @@ export function and_<A>(
 }
 
 /**
+ * @tsplus fluent fncts.data.FreeBooleanAlgebra chain
+ */
+export function chain_<A, B>(
+  self: FreeBooleanAlgebra<A>,
+  f: (a: A) => FreeBooleanAlgebra<B>,
+): FreeBooleanAlgebra<B> {
+  return self.fold({
+    Value: f,
+    And: (l, r) => l && r,
+    Or: (l, r) => l || r,
+    Not: (v) => v.invert,
+  });
+}
+
+/**
  * @tsplus static fncts.data.FreeBooleanAlgebraOps failure
  */
 export function failure<A>(a: A): FreeBooleanAlgebra<A> {

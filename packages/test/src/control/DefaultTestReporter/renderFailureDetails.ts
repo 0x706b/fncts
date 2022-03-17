@@ -25,7 +25,7 @@ function renderAssertionFailureDetails(
   offset: number,
 ): Message {
   /**
-   * @tsplus tailRec
+   * @tsplus tailrec
    */
   function loop(failureDetails: List<AssertionValue<any>>, rendered: Message): Message {
     const fragment = failureDetails.head;
@@ -40,7 +40,7 @@ function renderAssertionFailureDetails(
       return rendered;
     }
   }
-  return renderFragment(failureDetails[0], offset)["++"](loop(failureDetails, Message.empty));
+  return renderFragment(failureDetails.head, offset)["++"](loop(failureDetails, Message.empty));
 }
 
 function renderWhole(
