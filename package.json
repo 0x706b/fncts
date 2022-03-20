@@ -14,7 +14,7 @@
     "build": "ultra -r build"
   },
   "resolutions": {
-    "typescript": "https://github.com/0x706b/TypeScript/raw/5107bdc241/typescript-4.7.0-tsplus.20220312.tgz"
+    "typescript": "https://github.com/0x706b/TypeScript/raw/fb22575dd6/typescript-4.7.0-tsplus.20220320.tgz"
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
