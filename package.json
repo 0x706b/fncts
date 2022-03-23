@@ -15,7 +15,7 @@
     "postinstall": "tsplus-install"
   },
   "resolutions": {
-    "typescript": "https://github.com/0x706b/typescript/raw/71a5a2f680/typescript-4.7.0-tsplus.20220323.tgz"
+    "typescript": "https://github.com/0x706b/typescript/raw/f8f4f9db33/typescript-4.7.0-tsplus.20220323.tgz"
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",

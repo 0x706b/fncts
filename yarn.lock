@@ -3803,23 +3803,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@https://github.com/0x706b/typescript/raw/71a5a2f680/typescript-4.7.0-tsplus.20220323.tgz":
+"typescript@https://github.com/0x706b/typescript/raw/f8f4f9db33/typescript-4.7.0-tsplus.20220323.tgz":
   version: 4.7.0-tsplus.20220323
-  resolution: "typescript@https://github.com/0x706b/typescript/raw/71a5a2f680/typescript-4.7.0-tsplus.20220323.tgz"
+  resolution: "typescript@https://github.com/0x706b/typescript/raw/f8f4f9db33/typescript-4.7.0-tsplus.20220323.tgz"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 83754e4ecd2cff8f15df166dc2b7f72abda254100e29c8a304df862a86e43696f0dbf14ebc8c859c4ffeba4cb5007494ca12b36e37edd14249bce2f8bb93e335
+  checksum: 391b9da39fcb8475f72d212cade025ba1ed4a66efafba55afe2871bbe74e6880cb47a2f5a0f8901ae0d9aa5a8913bbd2b36446fa83b835266c4bbd4c6eff8c69
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/71a5a2f680/typescript-4.7.0-tsplus.20220323.tgz#~builtin<compat/typescript>":
+"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/f8f4f9db33/typescript-4.7.0-tsplus.20220323.tgz#~builtin<compat/typescript>":
   version: 4.7.0-tsplus.20220323
-  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/71a5a2f680/typescript-4.7.0-tsplus.20220323.tgz#~builtin<compat/typescript>::version=4.7.0-tsplus.20220323&hash=493e53"
+  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/f8f4f9db33/typescript-4.7.0-tsplus.20220323.tgz#~builtin<compat/typescript>::version=4.7.0-tsplus.20220323&hash=493e53"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 40a93c027952cf30547fd93a5b151b6405a69d8e82718f08686a52e720145f0339b5a98258a5296c540d1e7d299ffc6422f6ef75e83a1eb59c0d05fb9bfcce1e
+  checksum: 5faf2b833322a1d6c2e707124d2cc6d82cd37a67d404fffb7c9f8662ca3ee260a51b7d07ddd5c7893fca063a6845624fdd9b29d71d468b00faa5f07d254c104b
   languageName: node
   linkType: hard
 
