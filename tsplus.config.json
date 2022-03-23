@@ -1,0 +1,8 @@
+{
+  "importMap": {
+    "^(.*)/packages/([^/]*)/src(.*)\\.ts$": "@fncts/$2$3.js"
+  },
+  "traceMap": {
+    "^(.*)/packages/([^/]*)/(.*)$": "(@fncts/$2) $3"
+  }
+}

@@ -1,7 +1,17 @@
 {
   "name": "@fncts/test",
   "type": "module",
-  "types": "./build/dts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./build/dts/*"
+      ]
+    }
+  },
+  "exports": {
+    "./*": "./build/esm/*.js",
+    "./*.js": "./build/esm/*.js"
+  },
   "scripts": {
     "build": "tsc -b ./tsconfig.json",
     "format:write": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts",

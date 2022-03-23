@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "moduleResolution": "node",
-    "tsPlusModuleDiscoveryLocalSuffix": "js",
+    "tsPlusConfig": "../../tsplus.config.json",
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/build/dts/*"],
       "@fncts/base/*": ["../base/build/dts/*"]

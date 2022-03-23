@@ -6,6 +6,7 @@ import type { EitherF } from "./instances.js";
 
 import { hasTypeId } from "../../util/predicates.js";
 import { identity, unsafeCoerce } from "../function.js";
+import { Just, Nothing } from "../Maybe.js";
 import { EitherTag, EitherTypeId, Left, Right } from "./definition.js";
 
 /**
@@ -99,6 +100,26 @@ export function foldMapSelf<E, A>(self: Either<E, A>) {
   return <M>(M: P.Monoid<M>) =>
     (f: (a: A) => M): M =>
       foldMap_(M)(self, f);
+}
+
+/**
+ * @tsplus getter fncts.data.Either getLeft
+ */
+export function getLeft<E, A>(self: Either<E, A>): Maybe<E> {
+  return self.match(
+    (e) => Just(e),
+    (_a) => Nothing(),
+  );
+}
+
+/**
+ * @tsplus getter fncts.data.Either getRight
+ */
+export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
+  return self.match(
+    (_e) => Nothing(),
+    (a) => Just(a),
+  );
 }
 
 /**
