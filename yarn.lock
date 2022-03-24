@@ -16,16 +16,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@0x706b/eslint-plugin-module-specifier-extensions@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@0x706b/eslint-plugin-module-specifier-extensions@npm:0.1.2"
+"@0x706b/eslint-plugin-module-specifier-extensions@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "@0x706b/eslint-plugin-module-specifier-extensions@npm:0.1.3"
   dependencies:
     enhanced-resolve: ^5.9.2
   peerDependencies:
     "@typescript-eslint/parser": ^5.14.0
     eslint: ^8.11.0
     typescript: ^4.6.2
-  checksum: 606852d88842cee064988fe119611d21c38afffd970795eaf1159bdff2ee6dc2a1726e5ffd95c4926e91b7b2bc972b85c717158745b3bd141067e223ac2d7065
+  checksum: 30f4a22cc6d2c9c65baf9374ff692d177d353b636ae4afdab1cd170a9e87a8b555d45e4e889bc8fd79ee26c27a9d4d8cceda79c93c7e687145bedee6e9794f59
   languageName: node
   linkType: hard
 
@@ -1852,7 +1852,7 @@ __metadata:
   resolution: "fncts@workspace:."
   dependencies:
     "@0x706b/eslint-plugin-align-assignments": ^0.1.2
-    "@0x706b/eslint-plugin-module-specifier-extensions": ^0.1.2
+    "@0x706b/eslint-plugin-module-specifier-extensions": ^0.1.3
     "@0x706b/prettier-eslint-8": ^0.0.3
     "@types/benchmark": ^2.1.1
     "@typescript-eslint/eslint-plugin": ^5.10.2
