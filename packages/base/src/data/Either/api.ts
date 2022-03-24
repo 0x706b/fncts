@@ -6,6 +6,7 @@ import type { EitherF } from "./instances.js";
 
 import { hasTypeId } from "../../util/predicates.js";
 import { identity, unsafeCoerce } from "../function.js";
+import { pipe } from "../function.js";
 import { Just, Nothing } from "../Maybe.js";
 import { EitherTag, EitherTypeId, Left, Right } from "./definition.js";
 

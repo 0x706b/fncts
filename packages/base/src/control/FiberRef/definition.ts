@@ -313,16 +313,14 @@ export class DerivedAllFiberRef<EA, EB, A, B> implements PFiberRef<EA, EB, A, B>
   }
 
   set(a: A): FIO<EA, void> {
-    return this.use((value, _, setEither) =>
-      pipe(
+    return this.use(
+      (value, _, setEither) =>
         value.modify((s) =>
           setEither(a)(s).match(
             (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
             (s) => [Either.right(undefined), s],
           ),
-        ),
-        (a) => a.absolve,
-      ),
+        ).absolve,
     );
   }
 

@@ -168,25 +168,23 @@ class DrainChildExecutors<R> {
     const fins = this.activeChildExecutors
       .map((child) => (child !== null ? child.childExecutor.close(ex) : null))
       .enqueue(fin1);
-    return pipe(
-      fins.foldLeft(
-        null as URIO<R, Exit<unknown, unknown>> | null,
-        (acc, next): URIO<R, Exit<unknown, unknown>> | null => {
-          if (acc === null) {
-            if (next === null) {
-              return null;
-            } else {
-              return next.result;
-            }
+    return fins.foldLeft(
+      null as URIO<R, Exit<unknown, unknown>> | null,
+      (acc, next): URIO<R, Exit<unknown, unknown>> | null => {
+        if (acc === null) {
+          if (next === null) {
+            return null;
           } else {
-            if (next === null) {
-              return acc;
-            } else {
-              return acc.zipWith(next.result, (a, b) => a.apSecond(b));
-            }
+            return next.result;
           }
-        },
-      ),
+        } else {
+          if (next === null) {
+            return acc;
+          } else {
+            return acc.zipWith(next.result, (a, b) => a.apSecond(b));
+          }
+        }
+      },
     );
   }
 
@@ -617,15 +615,13 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     if (closeSubexecutors === null && runInProgressFinalizers === null && closeSelf === null) {
       return null;
     } else {
-      return pipe(
-        IO.sequenceT(
-          this.ifNotNull(closeSubexecutors).result,
-          this.ifNotNull(runInProgressFinalizers).result,
-          this.ifNotNull(closeSelf).result,
-        )
-          .map(([a, b, c]) => a.apSecond(b).apSecond(c))
-          .uninterruptible.chain(IO.fromExitNow),
-      );
+      return IO.sequenceT(
+        this.ifNotNull(closeSubexecutors).result,
+        this.ifNotNull(runInProgressFinalizers).result,
+        this.ifNotNull(closeSelf).result,
+      )
+        .map(([a, b, c]) => a.apSecond(b).apSecond(c))
+        .uninterruptible.chain(IO.fromExitNow);
     }
   }
 
@@ -642,15 +638,13 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
   ): ChannelState<Env, unknown> | null {
     this.addFinalizer(() =>
       IO.foreachDiscard(closeFns, (closeFn) =>
-        pipe(
-          IO.succeed(closeFn(subexecDone)).chain((closeEffect) => {
-            if (closeEffect !== null) {
-              return closeEffect;
-            } else {
-              return IO.unit;
-            }
-          }),
-        ),
+        IO.succeed(closeFn(subexecDone)).chain((closeEffect) => {
+          if (closeEffect !== null) {
+            return closeEffect;
+          } else {
+            return IO.unit;
+          }
+        }),
       ),
     );
     const state = subexecDone.match(
@@ -668,11 +662,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     if (finalizers.isEmpty()) {
       return IO.unit;
     }
-    return pipe(
-      IO.foreach(finalizers, (cont) => cont(exit).result)
-        .map((results) => Exit.collectAll(results).getOrElse(Exit.unit as Exit<never, unknown>))
-        .chain(IO.fromExitNow),
-    );
+    return IO.foreach(finalizers, (cont) => cont(exit).result)
+      .map((results) => Exit.collectAll(results).getOrElse(Exit.unit as Exit<never, unknown>))
+      .chain(IO.fromExitNow);
   }
 
   private runSubexecutor(): ChannelState<Env, unknown> | null {
@@ -726,12 +718,26 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
   }
 
   private pullFromUpstream(subexec: PullFromUpstream<Env>): ChannelState<Env, any> | null {
-    return pipe(
-      subexec.activeChildExecutors.dequeue.match(
-        () => this.performPullFromUpstream(subexec),
-        ([activeChild, rest]) => {
-          if (activeChild === null) {
-            return this.performPullFromUpstream(
+    return subexec.activeChildExecutors.dequeue.match(
+      () => this.performPullFromUpstream(subexec),
+      ([activeChild, rest]) => {
+        if (activeChild === null) {
+          return this.performPullFromUpstream(
+            new PullFromUpstream(
+              subexec.upstreamExecutor,
+              subexec.createChild,
+              subexec.lastDone,
+              rest,
+              subexec.combineChildResults,
+              subexec.combineWithChildResult,
+              subexec.onPull,
+              subexec.onEmit,
+            ),
+          );
+        } else {
+          this.replaceSubexecutor(
+            new PullFromChild(
+              activeChild.childExecutor,
               new PullFromUpstream(
                 subexec.upstreamExecutor,
                 subexec.createChild,
@@ -742,28 +748,12 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 subexec.onPull,
                 subexec.onEmit,
               ),
-            );
-          } else {
-            this.replaceSubexecutor(
-              new PullFromChild(
-                activeChild.childExecutor,
-                new PullFromUpstream(
-                  subexec.upstreamExecutor,
-                  subexec.createChild,
-                  subexec.lastDone,
-                  rest,
-                  subexec.combineChildResults,
-                  subexec.combineWithChildResult,
-                  subexec.onPull,
-                  subexec.onEmit,
-                ),
-                activeChild.onEmit,
-              ),
-            );
-            return null;
-          }
-        },
-      ),
+              activeChild.onEmit,
+            ),
+          );
+          return null;
+        }
+      },
     );
   }
 
@@ -779,38 +769,36 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         if (this.closeLastSubstream !== null) {
           const closeLast         = this.closeLastSubstream;
           this.closeLastSubstream = null;
-          return pipe(
-            this.executeCloseLastSubstream(closeLast).map(() => {
-              const childExecutor = new ChannelExecutor(
-                () => subexec.createChild(emitted),
-                this.providedEnv,
-                (_) => this.executeCloseLastSubstream(_),
-              );
-              childExecutor.input = this.input;
-              const [emitSeparator, updatedChildExecutors] = this.applyUpstreamPullStrategy(
-                false,
-                subexec.activeChildExecutors,
-                subexec.onPull(UpstreamPullRequest.Pulled(emitted)),
-              );
-              this.activeSubexecutor = new PullFromChild(
-                childExecutor,
-                new PullFromUpstream(
-                  subexec.upstreamExecutor,
-                  subexec.createChild,
-                  subexec.lastDone,
-                  updatedChildExecutors,
-                  subexec.combineChildResults,
-                  subexec.combineWithChildResult,
-                  subexec.onPull,
-                  subexec.onEmit,
-                ),
+          return this.executeCloseLastSubstream(closeLast).map(() => {
+            const childExecutor = new ChannelExecutor(
+              () => subexec.createChild(emitted),
+              this.providedEnv,
+              (_) => this.executeCloseLastSubstream(_),
+            );
+            childExecutor.input = this.input;
+            const [emitSeparator, updatedChildExecutors] = this.applyUpstreamPullStrategy(
+              false,
+              subexec.activeChildExecutors,
+              subexec.onPull(UpstreamPullRequest.Pulled(emitted)),
+            );
+            this.activeSubexecutor = new PullFromChild(
+              childExecutor,
+              new PullFromUpstream(
+                subexec.upstreamExecutor,
+                subexec.createChild,
+                subexec.lastDone,
+                updatedChildExecutors,
+                subexec.combineChildResults,
+                subexec.combineWithChildResult,
+                subexec.onPull,
                 subexec.onEmit,
-              );
-              if (emitSeparator.isJust()) {
-                this.activeSubexecutor = new Emit(emitSeparator.value, this.activeSubexecutor);
-              }
-            }),
-          );
+              ),
+              subexec.onEmit,
+            );
+            if (emitSeparator.isJust()) {
+              this.activeSubexecutor = new Emit(emitSeparator.value, this.activeSubexecutor);
+            }
+          });
         } else {
           const childExecutor = new ChannelExecutor(
             () => subexec.createChild(emitted),
@@ -861,11 +849,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
           if (this.closeLastSubstream !== null) {
             const closeLast         = this.closeLastSubstream;
             this.closeLastSubstream = null;
-            return pipe(
-              this.executeCloseLastSubstream(closeLast).map(() => {
-                this.replaceSubexecutor(drain);
-              }),
-            );
+            return this.executeCloseLastSubstream(closeLast).map(() => {
+              this.replaceSubexecutor(drain);
+            });
           } else {
             this.replaceSubexecutor(drain);
             return null;
@@ -885,66 +871,62 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
   }
 
   private drainChildExecutors(subexec: DrainChildExecutors<Env>): ChannelState<Env, any> | null {
-    return pipe(
-      subexec.activeChildExecutors.dequeue.match(
-        () => {
-          const lastClose = this.closeLastSubstream;
-          if (lastClose !== null) {
-            this.addFinalizer((_) => lastClose);
-          }
-          return this.finishSubexecutorWithCloseEffect(
-            subexec.upstreamDone,
-            () => lastClose,
-            (_) => subexec.upstreamExecutor.close(_),
+    return subexec.activeChildExecutors.dequeue.match(
+      () => {
+        const lastClose = this.closeLastSubstream;
+        if (lastClose !== null) {
+          this.addFinalizer((_) => lastClose);
+        }
+        return this.finishSubexecutorWithCloseEffect(
+          subexec.upstreamDone,
+          () => lastClose,
+          (_) => subexec.upstreamExecutor.close(_),
+        );
+      },
+      ([activeChild, rest]) => {
+        if (activeChild === null) {
+          const [emitSeparator, remainingExecutors] = this.applyUpstreamPullStrategy(
+            true,
+            rest,
+            subexec.onPull(UpstreamPullRequest.NoUpstream(rest.count((_) => _ !== null))),
           );
-        },
-        ([activeChild, rest]) => {
-          if (activeChild === null) {
-            const [emitSeparator, remainingExecutors] = this.applyUpstreamPullStrategy(
-              true,
-              rest,
-              subexec.onPull(UpstreamPullRequest.NoUpstream(rest.count((_) => _ !== null))),
-            );
-            this.replaceSubexecutor(
+          this.replaceSubexecutor(
+            new DrainChildExecutors(
+              subexec.upstreamExecutor,
+              subexec.lastDone,
+              remainingExecutors,
+              subexec.upstreamExecutor.getDone(),
+              subexec.combineChildResults,
+              subexec.combineWithChildResult,
+              subexec.onPull,
+            ),
+          );
+          return emitSeparator.match(
+            () => null,
+            (value) => {
+              this.emitted = value;
+              return new State.Emit();
+            },
+          );
+        } else {
+          this.replaceSubexecutor(
+            new PullFromChild(
+              activeChild.childExecutor,
               new DrainChildExecutors(
                 subexec.upstreamExecutor,
                 subexec.lastDone,
-                remainingExecutors,
+                rest,
                 subexec.upstreamExecutor.getDone(),
                 subexec.combineChildResults,
                 subexec.combineWithChildResult,
                 subexec.onPull,
               ),
-            );
-            return pipe(
-              emitSeparator.match(
-                () => null,
-                (value) => {
-                  this.emitted = value;
-                  return new State.Emit();
-                },
-              ),
-            );
-          } else {
-            this.replaceSubexecutor(
-              new PullFromChild(
-                activeChild.childExecutor,
-                new DrainChildExecutors(
-                  subexec.upstreamExecutor,
-                  subexec.lastDone,
-                  rest,
-                  subexec.upstreamExecutor.getDone(),
-                  subexec.combineChildResults,
-                  subexec.combineWithChildResult,
-                  subexec.onPull,
-                ),
-                activeChild.onEmit,
-              ),
-            );
-            return null;
-          }
-        },
-      ),
+              activeChild.onEmit,
+            ),
+          );
+          return null;
+        }
+      },
     );
   }
 
@@ -1007,15 +989,13 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
       childExecutor,
       identity,
       (emitted) => {
-        pipe(
-          onEmitted(emitted).match(
-            () => void 0,
-            (doneValue) => finishWithDoneValue(doneValue),
-            () => {
-              const modifiedParent = parentSubexecutor.enqueuePullFromChild(subexec);
-              this.replaceSubexecutor(modifiedParent);
-            },
-          ),
+        onEmitted(emitted).match(
+          () => void 0,
+          (doneValue) => finishWithDoneValue(doneValue),
+          () => {
+            const modifiedParent = parentSubexecutor.enqueuePullFromChild(subexec);
+            this.replaceSubexecutor(modifiedParent);
+          },
         );
         this.activeSubexecutor = new Emit(emitted, this.activeSubexecutor);
         return null;
@@ -1059,15 +1039,13 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         );
         this.storeInProgressFinalizer(finalizerEffect);
         return new State.Effect(
-          pipe(
-            finalizerEffect
-              .ensuring(
-                IO.succeed(() => {
-                  this.clearInProgressFinalizer();
-                }),
-              )
-              .uninterruptible.chain(() => IO.succeed(() => this.doneSucceed(z))),
-          ),
+          finalizerEffect
+            .ensuring(
+              IO.succeed(() => {
+                this.clearInProgressFinalizer();
+              }),
+            )
+            .uninterruptible.chain(() => IO.succeed(() => this.doneSucceed(z))),
         );
       }
     }
@@ -1101,15 +1079,13 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         );
         this.storeInProgressFinalizer(finalizerEffect);
         return new State.Effect(
-          pipe(
-            finalizerEffect
-              .ensuring(
-                IO.succeed(() => {
-                  this.clearInProgressFinalizer();
-                }),
-              )
-              .uninterruptible.chain(() => IO.succeed(() => this.doneHalt(cause))),
-          ),
+          finalizerEffect
+            .ensuring(
+              IO.succeed(() => {
+                this.clearInProgressFinalizer();
+              }),
+            )
+            .uninterruptible.chain(() => IO.succeed(() => this.doneHalt(cause))),
         );
       }
     }

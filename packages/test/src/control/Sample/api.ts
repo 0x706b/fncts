@@ -51,10 +51,8 @@ export function filter_<R, A>(
       ),
     );
   } else {
-    return pipe(
-      ma.shrink.chain((maybeSample) =>
-        maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty),
-      ),
+    return ma.shrink.chain((maybeSample) =>
+      maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty),
     );
   }
 }
@@ -66,19 +64,17 @@ export function foreach_<R, A, R1, B>(
   ma: Sample<R, A>,
   f: (a: A) => IO<R1, never, B>,
 ): IO<R & R1, never, Sample<R & R1, B>> {
-  return pipe(
-    f(ma.value).map(
-      (b) =>
-        new Sample(
-          b,
-          ma.shrink.mapIO((maybeSample) =>
-            maybeSample.match(
-              () => IO.succeedNow(Nothing()),
-              (sample) => sample.foreach(f).map((value) => Just(value)),
-            ),
+  return f(ma.value).map(
+    (b) =>
+      new Sample(
+        b,
+        ma.shrink.mapIO((maybeSample) =>
+          maybeSample.match(
+            () => IO.succeedNow(Nothing()),
+            (sample) => sample.foreach(f).map((value) => Just(value)),
           ),
         ),
-    ),
+      ),
   );
 }
 
@@ -99,19 +95,17 @@ export function shrinkSearch_<R, A>(ma: Sample<R, A>, p: Predicate<A>): Stream<R
   if (!p(ma.value)) {
     return Stream.succeedNow(ma.value);
   } else {
-    return pipe(
-      Stream.succeedNow(ma.value).concat(
-        ma.shrink
-          .takeUntil((maybeSample) =>
-            maybeSample.match(
-              () => false,
-              (v) => p(v.value),
-            ),
-          )
-          .chain((maybeSample) =>
-            maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty),
+    return Stream.succeedNow(ma.value).concat(
+      ma.shrink
+        .takeUntil((maybeSample) =>
+          maybeSample.match(
+            () => false,
+            (v) => p(v.value),
           ),
-      ),
+        )
+        .chain((maybeSample) =>
+          maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty),
+        ),
     );
   }
 }
@@ -124,7 +118,10 @@ export function unfold<R, A, S>(
   f: (s: S) => readonly [A, Stream<R, never, S>],
 ): Sample<R, A> {
   const [value, shrink] = f(s);
-  return new Sample(value, pipe(shrink.map((s) => Just(Sample.unfold(s, f)))));
+  return new Sample(
+    value,
+    shrink.map((s) => Just(Sample.unfold(s, f))),
+  );
 }
 
 /**
@@ -268,73 +265,66 @@ export function chainStream<R, A, R1, B>(
   stream: Stream<R, never, Maybe<A>>,
   f: (a: A) => Stream<R1, never, Maybe<B>>,
 ): Stream<R & R1, never, Maybe<B>> {
-  return pipe(
-    new Stream(
-      pipe(
-        stream.rechunk(1).channel.concatMapWithCustom(
-          (values) =>
-            pipe(
-              values
-                .map((maybeValue) =>
-                  maybeValue.match(
-                    () => Stream.succeedNow(Either.left(false)).channel,
-                    (value) =>
-                      f(value)
-                        .rechunk(1)
-                        .map((maybeB) => maybeB.match(() => Either.left(true), Either.right))
-                        .channel,
-                  ),
-                )
-                .foldLeft(
-                  Channel.unit as Channel<
-                    R1,
-                    unknown,
-                    unknown,
-                    unknown,
-                    never,
-                    Conc<Either<boolean, B>>,
-                    unknown
-                  >,
-                  (a, b) => a.apSecond(b),
-                ),
-            ),
-          constVoid,
-          constVoid,
-          (upr) =>
-            upr.match(
+  return new Stream(
+    stream.rechunk(1).channel.concatMapWithCustom(
+      (values) =>
+        values
+          .map((maybeValue) =>
+            maybeValue.match(
+              () => Stream.succeedNow(Either.left(false)).channel,
               (value) =>
-                value.head.flatten.match(
-                  () => UpstreamPullStrategy.PullAfterAllEnqueued(Nothing()),
-                  () => UpstreamPullStrategy.PullAfterNext(Nothing()),
-                ),
-              (activeDownstreamCount) =>
-                UpstreamPullStrategy.PullAfterAllEnqueued(
-                  activeDownstreamCount > 0 ? Just(Conc.single(Either.left(false))) : Nothing(),
-                ),
+                f(value)
+                  .rechunk(1)
+                  .map((maybeB) => maybeB.match(() => Either.left(true), Either.right)).channel,
             ),
-          (chunk: Conc<Either<boolean, B>>) =>
-            chunk.head.match(
-              () => ChildExecutorDecision.Continue,
-              (r) =>
-                r.match(
-                  (b) => (b ? ChildExecutorDecision.Yield : ChildExecutorDecision.Continue),
-                  () => ChildExecutorDecision.Continue,
-                ),
+          )
+          .foldLeft(
+            Channel.unit as Channel<
+              R1,
+              unknown,
+              unknown,
+              unknown,
+              never,
+              Conc<Either<boolean, B>>,
+              unknown
+            >,
+            (a, b) => a.apSecond(b),
+          ),
+      constVoid,
+      constVoid,
+      (upr) =>
+        upr.match(
+          (value) =>
+            value.head.flatten.match(
+              () => UpstreamPullStrategy.PullAfterAllEnqueued(Nothing()),
+              () => UpstreamPullStrategy.PullAfterNext(Nothing()),
+            ),
+          (activeDownstreamCount) =>
+            UpstreamPullStrategy.PullAfterAllEnqueued(
+              activeDownstreamCount > 0 ? Just(Conc.single(Either.left(false))) : Nothing(),
             ),
         ),
+      (chunk: Conc<Either<boolean, B>>) =>
+        chunk.head.match(
+          () => ChildExecutorDecision.Continue,
+          (r) =>
+            r.match(
+              (b) => (b ? ChildExecutorDecision.Yield : ChildExecutorDecision.Continue),
+              () => ChildExecutorDecision.Continue,
+            ),
+        ),
+    ),
+  )
+    .filter((r) =>
+      r.match(
+        (b) => !b,
+        () => true,
       ),
     )
-      .filter((r) =>
-        r.match(
-          (b) => !b,
-          () => true,
-        ),
-      )
-      .map((r) =>
-        r.match(
-          () => Nothing(),
-          (b) => Just(b),
-        ),
+    .map((r) =>
+      r.match(
+        () => Nothing(),
+        (b) => Just(b),
       ),
-  );
+    );
 }

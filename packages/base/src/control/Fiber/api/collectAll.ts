@@ -20,11 +20,9 @@ export function sequenceIterable<E, A>(fibers: Iterable<Fiber<E, A>>): Fiber.Syn
       ),
     inheritRefs: IO.foreachDiscard(fibers, (f) => f.inheritRefs),
     interruptAs: (fiberId) =>
-      pipe(
-        IO.foreach(fibers, (f) => f.interruptAs(fiberId)).map((exits) =>
-          exits.foldRight(Exit.succeed(Conc.empty<A>()) as Exit<E, Conc<A>>, (a, b) =>
-            a.zipWithCause(b, (a, as) => as.prepend(a), Cause.both),
-          ),
+      IO.foreach(fibers, (f) => f.interruptAs(fiberId)).map((exits) =>
+        exits.foldRight(Exit.succeed(Conc.empty<A>()) as Exit<E, Conc<A>>, (a, b) =>
+          a.zipWithCause(b, (a, as) => as.prepend(a), Cause.both),
         ),
       ),
     poll: IO.foreach(fibers, (f) => f.poll).map((exits) =>

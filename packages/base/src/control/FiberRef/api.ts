@@ -22,17 +22,15 @@ export function modify_<EA, EB, A, B>(
       _.use(
         (value, getEither, setEither) =>
           value.modify((s) =>
-            pipe(
-              getEither(s).match(
-                (e) => tuple(Either.left(e), s),
-                (a1) => {
-                  const [b, a2] = f(a1);
-                  return setEither(a2).match(
-                    (e) => tuple(Either.left<EA | EB, B>(e), s),
-                    (s) => tuple(Either.right(b), s),
-                  );
-                },
-              ),
+            getEither(s).match(
+              (e) => tuple(Either.left(e), s),
+              (a1) => {
+                const [b, a2] = f(a1);
+                return setEither(a2).match(
+                  (e) => tuple(Either.left<EA | EB, B>(e), s),
+                  (s) => tuple(Either.right(b), s),
+                );
+              },
             ),
           ).absolve,
       ),
@@ -40,19 +38,15 @@ export function modify_<EA, EB, A, B>(
       _.use(
         (value, getEither, setEither) =>
           value.modify((s) =>
-            pipe(
-              getEither(s).match(
-                (e) => tuple(Either.left(e), s),
-                (a1) => {
-                  const [b, a2] = f(a1);
-                  return pipe(
-                    setEither(a2)(s).match(
-                      (e) => tuple(Either.left<EA | EB, B>(e), s),
-                      (s) => tuple(Either.right(b), s),
-                    ),
-                  );
-                },
-              ),
+            getEither(s).match(
+              (e) => tuple(Either.left(e), s),
+              (a1) => {
+                const [b, a2] = f(a1);
+                return setEither(a2)(s).match(
+                  (e) => tuple(Either.left<EA | EB, B>(e), s),
+                  (s) => tuple(Either.right(b), s),
+                );
+              },
             ),
           ).absolve,
       ),

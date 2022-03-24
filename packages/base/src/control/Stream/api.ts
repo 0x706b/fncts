@@ -502,13 +502,13 @@ export function buffer_<R, E, A>(stream: Stream<R, E, A>, capacity: number): Str
   const queue = toQueueOfElements_(stream, capacity);
   return new Stream(
     Channel.managed(queue, (queue) => {
-      const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = pipe(
-        Channel.fromIO(queue.take).chain((exit: Exit<Maybe<E>, A>) =>
-          exit.match(
-            (cause) =>
-              cause.flipCauseMaybe.match(() => Channel.endNow(undefined), Channel.failCauseNow),
-            (value) => Channel.writeNow(Conc.single(value)).apSecond(process),
-          ),
+      const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(
+        queue.take,
+      ).chain((exit: Exit<Maybe<E>, A>) =>
+        exit.match(
+          (cause) =>
+            cause.flipCauseMaybe.match(() => Channel.endNow(undefined), Channel.failCauseNow),
+          (value) => Channel.writeNow(Conc.single(value)).apSecond(process),
         ),
       );
       return process;
@@ -523,11 +523,11 @@ export function bufferChunks_<R, E, A>(stream: Stream<R, E, A>, capacity: number
   const queue = stream.toQueue(capacity);
   return new Stream(
     Channel.managed(queue, (queue) => {
-      const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = pipe(
-        Channel.fromIO(queue.take).chain((take: Take<E, A>) =>
-          take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
-            Channel.writeNow(value).apSecond(process),
-          ),
+      const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(
+        queue.take,
+      ).chain((take: Take<E, A>) =>
+        take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
+          Channel.writeNow(value).apSecond(process),
         ),
       );
       return process;
@@ -1015,14 +1015,12 @@ export function debounce_<R, E, A>(
         unknown
       > = Channel.readWithCause(
         (inp: Conc<A>) =>
-          pipe(
-            inp.last.match(
-              () => producer,
-              (last) =>
-                Channel.fromIO(handoff.offer(HandoffSignal.Emit(Conc.single(last)))).apSecond(
-                  producer,
-                ),
-            ),
+          inp.last.match(
+            () => producer,
+            (last) =>
+              Channel.fromIO(handoff.offer(HandoffSignal.Emit(Conc.single(last)))).apSecond(
+                producer,
+              ),
           ),
         (cause: Cause<E>) => Channel.fromIO(handoff.offer(HandoffSignal.Halt(cause))),
         () => Channel.fromIO(handoff.offer(HandoffSignal.End(new UpstreamEnd()))),
@@ -1863,18 +1861,15 @@ function haltWhenFutureWriter<R, E, A, E1>(
   future: Future<E1, unknown>,
 ): Channel<R, E | E1, Conc<A>, unknown, E | E1, Conc<A>, void> {
   return Channel.unwrap(
-    pipe(
-      future.poll.map((maybeIO) =>
-        maybeIO.match(
-          () =>
-            Channel.readWith(
-              (i: Conc<A>) =>
-                Channel.writeNow(i).apSecond(haltWhenFutureWriter<R, E, A, E1>(future)),
-              Channel.failNow,
-              () => Channel.unit,
-            ),
-          (io) => Channel.unwrap(io.match(Channel.failNow, () => Channel.unit)),
-        ),
+    future.poll.map((maybeIO) =>
+      maybeIO.match(
+        () =>
+          Channel.readWith(
+            (i: Conc<A>) => Channel.writeNow(i).apSecond(haltWhenFutureWriter<R, E, A, E1>(future)),
+            Channel.failNow,
+            () => Channel.unit,
+          ),
+        (io) => Channel.unwrap(io.match(Channel.failNow, () => Channel.unit)),
       ),
     ),
   );
@@ -3163,11 +3158,9 @@ function unfoldChunkLoop<S, A>(
   s: S,
   f: (s: S) => Maybe<readonly [Conc<A>, S]>,
 ): Channel<unknown, unknown, unknown, unknown, never, Conc<A>, unknown> {
-  return pipe(
-    f(s).match(
-      () => Channel.unit,
-      ([as, s]) => pipe(Channel.writeNow(as).chain(() => unfoldChunkLoop(s, f))),
-    ),
+  return f(s).match(
+    () => Channel.unit,
+    ([as, s]) => Channel.writeNow(as).chain(() => unfoldChunkLoop(s, f)),
   );
 }
 

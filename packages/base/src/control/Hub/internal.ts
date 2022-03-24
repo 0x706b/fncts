@@ -120,22 +120,18 @@ export class BackPressure<A> extends Strategy<A> {
     as: Iterable<A>,
     isShutdown: AtomicBoolean,
   ): UIO<boolean> {
-    return pipe(
-      IO.fiberId.chain((fiberId) =>
-        IO.defer(() => {
-          const future = Future.unsafeMake<never, boolean>(fiberId);
+    return IO.fiberId.chain((fiberId) =>
+      IO.defer(() => {
+        const future = Future.unsafeMake<never, boolean>(fiberId);
 
-          return pipe(
-            IO.defer(() => {
-              this.unsafeOffer(as, future);
-              this.unsafeOnHubEmptySpace(hub, subscribers);
-              this.unsafeCompleteSubscribers(hub, subscribers);
+        return IO.defer(() => {
+          this.unsafeOffer(as, future);
+          this.unsafeOnHubEmptySpace(hub, subscribers);
+          this.unsafeCompleteSubscribers(hub, subscribers);
 
-              return isShutdown.get ? IO.interrupt : future.await;
-            }).onInterrupt(() => IO.succeed(this.unsafeRemove(future))),
-          );
-        }),
-      ),
+          return isShutdown.get ? IO.interrupt : future.await;
+        }).onInterrupt(() => IO.succeed(this.unsafeRemove(future)));
+      }),
     );
   }
 
@@ -317,44 +313,42 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
 
   offerAll = (_: Iterable<never>): IO<never, unknown, boolean> => IO.succeedNow(false);
 
-  take: IO<unknown, never, A> = pipe(
-    IO.fiberId.chain((fiberId) =>
-      IO.defer(() => {
-        if (this.shutdownFlag.get) {
-          return IO.interrupt;
-        }
+  take: IO<unknown, never, A> = IO.fiberId.chain((fiberId) =>
+    IO.defer(() => {
+      if (this.shutdownFlag.get) {
+        return IO.interrupt;
+      }
 
-        const empty   = null as unknown as A;
-        const message = this.pollers.isEmpty ? this.subscription.poll(empty) : empty;
+      const empty   = null as unknown as A;
+      const message = this.pollers.isEmpty ? this.subscription.poll(empty) : empty;
 
-        if (message === null) {
-          const future = Future.unsafeMake<never, A>(fiberId);
+      if (message === null) {
+        const future = Future.unsafeMake<never, A>(fiberId);
 
-          return IO.defer(() => {
-            this.pollers.enqueue(future);
-            this.subscribers.add(new HashedPair(this.subscription, this.pollers));
-            this.strategy.unsafeCompletePollers(
-              this.hub,
-              this.subscribers,
-              this.subscription,
-              this.pollers,
-            );
-            if (this.shutdownFlag.get) {
-              return IO.interrupt;
-            } else {
-              return future.await;
-            }
-          }).onInterrupt(() =>
-            IO.succeed(() => {
-              this.pollers.unsafeRemove(future);
-            }),
+        return IO.defer(() => {
+          this.pollers.enqueue(future);
+          this.subscribers.add(new HashedPair(this.subscription, this.pollers));
+          this.strategy.unsafeCompletePollers(
+            this.hub,
+            this.subscribers,
+            this.subscription,
+            this.pollers,
           );
-        } else {
-          this.strategy.unsafeOnHubEmptySpace(this.hub, this.subscribers);
-          return IO.succeedNow(message);
-        }
-      }),
-    ),
+          if (this.shutdownFlag.get) {
+            return IO.interrupt;
+          } else {
+            return future.await;
+          }
+        }).onInterrupt(() =>
+          IO.succeed(() => {
+            this.pollers.unsafeRemove(future);
+          }),
+        );
+      } else {
+        this.strategy.unsafeOnHubEmptySpace(this.hub, this.subscribers);
+        return IO.succeedNow(message);
+      }
+    }),
   );
 
   takeAll: IO<unknown, never, Conc<A>> = IO.defer(() => {

@@ -32,19 +32,17 @@ export function takeBetween_<RA, RB, EA, EB, A, B>(
   if (max < min) {
     return IO.succeedNow(Conc.empty());
   } else {
-    return pipe(
-      queue.takeUpTo(max).chain((bs) => {
-        const remaining = min - bs.length;
+    return queue.takeUpTo(max).chain((bs) => {
+      const remaining = min - bs.length;
 
-        if (remaining === 1) {
-          return queue.take.map((b) => bs.prepend(b));
-        } else if (remaining > 1) {
-          return takeRemainderLoop(queue, remaining - 1).map((list) => bs.concat(list));
-        } else {
-          return IO.succeedNow(bs);
-        }
-      }),
-    );
+      if (remaining === 1) {
+        return queue.take.map((b) => bs.prepend(b));
+      } else if (remaining > 1) {
+        return takeRemainderLoop(queue, remaining - 1).map((list) => bs.concat(list));
+      } else {
+        return IO.succeedNow(bs);
+      }
+    });
   }
 }
 

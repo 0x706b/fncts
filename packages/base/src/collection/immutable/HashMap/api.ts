@@ -5,6 +5,7 @@ import type { Refinement, RefinementWithIndex } from "../../../data/Refinement.j
 import type { HashMapF } from "./definition.js";
 import type { Node, UpdateFn } from "./internal.js";
 
+import { pipe } from "../../../data/function.js";
 import { Just, Nothing } from "../../../data/Maybe.js";
 import * as P from "../../../prelude.js";
 import { HashSet } from "../HashSet/definition.js";

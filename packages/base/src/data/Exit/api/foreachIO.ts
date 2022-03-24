@@ -14,7 +14,7 @@ export function foreachIO_<E2, A2, R, E, A>(
   f: (a: A2) => IO<R, E, A>,
 ): IO<R, never, Exit<E | E2, A>> {
   return exit.match(
-    (c): URIO<R, Exit<E | E2, A>> => pipe(Exit.failCause(c), IO.succeedNow),
+    (c): URIO<R, Exit<E | E2, A>> => IO.succeedNow(Exit.failCause(c)),
     (a) => f(a).result,
   );
 }

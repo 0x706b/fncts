@@ -38,17 +38,15 @@ export class MemoMap {
         if (inMap.isJust()) {
           const [acquire, release] = inMap.value;
 
-          const cached = pipe(
-            FiberRef.currentReleaseMap.get.chain((releaseMap) =>
-              (acquire as FIO<E, A>)
-                .onExit((exit) =>
-                  exit.match(
-                    () => IO.unit,
-                    () => releaseMap.add(release),
-                  ),
-                )
-                .map((a) => tuple(release, a)),
-            ),
+          const cached = FiberRef.currentReleaseMap.get.chain((releaseMap) =>
+            (acquire as FIO<E, A>)
+              .onExit((exit) =>
+                exit.match(
+                  () => IO.unit,
+                  () => releaseMap.add(release),
+                ),
+              )
+              .map((a) => tuple(release, a)),
           );
 
           return IO.succeedNow(tuple(cached, map));
@@ -63,52 +61,44 @@ export class MemoMap {
                 const outerReleaseMap = yield* _(FiberRef.currentReleaseMap.get);
                 const innerReleaseMap = yield* _(ReleaseMap.make);
                 const tp              = yield* _(
-                  pipe(
-                    restore(
-                      pipe(
-                        FiberRef.currentReleaseMap.locally(innerReleaseMap)(
-                          scope(layer).chain((f) => f(self)).io,
-                        ),
-                      ),
-                    ).result.chain((exit) =>
-                      exit.match(
-                        (cause): IO<unknown, E, readonly [Finalizer, A]> =>
-                          pipe(
-                            future
-                              .failCause(cause)
-                              .apSecond(
-                                innerReleaseMap.releaseAll(
-                                  exit,
-                                  ExecutionStrategy.sequential,
-                                ) as FIO<E, any>,
-                              )
-                              .apSecond(IO.failCauseNow(cause)),
-                          ),
-                        ([, b]) =>
-                          IO.gen(function* (_) {
-                            yield* _(
-                              pipe(
-                                finalizerRef.set(
-                                  Finalizer.get((e) =>
-                                    innerReleaseMap
-                                      .releaseAll(e, ExecutionStrategy.sequential)
-                                      .whenIO(observers.modify((n) => [n === 1, n - 1])),
-                                  ),
-                                ),
+                  restore(
+                    FiberRef.currentReleaseMap.locally(innerReleaseMap)(
+                      scope(layer).chain((f) => f(self)).io,
+                    ),
+                  ).result.chain((exit) =>
+                    exit.match(
+                      (cause): IO<unknown, E, readonly [Finalizer, A]> =>
+                        future
+                          .failCause(cause)
+                          .apSecond(
+                            innerReleaseMap.releaseAll(exit, ExecutionStrategy.sequential) as FIO<
+                              E,
+                              any
+                            >,
+                          )
+                          .apSecond(IO.failCauseNow(cause)),
+                      ([, b]) =>
+                        IO.gen(function* (_) {
+                          yield* _(
+                            finalizerRef.set(
+                              Finalizer.get((e) =>
+                                innerReleaseMap
+                                  .releaseAll(e, ExecutionStrategy.sequential)
+                                  .whenIO(observers.modify((n) => [n === 1, n - 1])),
                               ),
-                            );
-                            yield* _(observers.update((n) => n + 1));
-                            const outerFinalizer = yield* _(
-                              outerReleaseMap.add(
-                                Finalizer.get((e) =>
-                                  finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(e)),
-                                ),
+                            ),
+                          );
+                          yield* _(observers.update((n) => n + 1));
+                          const outerFinalizer = yield* _(
+                            outerReleaseMap.add(
+                              Finalizer.get((e) =>
+                                finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(e)),
                               ),
-                            );
-                            yield* _(future.succeed(b));
-                            return tuple(outerFinalizer, b);
-                          }),
-                      ),
+                            ),
+                          );
+                          yield* _(future.succeed(b));
+                          return tuple(outerFinalizer, b);
+                        }),
                     ),
                   ),
                 );
