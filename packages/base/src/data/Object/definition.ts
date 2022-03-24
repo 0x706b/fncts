@@ -1,28 +1,11 @@
-import type { HKT } from "../../prelude.js";
-import type { NewtypeIso } from "../Newtype.js";
-
-import { Newtype } from "../Newtype.js";
-
-interface StructN extends HKT {
-  readonly type: Struct<this["A"]>;
+declare global {
+  /**
+   * @tsplus type fncts.global
+   */
+  export interface Object {}
+  /**
+   * @tsplus type fncts.globalOps
+   */
+  export interface ObjectConstructor {}
 }
-
-/**
- * @tsplus type fncts.data.Struct
- */
-export interface Struct<A>
-  extends Newtype<
-    {
-      readonly Struct: unique symbol;
-    },
-    A
-  > {}
-
-/**
- * @tsplus type fncts.data.StructOps
- */
-export interface StructOps extends NewtypeIso<StructN> {}
-
-export const Struct: StructOps = Newtype<StructN>();
-
 export {};
