@@ -9,7 +9,10 @@ import { ReleaseMap } from "../ReleaseMap.js";
 /**
  * @tsplus getter fncts.control.Managed memoize
  */
-export function memoize<R, E, A>(self: Managed<R, E, A>, __tsplusTrace?: string): UManaged<Managed<R, E, A>> {
+export function memoize<R, E, A>(
+  self: Managed<R, E, A>,
+  __tsplusTrace?: string,
+): UManaged<Managed<R, E, A>> {
   return Managed.releaseMap.mapIO((releaseMap) =>
     IO.gen(function* (_) {
       const future   = yield* _(Future.make<E, A>());

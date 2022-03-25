@@ -253,7 +253,13 @@ function getPath(index: number, offset: number, depth: number, sizes: Sizes): Pa
 /**
  * @internal
  */
-export function updateNode(node: Node, depth: number, index: number, offset: number, value: any): Node {
+export function updateNode(
+  node: Node,
+  depth: number,
+  index: number,
+  offset: number,
+  value: any,
+): Node {
   const { path, index: newIndex, updatedOffset } = getPath(index, offset, depth, node.sizes);
 
   const array = copyArray(node.array);
@@ -1503,7 +1509,6 @@ export function mapAffix<A, B>(
 }
 
 // functions based on foldlCb
-
 
 export function arrayPush<A>(array: A[], a: A): A[] {
   array.push(a);

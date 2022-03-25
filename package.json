@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "build": "ultra -r build",
+    "format": "ultra -r format",
     "postinstall": "tsplus-install"
   },
   "resolutions": {

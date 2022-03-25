@@ -27,7 +27,7 @@ export type IOId = "IO";
  * @tsplus type fncts.control.IO
  * @tsplus companion fncts.control.IOOps
  */
-export abstract class IO<in R, out E, out A> {
+export abstract class IO<R, E, A> {
   readonly _typeId: IOTypeId = IOTypeId;
   readonly _U!: IOId;
   readonly _R!: (_: R) => void;
