@@ -17,8 +17,7 @@ import { TestAnnotationMap } from "./data/TestAnnotationMap.js";
 const spec = suite(
   "TestSuite",
   test("Demo success", (0).assert(strictEqualTo(0))),
-  // @ts-expect-error
-  test("Demo failure", { x: { y: { z: { a: { b: [1, 2, 3, 4] } } } } }.assert(strictEqualTo(100))),
+  test("Demo failure", (0).assert(strictEqualTo(100))),
   testIO("Demo IO", IO.environmentWith((_: { x: number }) => _.x).assert(strictEqualTo(10))),
 );
 

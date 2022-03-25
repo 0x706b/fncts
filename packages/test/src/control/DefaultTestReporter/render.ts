@@ -18,8 +18,11 @@ import { Just, Nothing } from "@fncts/base/data/Maybe.js";
 import { matchTag } from "@fncts/base/util/pattern.js";
 
 import { ExecutedSpecCaseTag } from "../../data/ExecutedSpec.js";
-import { detail, Fragment, Line, Message, primary, Style, withOffset } from "../../data/LogLine.js";
+import { detail, primary, Style } from "../../data/LogLine.js";
 import { error, fr, warn } from "../../data/LogLine.js";
+import { Fragment } from "../../data/LogLine/Fragment.js";
+import { Line } from "../../data/LogLine/Line.js";
+import { Message } from "../../data/LogLine/Message.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import { TestTimeoutException } from "../../data/TestTimeoutException.js";
 import { TestLogger } from "../TestLogger.js";
@@ -73,7 +76,7 @@ export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>) 
     } in ${duration}ms: ${success} succeeded, ${ignore} ignored, ${failure} failed`,
   );
 
-  return rendered(Other, "", Passed, 0, List(stats.toLine()));
+  return rendered(Other, "", Passed, 0, List(stats.toLine));
 }
 
 function renderLoop<E>(
@@ -158,7 +161,7 @@ function renderLoop<E>(
               labels.reverse.join(" - "),
               Passed,
               depth,
-              List(fr(labels.reverse.join(" - ")).toLine()),
+              List(fr(labels.reverse.join(" - ")).toLine),
             ),
           Ignored: () =>
             rendered(
@@ -166,7 +169,7 @@ function renderLoop<E>(
               labels.reverse.join(" - "),
               Ignored,
               depth,
-              List(warn(labels.reverse.join(" - ")).toLine()),
+              List(warn(labels.reverse.join(" - ")).toLine),
             ),
         }),
       );
@@ -178,31 +181,30 @@ function renderLoop<E>(
 }
 
 function renderSuiteIgnored(label: string, offset: number) {
-  return rendered(Suite, label, Ignored, offset, Cons(warn(`- ${label}`).toLine()));
+  return rendered(Suite, label, Ignored, offset, Cons(warn(`- ${label}`).toLine));
 }
 
 function renderSuiteFailed(label: string, offset: number) {
-  return rendered(Suite, label, Failed, offset, Cons(error(`- ${label}`).toLine()));
+  return rendered(Suite, label, Failed, offset, Cons(error(`- ${label}`).toLine));
 }
 
 function renderSuiteSucceeded(label: string, offset: number) {
-  return rendered(Suite, label, Passed, offset, Cons(fr(label).toLine()));
+  return rendered(Suite, label, Passed, offset, Cons(fr(label).toLine));
 }
 
 function renderFailure(label: string, offset: number, details: AssertionResult): Message {
-  return renderFailureLabel(label, offset)
-    .toMessage()
-    ["++"](renderAssertionResult(details, offset));
+  return renderFailureLabel(label, offset).toMessage + renderAssertionResult(details, offset);
 }
 
 function renderAssertionResult(assertionResult: AssertionResult, offset: number): Message {
-  return renderGenFailureDetails(assertionResult.genFailureDetails, offset)["++"](
-    renderAssertionFailureDetails(assertionResult.failureDetails.assertion, offset),
+  return (
+    renderGenFailureDetails(assertionResult.genFailureDetails, offset) +
+    renderAssertionFailureDetails(assertionResult.failureDetails.assertion, offset)
   );
 }
 
 function renderFailureLabel(label: string, offset: number): Line {
-  return withOffset(offset)(error("- " + label).toLine());
+  return error("- " + label).toLine.withOffset(offset);
 }
 
 function renderAssertFailure(result: TestResult, label: string, depth: number): ExecutionResult {
@@ -229,13 +231,13 @@ function renderAssertionFailureDetails(
     if (fragment.isJust() && whole.isJust() && details.isJust()) {
       return loop(
         Cons(whole.value, details.value),
-        rendered[":+"](renderWhole(fragment.value, whole.value, offset)),
+        rendered + renderWhole(fragment.value, whole.value, offset),
       );
     } else {
       return rendered;
     }
   }
-  return renderFragment(failureDetails.head, offset)["++"](loop(failureDetails, Message.empty));
+  return renderFragment(failureDetails.head, offset) + loop(failureDetails, Message.empty);
 }
 
 function renderGenFailureDetails(
@@ -247,45 +249,44 @@ function renderGenFailureDetails(
     (details) => {
       const shrunken       = `${details.shrunkenInput}`;
       const initial        = `${details.initialInput}`;
-      const renderShrunken = withOffset(offset + 1)(
-        new Fragment(
+      const renderShrunken = (
+        Fragment(
           `Test failed after ${details.iterations + 1} iteration${
             details.iterations > 0 ? "s" : ""
           } with input: `,
-        )["+"](error(shrunken)),
-      );
+        ) + error(shrunken)
+      ).withOffset(offset + 1);
 
       return initial === shrunken
-        ? renderShrunken.toMessage()
-        : renderShrunken["+|"](
-            withOffset(offset + 1)(
-              new Fragment("Original input before shrinking was: ")["+"](error(initial)),
-            ),
-          );
+        ? renderShrunken.toMessage
+        : renderShrunken |
+            (Fragment("Original input before shrinking was: ") + error(initial)).withOffset(
+              offset + 1,
+            );
     },
   );
 }
 
 function renderFragment<A>(fragment: AssertionValue<A>, offset: number): Message {
-  return primary(renderValue(fragment, offset + 1))
-    ["+"](renderSatisfied(fragment))
-    .withOffset(offset)
-    .toMessage()
-    ["++"](
-      new Message(
-        Vector.from(
-          fragment.assertion.value.rendered
-            .split(/\n/)
-            .map((s) => detail(s).toLine().withOffset(offset)),
-        ),
+  return (
+    (primary(renderValue(fragment, offset + 1)) + renderSatisfied(fragment)).withOffset(offset)
+      .toMessage +
+    Message(
+      Vector.from(
+        fragment.assertion.value.rendered
+          .split(/\n/)
+          .map((s) => detail(s).toLine.withOffset(offset)),
       ),
-    );
+    )
+  );
 }
 
 function renderWhole<A>(fragment: AssertionValue<A>, whole: AssertionValue<A>, offset: number) {
-  return primary(renderValue(whole, offset + 1))
-    ["+"](renderSatisfied(whole))
-    ["++"](highlight(detail(whole.assertion.value.rendered), fragment.assertion.value.rendered));
+  return (
+    primary(renderValue(whole, offset + 1)) +
+    renderSatisfied(whole) +
+    highlight(detail(whole.assertion.value.rendered), fragment.assertion.value.rendered)
+  );
 }
 
 function renderValue<A>(av: AssertionValue<A>, offset: number) {
@@ -301,8 +302,8 @@ function expressionRedundant(valueStr: string, expression: string) {
 
 function renderSatisfied<A>(assertionValue: AssertionValue<A>): Fragment {
   return assertionValue.result.value.isSuccess
-    ? new Fragment(" satisfied ")
-    : new Fragment(" did not satisfy ");
+    ? Fragment(" satisfied ")
+    : Fragment(" did not satisfy ");
 }
 
 function renderRuntimeCause<E>(
@@ -322,22 +323,19 @@ function renderRuntimeCause<E>(
 function renderCause(cause: Cause<any>, offset: number): Message {
   const defects  = cause.defects;
   const timeouts = defects.filterMap((u) =>
-    u instanceof TestTimeoutException
-      ? Just(new Fragment(u.message).toLine().toMessage())
-      : Nothing(),
+    u instanceof TestTimeoutException ? Just(new Fragment(u.message).toLine.toMessage) : Nothing(),
   );
   const remaining = cause.filterDefects((u) => u instanceof TestTimeoutException);
-  const prefix    = timeouts.foldLeft(Message.empty, (b, a) => b["++"](a));
+  const prefix    = timeouts.foldLeft(Message.empty, (b, a) => b + a);
   return remaining.match(
     () => prefix,
     (remainingCause) =>
-      prefix["++"](
-        new Message(
-          Vector.from(
-            remainingCause.prettyPrint
-              .split("\n")
-              .map((s) => withOffset(offset + 1)(Line.fromString(s))),
-          ),
+      prefix +
+      Message(
+        Vector.from(
+          remainingCause.prettyPrint
+            .split("\n")
+            .map((s) => Line.fromString(s).withOffset(offset + 1)),
         ),
       ),
   );
@@ -345,13 +343,13 @@ function renderCause(cause: Cause<any>, offset: number): Message {
 
 function highlight(fragment: Fragment, substring: string, style: Style = Style.Warning): Line {
   const parts = fragment.text.split(substring);
-  if (parts.length === 1) return fragment.toLine();
+  if (parts.length === 1) return fragment.toLine;
   else {
     return parts.foldLeft(Line.empty, (line, part) => {
       if (line.fragments.length < parts.length * 2 - 2) {
-        return line["+"](new Fragment(part, fragment.style))["+"](new Fragment(substring, style));
+        return line + Fragment(part, fragment.style) + Fragment(substring, style);
       } else {
-        return line["+"](new Fragment(part, fragment.style));
+        return line + Fragment(part, fragment.style);
       }
     });
   }

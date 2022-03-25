@@ -1,4 +1,4 @@
-import type { Fragment } from "../../data/LogLine.js";
+import type { Fragment } from "../../data/LogLine/Fragment.js";
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import type { ExecutionResult, Status } from "../DefaultTestReporter/ExecutionResult.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
@@ -17,7 +17,9 @@ import {
 } from "@fncts/base/util/AnsiFormat.js";
 import { matchTag_ } from "@fncts/base/util/pattern.js";
 
-import { fr, info, Line, Message, sp, warn, withOffset } from "../../data/LogLine.js";
+import { fr, info, sp, warn } from "../../data/LogLine.js";
+import { Line } from "../../data/LogLine/Line.js";
+import { Message } from "../../data/LogLine/Message.js";
 import { TestAnnotation } from "../../data/TestAnnotation.js";
 import { TestRenderer } from "./definition.js";
 
@@ -36,26 +38,25 @@ export class ConsoleRenderer extends TestRenderer {
         result.annotations,
         testAnnotationRenderer,
       );
-      return this.renderToStringLines(output["++"](renderedAnnotations)).join("");
+      return this.renderToStringLines(output + renderedAnnotations).join("");
     });
   }
 
   private renderSuite(status: Status, offset: number, message: Message) {
     return matchTag_(status, {
-      Passed: () => withOffset(offset)(info("+")["+"](sp)).toMessage()["++"](message),
-      Failed: () => withOffset(offset)(Line.empty).toMessage()["++"](message),
+      Passed: () => (info("+") + sp).withOffset(offset).toMessage + message,
+      Failed: () => Line.empty.withOffset(offset).toMessage + message,
       Ignored: () =>
-        withOffset(offset)(Line.empty)
-          .toMessage()
-          ["++"](message)
-          [":+"](fr(" - " + TestAnnotation.Ignored.identifier + " suite").toLine()),
+        Line.empty.withOffset(offset).toMessage +
+        message +
+        fr(" - " + TestAnnotation.Ignored.identifier + " suite").toLine,
     });
   }
 
   private renderTest(status: Status, offset: number, message: Message) {
     return matchTag_(status, {
-      Passed: () => withOffset(offset)(info("+")["+"](sp)).toMessage()["++"](message),
-      Ignored: () => withOffset(offset)(warn("-")["+"](sp)).toMessage()["++"](message),
+      Passed: () => (info("+") + sp).withOffset(offset).toMessage + message,
+      Ignored: () => (warn("-") + sp).withOffset(offset).toMessage + message,
       Failed: () => message,
     });
   }

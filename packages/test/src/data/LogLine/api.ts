@@ -1,6 +1,6 @@
-import type { Line } from "./definition.js";
+import type { Line } from "./Line.js";
 
-import { Fragment } from "./definition.js";
+import { Fragment } from "./Fragment.js";
 import { Style } from "./Style.js";
 
 export function info(s: string): Fragment {
@@ -39,12 +39,4 @@ export function underlined(s: string): Fragment {
   return fr(s).underlined;
 }
 
-export function ansi(s: string, ansiColor: string): Fragment {
-  return fr(s).ansi(ansiColor);
-}
-
 export const sp = new Fragment(" ");
-
-export function withOffset(i: number) {
-  return (line: Line) => line.withOffset(i);
-}

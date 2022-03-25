@@ -1,4 +1,4 @@
-import type { Line } from "../../data/LogLine.js";
+import type { Line } from "../../data/LogLine/Line.js";
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import type { List } from "@fncts/base/collection/immutable/List";
 import type { Vector } from "@fncts/base/collection/immutable/Vector";

@@ -1,4 +1,4 @@
-import type { Fragment } from "./definition.js";
+import type { Fragment } from "./Fragment.js";
 
 export const enum StyleTag {
   Primary = "Primary",
