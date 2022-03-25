@@ -91,38 +91,3 @@ export function tryCatchK<P extends ReadonlyArray<unknown>, E, A>(
 ): (...params: P) => Either<E, A> {
   return (...params) => Either.tryCatch(() => f(...params), exception);
 }
-
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst fromMaybe_
- */
-export function fromMaybe<E>(nothing: Lazy<E>) {
-  return <A>(self: Maybe<A>): Either<E, A> => fromMaybe_(self, nothing);
-}
-/**
- * @tsplus dataFirst fromNullable_
- */
-export function fromNullable<E>(nullable: Lazy<E>) {
-  return <A>(value: A): Either<E, NonNullable<A>> => fromNullable_(value, nullable);
-}
-/**
- * @tsplus dataFirst fromPredicate_
- */
-export function fromPredicate<E, A, B extends A>(
-  p: Refinement<A, B>,
-  otherwise: (a: A) => E,
-): (value: A) => Either<E, B>;
-/**
- * @tsplus dataFirst fromPredicate_
- */
-export function fromPredicate<E, A>(
-  p: Predicate<A>,
-  otherwise: (a: A) => E,
-): (value: A) => Either<E, A>;
-/**
- * @tsplus dataFirst fromPredicate_
- */
-export function fromPredicate<E, A>(p: Predicate<A>, otherwise: (a: A) => E) {
-  return (value: A): Either<E, A> => fromPredicate_(value, p, otherwise);
-}
-// codegen:end

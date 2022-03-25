@@ -45,16 +45,3 @@ export function takeBetween_<RA, RB, EA, EB, A, B>(
     });
   }
 }
-
-// codegen:start { preset: pipeable }
-/**
- * Takes between min and max number of values from the queue. If there
- * is less than min items available, it'll block until the items are
- * collected.
- * @tsplus dataFirst takeBetween_
- */
-export function takeBetween(min: number, max: number) {
-  return <RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): IO<RB, EB, Conc<B>> =>
-    takeBetween_(queue, min, max);
-}
-// codegen:end

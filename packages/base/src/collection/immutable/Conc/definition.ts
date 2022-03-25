@@ -827,12 +827,3 @@ export function toArray<A>(conc: Conc<A>): ReadonlyArray<A> {
   concrete(conc);
   return conc.array();
 }
-
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst corresponds_
- */
-export function corresponds<A, B>(bs: Conc<B>, f: (a: A, b: B) => boolean) {
-  return (self: Conc<A>): boolean => corresponds_(self, bs, f);
-}
-// codegen:end

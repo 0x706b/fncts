@@ -58,12 +58,3 @@ export function succeed<E = never, A = never>(value: A): Exit<E, A> {
  * @tsplus static fncts.data.ExitOps unit
  */
 export const unit: Exit<never, void> = Exit.succeed(undefined);
-
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst fromMaybe_
- */
-export function fromMaybe<E>(onNothing: () => E) {
-  return <A>(fa: Maybe<A>): Exit<E, A> => fromMaybe_(fa, onNothing);
-}
-// codegen:end

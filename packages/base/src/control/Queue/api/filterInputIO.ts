@@ -80,24 +80,3 @@ export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
 ): PQueue<RA, RB, EA, EB, A1, B> {
   return queue.filterInputIO((a) => IO.succeedNow(f(a)));
 }
-
-// codegen:start { preset: pipeable }
-/**
- * Like `filterInput`, but uses an effectful function to filter the elements.
- * @tsplus dataFirst filterInputIO_
- */
-export function filterInputIO<A, A1 extends A, R2, E2>(f: (_: A1) => IO<R2, E2, boolean>) {
-  return <RA, RB, EA, EB, B>(
-    queue: PQueue<RA, RB, EA, EB, A, B>,
-  ): PQueue<RA & R2, RB, EA | E2, EB, A1, B> => filterInputIO_(queue, f);
-}
-/**
- * Applies a filter to elements enqueued into this queue. Elements that do not
- * pass the filter will be immediately dropped.
- * @tsplus dataFirst filterInput_
- */
-export function filterInput<A, A1 extends A>(f: (_: A1) => boolean) {
-  return <RA, RB, EA, EB, B>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A1, B> =>
-    filterInput_(queue, f);
-}
-// codegen:end

@@ -83,33 +83,6 @@ export function gen<T extends GenEval<any>, A>(
   });
 }
 
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst chain_
- */
-export function chain<A, B>(f: (a: A) => Eval<B>) {
-  return (self: Eval<A>): Eval<B> => chain_(self, f);
-}
-/**
- * @tsplus dataFirst map_
- */
-export function map<A, B>(f: (a: A) => B) {
-  return (self: Eval<A>): Eval<B> => map_(self, f);
-}
-/**
- * @tsplus dataFirst zipWith_
- */
-export function zipWith<A, B, C>(fb: Eval<B>, f: (a: A, b: B) => C) {
-  return (self: Eval<A>): Eval<C> => zipWith_(self, fb, f);
-}
-/**
- * @tsplus dataFirst ap_
- */
-export function ap<A>(fa: Eval<A>) {
-  return <B>(self: Eval<(a: A) => B>): Eval<B> => ap_(self, fa);
-}
-// codegen:end
-
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/sequenceArray.js";
 // codegen:end

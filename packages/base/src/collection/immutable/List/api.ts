@@ -352,69 +352,6 @@ export function unsafeLast<A>(list: List<A>): A {
   return these.head;
 }
 
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst chain_
- */
-export function chain<A, B>(f: (a: A) => List<B>) {
-  return (self: List<A>): List<B> => chain_(self, f);
-}
-/**
- * @tsplus dataFirst concat_
- */
-export function concat<B>(that: List<B>) {
-  return <A>(self: List<A>): List<A | B> => concat_(self, that);
-}
-/**
- * @tsplus dataFirst exists_
- */
-export function exists<A>(p: Predicate<A>) {
-  return (self: List<A>): boolean => exists_(self, p);
-}
-/**
- * @tsplus dataFirst filter_
- */
-export function filter<A>(p: Predicate<A>) {
-  return (self: List<A>): List<A> => filter_(self, p);
-}
-/**
- * @tsplus dataFirst forEach_
- */
-export function forEach<A, U>(f: (a: A) => U) {
-  return (self: List<A>): void => forEach_(self, f);
-}
-/**
- * @tsplus dataFirst map_
- */
-export function map<A, B>(f: (a: A) => B) {
-  return (self: List<A>): List<B> => map_(self, f);
-}
-/**
- * @tsplus dataFirst prepend_
- */
-export function prepend<B>(elem: B) {
-  return <A>(self: List<A>): List<A | B> => prepend_(self, elem);
-}
-/**
- * @tsplus dataFirst prependAll_
- */
-export function prependAll<B>(prefix: List<B>) {
-  return <A>(self: List<A>): List<A | B> => prependAll_(self, prefix);
-}
-/**
- * @tsplus dataFirst sortWith_
- */
-export function sortWith<A>(compare: (x: A, y: A) => P.Ordering) {
-  return (self: List<A>): List<A> => sortWith_(self, compare);
-}
-/**
- * @tsplus dataFirst take_
- */
-export function take(n: number) {
-  return <A>(self: List<A>): List<A> => take_(self, n);
-}
-// codegen:end
-
 function copyToArrayWithIndex<A>(list: List<A>, arr: Array<[number, A]>): void {
   let these = list;
   let i     = 0;

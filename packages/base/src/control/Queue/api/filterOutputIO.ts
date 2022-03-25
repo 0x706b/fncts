@@ -90,21 +90,3 @@ export function filterOutput_<RA, RB, EA, EB, A, B>(
 ): PQueue<RA, RB, EA, EB, A, B> {
   return queue.filterOutputIO((b) => IO.succeedNow(p(b)));
 }
-
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst filterOutputIO_
- */
-export function filterOutputIO<B, RB1, EB1>(f: (b: B) => IO<RB1, EB1, boolean>) {
-  return <RA, RB, EA, EB, A>(
-    queue: PQueue<RA, RB, EA, EB, A, B>,
-  ): PQueue<RA, RB & RB1, EA, EB | EB1, A, B> => filterOutputIO_(queue, f);
-}
-/**
- * @tsplus dataFirst filterOutput_
- */
-export function filterOutput<B>(p: Predicate<B>) {
-  return <RA, RB, EA, EB, A>(queue: PQueue<RA, RB, EA, EB, A, B>): PQueue<RA, RB, EA, EB, A, B> =>
-    filterOutput_(queue, p);
-}
-// codegen:end

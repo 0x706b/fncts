@@ -1015,64 +1015,6 @@ export function untraced<E>(self: Cause<E>): Cause<E> {
   return self.mapTrace(() => Trace.none);
 }
 
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst as_
- */
-export function as<B>(b: Lazy<B>) {
-  return <A>(self: Cause<A>): Cause<B> => as_(self, b);
-}
-/**
- * Composes computations in sequence, using the return value of one computation as input for the next
- * @tsplus dataFirst chain_
- */
-export function chain<E, D>(f: (e: E) => Cause<D>) {
-  return (self: Cause<E>): Cause<D> => chain_(self, f);
-}
-/**
- * Determines whether a `Cause` contains or is equal to the specified cause.
- * @tsplus dataFirst contains_
- */
-export function contains<E, E1 extends E = E>(that: Cause<E1>) {
-  return (self: Cause<E>): boolean => contains_(self, that);
-}
-/**
- * Remove all `Halt` causes that the specified partial function is defined at,
- * returning `Just` with the remaining causes or `Nothing` if there are no
- * remaining causes.
- * @tsplus dataFirst filterDefects_
- */
-export function filterDefects(p: Predicate<unknown>) {
-  return <E>(self: Cause<E>): Maybe<Cause<E>> => filterDefects_(self, p);
-}
-/**
- * Finds the first result matching `f`
- * @tsplus dataFirst find_
- */
-export function find<E, A>(f: (cause: Cause<E>) => Maybe<A>) {
-  return (self: Cause<E>): Maybe<A> => find_(self, f);
-}
-/**
- * Accumulates a state over a `Cause`
- * @tsplus dataFirst foldLeft_
- */
-export function foldLeft<A, B>(b: B, f: (b: B, cause: Cause<A>) => Maybe<B>) {
-  return (self: Cause<A>): B => foldLeft_(self, b, f);
-}
-/**
- * @tsplus dataFirst map_
- */
-export function map<A, B>(f: (e: A) => B) {
-  return (self: Cause<A>): Cause<B> => map_(self, f);
-}
-/**
- * @tsplus dataFirst mapTrace_
- */
-export function mapTrace(f: (trace: Trace) => Trace) {
-  return <E>(self: Cause<E>): Cause<E> => mapTrace_(self, f);
-}
-// codegen:end
-
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/fold.js";
 export * from "./api/isEmpty.js";

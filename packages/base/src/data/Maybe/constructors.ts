@@ -90,20 +90,3 @@ export function partial<P extends ReadonlyArray<unknown>, A>(
     }
   };
 }
-
-// codegen:start { preset: pipeable }
-/**
- * @tsplus dataFirst fromPredicate_
- */
-export function fromPredicate<A>(p: Predicate<A>): (a: A) => Maybe<A>;
-/**
- * @tsplus dataFirst fromPredicate_
- */
-export function fromPredicate<A, B extends A>(p: Refinement<A, B>): (a: A) => Maybe<A>;
-/**
- * @tsplus dataFirst fromPredicate_
- */
-export function fromPredicate<A>(p: Predicate<A>) {
-  return (a: A): Maybe<A> => fromPredicate_(a, p);
-}
-// codegen:end
