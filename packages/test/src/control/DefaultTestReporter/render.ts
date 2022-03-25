@@ -1,44 +1,54 @@
+import type { AssertionResult, FailureDetailsResult } from "../../data/AssertionResult.js";
+import type { AssertionValue } from "../../data/AssertionValue.js";
 import type { ExecutedSpec } from "../../data/ExecutedSpec.js";
-import type { FailureDetails } from "../../data/FailureDetails.js";
-import type { Fragment, Message } from "../../data/LogLine.js";
+import type { TestResult } from "../../data/FailureDetails.js";
+import type { GenFailureDetails } from "../../data/GenFailureDetails.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
+import type { TestRenderer } from "../TestRenderer/definition.js";
 import type { ExecutionResult } from "./ExecutionResult.js";
 import type { URIO } from "@fncts/base/control/IO";
 import type { Cause } from "@fncts/base/data/Cause.js";
+import type { Maybe } from "@fncts/base/data/Maybe.js";
 import type { Has } from "@fncts/base/prelude";
 
-import { List } from "@fncts/base/collection/immutable/List.js";
+import { Cons, List } from "@fncts/base/collection/immutable/List.js";
 import { Vector } from "@fncts/base/collection/immutable/Vector.js";
 import { IO } from "@fncts/base/control/IO";
-import { cyan, green, red, RESET, yellow } from "@fncts/base/util/AnsiFormat.js";
+import { Just, Nothing } from "@fncts/base/data/Maybe.js";
 import { matchTag } from "@fncts/base/util/pattern.js";
 
 import { ExecutedSpecCaseTag } from "../../data/ExecutedSpec.js";
+import { detail, Fragment, Line, Message, primary, Style, withOffset } from "../../data/LogLine.js";
+import { error, fr, warn } from "../../data/LogLine.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
+import { TestTimeoutException } from "../../data/TestTimeoutException.js";
 import { TestLogger } from "../TestLogger.js";
+import { Other } from "./ExecutionResult.js";
 import { Failed, Ignored, Passed, rendered, Suite, Test } from "./ExecutionResult.js";
-import { renderCause, renderFailureDetails } from "./renderFailureDetails.js";
 
 export type TestReporter<E> = (
   duration: number,
   spec: ExecutedSpec<E>,
 ) => URIO<Has<TestLogger>, void>;
 
-export function report<E>(testAnnotationRenderer: TestAnnotationRenderer): TestReporter<E> {
+export function report<E>(
+  testRenderer: TestRenderer,
+  testAnnotationRenderer: TestAnnotationRenderer,
+): TestReporter<E> {
   return (duration, executedSpec) => {
-    const rendered = renderLoop(
-      executedSpec,
-      0,
-      List.empty(),
-      List.empty(),
+    const rendered = testRenderer.render(
+      renderLoop(executedSpec, 0, List.empty(), List.empty()),
       testAnnotationRenderer,
-    ).chain((r) => r.rendered);
-    const stats = renderStats(duration, executedSpec);
-    return IO.serviceWithIO(TestLogger.Tag)((l) => l.logLine(rendered.append(stats).join("\n")));
+    );
+    const stats = testRenderer.render(
+      Vector(renderStats(duration, executedSpec)),
+      testAnnotationRenderer,
+    );
+    return IO.serviceWithIO(TestLogger.Tag)((l) => l.logLine(rendered.concat(stats).join("\n")));
   };
 }
 
-export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>): string {
+export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>) {
   const [success, ignore, failure] = executedSpec.fold<E, readonly [number, number, number]>(
     matchTag({
       Labeled: ({ spec }) => spec,
@@ -57,11 +67,13 @@ export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>):
 
   const total = success + ignore + failure;
 
-  return cyan(
+  const stats = detail(
     `Ran ${total} test${
       total === 1 ? "" : "s"
     } in ${duration}ms: ${success} succeeded, ${ignore} ignored, ${failure} failed`,
   );
+
+  return rendered(Other, "", Passed, 0, List(stats.toLine()));
 }
 
 function renderLoop<E>(
@@ -69,7 +81,6 @@ function renderLoop<E>(
   depth: number,
   ancestors: List<TestAnnotationMap>,
   labels: List<string>,
-  testAnnotationRenderer: TestAnnotationRenderer,
 ): Vector<ExecutionResult> {
   switch (executedSpec.caseValue._tag) {
     case ExecutedSpecCaseTag.Labeled: {
@@ -78,7 +89,6 @@ function renderLoop<E>(
         depth,
         ancestors,
         labels.prepend(executedSpec.caseValue.label),
-        testAnnotationRenderer,
       );
     }
     case ExecutedSpecCaseTag.Multiple: {
@@ -100,61 +110,46 @@ function renderLoop<E>(
       );
 
       const [status, renderedLabel] = specs.isEmpty
-        ? [Ignored, Vector(renderIgnoreLabel(labels.reverse.join(" - "), depth))]
+        ? [Ignored, Vector(renderSuiteIgnored(labels.reverse.join(" - "), depth))]
         : hasFailures
-        ? [Failed, Vector(renderFailureLabel(labels.reverse.join(" - "), depth))]
-        : [Passed, Vector(renderSuccessLabel(labels.reverse.join(" - "), depth))];
+        ? [Failed, Vector(renderSuiteFailed(labels.reverse.join(" - "), depth))]
+        : [Passed, Vector(renderSuiteSucceeded(labels.reverse.join(" - "), depth))];
 
-      const renderedAnnotations = testAnnotationRenderer.run(ancestors, annotations);
+      const allAnnotations = ancestors.prepend(annotations);
 
       const rest = Vector.from(specs).chain((spec) =>
-        renderLoop(
-          spec,
-          depth + 1,
-          ancestors.prepend(annotations),
-          List.empty(),
-          testAnnotationRenderer,
-        ),
+        renderLoop(spec, depth + 1, ancestors.prepend(annotations), List.empty()),
       );
 
       return rest.prepend(
-        rendered(Suite, labels.reverse.join(" - "), status, depth, renderedLabel).withAnnotations(
-          renderedAnnotations,
-        ),
+        rendered(
+          Suite,
+          labels.reverse.join(" - "),
+          status,
+          depth,
+          List.from(renderedLabel.chain((r) => r.lines)),
+        ).withAnnotations(allAnnotations),
       );
     }
     case ExecutedSpecCaseTag.Test: {
-      const renderedAnnotations = testAnnotationRenderer.run(
-        ancestors,
-        executedSpec.caseValue.annotations,
-      );
       const renderedResult = executedSpec.caseValue.test.match(
         matchTag({
           AssertionFailure: ({ result }) =>
-            result.fold<FailureDetails, ExecutionResult>({
+            result.fold<FailureDetailsResult, ExecutionResult>({
               Value: (details) =>
                 rendered(
                   Test,
                   labels.reverse.join(" - "),
                   Failed,
                   depth,
-                  renderFailure(labels.reverse.join(" - "), depth, details),
+                  List.from(renderFailure(labels.reverse.join(" - "), depth, details).lines),
                 ),
               And: (l, r) => l && r,
               Or: (l, r) => l || r,
               Not: (v) => v.invert,
             }),
           RuntimeFailure: ({ cause }) =>
-            rendered(
-              Test,
-              labels.reverse.join(" - "),
-              Failed,
-              depth,
-              Vector(
-                renderFailureLabel(labels.reverse.join(" - "), depth),
-                renderFailureCause(cause, depth),
-              ),
-            ),
+            renderRuntimeCause(cause, labels.reverse.join(" - "), depth, true),
         }),
         matchTag({
           Succeeded: () =>
@@ -163,7 +158,7 @@ function renderLoop<E>(
               labels.reverse.join(" - "),
               Passed,
               depth,
-              Vector(renderSuccessLabel(labels.reverse.join(" - "), depth)),
+              List(fr(labels.reverse.join(" - ")).toLine()),
             ),
           Ignored: () =>
             rendered(
@@ -171,45 +166,193 @@ function renderLoop<E>(
               labels.reverse.join(" - "),
               Ignored,
               depth,
-              Vector(renderIgnoreLabel(labels.reverse.join(" - "), depth)),
+              List(warn(labels.reverse.join(" - ")).toLine()),
             ),
         }),
       );
-      return Vector(renderedResult.withAnnotations(renderedAnnotations));
+      return Vector(
+        renderedResult.withAnnotations(ancestors.prepend(executedSpec.caseValue.annotations)),
+      );
     }
   }
 }
 
-function withOffset(n: number): (s: string) => string {
-  return (s) => " ".repeat(n) + s;
+function renderSuiteIgnored(label: string, offset: number) {
+  return rendered(Suite, label, Ignored, offset, Cons(warn(`- ${label}`).toLine()));
 }
 
-function renderToStringLines(message: Message): Vector<string> {
-  const renderFragment = (f: Fragment) =>
-    f.colorCode !== "" ? f.colorCode + f.text + RESET : f.text;
-  return message.lines.map((line) =>
-    withOffset(line.offset)(line.fragments.foldLeft("", (str, f) => str + renderFragment(f))),
+function renderSuiteFailed(label: string, offset: number) {
+  return rendered(Suite, label, Failed, offset, Cons(error(`- ${label}`).toLine()));
+}
+
+function renderSuiteSucceeded(label: string, offset: number) {
+  return rendered(Suite, label, Passed, offset, Cons(fr(label).toLine()));
+}
+
+function renderFailure(label: string, offset: number, details: AssertionResult): Message {
+  return renderFailureLabel(label, offset)
+    .toMessage()
+    ["++"](renderAssertionResult(details, offset));
+}
+
+function renderAssertionResult(assertionResult: AssertionResult, offset: number): Message {
+  return renderGenFailureDetails(assertionResult.genFailureDetails, offset)["++"](
+    renderAssertionFailureDetails(assertionResult.failureDetails.assertion, offset),
   );
 }
 
-function renderFailure(label: string, offset: number, details: FailureDetails): Vector<string> {
-  return renderToStringLines(renderFailureDetails(details, offset)).prepend(
-    renderFailureLabel(label, offset),
+function renderFailureLabel(label: string, offset: number): Line {
+  return withOffset(offset)(error("- " + label).toLine());
+}
+
+function renderAssertFailure(result: TestResult, label: string, depth: number): ExecutionResult {
+  return result.fold({
+    Value: (details) =>
+      rendered(Test, label, Failed, depth, List.from(renderFailure(label, depth, details).lines)),
+    And: (l, r) => l && r,
+    Or: (l, r) => l || r,
+    Not: (v) => v.invert,
+  });
+}
+
+function renderAssertionFailureDetails(
+  failureDetails: Cons<AssertionValue<any>>,
+  offset: number,
+): Message {
+  /**
+   * @tsplus tailrec
+   */
+  function loop(failureDetails: List<AssertionValue<any>>, rendered: Message): Message {
+    const fragment = failureDetails.head;
+    const whole    = failureDetails.tail.chain((l) => l.head);
+    const details  = failureDetails.tail.chain((l) => l.tail);
+    if (fragment.isJust() && whole.isJust() && details.isJust()) {
+      return loop(
+        Cons(whole.value, details.value),
+        rendered[":+"](renderWhole(fragment.value, whole.value, offset)),
+      );
+    } else {
+      return rendered;
+    }
+  }
+  return renderFragment(failureDetails.head, offset)["++"](loop(failureDetails, Message.empty));
+}
+
+function renderGenFailureDetails(
+  failureDetails: Maybe<GenFailureDetails>,
+  offset: number,
+): Message {
+  return failureDetails.match(
+    () => Message.empty,
+    (details) => {
+      const shrunken       = `${details.shrunkenInput}`;
+      const initial        = `${details.initialInput}`;
+      const renderShrunken = withOffset(offset + 1)(
+        new Fragment(
+          `Test failed after ${details.iterations + 1} iteration${
+            details.iterations > 0 ? "s" : ""
+          } with input: `,
+        )["+"](error(shrunken)),
+      );
+
+      return initial === shrunken
+        ? renderShrunken.toMessage()
+        : renderShrunken["+|"](
+            withOffset(offset + 1)(
+              new Fragment("Original input before shrinking was: ")["+"](error(initial)),
+            ),
+          );
+    },
   );
 }
 
-function renderFailureLabel(label: string, offset: number): string {
-  return withOffset(offset)(red(`- ${label}`));
+function renderFragment<A>(fragment: AssertionValue<A>, offset: number): Message {
+  return primary(renderValue(fragment, offset + 1))
+    ["+"](renderSatisfied(fragment))
+    .withOffset(offset)
+    .toMessage()
+    ["++"](
+      new Message(
+        Vector.from(
+          fragment.assertion.value.rendered
+            .split(/\n/)
+            .map((s) => detail(s).toLine().withOffset(offset)),
+        ),
+      ),
+    );
 }
 
-function renderSuccessLabel(label: string, offset: number): string {
-  return withOffset(offset)(`${green("+")} ${label}`);
+function renderWhole<A>(fragment: AssertionValue<A>, whole: AssertionValue<A>, offset: number) {
+  return primary(renderValue(whole, offset + 1))
+    ["+"](renderSatisfied(whole))
+    ["++"](highlight(detail(whole.assertion.value.rendered), fragment.assertion.value.rendered));
 }
 
-function renderIgnoreLabel(label: string, offset: number): string {
-  return withOffset(offset)(yellow(`- ${label}`));
+function renderValue<A>(av: AssertionValue<A>, offset: number) {
+  return av.showValue(offset);
 }
 
-function renderFailureCause(cause: Cause<any>, offset: number): string {
-  return renderToStringLines(renderCause(cause, offset)).join("\n");
+function expressionRedundant(valueStr: string, expression: string) {
+  const strip = (s: string) =>
+    s.replace('"', "").replace(" ", "").replace("\n", "").replace("\\n", "");
+
+  return strip(valueStr) === strip(expression);
+}
+
+function renderSatisfied<A>(assertionValue: AssertionValue<A>): Fragment {
+  return assertionValue.result.value.isSuccess
+    ? new Fragment(" satisfied ")
+    : new Fragment(" did not satisfy ");
+}
+
+function renderRuntimeCause<E>(
+  cause: Cause<E>,
+  label: string,
+  depth: number,
+  includeCause: boolean,
+) {
+  const failureDetails = List(renderFailureLabel(label, depth)).concat(
+    List(renderCause(cause, depth))
+      .filter(() => includeCause)
+      .chain((l) => l.lines),
+  );
+  return rendered(Test, label, Failed, depth, List.from(failureDetails));
+}
+
+function renderCause(cause: Cause<any>, offset: number): Message {
+  const defects  = cause.defects;
+  const timeouts = defects.filterMap((u) =>
+    u instanceof TestTimeoutException
+      ? Just(new Fragment(u.message).toLine().toMessage())
+      : Nothing(),
+  );
+  const remaining = cause.filterDefects((u) => u instanceof TestTimeoutException);
+  const prefix    = timeouts.foldLeft(Message.empty, (b, a) => b["++"](a));
+  return remaining.match(
+    () => prefix,
+    (remainingCause) =>
+      prefix["++"](
+        new Message(
+          Vector.from(
+            remainingCause.prettyPrint
+              .split("\n")
+              .map((s) => withOffset(offset + 1)(Line.fromString(s))),
+          ),
+        ),
+      ),
+  );
+}
+
+function highlight(fragment: Fragment, substring: string, style: Style = Style.Warning): Line {
+  const parts = fragment.text.split(substring);
+  if (parts.length === 1) return fragment.toLine();
+  else {
+    return parts.foldLeft(Line.empty, (line, part) => {
+      if (line.fragments.length < parts.length * 2 - 2) {
+        return line["+"](new Fragment(part, fragment.style))["+"](new Fragment(substring, style));
+      } else {
+        return line["+"](new Fragment(part, fragment.style));
+      }
+    });
+  }
 }

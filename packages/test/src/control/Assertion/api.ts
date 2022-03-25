@@ -60,9 +60,9 @@ export function assertion<A>(
     return Assertion.direct(name, params, (actual) => {
       const result: LazyValue<FreeBooleanAlgebra<AssertionValue<A>>> = LazyValue(() => {
         if (run(actual)) {
-          return FreeBooleanAlgebra.success(new AssertionValue(actual, assertion, result));
+          return FreeBooleanAlgebra.success(new AssertionValue(assertion, actual, result));
         } else {
-          return FreeBooleanAlgebra.failure(new AssertionValue(actual, assertion, result));
+          return FreeBooleanAlgebra.failure(new AssertionValue(assertion, actual, result));
         }
       });
       return result.value;
@@ -100,10 +100,10 @@ export function assertionRec<A, B>(
           const innerResult = assertion.run(b);
           const result: LazyValue<FreeBooleanAlgebra<AssertionValue<any>>> = LazyValue(() => {
             if (innerResult.isSuccess) {
-              return FreeBooleanAlgebra.success(new AssertionValue(a, resultAssertion, result));
+              return FreeBooleanAlgebra.success(new AssertionValue(resultAssertion, a, result));
             } else {
               return FreeBooleanAlgebra.failure(
-                new AssertionValue(b, LazyValue(assertion), LazyValue(innerResult)),
+                new AssertionValue(LazyValue(assertion), b, LazyValue(innerResult)),
               );
             }
           });

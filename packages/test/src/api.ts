@@ -12,6 +12,7 @@ import { Nothing } from "@fncts/base/data/Maybe";
 
 import { Spec } from "./control/Spec.js";
 import { Test } from "./control/Test.js";
+import { FailureDetailsResult } from "./data/AssertionResult.js";
 import { AssertionValue } from "./data/AssertionValue.js";
 import { FailureDetails } from "./data/FailureDetails.js";
 import { FreeBooleanAlgebra } from "./data/FreeBooleanAlgebra.js";
@@ -22,7 +23,7 @@ function traverseResultLoop<A>(
   failureDetails: FailureDetails,
 ): TestResult {
   if (whole.isSameAssertionAs(failureDetails.assertion.head)) {
-    return FreeBooleanAlgebra.success(failureDetails);
+    return FreeBooleanAlgebra.success(new FailureDetailsResult(failureDetails));
   } else {
     const fragment = whole.result;
     const r0       = fragment.value;
@@ -47,11 +48,10 @@ export function traverseResult<A>(
       new FailureDetails(
         Cons(
           new AssertionValue(
-            value,
             LazyValue(() => assertion),
+            value,
             LazyValue(() => assertResult),
           ),
-          _Nil,
         ),
         Nothing(),
       ),
@@ -59,10 +59,16 @@ export function traverseResult<A>(
   );
 }
 
+/**
+ * @tsplus fluent global assert
+ */
 export function assert_<A>(value: A, assertion: Assertion<A>): TestResult {
   return traverseResult(value, assertion.run(value), assertion);
 }
 
+/**
+ * @tsplus fluent fncts.control.IO assert
+ */
 export function assertIO_<R, E, A>(
   io: IO<R, E, A>,
   assertion: AssertionIO<A>,

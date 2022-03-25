@@ -1,6 +1,22 @@
-import type { AssertionValue } from "./definition.js";
+import type { Maybe } from "@fncts/base/data/Maybe";
 
+import { LazyValue } from "@fncts/base/control/LazyValue";
 import { showWithOptions } from "@fncts/base/prelude/Showable";
+
+import { AssertionValue } from "./definition.js";
+
+/**
+ * @tsplus fluent fncts.test.data.AssertionValue label
+ */
+export function label<A>(self: AssertionValue<A>, string: string): AssertionValue<A> {
+  return new AssertionValue(
+    LazyValue(() => self.assertion.value.label(string)),
+    self.value,
+    self.result,
+    self.expression,
+    self.sourceLocation,
+  );
+}
 
 /**
  * @tsplus fluent fncts.test.data.AssertionValue isSameAssertionAs
@@ -14,4 +30,22 @@ export function isSameAssertionAs<A>(self: AssertionValue<A>, that: AssertionVal
  */
 export function showValue<A>(self: AssertionValue<A>, offset = 0): string {
   return showWithOptions(self.value, { indentationLevel: offset });
+}
+
+/**
+ * @tsplus getter fncts.test.data.AssertionValue printAssertion
+ */
+export function printAssertion<A>(self: AssertionValue<A>): string {
+  return self.assertion.value.rendered;
+}
+
+/**
+ * @tsplus fluent fncts.test.data.AssertionValue withContext
+ */
+export function withContext<A>(
+  self: AssertionValue<A>,
+  expr: Maybe<string>,
+  sourceLocation: Maybe<string>,
+): AssertionValue<A> {
+  return new AssertionValue(self.assertion, self.value, self.result, expr, sourceLocation);
 }

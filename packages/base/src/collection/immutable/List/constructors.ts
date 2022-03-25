@@ -12,14 +12,14 @@
  * for more information regarding copyright ownership
  */
 
-import type { List, Nil } from "./definition.js";
+import type { Nil } from "./definition.js";
 
-import { _Nil, Cons } from "./definition.js";
+import { _Nil, Cons, List } from "./definition.js";
 
 /**
  * @tsplus static fncts.ConsOps __call
  */
-export function cons<A>(head: A, tail: List<A>): Cons<A> {
+export function cons<A>(head: A, tail: List<A> = _Nil): Cons<A> {
   return new Cons(head, tail);
 }
 
@@ -48,6 +48,13 @@ export function from<A>(prefix: Iterable<A>): List<A> {
   } else {
     return _Nil;
   }
+}
+
+/**
+ * @tsplus static fncts.ListOps __call
+ */
+export function make<A>(...as: ReadonlyArray<A>): List<A> {
+  return List.from(as);
 }
 
 /**

@@ -2,7 +2,8 @@ import type { Maybe } from "../../../data/Maybe.js";
 import type { UManaged } from "../definition.js";
 
 import { Just, Nothing } from "../../../data/Maybe.js";
-import { Concurrency, IO } from "../../IO.js";
+import { IO } from "../../IO.js";
+import {Concurrency} from "../../IO/api/concurrency.js";
 import { Managed } from "../definition.js";
 
 /**

@@ -17,6 +17,40 @@ export function ap_<A, B>(self: Iterable<(a: A) => B>, fa: Iterable<A>): Iterabl
 }
 
 /**
+ * @tsplus fluent fncts.collection.immutable.Iterable append
+ */
+export function append_<A, B>(self: Iterable<A>, b: B): Iterable<A | B> {
+  return Iterable.make<A | B>(() => {
+    let done = false;
+    const ia = self[Symbol.iterator]();
+    let va: IteratorResult<A>;
+    return {
+      next() {
+        if (done) {
+          return this.return!();
+        }
+        va = ia.next();
+        if (va.done) {
+          done = true;
+          return { done: false, value: b };
+        }
+        return { done, value: va.value };
+      },
+      return(value?: unknown) {
+        done = true;
+        if (!done) {
+          done = true;
+        }
+        if (typeof ia.return === "function") {
+          ia.return();
+        }
+        return { done, value };
+      },
+    };
+  });
+}
+
+/**
  * @tsplus fluent fncts.collection.immutable.Iterable chain
  */
 export function chain_<A, B>(self: Iterable<A>, f: (a: A) => Iterable<B>): Iterable<B> {

@@ -1,6 +1,9 @@
+import type { Line } from "../../data/LogLine.js";
+import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import type { List } from "@fncts/base/collection/immutable/List";
 import type { Vector } from "@fncts/base/collection/immutable/Vector";
 
+import { Nil } from "@fncts/base/collection/immutable/List";
 import { matchTag_ } from "@fncts/base/util/pattern";
 
 export interface Failed {
@@ -33,7 +36,7 @@ interface Test {
   readonly _tag: "Test";
 }
 
-export const Test: Test = {
+export const Test: ResultType = {
   _tag: "Test",
 };
 
@@ -41,51 +44,53 @@ export interface Suite {
   readonly _tag: "Suite";
 }
 
-export const Suite: Suite = {
+export const Suite: ResultType = {
   _tag: "Suite",
 };
 
-export type CaseType = Test | Suite;
+export interface Other {
+  readonly _tag: "Other";
+}
+
+export const Other: ResultType = {
+  _tag: "Other",
+};
+
+export type ResultType = Test | Suite | Other;
 
 /**
  * @tsplus type fncts.test.control.ExecutionResult
  */
 export class ExecutionResult {
   constructor(
-    readonly caseType: CaseType,
+    readonly resultType: ResultType,
     readonly label: string,
     readonly status: Status,
     readonly offset: number,
-    readonly rendered: Vector<string>,
+    readonly annotations: List<TestAnnotationMap>,
+    readonly lines: List<Line>,
   ) {}
 
-  withAnnotations(annotations: List<string>): ExecutionResult {
-    if (this.rendered.isEmpty() || annotations.isEmpty()) {
-      return this;
-    } else {
-      const renderedAnnotations     = ` - ${annotations.join(", ")}`;
-      const head                    = this.rendered.head.getOrElse("");
-      const tail                    = this.rendered.tail;
-      const renderedWithAnnotations = tail.prepend(head + renderedAnnotations);
-      return new ExecutionResult(
-        this.caseType,
-        this.label,
-        this.status,
-        this.offset,
-        renderedWithAnnotations,
-      );
-    }
+  withAnnotations(annotations: List<TestAnnotationMap>): ExecutionResult {
+    return new ExecutionResult(
+      this.resultType,
+      this.label,
+      this.status,
+      this.offset,
+      annotations,
+      this.lines,
+    );
   }
 }
 
 export function rendered(
-  caseType: CaseType,
+  caseType: ResultType,
   label: string,
   status: Status,
   offset: number,
-  lines: Vector<string>,
+  lines: List<Line>,
 ): ExecutionResult {
-  return new ExecutionResult(caseType, label, status, offset, lines);
+  return new ExecutionResult(caseType, label, status, offset, Nil(), lines);
 }
 
 /**
@@ -100,11 +105,12 @@ export function and_(self: ExecutionResult, that: ExecutionResult): ExecutionRes
   }
   if (self.status._tag === "Failed" && that.status._tag === "Failed") {
     return new ExecutionResult(
-      self.caseType,
+      self.resultType,
       self.label,
       self.status,
       self.offset,
-      self.rendered.concat(that.rendered.tail),
+      self.annotations,
+      self.lines.concat(that.lines.tail.getOrElse(Nil())),
     );
   }
   if (self.status._tag === "Passed") {
@@ -128,11 +134,12 @@ export function or_(self: ExecutionResult, that: ExecutionResult): ExecutionResu
   }
   if (self.status._tag === "Failed" && that.status._tag === "Failed") {
     return new ExecutionResult(
-      self.caseType,
+      self.resultType,
       self.label,
       self.status,
       self.offset,
-      self.rendered.concat(that.rendered.tail),
+      self.annotations,
+      self.lines.concat(that.lines.tail.getOrElse(Nil())),
     );
   }
   if (self.status._tag === "Passed") {
@@ -151,8 +158,22 @@ export function invert(self: ExecutionResult): ExecutionResult {
   return matchTag_(self.status, {
     Ignored: () => self,
     Failed: () =>
-      new ExecutionResult(self.caseType, self.label, Passed, self.offset, self.rendered),
+      new ExecutionResult(
+        self.resultType,
+        self.label,
+        Passed,
+        self.offset,
+        self.annotations,
+        self.lines,
+      ),
     Passed: () =>
-      new ExecutionResult(self.caseType, self.label, Failed, self.offset, self.rendered),
+      new ExecutionResult(
+        self.resultType,
+        self.label,
+        Failed,
+        self.offset,
+        self.annotations,
+        self.lines,
+      ),
   });
 }

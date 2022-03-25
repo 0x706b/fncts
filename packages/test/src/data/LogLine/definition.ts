@@ -1,4 +1,14 @@
+import type { AssertionValue } from "../AssertionValue.js";
+import type { Cause } from "@fncts/base/data/Cause.js";
+
+import { List, Nil } from "@fncts/base/collection/immutable/List.js";
+import { Cons } from "@fncts/base/collection/immutable/List.js";
 import { Vector } from "@fncts/base/collection/immutable/Vector";
+import { Just, Nothing } from "@fncts/base/data/Maybe.js";
+
+import { TestTimeoutException } from "../TestTimeoutException.js";
+import { detail, primary, withOffset } from "./api.js";
+import { Style } from "./Style.js";
 
 export class Message {
   constructor(readonly lines: Vector<Line> = Vector.empty()) {}
@@ -31,6 +41,15 @@ export class Message {
   withOffset(offset: number): Message {
     return new Message(this.lines.map((l) => l.withOffset(offset)));
   }
+  intersperse(line: Line) {
+    return new Message(
+      Vector.from(
+        this.lines.foldRight(List.empty<Line>(), (ln, rest) =>
+          Cons(ln, rest.isEmpty() ? Nil() : Cons(line, rest)),
+        ),
+      ),
+    );
+  }
   static empty = new Message();
 }
 
@@ -39,6 +58,9 @@ export class Line {
 
   [":+"](fragment: Fragment): Line {
     return new Line(this.fragments.append(fragment));
+  }
+  ["+:"](fragment: Fragment): Line {
+    return new Line(this.fragments.prepend(fragment));
   }
   prepend(this: Line, message: Message): Message {
     return new Message(message.lines.prepend(this));
@@ -67,7 +89,7 @@ export class Line {
 }
 
 export class Fragment {
-  constructor(readonly text: string, readonly colorCode: string = "") {}
+  constructor(readonly text: string, readonly style: Style = Style.Default) {}
 
   ["+:"](line: Line): Line {
     return this.prependTo(line);
@@ -80,5 +102,14 @@ export class Fragment {
   }
   toLine(): Line {
     return new Line(Vector(this));
+  }
+  get bold(): Fragment {
+    return new Fragment(this.text, Style.Bold(this));
+  }
+  get underlined(): Fragment {
+    return new Fragment(this.text, Style.Underlined(this));
+  }
+  ansi(ansiColor: string): Fragment {
+    return new Fragment(this.text, Style.Ansi(this, ansiColor));
   }
 }

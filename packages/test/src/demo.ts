@@ -11,19 +11,15 @@ import { report } from "./control/DefaultTestReporter/render.js";
 import { TestAnnotationRenderer } from "./control/TestAnnotationRenderer.js";
 import { defaultTestExecutor } from "./control/TestExecutor.js";
 import { TestLogger } from "./control/TestLogger.js";
+import { ConsoleRenderer } from "./control/TestRenderer/ConsoleRenderer.js";
 import { TestAnnotationMap } from "./data/TestAnnotationMap.js";
 
 const spec = suite(
   "TestSuite",
-  test("Demo success", assert_(0, strictEqualTo(0))),
-  test("Demo failure", assert_(0, strictEqualTo(100))),
-  testIO(
-    "Demo IO",
-    assertIO_(
-      IO.environmentWith((_: { x: number }) => _.x),
-      strictEqualTo(10),
-    ),
-  ),
+  test("Demo success", (0).assert(strictEqualTo(0))),
+  // @ts-expect-error
+  test("Demo failure", { x: { y: { z: { a: { b: [1, 2, 3, 4] } } } } }.assert(strictEqualTo(100))),
+  testIO("Demo IO", IO.environmentWith((_: { x: number }) => _.x).assert(strictEqualTo(10))),
 );
 
 const liveAnnotations = Layer.fromIO(Annotations.Tag)(
@@ -37,7 +33,7 @@ const env = Layer.fromRawIO(IO.succeedNow({ x: 10 }))
 
 const executor = defaultTestExecutor(env);
 
-const reporter = report(TestAnnotationRenderer.Default);
+const reporter = report(new ConsoleRenderer(), TestAnnotationRenderer.Default);
 
 executor
   .run(spec, ExecutionStrategy.concurrentBounded(10))

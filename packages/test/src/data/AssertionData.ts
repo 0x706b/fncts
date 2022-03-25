@@ -21,7 +21,7 @@ export class AssertionData<A> {
  */
 export function asSuccess<A>(self: AssertionData<A>): FreeBooleanAlgebra<AssertionValue<A>> {
   return FreeBooleanAlgebra.success(
-    new AssertionValue(self.value, LazyValue(self.assertion), LazyValue(self.asSuccess)),
+    new AssertionValue(LazyValue(self.assertion), self.value, LazyValue(self.asSuccess)),
   );
 }
 
@@ -30,6 +30,6 @@ export function asSuccess<A>(self: AssertionData<A>): FreeBooleanAlgebra<Asserti
  */
 export function asFailure<A>(self: AssertionData<A>): FreeBooleanAlgebra<AssertionValue<A>> {
   return FreeBooleanAlgebra.failure(
-    new AssertionValue(self.value, LazyValue(self.assertion), LazyValue(self.asFailure)),
+    new AssertionValue(LazyValue(self.assertion), self.value, LazyValue(self.asFailure)),
   );
 }

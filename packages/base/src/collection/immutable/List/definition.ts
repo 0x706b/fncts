@@ -18,7 +18,7 @@
  */
 export class Cons<A> implements Iterable<A> {
   readonly _tag = "Cons";
-  constructor(readonly head: A, public tail: List<A>) {}
+  constructor(readonly head: A, public tail: List<A> = _Nil) {}
 
   [Symbol.iterator](): Iterator<A> {
     let done = false;

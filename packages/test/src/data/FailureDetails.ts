@@ -1,3 +1,4 @@
+import type { FailureDetailsResult } from "./AssertionResult.js";
 import type { AssertionValue } from "./AssertionValue.js";
 import type { FreeBooleanAlgebra } from "./FreeBooleanAlgebra.js";
 import type { GenFailureDetails } from "./GenFailureDetails.js";
@@ -7,7 +8,7 @@ import type { Maybe } from "@fncts/base/data/Maybe.js";
 /**
  * @tsplus type fncts.data.FreeBooleanAlgebra
  */
-export type TestResult = FreeBooleanAlgebra<FailureDetails>;
+export type TestResult = FreeBooleanAlgebra<FailureDetailsResult>;
 
 export class FailureDetails {
   constructor(
