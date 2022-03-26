@@ -277,7 +277,7 @@ function renderFragment<A>(fragment: AssertionValue<A>, offset: number): Message
           .split(/\n/)
           .map((s) => detail(s).toLine.withOffset(offset)),
       ),
-    )
+    ).withOffset(offset)
   );
 }
 

@@ -17,7 +17,10 @@ import { TestAnnotationMap } from "./data/TestAnnotationMap.js";
 const spec = suite(
   "TestSuite",
   test("Demo success", (0).assert(strictEqualTo(0))),
-  test("Demo failure", (0).assert(strictEqualTo(100))),
+  test(
+    "Demo failure",
+    { a: { b: { c: { d: 100 } } } }.assert(strictEqualTo({ a: { b: { c: { d: 0 } } } })),
+  ),
   testIO("Demo IO", IO.environmentWith((_: { x: number }) => _.x).assert(strictEqualTo(10))),
 );
 
