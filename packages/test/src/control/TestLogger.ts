@@ -2,7 +2,6 @@ import type { UIO, URIO } from "@fncts/base/control/IO";
 import type { Has } from "@fncts/base/prelude";
 
 import { Console } from "@fncts/base/control/Console";
-import { IO } from "@fncts/base/control/IO";
 import { Layer } from "@fncts/base/control/Layer";
 import { Tag } from "@fncts/base/data/Tag";
 

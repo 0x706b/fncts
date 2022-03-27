@@ -2,8 +2,6 @@ import type { AssertionValue } from "../../data/AssertionValue.js";
 import type { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
 import type { Render } from "../../data/Render.js";
 
-import { IO } from "@fncts/base/control/IO";
-
 import { AssertionIO } from "../AssertionIO.js";
 
 /**

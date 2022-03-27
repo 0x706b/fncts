@@ -1,7 +1,6 @@
 import type { Has } from "@fncts/base/prelude";
 import type { _A, _R } from "@fncts/base/types";
 
-import { IO } from "@fncts/base/control/IO";
 import { Random } from "@fncts/base/control/Random";
 
 import { Gen } from "../definition.js";

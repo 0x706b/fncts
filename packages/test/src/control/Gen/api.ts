@@ -8,7 +8,6 @@ import type { _A, _R } from "@fncts/base/types.js";
 
 import { Conc } from "@fncts/base/collection/immutable/Conc";
 import { SortedMap } from "@fncts/base/collection/immutable/SortedMap";
-import { IO } from "@fncts/base/control/IO";
 import { Random } from "@fncts/base/control/Random";
 import { Stream } from "@fncts/base/control/Stream";
 import { IllegalArgumentError, NoSuchElementError } from "@fncts/base/data/exceptions";

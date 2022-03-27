@@ -2,8 +2,6 @@ import type { FloatConstraints, NumberConstraints } from "../constraints.js";
 import type { Random } from "@fncts/base/control/Random";
 import type { Has } from "@fncts/base/prelude";
 
-import { IO } from "@fncts/base/control/IO";
-
 import { indexToFloat, MAX_VALUE_32, safeFloatToIndex } from "../../../util/math.js";
 import { Gen } from "../definition.js";
 

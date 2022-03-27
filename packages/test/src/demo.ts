@@ -1,6 +1,5 @@
 import { Console, LiveConsole } from "@fncts/base/control/Console.js";
 import { FiberRef } from "@fncts/base/control/FiberRef";
-import { IO } from "@fncts/base/control/IO";
 import { Layer } from "@fncts/base/control/Layer";
 import { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 

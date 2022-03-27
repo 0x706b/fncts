@@ -44,6 +44,23 @@ export function mkPTraversal<S, T, A, B>(F: PTraversalMin<S, T, A, B>): PTravers
   };
 }
 
+/**
+ * @tsplus type fncts.optics.Traversal
+ */
+export interface Traversal<S, A> extends PTraversal<S, A, S, A> {}
+
+/**
+ * @tsplus type fncts.optics.TraversalOps
+ */
+export interface TraversalOps extends PTraversalOps {}
+
+/**
+ * @tsplus static fncts.optics.TraversalOps __call
+ */
+export function mkTraversal<S, A>(F: PTraversalMin<S, A, S, A>): Traversal<S, A> {
+  return PTraversal(F);
+}
+
 export interface modifyA_<S, T, A, B> {
   <F extends HKT, C = HKT.None>(F: Applicative<F, C>): <K, Q, W, X, I, _S, R, E>(
     s: S,

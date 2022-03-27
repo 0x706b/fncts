@@ -1,7 +1,5 @@
 import type { FreeBooleanAlgebraIO } from "./definition.js";
 
-import { IO } from "@fncts/base/control/IO";
-
 import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
 
 /**

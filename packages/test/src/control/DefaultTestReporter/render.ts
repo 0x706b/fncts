@@ -13,7 +13,6 @@ import type { Has } from "@fncts/base/prelude";
 
 import { Cons, List } from "@fncts/base/collection/immutable/List.js";
 import { Vector } from "@fncts/base/collection/immutable/Vector.js";
-import { IO } from "@fncts/base/control/IO";
 import { Just, Nothing } from "@fncts/base/data/Maybe.js";
 import { matchTag } from "@fncts/base/util/pattern.js";
 

@@ -9,5 +9,6 @@
     "types": ["@fncts/base/global-augmentation"],
     "incremental": true
   },
+  "files": ["./prelude.d.ts"],
   "include": ["./src/**/*"]
 }

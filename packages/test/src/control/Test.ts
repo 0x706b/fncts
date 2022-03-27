@@ -1,8 +1,6 @@
 import type { TestResult } from "../data/FailureDetails.js";
 import type { Lazy } from "@fncts/base/data/function";
 
-import { IO } from "@fncts/base/control/IO";
-
 import { FreeBooleanAlgebra } from "../data/FreeBooleanAlgebra.js";
 import { TestFailure } from "../data/TestFailure.js";
 import { TestSuccess } from "../data/TestSuccess.js";

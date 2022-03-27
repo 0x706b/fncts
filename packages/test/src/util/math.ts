@@ -1,7 +1,6 @@
 import type { URIO } from "@fncts/base/control/IO";
 import type { Has } from "@fncts/base/prelude/Has";
 
-import { IO } from "@fncts/base/control/IO";
 import { Random } from "@fncts/base/control/Random";
 
 /** @internal */
