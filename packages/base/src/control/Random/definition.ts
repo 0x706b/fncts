@@ -2,13 +2,15 @@ import type { Has } from "../../prelude.js";
 import type { ArrayInt } from "../../util/rand.js";
 import type { UIO } from "../IO.js";
 
-import { tag } from "../../data/Tag.js";
+import { Tag } from "../../data/Tag.js";
 import { IO } from "../IO.js";
+
+export const RandomKey = Symbol.for("fncts.base.control.Random.ServiceKey");
 
 /**
  * @tsplus static fncts.control.RandomOps Tag
  */
-export const RandomTag = tag<Random>();
+export const RandomTag = Tag<Random>(RandomKey);
 
 /**
  * @tsplus type fncts.control.Random

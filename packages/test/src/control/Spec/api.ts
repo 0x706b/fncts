@@ -1,13 +1,7 @@
 import type { Annotated } from "../Annotations.js";
 import type { SpecCase } from "./definition.js";
-import type { Layer } from "@fncts/base/control/Layer.js";
-import type { Cause } from "@fncts/base/data/Cause";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
-import type { Maybe } from "@fncts/base/data/Maybe";
-import type { Has } from "@fncts/base/prelude";
 
-import { Conc } from "@fncts/base/collection/immutable/Conc";
-import { Managed } from "@fncts/base/control/Managed";
 import { identity, tuple } from "@fncts/base/data/function";
 import { Nothing } from "@fncts/base/data/Maybe";
 import { Just } from "@fncts/base/data/Maybe";

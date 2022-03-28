@@ -11,7 +11,9 @@ export abstract class Sized {
   abstract withSize(size: number): <R, E, A>(io: IO<R, E, A>) => IO<R, E, A>;
 }
 
+export const SizedKey = Symbol.for("fncts.test.control.Sized.ServiceKey");
+
 /**
  * @tsplus static fncts.test.control.SizedOps Tag
  */
-export const SizedTag = Tag<Sized>();
+export const SizedTag = Tag<Sized>(SizedKey);

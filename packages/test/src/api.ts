@@ -4,7 +4,6 @@ import type { TestResult } from "./data/FailureDetails.js";
 import type { Lazy } from "@fncts/base/data/function.js";
 import type { _E, _R } from "@fncts/base/types";
 
-import { Conc } from "@fncts/base/collection/immutable/Conc";
 import { _Nil, Cons } from "@fncts/base/collection/immutable/List";
 import { LazyValue } from "@fncts/base/control/LazyValue";
 import { Nothing } from "@fncts/base/data/Maybe";

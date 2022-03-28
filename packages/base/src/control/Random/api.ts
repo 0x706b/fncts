@@ -6,7 +6,7 @@ import { Random } from "./definition.js";
 import { LiveRandom } from "./live.js";
 
 /**
- * @tsplus static fncts.control.RandomOps live
+ * @tsplus static fncts.control.RandomOps Live
  */
 export const live = new LiveRandom((Math.random() * 4294967296) >>> 0);
 

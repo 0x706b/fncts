@@ -12,3 +12,8 @@ export class LiveConsole extends Console {
     return IO(console.debug(...data));
   }
 }
+
+/**
+ * @tsplus static fncts.control.ConsoleOps Live
+ */
+export const live: Console = new LiveConsole();

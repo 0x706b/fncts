@@ -2,7 +2,6 @@ import type { IO } from "@fncts/base/control/IO";
 import type { Has } from "@fncts/base/prelude";
 
 import { FiberRef } from "@fncts/base/control/FiberRef";
-import { Layer } from "@fncts/base/control/Layer";
 
 import { Sized } from "./definition.js";
 

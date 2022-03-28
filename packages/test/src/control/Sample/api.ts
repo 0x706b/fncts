@@ -2,7 +2,6 @@ import type { Maybe } from "@fncts/base/data/Maybe";
 import type { Predicate } from "@fncts/base/data/Predicate";
 import type { ArrayInt64 } from "@fncts/base/util/rand";
 
-import { Conc } from "@fncts/base/collection/immutable/Conc";
 import { Channel } from "@fncts/base/control/Channel";
 import { ChildExecutorDecision } from "@fncts/base/control/Channel/ChildExecutorDecision";
 import { UpstreamPullStrategy } from "@fncts/base/control/Channel/UpstreamPullStrategy";

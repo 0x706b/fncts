@@ -19,7 +19,9 @@ export abstract class Annotations {
   abstract readonly supervisedFibers: UIO<HashSet<RuntimeFiber<any, any>>>;
 }
 
+export const AnnotationsKey = Symbol.for("fncts.test.control.Annotations.ServiceKey");
+
 /**
  * @tsplus static fncts.test.control.AnnotationsOps Tag
  */
-export const AnnotationsTag = Tag<Annotations>();
+export const AnnotationsTag = Tag<Annotations>(AnnotationsKey);

@@ -1,7 +1,5 @@
 import type { TestResult } from "./FailureDetails.js";
 
-import { Cause } from "@fncts/base/data/Cause";
-
 export const enum TestFailureTag {
   AssertionFailure = "AssertionFailure",
   RuntimeFailure = "RuntimeFailure",

@@ -1,4 +1,16 @@
 /**
  * @tsplus global
  */
-import { IO } from "@fncts/base/control/IO";
+import { Conc } from "@fncts/base/collection/immutable";
+/**
+ * @tsplus global
+ */
+import { IO, Layer, Managed } from "@fncts/base/control";
+/**
+ * @tsplus global
+ */
+import { Cause, Maybe } from "@fncts/base/data";
+/**
+ * @tsplus global
+ */
+import { Has } from "@fncts/base/prelude";

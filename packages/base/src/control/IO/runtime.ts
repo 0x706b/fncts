@@ -9,6 +9,7 @@ import { Nothing } from "../../data/Maybe.js";
 import { RuntimeConfig, RuntimeConfigFlags } from "../../data/RuntimeConfig.js";
 import { Stack } from "../../internal/Stack.js";
 import { Clock } from "../Clock.js";
+import { Console } from "../Console.js";
 import { FiberContext } from "../Fiber.js";
 import { FiberRef } from "../FiberRef.js";
 import { Logger } from "../Logger.js";
@@ -92,10 +93,7 @@ export const defaultRuntimeConfig = new RuntimeConfig({
 });
 
 export const defaultRuntime = new Runtime(
-  {
-    [Clock.Tag.key]: Clock.Live,
-    [Random.Tag.key]: Random.live,
-  } as unknown as Has<Clock> & Has<Random>,
+  Clock.Tag.of(Clock.Live) & Random.Tag.of(Random.Live) & Console.Tag.of(Console.Live),
   defaultRuntimeConfig,
 );
 

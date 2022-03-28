@@ -6,7 +6,6 @@ import type { Refinement } from "@fncts/base/data/Refinement";
 import type { Has } from "@fncts/base/prelude/Has";
 import type { _A, _R } from "@fncts/base/types.js";
 
-import { Conc } from "@fncts/base/collection/immutable/Conc";
 import { SortedMap } from "@fncts/base/collection/immutable/SortedMap";
 import { Random } from "@fncts/base/control/Random";
 import { Stream } from "@fncts/base/control/Stream";

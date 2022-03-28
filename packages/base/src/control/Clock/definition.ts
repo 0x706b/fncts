@@ -7,7 +7,7 @@ import type { Schedule } from "../Schedule/definition.js";
 import { Either } from "../../data/Either.js";
 import { NoSuchElementError } from "../../data/exceptions.js";
 import { Just, Nothing } from "../../data/Maybe.js";
-import { tag } from "../../data/Tag.js";
+import { makeTag,Tag } from "../../data/Tag.js";
 import { IO } from "../IO.js";
 import { Ref } from "../Ref.js";
 import { Driver } from "../Schedule/Driver.js";
@@ -139,10 +139,12 @@ export abstract class Clock {
   }
 }
 
+export const ClockKey = Symbol.for("fncts.base.control.Clock.ServiceKey");
+
 /**
  * @tsplus static fncts.control.ClockOps Tag
  */
-export const ClockTag = tag<Clock>();
+export const ClockTag = Tag<Clock>(ClockKey);
 
 /**
  * @tsplus static fncts.control.ClockOps currentTime

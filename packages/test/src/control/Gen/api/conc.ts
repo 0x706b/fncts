@@ -3,7 +3,6 @@ import type { EqConstraint, LengthConstraints } from "../constraints.js";
 import type { Random } from "@fncts/base/control/Random.js";
 import type { Has } from "@fncts/base/prelude.js";
 
-import { Conc } from "@fncts/base/collection/immutable/Conc";
 import { Eq, Equatable } from "@fncts/base/prelude.js";
 
 import { Gen } from "../definition.js";

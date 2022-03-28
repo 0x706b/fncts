@@ -7,7 +7,6 @@ import type { Layer } from "@fncts/base/control/Layer.js";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 import type { Has } from "@fncts/base/prelude";
 
-import { Managed } from "@fncts/base/control/Managed.js";
 import { Either } from "@fncts/base/data/Either.js";
 import { matchTag, matchTag_ } from "@fncts/base/util/pattern.js";
 
