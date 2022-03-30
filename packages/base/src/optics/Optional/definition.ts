@@ -52,7 +52,7 @@ export function mkPOptional<S, T, A, B>(F: POptionalMin<S, T, A, B>): POptional<
 /**
  * @tsplus type fncts.optics.Optional
  */
-export interface Optional<S, A> extends POptional<S, A, S, A> {}
+export interface Optional<S, A> extends POptional<S, S, A, A> {}
 
 /**
  * @tsplus type fncts.optics.OptionalOps
@@ -64,7 +64,7 @@ export const Optional: OptionalOps = {};
 /**
  * @tsplus static fncts.optics.OptionalOps __call
  */
-export function mkOptional<S, A>(F: POptionalMin<S, A, S, A>): Optional<S, A> {
+export function mkOptional<S, A>(F: POptionalMin<S, S, A, A>): Optional<S, A> {
   return POptional(F);
 }
 

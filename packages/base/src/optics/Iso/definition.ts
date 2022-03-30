@@ -38,7 +38,7 @@ export function mkPIso<S, T, A, B>(F: PIsoMin<S, T, A, B>): PIso<S, T, A, B> {
 /**
  * @tsplus type fncts.optics.Iso
  */
-export interface Iso<S, A> extends PIso<S, A, S, A> {}
+export interface Iso<S, A> extends PIso<S, S, A, A> {}
 
 /**
  * @tsplus type fncts.optics.IsoOps
@@ -48,6 +48,6 @@ export interface IsoOps {}
 /**
  * @tsplus static fncts.optics.IsoOps __call
  */
-export function mkIso<S, A>(F: PIsoMin<S, A, S, A>): Iso<S, A> {
+export function mkIso<S, A>(F: PIsoMin<S, S, A, A>): Iso<S, A> {
   return PIso(F);
 }

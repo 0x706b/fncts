@@ -8,5 +8,8 @@
     "sourceMap": true,
     "incremental": true
   },
+  "files": [
+    "./prelude.d.ts"
+  ],
   "include": ["./src/**/*"]
 }

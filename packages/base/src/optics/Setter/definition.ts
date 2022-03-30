@@ -35,7 +35,7 @@ export function mkPSetter<S, T, A, B>(F: PSetterMin<S, T, A, B>): PSetter<S, T, 
 /**
  * @tsplus type fncts.optics.Setter
  */
-export interface Setter<S, A> extends PSetter<S, A, S, A> {}
+export interface Setter<S, A> extends PSetter<S, S, A, A> {}
 
 /**
  * @tsplus type fncts.optics.SetterOps
@@ -45,7 +45,7 @@ export interface SetterOps extends PSetterOps {}
 /**
  * @tsplus static fncts.optics.SetterOps __call
  */
-export function mkSetter<S, A>(F: PSetterMin<S, A, S, A>): Setter<S, A> {
+export function mkSetter<S, A>(F: PSetterMin<S, S, A, A>): Setter<S, A> {
   return PSetter(F);
 }
 

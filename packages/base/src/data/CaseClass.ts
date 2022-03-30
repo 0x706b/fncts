@@ -29,7 +29,9 @@ export function isCaseClass(u: unknown): u is CaseConstructor {
 const hash0 = Hashable.hashString("fncts.data.CaseClass");
 
 // @ts-expect-error
-export const CaseClass: CaseConstructor = class<T> implements Hashable, Equatable, CaseArgs {
+export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, any>>
+  implements Hashable, Equatable, CaseArgs
+{
   private [argsSymbol]: T;
   private [keysSymbol]: ReadonlyArray<string> = [];
   constructor(args: T) {
