@@ -8,7 +8,7 @@ import { Finalizer } from "../../Finalizer.js";
 import { Exited, ReleaseMap } from "../definition.js";
 
 /**
- * @tsplus fluent fncts.control.Managed.ReleaseMap releaseAll
+ * @tsplus fluent fncts.control.Scope.ReleaseMap releaseAll
  */
 export function releaseAll_(
   releaseMap: ReleaseMap,

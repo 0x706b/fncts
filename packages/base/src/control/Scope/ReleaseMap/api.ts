@@ -8,7 +8,7 @@ import { Finalizer } from "../Finalizer.js";
 import { Exited, ReleaseMap, Running, State } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.control.Managed.ReleaseMap addIfOpen
+ * @tsplus fluent fncts.control.Scope.ReleaseMap addIfOpen
  */
 export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Maybe<number>> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
@@ -28,7 +28,7 @@ export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Ma
 }
 
 /**
- * @tsplus fluent fncts.control.Managed.ReleaseMap release
+ * @tsplus fluent fncts.control.Scope.ReleaseMap release
  */
 export function release_(
   releaseMap: ReleaseMap,
@@ -54,7 +54,7 @@ export function release_(
 }
 
 /**
- * @tsplus fluent fncts.control.Managed.ReleaseMap add
+ * @tsplus fluent fncts.control.Scope.ReleaseMap add
  */
 export function add_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Finalizer> {
   return releaseMap.addIfOpen(finalizer).map((key) =>
@@ -66,7 +66,7 @@ export function add_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Finalize
 }
 
 /**
- * @tsplus fluent fncts.control.Managed.ReleaseMap replace
+ * @tsplus fluent fncts.control.Scope.ReleaseMap replace
  */
 export function replace_(
   releaseMap: ReleaseMap,
@@ -90,7 +90,7 @@ export function replace_(
 }
 
 /**
- * @tsplus fluent fncts.control.Managed.ReleaseMap updateAll
+ * @tsplus fluent fncts.control.Scope.ReleaseMap updateAll
  */
 export function updateAll_(releaseMap: ReleaseMap, f: (_: Finalizer) => Finalizer): UIO<void> {
   return ReleaseMap.reverseGet(releaseMap).update((s) => {
