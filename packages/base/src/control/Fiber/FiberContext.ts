@@ -24,8 +24,8 @@ import { defaultScheduler } from "../../internal/Scheduler.js";
 import { Stack } from "../../internal/Stack.js";
 import { StackTraceBuilder } from "../../internal/StackTraceBuilder.js";
 import { FiberRef } from "../FiberRef.js";
+import { FiberScope } from "../FiberScope.js";
 import { concrete, IO, IOTag, isIOError } from "../IO/definition.js";
-import { Scope } from "../Scope.js";
 import { Supervisor } from "../Supervisor.js";
 
 export type FiberRefLocals = Map<FiberRef.Runtime<any>, unknown>;
@@ -140,8 +140,8 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
     this.runUntil(this.runtimeConfig.yieldOpCount);
   }
 
-  get scope(): Scope {
-    return Scope.unsafeMake(this);
+  get scope(): FiberScope {
+    return FiberScope.unsafeMake(this);
   }
 
   get status(): UIO<FiberStatus> {
@@ -900,7 +900,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
 
   private unsafeFork(
     io: Instruction,
-    forkScope: Maybe<Scope>,
+    forkScope: Maybe<FiberScope>,
     trace?: string,
   ): FiberContext<any, any> {
     const childFiberRefLocals: FiberRefLocals = new Map();
@@ -909,7 +909,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
       childFiberRefLocals.set(k, k.fork(v));
     });
 
-    const parentScope: Scope = forkScope
+    const parentScope: FiberScope = forkScope
       .orElse(this.unsafeGetRef(FiberRef.forkScopeOverride))
       .getOrElse(this.scope);
 

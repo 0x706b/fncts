@@ -13,7 +13,7 @@ import type { TraceElement } from "../../data/TraceElement.js";
 import type { Fiber } from "../Fiber.js";
 import type { FiberContext } from "../Fiber/FiberContext.js";
 import type { FiberRef } from "../FiberRef.js";
-import type { Scope } from "../Scope.js";
+import type { FiberScope } from "../FiberScope.js";
 import type { Supervisor } from "../Supervisor.js";
 
 import { hasTypeId } from "../../util/predicates.js";
@@ -180,7 +180,7 @@ export type FailureReporter = (e: Cause<unknown>) => void;
 export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
   readonly _tag = IOTag.Fork;
 
-  constructor(readonly io: IO<R, E, A>, readonly scope: Maybe<Scope>, readonly trace?: string) {
+  constructor(readonly io: IO<R, E, A>, readonly scope: Maybe<FiberScope>, readonly trace?: string) {
     super();
   }
 }
@@ -269,7 +269,7 @@ export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<
     readonly right: IO<R1, E1, A1>,
     readonly leftWins: (exit: Exit<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
     readonly rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
-    readonly scope: Maybe<Scope>,
+    readonly scope: Maybe<FiberScope>,
     readonly trace?: string,
   ) {
     super();
@@ -389,7 +389,7 @@ export class FiberRefWith<R, E, A, B> extends IO<R, E, B> {
 export class GetForkScope<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.GetForkScope;
 
-  constructor(readonly f: (_: Scope) => IO<R, E, A>, readonly trace?: string) {
+  constructor(readonly f: (_: FiberScope) => IO<R, E, A>, readonly trace?: string) {
     super();
   }
 }
@@ -400,7 +400,7 @@ export class GetForkScope<R, E, A> extends IO<R, E, A> {
 export class OverrideForkScope<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.OverrideForkScope;
 
-  constructor(readonly io: IO<R, E, A>, readonly forkScope: Maybe<Scope>, readonly trace?: string) {
+  constructor(readonly io: IO<R, E, A>, readonly forkScope: Maybe<FiberScope>, readonly trace?: string) {
     super();
   }
 }

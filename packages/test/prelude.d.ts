@@ -5,7 +5,7 @@ import { Conc } from "@fncts/base/collection/immutable";
 /**
  * @tsplus global
  */
-import { IO, Layer, Managed } from "@fncts/base/control";
+import { IO, Layer } from "@fncts/base/control";
 /**
  * @tsplus global
  */

@@ -3,7 +3,7 @@ import type { TestFailure } from "../../data/TestFailure.js";
 import type { TestSuccess } from "../../data/TestSuccess.js";
 import type { Conc } from "@fncts/base/collection/immutable/Conc";
 import type { IO } from "@fncts/base/control/IO";
-import type { Managed } from "@fncts/base/control/Managed";
+import type { Scope } from "@fncts/base/control/Scope.js";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 import type { _A, _E, _R } from "@fncts/base/types.js";
 
@@ -34,7 +34,7 @@ export type Spec<R, E> = PSpec<R, TestFailure<E>, TestSuccess>;
 export const enum SpecCaseTag {
   Exec = "Exec",
   Labeled = "Labeled",
-  Managed = "Managed",
+  Scoped = "Scoped",
   Multiple = "Multiple",
   Test = "Test",
 }
@@ -58,9 +58,9 @@ export class LabeledCase<Spec> {
 /**
  * @tsplus companion fncts.test.control.PSpec.ManagedCaseOps
  */
-export class ManagedCase<R, E, Spec> {
-  readonly _tag = SpecCaseTag.Managed;
-  constructor(readonly managed: Managed<R, E, Spec>) {}
+export class ScopedCase<R, E, Spec> {
+  readonly _tag = SpecCaseTag.Scoped;
+  constructor(readonly scoped: IO<R & Has<Scope>, E, Spec>) {}
 }
 
 /**
@@ -88,7 +88,7 @@ export class TestCase<R, E, T> {
 export type SpecCase<R, E, T, A> =
   | ExecCase<A>
   | LabeledCase<A>
-  | ManagedCase<R, E, A>
+  | ScopedCase<R, E, A>
   | MultipleCase<A>
   | TestCase<R, E, T>;
 

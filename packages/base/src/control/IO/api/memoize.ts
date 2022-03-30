@@ -1,10 +1,15 @@
-import type { IO, UIO } from "../definition.js";
+import type { UIO } from "../definition.js";
 
-import { Ref } from "../../Ref.js";
+import { Future } from "../../Future.js";
+import { IO } from "../definition.js";
 
 /**
- * @tsplus getter fncts.control.IO once
+ * @tsplus getter fncts.control.IO memoize
  */
-export function once<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): UIO<IO<R, E, void>> {
-  return Ref.make(true).map((ref) => self.whenIO(ref.getAndSet(false)));
+export function memoize<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): UIO<IO<R, E, A>> {
+  return IO.gen(function* (_) {
+    const future   = yield* _(Future.make<E, A>());
+    const complete = yield* _(future.fulfill(self).once);
+    return complete > future.await;
+  });
 }

@@ -3,8 +3,8 @@ import type { FiberId } from "../../data/FiberId.js";
 import type { FiberStatus } from "../../data/FiberStatus.js";
 import type { Maybe } from "../../data/Maybe.js";
 import type { FiberRef } from "../FiberRef.js";
+import type { FiberScope } from "../FiberScope.js";
 import type { UIO } from "../IO.js";
-import type { Scope } from "../Scope.js";
 
 export interface CommonFiber<E, A> {
   /**
@@ -47,7 +47,7 @@ export interface RuntimeFiber<E, A> extends CommonFiber<E, A> {
    */
   readonly id: FiberId;
 
-  readonly scope: Scope;
+  readonly scope: FiberScope;
   /**
    * The status of the fiber.
    */

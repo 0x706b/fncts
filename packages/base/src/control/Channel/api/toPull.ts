@@ -1,10 +1,11 @@
+import type { Has } from "../../../prelude.js";
+import type { Scope } from "../../Scope.js";
 import type { Channel } from "../definition.js";
 import type { ChannelState } from "../internal/ChannelState.js";
 
 import { Either } from "../../../data/Either.js";
 import { identity } from "../../../data/function.js";
 import { IO } from "../../IO.js";
-import { Managed } from "../../Managed.js";
 import { ChannelExecutor, readUpstream } from "../internal/ChannelExecutor.js";
 import { ChannelStateTag } from "../internal/ChannelState.js";
 
@@ -15,9 +16,8 @@ import { ChannelStateTag } from "../internal/ChannelState.js";
  */
 export function toPull<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-): Managed<Env, never, IO<Env, OutErr, Either<OutDone, OutElem>>> {
-  return Managed.bracketExit(
-    IO.succeed(new ChannelExecutor(() => self, undefined, identity)),
+): IO<Env & Has<Scope>, never, IO<Env, OutErr, Either<OutDone, OutElem>>> {
+  return IO.acquireReleaseExit(IO.succeed(new ChannelExecutor(() => self, undefined, identity)))(
     (exec, exit) => exec.close(exit) || IO.unit,
   ).map((exec) => IO.defer(toPullInterpret(exec.run(), exec)));
 }

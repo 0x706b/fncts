@@ -1,5 +1,5 @@
+import type { Has } from "../../prelude.js";
 import type { UIO } from "../IO.js";
-import type { Managed } from "../Managed.js";
 import type { Hub, PHub } from "./definition.js";
 
 import { Conc } from "../../collection/immutable/Conc.js";
@@ -8,8 +8,8 @@ import { AtomicBoolean } from "../../internal/AtomicBoolean.js";
 import { Hub as HubInternal } from "../../internal/Hub.js";
 import { Future } from "../Future.js";
 import { IO } from "../IO.js";
-import { ReleaseMap } from "../Managed/ReleaseMap.js";
 import { QueueInternal } from "../Queue.js";
+import { Scope } from "../Scope.js";
 import { concrete, PHubInternal } from "./definition.js";
 import {
   BackPressure,
@@ -366,7 +366,7 @@ export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>)
  */
 export function subscribe<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
-): Managed<unknown, never, Hub.Dequeue<RB, EB, B>> {
+): IO<Has<Scope>, never, Hub.Dequeue<RB, EB, B>> {
   concrete(self);
   return self.subscribe;
 }
@@ -403,12 +403,12 @@ export function toQueue<RA, RB, EA, EB, A, B>(
  * @tsplus static fncts.control.HubOps unsafeMakeBounded
  */
 export function unsafeMakeBounded<A>(requestedCapacity: number): Hub<A> {
-  const releaseMap = ReleaseMap.unsafeMake();
+  const scope = Scope.unsafeMake();
 
   return unsafeMakeHub(
     HubInternal.makeBounded<A>(requestedCapacity),
     subscribersHashSet<A>(),
-    releaseMap,
+    scope,
     Future.unsafeMake<never, void>(FiberId.none),
     new AtomicBoolean(false),
     new BackPressure(),
@@ -424,12 +424,12 @@ export function unsafeMakeBounded<A>(requestedCapacity: number): Hub<A> {
  * @tsplus static fncts.control.HubOps unsafeMakeDropping
  */
 export function unsafeMakeDropping<A>(requestedCapacity: number): Hub<A> {
-  const releaseMap = ReleaseMap.unsafeMake();
+  const scope = Scope.unsafeMake();
 
   return unsafeMakeHub(
     HubInternal.makeBounded<A>(requestedCapacity),
     subscribersHashSet<A>(),
-    releaseMap,
+    scope,
     Future.unsafeMake<never, void>(FiberId.none),
     new AtomicBoolean(false),
     new Dropping(),
@@ -445,12 +445,12 @@ export function unsafeMakeDropping<A>(requestedCapacity: number): Hub<A> {
  * @tsplus static fncts.control.HubOps unsafeMakeSliding
  */
 export function unsafeMakeSliding<A>(requestedCapacity: number): Hub<A> {
-  const releaseMap = ReleaseMap.unsafeMake();
+  const scope = Scope.unsafeMake();
 
   return unsafeMakeHub(
     HubInternal.makeBounded<A>(requestedCapacity),
     subscribersHashSet<A>(),
-    releaseMap,
+    scope,
     Future.unsafeMake<never, void>(FiberId.none),
     new AtomicBoolean(false),
     new Sliding(),
@@ -463,12 +463,12 @@ export function unsafeMakeSliding<A>(requestedCapacity: number): Hub<A> {
  * @tsplus static fncts.control.HubOps unsafeMakeUnbounded
  */
 export function unsafeMakeUnbounded<A>(): Hub<A> {
-  const releaseMap = ReleaseMap.unsafeMake();
+  const scope = Scope.unsafeMake();
 
   return unsafeMakeHub(
     HubInternal.makeUnbounded<A>(),
     subscribersHashSet<A>(),
-    releaseMap,
+    scope,
     Future.unsafeMake<never, void>(FiberId.none),
     new AtomicBoolean(false),
     new Dropping(),

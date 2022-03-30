@@ -2,7 +2,6 @@ import { Either } from "../../../data/Either.js";
 import { Fiber } from "../../Fiber.js";
 import { Future } from "../../Future.js";
 import { IO } from "../../IO.js";
-import { Managed } from "../../Managed.js";
 import { Queue } from "../../Queue.js";
 import { TSemaphore } from "../../TSemaphore.js";
 import { Channel } from "../definition.js";
@@ -26,15 +25,14 @@ export function mapOutIOC_<
   n: number,
   f: (_: OutElem) => IO<Env1, OutErr1, OutElem1>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone> {
-  return Channel.managed(
-    Managed.withChildren((getChildren) =>
-      Managed.gen(function* (_) {
-        yield* _(Managed.finalizer(getChildren.chain(Fiber.interruptAll)));
+  return Channel.scoped(
+    IO.withChildren((getChildren) =>
+      IO.gen(function* (_) {
+        yield* _(IO.addFinalizer(getChildren.chain(Fiber.interruptAll)));
         const queue = yield* _(
-          Managed.bracket(
+          IO.acquireRelease(
             Queue.makeBounded<IO<Env1, OutErr | OutErr1, Either<OutDone, OutElem1>>>(n),
-            (queue) => queue.shutdown,
-          ),
+          )((queue) => queue.shutdown),
         );
         const errorSignal = yield* _(Future.make<OutErr1, never>());
         const permits     = yield* _(TSemaphore.make(n).commit);

@@ -12,9 +12,9 @@ import { Clock } from "../Clock.js";
 import { Console } from "../Console.js";
 import { FiberContext } from "../Fiber.js";
 import { FiberRef } from "../FiberRef.js";
+import { FiberScope } from "../FiberScope.js";
 import { Logger } from "../Logger.js";
 import { Random } from "../Random.js";
-import { Scope } from "../Scope.js";
 import { Supervisor } from "../Supervisor.js";
 import { concrete, IO } from "./definition.js";
 
@@ -40,7 +40,7 @@ export class Runtime<R> {
       children,
     );
 
-    Scope.global.unsafeAdd(context);
+    FiberScope.global.unsafeAdd(context);
 
     if (supervisor !== Supervisor.none) {
       supervisor.unsafeOnStart(this.environment, io, Nothing(), context);

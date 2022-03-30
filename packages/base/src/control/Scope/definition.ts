@@ -1,43 +1,39 @@
-import type { FiberContext } from "../Fiber/FiberContext.js";
+import type { Exit } from "../../data/Exit.js";
+import type { Lazy } from "../../data/function.js";
+import type { UIO } from "../IO.js";
+import type { Finalizer } from "./Finalizer.js";
 
-import { FiberId } from "../../data/FiberId.js";
+import { Tag } from "../../data/Tag.js";
+
+export const ScopeTypeId = Symbol.for("fncts.base.control.Scope");
+export type ScopeTypeId = typeof ScopeTypeId;
 
 /**
- * A `Scope` represents the scope of a fiber lifetime. The scope of a fiber can
- * be retrieved using IO.descriptor, and when forking fibers, you can
- * specify a custom scope to fork them on by using the IO#forkIn.
- *
  * @tsplus type fncts.control.Scope
  * @tsplus companion fncts.control.ScopeOps
  */
 export abstract class Scope {
-  abstract fiberId: FiberId;
-  abstract unsafeAdd(child: FiberContext<unknown, unknown>): boolean;
+  readonly _typeId: ScopeTypeId = ScopeTypeId;
+  abstract addFinalizerExit(finalizer: Finalizer): UIO<void>;
 }
 
-export class Global extends Scope {
-  get fiberId(): FiberId {
-    return FiberId.none;
-  }
-  unsafeAdd(_child: FiberContext<any, any>): boolean {
-    return true;
-  }
+/**
+ * @tsplus type fncts.control.Scope.Closeable
+ * @tsplus companion fncts.control.Scope.CloseableOps
+ */
+export abstract class Closeable extends Scope {
+  abstract close(exit: Lazy<Exit<any, any>>): UIO<void>;
 }
 
-export class Local extends Scope {
-  constructor(
-    readonly fiberId: FiberId,
-    private parentRef: WeakRef<FiberContext<unknown, unknown>>,
-  ) {
-    super();
-  }
-  unsafeAdd(child: FiberContext<unknown, unknown>): boolean {
-    const parent = this.parentRef.deref();
-    if (parent != null) {
-      parent.unsafeAddChild(child);
-      return true;
-    } else {
-      return false;
-    }
-  }
+type Closeable_ = Closeable;
+
+export declare namespace Scope {
+  type Closeable = Closeable_;
 }
+
+const ScopeKey = Symbol.for("fncts.base.control.Scope.Key");
+
+/**
+ * @tsplus static fncts.control.ScopeOps Tag
+ */
+export const ScopeTag = Tag<Scope>(ScopeKey);

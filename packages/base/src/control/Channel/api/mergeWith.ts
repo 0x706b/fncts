@@ -1,17 +1,9 @@
 import type { Either } from "../../../data/Either.js";
-import type { Maybe } from "../../../data/Maybe.js";
 import type { Fiber } from "../../Fiber.js";
 import type { MergeDecision } from "../internal/MergeDecision.js";
 
 import { Exit } from "../../../data/Exit.js";
-import { identity } from "../../../data/function.js";
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { Future } from "../../Future.js";
 import { IO } from "../../IO.js";
-import { Managed } from "../../Managed.js";
-import { Queue } from "../../Queue.js";
-import { Ref } from "../../Ref.js";
-import { TSemaphore } from "../../TSemaphore.js";
 import { Channel } from "../definition.js";
 import { MergeDecisionTag } from "../internal/MergeDecision.js";
 import { MergeState, MergeStateTag } from "../internal/MergeState.js";
@@ -63,8 +55,8 @@ export function mergeWith_<
   OutElem | OutElem1,
   OutDone2 | OutDone3
 > {
-  return Channel.unwrapManaged(
-    Managed.gen(function* (_) {
+  return Channel.unwrapScoped(
+    IO.gen(function* (_) {
       const input = yield* _(
         SingleProducerAsyncInput<InErr & InErr1, InElem & InElem1, InDone & InDone1>(),
       );

@@ -8,7 +8,7 @@ import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 import type { Has } from "@fncts/base/prelude";
 
 import { Either } from "@fncts/base/data/Either.js";
-import { matchTag, matchTag_ } from "@fncts/base/util/pattern.js";
+import { matchTag_ } from "@fncts/base/util/pattern.js";
 
 import { ExecutedSpec } from "../data/ExecutedSpec.js";
 import { TestAnnotationMap } from "../data/TestAnnotationMap.js";
@@ -43,9 +43,9 @@ export function defaultTestExecutor<R>(
             IO.succeedNow([Either.right(success), annotations]),
           defExec,
         )
-        .use(
+        .scoped.chain(
           (s) =>
-            s.foldManaged(
+            s.foldScoped(
               (
                 spec: SpecCase<
                   unknown,
@@ -55,18 +55,17 @@ export function defaultTestExecutor<R>(
                 >,
               ) =>
                 matchTag_(spec, {
-                  Exec: ({ spec }) => Managed.succeedNow(spec),
-                  Labeled: ({ label, spec }) =>
-                    Managed.succeedNow(ExecutedSpec.labeled(spec, label)),
-                  Managed: ({ managed }) => managed,
-                  Multiple: ({ specs }) => Managed.succeedNow(ExecutedSpec.multiple(specs)),
+                  Exec: ({ spec }) => IO.succeedNow(spec),
+                  Labeled: ({ label, spec }) => IO.succeedNow(ExecutedSpec.labeled(spec, label)),
+                  Scoped: ({ scoped }) => scoped,
+                  Multiple: ({ specs }) => IO.succeedNow(ExecutedSpec.multiple(specs)),
                   Test: ({ test, annotations }) =>
                     test.map(([result, dynamicAnnotations]) =>
                       ExecutedSpec.test(result, annotations.combine(dynamicAnnotations)),
-                    ).toManaged,
+                    ),
                 }),
               defExec,
-            ).useNow,
+            ).scoped,
         ),
     environment: env,
   };

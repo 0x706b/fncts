@@ -9,5 +9,5 @@ import type { Channel } from "../definition.js";
 export function run<Env, InErr, InDone, OutErr, OutDone>(
   self: Channel<Env, InErr, unknown, InDone, OutErr, never, OutDone>,
 ): IO<Env, OutErr, OutDone> {
-  return self.runManaged.useNow;
+  return self.runScoped.scoped;
 }

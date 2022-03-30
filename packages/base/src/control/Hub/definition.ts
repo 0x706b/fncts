@@ -1,8 +1,7 @@
+import type { Has } from "../../prelude.js";
 import type { IO, UIO } from "../IO.js";
-import type { Managed } from "../Managed.js";
 import type { PQueue } from "../Queue.js";
-
-import { Queue } from "../Queue.js";
+import type { Scope } from "../Scope.js";
 
 export const HubTypeId = Symbol.for("fncts.control.Hub");
 export type HubTypeId = typeof HubTypeId;
@@ -95,7 +94,7 @@ export abstract class PHubInternal<RA, RB, EA, EB, A, B> implements PHub<RA, RB,
    * can be evaluated multiple times within the scope of the managed to take a
    * message from the hub each time.
    */
-  abstract subscribe: Managed<unknown, never, Hub.Dequeue<RB, EB, B>>;
+  abstract subscribe: IO<Has<Scope>, never, Hub.Dequeue<RB, EB, B>>;
 }
 
 /**

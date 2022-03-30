@@ -1,6 +1,6 @@
 import type { Hub as HubInternal } from "../../internal/Hub.js";
+import type { Has } from "../../prelude.js";
 import type { UIO } from "../IO.js";
-import type { UManaged } from "../Managed.js";
 import type { Queue } from "../Queue.js";
 import type { Hub } from "./definition.js";
 
@@ -13,10 +13,8 @@ import { HashedPair } from "../../internal/HashedPair.js";
 import { MutableQueue } from "../../internal/MutableQueue.js";
 import { Future } from "../Future.js";
 import { IO } from "../IO.js";
-import { Managed } from "../Managed.js";
-import { Finalizer } from "../Managed/Finalizer.js";
-import { ReleaseMap } from "../Managed/ReleaseMap.js";
 import { QueueInternal } from "../Queue.js";
+import { Scope } from "../Scope.js";
 import { PHubInternal } from "./definition.js";
 
 /**
@@ -433,7 +431,7 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
     readonly subscribers: HashSet<
       HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>
     >,
-    readonly releaseMap: ReleaseMap,
+    readonly scope: Scope.Closeable,
     readonly shutdownHook: Future<never, void>,
     readonly shutdownFlag: AtomicBoolean,
     readonly strategy: Strategy<A>,
@@ -450,8 +448,8 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
   shutdown = IO.fiberId.chain((fiberId) =>
     IO.defer(() => {
       this.shutdownFlag.set(true);
-      return this.releaseMap
-        .releaseAll(Exit.interrupt(fiberId), ExecutionStrategy.concurrent)
+      return this.scope
+        .close(Exit.interrupt(fiberId))
         .apSecond(this.strategy.shutdown)
         .whenIO(this.shutdownHook.succeed(undefined));
     }),
@@ -465,14 +463,11 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
     return IO.succeed(this.hub.size());
   });
 
-  subscribe: UManaged<Queue.Dequeue<A>> = Managed.fromIO(
-    makeSubscription(this.hub, this.subscribers, this.strategy),
-  ).tap((dequeue) =>
-    Managed.bracketExit(
-      this.releaseMap.add(Finalizer.get(() => dequeue.shutdown)),
-      (finalizer, exit) => Finalizer.reverseGet(finalizer)(exit),
+  subscribe: IO<Has<Scope>, never, Queue.Dequeue<A>> = IO.acquireRelease(
+    makeSubscription(this.hub, this.subscribers, this.strategy).tap((dequeue) =>
+      this.scope.addFinalizer(dequeue.shutdown),
     ),
-  );
+  )((dequeue) => dequeue.shutdown);
 
   publish = (a: A): IO<unknown, never, boolean> =>
     IO.defer(() => {
@@ -517,22 +512,22 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
 export function unsafeMakeHub<A>(
   hub: HubInternal<A>,
   subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
-  releaseMap: ReleaseMap,
+  scope: Scope.Closeable,
   shutdownHook: Future<never, void>,
   shutdownFlag: AtomicBoolean,
   strategy: Strategy<A>,
 ): Hub<A> {
-  return new UnsafeHub(hub, subscribers, releaseMap, shutdownHook, shutdownFlag, strategy);
+  return new UnsafeHub(hub, subscribers, scope, shutdownHook, shutdownFlag, strategy);
 }
 
 export function makeHubInternal<A>(hub: HubInternal<A>, strategy: Strategy<A>): UIO<Hub<A>> {
   return IO.gen(function* (_) {
-    const releaseMap = yield* _(ReleaseMap.make);
-    const future     = yield* _(Future.make<never, void>());
+    const scope  = yield* _(Scope.make);
+    const future = yield* _(Future.make<never, void>());
     return unsafeMakeHub(
       hub,
       subscribersHashSet(),
-      releaseMap,
+      scope,
       future,
       new AtomicBoolean(false),
       strategy,

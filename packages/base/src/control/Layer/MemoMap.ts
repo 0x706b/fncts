@@ -1,17 +1,15 @@
 import type { Exit } from "../../data/Exit.js";
+import type { Has } from "../../prelude.js";
 import type { FIO, UIO } from "../IO.js";
 import type { Fresh, Layer } from "./definition.js";
 
 import { HashMap } from "../../collection/immutable/HashMap.js";
-import { ExecutionStrategy } from "../../data/ExecutionStrategy.js";
 import { tuple } from "../../data/function.js";
-import { FiberRef } from "../FiberRef.js";
 import { Future } from "../Future.js";
 import { IO } from "../IO.js";
-import { Managed } from "../Managed.js";
-import { Finalizer } from "../Managed/Finalizer.js";
-import { ReleaseMap } from "../Managed/ReleaseMap.js";
 import { Ref } from "../Ref.js";
+import { Scope } from "../Scope.js";
+import { Finalizer } from "../Scope/Finalizer.js";
 import { LayerTag } from "./definition.js";
 import { LayerHash } from "./definition.js";
 
@@ -28,101 +26,81 @@ export class MemoMap {
    * returns it. Otherwise, obtains the dependency, stores it in the memo map,
    * and adds a finalizer to the outer `Managed`.
    */
-  getOrElseMemoize = <R, E, A>(layer: Layer<R, E, A>) => {
+  getOrElseMemoize = <R, E, A>(scope: Scope, layer: Layer<R, E, A>) => {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
-    return new Managed<R, E, A>(
-      this.ref.modifyIO((map) => {
-        const inMap = map.get(layer[LayerHash]);
+    return this.ref.modifyIO((map) => {
+      const inMap = map.get(layer[LayerHash]);
 
-        if (inMap.isJust()) {
-          const [acquire, release] = inMap.value;
+      if (inMap.isJust()) {
+        const [acquire, release] = inMap.value;
 
-          const cached = FiberRef.currentReleaseMap.get.chain((releaseMap) =>
-            (acquire as FIO<E, A>)
-              .onExit((exit) =>
-                exit.match(
-                  () => IO.unit,
-                  () => releaseMap.add(release),
+        const cached = (acquire as FIO<E, A>).onExit((exit) =>
+          exit.match(
+            () => IO.unit,
+            () => scope.addFinalizerExit(release),
+          ),
+        );
+
+        return IO.succeedNow(tuple(cached, map));
+      } else {
+        return IO.gen(function* (_) {
+          const observers    = yield* _(Ref.make(0));
+          const future       = yield* _(Future.make<E, A>());
+          const finalizerRef = yield* _(Ref.make<Finalizer>(Finalizer.noop));
+
+          const resource = IO.uninterruptibleMask(({ restore }) =>
+            IO.gen(function* (_) {
+              const environment = yield* _(IO.environment<R>());
+              const outerScope  = scope;
+              const innerScope  = yield* _(Scope.make);
+
+              const tp = yield* _(
+                restore(layer.scope(innerScope).chain((f) => f(self))).result.chain((exit) =>
+                  exit.match(
+                    (cause) =>
+                      future.failCause(cause) > innerScope.close(exit) > IO.failCauseNow(cause),
+                    (a) =>
+                      IO.gen(function* (_) {
+                        yield* _(
+                          finalizerRef
+                            .set(Finalizer.get((exit) => innerScope.close(exit)))
+                            .whenIO(observers.modify((n) => [n === 1, n - 1])),
+                        );
+                        yield* _(observers.update((n) => n + 1));
+                        yield* _(
+                          outerScope.addFinalizerExit(
+                            Finalizer.get((e) =>
+                              finalizerRef.get.chain((fin) => Finalizer.reverseGet(fin)(e)),
+                            ),
+                          ),
+                        );
+                        yield* _(future.succeed(a));
+                        return a;
+                      }),
+                  ),
                 ),
-              )
-              .map((a) => tuple(release, a)),
+              );
+              return tp;
+            }),
           );
 
-          return IO.succeedNow(tuple(cached, map));
-        } else {
-          return IO.gen(function* (_) {
-            const observers    = yield* _(Ref.make(0));
-            const future       = yield* _(Future.make<E, A>());
-            const finalizerRef = yield* _(Ref.make<Finalizer>(Finalizer.noop));
-
-            const resource = IO.uninterruptibleMask(({ restore }) =>
-              IO.gen(function* (_) {
-                const outerReleaseMap = yield* _(FiberRef.currentReleaseMap.get);
-                const innerReleaseMap = yield* _(ReleaseMap.make);
-                const tp              = yield* _(
-                  restore(
-                    FiberRef.currentReleaseMap.locally(innerReleaseMap)(
-                      scope(layer).chain((f) => f(self)).io,
-                    ),
-                  ).result.chain((exit) =>
-                    exit.match(
-                      (cause): IO<unknown, E, readonly [Finalizer, A]> =>
-                        future
-                          .failCause(cause)
-                          .apSecond(
-                            innerReleaseMap.releaseAll(exit, ExecutionStrategy.sequential) as FIO<
-                              E,
-                              any
-                            >,
-                          )
-                          .apSecond(IO.failCauseNow(cause)),
-                      ([, b]) =>
-                        IO.gen(function* (_) {
-                          yield* _(
-                            finalizerRef.set(
-                              Finalizer.get((e) =>
-                                innerReleaseMap
-                                  .releaseAll(e, ExecutionStrategy.sequential)
-                                  .whenIO(observers.modify((n) => [n === 1, n - 1])),
-                              ),
-                            ),
-                          );
-                          yield* _(observers.update((n) => n + 1));
-                          const outerFinalizer = yield* _(
-                            outerReleaseMap.add(
-                              Finalizer.get((e) =>
-                                finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(e)),
-                              ),
-                            ),
-                          );
-                          yield* _(future.succeed(b));
-                          return tuple(outerFinalizer, b);
-                        }),
-                    ),
-                  ),
-                );
-                return tp;
-              }),
-            );
-
-            const memoized = tuple(
-              future.await.onExit((exit) =>
-                exit.match(
-                  () => IO.unit,
-                  () => observers.update((n) => n + 1),
-                ),
+          const memoized = tuple(
+            future.await.onExit((exit) =>
+              exit.match(
+                () => IO.unit,
+                () => observers.update((n) => n + 1),
               ),
-              Finalizer.get((exit: Exit<any, any>) =>
-                finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(exit)),
-              ),
-            );
+            ),
+            Finalizer.get((exit: Exit<any, any>) =>
+              finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(exit)),
+            ),
+          );
 
-            return tuple(resource, layer.isFresh() ? map : map.set(layer[LayerHash], memoized));
-          });
-        }
-      }).flatten,
-    );
+          return tuple(resource, layer.isFresh() ? map : map.set(layer[LayerHash], memoized));
+        });
+      }
+    }).flatten;
   };
 }
 
@@ -143,62 +121,70 @@ export function makeMemoMap(): UIO<MemoMap> {
 /**
  * @tsplus getter fncts.control.Layer build
  */
-export function build<R, E, A>(self: Layer<R, E, A>): Managed<R, E, A> {
-  return Managed.gen(function* (_) {
-    const memoMap = yield* _(Managed.fromIO(makeMemoMap()));
-    const run     = yield* _(scope(self));
+export function build<R, E, A>(self: Layer<R, E, A>): IO<R & Has<Scope>, E, A> {
+  return IO.serviceWithIO(Scope.Tag)((scope) => self.build(scope));
+}
+
+/**
+ * @tsplus fluent fncts.control.Layer build
+ */
+export function build_<R, E, A>(self: Layer<R, E, A>, scope: Scope): IO<R, E, A> {
+  return IO.gen(function* (_) {
+    const memoMap = yield* _(makeMemoMap());
+    const run     = yield* _(self.scope(scope));
     return yield* _(run(memoMap));
   });
 }
 
 /**
- * @tsplus getter fncts.control.Layer scope
+ * @tsplus fluent fncts.control.Layer scope
  */
 export function scope<R, E, A>(
   layer: Layer<R, E, A>,
-): Managed<unknown, never, (_: MemoMap) => Managed<R, E, A>> {
+  scope: Scope,
+): IO<unknown, never, (_: MemoMap) => IO<R, E, A>> {
   layer.concrete();
   switch (layer._tag) {
     case LayerTag.Fold: {
-      return Managed.succeed(
+      return IO.succeed(
         () => (memoMap: MemoMap) =>
-          memoMap.getOrElseMemoize(layer.self).matchCauseManaged(
-            (cause) => memoMap.getOrElseMemoize(layer.failure(cause)),
-            (r) => memoMap.getOrElseMemoize(layer.success(r)),
+          memoMap.getOrElseMemoize(scope, layer.self).matchCauseIO(
+            (cause) => memoMap.getOrElseMemoize(scope, layer.failure(cause)),
+            (r) => memoMap.getOrElseMemoize(scope, layer.success(r)),
           ),
       );
     }
     case LayerTag.Fresh: {
-      return Managed.succeed(() => () => layer.self.build);
+      return IO.succeed(() => () => layer.self.build(scope));
     }
-    case LayerTag.Managed: {
-      return Managed.succeed(() => () => layer.self);
+    case LayerTag.Scoped: {
+      return IO.succeed(() => () => scope.extend(layer.self));
     }
     case LayerTag.Defer: {
-      return Managed.succeed(() => (memoMap: MemoMap) => memoMap.getOrElseMemoize(layer.self()));
+      return IO.succeed(() => (memoMap: MemoMap) => memoMap.getOrElseMemoize(scope, layer.self()));
     }
     case LayerTag.To: {
-      return Managed.succeed(
+      return IO.succeed(
         () => (memoMap: MemoMap) =>
           memoMap
-            .getOrElseMemoize(layer.self)
-            .chain((r) => memoMap.getOrElseMemoize(layer.that).provideEnvironment(r)),
+            .getOrElseMemoize(scope, layer.self)
+            .chain((r) => memoMap.getOrElseMemoize(scope, layer.that).provideEnvironment(r)),
       );
     }
     case LayerTag.ZipWith: {
-      return Managed.succeed(
+      return IO.succeed(
         () => (memoMap: MemoMap) =>
           memoMap
-            .getOrElseMemoize(layer.self)
-            .zipWith(memoMap.getOrElseMemoize(layer.that), layer.f),
+            .getOrElseMemoize(scope, layer.self)
+            .zipWith(memoMap.getOrElseMemoize(scope, layer.that), layer.f),
       );
     }
     case LayerTag.ZipWithC: {
-      return Managed.succeed(
+      return IO.succeed(
         () => (memoMap: MemoMap) =>
           memoMap
-            .getOrElseMemoize(layer.self)
-            .zipWithC(memoMap.getOrElseMemoize(layer.that), layer.f),
+            .getOrElseMemoize(scope, layer.self)
+            .zipWithC(memoMap.getOrElseMemoize(scope, layer.that), layer.f),
       );
     }
   }

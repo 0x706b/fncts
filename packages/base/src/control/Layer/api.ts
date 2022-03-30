@@ -3,17 +3,16 @@ import type { Lazy } from "../../data/function.js";
 import type { Tag } from "../../data/Tag.js";
 import type { Has } from "../../prelude.js";
 import type { Spreadable } from "../../types.js";
-import type { UManaged } from "../Managed.js";
+import type { URIO } from "../IO.js";
 import type { Schedule } from "../Schedule.js";
 import type { Erase } from "@fncts/typelevel/Intersection.js";
 
 import { identity } from "../../data/function.js";
 import { Clock } from "../Clock.js";
 import { IO } from "../IO.js";
-import { Managed } from "../Managed.js";
 import { DecisionTag } from "../Schedule.js";
-import { Fold, Fresh, Layer, To, ZipWithC } from "./definition.js";
-import { FromManaged } from "./definition.js";
+import { Scope } from "../Scope.js";
+import { Fold, Fresh, FromScoped, Layer, To, ZipWithC } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.control.Layer and
@@ -101,35 +100,35 @@ export function compose_<RIn, E, ROut, E1, ROut1>(
  * @tsplus static fncts.control.LayerOps environment
  */
 export function environment<RIn>(): Layer<RIn, never, RIn> {
-  return Layer.fromRawManaged(Managed.environment<RIn>());
+  return Layer(IO.environment<RIn>());
 }
 
 /**
  * @tsplus static fncts.control.LayerOps fail
  */
 export function fail<E>(e: Lazy<E>): Layer<unknown, E, never> {
-  return Layer.fromRawManaged(Managed.fail(e));
+  return Layer(IO.fail(e));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps failCause
  */
 export function failCause<E>(cause: Lazy<Cause<E>>): Layer<unknown, E, never> {
-  return Layer.fromRawManaged(Managed.failCause(cause));
+  return Layer(IO.failCause(cause));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps failCauseNow
  */
 export function failCauseNow<E>(cause: Cause<E>): Layer<unknown, E, never> {
-  return Layer.fromRawManaged(Managed.failCauseNow(cause));
+  return Layer(IO.failCauseNow(cause));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps failNow
  */
 export function failNow<E>(e: E): Layer<unknown, E, never> {
-  return Layer.fromRawManaged(Managed.failNow(e));
+  return Layer(IO.failNow(e));
 }
 
 /**
@@ -164,19 +163,19 @@ export function fromFunctionIO<A>(tag: Tag<A>) {
 }
 
 /**
+ * @tsplus static fncts.control.LayerOps fromIOEnvironment
+ * @tsplus static fncts.control.LayerOps __call
+ */
+export function fromIOEnvironment<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Layer<R, E, A> {
+  return new FromScoped(io);
+}
+
+/**
  * @tsplus static fncts.control.LayerOps fromIO
  */
 export function fromIO<A>(tag: Tag<A>) {
   return <R, E>(resource: IO<R, E, A>): Layer<R, E, Has<A>> =>
-    Layer.fromManaged(tag)(resource.toManaged);
-}
-
-/**
- * @tsplus static fncts.control.LayerOps fromManaged
- */
-export function fromManaged<A>(tag: Tag<A>) {
-  return <R, E>(resource: Managed<R, E, A>): Layer<R, E, Has<A>> =>
-    Layer.fromRawManaged(resource.chain((a) => environmentFor(tag, a))).setKey(tag.key);
+    Layer.fromIOEnvironment(resource.chain((a) => environmentFor(tag, a)));
 }
 
 /**
@@ -197,14 +196,7 @@ export function fromRawFunctionIO<R, R1, E, A>(f: (r: R) => IO<R1, E, A>): Layer
  * @tsplus static fncts.control.LayerOps fromRawIO
  */
 export function fromRawIO<R, E, A>(resource: IO<R, E, A>): Layer<R, E, A> {
-  return Layer.fromRawManaged(resource.toManaged);
-}
-
-/**
- * @tsplus static fncts.control.LayerOps fromRawManaged
- */
-export function fromRawManaged<R, E, A>(resource: Managed<R, E, A>): Layer<R, E, A> {
-  return new FromManaged(resource);
+  return Layer(resource);
 }
 
 /**
@@ -212,21 +204,21 @@ export function fromRawManaged<R, E, A>(resource: Managed<R, E, A>): Layer<R, E,
  */
 export function fromValue<A>(tag: Tag<A>) {
   return (value: Lazy<A>): Layer<unknown, never, Has<A>> =>
-    Layer.fromManaged(tag)(Managed.succeed(value));
+    Layer.fromIO(tag)(IO.succeed(value));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps halt
  */
 export function halt(defect: Lazy<unknown>): Layer<unknown, never, never> {
-  return Layer.fromRawManaged(Managed.halt(defect));
+  return Layer(IO.halt(defect));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps haltNow
  */
 export function haltNow(defect: unknown): Layer<unknown, never, never> {
-  return Layer.fromRawManaged(Managed.haltNow(defect));
+  return Layer(IO.haltNow(defect));
 }
 
 /**
@@ -277,8 +269,8 @@ export function mapError_<RIn, E, ROut, E1>(
 /**
  * @tsplus getter fncts.control.Layer memoize
  */
-export function memoize<RIn, E, ROut>(self: Layer<RIn, E, ROut>): UManaged<Layer<RIn, E, ROut>> {
-  return self.build.memoize.map(Layer.fromRawManaged);
+export function memoize<RIn, E, ROut>(self: Layer<RIn, E, ROut>): URIO<Has<Scope>, Layer<RIn, E, ROut>> {
+  return IO.serviceWithIO(Scope.Tag)(scope => self.build(scope)).memoize.map((_) => new FromScoped(_));
 }
 
 /**
@@ -348,24 +340,39 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
 }
 
 /**
+ * @tsplus static fncts.control.LayerOps scoped
+ */
+export function scoped<A>(tag: Tag<A>) {
+  return <R, E>(io: Lazy<IO<R & Has<Scope>, E, A>>): Layer<R, E, Has<A>> =>
+    Layer.scopedEnvironment(IO.defer(io).chain((a) => environmentFor(tag, a)));
+}
+
+/**
+ * @tsplus static fncts.control.LayerOps scopedEnvironment
+ */
+export function scopedEnvironment<R, E, A>(io: Lazy<IO<R & Has<Scope>, E, A>>): Layer<R, E, A> {
+  return new FromScoped(IO.defer(io));
+}
+
+/**
  * @tsplus static fncts.control.LayerOps service
  */
 export function service<A>(tag: Tag<A>): Layer<Has<A>, never, A> {
-  return Layer.fromRawManaged(Managed.service(tag));
+  return Layer(IO.service(tag));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps succeed
  */
 export function succeed<A>(resource: Lazy<A>): Layer<unknown, never, A> {
-  return Layer.fromRawManaged(Managed.succeed(resource));
+  return Layer(IO.succeed(resource));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps succeedNow
  */
 export function succeedNow<A>(resource: A): Layer<unknown, never, A> {
-  return Layer.fromRawManaged(Managed.succeedNow(resource));
+  return Layer(IO.succeedNow(resource));
 }
 
 /**
@@ -379,7 +386,7 @@ export function to_<RIn, E, ROut extends Spreadable, RIn1 extends Spreadable, E1
   self: Layer<RIn, E, ROut>,
   that: Layer<ROut & RIn1, E1, ROut1>,
 ): Layer<RIn & RIn1, E | E1, ROut1> {
-  return new To(Layer.fromRawManaged(Managed.environment<RIn1>()).and(self), that);
+  return new To(Layer(IO.environment<RIn1>()).and(self), that);
 }
 
 /**
@@ -393,16 +400,14 @@ export function using_<RIn, E, ROut extends Spreadable, RIn1 extends Spreadable,
   self: Layer<ROut & RIn1, E1, ROut1>,
   that: Layer<RIn, E, ROut>,
 ): Layer<RIn & RIn1, E | E1, ROut1> {
-  return new To(Layer.fromRawManaged(Managed.environment<RIn1>()).and(that), self);
+  return new To(Layer(IO.environment<RIn1>()).and(that), self);
 }
 
-function environmentFor<A>(tag: Tag<A>, a: A): Managed<unknown, never, Has<A>> {
-  return Managed.fromIO(
-    IO.environmentWith(
+function environmentFor<A>(tag: Tag<A>, a: A): IO<unknown, never, Has<A>> {
+  return IO.environmentWith(
       (r) =>
         ({
           [tag.key]: tag.mergeEnvironments(r, a)[tag.key],
         } as Has<A>),
-    ),
-  );
+    );
 }

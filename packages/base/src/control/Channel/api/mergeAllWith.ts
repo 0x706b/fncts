@@ -6,7 +6,6 @@ import { Just, Nothing } from "../../../data/Maybe.js";
 import { Fiber } from "../../Fiber.js";
 import { Future } from "../../Future.js";
 import { IO } from "../../IO.js";
-import { Managed } from "../../Managed.js";
 import { Queue } from "../../Queue.js";
 import { Ref } from "../../Ref.js";
 import { TSemaphore } from "../../TSemaphore.js";
@@ -53,18 +52,17 @@ export function mergeAllWith_<
   OutElem,
   OutDone
 > {
-  return Channel.managed(
-    Managed.withChildren((getChildren) =>
-      Managed.gen(function* (_) {
-        yield* _(Managed.finalizer(getChildren.chain(Fiber.interruptAll)));
+  return Channel.scoped(
+    IO.withChildren((getChildren) =>
+      IO.gen(function* (_) {
+        yield* _(IO.addFinalizer(getChildren.chain(Fiber.interruptAll)));
         const queue = yield* _(
-          Managed.bracket(
+          IO.acquireRelease(
             Queue.makeBounded<IO<Env, OutErr | OutErr1, Either<OutDone, OutElem>>>(bufferSize),
-            (queue) => queue.shutdown,
-          ),
+          )((queue) => queue.shutdown),
         );
         const cancelers = yield* _(
-          Managed.bracket(Queue.makeUnbounded<Future<never, void>>(), (queue) => queue.shutdown),
+          IO.acquireRelease(Queue.makeUnbounded<Future<never, void>>())((queue) => queue.shutdown),
         );
         const lastDone    = yield* _(Ref.make<Maybe<OutDone>>(Nothing()));
         const errorSignal = yield* _(Future.make<never, void>());
@@ -127,9 +125,9 @@ export function mergeAllWith_<
                       case "BackPressure":
                         return IO.gen(function* (_) {
                           const latch   = yield* _(Future.make<never, void>());
-                          const raceIOs = channel.toPull.use((io) =>
+                          const raceIOs = channel.toPull.chain((io) =>
                             evaluatePull(io).race(errorSignal.await),
-                          );
+                          ).scoped;
                           yield* _(
                             permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork,
                           );
@@ -144,9 +142,9 @@ export function mergeAllWith_<
                           yield* _(
                             cancelers.take.chain((f) => f.succeed(undefined)).when(size >= 0),
                           );
-                          const raceIOs = channel.toPull.use((io) =>
+                          const raceIOs = channel.toPull.chain((io) =>
                             evaluatePull(io).race(errorSignal.await).race(canceler.await),
-                          );
+                          ).scoped;
                           yield* _(
                             permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork,
                           );

@@ -1,30 +1,38 @@
 import type { Exit } from "../../../data/Exit.js";
 import type { Maybe } from "../../../data/Maybe.js";
 import type { Fiber, RuntimeFiber } from "../../Fiber.js";
+import type { Scope } from "../../Scope.js";
 import type { UIO, URIO } from "../definition.js";
 
 import { Just, Nothing } from "../../../data/Maybe.js";
-import { Scope } from "../../Scope.js";
+import { FiberScope } from "../../FiberScope.js";
 import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";
+
+/**
+ * @tsplus getter fncts.control.IO daemonChildren
+ */
+export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
+  return IO.defer(new OverrideForkScope(self, Just(FiberScope.global), __tsplusTrace));
+}
 
 /**
  * Retrieves the scope that will be used to supervise forked effects.
  *
  * @tsplus static fncts.control.IOOps forkScope
  */
-export const forkScope: UIO<Scope> = new GetForkScope(IO.succeedNow);
+export const forkScope: UIO<FiberScope> = new GetForkScope(IO.succeedNow);
 
 /**
  * Retrieves the scope that will be used to supervise forked effects.
  *
  * @tsplus static fncts.control.IOOps forkScopeWith
  */
-export function forkScopeWith<R, E, A>(f: (_: Scope) => IO<R, E, A>, __tsplusTrace?: string) {
+export function forkScopeWith<R, E, A>(f: (_: FiberScope) => IO<R, E, A>, __tsplusTrace?: string) {
   return new GetForkScope(f, __tsplusTrace);
 }
 
 export class ForkScopeRestore {
-  constructor(private scope: Scope) {}
+  constructor(private scope: FiberScope) {}
 
   readonly restore = <R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> =>
     new OverrideForkScope(ma, Just(this.scope), __tsplusTrace);
@@ -38,34 +46,13 @@ export class ForkScopeRestore {
  * @tsplus static fncts.control.IOOps forkScopeMask
  */
 export function forkScopeMask_<R, E, A>(
-  newScope: Scope,
+  newScope: FiberScope,
   f: (restore: ForkScopeRestore) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
   return IO.forkScopeWith(
     (scope) => new OverrideForkScope(f(new ForkScopeRestore(scope)), Just(newScope), __tsplusTrace),
   );
-}
-
-/**
- * Returns an effect that forks this effect into its own separate fiber,
- * returning the fiber immediately, without waiting for it to begin
- * executing the effect.
- *
- * The returned fiber can be used to interrupt the forked fiber, await its
- * result, or join the fiber. See `Fiber` for more information.
- *
- * The fiber is forked with interrupt supervision mode, meaning that when the
- * fiber that forks the child exits, the child will be interrupted.
- *
- * @tsplus fluent fncts.control.IO forkIn
- */
-export function forkIn_<R, E, A>(
-  io: IO<R, E, A>,
-  scope: Scope,
-  __tsplusTrace?: string,
-): URIO<R, RuntimeFiber<E, A>> {
-  return new Fork(io, Just(scope), __tsplusTrace);
 }
 
 /**
@@ -79,7 +66,7 @@ export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
   right: IO<R1, E1, A1>,
   leftWins: (exit: Exit<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
   rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
-  scope: Maybe<Scope> = Nothing(),
+  scope: Maybe<FiberScope> = Nothing(),
   __tsplusTrace?: string,
 ): IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
   return new Race(left, right, leftWins, rightWins, scope, __tsplusTrace);
@@ -115,7 +102,7 @@ export function forkDaemon<R, E, A>(
   ma: IO<R, E, A>,
   __tsplusTrace?: string,
 ): URIO<R, RuntimeFiber<E, A>> {
-  return ma.forkIn(Scope.global);
+  return new Fork(ma, Just(FiberScope.global), __tsplusTrace);
 }
 
 /**
@@ -126,7 +113,7 @@ export function forkDaemon<R, E, A>(
  */
 export function overrideForkScope_<R, E, A>(
   ma: IO<R, E, A>,
-  scope: Scope,
+  scope: FiberScope,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
   return new OverrideForkScope(ma, Just(scope), __tsplusTrace);

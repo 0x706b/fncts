@@ -3,8 +3,8 @@ import type { FiberId } from "../../data/FiberId.js";
 import type { Lazy } from "../../data/function.js";
 import type { Maybe } from "../../data/Maybe.js";
 import type { Predicate } from "../../data/Predicate.js";
+import type { Has } from "../../prelude.js";
 import type { URIO } from "../IO.js";
-import type { Managed } from "../Managed.js";
 import type { Queue } from "../Queue.js";
 import type { AsyncInputConsumer } from "./internal/AsyncInputConsumer.js";
 import type { AsyncInputProducer } from "./internal/AsyncInputProducer.js";
@@ -13,15 +13,13 @@ import type { UpstreamPullRequest } from "./UpstreamPullRequest.js";
 import { Conc } from "../../collection/immutable/Conc.js";
 import { Cause } from "../../data/Cause.js";
 import { Either } from "../../data/Either.js";
-import { ExecutionStrategy } from "../../data/ExecutionStrategy.js";
 import { Exit } from "../../data/Exit.js";
 import { identity, tuple } from "../../data/function.js";
 import { Nothing } from "../../data/Maybe.js";
 import { hasTypeId } from "../../util/predicates.js";
-import { FiberRef } from "../FiberRef.js";
 import { IO } from "../IO.js";
-import { ReleaseMap } from "../Managed/ReleaseMap.js";
 import { Ref } from "../Ref.js";
+import { Scope } from "../Scope.js";
 import { ChildExecutorDecision } from "./ChildExecutorDecision.js";
 import {
   BracketOut,
@@ -870,45 +868,37 @@ export function interrupt(
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps managed
+ * @tsplus static fncts.control.ChannelOps scoped
  */
-export function managed_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, A>(
-  m: Managed<Env, OutErr, A>,
+export function scoped_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, A>(
+  io: Lazy<IO<Env & Has<Scope>, OutErr, A>>,
   use: (a: A) => Channel<Env1, InErr, InElem, InDone, OutErr1, OutElem, OutDone>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone> {
   return Channel.bracketExit(
-    ReleaseMap.make,
-    (releaseMap) =>
-      Channel.fromIO(FiberRef.currentReleaseMap.locally(releaseMap)(m.io))
-        .map(([_, a]) => a)
-        .chain(use),
-    (releaseMap, exit) => releaseMap.releaseAll(exit, ExecutionStrategy.sequential),
+    Scope.make,
+    (scope) => Channel.fromIO(scope.extend(io)).chain(use),
+    (scope, exit) => scope.close(exit),
   );
 }
 
 /**
  * Use a managed to emit an output element
  *
- * @tsplus static fncts.control.ChannelOps managedOut
+ * @tsplus static fncts.control.ChannelOps scopedOut
  */
-export function managedOut<R, E, A>(
-  managed: Managed<R, E, A>,
+export function scopedOut<R, E, A>(
+  io: Lazy<IO<R & Has<Scope>, E, A>>,
 ): Channel<R, unknown, unknown, unknown, E, A, unknown> {
   return Channel.bracketOutExit(
-    ReleaseMap.make.chain((releaseMap) =>
+    Scope.make.chain((scope) =>
       IO.uninterruptibleMask(({ restore }) =>
-        FiberRef.currentReleaseMap
-          .locally(releaseMap)(restore(managed.io))
-          .matchCauseIO(
-            (cause) =>
-              releaseMap
-                .releaseAll(Exit.failCause(cause), ExecutionStrategy.sequential)
-                .apSecond(IO.failCauseNow(cause)),
-            ([_, out]) => IO.succeedNow(tuple(out, releaseMap)),
-          ),
+        restore(scope.extend(io)).matchCauseIO(
+          (cause) => scope.close(Exit.failCause(cause)) > IO.failCauseNow(cause),
+          (out) => IO.succeedNow(tuple(out, scope)),
+        ),
       ),
     ),
-    ([_, releaseMap], exit) => releaseMap.releaseAll(exit, ExecutionStrategy.sequential),
+    ([_, scope], exit) => scope.close(exit),
   ).mapOut(([a]) => a);
 }
 
@@ -1428,12 +1418,12 @@ export function unwrap<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 /**
  * Makes a channel from a managed that returns a channel in case of success
  *
- * @tsplus static fncts.control.ChannelOps unwrapManaged
+ * @tsplus static fncts.control.ChannelOps unwrapScoped
  */
-export function unwrapManaged<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
-  self: Managed<R, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
+export function unwrapScoped<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+  self: IO<R & Has<Scope>, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
 ): Channel<R & Env, InErr, InElem, InDone, E | OutErr, OutElem, OutDone> {
-  return Channel.managedOut(self).concatAllWith(
+  return Channel.scopedOut(self).concatAllWith(
     (d, _) => d,
     (d, _) => d,
   );

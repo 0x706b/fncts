@@ -2022,6 +2022,13 @@ export function sequenceIterableDiscard<R, E, A>(
 }
 
 /**
+ * @tsplus static fncts.control.IOOps service
+ */
+export function service<T>(tag: Tag<T>): IO<Has<T>, never, T> {
+  return IO.serviceWithIO(tag)(IO.succeedNow);
+}
+
+/**
  * @tsplus static fncts.control.IOOps serviceWithIO
  */
 export function serviceWithIO<T>(tag: Tag<T>) {

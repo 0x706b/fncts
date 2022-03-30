@@ -1,8 +1,8 @@
 import type { List } from "../../collection/immutable/List.js";
 import type { LogSpan } from "../../data/LogSpan.js";
 import type { Maybe } from "../../data/Maybe.js";
+import type { FiberScope } from "../FiberScope.js";
 import type { UIO } from "../IO.js";
-import type { Scope } from "../Scope.js";
 
 import { HashMap } from "../../collection/immutable/HashMap.js";
 import { Nil } from "../../collection/immutable/List.js";
@@ -40,7 +40,7 @@ export function make<A>(
 /**
  * @tsplus static fncts.control.FiberRefOps forkScopeOverride
  */
-export const forkScopeOverride = FiberRef.unsafeMake<Maybe<Scope>>(Nothing());
+export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing());
 
 /**
  * @tsplus static fncts.control.FiberRefOps currentEnvironment

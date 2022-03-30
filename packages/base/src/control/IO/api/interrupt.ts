@@ -51,6 +51,7 @@ export function setInterruptStatus_<R, E, A>(
  * exactly what you are doing. Instead, you should use `uninterruptibleMask`.
  *
  * @tsplus getter fncts.control.IO interruptible
+ * @tsplus static fncts.control.IOOps interruptible
  */
 export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return self.setInterruptStatus(InterruptStatus.interruptible);
@@ -65,6 +66,7 @@ export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string
  * interruption of an inner effect that has been made interruptible).
  *
  * @tsplus getter fncts.control.IO uninterruptible
+ * @tsplus static fncts.control.IOOps uninterruptible
  */
 export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return self.setInterruptStatus(InterruptStatus.uninterruptible);

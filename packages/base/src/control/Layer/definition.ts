@@ -1,5 +1,7 @@
 import type { Cause } from "../../data/Cause.js";
-import type { Managed } from "../Managed.js";
+import type { Has } from "../../prelude.js";
+import type { IO } from "../IO.js";
+import type { Scope } from "../Scope.js";
 
 export const LayerHash = Symbol.for("fncts.control.Layer.Hash");
 export type LayerHash = typeof LayerHash;
@@ -24,7 +26,7 @@ export abstract class Layer<RIn, E, ROut> {
 export type Concrete =
   | Fold<any, any, any, any, any, any, any, any, any>
   | Fresh<any, any, any>
-  | FromManaged<any, any, any>
+  | FromScoped<any, any, any>
   | Defer<any, any, any>
   | To<any, any, any, any, any>
   | ZipWith<any, any, any, any, any, any, any>
@@ -40,7 +42,7 @@ export function concrete(self: Layer<any, any, any>): asserts self is Concrete {
 export const enum LayerTag {
   Fold = "Fold",
   Fresh = "Fresh",
-  Managed = "Managed",
+  Scoped = "Scoped",
   Defer = "Defer",
   To = "To",
   ZipWith = "ZipWith",
@@ -70,9 +72,9 @@ export class Fresh<RIn, E, ROut> extends Layer<RIn, E, ROut> {
   }
 }
 
-export class FromManaged<RIn, E, ROut> extends Layer<RIn, E, ROut> {
-  readonly _tag = LayerTag.Managed;
-  constructor(readonly self: Managed<RIn, E, ROut>) {
+export class FromScoped<RIn, E, ROut> extends Layer<RIn, E, ROut> {
+  readonly _tag = LayerTag.Scoped;
+  constructor(readonly self: IO<RIn & Has<Scope>, E, ROut>) {
     super();
   }
 }

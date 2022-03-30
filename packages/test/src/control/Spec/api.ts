@@ -1,7 +1,9 @@
 import type { Annotated } from "../Annotations.js";
 import type { SpecCase } from "./definition.js";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
+import type { Spreadable } from "@fncts/base/types.js";
 
+import { Scope } from "@fncts/base/control/Scope.js";
 import { identity, tuple } from "@fncts/base/data/function";
 import { Nothing } from "@fncts/base/data/Maybe";
 import { Just } from "@fncts/base/data/Maybe";
@@ -11,7 +13,7 @@ import { TestAnnotation } from "../../data/TestAnnotation.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import { Annotations } from "../Annotations.js";
 import { Spec } from "./definition.js";
-import { ExecCase, LabeledCase, ManagedCase, MultipleCase, PSpec, TestCase } from "./definition.js";
+import { ExecCase, LabeledCase, MultipleCase, PSpec, ScopedCase, TestCase } from "./definition.js";
 
 /**
  * @tsplus getter fncts.test.control.PSpec annotated
@@ -22,8 +24,8 @@ export function annotated<R, E, T>(
   return spec.transform(
     matchTag(
       {
-        Managed: ({ managed }) =>
-          new ManagedCase(managed.mapError((e) => tuple(e, TestAnnotationMap.empty))),
+        Scoped: ({ scoped }) =>
+          new ScopedCase(scoped.mapError((e) => tuple(e, TestAnnotationMap.empty))),
         Test: ({ test, annotations }) =>
           new TestCase(Annotations.withAnnotations(test), annotations),
       },
@@ -61,7 +63,13 @@ export function contramapEnvironment_<R, E, T, R0>(
   return self.transform(
     matchTag(
       {
-        Managed: ({ managed }) => new ManagedCase(managed.contramapEnvironment(f)),
+        Scoped: ({ scoped }) =>
+          new ScopedCase(
+            scoped.contramapEnvironment((r: R0 & Has<Scope>) => ({
+              ...Scope.Tag.of(Scope.Tag.read(r)),
+              ...f(r),
+            })),
+          ),
         Test: ({ test, annotations }) => new TestCase(test.contramapEnvironment(f), annotations),
       },
       identity,
@@ -75,15 +83,15 @@ export function contramapEnvironment_<R, E, T, R0>(
 export function countTests_<R, E, T>(
   spec: PSpec<R, E, T>,
   f: (t: T) => boolean,
-): Managed<R, E, number> {
+): IO<R & Has<Scope>, E, number> {
   return spec.fold(
     matchTag({
       Exec: ({ spec }) => spec,
       Labeled: ({ spec }) => spec,
-      Managed: ({ managed }) => managed.flatten,
+      Scoped: ({ scoped }) => scoped.flatten,
       Multiple: ({ specs }) =>
-        Managed.sequenceIterable(specs).map((specs) => specs.foldLeft(0, (b, a) => b + a)),
-      Test: ({ test }) => test.map((t) => (f(t) ? 1 : 0)).toManaged,
+        IO.sequenceIterable(specs).map((specs) => specs.foldLeft(0, (b, a) => b + a)),
+      Test: ({ test }) => test.map((t) => (f(t) ? 1 : 0)),
     }),
   );
 }
@@ -107,8 +115,8 @@ export function exec<R, E, T>(spec: PSpec<R, E, T>, exec: ExecutionStrategy): PS
 export function execute<R, E, T>(
   self: PSpec<R, E, T>,
   defExec: ExecutionStrategy,
-): Managed<R, never, PSpec<unknown, E, T>> {
-  return Managed.environmentWithManaged((r: R) =>
+): IO<R & Has<Scope>, never, PSpec<unknown, E, T>> {
+  return IO.environmentWithIO((r: R & Has<Scope>) =>
     self.provideEnvironment(r).foreachExec(IO.failCauseNow, IO.succeedNow, defExec),
   );
 }
@@ -125,10 +133,8 @@ export function filterAnnotations_<R, E, T, V>(
     Exec: ({ spec, exec }) => spec.filterAnnotations(key, f).map((spec) => ExecCase(spec, exec)),
     Labeled: ({ label, spec }) =>
       spec.filterAnnotations(key, f).map((spec) => LabeledCase(spec, label)),
-    Managed: ({ managed }) =>
-      Just(
-        ManagedCase(managed.map((spec) => spec.filterAnnotations(key, f).getOrElse(Spec.empty))),
-      ),
+    Scoped: ({ scoped }) =>
+      Just(ScopedCase(scoped.map((spec) => spec.filterAnnotations(key, f).getOrElse(Spec.empty)))),
     Multiple: ({ specs }) => {
       const filtered = specs.filterMap((spec) => spec.filterAnnotations(key, f));
       return filtered.isEmpty ? Nothing() : Just(MultipleCase(filtered));
@@ -151,8 +157,8 @@ export function filterLabels_<R, E, T>(
       f(label)
         ? Just(LabeledCase(spec, label))
         : spec.filterLabels(f).map((spec) => LabeledCase(spec, label)),
-    Managed: ({ managed }) =>
-      Just(ManagedCase(managed.map((spec) => spec.filterLabels(f).getOrElse(Spec.empty)))),
+    Scoped: ({ scoped }) =>
+      Just(ScopedCase(scoped.map((spec) => spec.filterLabels(f).getOrElse(Spec.empty)))),
     Multiple: ({ specs }) => {
       const filtered = specs.filterMap((spec) => spec.filterLabels(f));
       return filtered.isEmpty ? Nothing() : Just(MultipleCase(filtered));
@@ -178,33 +184,32 @@ export function fold_<R, E, T, Z>(spec: PSpec<R, E, T>, f: (_: SpecCase<R, E, T,
   return matchTag_(spec.caseValue, {
     Exec: ({ exec, spec }) => f(new ExecCase(exec, spec.fold(f))),
     Labeled: ({ label, spec }) => f(new LabeledCase(label, spec.fold(f))),
-    Managed: ({ managed }) => f(new ManagedCase(managed.map((spec) => spec.fold(f)))),
+    Scoped: ({ scoped }) => f(new ScopedCase(scoped.map((spec) => spec.fold(f)))),
     Multiple: ({ specs }) => f(new MultipleCase(specs.map((spec) => spec.fold(f)))),
     Test: (t) => f(t),
   });
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec foldManaged
+ * @tsplus fluent fncts.test.control.PSpec foldScoped
  */
-export function foldManaged_<R, E, T, R1, E1, Z>(
+export function foldScoped_<R, E, T, R1, E1, Z>(
   spec: PSpec<R, E, T>,
-  f: (_: SpecCase<R, E, T, Z>) => Managed<R1, E1, Z>,
+  f: (_: SpecCase<R, E, T, Z>) => IO<R1 & Has<Scope>, E1, Z>,
   defExec: ExecutionStrategy,
-): Managed<R & R1, E1, Z> {
+): IO<R & R1 & Has<Scope>, E1, Z> {
   return matchTag_(spec.caseValue, {
-    Exec: ({ exec, spec }) => spec.foldManaged(f, exec).chain((z) => f(new ExecCase(exec, z))),
+    Exec: ({ exec, spec }) => spec.foldScoped(f, exec).chain((z) => f(new ExecCase(exec, z))),
     Labeled: ({ label, spec }) =>
-      spec.foldManaged(f, defExec).chain((z) => f(new LabeledCase(label, z))),
-    Managed: ({ managed }) =>
-      managed.matchCauseManaged(
-        (cause) => f(new ManagedCase(Managed.haltNow(cause))),
-        (spec) =>
-          spec.foldManaged(f, defExec).chain((z) => f(new ManagedCase(Managed.succeedNow(z)))),
+      spec.foldScoped(f, defExec).chain((z) => f(new LabeledCase(label, z))),
+    Scoped: ({ scoped }) =>
+      scoped.matchCauseIO(
+        (cause) => f(new ScopedCase(IO.haltNow(cause))),
+        (spec) => spec.foldScoped(f, defExec).chain((z) => f(new ScopedCase(IO.succeedNow(z)))),
       ),
     Multiple: ({ specs }) =>
-      Managed.foreachExec(specs, defExec, (spec) => spec.foldManaged(f, defExec).release).chain(
-        (zs) => f(new MultipleCase(zs)),
+      IO.foreachExec(specs, defExec, (spec) => spec.foldScoped(f, defExec).scoped).chain((zs) =>
+        f(new MultipleCase(zs)),
       ),
     Test: f,
   });
@@ -218,22 +223,22 @@ export function foreachExec_<R, E, T, R1, E1, A, R2, E2, B>(
   failure: (c: Cause<E>) => IO<R1, E1, A>,
   success: (t: T) => IO<R2, E2, B>,
   defExec: ExecutionStrategy,
-): Managed<R & R1 & R2, never, PSpec<R & R1 & R2, E1 | E2, A | B>> {
-  return spec.foldManaged(
+): IO<R & R1 & R2 & Has<Scope>, never, PSpec<R & R1 & R2, E1 | E2, A | B>> {
+  return spec.foldScoped(
     matchTag({
-      Exec: ({ exec, spec }) => Managed.succeedNow(ExecCase(spec, exec)),
-      Labeled: ({ label, spec }) => Managed.succeedNow(LabeledCase(spec, label)),
-      Managed: ({ managed }) =>
-        managed.matchCause(
+      Exec: ({ exec, spec }) => IO.succeedNow(ExecCase(spec, exec)),
+      Labeled: ({ label, spec }) => IO.succeedNow(LabeledCase(spec, label)),
+      Scoped: ({ scoped }) =>
+        scoped.matchCause(
           (cause) => TestCase(failure(cause), TestAnnotationMap.empty),
-          (t) => ManagedCase(Managed.succeedNow(t)),
+          (t) => ScopedCase(IO.succeedNow(t)),
         ),
-      Multiple: ({ specs }) => Managed.succeedNow(MultipleCase(specs)),
+      Multiple: ({ specs }) => IO.succeedNow(MultipleCase(specs)),
       Test: ({ test, annotations }) =>
         test.matchCause(
           (cause) => TestCase(failure(cause), annotations),
           (t) => TestCase(success(t), annotations),
-        ).toManaged,
+        ),
     }),
     defExec,
   );
@@ -249,12 +254,12 @@ export function labeledCase<R, E, T>(spec: PSpec<R, E, T>, label: string): PSpec
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec managed
- * @tsplus static fncts.test.control.PSpecOps managed
+ * @tsplus fluent fncts.test.control.PSpec scoped
+ * @tsplus static fncts.test.control.PSpecOps scoped
  * @tsplus static fncts.test.control.PSpec.ManagedCaseOps __call
  */
-export function managedCase<R, E, T>(managed: Managed<R, E, PSpec<R, E, T>>): PSpec<R, E, T> {
-  return new PSpec(new ManagedCase(managed));
+export function scoped<R, E, T>(managed: IO<R & Has<Scope>, E, PSpec<R, E, T>>): PSpec<R, E, T> {
+  return new PSpec(new ScopedCase(managed));
 }
 
 /**
@@ -264,7 +269,7 @@ export function mapError<R, E, T, E1>(self: PSpec<R, E, T>, f: (e: E) => E1): PS
   return self.transform(
     matchTag(
       {
-        Managed: ({ managed }) => new ManagedCase(managed.mapError(f)),
+        Scoped: ({ scoped }) => new ScopedCase(scoped.mapError(f)),
         Test: ({ test, annotations }) => new TestCase(test.mapError(f), annotations),
       },
       identity,
@@ -282,7 +287,7 @@ export function mapSpecCase_<R, E, T, A, B>(
   return matchTag_(fa, {
     Exec: ({ exec, spec }) => new ExecCase(exec, f(spec)),
     Labeled: ({ label, spec }) => new LabeledCase(label, f(spec)),
-    Managed: ({ managed }) => new ManagedCase(managed.map(f)),
+    Scoped: ({ scoped }) => new ScopedCase(scoped.map(f)),
     Multiple: ({ specs }) => new MultipleCase(specs.map(f)),
     Test: ({ test, annotations }) => new TestCase(test, annotations),
   });
@@ -307,14 +312,15 @@ export function provideEnvironment_<R, E, T>(self: PSpec<R, E, T>, r: R): PSpec<
 /**
  * @tsplus fluent fncts.test.control.PSpec provideLayer
  */
-export function provideLayer_<RIn, E, ROut, R, E1, T>(
+export function provideLayer_<RIn, E, ROut extends Spreadable, R, E1, T>(
   self: PSpec<ROut, E1, T>,
   layer: Layer<RIn, E, ROut>,
 ): PSpec<RIn, E | E1, T> {
   return self.transform(
     matchTag(
       {
-        Managed: ({ managed }) => new ManagedCase(managed.provideLayer(layer)),
+        Scoped: ({ scoped }) =>
+          new ScopedCase(scoped.provideLayer(Layer.environment<Has<Scope>>().and(layer))),
         Test: ({ test, annotations }) => new TestCase(test.provideLayer(layer), annotations),
       },
       identity,
@@ -344,8 +350,7 @@ export function transform_<R, E, T, R1, E1, T1>(
   return matchTag_(spec.caseValue, {
     Exec: ({ exec, spec }) => new PSpec(f(new ExecCase(exec, spec.transform(f)))),
     Labeled: ({ label, spec }) => new PSpec(f(new LabeledCase(label, spec.transform(f)))),
-    Managed: ({ managed }) =>
-      new PSpec(f(new ManagedCase(managed.map((spec) => spec.transform(f))))),
+    Scoped: ({ scoped }) => new PSpec(f(new ScopedCase(scoped.map((spec) => spec.transform(f))))),
     Multiple: ({ specs }) => new PSpec(f(new MultipleCase(specs.map((spec) => spec.transform(f))))),
     Test: (t) => new PSpec(f(t)),
   });

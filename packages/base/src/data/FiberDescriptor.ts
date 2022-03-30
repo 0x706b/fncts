@@ -1,4 +1,4 @@
-import type { Scope } from "../control/Scope.js";
+import type { FiberScope } from "../control/FiberScope.js";
 import type { FiberId } from "./FiberId.js";
 import type { FiberStatus } from "./FiberStatus.js";
 import type { InterruptStatus } from "./InterruptStatus.js";
@@ -15,6 +15,6 @@ export class FiberDescriptor {
     readonly status: FiberStatus,
     readonly interruptors: ReadonlySet<FiberId>,
     readonly interruptStatus: InterruptStatus,
-    readonly scope: Scope,
+    readonly scope: FiberScope,
   ) {}
 }
