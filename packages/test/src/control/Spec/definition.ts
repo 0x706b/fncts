@@ -56,7 +56,7 @@ export class LabeledCase<Spec> {
 }
 
 /**
- * @tsplus companion fncts.test.control.PSpec.ManagedCaseOps
+ * @tsplus companion fncts.test.control.PSpec.ScopedCaseOps
  */
 export class ScopedCase<R, E, Spec> {
   readonly _tag = SpecCaseTag.Scoped;

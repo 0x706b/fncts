@@ -256,7 +256,7 @@ export function labeledCase<R, E, T>(spec: PSpec<R, E, T>, label: string): PSpec
 /**
  * @tsplus fluent fncts.test.control.PSpec scoped
  * @tsplus static fncts.test.control.PSpecOps scoped
- * @tsplus static fncts.test.control.PSpec.ManagedCaseOps __call
+ * @tsplus static fncts.test.control.PSpec.ScopedCaseOps __call
  */
 export function scoped<R, E, T>(managed: IO<R & Has<Scope>, E, PSpec<R, E, T>>): PSpec<R, E, T> {
   return new PSpec(new ScopedCase(managed));
