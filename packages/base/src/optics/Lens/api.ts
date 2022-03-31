@@ -2,7 +2,7 @@ import type {
   NonEmptyArray,
   ReadonlyNonEmptyArray,
 } from "../../collection/immutable/NonEmptyArray.js";
-import type { Optional} from "../Optional.js";
+import type { Optional } from "../Optional.js";
 import type { List } from "@fncts/typelevel/List.js";
 import type { AutoPath, Path } from "@fncts/typelevel/Object.js";
 
@@ -10,6 +10,16 @@ import { identity } from "../../data/function.js";
 import { POptional } from "../Optional.js";
 import { Prism } from "../Prism.js";
 import { Lens, PLens } from "./definition.js";
+
+/**
+ * @tsplus fluent fncts.optics.PLens component
+ */
+export function component_<S, A extends ReadonlyArray<unknown>, P extends keyof A>(
+  self: Lens<S, A>,
+  component: P,
+): Lens<S, A[P]> {
+  return self.compose(Lens.getComponent<A>()(component));
+}
 
 /**
  * @tsplus fluent fncts.optics.PLens compose
@@ -29,6 +39,24 @@ export function compose_<S, T, A, B, C, D>(
  */
 export function fromNullable<S, A>(self: Lens<S, A>): Optional<S, NonNullable<A>> {
   return self.compose(Prism.fromNullable<A>());
+}
+
+/**
+ * @tsplus static fncts.optics.PLensOps getComponent
+ */
+export function getComponent<A extends ReadonlyArray<unknown>>() {
+  return <P extends keyof A>(component: P): Lens<A, A[P]> =>
+    Lens({
+      get: (s) => s[component],
+      set_: (s, ap) => {
+        if (ap === s[component]) {
+          return s;
+        }
+        const copy: A   = s.slice() as unknown as A;
+        copy[component] = ap;
+        return copy;
+      },
+    });
 }
 
 /**
