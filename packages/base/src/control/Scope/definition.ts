@@ -15,6 +15,7 @@ export type ScopeTypeId = typeof ScopeTypeId;
 export abstract class Scope {
   readonly _typeId: ScopeTypeId = ScopeTypeId;
   abstract addFinalizerExit(finalizer: Finalizer): UIO<void>;
+  abstract fork: UIO<Scope.Closeable>;
 }
 
 /**

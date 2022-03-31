@@ -47,6 +47,9 @@ export const global: Scope.Closeable = new (class extends Closeable {
   close(_exit: Lazy<Exit<any, any>>): UIO<void> {
     return IO.unit;
   }
+  get fork(): UIO<Scope.Closeable> {
+    return Scope.make;
+  }
 })();
 
 /**
@@ -68,6 +71,18 @@ export function makeWith(executionStrategy: Lazy<ExecutionStrategy>): UIO<Scope.
         }
         close(exit: Lazy<Exit<any, any>>): UIO<void> {
           return IO.defer(releaseMap.releaseAll(exit(), executionStrategy()).asUnit);
+        }
+        get fork() {
+          return IO.uninterruptible(
+            IO.gen(function* (_) {
+              const scope     = yield* _(Scope.make);
+              const finalizer = yield* _(
+                releaseMap.add(Finalizer.get((exit) => scope.close(exit))),
+              );
+              yield* _(scope.addFinalizerExit(finalizer));
+              return scope;
+            }),
+          );
         }
       })(),
   );
@@ -91,6 +106,16 @@ export function unsafeMakeWith(executionStrategy: ExecutionStrategy): Scope.Clos
     }
     close(exit: Lazy<Exit<any, any>>): UIO<void> {
       return IO.defer(releaseMap.releaseAll(exit(), executionStrategy).asUnit);
+    }
+    get fork() {
+      return IO.uninterruptible(
+        IO.gen(function* (_) {
+          const scope     = yield* _(Scope.make);
+          const finalizer = yield* _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
+          yield* _(scope.addFinalizerExit(finalizer));
+          return scope;
+        }),
+      );
     }
   })();
 }
