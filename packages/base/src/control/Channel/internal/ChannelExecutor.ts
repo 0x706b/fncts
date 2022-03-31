@@ -1,5 +1,4 @@
 import type { List } from "../../../collection/immutable/List.js";
-import type { Cause } from "../../../data/Cause.js";
 import type { Maybe } from "../../../data/Maybe.js";
 import type { URIO } from "../../IO.js";
 import type { ChildExecutorDecision } from "../ChildExecutorDecision.js";
@@ -10,6 +9,7 @@ import type { ChannelState } from "./ChannelState.js";
 import { Nil } from "../../../collection/immutable/List.js";
 import { Queue } from "../../../collection/immutable/Queue.js";
 import { ListBuffer } from "../../../collection/mutable/ListBuffer.js";
+import { Cause } from "../../../data/Cause.js";
 import { Exit } from "../../../data/Exit.js";
 import { identity } from "../../../data/function.js";
 import { Stack } from "../../../internal/Stack.js";
@@ -325,197 +325,201 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         if (this.currentChannel === null) {
           return State._Done;
         } else {
-          concrete(this.currentChannel);
-          const currentChannel = this.currentChannel;
+          try {
+            concrete(this.currentChannel);
+            const currentChannel = this.currentChannel;
 
-          switch (currentChannel._tag) {
-            case ChannelTag.Bridge: {
-              if (this.input !== null) {
-                const inputExecutor = this.input;
-                this.input          = null;
-                const drainer: URIO<Env, unknown> = currentChannel.input.awaitRead.apSecond(
-                  IO.defer(() => {
-                    const state = inputExecutor.run();
+            switch (currentChannel._tag) {
+              case ChannelTag.Bridge: {
+                if (this.input !== null) {
+                  const inputExecutor = this.input;
+                  this.input          = null;
+                  const drainer: URIO<Env, unknown> = currentChannel.input.awaitRead.apSecond(
+                    IO.defer(() => {
+                      const state = inputExecutor.run();
 
-                    switch (state._tag) {
-                      case State.ChannelStateTag.Done: {
-                        const done = inputExecutor.getDone();
-                        return done.match(
-                          (cause) => currentChannel.input.error(cause),
-                          (value) => currentChannel.input.done(value),
-                        );
+                      switch (state._tag) {
+                        case State.ChannelStateTag.Done: {
+                          const done = inputExecutor.getDone();
+                          return done.match(
+                            (cause) => currentChannel.input.error(cause),
+                            (value) => currentChannel.input.done(value),
+                          );
+                        }
+                        case State.ChannelStateTag.Emit: {
+                          return currentChannel.input
+                            .emit(inputExecutor.getEmit())
+                            .chain(() => drainer);
+                        }
+                        case State.ChannelStateTag.Effect: {
+                          return state.effect.matchCauseIO(
+                            (cause) => currentChannel.input.error(cause),
+                            () => drainer,
+                          );
+                        }
+                        case State.ChannelStateTag.Read: {
+                          return readUpstream(state, () => drainer).catchAllCause((cause) =>
+                            currentChannel.input.error(cause),
+                          );
+                        }
                       }
-                      case State.ChannelStateTag.Emit: {
-                        return currentChannel.input
-                          .emit(inputExecutor.getEmit())
-                          .chain(() => drainer);
-                      }
-                      case State.ChannelStateTag.Effect: {
-                        return state.effect.matchCauseIO(
-                          (cause) => currentChannel.input.error(cause),
-                          () => drainer,
-                        );
-                      }
-                      case State.ChannelStateTag.Read: {
-                        return readUpstream(state, () => drainer).catchAllCause((cause) =>
-                          currentChannel.input.error(cause),
-                        );
-                      }
-                    }
-                  }),
-                );
-                result = new State.Effect(
-                  drainer.fork.chain((fiber) =>
-                    IO.succeed(() => {
-                      this.addFinalizer((exit) =>
-                        fiber.interrupt.apSecond(
-                          IO.defer(() => {
-                            const effect = this.restorePipe(exit, inputExecutor);
-                            if (effect !== null) {
-                              return effect;
-                            } else {
-                              return IO.unit;
-                            }
-                          }),
-                        ),
-                      );
                     }),
+                  );
+                  result = new State.Effect(
+                    drainer.fork.chain((fiber) =>
+                      IO.succeed(() => {
+                        this.addFinalizer((exit) =>
+                          fiber.interrupt.apSecond(
+                            IO.defer(() => {
+                              const effect = this.restorePipe(exit, inputExecutor);
+                              if (effect !== null) {
+                                return effect;
+                              } else {
+                                return IO.unit;
+                              }
+                            }),
+                          ),
+                        );
+                      }),
+                    ),
+                  );
+                }
+                break;
+              }
+              case ChannelTag.PipeTo: {
+                const previousInput = this.input;
+                const leftExec      = new ChannelExecutor(currentChannel.left, this.providedEnv, (_) =>
+                  this.executeCloseLastSubstream(_),
+                );
+                leftExec.input = previousInput;
+                this.input     = leftExec;
+                this.addFinalizer((exit) => {
+                  const effect = this.restorePipe(exit, previousInput);
+                  if (effect !== null) {
+                    return effect;
+                  } else {
+                    return IO.unit;
+                  }
+                });
+                this.currentChannel = currentChannel.right();
+                break;
+              }
+              case ChannelTag.Read: {
+                const read = currentChannel;
+                result     = new State.Read(
+                  this.input,
+                  identity,
+                  (out) => {
+                    this.currentChannel = read.more(out);
+                    return null;
+                  },
+                  (exit) => {
+                    this.currentChannel = read.done.onExit(exit);
+                    return null;
+                  },
+                );
+                break;
+              }
+              case ChannelTag.Done: {
+                result = this.doneSucceed(currentChannel.terminal());
+                break;
+              }
+              case ChannelTag.Halt: {
+                result = this.doneHalt(currentChannel.cause());
+                break;
+              }
+              case ChannelTag.FromIO: {
+                const pio =
+                  this.providedEnv === null
+                    ? currentChannel.io
+                    : currentChannel.io.provideEnvironment(this.providedEnv as Env);
+                result = new State.Effect(
+                  pio.matchCauseIO(
+                    (cause) => {
+                      const state = this.doneHalt(cause);
+                      if (state !== null && state._tag === State.ChannelStateTag.Effect) {
+                        return state.effect;
+                      } else {
+                        return IO.unit;
+                      }
+                    },
+                    (z) => {
+                      const state = this.doneSucceed(z);
+                      if (state !== null && state._tag === State.ChannelStateTag.Effect) {
+                        return state.effect;
+                      } else {
+                        return IO.unit;
+                      }
+                    },
                   ),
                 );
+                break;
               }
-              break;
+              case ChannelTag.Defer: {
+                this.currentChannel = currentChannel.effect();
+                break;
+              }
+              case ChannelTag.Emit: {
+                this.emitted = currentChannel.out();
+                this.currentChannel =
+                  this.activeSubexecutor !== null ? null : Channel.endNow(undefined);
+                result = State._Emit;
+                break;
+              }
+              case ChannelTag.Ensuring: {
+                this.runEnsuring(currentChannel);
+                break;
+              }
+              case ChannelTag.ConcatAll: {
+                const innerExecuteLastClose = (f: URIO<Env, any>) =>
+                  IO.succeed(() => {
+                    const prevLastClose =
+                      this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
+                    this.closeLastSubstream = prevLastClose.chain(() => f);
+                  });
+                const exec = new ChannelExecutor(
+                  () => currentChannel.value,
+                  this.providedEnv,
+                  innerExecuteLastClose,
+                );
+                exec.input             = this.input;
+                this.activeSubexecutor = new PullFromUpstream(
+                  exec,
+                  currentChannel.k,
+                  null,
+                  Queue.empty(),
+                  currentChannel.combineInners,
+                  currentChannel.combineAll,
+                  currentChannel.onPull,
+                  currentChannel.onEmit,
+                );
+                this.closeLastSubstream = null;
+                this.currentChannel     = null;
+                break;
+              }
+              case ChannelTag.Fold: {
+                this.doneStack      = this.doneStack.prepend(currentChannel.k);
+                this.currentChannel = currentChannel.value;
+                break;
+              }
+              case ChannelTag.BracketOut: {
+                result = this.runBracketOut(currentChannel);
+                break;
+              }
+              case ChannelTag.Provide: {
+                const previousEnv   = this.providedEnv;
+                this.providedEnv    = currentChannel.environment;
+                this.currentChannel = currentChannel.inner;
+                this.addFinalizer(() =>
+                  IO.succeed(() => {
+                    this.providedEnv = previousEnv;
+                  }),
+                );
+                break;
+              }
             }
-            case ChannelTag.PipeTo: {
-              const previousInput = this.input;
-              const leftExec      = new ChannelExecutor(currentChannel.left, this.providedEnv, (_) =>
-                this.executeCloseLastSubstream(_),
-              );
-              leftExec.input = previousInput;
-              this.input     = leftExec;
-              this.addFinalizer((exit) => {
-                const effect = this.restorePipe(exit, previousInput);
-                if (effect !== null) {
-                  return effect;
-                } else {
-                  return IO.unit;
-                }
-              });
-              this.currentChannel = currentChannel.right();
-              break;
-            }
-            case ChannelTag.Read: {
-              const read = currentChannel;
-              result     = new State.Read(
-                this.input,
-                identity,
-                (out) => {
-                  this.currentChannel = read.more(out);
-                  return null;
-                },
-                (exit) => {
-                  this.currentChannel = read.done.onExit(exit);
-                  return null;
-                },
-              );
-              break;
-            }
-            case ChannelTag.Done: {
-              result = this.doneSucceed(currentChannel.terminal());
-              break;
-            }
-            case ChannelTag.Halt: {
-              result = this.doneHalt(currentChannel.cause());
-              break;
-            }
-            case ChannelTag.FromIO: {
-              const pio =
-                this.providedEnv === null
-                  ? currentChannel.io
-                  : currentChannel.io.provideEnvironment(this.providedEnv as Env);
-              result = new State.Effect(
-                pio.matchCauseIO(
-                  (cause) => {
-                    const state = this.doneHalt(cause);
-                    if (state !== null && state._tag === State.ChannelStateTag.Effect) {
-                      return state.effect;
-                    } else {
-                      return IO.unit;
-                    }
-                  },
-                  (z) => {
-                    const state = this.doneSucceed(z);
-                    if (state !== null && state._tag === State.ChannelStateTag.Effect) {
-                      return state.effect;
-                    } else {
-                      return IO.unit;
-                    }
-                  },
-                ),
-              );
-              break;
-            }
-            case ChannelTag.Defer: {
-              this.currentChannel = currentChannel.effect();
-              break;
-            }
-            case ChannelTag.Emit: {
-              this.emitted = currentChannel.out();
-              this.currentChannel =
-                this.activeSubexecutor !== null ? null : Channel.endNow(undefined);
-              result = State._Emit;
-              break;
-            }
-            case ChannelTag.Ensuring: {
-              this.runEnsuring(currentChannel);
-              break;
-            }
-            case ChannelTag.ConcatAll: {
-              const innerExecuteLastClose = (f: URIO<Env, any>) =>
-                IO.succeed(() => {
-                  const prevLastClose =
-                    this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
-                  this.closeLastSubstream = prevLastClose.chain(() => f);
-                });
-              const exec = new ChannelExecutor(
-                () => currentChannel.value,
-                this.providedEnv,
-                innerExecuteLastClose,
-              );
-              exec.input             = this.input;
-              this.activeSubexecutor = new PullFromUpstream(
-                exec,
-                currentChannel.k,
-                null,
-                Queue.empty(),
-                currentChannel.combineInners,
-                currentChannel.combineAll,
-                currentChannel.onPull,
-                currentChannel.onEmit,
-              );
-              this.closeLastSubstream = null;
-              this.currentChannel     = null;
-              break;
-            }
-            case ChannelTag.Fold: {
-              this.doneStack      = this.doneStack.prepend(currentChannel.k);
-              this.currentChannel = currentChannel.value;
-              break;
-            }
-            case ChannelTag.BracketOut: {
-              result = this.runBracketOut(currentChannel);
-              break;
-            }
-            case ChannelTag.Provide: {
-              const previousEnv   = this.providedEnv;
-              this.providedEnv    = currentChannel.environment;
-              this.currentChannel = currentChannel.inner;
-              this.addFinalizer(() =>
-                IO.succeed(() => {
-                  this.providedEnv = previousEnv;
-                }),
-              );
-              break;
-            }
+          } catch (e) {
+            this.currentChannel = Channel.failCauseNow(Cause.halt(e));
           }
         }
       }
