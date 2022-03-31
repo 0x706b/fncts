@@ -267,7 +267,7 @@ export function asyncInterrupt<R, E, A>(
   return Stream.unwrapScoped(
     IO.gen(function* (_) {
       const output = yield* _(
-        IO.acquireRelease(Queue.makeBounded<Take<E, A>>(outputBuffer))((queue) => queue.shutdown),
+        IO.acquireRelease(Queue.makeBounded<Take<E, A>>(outputBuffer), (queue) => queue.shutdown),
       );
       const runtime      = yield* _(IO.runtime<R>());
       const eitherStream = yield* _(
@@ -352,7 +352,7 @@ export function asyncIO<R, E, A, R1 = R, E1 = E>(
     Channel.unwrapScoped(
       IO.gen(function* (_) {
         const output = yield* _(
-          IO.acquireRelease(Queue.makeBounded<Take<E, A>>(outputBuffer))((_) => _.shutdown),
+          IO.acquireRelease(Queue.makeBounded<Take<E, A>>(outputBuffer), (_) => _.shutdown),
         );
         const runtime = yield* _(IO.runtime<R>());
         yield* _(
@@ -400,26 +400,26 @@ export function bimap_<R, E, E1, A, A1>(
  * Creates a stream from a single value that will get cleaned up after the
  * stream is consumed
  *
- * @tsplus static fncts.control.StreamOps bracket
+ * @tsplus static fncts.control.StreamOps acquireRelease
  */
-export function bracket_<R, E, A, R1>(
+export function acquireRelease_<R, E, A, R1>(
   acquire: IO<R, E, A>,
   release: (a: A) => IO<R1, never, unknown>,
 ): Stream<R & R1, E, A> {
-  return Stream.scoped(IO.acquireRelease(acquire)(release));
+  return Stream.scoped(IO.acquireRelease(acquire, release));
 }
 
 /**
  * Creates a stream from a single value that will get cleaned up after the
  * stream is consumed
  *
- * @tsplus static fncts.control.StreamOps bracketExit
+ * @tsplus static fncts.control.StreamOps acquireReleaseExit
  */
-export function bracketExit_<R, E, A, R1>(
+export function acquireReleaseExit_<R, E, A, R1>(
   acquire: IO<R, E, A>,
   release: (a: A, exit: Exit<any, any>) => IO<R1, never, unknown>,
 ): Stream<R & R1, E, A> {
-  return Stream.scoped(IO.acquireReleaseExit(acquire)(release));
+  return Stream.scoped(IO.acquireReleaseExit(acquire, release));
 }
 
 /**
@@ -1171,7 +1171,8 @@ export function distributedWithDynamic_<R, E, A>(
 
   return IO.gen(function* (_) {
     const queuesRef = yield* _(
-      IO.acquireRelease(Ref.make<HashMap<symbol, Queue<Exit<Maybe<E>, A>>>>(HashMap.makeDefault()))(
+      IO.acquireRelease(
+        Ref.make<HashMap<symbol, Queue<Exit<Maybe<E>, A>>>>(HashMap.makeDefault()),
         (ref) => ref.get.chain((qs) => IO.foreach(qs.values, (q) => q.shutdown)),
       ),
     );
@@ -2992,7 +2993,7 @@ export function toHub_<R, E, A>(
 ): IO<R & Has<Scope>, never, Hub<Take<E, A>>> {
   return IO.gen(function* (_) {
     const hub = yield* _(
-      IO.acquireRelease(Hub.makeBounded<Take<E, A>>(capacity))((_) => _.shutdown),
+      IO.acquireRelease(Hub.makeBounded<Take<E, A>>(capacity), (_) => _.shutdown),
     );
     yield* _(stream.runIntoHubScoped(hub).fork);
     return hub;
@@ -3024,7 +3025,7 @@ export function toQueue_<R, E, A>(
 ): IO<R & Has<Scope>, never, Queue<Take<E, A>>> {
   return IO.gen(function* (_) {
     const queue = yield* _(
-      IO.acquireRelease(Queue.makeBounded<Take<E, A>>(capacity))((_) => _.shutdown),
+      IO.acquireRelease(Queue.makeBounded<Take<E, A>>(capacity), (_) => _.shutdown),
     );
     yield* _(stream.runIntoQueueScoped(queue).fork);
     return queue;
@@ -3040,7 +3041,7 @@ export function toQueueDropping_<R, E, A>(
 ): IO<R & Has<Scope>, never, Queue.Dequeue<Take<E, A>>> {
   return IO.gen(function* (_) {
     const queue = yield* _(
-      IO.acquireRelease(Queue.makeDropping<Take<E, A>>(capacity))((_) => _.shutdown),
+      IO.acquireRelease(Queue.makeDropping<Take<E, A>>(capacity), (_) => _.shutdown),
     );
     yield* _(stream.runIntoQueueScoped(queue).fork);
     return queue;
@@ -3056,7 +3057,7 @@ export function toQueueOfElements_<R, E, A>(
 ): IO<R & Has<Scope>, never, Queue.Dequeue<Exit<Maybe<E>, A>>> {
   return IO.gen(function* (_) {
     const queue = yield* _(
-      IO.acquireRelease(Queue.makeBounded<Exit<Maybe<E>, A>>(capacity))((_) => _.shutdown),
+      IO.acquireRelease(Queue.makeBounded<Exit<Maybe<E>, A>>(capacity), (_) => _.shutdown),
     );
     yield* _(stream.runIntoElementsScoped(queue).fork);
     return queue;
@@ -3072,7 +3073,7 @@ export function toQueueSliding_<R, E, A>(
 ): IO<R & Has<Scope>, never, Queue.Dequeue<Take<E, A>>> {
   return IO.gen(function* (_) {
     const queue = yield* _(
-      IO.acquireRelease(Queue.makeSliding<Take<E, A>>(capacity))((_) => _.shutdown),
+      IO.acquireRelease(Queue.makeSliding<Take<E, A>>(capacity), (_) => _.shutdown),
     );
     yield* _(stream.runIntoQueueScoped(queue).fork);
     return queue;
@@ -3089,7 +3090,7 @@ export function toQueueUnbounded<R, E, A>(
   stream: Stream<R, E, A>,
 ): IO<R & Has<Scope>, never, Queue<Take<E, A>>> {
   return IO.gen(function* (_) {
-    const queue = yield* _(IO.acquireRelease(Queue.makeUnbounded<Take<E, A>>())((_) => _.shutdown));
+    const queue = yield* _(IO.acquireRelease(Queue.makeUnbounded<Take<E, A>>(), (_) => _.shutdown));
     yield* _(stream.runIntoQueueScoped(queue).fork);
     return queue;
   });

@@ -59,10 +59,11 @@ export function mergeAllWith_<
         const queue = yield* _(
           IO.acquireRelease(
             Queue.makeBounded<IO<Env, OutErr | OutErr1, Either<OutDone, OutElem>>>(bufferSize),
-          )((queue) => queue.shutdown),
+            (queue) => queue.shutdown,
+          ),
         );
         const cancelers = yield* _(
-          IO.acquireRelease(Queue.makeUnbounded<Future<never, void>>())((queue) => queue.shutdown),
+          IO.acquireRelease(Queue.makeUnbounded<Future<never, void>>(), (queue) => queue.shutdown),
         );
         const lastDone    = yield* _(Ref.make<Maybe<OutDone>>(Nothing()));
         const errorSignal = yield* _(Future.make<never, void>());

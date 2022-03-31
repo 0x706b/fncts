@@ -42,7 +42,8 @@ function runScopedInterpret<Env, InErr, InDone, OutErr, OutDone>(
 export function runScoped<Env, InErr, InDone, OutErr, OutDone>(
   self: Channel<Env, InErr, unknown, InDone, OutErr, never, OutDone>,
 ): IO<Env & Has<Scope>, OutErr, OutDone> {
-  return IO.acquireReleaseExit(IO.succeed(new ChannelExecutor(() => self, null, identity)))(
+  return IO.acquireReleaseExit(
+    IO.succeed(new ChannelExecutor(() => self, null, identity)),
     (exec, exit) => exec.close(exit) || IO.unit,
   ).chain((exec) => IO.defer(runScopedInterpret(exec.run(), exec)));
 }

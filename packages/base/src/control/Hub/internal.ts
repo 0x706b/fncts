@@ -467,7 +467,8 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
     makeSubscription(this.hub, this.subscribers, this.strategy).tap((dequeue) =>
       this.scope.addFinalizer(dequeue.shutdown),
     ),
-  )((dequeue) => dequeue.shutdown);
+    (dequeue) => dequeue.shutdown,
+  );
 
   publish = (a: A): IO<unknown, never, boolean> =>
     IO.defer(() => {

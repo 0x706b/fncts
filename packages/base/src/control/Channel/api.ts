@@ -71,20 +71,38 @@ export function asUnit<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps bracket
+ * @tsplus static fncts.control.ChannelOps acquireReleaseWith
  */
-export function bracket_<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone, Acquired>(
+export function acquireReleaseWith_<
+  Env,
+  InErr,
+  InElem,
+  InDone,
+  OutErr,
+  OutElem1,
+  OutDone,
+  Acquired,
+>(
   acquire: IO<Env, OutErr, Acquired>,
   use: (a: Acquired) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone>,
   release: (a: Acquired) => URIO<Env, any>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone> {
-  return Channel.bracketExit(acquire, use, (a, _) => release(a));
+  return Channel.acquireReleaseExitWith(acquire, use, (a, _) => release(a));
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps bracketExit
+ * @tsplus static fncts.control.ChannelOps acquireReleaseExitWith
  */
-export function bracketExit_<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone, Acquired>(
+export function acquireReleaseExitWith_<
+  Env,
+  InErr,
+  InElem,
+  InDone,
+  OutErr,
+  OutElem1,
+  OutDone,
+  Acquired,
+>(
   acquire: IO<Env, OutErr, Acquired>,
   use: (a: Acquired) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone>,
   release: (a: Acquired, exit: Exit<OutErr, OutDone>) => URIO<Env, any>,
@@ -101,21 +119,21 @@ export function bracketExit_<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDo
 /**
  * Construct a resource Channel with Acquire / Release
  *
- * @tsplus static fncts.control.ChannelOps bracketOut
+ * @tsplus static fncts.control.ChannelOps acquireReleaseOut
  */
-export function bracketOut_<Env, OutErr, Acquired, Z>(
+export function acquireReleaseOut_<Env, OutErr, Acquired, Z>(
   acquire: IO<Env, OutErr, Acquired>,
   release: (a: Acquired) => URIO<Env, Z>,
 ): Channel<Env, unknown, unknown, unknown, OutErr, Acquired, void> {
-  return Channel.bracketOutExit(acquire, (z, _) => release(z));
+  return Channel.acquireReleaseOutExit(acquire, (z, _) => release(z));
 }
 
 /**
  * Construct a resource Channel with Acquire / Release
  *
- * @tsplus static fncts.control.ChannelOps bracketOutExit
+ * @tsplus static fncts.control.ChannelOps acquireReleaseOutExit
  */
-export function bracketOutExit_<R, R2, E, Z>(
+export function acquireReleaseOutExit_<R, R2, E, Z>(
   self: IO<R, E, Z>,
   release: (z: Z, e: Exit<unknown, unknown>) => URIO<R2, unknown>,
 ): Channel<R & R2, unknown, unknown, unknown, E, Z, void> {
@@ -874,7 +892,7 @@ export function scoped_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutEl
   io: Lazy<IO<Env & Has<Scope>, OutErr, A>>,
   use: (a: A) => Channel<Env1, InErr, InElem, InDone, OutErr1, OutElem, OutDone>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone> {
-  return Channel.bracketExit(
+  return Channel.acquireReleaseExitWith(
     Scope.make,
     (scope) => Channel.fromIO(scope.extend(io)).chain(use),
     (scope, exit) => scope.close(exit),
@@ -889,7 +907,7 @@ export function scoped_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutEl
 export function scopedOut<R, E, A>(
   io: Lazy<IO<R & Has<Scope>, E, A>>,
 ): Channel<R, unknown, unknown, unknown, E, A, unknown> {
-  return Channel.bracketOutExit(
+  return Channel.acquireReleaseOutExit(
     Scope.make.chain((scope) =>
       IO.uninterruptibleMask(({ restore }) =>
         restore(scope.extend(io)).matchCauseIO(

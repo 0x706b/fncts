@@ -16,13 +16,17 @@ export function locallyScoped_<EA, EB, A, B>(
   concrete(fiberRef);
   return matchTag_(fiberRef, {
     Runtime: (ref: FiberRef.Runtime<A>) =>
-      IO.acquireRelease(ref.get.chain((old) => ref.set(a).as(old)))((a) => ref.set(a)).asUnit,
+      IO.acquireRelease(
+        ref.get.chain((old) => ref.set(a).as(old)),
+        (a) => ref.set(a),
+      ).asUnit,
     Derived: (ref) =>
       ref.use(
         (value, _, setEither) =>
           IO.acquireRelease(
             value.get.chain((old) => setEither(a).match(IO.failNow, (s) => value.set(s).as(old))),
-          )((s) => value.set(s)).asUnit,
+            (s) => value.set(s),
+          ).asUnit,
       ),
     DerivedAll: (ref) =>
       ref.use(
@@ -31,7 +35,8 @@ export function locallyScoped_<EA, EB, A, B>(
             value.get.chain((old) =>
               setEither(a)(old).match(IO.failNow, (s) => value.set(s).as(old)),
             ),
-          )((s) => value.set(s)).asUnit,
+            (s) => value.set(s),
+          ).asUnit,
       ),
   });
 }

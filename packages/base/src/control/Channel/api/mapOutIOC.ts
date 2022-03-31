@@ -32,7 +32,8 @@ export function mapOutIOC_<
         const queue = yield* _(
           IO.acquireRelease(
             Queue.makeBounded<IO<Env1, OutErr | OutErr1, Either<OutDone, OutElem1>>>(n),
-          )((queue) => queue.shutdown),
+            (queue) => queue.shutdown,
+          ),
         );
         const errorSignal = yield* _(Future.make<OutErr1, never>());
         const permits     = yield* _(TSemaphore.make(n).commit);
