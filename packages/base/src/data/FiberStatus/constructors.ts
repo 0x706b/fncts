@@ -26,11 +26,11 @@ export function running(interrupting: boolean): FiberStatus {
  * @tsplus static fncts.data.FiberStatusOps suspended
  */
 export function suspended(
-  previous: FiberStatus,
+  interrupting: boolean,
   interruptible: boolean,
   epoch: number,
   blockingOn: FiberId,
   asyncTrace?: string,
 ): FiberStatus {
-  return new Suspended(previous, interruptible, epoch, blockingOn, asyncTrace);
+  return new Suspended(interrupting, interruptible, epoch, blockingOn, asyncTrace);
 }

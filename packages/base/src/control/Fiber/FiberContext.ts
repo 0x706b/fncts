@@ -8,12 +8,16 @@ import { Cons, List, Nil } from "../../collection/immutable/List.js";
 import { CancellerState } from "../../data/CancellerState.js";
 import { Cause } from "../../data/Cause.js";
 import { Either } from "../../data/Either.js";
-import { isInterruptedException } from "../../data/exceptions.js";
+import {
+  IllegalArgumentError,
+  IllegalStateError,
+  isInterruptedException,
+} from "../../data/exceptions.js";
 import { Exit, ExitTag } from "../../data/Exit.js";
 import { FiberDescriptor } from "../../data/FiberDescriptor.js";
 import { FiberId } from "../../data/FiberId.js";
 import { FiberState } from "../../data/FiberState.js";
-import { FiberStatus } from "../../data/FiberStatus.js";
+import { FiberStatus, FiberStatusTag } from "../../data/FiberStatus.js";
 import { InterruptStatus } from "../../data/InterruptStatus.js";
 import { Just, Maybe, Nothing } from "../../data/Maybe.js";
 import { RuntimeConfigFlag } from "../../data/RuntimeConfig.js";
@@ -757,7 +761,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
       ) {
         const asyncCanceller      = this.state.asyncCanceller.asyncCanceller;
         const interrupt           = IO.failCauseNow(interruptedCause);
-        this.state.status         = this.state.status.withInterrupting(true);
+        this.state.status         = FiberStatus.running(true);
         this.state.interruptors   = new Set(oldState.interruptors).add(fiberId);
         this.state.asyncCanceller = CancellerState.empty;
         this.unsafeRunLater(concrete(asyncCanceller.chain(() => interrupt)));
@@ -864,9 +868,13 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
   }
 
   private unsafeEnterAsync(epoch: number, blockingOn: FiberId, trace?: string): void {
-    if (this.state._tag === "Executing" && this.state.asyncCanceller._tag === "Empty") {
+    if (
+      this.state._tag === "Executing" &&
+      this.state.status._tag === FiberStatusTag.Running &&
+      this.state.asyncCanceller._tag === "Empty"
+    ) {
       const newStatus = FiberStatus.suspended(
-        this.state.status,
+        this.state.status.interrupting,
         this.unsafeIsInterruptible && !this.unsafeIsInterrupting,
         epoch,
         blockingOn,
@@ -874,6 +882,8 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
       );
       this.state.status         = newStatus;
       this.state.asyncCanceller = CancellerState.pending;
+    } else {
+      throw new IllegalStateError(`Fiber ${this.fiberId.threadName} is not running`);
     }
   }
 
@@ -883,7 +893,7 @@ export class FiberContext<E, A> implements RuntimeFiber<E, A> {
       this.state.status._tag === "Suspended" &&
       this.state.status.epoch === epoch
     ) {
-      this.state.status         = this.state.status.previous;
+      this.state.status         = FiberStatus.running(this.state.status.interrupting);
       this.state.asyncCanceller = CancellerState.empty;
       return true;
     }

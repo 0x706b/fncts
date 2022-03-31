@@ -12,6 +12,14 @@ export const enum FiberStatusTag {
  */
 export class Done {
   readonly _tag = FiberStatusTag.Done;
+
+  get isInterrupting() {
+    return false;
+  }
+
+  withInterrupting(): FiberStatus {
+    return this;
+  }
 }
 
 /**
@@ -20,6 +28,14 @@ export class Done {
 export class Finishing {
   readonly _tag = FiberStatusTag.Finishing;
   constructor(readonly interrupting: boolean) {}
+
+  get isInterrupting() {
+    return this.interrupting;
+  }
+
+  withInterrupting(newInterrupting: boolean): FiberStatus {
+    return new Finishing(newInterrupting);
+  }
 }
 
 /**
@@ -28,6 +44,14 @@ export class Finishing {
 export class Running {
   readonly _tag = FiberStatusTag.Running;
   constructor(readonly interrupting: boolean) {}
+
+  get isInterrupting() {
+    return this.interrupting;
+  }
+
+  withInterrupting(newInterrupting: boolean): FiberStatus {
+    return new Running(newInterrupting);
+  }
 }
 
 /**
@@ -36,12 +60,26 @@ export class Running {
 export class Suspended {
   readonly _tag = FiberStatusTag.Suspended;
   constructor(
-    readonly previous: FiberStatus,
+    readonly interrupting: boolean,
     readonly interruptible: boolean,
     readonly epoch: number,
     readonly blockingOn: FiberId,
     readonly asyncTrace?: string,
   ) {}
+
+  get isInterrupting() {
+    return this.interrupting;
+  }
+
+  withInterrupting(newInterrupting: boolean) {
+    return new Suspended(
+      newInterrupting,
+      this.interruptible,
+      this.epoch,
+      this.blockingOn,
+      this.asyncTrace,
+    );
+  }
 }
 
 /**
