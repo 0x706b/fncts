@@ -36,6 +36,16 @@ export abstract class IO<R, E, A> {
 }
 
 /**
+ * @tsplus type fncts.control.IOAspects
+ */
+export interface IOAspects {}
+
+/**
+ * @tsplus static fncts.control.IOOps $
+ */
+export const IOAspects: IOAspects = {};
+
+/**
  * @tsplus unify fncts.control.IO
  */
 export function unifyIO<X extends IO<any, any, any>>(
@@ -180,7 +190,11 @@ export type FailureReporter = (e: Cause<unknown>) => void;
 export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
   readonly _tag = IOTag.Fork;
 
-  constructor(readonly io: IO<R, E, A>, readonly scope: Maybe<FiberScope>, readonly trace?: string) {
+  constructor(
+    readonly io: IO<R, E, A>,
+    readonly scope: Maybe<FiberScope>,
+    readonly trace?: string,
+  ) {
     super();
   }
 }
@@ -400,7 +414,11 @@ export class GetForkScope<R, E, A> extends IO<R, E, A> {
 export class OverrideForkScope<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.OverrideForkScope;
 
-  constructor(readonly io: IO<R, E, A>, readonly forkScope: Maybe<FiberScope>, readonly trace?: string) {
+  constructor(
+    readonly io: IO<R, E, A>,
+    readonly forkScope: Maybe<FiberScope>,
+    readonly trace?: string,
+  ) {
     super();
   }
 }

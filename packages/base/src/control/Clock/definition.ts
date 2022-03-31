@@ -7,7 +7,7 @@ import type { Schedule } from "../Schedule/definition.js";
 import { Either } from "../../data/Either.js";
 import { NoSuchElementError } from "../../data/exceptions.js";
 import { Just, Nothing } from "../../data/Maybe.js";
-import { makeTag,Tag } from "../../data/Tag.js";
+import { makeTag, Tag } from "../../data/Tag.js";
 import { IO } from "../IO.js";
 import { Ref } from "../Ref.js";
 import { Driver } from "../Schedule/Driver.js";
@@ -261,4 +261,37 @@ export function retryOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
 
       return IO.serviceWithIO(Clock.Tag)((clock) => clock.driver(schedule).chain(loop));
     });
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps schedule
+ */
+export function schedule<R, E, A, R1, B>(
+  io: Lazy<IO<R, E, A>>,
+  schedule: Lazy<Schedule<R1, any, B>>,
+  __tsplusTrace?: string,
+): IO<R & R1 & Has<Clock>, E, B> {
+  return Clock.scheduleFrom(io, undefined, schedule);
+}
+
+/**
+ * @tsplus static fncts.control.ClockOps scheduleFrom
+ */
+export function scheduleFrom<R, E, A extends A1, R1, A1, B>(
+  io0: Lazy<IO<R, E, A>>,
+  a: Lazy<A>,
+  schedule0: Lazy<Schedule<R1, A1, B>>,
+): IO<Has<Clock> & R & R1, E, B> {
+  return IO.defer(() => {
+    const io       = io0();
+    const schedule = schedule0();
+    return Clock.driver(schedule).chain((driver) => {
+      const loop = (a: A1): IO<R & R1, E, B> =>
+        driver.next(a).matchIO(
+          () => driver.last.orHalt,
+          () => io.chain(loop),
+        );
+      return loop(a());
+    });
+  });
 }

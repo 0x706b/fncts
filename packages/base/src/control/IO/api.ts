@@ -15,6 +15,7 @@ import type { FiberContext } from "../Fiber/FiberContext.js";
 import type { Supervisor } from "../Supervisor.js";
 import type { Canceler, FIO, UIO, URIO } from "./definition.js";
 import type { Intersection } from "@fncts/typelevel";
+import type { Erase } from "@fncts/typelevel/Intersection.js";
 
 import { ReadonlyArray } from "../../collection/Array.js";
 import { Conc } from "../../collection/immutable/Conc.js";
@@ -1217,6 +1218,25 @@ export function provideEnvironment_<R, E, A>(
   __tsplusTrace?: string,
 ): FIO<E, A> {
   return new Provide(self, r, __tsplusTrace);
+}
+
+/**
+ * @tsplus getter fncts.control.IO provideService
+ */
+export function provideService_<R, E, A>(self: IO<R, E, A>) {
+  return <T>(tag: Tag<T>) =>
+    (service: T): IO<Erase<R, Has<T>>, E, A> =>
+      self.contramapEnvironment((r: R) => ({ ...r, ...tag.of(service) }));
+}
+
+/**
+ * @tsplus static fncts.control.IOAspects provideService
+ */
+export function provideService<T>(tag: Tag<T>) {
+  return (service: T) =>
+    <R, E, A>(io: IO<R & Has<T>, E, A>): IO<R, E, A> =>
+      // @ts-expect-error
+      io.provideService(tag)(service);
 }
 
 /**
