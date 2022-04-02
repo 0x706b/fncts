@@ -7,7 +7,8 @@ import type { Scope } from "../Scope.js";
 import { Exit } from "../../data.js";
 import { IO } from "../IO.js";
 import { ScopedRef } from "../ScopedRef.js";
-import { Cached } from "./definition.js";
+import { Cached, concrete } from "./definition.js";
+import { CachedInternal } from "./internal.js";
 
 /**
  * @tsplus static fncts.control.CachedOps auto
@@ -30,6 +31,14 @@ export function auto<R, Error, Resource>(
 }
 
 /**
+ * @tsplus getter fncts.control.Cached get
+ */
+export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, Resource> {
+  concrete(self);
+  return self.get;
+}
+
+/**
  * @tsplus static fncts.control.CachedOps manual
  */
 export function manual<R, Error, Resource>(
@@ -42,7 +51,7 @@ export function manual<R, Error, Resource>(
   });
 }
 
-class Manual<Error, Resource> extends Cached<Error, Resource> {
+class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
   constructor(
     readonly ref: ScopedRef<Exit<Error, Resource>>,
     readonly acquire: IO<Has<Scope>, Error, Resource>,
@@ -51,4 +60,12 @@ class Manual<Error, Resource> extends Cached<Error, Resource> {
   }
   get: FIO<Error, Resource> = this.ref.get.chain(IO.fromExitNow);
   refresh: FIO<Error, void> = this.ref.set(this.acquire.map(Exit.succeed));
+}
+
+/**
+ * @tsplus getter fncts.control.Cached refresh
+ */
+export function refresh_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, void> {
+  concrete(self);
+  return self.refresh;
 }

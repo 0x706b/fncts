@@ -1,7 +1,7 @@
 import type { FIO } from "../IO.js";
+import type { CachedInternal} from "./internal.js";
 
-export const CachedTypeId = Symbol.for("fncts.base.control.Cached");
-export type CachedTypeId = typeof CachedTypeId;
+import { CachedTypeId } from "./internal.js";
 
 /**
  * A Cached is a possibly resourceful value that is loaded into memory, and
@@ -10,8 +10,15 @@ export type CachedTypeId = typeof CachedTypeId;
  * @tsplus type fncts.control.Cached
  * @tsplus companion fncts.control.CachedOps
  */
-export abstract class Cached<Error, Resource> {
+export class Cached<Error, Resource> {
+  readonly _E!: () => Error;
+  readonly _A!: () => Resource;
   readonly _typeId: CachedTypeId = CachedTypeId;
-  abstract get: FIO<Error, Resource>;
-  abstract refresh: FIO<Error, void>;
+}
+
+/**
+ * @tsplus macro remove
+ */
+export function concrete<E, A>(_: Cached<E, A>): asserts _ is CachedInternal<E, A> {
+  //
 }
