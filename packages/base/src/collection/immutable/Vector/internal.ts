@@ -1,7 +1,6 @@
 /* eslint-disable prefer-const */
 /* eslint-disable no-var */
-import type { Predicate } from "../../../data/Predicate.js";
-import type { MutableVector, Vector } from "./definition.js";
+import type { MutableVector, Vector } from "@fncts/base/collection/immutable/Vector/definition";
 
 /*
  * -------------------------------------------------------------------------------------------------

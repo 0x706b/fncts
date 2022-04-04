@@ -1,7 +1,4 @@
-import type * as P from "../../../prelude.js";
-import type { HKT } from "../../../prelude.js";
-
-import { Conc } from "../../immutable/Conc.js";
+import type * as P from "@fncts/base/prelude";
 
 /**
  * @tsplus getter fncts.collection.immutable.Iterable traverseToConcWithIndex

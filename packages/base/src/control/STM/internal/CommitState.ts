@@ -1,6 +1,3 @@
-import type { TExit } from "../../../data/TExit.js";
-
-import { Exit } from "../../../data/Exit.js";
 import { TExitTag } from "../../../data/TExit.js";
 
 export interface Done<E, A> {

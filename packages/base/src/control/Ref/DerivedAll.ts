@@ -1,9 +1,6 @@
-import type { FIO, UIO } from "../IO.js";
 import type { Atomic } from "./Atomic/Atomic.js";
 import type { PRef } from "./definition.js";
 
-import { Either } from "../../data/Either.js";
-import { IO } from "../IO.js";
 import { RefInternal } from "./definition.js";
 
 export class DerivedAll<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, EB, A, B> {

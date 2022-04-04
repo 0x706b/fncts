@@ -1,7 +1,4 @@
 import type { HKT } from "../../prelude.js";
-import type { NewtypeIso } from "../Newtype.js";
-
-import { Newtype } from "../Newtype.js";
 
 interface StructN extends HKT {
   readonly type: Struct<this["A"]>;

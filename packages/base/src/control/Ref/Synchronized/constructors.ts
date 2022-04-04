@@ -1,9 +1,3 @@
-import type { Lazy } from "../../../data/function.js";
-import type { UIO } from "../../IO.js";
-
-import { IO } from "../../IO.js";
-import { TSemaphore } from "../../TSemaphore.js";
-import { Ref } from "../definition.js";
 import { PSynchronizedInternal } from "./definition.js";
 
 /**

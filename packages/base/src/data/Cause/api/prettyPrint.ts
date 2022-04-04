@@ -1,4 +1,4 @@
-import type { Cause, Unified } from "../definition.js";
+import type { Unified } from "../definition.js";
 
 const INDENT_SIZE = 4;
 

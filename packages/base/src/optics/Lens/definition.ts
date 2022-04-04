@@ -1,9 +1,8 @@
-import type { get } from "../Getter.js";
-import type { set_ } from "../Setter.js";
+import type { get } from "@fncts/base/optics/Getter";
+import type { set_ } from "@fncts/base/optics/Setter";
 
-import { Either } from "../../data/Either.js";
-import { Getter } from "../Getter.js";
-import { POptional } from "../Optional.js";
+import { Getter } from "@fncts/base/optics/Getter";
+import { POptional } from "@fncts/base/optics/Optional";
 
 /**
  * @tsplus type fncts.optics.PLens

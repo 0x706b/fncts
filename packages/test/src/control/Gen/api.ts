@@ -1,18 +1,10 @@
 import type { NumberConstraints } from "./constraints.js";
-import type { URIO } from "@fncts/base/control/IO";
-import type { Lazy } from "@fncts/base/data/function";
-import type { Predicate } from "@fncts/base/data/Predicate";
-import type { Refinement } from "@fncts/base/data/Refinement";
-import type { Has } from "@fncts/base/prelude/Has";
 import type { _A, _R } from "@fncts/base/types.js";
 
 import { SortedMap } from "@fncts/base/collection/immutable/SortedMap";
-import { Random } from "@fncts/base/control/Random";
-import { Stream } from "@fncts/base/control/Stream";
 import { IllegalArgumentError, NoSuchElementError } from "@fncts/base/data/exceptions";
 import { tuple } from "@fncts/base/data/function";
 import { identity } from "@fncts/base/data/function";
-import { Just, Maybe, Nothing } from "@fncts/base/data/Maybe";
 
 import { clamp } from "../../util/math.js";
 import { Sample } from "../Sample.js";

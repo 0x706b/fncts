@@ -1,8 +1,4 @@
-import type { FiberId } from "../../data/FiberId.js";
-
-import { List } from "../../collection/immutable/List.js";
-import { IO } from "../IO.js";
-import { Future, Pending } from "./definition.js";
+import { Pending } from "@fncts/base/control/Future/definition";
 
 /**
  * Makes a new future to be completed by the fiber creating the future.

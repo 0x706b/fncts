@@ -1,9 +1,3 @@
-import type { HKT } from "../../../prelude.js";
-
-import { ArrayIndexOutOfBoundsError, IndexOutOfBoundsError } from "../../../data/exceptions.js";
-import { unsafeCoerce } from "../../../data/function.js";
-import { Equatable, Hashable } from "../../../prelude.js";
-import { isByte, isObject } from "../../../util/predicates.js";
 import { Iterable } from "../../Iterable/definition.js";
 
 export interface ConcF extends HKT {

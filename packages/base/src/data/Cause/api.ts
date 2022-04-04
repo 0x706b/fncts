@@ -1,15 +1,5 @@
-import type { List } from "../../collection/immutable/List.js";
-import type { FiberId } from "../FiberId.js";
-import type { Lazy } from "../function.js";
-import type { Predicate } from "../Predicate.js";
-
-import { Nil } from "../../collection/immutable/List.js";
-import { Eval } from "../../control/Eval.js";
 import { Stack } from "../../internal/Stack.js";
-import { Either } from "../Either.js";
 import { identity } from "../function.js";
-import { Just, Maybe, MaybeTag, Nothing } from "../Maybe.js";
-import { Trace } from "../Trace.js";
 import {
   _Empty,
   Both,

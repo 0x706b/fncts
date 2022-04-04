@@ -1,8 +1,4 @@
 import type { Nullable } from "../../types/Nullable.js";
-import type { Lazy } from "../function.js";
-import type { Maybe } from "../Maybe.js";
-import type { Predicate } from "../Predicate.js";
-import type { Refinement } from "../Refinement.js";
 
 import { Either, Left, Right } from "./definition.js";
 

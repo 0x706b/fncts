@@ -1,4 +1,4 @@
-import type { RandomGenerator } from "../generator/RandomGenerator.js";
+import type { RandomGenerator } from "@fncts/base/util/rand/generator/RandomGenerator";
 
 /**
  * Generate random value based on a given RandomGenerator.

@@ -1,13 +1,4 @@
-import type { Exit } from "../../data.js";
-import type { Lazy } from "../../data/function.js";
-import type { Has } from "../../prelude.js";
-import type { UIO } from "../IO.js";
-
-import { ExecutionStrategy } from "../../data/ExecutionStrategy.js";
-import { IO } from "../IO.js";
-import { Scope } from "./definition.js";
 import { Closeable } from "./definition.js";
-import { Finalizer } from "./Finalizer.js";
 import { ReleaseMap } from "./ReleaseMap.js";
 
 /**

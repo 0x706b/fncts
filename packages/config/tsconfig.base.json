@@ -1,20 +1,26 @@
 {
   "compilerOptions": {
+    "moduleDetection": "force",
+    "composite": true,
     "strict": true,
     "downlevelIteration": true,
     "module": "ESNext",
     "target": "ES2020",
-    "lib": ["ES2020", "ESNext.WeakRef", "DOM"],
+    "lib": ["ES2021", "ESNext.WeakRef"],
     "noUncheckedIndexedAccess": true,
     "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "baseUrl": ".",
     "moduleResolution": "node",
-    "tsPlusConfig": "../../tsplus.config.json",
     "paths": {
-      "@fncts/typelevel/*": ["../typelevel/build/dts/*"],
-      "@fncts/base/*": ["../base/build/dts/*"]
+      "@fncts/typelevel/*": ["../typelevel/src/*"],
+      "@fncts/base/*": ["../base/src/*"]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "build"
+  ],
+  "include": []
 }

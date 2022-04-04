@@ -1,6 +1,3 @@
-import type { Maybe } from "@fncts/base/data/Maybe";
-
-import { LazyValue } from "@fncts/base/control/LazyValue";
 import { showWithOptions } from "@fncts/base/prelude/Showable";
 
 import { AssertionValue } from "./definition.js";

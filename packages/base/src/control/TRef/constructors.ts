@@ -1,6 +1,3 @@
-import type { Lazy } from "../../data/function.js";
-import type { UIO } from "../IO.js";
-import type { STM } from "../STM/definition.js";
 import type { UTRef } from "./definition.js";
 
 import { AtomicReference } from "../../internal/AtomicReference.js";

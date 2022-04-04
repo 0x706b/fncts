@@ -1,10 +1,5 @@
-import type { Tag } from "../../data/Tag.js";
-import type { Has } from "../../prelude.js";
-import type { UIO } from "../IO/definition.js";
 import type { State } from "./definition.js";
 
-import { FiberRef } from "../FiberRef.js";
-import { Layer } from "../Layer.js";
 import { concrete } from "./definition.js";
 import { StateInternal } from "./internal.js";
 
@@ -22,15 +17,18 @@ export function get_<S>(self: State<S>, __tsplusTrace?: string): UIO<S> {
 export function initial<S>(tag: Tag<State<S>>) {
   return (s: S): Layer<unknown, never, Has<State<S>>> =>
     Layer.scoped(tag)(
-      FiberRef.make(s).map((ref) => new class extends StateInternal<S> {
-        get: UIO<S> = ref.get;
-        set(s: S, __tsplusTrace?: string): UIO<void> {
-          return ref.set(s);
-        }
-        update(f: (s: S) => S, __tsplusTrace?: string): UIO<void> {
-          return ref.update(f);
-        }
-      }())
+      FiberRef.make(s).map(
+        (ref) =>
+          new (class extends StateInternal<S> {
+            get: UIO<S> = ref.get;
+            set(s: S, __tsplusTrace?: string): UIO<void> {
+              return ref.set(s);
+            }
+            update(f: (s: S) => S, __tsplusTrace?: string): UIO<void> {
+              return ref.update(f);
+            }
+          })(),
+      ),
     );
 }
 

@@ -1,11 +1,9 @@
 import type { FloatConstraints, NumberConstraints } from "../constraints.js";
-import type { Has } from "@fncts/base/prelude";
 import type { ArrayInt64 } from "@fncts/base/util/rand";
 
 import { Random } from "@fncts/base/control/Random";
 import { Stream } from "@fncts/base/control/Stream";
 import { IllegalArgumentError } from "@fncts/base/data/exceptions";
-import { Just } from "@fncts/base/data/Maybe";
 
 import {
   add64,

@@ -1,13 +1,9 @@
-import type { Either } from "../data/Either.js";
-import type { Maybe } from "../data/Maybe.js";
-import type { Applicative } from "./Applicative.js";
-import type { FilterableMin } from "./Filterable.js";
-import type { TraversableMin } from "./Traversable.js";
+import type { Applicative } from "@fncts/base/prelude/Applicative";
+import type { FilterableMin } from "@fncts/base/prelude/Filterable";
+import type { TraversableMin } from "@fncts/base/prelude/Traversable";
 
-import { Just, Nothing } from "../data/Maybe/definition.js";
-import { Filterable } from "./Filterable.js";
-import { HKT } from "./HKT.js";
-import { Traversable } from "./Traversable.js";
+import { Filterable } from "@fncts/base/prelude/Filterable";
+import { Traversable } from "@fncts/base/prelude/Traversable";
 
 /**
  * @tsplus type fncts.Witherable

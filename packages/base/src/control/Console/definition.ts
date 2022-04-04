@@ -1,7 +1,3 @@
-import type { UIO } from "../IO.js";
-
-import { Tag } from "../../data/Tag.js";
-
 /**
  * @tsplus type fncts.control.Console
  * @tsplus companion fncts.control.ConsoleOps

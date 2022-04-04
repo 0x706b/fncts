@@ -1,6 +1,4 @@
 import type { NumberConstraints } from "../constraints.js";
-import type { Random } from "@fncts/base/control/Random";
-import type { Has } from "@fncts/base/prelude";
 
 import { identity } from "@fncts/base/data/function";
 

@@ -1,10 +1,3 @@
-import type { Exit } from "../../data/Exit.js";
-import type { Lazy } from "../../data/function.js";
-import type { UIO } from "../IO.js";
-import type { Finalizer } from "./Finalizer.js";
-
-import { Tag } from "../../data/Tag.js";
-
 export const ScopeTypeId = Symbol.for("fncts.base.control.Scope");
 export type ScopeTypeId = typeof ScopeTypeId;
 

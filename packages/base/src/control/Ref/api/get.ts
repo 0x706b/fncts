@@ -1,4 +1,3 @@
-import type { IO } from "../../IO.js";
 import type { PRef } from "../definition.js";
 
 import { concrete } from "../definition.js";

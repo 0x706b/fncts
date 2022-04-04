@@ -1,31 +1,11 @@
-import type { ConcBuilder } from "../../collection/immutable/Conc.js";
-import type { ReadonlyNonEmptyArray } from "../../collection/immutable/NonEmptyArray.js";
-import type { FiberDescriptor } from "../../data/FiberDescriptor.js";
-import type { Lazy } from "../../data/function.js";
-import type { InterruptStatus } from "../../data/InterruptStatus.js";
-import type { Predicate } from "../../data/Predicate.js";
-import type { Refinement } from "../../data/Refinement.js";
-import type { RuntimeConfig } from "../../data/RuntimeConfig.js";
-import type { Tag } from "../../data/Tag.js";
-import type * as P from "../../prelude.js";
-import type { Has } from "../../prelude/Has.js";
-import type { _E, _R } from "../../types.js";
-import type { Eval } from "../Eval.js";
-import type { FiberContext } from "../Fiber/FiberContext.js";
-import type { Supervisor } from "../Supervisor.js";
-import type { Canceler, FIO, UIO, URIO } from "./definition.js";
+import type { FiberContext } from "@fncts/base/control/Fiber/FiberContext";
+import type { Canceler } from "@fncts/base/control/IO/definition";
+import type * as P from "@fncts/base/prelude";
+import type { _E, _R } from "@fncts/base/types";
 import type { Intersection } from "@fncts/typelevel";
-import type { Erase } from "@fncts/typelevel/Intersection.js";
+import type { Erase } from "@fncts/typelevel/Intersection";
 
-import { ReadonlyArray } from "../../collection/Array.js";
-import { Conc } from "../../collection/immutable/Conc.js";
-import { Cause } from "../../data/Cause.js";
-import { Either } from "../../data/Either.js";
-import { Exit } from "../../data/Exit.js";
-import { FiberId } from "../../data/FiberId.js";
-import { identity, tuple } from "../../data/function.js";
-import { Just, Maybe, Nothing } from "../../data/Maybe.js";
-import { Trace } from "../../data/Trace.js";
+import { ReadonlyArray } from "@fncts/base/collection/Array";
 import {
   Async,
   Chain,
@@ -47,7 +27,8 @@ import {
   SucceedNow,
   Supervise,
   Yield,
-} from "./definition.js";
+} from "@fncts/base/control/IO/definition";
+import { identity, tuple } from "@fncts/base/data/function";
 
 /**
  * Imports an asynchronous side-effect into a `IO`

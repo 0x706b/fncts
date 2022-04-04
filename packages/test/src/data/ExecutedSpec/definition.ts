@@ -1,8 +1,6 @@
 import type { TestAnnotationMap } from "../TestAnnotationMap.js";
 import type { TestFailure } from "../TestFailure.js";
 import type { TestSuccess } from "../TestSuccess.js";
-import type { Conc } from "@fncts/base/collection/immutable/Conc";
-import type { Either } from "@fncts/base/data/Either";
 
 export const enum ExecutedSpecCaseTag {
   Test = "Test",

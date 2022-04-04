@@ -1,10 +1,5 @@
-import type { Either } from "../../data/Either.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { NewtypeIso } from "../../data/Newtype.js";
 import type { HKT } from "../../prelude.js";
 import type { UTRef } from "../TRef.js";
-
-import { Newtype } from "../../data/Newtype.js";
 
 interface TFutureN extends HKT {
   readonly type: TFuture<this["E"], this["A"]>;

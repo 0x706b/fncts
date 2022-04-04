@@ -1,9 +1,6 @@
-import type { Maybe } from "../../../data/Maybe.js";
 import type { PRef } from "../definition.js";
 
-import { Either } from "../../../data/Either.js";
 import { tuple } from "../../../data/function.js";
-import { IO } from "../../IO.js";
 import { concrete } from "../definition.js";
 
 /**

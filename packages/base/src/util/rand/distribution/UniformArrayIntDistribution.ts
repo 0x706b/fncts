@@ -1,14 +1,14 @@
-import type RandomGenerator from "../generator/RandomGenerator.js";
-import type Distribution from "./Distribution.js";
-import type { ArrayInt } from "./internals/ArrayInt.js";
+import type Distribution from "@fncts/base/util/rand/distribution/Distribution";
+import type { ArrayInt } from "@fncts/base/util/rand/distribution/internals/ArrayInt";
+import type RandomGenerator from "@fncts/base/util/rand/generator/RandomGenerator";
 
 import {
   addArrayIntToNew,
   addOneToPositiveArrayInt,
   substractArrayIntToNew,
   trimArrayIntInplace,
-} from "./internals/ArrayInt.js";
-import { uniformArrayIntDistributionInternal } from "./internals/UniformArrayIntDistributionInternal.js";
+} from "@fncts/base/util/rand/distribution/internals/ArrayInt";
+import { uniformArrayIntDistributionInternal } from "@fncts/base/util/rand/distribution/internals/UniformArrayIntDistributionInternal";
 
 /** @internal */
 function uniformArrayIntInternal(from: ArrayInt, to: ArrayInt, rng: RandomGenerator): ArrayInt {

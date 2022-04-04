@@ -1,6 +1,4 @@
-import type { Lazy } from "../../data/function.js";
-
-import { Defer, Eval, Value } from "./definition.js";
+import { Defer, Value } from "@fncts/base/control/Eval/definition";
 
 /**
  * @tsplus static fncts.EvalOps now

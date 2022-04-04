@@ -1,6 +1,6 @@
-import type { Ord } from "../Ord.js";
+import type { Ord } from "@fncts/base/prelude/Ord";
 
-import { Semigroup } from "./definition.js";
+import { Semigroup } from "@fncts/base/prelude/Semigroup/definition";
 
 /**
  * @tsplus static fncts.SemigroupOps min

@@ -1,4 +1,4 @@
-import * as Ansi from "../../util/AnsiFormat.js";
+import * as Ansi from "@fncts/base/util/AnsiFormat";
 
 export type Style =
   | "red"

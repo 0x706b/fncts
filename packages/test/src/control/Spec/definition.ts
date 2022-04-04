@@ -1,10 +1,6 @@
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import type { TestFailure } from "../../data/TestFailure.js";
 import type { TestSuccess } from "../../data/TestSuccess.js";
-import type { Conc } from "@fncts/base/collection/immutable/Conc";
-import type { IO } from "@fncts/base/control/IO";
-import type { Scope } from "@fncts/base/control/Scope.js";
-import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 import type { _A, _E, _R } from "@fncts/base/types.js";
 
 /**

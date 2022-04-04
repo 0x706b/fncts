@@ -1,5 +1,3 @@
-import { Conc } from "../definition.js";
-
 /**
  * @tsplus static fncts.collection.immutable.ConcOps replicate
  */

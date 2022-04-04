@@ -1,5 +1,3 @@
-import { Conc } from "../definition.js";
-
 /**
  * Fills a Conc with the result of applying `f` `n` times
  *

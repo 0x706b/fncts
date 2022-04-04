@@ -1,5 +1,3 @@
-import { HKT } from "./HKT.js";
-
 export interface Pointed<F extends HKT, FC = HKT.None> extends HKT.Typeclass<F, FC> {
   readonly pure: pure<F, FC>;
 }

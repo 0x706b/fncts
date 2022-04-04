@@ -1,16 +1,11 @@
-import type { FiberId } from "../../../data/FiberId.js";
 import type { TxnId } from "../../../data/TxnId.js";
 import type { AtomicReference } from "../../../internal/AtomicReference.js";
-import type { STM } from "../../STM.js";
 import type { Atomic } from "../../TRef.js";
 import type { Entry } from "./Entry.js";
 import type { TryCommit } from "./TryCommit.js";
 
-import { HashMap } from "../../../collection/immutable/HashMap.js";
-import { Exit } from "../../../data/Exit.js";
 import { TExitTag } from "../../../data/TExit.js";
 import { defaultScheduler } from "../../../internal/Scheduler.js";
-import { IO } from "../../IO.js";
 import { STMDriver } from "../driver.js";
 import { CommitState } from "./CommitState.js";
 import { Done, Suspend } from "./TryCommit.js";

@@ -1,9 +1,4 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-import type { UIO } from "../../IO.js";
-import type { PQueue } from "../definition.js";
-
-import { IO } from "../../IO.js";
-import { concrete, QueueInternal } from "../definition.js";
+import { concrete, QueueInternal } from "@fncts/base/control/Queue/definition";
 
 class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
   RC & RA,

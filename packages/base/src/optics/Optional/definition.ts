@@ -1,8 +1,6 @@
-import type { Either } from "../../data/Either.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { set_ } from "../Setter.js";
+import type { set_ } from "@fncts/base/optics/Setter";
 
-import { PTraversal } from "../Traversal.js";
+import { PTraversal } from "@fncts/base/optics/Traversal";
 
 /**
  * @tsplus type fncts.optics.POptional

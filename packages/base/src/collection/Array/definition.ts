@@ -1,5 +1,3 @@
-import type { HKT } from "../../prelude.js";
-
 declare global {
   /**
    * @tsplus type fncts.collection.immutable.Array

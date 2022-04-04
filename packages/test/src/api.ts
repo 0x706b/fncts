@@ -1,12 +1,7 @@
 import type { Assertion, AssertResult } from "./control/Assertion.js";
 import type { AssertionIO } from "./control/AssertionIO.js";
 import type { TestResult } from "./data/FailureDetails.js";
-import type { Lazy } from "@fncts/base/data/function.js";
 import type { _E, _R } from "@fncts/base/types";
-
-import { _Nil, Cons } from "@fncts/base/collection/immutable/List";
-import { LazyValue } from "@fncts/base/control/LazyValue";
-import { Nothing } from "@fncts/base/data/Maybe";
 
 import { Spec } from "./control/Spec.js";
 import { Test } from "./control/Test.js";

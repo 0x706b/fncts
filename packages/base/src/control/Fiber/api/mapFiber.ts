@@ -1,7 +1,3 @@
-import type { UIO } from "../../IO.js";
-
-import { Fiber } from "../definition.js";
-
 /**
  * Passes the success of this fiber to the specified callback, and continues
  * with the fiber that it returns.

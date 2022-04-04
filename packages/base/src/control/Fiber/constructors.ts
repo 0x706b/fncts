@@ -1,11 +1,3 @@
-import type { Cause } from "../../data/Cause.js";
-import type { FiberId } from "../../data/FiberId.js";
-import type { Fiber } from "./definition.js";
-
-import { Exit } from "../../data/Exit.js";
-import { Just } from "../../data/Maybe.js";
-import { IO } from "../IO.js";
-
 /**
  * @tsplus static fncts.control.FiberOps done
  */

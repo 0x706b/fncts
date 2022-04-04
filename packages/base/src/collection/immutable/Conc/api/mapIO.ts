@@ -1,6 +1,3 @@
-import { IO } from "../../../../control/IO.js";
-import { Conc } from "../definition.js";
-
 /**
  * @tsplus fluent fncts.collection.immutable.Conc mapIO
  */

@@ -1,4 +1,4 @@
-import { PIso } from "./definition.js";
+import { PIso } from "@fncts/base/optics/Iso/definition";
 
 /**
  * @tsplus fluent fncts.optics.PIso compose

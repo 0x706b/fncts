@@ -1,26 +1,8 @@
-import type { ConcBuilder } from "../../collection/immutable/Conc.js";
-import type { FiberId } from "../../data/FiberId.js";
-import type { Lazy } from "../../data/function.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { Predicate } from "../../data/Predicate.js";
-import type { Has } from "../../prelude.js";
-import type { URIO } from "../IO.js";
-import type { Queue } from "../Queue.js";
-import type { AsyncInputConsumer } from "./internal/AsyncInputConsumer.js";
-import type { AsyncInputProducer } from "./internal/AsyncInputProducer.js";
-import type { UpstreamPullRequest } from "./UpstreamPullRequest.js";
+import type { AsyncInputConsumer } from "@fncts/base/control/Channel/internal/AsyncInputConsumer";
+import type { AsyncInputProducer } from "@fncts/base/control/Channel/internal/AsyncInputProducer";
+import type { UpstreamPullRequest } from "@fncts/base/control/Channel/UpstreamPullRequest";
 
-import { Conc } from "../../collection/immutable/Conc.js";
-import { Cause } from "../../data/Cause.js";
-import { Either } from "../../data/Either.js";
-import { Exit } from "../../data/Exit.js";
-import { identity, tuple } from "../../data/function.js";
-import { Nothing } from "../../data/Maybe.js";
-import { hasTypeId } from "../../util/predicates.js";
-import { IO } from "../IO.js";
-import { Ref } from "../Ref.js";
-import { Scope } from "../Scope.js";
-import { ChildExecutorDecision } from "./ChildExecutorDecision.js";
+import { ChildExecutorDecision } from "@fncts/base/control/Channel/ChildExecutorDecision";
 import {
   BracketOut,
   Bridge,
@@ -36,8 +18,9 @@ import {
   PipeTo,
   Provide,
   Read,
-} from "./definition.js";
-import { UpstreamPullStrategy } from "./UpstreamPullStrategy/definition.js";
+} from "@fncts/base/control/Channel/definition";
+import { UpstreamPullStrategy } from "@fncts/base/control/Channel/UpstreamPullStrategy";
+import { identity, tuple } from "@fncts/base/data/function";
 
 /**
  * Returns a new channel that is the same as this one, except the terminal value of the channel

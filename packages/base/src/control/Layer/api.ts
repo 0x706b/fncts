@@ -1,18 +1,9 @@
-import type { Cause } from "../../data/Cause.js";
-import type { Lazy } from "../../data/function.js";
-import type { Tag } from "../../data/Tag.js";
-import type { Has } from "../../prelude.js";
-import type { Spreadable } from "../../types.js";
-import type { URIO } from "../IO.js";
-import type { Schedule } from "../Schedule.js";
-import type { Erase } from "@fncts/typelevel/Intersection.js";
+import type { Spreadable } from "@fncts/base/types";
+import type { Erase } from "@fncts/typelevel/Intersection";
 
-import { identity } from "../../data/function.js";
-import { Clock } from "../Clock.js";
-import { IO } from "../IO.js";
-import { DecisionTag } from "../Schedule.js";
-import { Scope } from "../Scope.js";
-import { Fold, Fresh, FromScoped, Layer, To, ZipWithC } from "./definition.js";
+import { Fold, Fresh, FromScoped, Layer, To, ZipWithC } from "@fncts/base/control/Layer/definition";
+import { DecisionTag } from "@fncts/base/control/Schedule";
+import { identity } from "@fncts/base/data/function";
 
 /**
  * @tsplus fluent fncts.control.Layer and
@@ -166,7 +157,10 @@ export function fromFunctionIO<A>(tag: Tag<A>) {
  * @tsplus static fncts.control.LayerOps fromIOEnvironment
  * @tsplus static fncts.control.LayerOps __call
  */
-export function fromIOEnvironment<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Layer<R, E, A> {
+export function fromIOEnvironment<R, E, A>(
+  io: IO<R, E, A>,
+  __tsplusTrace?: string,
+): Layer<R, E, A> {
   return new FromScoped(io);
 }
 
@@ -203,8 +197,7 @@ export function fromRawIO<R, E, A>(resource: IO<R, E, A>): Layer<R, E, A> {
  * @tsplus static fncts.control.LayerOps fromValue
  */
 export function fromValue<A>(tag: Tag<A>) {
-  return (value: Lazy<A>): Layer<unknown, never, Has<A>> =>
-    Layer.fromIO(tag)(IO.succeed(value));
+  return (value: Lazy<A>): Layer<unknown, never, Has<A>> => Layer.fromIO(tag)(IO.succeed(value));
 }
 
 /**
@@ -269,8 +262,12 @@ export function mapError_<RIn, E, ROut, E1>(
 /**
  * @tsplus getter fncts.control.Layer memoize
  */
-export function memoize<RIn, E, ROut>(self: Layer<RIn, E, ROut>): URIO<Has<Scope>, Layer<RIn, E, ROut>> {
-  return IO.serviceWithIO(Scope.Tag)(scope => self.build(scope)).memoize.map((_) => new FromScoped(_));
+export function memoize<RIn, E, ROut>(
+  self: Layer<RIn, E, ROut>,
+): URIO<Has<Scope>, Layer<RIn, E, ROut>> {
+  return IO.serviceWithIO(Scope.Tag)((scope) => self.build(scope)).memoize.map(
+    (_) => new FromScoped(_),
+  );
 }
 
 /**
@@ -405,9 +402,9 @@ export function using_<RIn, E, ROut extends Spreadable, RIn1 extends Spreadable,
 
 function environmentFor<A>(tag: Tag<A>, a: A): IO<unknown, never, Has<A>> {
   return IO.environmentWith(
-      (r) =>
-        ({
-          [tag.key]: tag.mergeEnvironments(r, a)[tag.key],
-        } as Has<A>),
-    );
+    (r) =>
+      ({
+        [tag.key]: tag.mergeEnvironments(r, a)[tag.key],
+      } as Has<A>),
+  );
 }

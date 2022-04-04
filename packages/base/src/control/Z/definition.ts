@@ -1,6 +1,3 @@
-import type { Conc } from "../../collection/immutable/Conc.js";
-import type { Cause } from "../../data/Cause.js";
-import type { HKT } from "../../prelude.js";
 import type { _A, _E, _R, _S1, _S2, _W } from "../../types.js";
 
 import { hasTypeId } from "../../util/predicates.js";

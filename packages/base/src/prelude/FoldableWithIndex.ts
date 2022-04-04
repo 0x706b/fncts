@@ -1,9 +1,7 @@
-import type { Eval } from "../control/Eval.js";
-import type { FoldableMin } from "./Foldable.js";
-import type { Monoid } from "./Monoid.js";
+import type { FoldableMin } from "@fncts/base/prelude/Foldable";
+import type { Monoid } from "@fncts/base/prelude/Monoid";
 
-import { Foldable } from "./Foldable.js";
-import { HKT } from "./HKT.js";
+import { Foldable } from "@fncts/base/prelude/Foldable";
 
 /**
  * @tsplus type fncts.FoldableWithIndex

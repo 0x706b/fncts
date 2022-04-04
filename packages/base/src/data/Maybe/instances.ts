@@ -1,5 +1,4 @@
 import type { HKT } from "../../prelude.js";
-import type { Maybe } from "./definition.js";
 
 import * as P from "../../prelude.js";
 import {

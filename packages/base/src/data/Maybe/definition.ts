@@ -1,4 +1,3 @@
-import { Equatable, Hashable } from "../../prelude.js";
 import { isObject } from "../../util/predicates.js";
 
 export const enum MaybeTag {

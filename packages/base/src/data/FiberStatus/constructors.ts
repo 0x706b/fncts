@@ -1,4 +1,3 @@
-import type { FiberId } from "../FiberId.js";
 import type { FiberStatus } from "./definition.js";
 
 import { Done, Finishing, Running, Suspended } from "./definition.js";

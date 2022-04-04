@@ -1,5 +1,3 @@
-import type { HKT } from "../../../prelude.js";
-
 /**
  * @tsplus type fncts.collection.immutable.NonEmptyArray
  */

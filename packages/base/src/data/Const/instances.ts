@@ -1,6 +1,5 @@
 import * as P from "../../prelude.js";
 import { map_ } from "./api.js";
-import { Const } from "./definition.js";
 
 export interface ConstF extends P.HKT {
   readonly type: Const<this["E"], this["A"]>;

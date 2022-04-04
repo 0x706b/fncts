@@ -1,8 +1,3 @@
-import { ListBuffer } from "../collection/mutable/ListBuffer.js";
-
-// const microtask =
-//   typeof queueMicrotask !== 'undefined' ? queueMicrotask : (callback: () => void) => Promise.resolve().then(callback)
-
 let isRunning = false;
 const tasks   = new ListBuffer<() => void>();
 

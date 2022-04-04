@@ -1,6 +1,3 @@
-import { unsafeCoerce } from "../../../data/function.js";
-import { Dictionary } from "./definition.js";
-
 /**
  * @tsplus fluent fncts.collection.immutable.Dictionary foldLeftWithIndex
  */

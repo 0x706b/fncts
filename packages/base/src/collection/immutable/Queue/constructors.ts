@@ -1,5 +1,5 @@
-import { _Nil, Cons } from "../List.js";
-import { EmptyQueue, Queue } from "./definition.js";
+import { _Nil } from "@fncts/base/collection/immutable/List";
+import { EmptyQueue, Queue } from "@fncts/base/collection/immutable/Queue/definition";
 
 /**
  * @tsplus static fncts.collection.immutable.QueueOps empty

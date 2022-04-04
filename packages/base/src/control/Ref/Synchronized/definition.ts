@@ -1,9 +1,5 @@
-import type { Either } from "../../../data/Either.js";
-import type { TSemaphore } from "../../TSemaphore.js";
 import type { PRef } from "../definition.js";
 
-import { IO } from "../../IO.js";
-import { STM } from "../../STM.js";
 import { RefInternal } from "../definition.js";
 
 /**

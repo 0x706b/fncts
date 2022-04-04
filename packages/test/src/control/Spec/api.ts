@@ -3,10 +3,7 @@ import type { SpecCase } from "./definition.js";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 import type { Spreadable } from "@fncts/base/types.js";
 
-import { Scope } from "@fncts/base/control/Scope.js";
 import { identity, tuple } from "@fncts/base/data/function";
-import { Nothing } from "@fncts/base/data/Maybe";
-import { Just } from "@fncts/base/data/Maybe";
 import { matchTag, matchTag_ } from "@fncts/base/util/pattern";
 
 import { TestAnnotation } from "../../data/TestAnnotation.js";

@@ -1,7 +1,3 @@
-import type { List } from "../definition.js";
-
-import { NoSuchElementError } from "../../../../data/exceptions.js";
-
 /**
  * @tsplus getter fncts.List unsafeTail
  */

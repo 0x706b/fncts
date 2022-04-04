@@ -1,9 +1,6 @@
 import type { ArrayInt } from "../../util/rand.js";
-import type { UIO } from "../IO.js";
-import type { Random } from "./definition.js";
 
 import { MersenneTwister, MutableRandom } from "../../util/rand.js";
-import { IO } from "../IO.js";
 
 export class LiveRandom implements Random {
   private prng: MutableRandom;

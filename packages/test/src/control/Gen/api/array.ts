@@ -1,7 +1,5 @@
 import type { Sized } from "../../Sized.js";
 import type { EqConstraint, LengthConstraints } from "../constraints.js";
-import type { Random } from "@fncts/base/control/Random";
-import type { Has } from "@fncts/base/prelude";
 
 import { Gen } from "../definition.js";
 

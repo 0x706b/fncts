@@ -1,7 +1,3 @@
-import type { Conc } from "../../collection/immutable/Conc.js";
-
-import { Trace } from "./definition.js";
-
 /**
  * @tsplus fluent fncts.data.Trace combine
  */

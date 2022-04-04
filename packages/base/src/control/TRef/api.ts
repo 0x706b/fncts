@@ -1,9 +1,7 @@
-import type { Maybe } from "../../data/Maybe.js";
 import type { Journal } from "../STM/internal/Journal.js";
 import type { Atomic, TRef } from "../TRef/definition.js";
 
-import { Either } from "../../data/Either.js";
-import { Effect, STM } from "../STM/definition.js";
+import { Effect } from "../STM/definition.js";
 import { Entry } from "../STM/internal/Entry.js";
 import { concrete } from "../TRef/definition.js";
 

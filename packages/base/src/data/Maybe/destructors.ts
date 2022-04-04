@@ -1,5 +1,3 @@
-import type { Maybe } from "./definition.js";
-
 import { MaybeTag } from "./definition.js";
 
 /**

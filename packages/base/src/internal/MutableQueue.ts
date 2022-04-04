@@ -1,5 +1,4 @@
-import { Conc } from "../collection/immutable/Conc.js";
-import { assert } from "../util/assert.js";
+import { assert } from "@fncts/base/util/assert";
 
 /**
  * @tsplus type fncts.internal.MutableQueue

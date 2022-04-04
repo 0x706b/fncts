@@ -1,8 +1,3 @@
-import type { Cause } from "../../data/Cause.js";
-import type { Has } from "../../prelude.js";
-import type { IO } from "../IO.js";
-import type { Scope } from "../Scope.js";
-
 export const LayerHash = Symbol.for("fncts.control.Layer.Hash");
 export type LayerHash = typeof LayerHash;
 

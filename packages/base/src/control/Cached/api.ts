@@ -1,14 +1,5 @@
-import type { Has } from "../../prelude.js";
-import type { Clock } from "../Clock.js";
-import type { FIO } from "../IO/definition.js";
-import type { Schedule } from "../Schedule.js";
-import type { Scope } from "../Scope.js";
-
-import { Exit } from "../../data.js";
-import { IO } from "../IO.js";
-import { ScopedRef } from "../ScopedRef.js";
-import { Cached, concrete } from "./definition.js";
-import { CachedInternal } from "./internal.js";
+import { concrete } from "@fncts/base/control/Cached/definition";
+import { CachedInternal } from "@fncts/base/control/Cached/internal";
 
 /**
  * @tsplus static fncts.control.CachedOps auto
@@ -33,7 +24,10 @@ export function auto<R, Error, Resource>(
 /**
  * @tsplus getter fncts.control.Cached get
  */
-export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, Resource> {
+export function get_<Error, Resource>(
+  self: Cached<Error, Resource>,
+  __tsplusTrace?: string,
+): FIO<Error, Resource> {
   concrete(self);
   return self.get;
 }
@@ -65,7 +59,10 @@ class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
 /**
  * @tsplus getter fncts.control.Cached refresh
  */
-export function refresh_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, void> {
+export function refresh_<Error, Resource>(
+  self: Cached<Error, Resource>,
+  __tsplusTrace?: string,
+): FIO<Error, void> {
   concrete(self);
   return self.refresh;
 }

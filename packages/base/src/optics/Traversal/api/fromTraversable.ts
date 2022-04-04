@@ -1,7 +1,6 @@
-import type * as P from "../../../prelude.js";
-import type { HKT } from "../../../prelude.js";
+import type * as P from "@fncts/base/prelude";
 
-import { PTraversal } from "../definition.js";
+import { PTraversal } from "@fncts/base/optics/Traversal/definition";
 
 /**
  * @tsplus static fncts.optics.PTraversalOps fromTraversable

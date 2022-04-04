@@ -1,7 +1,7 @@
-import type RandomGenerator from "../../generator/RandomGenerator.js";
-import type { ArrayInt } from "./ArrayInt.js";
+import type { ArrayInt } from "@fncts/base/util/rand/distribution/internals/ArrayInt";
+import type RandomGenerator from "@fncts/base/util/rand/generator/RandomGenerator";
 
-import { uniformIntDistributionInternal } from "./UniformIntDistributionInternal.js";
+import { uniformIntDistributionInternal } from "@fncts/base/util/rand/distribution/internals/UniformIntDistributionInternal";
 
 /**
  * Uniformly generate ArrayInt in range [0 ; rangeSize[

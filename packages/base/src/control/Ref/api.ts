@@ -1,6 +1,5 @@
 import type { PRef } from "./definition.js";
 
-import { Either } from "../../data/Either.js";
 import { identity } from "../../data/function.js";
 
 // codegen:start { preset: barrel, include: api/*.ts }

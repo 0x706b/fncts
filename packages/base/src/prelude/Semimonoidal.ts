@@ -1,5 +1,3 @@
-import { HKT } from "./HKT.js";
-
 export interface Semimonoidal<F extends HKT, C = HKT.None> extends HKT.Typeclass<F, C> {
   readonly zip_: zip_<F, C>;
   readonly zip: zip<F, C>;

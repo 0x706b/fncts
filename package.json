@@ -11,15 +11,16 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "ultra -r build",
+    "build": "tsc -b --verbose",
     "format": "ultra -r format",
+    "clean": "ultra -r clean",
     "postinstall": "tsplus-install"
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.3",
     "@0x706b/prettier-eslint-8": "^0.0.3",
-    "@tsplus/installer": "0.0.65",
+    "@tsplus/installer": "0.0.67",
     "@types/benchmark": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/experimental-utils": "^5.10.2",

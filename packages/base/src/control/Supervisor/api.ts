@@ -1,10 +1,3 @@
-import type { Exit } from "../../data/Exit.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { RuntimeFiber } from "../Fiber.js";
-import type { IO } from "../IO.js";
-
-import { Supervisor } from "./definition.js";
-
 /**
  * @tsplus fluent fncts.control.Supervisor zip
  */
@@ -14,8 +7,8 @@ export function zip_<A, B>(fa: Supervisor<A>, fb: Supervisor<B>): Supervisor<rea
     unsafeOnStart<R, E, A>(
       environment: R,
       effect: IO<R, E, A>,
-      parent: Maybe<RuntimeFiber<any, any>>,
-      fiber: RuntimeFiber<E, A>,
+      parent: Maybe<Fiber.Runtime<any, any>>,
+      fiber: Fiber.Runtime<E, A>,
     ) {
       try {
         fa.unsafeOnStart(environment, effect, parent, fiber);
@@ -23,19 +16,19 @@ export function zip_<A, B>(fa: Supervisor<A>, fb: Supervisor<B>): Supervisor<rea
         fb.unsafeOnStart(environment, effect, parent, fiber);
       }
     }
-    unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>) {
+    unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: Fiber.Runtime<E, A>) {
       fa.unsafeOnEnd(value, fiber);
       fb.unsafeOnEnd(value, fiber);
     }
-    unsafeOnEffect<E, A>(fiber: RuntimeFiber<E, A>, effect: IO<any, any, any>) {
+    unsafeOnEffect<E, A>(fiber: Fiber.Runtime<E, A>, effect: IO<any, any, any>) {
       fa.unsafeOnEffect(fiber, effect);
       fb.unsafeOnEffect(fiber, effect);
     }
-    unsafeOnSuspend<E, A>(fiber: RuntimeFiber<E, A>) {
+    unsafeOnSuspend<E, A>(fiber: Fiber.Runtime<E, A>) {
       fa.unsafeOnSuspend(fiber);
       fb.unsafeOnSuspend(fiber);
     }
-    unsafeOnResume<E, A>(fiber: RuntimeFiber<E, A>) {
+    unsafeOnResume<E, A>(fiber: Fiber.Runtime<E, A>) {
       fa.unsafeOnResume(fiber);
       fb.unsafeOnResume(fiber);
     }

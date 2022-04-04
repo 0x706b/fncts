@@ -1,4 +1,4 @@
-import { Lens } from "../Lens.js";
+import { Lens } from "@fncts/base/optics/Lens";
 
 /**
  * @tsplus type fncts.optics.At

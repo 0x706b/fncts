@@ -1,5 +1,3 @@
-import type { Channel } from "../definition.js";
-
 /**
  * @tsplus fluent fncts.control.Channel mergeAllUnboundedWith
  */

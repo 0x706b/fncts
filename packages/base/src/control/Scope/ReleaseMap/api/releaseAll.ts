@@ -1,10 +1,3 @@
-import type { ExecutionStrategy } from "../../../../data/ExecutionStrategy.js";
-import type { UIO } from "../../../IO.js";
-
-import { Conc } from "../../../../collection/immutable/Conc.js";
-import { Exit } from "../../../../data/Exit.js";
-import { IO } from "../../../IO.js";
-import { Finalizer } from "../../Finalizer.js";
 import { Exited, ReleaseMap } from "../definition.js";
 
 /**

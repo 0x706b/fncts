@@ -1,11 +1,4 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-import type { Maybe } from "../../../data/Maybe.js";
-import type { Stream } from "../definition.js";
-
-import { Exit } from "../../../data/Exit.js";
 import { tuple } from "../../../data/function.js";
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { IO } from "../../IO.js";
 import { zipChunks } from "../internal/util.js";
 
 /**

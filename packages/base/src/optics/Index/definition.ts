@@ -1,4 +1,4 @@
-import type { Optional } from "../Optional.js";
+import type { Optional } from "@fncts/base/optics/Optional";
 
 /**
  * @tsplus type fncts.optics.Index

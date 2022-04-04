@@ -1,5 +1,3 @@
-import type { Cause } from "../definition.js";
-
 import { Stack } from "../../../internal/Stack.js";
 import { CauseTag } from "../definition.js";
 

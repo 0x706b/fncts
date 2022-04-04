@@ -1,16 +1,4 @@
-import type { Has } from "../../prelude.js";
-import type { UIO } from "../IO.js";
-import type { Hub, PHub } from "./definition.js";
-
-import { Conc } from "../../collection/immutable/Conc.js";
-import { FiberId } from "../../data/FiberId.js";
-import { AtomicBoolean } from "../../internal/AtomicBoolean.js";
-import { Hub as HubInternal } from "../../internal/Hub.js";
-import { Future } from "../Future.js";
-import { IO } from "../IO.js";
-import { QueueInternal } from "../Queue.js";
-import { Scope } from "../Scope.js";
-import { concrete, PHubInternal } from "./definition.js";
+import { concrete, PHubInternal } from "@fncts/base/control/Hub/definition";
 import {
   BackPressure,
   Dropping,
@@ -18,7 +6,10 @@ import {
   Sliding,
   subscribersHashSet,
   unsafeMakeHub,
-} from "./internal.js";
+} from "@fncts/base/control/Hub/internal";
+import { QueueInternal } from "@fncts/base/control/Queue";
+import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
+import { Hub as HubInternal } from "@fncts/base/internal/Hub";
 
 /**
  * Waits for the hub to be shut down.

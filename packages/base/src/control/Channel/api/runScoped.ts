@@ -1,12 +1,11 @@
-import type { Has } from "../../../prelude.js";
-import type { Scope } from "../../Scope.js";
-import type { Channel } from "../definition.js";
-import type { ChannelState } from "../internal/ChannelState.js";
+import type { ChannelState } from "@fncts/base/control/Channel/internal/ChannelState";
 
-import { identity } from "../../../data/function.js";
-import { IO } from "../../IO.js";
-import { ChannelExecutor, readUpstream } from "../internal/ChannelExecutor.js";
-import { ChannelStateTag } from "../internal/ChannelState.js";
+import {
+  ChannelExecutor,
+  readUpstream,
+} from "@fncts/base/control/Channel/internal/ChannelExecutor";
+import { ChannelStateTag } from "@fncts/base/control/Channel/internal/ChannelState";
+import { identity } from "@fncts/base/data/function";
 
 function runScopedInterpret<Env, InErr, InDone, OutErr, OutDone>(
   channelState: ChannelState<Env, OutErr>,
@@ -44,6 +43,6 @@ export function runScoped<Env, InErr, InDone, OutErr, OutDone>(
 ): IO<Env & Has<Scope>, OutErr, OutDone> {
   return IO.acquireReleaseExit(
     IO.succeed(new ChannelExecutor(() => self, null, identity)),
-    (exec, exit) => exec.close(exit) || IO.unit,
+    (exec, exit) => exec.close(exit) ?? IO.unit,
   ).chain((exec) => IO.defer(runScopedInterpret(exec.run(), exec)));
 }

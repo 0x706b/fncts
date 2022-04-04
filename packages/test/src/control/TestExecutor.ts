@@ -2,12 +2,8 @@ import type { TestFailure } from "../data/TestFailure.js";
 import type { TestSuccess } from "../data/TestSuccess.js";
 import type { Annotated, Annotations } from "./Annotations.js";
 import type { Spec, SpecCase } from "./Spec.js";
-import type { UIO } from "@fncts/base/control/IO";
-import type { Layer } from "@fncts/base/control/Layer.js";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
-import type { Has } from "@fncts/base/prelude";
 
-import { Either } from "@fncts/base/data/Either.js";
 import { matchTag_ } from "@fncts/base/util/pattern.js";
 
 import { ExecutedSpec } from "../data/ExecutedSpec.js";

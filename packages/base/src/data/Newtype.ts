@@ -1,7 +1,5 @@
 import type { HKT } from "../prelude.js";
 
-import { unsafeCoerce } from "./function.js";
-
 /**
  * @tsplus type fncts.data.Newtype
  */

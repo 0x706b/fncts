@@ -1,9 +1,4 @@
-import type { Maybe } from "../../../../data/Maybe.js";
-import type { Conc } from "../definition.js";
-
-import { IO } from "../../../../control/IO.js";
-import { Just, Nothing } from "../../../../data/Maybe.js";
-import { concrete } from "../definition.js";
+import { concrete } from "@fncts/base/collection/immutable/Conc/definition";
 
 function findIOLoop_<R, E, A>(
   iterator: Iterator<ArrayLike<A>>,

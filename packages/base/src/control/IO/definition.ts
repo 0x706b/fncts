@@ -1,22 +1,5 @@
-import type { Cause } from "../../data/Cause.js";
-import type { Either } from "../../data/Either.js";
-import type { Exit } from "../../data/Exit/definition.js";
-import type { FiberDescriptor } from "../../data/FiberDescriptor.js";
-import type { FiberId } from "../../data/FiberId.js";
-import type { Lazy } from "../../data/function.js";
-import type { InterruptStatus } from "../../data/InterruptStatus.js";
-import type { LogLevel } from "../../data/LogLevel.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { RuntimeConfig } from "../../data/RuntimeConfig.js";
-import type { Trace as Trace_ } from "../../data/Trace.js";
-import type { TraceElement } from "../../data/TraceElement.js";
-import type { Fiber } from "../Fiber.js";
-import type { FiberContext } from "../Fiber/FiberContext.js";
-import type { FiberRef } from "../FiberRef.js";
-import type { FiberScope } from "../FiberScope.js";
-import type { Supervisor } from "../Supervisor.js";
-
-import { hasTypeId } from "../../util/predicates.js";
+import type { FiberContext } from "@fncts/base/control/Fiber/FiberContext";
+import type { Trace as Trace_ } from "@fncts/base/data/Trace";
 
 export const IOTypeId = Symbol.for("fncts.control.IO");
 export type IOTypeId = typeof IOTypeId;

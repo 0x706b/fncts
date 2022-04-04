@@ -1,5 +1,3 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-import type { Fiber } from "../../Fiber.js";
 import type { HandoffSignal } from "./Handoff.js";
 
 export const enum DebounceStateTag {

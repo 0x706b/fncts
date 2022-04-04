@@ -1,6 +1,3 @@
-import { Cons, List } from "@fncts/base/collection/immutable/List.js";
-import { Vector } from "@fncts/base/collection/immutable/Vector";
-
 import { Fragment } from "./Fragment.js";
 import { Message } from "./Message.js";
 

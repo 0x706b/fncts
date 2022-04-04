@@ -1,5 +1,3 @@
-import { IO } from "../definition.js";
-
 /**
  * Returns an IO that races this effect with the specified effect,
  * yielding the first result to complete, whether by success or failure. If

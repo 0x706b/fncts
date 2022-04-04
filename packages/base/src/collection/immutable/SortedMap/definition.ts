@@ -1,8 +1,12 @@
-import type { Ord } from "../../../prelude.js";
-import type { SortedMapIterable, SortedMapIterator } from "./iterator.js";
-import type { RBNode } from "./node.js";
+import type {
+  SortedMapIterable,
+  SortedMapIterator} from "@fncts/base/collection/immutable/SortedMap/iterator";
+import type { RBNode } from "@fncts/base/collection/immutable/SortedMap/node";
+import type { Ord } from "@fncts/base/prelude";
 
-import { forward } from "./iterator.js";
+import {
+  forward
+} from "@fncts/base/collection/immutable/SortedMap/iterator";
 
 /**
  * @tsplus type fncts.collection.immutable.SortedMap

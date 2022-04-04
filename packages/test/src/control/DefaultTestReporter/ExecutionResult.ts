@@ -1,9 +1,6 @@
 import type { Line } from "../../data/LogLine/Line.js";
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
-import type { List } from "@fncts/base/collection/immutable/List";
-import type { Vector } from "@fncts/base/collection/immutable/Vector";
 
-import { Nil } from "@fncts/base/collection/immutable/List";
 import { matchTag_ } from "@fncts/base/util/pattern";
 
 export interface Failed {

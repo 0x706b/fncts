@@ -1,5 +1,5 @@
-import { identity } from "../../../data/function.js";
-import { PPrism } from "../definition.js";
+import { identity } from "@fncts/base/data/function";
+import { PPrism } from "@fncts/base/optics/Prism/definition";
 
 /**
  * @tsplus fluent fncts.optics.PPrism compose

@@ -1,10 +1,4 @@
-import type { Predicate } from "../../../data/Predicate.js";
-import type { UIO } from "../../IO.js";
-import type { PQueue } from "../definition.js";
-
-import { Conc } from "../../../collection/immutable/Conc.js";
-import { IO } from "../../IO.js";
-import { concrete, QueueInternal } from "../definition.js";
+import { concrete, QueueInternal } from "@fncts/base/control/Queue/definition";
 
 export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<
   RA,

@@ -1,13 +1,11 @@
-import type { Has } from "../../../prelude.js";
-import type { Scope } from "../../Scope.js";
-import type { Channel } from "../definition.js";
-import type { ChannelState } from "../internal/ChannelState.js";
+import type { ChannelState } from "@fncts/base/control/Channel/internal/ChannelState";
 
-import { Either } from "../../../data/Either.js";
-import { identity } from "../../../data/function.js";
-import { IO } from "../../IO.js";
-import { ChannelExecutor, readUpstream } from "../internal/ChannelExecutor.js";
-import { ChannelStateTag } from "../internal/ChannelState.js";
+import {
+  ChannelExecutor,
+  readUpstream,
+} from "@fncts/base/control/Channel/internal/ChannelExecutor";
+import { ChannelStateTag } from "@fncts/base/control/Channel/internal/ChannelState";
+import { identity } from "@fncts/base/data/function";
 
 /**
  * Interpret a channel to a managed Pull

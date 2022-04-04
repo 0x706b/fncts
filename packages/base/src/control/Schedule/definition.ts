@@ -1,4 +1,3 @@
-import type { IO } from "../IO.js";
 import type { Decision } from "./Decision.js";
 import type { Driver as Driver_ } from "./Driver.js";
 

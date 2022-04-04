@@ -1,14 +1,8 @@
-import type { Maybe } from "@fncts/base/data/Maybe";
-import type { Predicate } from "@fncts/base/data/Predicate";
 import type { ArrayInt64 } from "@fncts/base/util/rand";
 
-import { Channel } from "@fncts/base/control/Channel";
 import { ChildExecutorDecision } from "@fncts/base/control/Channel/ChildExecutorDecision";
 import { UpstreamPullStrategy } from "@fncts/base/control/Channel/UpstreamPullStrategy";
-import { Stream } from "@fncts/base/control/Stream";
-import { Either } from "@fncts/base/data/Either";
 import { constVoid, identity, tuple } from "@fncts/base/data/function";
-import { Just, Nothing } from "@fncts/base/data/Maybe";
 
 import { add64, halve64, isEqual64, substract64 } from "../../util/math.js";
 import { Sample } from "./definition.js";

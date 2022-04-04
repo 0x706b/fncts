@@ -1,5 +1,4 @@
-import type { Channel } from "../definition.js";
-import type { MergeStrategy } from "./mergeAllWith.js";
+import type { MergeStrategy } from "@fncts/base/control/Channel/api/mergeAllWith";
 
 /**
  * @tsplus fluent fncts.control.Channel mergeAll

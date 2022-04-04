@@ -1,16 +1,7 @@
-import type { List } from "../../collection/immutable/List.js";
-import type { LogSpan } from "../../data/LogSpan.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { FiberScope } from "../FiberScope.js";
-import type { UIO } from "../IO.js";
+import type { LogSpan } from "@fncts/base/data/LogSpan";
 
-import { HashMap } from "../../collection/immutable/HashMap.js";
-import { Nil } from "../../collection/immutable/List.js";
-import { identity } from "../../data/function.js";
-import { LogLevel } from "../../data/LogLevel.js";
-import { Nothing } from "../../data/Maybe.js";
-import { IO } from "../IO.js";
-import { FiberRef, RuntimeFiberRef } from "./definition.js";
+import { RuntimeFiberRef } from "@fncts/base/control/FiberRef/definition";
+import { identity } from "@fncts/base/data/function";
 
 /**
  * @tsplus static fncts.control.FiberRefOps unsafeMake

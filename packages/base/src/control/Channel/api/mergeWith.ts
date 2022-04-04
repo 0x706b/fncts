@@ -1,13 +1,8 @@
-import type { Either } from "../../../data/Either.js";
-import type { Fiber } from "../../Fiber.js";
-import type { MergeDecision } from "../internal/MergeDecision.js";
+import type { MergeDecision } from "@fncts/base/control/Channel/internal/MergeDecision";
 
-import { Exit } from "../../../data/Exit.js";
-import { IO } from "../../IO.js";
-import { Channel } from "../definition.js";
-import { MergeDecisionTag } from "../internal/MergeDecision.js";
-import { MergeState, MergeStateTag } from "../internal/MergeState.js";
-import { SingleProducerAsyncInput } from "../internal/SingleProducerAsyncInput.js";
+import { MergeDecisionTag } from "@fncts/base/control/Channel/internal/MergeDecision";
+import { MergeState, MergeStateTag } from "@fncts/base/control/Channel/internal/MergeState";
+import { SingleProducerAsyncInput } from "@fncts/base/control/Channel/internal/SingleProducerAsyncInput";
 
 /**
  * Returns a new channel, which is the merge of this channel and the specified channel, where

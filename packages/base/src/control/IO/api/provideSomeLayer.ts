@@ -1,8 +1,5 @@
 import type { Spreadable } from "../../../types.js";
-import type { IO } from "../definition.js";
 import type { Erase } from "@fncts/typelevel/Intersection";
-
-import { Layer } from "../../Layer.js";
 
 /**
  * @tsplus fluent fncts.control.IO provideSomeLayer

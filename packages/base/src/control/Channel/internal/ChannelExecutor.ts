@@ -1,28 +1,19 @@
-import type { List } from "../../../collection/immutable/List.js";
-import type { Maybe } from "../../../data/Maybe.js";
-import type { URIO } from "../../IO.js";
-import type { ChildExecutorDecision } from "../ChildExecutorDecision.js";
-import type { BracketOut, Continuation, Ensuring } from "../definition.js";
-import type { UpstreamPullStrategy } from "../UpstreamPullStrategy.js";
-import type { ChannelState } from "./ChannelState.js";
+import type { ChildExecutorDecision } from "@fncts/base/control/Channel/ChildExecutorDecision";
+import type { BracketOut, Continuation, Ensuring } from "@fncts/base/control/Channel/definition";
+import type { ChannelState } from "@fncts/base/control/Channel/internal/ChannelState";
+import type { UpstreamPullStrategy } from "@fncts/base/control/Channel/UpstreamPullStrategy";
 
-import { Nil } from "../../../collection/immutable/List.js";
-import { Queue } from "../../../collection/immutable/Queue.js";
-import { ListBuffer } from "../../../collection/mutable/ListBuffer.js";
-import { Cause } from "../../../data/Cause.js";
-import { Exit } from "../../../data/Exit.js";
-import { identity } from "../../../data/function.js";
-import { Stack } from "../../../internal/Stack.js";
-import { IO } from "../../IO.js";
+import { Queue } from "@fncts/base/collection/immutable/Queue";
 import {
-  Channel,
   ChannelTag,
   concrete,
   concreteContinuation,
   ContinuationFinalizer,
-} from "../definition.js";
-import { UpstreamPullRequest } from "../UpstreamPullRequest.js";
-import * as State from "./ChannelState.js";
+} from "@fncts/base/control/Channel/definition";
+import * as State from "@fncts/base/control/Channel/internal/ChannelState";
+import { UpstreamPullRequest } from "@fncts/base/control/Channel/UpstreamPullRequest";
+import { identity } from "@fncts/base/data/function";
+import { Stack } from "@fncts/base/internal/Stack";
 
 type ErasedChannel<R> = Channel<R, unknown, unknown, unknown, unknown, unknown, unknown>;
 export type ErasedExecutor<R> = ChannelExecutor<

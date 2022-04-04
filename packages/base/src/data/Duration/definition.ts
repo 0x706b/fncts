@@ -1,6 +1,3 @@
-import type { Equatable } from "../../prelude.js";
-
-import { Hashable } from "../../prelude.js";
 import { hasTypeId } from "../../util/predicates.js";
 
 export const DurationTypeId = Symbol.for("fncts.data.Duration");

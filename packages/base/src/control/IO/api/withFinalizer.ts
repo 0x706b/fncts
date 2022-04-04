@@ -1,9 +1,3 @@
-import type { Has } from "../../../prelude.js";
-import type { Scope } from "../../Scope.js";
-import type { URIO } from "../definition.js";
-
-import { IO } from "../definition.js";
-
 /**
  * @tsplus fluent fncts.control.IO withFinalizer
  */

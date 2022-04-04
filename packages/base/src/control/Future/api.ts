@@ -1,14 +1,6 @@
-import type { Cause } from "../../data/Cause.js";
-import type { Exit } from "../../data/Exit.js";
-import type { FiberId } from "../../data/FiberId.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { Canceler, FIO, UIO } from "../IO.js";
-import type { Future } from "./definition.js";
+import type { Canceler } from "@fncts/base/control/IO";
 
-import { Either } from "../../data/Either.js";
-import { Just, Nothing } from "../../data/Maybe.js";
-import { IO } from "../IO.js";
-import { Done, FutureStateTag, Pending } from "./definition.js";
+import { Done, FutureStateTag, Pending } from "@fncts/base/control/Future/definition";
 
 /**
  * Exits the future with the specified exit, which will be propagated to all

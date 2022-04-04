@@ -1,8 +1,3 @@
-import type { Fiber } from "../definition.js";
-
-import { Nothing } from "../../../data/Maybe.js";
-import { IO } from "../../IO.js";
-
 /**
  * A fiber that never fails or succeeds
  *

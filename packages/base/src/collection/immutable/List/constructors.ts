@@ -12,9 +12,7 @@
  * for more information regarding copyright ownership
  */
 
-import type { Nil } from "./definition.js";
-
-import { _Nil, Cons, List } from "./definition.js";
+import { _Nil } from "./definition.js";
 
 /**
  * @tsplus static fncts.ConsOps __call

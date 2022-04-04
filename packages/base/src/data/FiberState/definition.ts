@@ -1,9 +1,5 @@
-import type { UIO } from "../../control/IO.js";
 import type { CancellerState } from "../CancellerState.js";
-import type { Exit } from "../Exit.js";
-import type { FiberId } from "../FiberId.js";
 
-import { Cause } from "../Cause.js";
 import { FiberStatus } from "../FiberStatus.js";
 
 /**

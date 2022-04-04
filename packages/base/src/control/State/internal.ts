@@ -1,5 +1,3 @@
-import type { UIO } from "../IO.js";
-
 export const StateTypeId = Symbol.for("fncts.base.control.State");
 export type StateTypeId = typeof StateTypeId;
 

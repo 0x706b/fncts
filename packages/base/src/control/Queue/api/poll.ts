@@ -1,8 +1,4 @@
-import type { Maybe } from "../../../data/Maybe.js";
-import type { IO } from "../../IO.js";
-import type { PQueue } from "../definition.js";
-
-import { concrete } from "../definition.js";
+import { concrete } from "@fncts/base/control/Queue/definition";
 
 /**
  * Take the head option of values in the queue.

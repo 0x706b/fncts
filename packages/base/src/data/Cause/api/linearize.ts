@@ -1,6 +1,3 @@
-import type { Cause } from "../definition.js";
-
-import { HashSet } from "../../../collection/immutable/HashSet.js";
 import { Fail, Halt, Interrupt, Stackless, Then } from "../definition.js";
 
 /**

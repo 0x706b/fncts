@@ -1,5 +1,5 @@
-import type { RandomGenerator } from "../generator/RandomGenerator.js";
-import type Distribution from "./Distribution.js";
+import type Distribution from "@fncts/base/util/rand/distribution/Distribution";
+import type { RandomGenerator } from "@fncts/base/util/rand/generator/RandomGenerator";
 
 function uniformBigIntInternal(from: bigint, diff: bigint, rng: RandomGenerator): bigint {
   const MinRng    = BigInt(rng.min());

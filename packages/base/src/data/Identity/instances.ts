@@ -1,5 +1,3 @@
-import type { Identity } from "./definition.js";
-
 import * as P from "../../prelude.js";
 import { ap_, map_, pure, zipWith_ } from "./api.js";
 

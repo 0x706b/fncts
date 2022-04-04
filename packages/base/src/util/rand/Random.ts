@@ -1,8 +1,8 @@
-import type RandomGenerator from "./generator/RandomGenerator.js";
+import type RandomGenerator from "@fncts/base/util/rand/generator/RandomGenerator";
 
-import { uniformArrayIntDistribution } from "./distribution/UniformArrayIntDistribution.js";
-import { uniformBigIntDistribution } from "./distribution/UniformBigIntDistribution.js";
-import { uniformIntDistribution } from "./distribution/UniformIntDistribution.js";
+import { uniformArrayIntDistribution } from "@fncts/base/util/rand/distribution/UniformArrayIntDistribution";
+import { uniformBigIntDistribution } from "@fncts/base/util/rand/distribution/UniformBigIntDistribution";
+import { uniformIntDistribution } from "@fncts/base/util/rand/distribution/UniformIntDistribution";
 
 /**
  * Wrapper around an instance of a `pure-rand`'s random number generator

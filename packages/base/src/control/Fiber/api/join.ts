@@ -1,8 +1,3 @@
-import type { FIO } from "../../IO.js";
-import type { Fiber } from "../definition.js";
-
-import { IO } from "../../IO.js";
-
 /**
  * Joins the fiber, which suspends the joining fiber until the result of the
  * fiber has been determined. Attempting to join a fiber that has erred will

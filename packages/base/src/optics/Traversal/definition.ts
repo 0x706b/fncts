@@ -1,9 +1,7 @@
-import type { Applicative, HKT, Monoid } from "../../prelude.js";
+import type { Applicative, Monoid } from "@fncts/base/prelude";
 
-import { Const } from "../../data/Const.js";
-import { Identity } from "../../data/Identity.js";
-import { Fold } from "../Fold.js";
-import { PSetter } from "../Setter.js";
+import { Fold } from "@fncts/base/optics/Fold";
+import { PSetter } from "@fncts/base/optics/Setter";
 
 /**
  * @tsplus type fncts.optics.PTraversal

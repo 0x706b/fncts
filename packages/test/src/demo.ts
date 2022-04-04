@@ -1,8 +1,6 @@
 import { Console, LiveConsole } from "@fncts/base/control/Console.js";
-import { FiberRef } from "@fncts/base/control/FiberRef";
-import { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 
-import { assert_, assertIO_, suite, test, testIO } from "./api.js";
+import { suite, test, testIO } from "./api.js";
 import { Annotations, LiveAnnotations } from "./control/Annotations.js";
 import { strictEqualTo } from "./control/Assertion.js";
 import { report } from "./control/DefaultTestReporter/render.js";

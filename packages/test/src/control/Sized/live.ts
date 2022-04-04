@@ -1,8 +1,3 @@
-import type { IO } from "@fncts/base/control/IO";
-import type { Has } from "@fncts/base/prelude";
-
-import { FiberRef } from "@fncts/base/control/FiberRef";
-
 import { Sized } from "./definition.js";
 
 /**

@@ -1,8 +1,3 @@
-import type { ConcBuilder } from "../collection/immutable/Conc.js";
-
-import { Conc } from "../collection/immutable/Conc.js";
-import { TraceElement } from "../data/TraceElement.js";
-
 export class StackTraceBuilder {
   private last: TraceElement | undefined = undefined;
 

@@ -2,7 +2,6 @@ import type { ReadonlyNonEmptyArray } from "../../../collection/immutable/NonEmp
 import type { _A, _E, _R } from "../../../types.js";
 
 import { identity, unsafeCoerce } from "../../../data/function.js";
-import { IO } from "../definition.js";
 
 /**
  * @tsplus static fncts.control.IOOps sequenceT

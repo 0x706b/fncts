@@ -1,5 +1,9 @@
-import { isEquatable } from "./definition.js";
-import { createCircularEqualCreator, createComparator, sameValueZeroEqual } from "./fast-equals.js";
+import { isEquatable } from "@fncts/base/prelude/Equatable/definition";
+import {
+  createCircularEqualCreator,
+  createComparator,
+  sameValueZeroEqual,
+} from "@fncts/base/prelude/Equatable/fast-equals";
 
 /**
  * @tsplus static fncts.prelude.structural.EquatableOps deepEquals

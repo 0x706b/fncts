@@ -1,9 +1,4 @@
-import type { Either } from "../Either.js";
-import type { FiberId } from "../FiberId.js";
-import type { Maybe } from "../Maybe.js";
-
-import { Cause } from "../Cause.js";
-import { Exit, Failure, Success } from "./definition.js";
+import { Failure, Success } from "./definition.js";
 
 /**
  * @tsplus static fncts.data.ExitOps halt

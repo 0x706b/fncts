@@ -1,5 +1,3 @@
-import type { IO } from "../control/IO.js";
-
 export const enum CancellerStateTag {
   Empty = "Empty",
   Pending = "Pending",

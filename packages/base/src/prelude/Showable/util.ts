@@ -1,5 +1,4 @@
-import { Conc } from "../../collection/immutable/Conc.js";
-import { isFunction } from "../../util/predicates.js";
+import { isFunction } from "@fncts/base/util/predicates";
 
 const builtInObjects = new Set(
   Object.getOwnPropertyNames(globalThis).filter((e) => /^[A-Z][a-zA-Z0-9]+$/.test(e)),

@@ -1,8 +1,5 @@
 import type { FailureDetails } from "./FailureDetails.js";
 import type { GenFailureDetails } from "./GenFailureDetails.js";
-import type { Maybe } from "@fncts/base/data/Maybe";
-
-import { Nothing } from "@fncts/base/data/Maybe";
 
 export class FailureDetailsResult {
   constructor(

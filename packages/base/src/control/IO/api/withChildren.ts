@@ -1,10 +1,3 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-import type { Fiber } from "../../Fiber.js";
-import type { UIO } from "../definition.js";
-
-import { Supervisor } from "../../Supervisor.js";
-import { IO } from "../definition.js";
-
 /**
  * @tsplus static fncts.control.IOOps withChildren
  */

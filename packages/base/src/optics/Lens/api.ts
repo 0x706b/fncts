@@ -1,15 +1,9 @@
-import type {
-  NonEmptyArray,
-  ReadonlyNonEmptyArray,
-} from "../../collection/immutable/NonEmptyArray.js";
-import type { Optional } from "../Optional.js";
-import type { List } from "@fncts/typelevel/List.js";
-import type { AutoPath, Path } from "@fncts/typelevel/Object.js";
+import type { Optional } from "@fncts/base/optics/Optional";
+import type { AutoPath, Path } from "@fncts/typelevel/Object";
 
-import { identity } from "../../data/function.js";
-import { POptional } from "../Optional.js";
-import { Prism } from "../Prism.js";
-import { Lens, PLens } from "./definition.js";
+import { identity } from "@fncts/base/data/function";
+import { Lens, PLens } from "@fncts/base/optics/Lens/definition";
+import { Prism } from "@fncts/base/optics/Prism";
 
 /**
  * @tsplus fluent fncts.optics.PLens component
@@ -126,7 +120,7 @@ function nestPath<A>(p: ReadonlyNonEmptyArray<string>, a: A): {} {
 /**
  * @tsplus fluent fncts.optics.Lens path
  */
-export function path_<S, A, P extends List<string>>(
+export function path_<S, A, P extends Array<string>>(
   self: Lens<S, A>,
   path: readonly [...AutoPath<A, P>],
 ): Lens<S, Path<A, P>> {

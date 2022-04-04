@@ -1,5 +1,3 @@
-import type { Either } from "../../data/Either.js";
-import type { IO } from "../IO.js";
 import type { Atomic as Atomic_ } from "./Atomic/Atomic.js";
 import type { Derived } from "./Derived.js";
 import type { DerivedAll } from "./DerivedAll.js";

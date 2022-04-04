@@ -1,10 +1,3 @@
-import type { Conc } from "../../collection/immutable/Conc.js";
-import type { FiberId } from "../FiberId.js";
-import type { Trace } from "../Trace.js";
-
-import { HashSet } from "../../collection/immutable/HashSet.js";
-import { Cons, List, Nil } from "../../collection/immutable/List.js";
-import { Eval } from "../../control/Eval.js";
 import * as P from "../../prelude.js";
 import { Hashable } from "../../prelude.js";
 import { isObject } from "../../util/predicates.js";

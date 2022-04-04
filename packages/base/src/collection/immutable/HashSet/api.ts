@@ -1,16 +1,20 @@
-import type { Either } from "../../../data/Either.js";
-import type { Maybe } from "../../../data/Maybe.js";
-import type { Predicate } from "../../../data/Predicate.js";
-import type { Refinement } from "../../../data/Refinement.js";
-import type { Node } from "./definition.js";
+import type { Node } from "@fncts/base/collection/immutable/HashSet/definition";
 
-import { tuple } from "../../../data/function.js";
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { Stack } from "../../../internal/Stack.js";
-import * as P from "../../../prelude.js";
-import { HashEq } from "../../../prelude.js";
-import { fromBitmap, hashFragment, SIZE, toBitmap } from "../HashMap/internal.js";
-import { _EmptyNode, HashSet, isEmptyNode } from "./definition.js";
+import {
+  fromBitmap,
+  hashFragment,
+  SIZE,
+  toBitmap,
+} from "@fncts/base/collection/immutable/HashMap/internal";
+import {
+  _EmptyNode,
+  HashSet,
+  isEmptyNode,
+} from "@fncts/base/collection/immutable/HashSet/definition";
+import { tuple } from "@fncts/base/data/function";
+import { Stack } from "@fncts/base/internal/Stack";
+import * as P from "@fncts/base/prelude";
+import { HashEq } from "@fncts/base/prelude";
 
 /**
  * @tsplus fluent fncts.collection.immutable.HashSet add

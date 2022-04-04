@@ -1,7 +1,5 @@
 import type { Const } from "./definition.js";
 
-import { unsafeCoerce } from "../function.js";
-
 /**
  * @tsplus fluent fncts.data.Const map
  */

@@ -1,14 +1,7 @@
 /* eslint-disable prefer-const */
-import type { Predicate } from "../../../data/Predicate.js";
-import type { Refinement } from "../../../data/Refinement.js";
-import type { Eq, Monoid, Ord, Ordering } from "../../../prelude.js";
-import type { List } from "../List.js";
-import type { MutableVector } from "./definition.js";
+import type { MutableVector } from "@fncts/base/collection/immutable/Vector/definition";
+import type { Eq, Monoid, Ord, Ordering } from "@fncts/base/prelude";
 
-import { Maybe } from "../../../data/Maybe.js";
-import { Equatable } from "../../../prelude.js";
-import { ListBuffer } from "../../mutable/ListBuffer.js";
-import { Vector } from "./definition.js";
 import {
   affixPush,
   appendNodeToTree,
@@ -53,7 +46,7 @@ import {
   sliceTreeVector,
   updateNode,
   zeroOffset,
-} from "./internal.js";
+} from "@fncts/base/collection/immutable/Vector/internal";
 
 /**
  * Appends an element to the end of a Vector and returns the new Vector.

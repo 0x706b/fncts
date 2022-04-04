@@ -1,9 +1,5 @@
 import type { TestAnnotation } from "../../data/TestAnnotation.js";
 import type { Annotated } from "./definition.js";
-import type { HashSet } from "@fncts/base/collection/immutable/HashSet";
-import type { RuntimeFiber } from "@fncts/base/control/Fiber";
-import type { URIO } from "@fncts/base/control/IO";
-import type { Has } from "@fncts/base/prelude";
 
 import { Annotations } from "./definition.js";
 
@@ -35,5 +31,5 @@ export function withAnnotation<R, E, A>(
  */
 export const supervisedFibers: URIO<
   Has<Annotations>,
-  HashSet<RuntimeFiber<any, any>>
+  HashSet<Fiber.Runtime<any, any>>
 > = IO.serviceWithIO(Annotations.Tag)((annotations) => annotations.supervisedFibers);

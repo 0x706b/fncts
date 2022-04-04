@@ -1,21 +1,11 @@
-import type { Hub as HubInternal } from "../../internal/Hub.js";
-import type { Has } from "../../prelude.js";
-import type { UIO } from "../IO.js";
-import type { Queue } from "../Queue.js";
-import type { Hub } from "./definition.js";
+import type { Hub as HubInternal } from "@fncts/base/internal/Hub";
 
-import { Conc } from "../../collection/immutable/Conc.js";
-import { HashSet } from "../../collection/mutable/HashSet.js";
-import { ExecutionStrategy } from "../../data/ExecutionStrategy.js";
-import { Exit } from "../../data/Exit.js";
-import { AtomicBoolean } from "../../internal/AtomicBoolean.js";
-import { HashedPair } from "../../internal/HashedPair.js";
-import { MutableQueue } from "../../internal/MutableQueue.js";
-import { Future } from "../Future.js";
-import { IO } from "../IO.js";
-import { QueueInternal } from "../Queue.js";
-import { Scope } from "../Scope.js";
-import { PHubInternal } from "./definition.js";
+import { HashSet } from "@fncts/base/collection/mutable/HashSet";
+import { PHubInternal } from "@fncts/base/control/Hub/definition";
+import { QueueInternal } from "@fncts/base/control/Queue";
+import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
+import { HashedPair } from "@fncts/base/internal/HashedPair";
+import { MutableQueue } from "@fncts/base/internal/MutableQueue";
 
 /**
  * A `Strategy<A>` describes the protocol for how publishers and subscribers

@@ -1,7 +1,3 @@
-import type { Lazy } from "../data/function.js";
-
-import { HKT } from "./HKT.js";
-
 /**
  * @tsplus type fncts.Functor
  */

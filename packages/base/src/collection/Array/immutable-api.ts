@@ -1,19 +1,10 @@
-import type { Either } from "../../data/Either.js";
-import type { Lazy } from "../../data/function.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { Predicate, PredicateWithIndex } from "../../data/Predicate.js";
-import type { Refinement, RefinementWithIndex } from "../../data/Refinement.js";
-import type { Monoid } from "../../prelude.js";
-import type { NonEmptyArray } from "../immutable/NonEmptyArray.js";
-import type { ArrayF, ReadonlyNonEmptyArray } from "./definition.js";
+import type { ArrayF } from "@fncts/base/collection/Array/definition";
+import type { Monoid } from "@fncts/base/prelude";
 
-import { Eval } from "../../control/Eval.js";
-import { EitherTag } from "../../data/Either.js";
-import { identity, tuple, unsafeCoerce } from "../../data/function.js";
-import { Just, Nothing } from "../../data/Maybe.js";
-import { These } from "../../data/These.js";
-import * as P from "../../prelude.js";
-import { ReadonlyArray } from "./definition.js";
+import { ReadonlyArray } from "@fncts/base/collection/Array/definition";
+import { EitherTag } from "@fncts/base/data/Either";
+import { identity, tuple } from "@fncts/base/data/function";
+import * as P from "@fncts/base/prelude";
 
 /**
  * @tsplus fluent fncts.collection.immutable.Array alignWith

@@ -1,6 +1,3 @@
-import type { Conc } from "../../collection/immutable/Conc.js";
-import type { Channel } from "../Channel.js";
-
 /**
  * Sink is a data type that represent a channel that reads elements
  * of type `In`, handles input errors of type `InErr`, emits errors

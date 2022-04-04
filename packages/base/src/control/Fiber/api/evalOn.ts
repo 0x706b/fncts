@@ -1,8 +1,4 @@
-import type { UIO } from "../../IO.js";
-import type { Fiber } from "../definition.js";
-
-import { matchTag_ } from "../../../util/pattern.js";
-import { IO } from "../../IO.js";
+import { matchTag_ } from "@fncts/base/util/pattern";
 
 /**
  * @tsplus fluent fncts.control.Fiber evalOn

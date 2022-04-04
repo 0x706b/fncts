@@ -1,6 +1,3 @@
-import type { Predicate } from "../Predicate.js";
-import type { Either } from "./definition.js";
-
 import * as P from "../../prelude.js";
 import { map_ } from "./api.js";
 import { EitherTag, Left, Right } from "./definition.js";

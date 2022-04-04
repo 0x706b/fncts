@@ -1,8 +1,3 @@
-import type { URIO } from "../../../control/IO.js";
-
-import { IO } from "../../../control/IO.js";
-import { Exit } from "../definition.js";
-
 /**
  * Applies the function `f` to the successful result of the `Exit` and
  * returns the result in a new `Exit`.

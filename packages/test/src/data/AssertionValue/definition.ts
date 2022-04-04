@@ -1,9 +1,5 @@
 import type { AssertionIO } from "../../control/AssertionIO/definition.js";
 import type { FreeBooleanAlgebra } from "../FreeBooleanAlgebra.js";
-import type { LazyValue } from "@fncts/base/control/LazyValue";
-import type { Maybe } from "@fncts/base/data/Maybe.js";
-
-import { Nothing } from "@fncts/base/data/Maybe.js";
 
 export const AssertionValueTypeId = Symbol.for("fncts.test.data.AssertionValue");
 export type AssertionValueTypeId = typeof AssertionValueTypeId;

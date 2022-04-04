@@ -1,15 +1,11 @@
-import type { Either } from "../data/Either.js";
-import type { Maybe } from "../data/Maybe.js";
-import type { Applicative } from "./Applicative.js";
-import type { FilterableWithIndexMin } from "./FilterableWithIndex.js";
-import type { TraversableWithIndexMin } from "./TraversableWithIndex.js";
-import type { WitherableMin } from "./Witherable.js";
+import type { Applicative } from "@fncts/base/prelude/Applicative";
+import type { FilterableWithIndexMin } from "@fncts/base/prelude/FilterableWithIndex";
+import type { TraversableWithIndexMin } from "@fncts/base/prelude/TraversableWithIndex";
+import type { WitherableMin } from "@fncts/base/prelude/Witherable";
 
-import { Just, Nothing } from "../data/Maybe/definition.js";
-import { FilterableWithIndex } from "./FilterableWithIndex.js";
-import { HKT } from "./HKT.js";
-import { TraversableWithIndex } from "./TraversableWithIndex.js";
-import { Witherable } from "./Witherable.js";
+import { FilterableWithIndex } from "@fncts/base/prelude/FilterableWithIndex";
+import { TraversableWithIndex } from "@fncts/base/prelude/TraversableWithIndex";
+import { Witherable } from "@fncts/base/prelude/Witherable";
 
 /**
  * @tsplus type fncts.WitherableWithIndex

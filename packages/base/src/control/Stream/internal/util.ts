@@ -1,5 +1,3 @@
-import { Conc } from "../../../collection/immutable/Conc.js";
-import { Either } from "../../../data/Either.js";
 import { tuple } from "../../../data/function.js";
 
 export function zipChunks<A, B, C>(

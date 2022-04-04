@@ -1,10 +1,8 @@
-import type { FiberId } from "../../data/FiberId.js";
 import type { OnFailure, OnRetry, OnSuccess } from "../STM.js";
 import type { Journal } from "./internal/Journal.js";
 
-import { TExit } from "../../data/TExit.js";
 import { Stack } from "../../internal/Stack.js";
-import { STM, STMTag } from "../STM.js";
+import { STMTag } from "../STM.js";
 import {
   concrete,
   isFailException,

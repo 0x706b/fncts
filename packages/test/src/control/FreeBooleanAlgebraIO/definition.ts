@@ -1,5 +1,4 @@
 import type { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
-import type { IO } from "@fncts/base/control/IO";
 
 /**
  * @tsplus type fncts.test.control.FreeBooleanAlgebraIO

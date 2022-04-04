@@ -1,10 +1,3 @@
-import type { Exit } from "../../../data/Exit.js";
-import type { Maybe } from "../../../data/Maybe.js";
-import type { Fiber, RuntimeFiber } from "../../Fiber.js";
-import type { Scope } from "../../Scope.js";
-import type { UIO, URIO } from "../definition.js";
-
-import { Just, Nothing } from "../../../data/Maybe.js";
 import { FiberScope } from "../../FiberScope.js";
 import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";
 
@@ -101,7 +94,7 @@ export function transplant<R, E, A>(
 export function forkDaemon<R, E, A>(
   ma: IO<R, E, A>,
   __tsplusTrace?: string,
-): URIO<R, RuntimeFiber<E, A>> {
+): URIO<R, Fiber.Runtime<E, A>> {
   return new Fork(ma, Just(FiberScope.global), __tsplusTrace);
 }
 

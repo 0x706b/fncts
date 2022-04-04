@@ -1,8 +1,3 @@
-import type { Has } from "../../prelude.js";
-import type { IO, UIO } from "../IO.js";
-import type { PQueue } from "../Queue.js";
-import type { Scope } from "../Scope.js";
-
 export const HubTypeId = Symbol.for("fncts.control.Hub");
 export type HubTypeId = typeof HubTypeId;
 

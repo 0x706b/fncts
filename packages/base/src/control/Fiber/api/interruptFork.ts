@@ -1,6 +1,3 @@
-import type { UIO } from "../../IO.js";
-import type { Fiber } from "../definition.js";
-
 /**
  * Interrupts the fiber from whichever fiber is calling this method. The
  * interruption will happen in a separate daemon fiber, and the returned

@@ -1,5 +1,3 @@
-import { identity } from "../../../data/function.js";
-import * as P from "../../../prelude.js";
 import {
   arraySpliceIn,
   arraySpliceOut,
@@ -10,7 +8,9 @@ import {
   MIN_ARRAY_NODE,
   SIZE,
   toBitmap,
-} from "../HashMap/internal.js";
+} from "@fncts/base/collection/immutable/HashMap/internal";
+import { identity } from "@fncts/base/data/function";
+import * as P from "@fncts/base/prelude";
 
 /**
  * @tsplus type fncts.collection.immutable.HashSet

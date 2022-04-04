@@ -1,6 +1,3 @@
-import { Dictionary } from "../collection/immutable/Dictionary/definition.js";
-import { Struct } from "../data/Struct/definition.js";
-
 const ANSI_BACKGROUND_OFFSET = 10;
 const ANSI_BRIGHT_OFFSET     = 60;
 

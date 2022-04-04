@@ -1,5 +1,3 @@
-import type { Maybe } from "../../../data/Maybe.js";
-
 export interface PullAfterNext<A> {
   readonly _tag: "PullAfterNext";
   readonly emitSeparator: Maybe<A>;

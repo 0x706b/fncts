@@ -1,5 +1,3 @@
-import type { Cause } from "../Cause.js";
-
 import * as P from "../../prelude.js";
 import { hasTypeId } from "../../util/predicates.js";
 

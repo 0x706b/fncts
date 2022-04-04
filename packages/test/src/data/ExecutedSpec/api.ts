@@ -2,8 +2,6 @@ import type { TestAnnotationMap } from "../TestAnnotationMap.js";
 import type { TestFailure } from "../TestFailure.js";
 import type { TestSuccess } from "../TestSuccess.js";
 import type { SpecCase } from "./definition.js";
-import type { Conc } from "@fncts/base/collection/immutable/Conc";
-import type { Either } from "@fncts/base/data/Either";
 
 import { identity } from "@fncts/base/data/function";
 import { matchTag, matchTag_ } from "@fncts/base/util/pattern";

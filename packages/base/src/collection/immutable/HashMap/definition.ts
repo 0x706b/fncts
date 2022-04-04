@@ -1,11 +1,8 @@
-import type { Maybe } from "../../../data/Maybe.js";
-import type { HashEq, HKT } from "../../../prelude.js";
-import type { Node } from "./internal.js";
+import type { Node } from "@fncts/base/collection/immutable/HashMap/internal";
+import type { HashEq, HKT } from "@fncts/base/prelude";
 
-import { identity, tuple } from "../../../data/function.js";
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { Equatable, Hashable } from "../../../prelude.js";
-import { isEmptyNode } from "./internal.js";
+import { isEmptyNode } from "@fncts/base/collection/immutable/HashMap/internal";
+import { identity, tuple } from "@fncts/base/data/function";
 
 export interface HashMapF extends HKT {
   readonly type: HashMap<this["K"], this["A"]>;

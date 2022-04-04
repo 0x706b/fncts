@@ -1,5 +1,3 @@
-import type { These } from "./definition.js";
-
 import { TheseTag } from "./definition.js";
 
 /**

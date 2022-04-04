@@ -1,17 +1,13 @@
-import type { Conc } from "../../collection/immutable/Conc.js";
-import type { AtomicBoolean } from "../../internal/AtomicBoolean.js";
-import type { MutableQueue } from "../../internal/MutableQueue.js";
-import type { UIO } from "../IO.js";
+import type { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
+import type { MutableQueue } from "@fncts/base/internal/MutableQueue";
 
-import { unbounded } from "../../internal/MutableQueue.js";
-import { Future } from "../Future.js";
-import { IO } from "../IO.js";
 import {
   _unsafeCompletePromise,
   _unsafeCompleteTakers,
   _unsafeOfferAll,
   _unsafePollAll,
-} from "./internal.js";
+} from "@fncts/base/control/Queue/internal";
+import { unbounded } from "@fncts/base/internal/MutableQueue";
 
 export interface Strategy<A> {
   readonly handleSurplus: (

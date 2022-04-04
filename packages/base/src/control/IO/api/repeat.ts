@@ -1,12 +1,3 @@
-import type { Either } from "../../../data/Either.js";
-import type { Lazy } from "../../../data/function.js";
-import type { Maybe } from "../../../data/Maybe.js";
-import type { Has } from "../../../prelude.js";
-import type { Schedule } from "../../Schedule.js";
-
-import { Clock } from "../../Clock.js";
-import { IO } from "../definition.js";
-
 /**
  * @tsplus getter fncts.control.IO repeat
  */

@@ -1,7 +1,7 @@
-import type { Ordering } from "../../../prelude.js";
-import type { RBNode } from "./node.js";
+import type { RBNode } from "@fncts/base/collection/immutable/SortedMap/node";
+import type { Ordering } from "@fncts/base/prelude";
 
-import { Color, Leaf, Node } from "./node.js";
+import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/node";
 
 export function swapNode<K, V>(node: Node<K, V>, v: Node<K, V>): void {
   node.key   = v.key;

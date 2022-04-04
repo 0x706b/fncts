@@ -1,11 +1,3 @@
-import type { Conc } from "@fncts/base/collection/immutable/Conc";
-import type { RuntimeFiber } from "@fncts/base/control/Fiber";
-import type { Ref } from "@fncts/base/control/Ref";
-
-import { HashSet } from "@fncts/base/collection/immutable/HashSet";
-import { Either } from "@fncts/base/data/Either";
-import { Tag } from "@fncts/base/data/Tag";
-
 import { TestAnnotation } from "./definition.js";
 
 export const IgnoredKey = Symbol.for("fncts.test.data.TestAnnotation.IgnoredKey");
@@ -52,7 +44,7 @@ export const Timing = new TestAnnotation(TimingTag, "timing", 0, (x, y) => x + y
 
 export const FibersKey = Symbol.for("fncts.test.data.TestAnnotation.FibersKey");
 
-export const FibersTag = Tag<Either<number, Conc<Ref<HashSet<RuntimeFiber<any, any>>>>>>(FibersKey);
+export const FibersTag = Tag<Either<number, Conc<Ref<HashSet<Fiber.Runtime<any, any>>>>>>(FibersKey);
 /**
  * @tsplus static fncts.data.TestAnnotationOps Fibers
  */

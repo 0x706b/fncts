@@ -1,7 +1,4 @@
-import type { IO, UIO } from "../../IO.js";
-import type { PQueue } from "../definition.js";
-
-import { concrete } from "../definition.js";
+import { concrete } from "@fncts/base/control/Queue/definition";
 
 /**
  * Waits until the queue is shutdown.

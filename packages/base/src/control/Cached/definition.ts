@@ -1,7 +1,6 @@
-import type { FIO } from "../IO.js";
-import type { CachedInternal} from "./internal.js";
+import type { CachedInternal } from "@fncts/base/control/Cached/internal";
 
-import { CachedTypeId } from "./internal.js";
+import { CachedTypeId } from "@fncts/base/control/Cached/internal";
 
 /**
  * A Cached is a possibly resourceful value that is loaded into memory, and

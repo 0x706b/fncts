@@ -1,8 +1,5 @@
-import type { Has } from "../../prelude.js";
 import type { ArrayInt } from "../../util/rand.js";
 
-import { IO } from "../IO.js";
-import { Random } from "./definition.js";
 import { LiveRandom } from "./live.js";
 
 /**

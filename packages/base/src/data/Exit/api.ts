@@ -1,9 +1,5 @@
-import type { Maybe } from "../Maybe.js";
-
-import { Conc } from "../../collection/immutable/Conc.js";
-import { Cause } from "../Cause.js";
 import { identity, tuple } from "../function.js";
-import { Exit, ExitTag } from "./definition.js";
+import { ExitTag } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.Exit ap

@@ -1,8 +1,4 @@
-import type { UIO, URIO } from "@fncts/base/control/IO";
-import type { Has } from "@fncts/base/prelude";
-
 import { Console } from "@fncts/base/control/Console";
-import { Tag } from "@fncts/base/data/Tag";
 
 /**
  * @tsplus type fncts.test.control.TestLogger

@@ -1,5 +1,3 @@
-import type { Either } from "./definition.js";
-
 import { EitherTag } from "./definition.js";
 
 /**

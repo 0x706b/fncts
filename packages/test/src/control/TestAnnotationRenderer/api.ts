@@ -1,8 +1,5 @@
 import type { TestAnnotationRenderer } from "./definition.js";
 
-import { Vector } from "@fncts/base/collection/immutable/Vector";
-import { Just, Nothing } from "@fncts/base/data/Maybe";
-
 import { TestAnnotation } from "../../data/TestAnnotation.js";
 import { LeafRenderer } from "./definition.js";
 import { CompositeRenderer, TestAnnotationRendererTag } from "./definition.js";

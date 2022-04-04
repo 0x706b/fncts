@@ -1,14 +1,16 @@
-import type { Maybe } from "../../../data/Maybe.js";
-import type { Ord, Ordering, Semigroup } from "../../../prelude.js";
-import type { SortedMapIterable } from "./iterator.js";
-import type { RBNode } from "./node.js";
+import type { SortedMapIterable } from "@fncts/base/collection/immutable/SortedMap/iterator";
+import type { RBNode } from "@fncts/base/collection/immutable/SortedMap/node";
+import type { Ord, Ordering, Semigroup } from "@fncts/base/prelude";
 
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { Stack } from "../../../internal/Stack.js";
-import { SortedMap } from "./definition.js";
-import { balanceModifiedPath, isEmptyNode, rebuildModifiedPath } from "./internal.js";
-import { SortedMapIterator } from "./iterator.js";
-import { Color, Leaf, Node } from "./node.js";
+import { SortedMap } from "@fncts/base/collection/immutable/SortedMap/definition";
+import {
+  balanceModifiedPath,
+  isEmptyNode,
+  rebuildModifiedPath,
+} from "@fncts/base/collection/immutable/SortedMap/internal";
+import { SortedMapIterator } from "@fncts/base/collection/immutable/SortedMap/iterator";
+import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/node";
+import { Stack } from "@fncts/base/internal/Stack";
 
 /**
  * @tsplus fluent fncts.collection.immutable.SortedMap find

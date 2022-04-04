@@ -1,5 +1,3 @@
-import type { Maybe } from "@fncts/base/data/Maybe";
-
 export class TestArgs {
   constructor(
     readonly testSearchTerms: ReadonlyArray<string>,

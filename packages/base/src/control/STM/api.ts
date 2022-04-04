@@ -1,13 +1,6 @@
-import type { Lazy } from "../../data/function.js";
-import type { Predicate } from "../../data/Predicate.js";
-import type { Refinement } from "../../data/Refinement.js";
-
-import { Either } from "../../data/Either.js";
 import { identity } from "../../data/function.js";
-import { Just, Maybe, Nothing } from "../../data/Maybe.js";
 import { TxnId } from "../../data/TxnId.js";
 import { AtomicReference } from "../../internal/AtomicReference.js";
-import { IO } from "../IO.js";
 import { ContramapEnvironment, Effect, HaltException, STM } from "./definition.js";
 import { CommitState } from "./internal/CommitState.js";
 import { tryCommitAsync, tryCommitSync } from "./internal/Journal.js";

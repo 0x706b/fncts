@@ -1,27 +1,21 @@
-import type { Either } from "../../../data/Either.js";
-import type { Predicate, PredicateWithIndex } from "../../../data/Predicate.js";
-import type { Refinement, RefinementWithIndex } from "../../../data/Refinement.js";
-import type { Eq } from "../../../prelude.js";
-import type { Concat, ConcF } from "./definition.js";
+import type { Concat, ConcF } from "@fncts/base/collection/immutable/Conc/definition";
+import type { Eq } from "@fncts/base/prelude";
 
-import { EitherTag } from "../../../data/Either.js";
-import { ArrayIndexOutOfBoundsError } from "../../../data/exceptions.js";
-import { identity, tuple } from "../../../data/function.js";
-import { Just, Maybe, Nothing } from "../../../data/Maybe.js";
-import { These } from "../../../data/These.js";
-import { Stack } from "../../../internal/Stack.js";
-import * as P from "../../../prelude.js";
-import { Iterable } from "../../Iterable/definition.js";
 import {
   _Empty,
   BUFFER_SIZE,
   Chunk,
-  Conc,
   concrete,
   ConcTag,
   Singleton,
   Slice,
-} from "./definition.js";
+} from "@fncts/base/collection/immutable/Conc/definition";
+import { Iterable } from "@fncts/base/collection/Iterable/definition";
+import { EitherTag } from "@fncts/base/data/Either";
+import { identity, tuple } from "@fncts/base/data/function";
+import { These } from "@fncts/base/data/These";
+import { Stack } from "@fncts/base/internal/Stack";
+import * as P from "@fncts/base/prelude";
 
 /**
  * @tsplus fluent fncts.collection.immutable.Conc align

@@ -1,17 +1,7 @@
-import type { Exit } from "../../data/Exit.js";
-import type { Has } from "../../prelude.js";
-import type { FIO, UIO } from "../IO.js";
-import type { Fresh, Layer } from "./definition.js";
+import type { Fresh } from "@fncts/base/control/Layer/definition";
 
-import { HashMap } from "../../collection/immutable/HashMap.js";
-import { tuple } from "../../data/function.js";
-import { Future } from "../Future.js";
-import { IO } from "../IO.js";
-import { Ref } from "../Ref.js";
-import { Scope } from "../Scope.js";
-import { Finalizer } from "../Scope/Finalizer.js";
-import { LayerTag } from "./definition.js";
-import { LayerHash } from "./definition.js";
+import { LayerHash, LayerTag } from "@fncts/base/control/Layer/definition";
+import { tuple } from "@fncts/base/data/function";
 
 /**
  * A `MemoMap` memoizes dependencies.

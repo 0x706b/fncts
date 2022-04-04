@@ -1,7 +1,3 @@
-import type { FiberId } from "../../../data/FiberId.js";
-import type { Lazy } from "../../../data/function.js";
-import type { STM } from "../definition.js";
-
 import {
   Effect,
   FailException,

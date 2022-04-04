@@ -1,7 +1,6 @@
-import type { ArrayF } from "./definition.js";
+import type { ArrayF } from "@fncts/base/collection/Array/definition";
 
-import * as P from "../../prelude.js";
-import { empty } from "./constructors.js";
+import { empty } from "@fncts/base/collection/Array/constructors";
 import {
   alignWith_,
   alt_,
@@ -12,10 +11,8 @@ import {
   filterMap_,
   filterMapWithIndex_,
   filterWithIndex_,
-  flatten,
   foldLeft_,
   foldLeftWithIndex_,
-  foldMap_,
   foldRight_,
   foldRightWithIndex_,
   map_,
@@ -30,7 +27,8 @@ import {
   wiltWithIndex_,
   wither_,
   witherWithIndex_,
-} from "./immutable-api.js";
+} from "@fncts/base/collection/Array/immutable-api";
+import * as P from "@fncts/base/prelude";
 
 export const Align = P.Align<ArrayF>({
   map_,

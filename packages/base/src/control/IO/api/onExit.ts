@@ -1,7 +1,3 @@
-import type { Exit } from "../../../data/Exit.js";
-
-import { IO } from "../definition.js";
-
 /**
  * @tsplus fluent fncts.control.IO onExit
  */

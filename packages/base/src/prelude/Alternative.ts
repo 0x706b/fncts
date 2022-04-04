@@ -1,10 +1,9 @@
-import type { AltMin } from "./Alt.js";
-import type { ApplicativeMin } from "./Applicative.js";
-import type { Nil, NilMin } from "./Nil.js";
+import type { AltMin } from "@fncts/base/prelude/Alt";
+import type { ApplicativeMin } from "@fncts/base/prelude/Applicative";
+import type { Nil, NilMin } from "@fncts/base/prelude/Nil";
 
-import { Alt } from "./Alt.js";
-import { Applicative } from "./Applicative.js";
-import { HKT } from "./HKT.js";
+import { Alt } from "@fncts/base/prelude/Alt";
+import { Applicative } from "@fncts/base/prelude/Applicative";
 
 /**
  * @tsplus type fncts.prelude.Alternative

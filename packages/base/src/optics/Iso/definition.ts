@@ -1,9 +1,8 @@
-import type { get } from "../Getter.js";
-import type { reverseGet } from "../Prism.js";
+import type { get } from "@fncts/base/optics/Getter";
+import type { reverseGet } from "@fncts/base/optics/Prism";
 
-import { Either } from "../../data/Either.js";
-import { PLens } from "../Lens.js";
-import { PPrism } from "../Prism.js";
+import { PLens } from "@fncts/base/optics/Lens";
+import { PPrism } from "@fncts/base/optics/Prism";
 
 /**
  * @tsplus type fncts.optics.PIso

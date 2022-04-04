@@ -1,8 +1,3 @@
-import type { Lazy } from "../../data/function.js";
-import type { UIO } from "../IO.js";
-import type { PRef, Ref } from "./definition.js";
-
-import { IO } from "../IO.js";
 import { Atomic } from "./Atomic.js";
 
 /**

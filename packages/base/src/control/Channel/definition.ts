@@ -1,6 +1,3 @@
-import type { Cause } from "../../data/Cause.js";
-import type { Exit } from "../../data/Exit.js";
-import type { IO, URIO } from "../IO.js";
 import type { ChildExecutorDecision } from "./ChildExecutorDecision.js";
 import type { AsyncInputProducer } from "./internal/AsyncInputProducer.js";
 import type { UpstreamPullRequest } from "./UpstreamPullRequest.js";

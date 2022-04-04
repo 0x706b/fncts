@@ -2,9 +2,7 @@ import type { Fragment } from "../../data/LogLine/Fragment.js";
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import type { ExecutionResult, Status } from "../DefaultTestReporter/ExecutionResult.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
-import type { List } from "@fncts/base/collection/immutable/List";
 
-import { Vector } from "@fncts/base/collection/immutable/Vector";
 import {
   blue,
   bold,

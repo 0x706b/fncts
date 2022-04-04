@@ -1,8 +1,3 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-import type { ExecutionStrategy } from "../../../data/ExecutionStrategy.js";
-
-import { IO } from "../definition.js";
-
 /**
  * Applies the function `f` to each element of the `Iterable<A>` in parallel,
  * and returns the results in a new `Conc<B>`.

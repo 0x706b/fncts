@@ -1,10 +1,13 @@
-import type RandomGenerator from "../generator/RandomGenerator.js";
-import type Distribution from "./Distribution.js";
-import type { ArrayInt64 } from "./internals/ArrayInt.js";
+import type Distribution from "@fncts/base/util/rand/distribution/Distribution";
+import type { ArrayInt64 } from "@fncts/base/util/rand/distribution/internals/ArrayInt";
+import type RandomGenerator from "@fncts/base/util/rand/generator/RandomGenerator";
 
-import { fromNumberToArrayInt64, substractArrayInt64 } from "./internals/ArrayInt.js";
-import { uniformArrayIntDistributionInternal } from "./internals/UniformArrayIntDistributionInternal.js";
-import { uniformIntDistributionInternal } from "./internals/UniformIntDistributionInternal.js";
+import {
+  fromNumberToArrayInt64,
+  substractArrayInt64,
+} from "@fncts/base/util/rand/distribution/internals/ArrayInt";
+import { uniformArrayIntDistributionInternal } from "@fncts/base/util/rand/distribution/internals/UniformArrayIntDistributionInternal";
+import { uniformIntDistributionInternal } from "@fncts/base/util/rand/distribution/internals/UniformIntDistributionInternal";
 
 const sharedA: ArrayInt64 = { sign: 1, data: [0, 0] };
 const sharedB: ArrayInt64 = { sign: 1, data: [0, 0] };

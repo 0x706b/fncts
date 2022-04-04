@@ -1,9 +1,7 @@
-import type { NonEmptyArrayF, ReadonlyNonEmptyArray } from "./definition.js";
+import type { NonEmptyArrayF } from "@fncts/base/collection/immutable/NonEmptyArray/definition";
 
-import { identity, unsafeCoerce } from "../../../data/function.js";
-import { These } from "../../../data/These.js";
-import * as P from "../../../prelude.js";
-import { NonEmptyArray } from "./definition.js";
+import { identity } from "@fncts/base/data/function";
+import * as P from "@fncts/base/prelude";
 
 /**
  * @tsplus fluent fncts.collection.immutable.NonEmptyArray ap

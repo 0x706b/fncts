@@ -1,5 +1,3 @@
-import { Vector } from "@fncts/base/collection/immutable/Vector.js";
-
 import { Line } from "./Line.js";
 import { Style } from "./Style.js";
 

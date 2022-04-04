@@ -1,10 +1,3 @@
-import type { Lazy } from "../../../data/function.js";
-import type { Has } from "../../../prelude.js";
-import type { Schedule } from "../../Schedule.js";
-import type { IO } from "../definition.js";
-
-import { Clock } from "../../Clock.js";
-
 /**
  * @tsplus fluent fncts.control.IO schedule
  */

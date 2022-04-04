@@ -1,10 +1,3 @@
-import type { FiberId } from "../../FiberId.js";
-import type { Trace } from "../../Trace.js";
-import type { Cause } from "../definition.js";
-
-import { _Nil, Cons, List } from "../../../collection/immutable/List.js";
-import { Eval } from "../../../control/Eval.js";
-import { Either } from "../../Either.js";
 import { CauseTag } from "../definition.js";
 
 class BothCase {
@@ -131,5 +124,5 @@ export function fold_<E, Z>(
     Stackless: (z: Z, stackless: boolean) => Z;
   },
 ): Z {
-  return foldLoop(cases, Cons(self, _Nil), List.empty()).unsafeHead;
+  return foldLoop(cases, Cons(self, Nil()), List.empty()).unsafeHead;
 }

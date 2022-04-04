@@ -1,8 +1,5 @@
-import type { Cause } from "../../data/Cause.js";
-import type { Lazy } from "../../data/function.js";
-
 import { tuple } from "../../data/function.js";
-import { Channel, ContinuationK, Done, Fail, Fold } from "./definition.js";
+import { ContinuationK, Done, Fail, Fold } from "./definition.js";
 
 /**
  * Halt a channel with the specified cause

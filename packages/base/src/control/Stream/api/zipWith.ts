@@ -1,5 +1,3 @@
-import type { Stream } from "../definition.js";
-
 import { zipChunks } from "../internal/util.js";
 
 /**

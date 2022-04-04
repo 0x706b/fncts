@@ -1,0 +1,17 @@
+{
+  "extends": "./packages/config/tsconfig.base.json",
+  "references": [
+    {
+      "path": "./packages/codegen"
+    },
+    {
+      "path": "./packages/typelevel"
+    },
+    {
+      "path": "./packages/base"
+    },
+    {
+      "path": "./packages/test"
+    }
+  ]
+}

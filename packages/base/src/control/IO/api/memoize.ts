@@ -1,8 +1,3 @@
-import type { UIO } from "../definition.js";
-
-import { Future } from "../../Future.js";
-import { IO } from "../definition.js";
-
 /**
  * @tsplus getter fncts.control.IO memoize
  */

@@ -1,9 +1,3 @@
-import type { UIO } from "../IO.js";
-
-import { Either } from "../../data/Either.js";
-import { IO } from "../IO.js";
-import { Clock } from "./definition.js";
-
 class LiveClock extends Clock {
   currentTime: UIO<number> = IO.succeed(Date.now());
 

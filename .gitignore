@@ -13,3 +13,4 @@ node_modules
 build
 
 .ultra.cache.json
+*.tsbuildinfo

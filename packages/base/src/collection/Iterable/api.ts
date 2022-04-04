@@ -1,13 +1,7 @@
-import type { Either } from "../../data/Either.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { Predicate, PredicateWithIndex } from "../../data/Predicate.js";
-import type { Refinement, RefinementWithIndex } from "../../data/Refinement.js";
-import type * as P from "../../prelude.js";
+import type * as P from "@fncts/base/prelude";
 
-import { Eval } from "../../control/Eval.js";
-import { tuple } from "../../data/function.js";
-import { Just, Nothing } from "../../data/Maybe.js";
-import { Iterable } from "./definition.js";
+import { Iterable } from "@fncts/base/collection/Iterable/definition";
+import { tuple } from "@fncts/base/data/function";
 
 /**
  * @tsplus fluent fncts.collection.immutable.Iterable ap

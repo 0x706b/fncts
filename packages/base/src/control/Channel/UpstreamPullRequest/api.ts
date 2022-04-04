@@ -1,6 +1,7 @@
-import type { UpstreamPullRequest } from "./definition.js";
+import type { UpstreamPullRequest } from "@fncts/base/control/Channel/UpstreamPullRequest";
 
-import { NoUpstream, Pulled } from "./definition.js";
+import { NoUpstream } from "@fncts/base/control/Channel/UpstreamPullRequest";
+import { Pulled } from "@fncts/base/control/Channel/UpstreamPullRequest";
 
 /**
  * @tsplus fluent fncts.control.Channel.UpstreamPullRequest match

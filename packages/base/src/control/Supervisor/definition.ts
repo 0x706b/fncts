@@ -1,8 +1,3 @@
-import type { Exit } from "../../data/Exit.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { RuntimeFiber } from "../Fiber.js";
-import type { IO, UIO } from "../IO.js";
-
 /**
  * @tsplus type fncts.control.Supervisor
  * @tsplus companion fncts.control.SupervisorOps
@@ -12,17 +7,17 @@ export abstract class Supervisor<A> {
   abstract unsafeOnStart<R, E, A>(
     environment: R,
     effect: IO<R, E, A>,
-    parent: Maybe<RuntimeFiber<E, A>>,
-    fiber: RuntimeFiber<E, A>,
+    parent: Maybe<Fiber.Runtime<E, A>>,
+    fiber: Fiber.Runtime<E, A>,
   ): void;
-  abstract unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>): void;
-  unsafeOnEffect<E, A>(_fiber: RuntimeFiber<E, A>, _effect: IO<any, any, any>): void {
+  abstract unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: Fiber.Runtime<E, A>): void;
+  unsafeOnEffect<E, A>(_fiber: Fiber.Runtime<E, A>, _effect: IO<any, any, any>): void {
     return;
   }
-  unsafeOnSuspend<E, A>(_fiber: RuntimeFiber<E, A>): void {
+  unsafeOnSuspend<E, A>(_fiber: Fiber.Runtime<E, A>): void {
     return;
   }
-  unsafeOnResume<E, A>(_fiber: RuntimeFiber<E, A>): void {
+  unsafeOnResume<E, A>(_fiber: Fiber.Runtime<E, A>): void {
     return;
   }
 }
@@ -55,21 +50,21 @@ export class ProxySupervisor<A> extends Supervisor<A> {
   unsafeOnStart<R, E, A>(
     environment: R,
     effect: IO<R, E, A>,
-    parent: Maybe<RuntimeFiber<E, A>>,
-    fiber: RuntimeFiber<E, A>,
+    parent: Maybe<Fiber.Runtime<E, A>>,
+    fiber: Fiber.Runtime<E, A>,
   ): void {
     this.underlying.unsafeOnStart(environment, effect, parent, fiber);
   }
-  unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>): void {
+  unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: Fiber.Runtime<E, A>): void {
     this.underlying.unsafeOnEnd(value, fiber);
   }
-  unsafeOnEffect<E, A>(fiber: RuntimeFiber<E, A>, effect: IO<any, any, any>): void {
+  unsafeOnEffect<E, A>(fiber: Fiber.Runtime<E, A>, effect: IO<any, any, any>): void {
     this.underlying.unsafeOnEffect(fiber, effect);
   }
-  unsafeOnSuspend<E, A>(fiber: RuntimeFiber<E, A>) {
+  unsafeOnSuspend<E, A>(fiber: Fiber.Runtime<E, A>) {
     this.underlying.unsafeOnSuspend(fiber);
   }
-  unsafeOnResume<E, A>(fiber: RuntimeFiber<E, A>) {
+  unsafeOnResume<E, A>(fiber: Fiber.Runtime<E, A>) {
     this.underlying.unsafeOnResume(fiber);
   }
 }

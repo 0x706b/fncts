@@ -1,6 +1,3 @@
-import type { Stream } from "@fncts/base/control/Stream";
-import type { Maybe } from "@fncts/base/data/Maybe";
-
 /**
  * @tsplus type fncts.test.control.Sample
  * @tsplus companion fncts.test.control.SampleOps

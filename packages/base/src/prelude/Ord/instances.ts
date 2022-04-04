@@ -1,7 +1,7 @@
-import { Monoid } from "../Monoid.js";
-import { Ordering } from "../Ordering.js";
-import { Semigroup } from "../Semigroup.js";
-import { Ord } from "./definition.js";
+import { Monoid } from "@fncts/base/prelude/Monoid";
+import { Ord } from "@fncts/base/prelude/Ord/definition";
+import { Ordering } from "@fncts/base/prelude/Ordering";
+import { Semigroup } from "@fncts/base/prelude/Semigroup";
 
 /**
  * @tsplus static fncts.OrdOps getSemigroup

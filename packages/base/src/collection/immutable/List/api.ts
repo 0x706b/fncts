@@ -12,16 +12,10 @@
  * for more information regarding copyright ownership
  */
 
-import type { Maybe } from "../../../data/Maybe.js";
-import type { Predicate } from "../../../data/Predicate.js";
-import type * as P from "../../../prelude.js";
-import type { List } from "./definition.js";
+import type * as P from "@fncts/base/prelude";
 
-import { NoSuchElementError } from "../../../data/exceptions.js";
-import { unsafeCoerce } from "../../../data/function.js";
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { ListBuffer } from "../../mutable/ListBuffer.js";
-import { _Nil, Cons, Nil } from "./definition.js";
+import { _Nil } from "@fncts/base/collection/immutable/List/definition";
+import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
 
 /**
  * @tsplus fluent fncts.List chain

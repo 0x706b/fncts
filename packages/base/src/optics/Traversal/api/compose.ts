@@ -1,4 +1,4 @@
-import { PTraversal } from "../definition.js";
+import { PTraversal } from "@fncts/base/optics/Traversal/definition";
 
 /**
  * @tsplus fluent fncts.optics.PTraversal compose 4

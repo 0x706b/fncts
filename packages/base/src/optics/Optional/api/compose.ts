@@ -1,5 +1,5 @@
-import { identity } from "../../../data/function.js";
-import { POptional } from "../definition.js";
+import { identity } from "@fncts/base/data/function";
+import { POptional } from "@fncts/base/optics/Optional/definition";
 
 /**
  * @tsplus fluent fncts.optics.POptional compose 3

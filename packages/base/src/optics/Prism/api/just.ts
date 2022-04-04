@@ -1,6 +1,4 @@
-import { Either } from "../../../data/Either.js";
-import { Maybe, Nothing } from "../../../data/Maybe.js";
-import { Prism } from "../definition.js";
+import { Prism } from "@fncts/base/optics/Prism/definition";
 
 /**
  * @tsplus static fncts.optics.PPrismOps just

@@ -1,6 +1,5 @@
-import type { NonEmptyArrayF } from "./definition.js";
+import type { NonEmptyArrayF } from "@fncts/base/collection/immutable/NonEmptyArray/definition";
 
-import * as P from "../../../prelude.js";
 import {
   align_,
   alignWith_,
@@ -16,8 +15,9 @@ import {
   traverse_,
   traverseWithIndex_,
   zipWith_,
-} from "./api.js";
-import { make } from "./constructors.js";
+} from "@fncts/base/collection/immutable/NonEmptyArray/api";
+import { make } from "@fncts/base/collection/immutable/NonEmptyArray/constructors";
+import * as P from "@fncts/base/prelude";
 
 /**
  * @tsplus static fncts.collection.immutable.NonEmptyArrayOps Semialign

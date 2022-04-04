@@ -1,9 +1,6 @@
-import type { List } from "../../../collection/immutable/List.js";
 import type { Cause, Fail, Halt, Interrupt } from "../definition.js";
 
-import { _Nil, Cons } from "../../../collection/immutable/List.js";
 import { show } from "../../../prelude/Showable.js";
-import { FiberId } from "../../FiberId.js";
 import { CauseTag, Unified } from "../definition.js";
 
 function unifyFail<E>(fail: Fail<E>): Unified {
@@ -58,5 +55,5 @@ function unifyLoop<E>(
  * @tsplus getter fncts.data.Cause unified
  */
 export function unified<E>(self: Cause<E>): List<Unified> {
-  return unifyLoop(Cons(self, _Nil), FiberId.none, false, _Nil).reverse;
+  return unifyLoop(Cons(self, Nil()), FiberId.none, false, Nil()).reverse;
 }

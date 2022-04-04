@@ -1,7 +1,5 @@
 import type { IsInt } from "../../types/Number.js";
 
-import { Duration } from "./definition.js";
-
 /**
  * @tsplus getter fncts.data.Number milliseconds
  * @tsplus static fncts.data.DurationOps milliseconds

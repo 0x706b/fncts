@@ -1,7 +1,6 @@
-import type { FunctorMin } from "./Functor.js";
+import type { FunctorMin } from "@fncts/base/prelude/Functor";
 
-import { Functor } from "./Functor.js";
-import { HKT } from "./HKT.js";
+import { Functor } from "@fncts/base/prelude/Functor";
 
 /**
  * @tsplus type fncts.prelude.Alt

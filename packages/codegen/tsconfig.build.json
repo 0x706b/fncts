@@ -1,0 +1,13 @@
+{
+  "extends": "../config/tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "module": "commonjs",
+    "outDir": "build/cjs",
+    "tsPlusConfig": "../config/tsplus.config.json",
+    "tsBuildInfoFile": "build/tsbuildinfo/cjs.tsbuildinfo"
+  },
+  "include": [
+    "src/**/*.ts"
+  ]
+}

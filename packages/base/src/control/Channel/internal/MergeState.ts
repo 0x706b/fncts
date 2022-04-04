@@ -1,8 +1,3 @@
-import type { Either } from "../../../data/Either.js";
-import type { Exit } from "../../../data/Exit.js";
-import type { Fiber } from "../../Fiber.js";
-import type { IO } from "../../IO.js";
-
 export const enum MergeStateTag {
   BothRunning = "BothRunning",
   LeftDone = "LeftDone",

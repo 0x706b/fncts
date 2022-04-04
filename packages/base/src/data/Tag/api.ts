@@ -1,8 +1,6 @@
-import type { Has, HasTypeId } from "../../prelude.js";
+import type { HasTypeId } from "../../prelude.js";
 
 import { hasTypeId, isObject } from "../../util/predicates.js";
-import { Maybe, Nothing } from "../Maybe.js";
-import { Tag } from "./definition.js";
 import { TagTypeId } from "./definition.js";
 
 /**

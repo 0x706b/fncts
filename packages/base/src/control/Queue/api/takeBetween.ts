@@ -1,8 +1,4 @@
-import type { PQueue } from "../definition.js";
-
-import { Conc } from "../../../collection/immutable/Conc.js";
-import { IO } from "../../IO.js";
-import { concrete } from "../definition.js";
+import { concrete } from "@fncts/base/control/Queue/definition";
 
 function takeRemainderLoop<RA, RB, EA, EB, A, B>(
   queue: PQueue<RA, RB, EA, EB, A, B>,

@@ -1,10 +1,3 @@
-import type { FIO } from "../../IO.js";
-import type { Fiber } from "../definition.js";
-
-import { Exit } from "../../../data/Exit.js";
-import { Maybe, Nothing } from "../../../data/Maybe.js";
-import { IO } from "../../IO.js";
-
 /**
  * Effectfully maps over the value the fiber computes.
  *

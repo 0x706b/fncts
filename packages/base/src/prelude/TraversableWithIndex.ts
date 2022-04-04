@@ -1,12 +1,11 @@
-import type { Applicative } from "./Applicative.js";
-import type { FoldableWithIndexMin } from "./FoldableWithIndex.js";
-import type { FunctorWithIndexMin } from "./FunctorWithIndex.js";
-import type { TraversableMin } from "./Traversable.js";
+import type { Applicative } from "@fncts/base/prelude/Applicative";
+import type { FoldableWithIndexMin } from "@fncts/base/prelude/FoldableWithIndex";
+import type { FunctorWithIndexMin } from "@fncts/base/prelude/FunctorWithIndex";
+import type { TraversableMin } from "@fncts/base/prelude/Traversable";
 
-import { FoldableWithIndex } from "./FoldableWithIndex.js";
-import { FunctorWithIndex } from "./FunctorWithIndex.js";
-import { HKT } from "./HKT.js";
-import { Traversable } from "./Traversable.js";
+import { FoldableWithIndex } from "@fncts/base/prelude/FoldableWithIndex";
+import { FunctorWithIndex } from "@fncts/base/prelude/FunctorWithIndex";
+import { Traversable } from "@fncts/base/prelude/Traversable";
 
 /**
  * @tsplus type fncts.TraversableWithIndex

@@ -1,8 +1,6 @@
 import type { PRef } from "../definition.js";
 
-import { Either } from "../../../data/Either.js";
 import { identity } from "../../../data/function.js";
-import { Maybe, Nothing } from "../../../data/Maybe.js";
 
 /**
  * Maps and filters the `get` value of the `Ref` with the specified partial

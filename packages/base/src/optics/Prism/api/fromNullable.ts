@@ -1,6 +1,5 @@
-import { Either } from "../../../data.js";
-import { identity } from "../../../data/function.js";
-import { Prism } from "../definition.js";
+import { identity } from "@fncts/base/data/function";
+import { Prism } from "@fncts/base/optics/Prism/definition";
 
 /**
  * @tsplus static fncts.optics.PPrismOps fromNullable

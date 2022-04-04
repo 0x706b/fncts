@@ -1,11 +1,3 @@
-import { Either } from "../../../data/Either.js";
-import { Fiber } from "../../Fiber.js";
-import { Future } from "../../Future.js";
-import { IO } from "../../IO.js";
-import { Queue } from "../../Queue.js";
-import { TSemaphore } from "../../TSemaphore.js";
-import { Channel } from "../definition.js";
-
 /**
  * @tsplus fluent fncts.control.Channel mapOutIOC
  */

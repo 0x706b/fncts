@@ -1,10 +1,3 @@
-import type { Exit } from "../../../data/Exit.js";
-import type { FiberId } from "../../../data/FiberId.js";
-import type { Fiber } from "../../Fiber.js";
-
-import { Cause } from "../../../data/Cause.js";
-import { IO } from "../definition.js";
-
 /**
  * @tsplus fluent fncts.control.IO zipWithC
  */

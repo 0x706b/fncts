@@ -1,30 +1,23 @@
-import type { HashSet } from "../../collection/immutable/HashSet.js";
-import type { Exit } from "../../data/Exit.js";
-import type { Maybe } from "../../data/Maybe.js";
 import type { AtomicReference } from "../../internal/AtomicReference.js";
-import type { RuntimeFiber } from "../Fiber.js";
-import type { UIO } from "../IO.js";
 
-import { Conc } from "../../collection/immutable/Conc.js";
-import { IO } from "../IO.js";
-import { ConstSupervisor, Supervisor } from "./definition.js";
+import { ConstSupervisor } from "./definition.js";
 
 /**
  * @tsplus static fncts.control.SupervisorOps unsafeTrack
  */
-export function unsafeTrack(): Supervisor<Conc<RuntimeFiber<any, any>>> {
-  const set = new Set<RuntimeFiber<any, any>>();
-  return new (class extends Supervisor<Conc<RuntimeFiber<any, any>>> {
+export function unsafeTrack(): Supervisor<Conc<Fiber.Runtime<any, any>>> {
+  const set = new Set<Fiber.Runtime<any, any>>();
+  return new (class extends Supervisor<Conc<Fiber.Runtime<any, any>>> {
     value = IO.succeed(Conc.from(set));
     unsafeOnStart<R, E, A>(
       _environment: R,
       _effect: IO<R, E, A>,
-      _parent: Maybe<RuntimeFiber<E, A>>,
-      fiber: RuntimeFiber<E, A>,
+      _parent: Maybe<Fiber.Runtime<E, A>>,
+      fiber: Fiber.Runtime<E, A>,
     ) {
       set.add(fiber);
     }
-    unsafeOnEnd<E, A>(_value: Exit<E, A>, fiber: RuntimeFiber<E, A>) {
+    unsafeOnEnd<E, A>(_value: Exit<E, A>, fiber: Fiber.Runtime<E, A>) {
       set.delete(fiber);
     }
   })();
@@ -34,20 +27,20 @@ export function unsafeTrack(): Supervisor<Conc<RuntimeFiber<any, any>>> {
  * @tsplus static fncts.control.SupervisorOps fibersIn
  */
 export function fibersIn(
-  ref: AtomicReference<HashSet<RuntimeFiber<any, any>>>,
-): UIO<Supervisor<HashSet<RuntimeFiber<any, any>>>> {
+  ref: AtomicReference<HashSet<Fiber.Runtime<any, any>>>,
+): UIO<Supervisor<HashSet<Fiber.Runtime<any, any>>>> {
   return IO.succeed(
-    new (class extends Supervisor<HashSet<RuntimeFiber<any, any>>> {
+    new (class extends Supervisor<HashSet<Fiber.Runtime<any, any>>> {
       value = IO.succeed(ref.get);
       unsafeOnStart<R, E, A>(
         _environment: R,
         _effect: IO<R, E, A>,
-        _parent: Maybe<RuntimeFiber<any, any>>,
-        fiber: RuntimeFiber<E, A>,
+        _parent: Maybe<Fiber.Runtime<any, any>>,
+        fiber: Fiber.Runtime<E, A>,
       ) {
         ref.set(ref.get.add(fiber));
       }
-      unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: RuntimeFiber<E, A>) {
+      unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: Fiber.Runtime<E, A>) {
         ref.set(ref.get.remove(fiber));
       }
     })(),
@@ -69,4 +62,4 @@ export const none = new ConstSupervisor(IO.unit);
 /**
  * @tsplus static fncts.control.SupervisorOps track
  */
-export const track: UIO<Supervisor<Conc<RuntimeFiber<any, any>>>> = IO.succeed(unsafeTrack());
+export const track: UIO<Supervisor<Conc<Fiber.Runtime<any, any>>>> = IO.succeed(unsafeTrack());

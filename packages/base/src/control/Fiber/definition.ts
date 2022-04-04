@@ -1,10 +1,4 @@
-import type { Exit } from "../../data/Exit.js";
-import type { FiberId } from "../../data/FiberId.js";
-import type { FiberStatus } from "../../data/FiberStatus.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { FiberRef } from "../FiberRef.js";
-import type { FiberScope } from "../FiberScope.js";
-import type { UIO } from "../IO.js";
+import type { FiberStatus } from "@fncts/base/data/FiberStatus";
 
 export interface CommonFiber<E, A> {
   /**

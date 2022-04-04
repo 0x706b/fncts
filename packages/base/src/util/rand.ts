@@ -1,12 +1,12 @@
-import Distribution from "./rand/distribution/Distribution.js";
-import { uniformArrayIntDistribution } from "./rand/distribution/UniformArrayIntDistribution.js";
-import { uniformBigIntDistribution } from "./rand/distribution/UniformBigIntDistribution.js";
-import { uniformIntDistribution } from "./rand/distribution/UniformIntDistribution.js";
-import { MersenneTwister } from "./rand/generator/MersenneTwister.js";
-import { generateN, RandomGenerator, skipN } from "./rand/generator/RandomGenerator.js";
+import Distribution from "@fncts/base/util/rand/distribution/Distribution";
+import { uniformArrayIntDistribution } from "@fncts/base/util/rand/distribution/UniformArrayIntDistribution";
+import { uniformBigIntDistribution } from "@fncts/base/util/rand/distribution/UniformBigIntDistribution";
+import { uniformIntDistribution } from "@fncts/base/util/rand/distribution/UniformIntDistribution";
+import { MersenneTwister } from "@fncts/base/util/rand/generator/MersenneTwister";
+import { generateN, RandomGenerator, skipN } from "@fncts/base/util/rand/generator/RandomGenerator";
 
-export * from "./rand/distribution/internals/ArrayInt.js";
-export * from "./rand/Random.js";
+export * from "@fncts/base/util/rand/distribution/internals/ArrayInt";
+export * from "@fncts/base/util/rand/Random";
 
 export {
   Distribution,

@@ -1,5 +1,3 @@
-import type { Line } from "./Line.js";
-
 import { Fragment } from "./Fragment.js";
 import { Style } from "./Style.js";
 

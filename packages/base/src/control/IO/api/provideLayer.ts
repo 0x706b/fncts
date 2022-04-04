@@ -1,8 +1,3 @@
-import type { Layer } from "../../Layer.js";
-import type { IO } from "../definition.js";
-
-import { Scope } from "../../Scope.js";
-
 /**
  * @tsplus fluent fncts.control.IO provideLayer
  */

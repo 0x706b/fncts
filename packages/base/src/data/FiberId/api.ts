@@ -1,6 +1,3 @@
-import type { FiberId } from "./definition.js";
-
-import { HashSet } from "../../collection/immutable/HashSet.js";
 import { Composite, isComposite, isNone } from "./definition.js";
 
 /**

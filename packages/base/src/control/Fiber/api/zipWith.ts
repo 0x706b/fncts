@@ -1,9 +1,3 @@
-import type { Fiber } from "../definition.js";
-
-import { Cause } from "../../../data/Cause.js";
-import { IO } from "../../IO.js";
-import { SyntheticFiber } from "../definition.js";
-
 /**
  * Zips this fiber with the specified fiber, combining their results using
  * the specified combiner function. Both joins and interruptions are performed

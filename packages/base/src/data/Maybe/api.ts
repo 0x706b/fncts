@@ -1,14 +1,10 @@
 import type { Eq, Monoid } from "../../prelude.js";
 import type { Nullable } from "../../types/Nullable.js";
-import type { Either } from "../Either.js";
-import type { Lazy } from "../function.js";
-import type { Predicate } from "../Predicate.js";
-import type { Refinement } from "../Refinement.js";
 import type { MaybeF } from "./instances.js";
 
 import { Apply } from "../../prelude.js";
 import { identity } from "../function.js";
-import { Just, Maybe, MaybeTag, Nothing } from "./definition.js";
+import { MaybeTag } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.data.Maybe ap

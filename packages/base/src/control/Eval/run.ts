@@ -1,7 +1,5 @@
-import type { Eval } from "./definition.js";
-
-import { Stack } from "../../internal/Stack.js";
-import { concrete, EvalTag } from "./definition.js";
+import { concrete, EvalTag } from "@fncts/base/control/Eval/definition";
+import { Stack } from "@fncts/base/internal/Stack";
 
 /**
  * @tsplus getter fncts.Eval run

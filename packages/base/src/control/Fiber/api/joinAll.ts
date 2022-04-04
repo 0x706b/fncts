@@ -1,8 +1,3 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-
-import { Fiber } from "../../Fiber.js";
-import { IO } from "../../IO.js";
-
 /**
  * Joins all fibers, awaiting their _successful_ completion.
  * Attempting to join a fiber that has erred will result in

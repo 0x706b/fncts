@@ -1,5 +1,3 @@
-import type { Identity } from "./definition.js";
-
 /**
  * @tsplus fluent fncts.data.Identity ap
  */

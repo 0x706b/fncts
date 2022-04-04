@@ -1,36 +1,14 @@
-import type { LogLevel } from "../../data/LogLevel.js";
-import type { RuntimeConfig } from "../../data/RuntimeConfig.js";
-import type { Instruction, Match, UIO } from "../IO.js";
-import type { Race } from "../IO/definition.js";
-import type { Fiber, RuntimeFiber } from "./definition.js";
+import type { Instruction, Match, Race } from "@fncts/base/control/IO/definition";
 
-import { Cons, List, Nil } from "../../collection/immutable/List.js";
-import { CancellerState } from "../../data/CancellerState.js";
-import { Cause } from "../../data/Cause.js";
-import { Either } from "../../data/Either.js";
-import {
-  IllegalArgumentError,
-  IllegalStateError,
-  isInterruptedException,
-} from "../../data/exceptions.js";
-import { Exit, ExitTag } from "../../data/Exit.js";
-import { FiberDescriptor } from "../../data/FiberDescriptor.js";
-import { FiberId } from "../../data/FiberId.js";
-import { FiberState } from "../../data/FiberState.js";
-import { FiberStatus, FiberStatusTag } from "../../data/FiberStatus.js";
-import { InterruptStatus } from "../../data/InterruptStatus.js";
-import { Just, Maybe, Nothing } from "../../data/Maybe.js";
-import { RuntimeConfigFlag } from "../../data/RuntimeConfig.js";
-import { Trace } from "../../data/Trace.js";
-import { TraceElement } from "../../data/TraceElement.js";
-import { AtomicReference } from "../../internal/AtomicReference.js";
-import { defaultScheduler } from "../../internal/Scheduler.js";
-import { Stack } from "../../internal/Stack.js";
-import { StackTraceBuilder } from "../../internal/StackTraceBuilder.js";
-import { FiberRef } from "../FiberRef.js";
-import { FiberScope } from "../FiberScope.js";
-import { concrete, IO, IOTag, isIOError } from "../IO/definition.js";
-import { Supervisor } from "../Supervisor.js";
+import { concrete, IOTag, isIOError } from "@fncts/base/control/IO/definition";
+import { CancellerState } from "@fncts/base/data/CancellerState";
+import { ExitTag } from "@fncts/base/data/Exit";
+import { FiberState } from "@fncts/base/data/FiberState";
+import { FiberStatus, FiberStatusTag } from "@fncts/base/data/FiberStatus";
+import { AtomicReference } from "@fncts/base/internal/AtomicReference";
+import { defaultScheduler } from "@fncts/base/internal/Scheduler";
+import { Stack } from "@fncts/base/internal/Stack";
+import { StackTraceBuilder } from "@fncts/base/internal/StackTraceBuilder";
 
 export type FiberRefLocals = Map<FiberRef.Runtime<any>, unknown>;
 
@@ -75,7 +53,7 @@ export function unsafeCurrentFiber(): Maybe<FiberContext<any, any>> {
  *
  * @tsplus type fncts.control.Fiber
  */
-export class FiberContext<E, A> implements RuntimeFiber<E, A> {
+export class FiberContext<E, A> implements Fiber.Runtime<E, A> {
   readonly _tag = "RuntimeFiber";
 
   private state = FiberState.initial<E, A>();

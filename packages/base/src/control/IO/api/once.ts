@@ -1,7 +1,3 @@
-import type { IO, UIO } from "../definition.js";
-
-import { Ref } from "../../Ref.js";
-
 /**
  * @tsplus getter fncts.control.IO once
  */

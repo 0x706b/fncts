@@ -1,15 +1,8 @@
-import type { UIO } from "../../IO.js";
-import type { AsyncInputConsumer } from "./AsyncInputConsumer.js";
-import type { AsyncInputProducer } from "./AsyncInputProducer.js";
+import type { AsyncInputConsumer } from "@fncts/base/control/Channel/internal/AsyncInputConsumer";
+import type { AsyncInputProducer } from "@fncts/base/control/Channel/internal/AsyncInputProducer";
 
-import { Queue } from "../../../collection/immutable/Queue.js";
-import { Cause } from "../../../data/Cause.js";
-import { Either } from "../../../data/Either.js";
-import { Exit } from "../../../data/Exit.js";
-import { tuple } from "../../../data/function.js";
-import { Future } from "../../Future.js";
-import { IO } from "../../IO.js";
-import { Ref } from "../../Ref.js";
+import { Queue } from "@fncts/base/collection/immutable/Queue";
+import { tuple } from "@fncts/base/data/function";
 
 export const enum StateTag {
   Done = "Done",

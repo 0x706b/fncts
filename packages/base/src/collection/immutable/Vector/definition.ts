@@ -1,12 +1,9 @@
 /* eslint-disable prefer-const */
 /* eslint-disable no-var */
-import type { Predicate } from "../../../data/Predicate.js";
-import type { Node } from "./internal.js";
+import type { Node } from "@fncts/base/collection/immutable/Vector/internal";
 
-import { Equatable, Hashable } from "../../../prelude.js";
-import { hasTypeId } from "../../../util/predicates.js";
-import { foldLeftCb } from "./internal.js";
-import { ForwardVectorIterator } from "./internal.js";
+import { foldLeftCb } from "@fncts/base/collection/immutable/Vector/internal";
+import { ForwardVectorIterator } from "@fncts/base/collection/immutable/Vector/internal";
 
 export const VectorTypeId = Symbol.for("fncts.collection.immutable.Vector");
 export type VectorTypeId = typeof VectorTypeId;

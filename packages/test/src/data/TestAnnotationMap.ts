@@ -1,6 +1,5 @@
 import type { TestAnnotation } from "./TestAnnotation.js";
 
-import { HashMap } from "@fncts/base/collection/immutable/HashMap";
 import { identity } from "@fncts/base/data/function";
 
 export class TestAnnotationMap {

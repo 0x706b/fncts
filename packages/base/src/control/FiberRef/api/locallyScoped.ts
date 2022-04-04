@@ -1,10 +1,5 @@
-import type { Has } from "../../../prelude.js";
-import type { Scope } from "../../Scope.js";
-import type { FiberRef, PFiberRef } from "../definition.js";
-
-import { matchTag_ } from "../../../util/pattern.js";
-import { IO } from "../../IO.js";
-import { concrete } from "../definition.js";
+import { concrete } from "@fncts/base/control/FiberRef/definition";
+import { matchTag_ } from "@fncts/base/util/pattern";
 
 /**
  * @tsplus fluent fncts.control.FiberRef locallyScoped

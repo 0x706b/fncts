@@ -1,5 +1,3 @@
-import { Eval } from "../definition.js";
-
 /**
  * @tsplus static fncts.EvalOps sequenceArray
  */

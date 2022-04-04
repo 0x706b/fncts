@@ -1,15 +1,4 @@
-import type { Lazy } from "../../data/function.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { UIO, URIO } from "../IO.js";
-
-import { Conc } from "../../collection/immutable/Conc.js";
-import { List } from "../../collection/immutable/List.js";
-import { Either } from "../../data/Either.js";
-import { Just, Nothing } from "../../data/Maybe.js";
-import { Equatable, wiltSelf } from "../../prelude.js";
-import { IO } from "../IO.js";
 import { Decision, DecisionTag } from "./Decision.js";
-import { Schedule } from "./definition.js";
 import { Interval } from "./Interval.js";
 
 /**

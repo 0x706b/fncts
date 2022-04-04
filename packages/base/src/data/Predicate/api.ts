@@ -1,5 +1,3 @@
-import type { Predicate } from "./definition.js";
-
 /**
  * @tsplus getter fncts.data.Predicate invert
  */

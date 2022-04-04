@@ -1,7 +1,7 @@
-import type { _A } from "../../types/extractions.js";
+import type { _A } from "@fncts/base/types";
 
-import { identity } from "../../data/function.js";
-import { Chain, Eval } from "./definition.js";
+import { Chain } from "@fncts/base/control/Eval/definition";
+import { identity } from "@fncts/base/data/function";
 
 /**
  * @tsplus fluent fncts.Eval chain

@@ -1,5 +1,3 @@
-import type { ReadonlyNonEmptyArray } from "./definition.js";
-
 /**
  * @tsplus getter fncts.collection.immutable.NonEmptyArray head
  */

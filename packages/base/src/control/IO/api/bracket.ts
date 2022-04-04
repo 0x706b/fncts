@@ -1,5 +1,3 @@
-import type { IO } from "../definition.js";
-
 /**
  * When this IO represents acquisition of a resource (for example,
  * opening a file, launching a thread, etc.), `bracket` can be used to ensure

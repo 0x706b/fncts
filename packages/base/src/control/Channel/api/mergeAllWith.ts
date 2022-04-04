@@ -1,15 +1,4 @@
-import type { Maybe } from "../../../data/Maybe.js";
-
-import { Either } from "../../../data/Either.js";
-import { identity } from "../../../data/function.js";
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { Fiber } from "../../Fiber.js";
-import { Future } from "../../Future.js";
-import { IO } from "../../IO.js";
-import { Queue } from "../../Queue.js";
-import { Ref } from "../../Ref.js";
-import { TSemaphore } from "../../TSemaphore.js";
-import { Channel } from "../definition.js";
+import { identity } from "@fncts/base/data/function";
 
 export type MergeStrategy = "BackPressure" | "BufferSliding";
 

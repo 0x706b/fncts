@@ -1,11 +1,5 @@
-import type { Cause } from "../../../data/Cause.js";
-import type { FIO, UIO } from "../../IO.js";
 import type { Queue } from "../../Queue.js";
 import type { Take } from "./Take.js";
-
-import { Conc } from "../../../collection/immutable/Conc.js";
-import { Just, Maybe, Nothing } from "../../../data/Maybe.js";
-import { IO } from "../../IO.js";
 
 export type Pull<R, E, A> = IO<R, Maybe<E>, Conc<A>>;
 

@@ -1,7 +1,3 @@
-import type { Future } from "../../Future.js";
-
-import { IO } from "../definition.js";
-
 /**
  * Returns an IO that keeps or breaks a promise based on the result of
  * this effect. Synchronizes interruption, so if this effect is interrupted,

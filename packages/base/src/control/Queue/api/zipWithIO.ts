@@ -1,10 +1,5 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-import type { UIO } from "../../IO.js";
-import type { PQueue } from "../definition.js";
-
-import { tuple } from "../../../data/function.js";
-import { IO } from "../../IO.js";
-import { concrete, QueueInternal } from "../definition.js";
+import { concrete, QueueInternal } from "@fncts/base/control/Queue/definition";
+import { tuple } from "@fncts/base/data/function";
 
 export class ZipWithIO<
   RA,

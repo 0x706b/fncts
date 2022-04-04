@@ -1,7 +1,5 @@
 import type { Assertion } from "../control/Assertion/definition.js";
 
-import { LazyValue } from "@fncts/base/control/LazyValue";
-
 import { AssertionValue } from "./AssertionValue.js";
 import { FreeBooleanAlgebra } from "./FreeBooleanAlgebra.js";
 

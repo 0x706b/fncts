@@ -1,4 +1,4 @@
-import type { Ord } from "../definition.js";
+import type { Ord } from "@fncts/base/prelude/Ord/definition";
 
 /**
  * @tsplus static fncts.OrdOps max

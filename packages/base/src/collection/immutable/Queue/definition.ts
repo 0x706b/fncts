@@ -12,8 +12,6 @@
  * for more information regarding copyright ownership
  */
 
-import type { List } from "../List.js";
-
 import { _Nil } from "../List.js";
 
 /**

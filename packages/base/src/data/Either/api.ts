@@ -1,13 +1,8 @@
 import type * as P from "../../prelude.js";
-import type { Lazy } from "../function.js";
-import type { Maybe } from "../Maybe.js";
-import type { Either } from "./definition.js";
 import type { EitherF } from "./instances.js";
 
 import { hasTypeId } from "../../util/predicates.js";
-import { identity, unsafeCoerce } from "../function.js";
-import { pipe } from "../function.js";
-import { Just, Nothing } from "../Maybe.js";
+import { identity } from "../function.js";
 import { EitherTag, EitherTypeId, Left, Right } from "./definition.js";
 
 /**
@@ -202,11 +197,7 @@ export function swap<E, A>(self: Either<E, A>): Either<A, E> {
 export const traverse_: P.traverse_<EitherF> = (A) => (self, f) =>
   self.match(
     (e) => A.pure(Left(e)),
-    (a) =>
-      pipe(
-        f(a),
-        A.map((b) => Right(b)),
-      ),
+    (a) => f(a).via(A.map((b) => Right(b))),
   );
 
 export const traverse: P.traverse<EitherF> = (A) => (f) => (self) => traverse_(A)(self, f);

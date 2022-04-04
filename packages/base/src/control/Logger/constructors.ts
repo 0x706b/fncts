@@ -1,5 +1,3 @@
-import { Logger } from "./definition.js";
-
 /**
  * @tsplus static fncts.control.LoggerOps defaultString
  */

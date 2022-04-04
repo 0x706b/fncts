@@ -1,7 +1,6 @@
-import type { combine_ } from "./Closure.js";
-import type { SemigroupMin } from "./Semigroup.js";
+import type { SemigroupMin } from "@fncts/base/prelude/Semigroup";
 
-import { Semigroup } from "./Semigroup.js";
+import { Semigroup } from "@fncts/base/prelude/Semigroup";
 
 /**
  * @tsplus type fncts.Monoid

@@ -1,22 +1,7 @@
-import type { Exit } from "../../data/Exit.js";
-import type { Has } from "../../prelude.js";
-import type { URIO } from "./definition.js";
-
-import { FiberId } from "../../data/FiberId.js";
-import { InterruptStatus } from "../../data/InterruptStatus.js";
-import { LogLevel } from "../../data/LogLevel.js";
-import { Nothing } from "../../data/Maybe.js";
-import { RuntimeConfig, RuntimeConfigFlags } from "../../data/RuntimeConfig.js";
-import { Stack } from "../../internal/Stack.js";
-import { Clock } from "../Clock.js";
-import { Console } from "../Console.js";
-import { FiberContext } from "../Fiber.js";
-import { FiberRef } from "../FiberRef.js";
-import { FiberScope } from "../FiberScope.js";
-import { Logger } from "../Logger.js";
-import { Random } from "../Random.js";
-import { Supervisor } from "../Supervisor.js";
-import { concrete, IO } from "./definition.js";
+import { Console } from "@fncts/base/control/Console";
+import { FiberContext } from "@fncts/base/control/Fiber";
+import { concrete } from "@fncts/base/control/IO/definition";
+import { Stack } from "@fncts/base/internal/Stack";
 
 export class Runtime<R> {
   constructor(readonly environment: R, readonly runtimeConfig: RuntimeConfig) {}

@@ -1,31 +1,9 @@
-import type { TypedArray } from "../../util/predicates.js";
-import type { StyleFunction } from "./styles.js";
+import type { StyleFunction } from "@fncts/base/prelude/Showable/styles";
+import type { TypedArray } from "@fncts/base/util/predicates";
 
-import { Conc } from "../../collection/immutable/Conc.js";
-import { HashMap } from "../../collection/immutable/HashMap.js";
-import { Z } from "../../control/Z.js";
-import { CaseClass } from "../../data/CaseClass.js";
-import { tuple } from "../../data/function.js";
-import {
-  isAnyArrayBuffer,
-  isArray,
-  isArrayBuffer,
-  isDataView,
-  isDate,
-  isDefined,
-  isFunction,
-  isMap,
-  isObject,
-  isPromise,
-  isRegExp,
-  isSet,
-  isSymbol,
-  isTypedArray,
-  isWeakMap,
-  isWeakSet,
-} from "../../util/predicates.js";
-import { isShowable } from "./definition.js";
-import { stylizeNoColor, stylizeWithColor } from "./styles.js";
+import { tuple } from "@fncts/base/data/function";
+import { isShowable } from "@fncts/base/prelude/Showable/definition";
+import { stylizeNoColor, stylizeWithColor } from "@fncts/base/prelude/Showable/styles";
 import {
   ARRAY_EXTRAS_TYPE,
   ARRAY_TYPE,
@@ -44,7 +22,25 @@ import {
   PROTO_TYPE,
   strEscape,
   strEscapeSequencesReplacer,
-} from "./util.js";
+} from "@fncts/base/prelude/Showable/util";
+import {
+  isAnyArrayBuffer,
+  isArray,
+  isArrayBuffer,
+  isDataView,
+  isDate,
+  isDefined,
+  isFunction,
+  isMap,
+  isObject,
+  isPromise,
+  isRegExp,
+  isSet,
+  isSymbol,
+  isTypedArray,
+  isWeakMap,
+  isWeakSet,
+} from "@fncts/base/util/predicates";
 
 export interface ShowContextArgs {
   readonly stylize: StyleFunction;

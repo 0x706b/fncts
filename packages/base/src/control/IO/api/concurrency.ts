@@ -1,10 +1,3 @@
-import type { Maybe } from "../../../data/Maybe.js";
-import type { UIO } from "../definition.js";
-
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { FiberRef } from "../../FiberRef.js";
-import { IO } from "../definition.js";
-
 /**
  * The number of fibers used for concurrent operators.
  */

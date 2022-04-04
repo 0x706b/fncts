@@ -1,7 +1,8 @@
 {
   "name": "@fncts/codegen",
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "clean": "rm -rf ./build"
   },
   "exports": {
     "./*": {

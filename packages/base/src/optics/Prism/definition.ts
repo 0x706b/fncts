@@ -1,7 +1,7 @@
-import type { getOrModify } from "../Optional.js";
+import type { getOrModify } from "@fncts/base/optics/Optional";
 
-import { identity } from "../../data/function.js";
-import { POptional } from "../Optional.js";
+import { identity } from "@fncts/base/data/function";
+import { POptional } from "@fncts/base/optics/Optional";
 
 /**
  * @tsplus type fncts.optics.PPrism

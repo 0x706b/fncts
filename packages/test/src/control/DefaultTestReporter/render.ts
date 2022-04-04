@@ -6,14 +6,7 @@ import type { GenFailureDetails } from "../../data/GenFailureDetails.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
 import type { TestRenderer } from "../TestRenderer/definition.js";
 import type { ExecutionResult } from "./ExecutionResult.js";
-import type { URIO } from "@fncts/base/control/IO";
-import type { Cause } from "@fncts/base/data/Cause.js";
-import type { Maybe } from "@fncts/base/data/Maybe.js";
-import type { Has } from "@fncts/base/prelude";
 
-import { Cons, List } from "@fncts/base/collection/immutable/List.js";
-import { Vector } from "@fncts/base/collection/immutable/Vector.js";
-import { Just, Nothing } from "@fncts/base/data/Maybe.js";
 import { matchTag } from "@fncts/base/util/pattern.js";
 
 import { ExecutedSpecCaseTag } from "../../data/ExecutedSpec.js";

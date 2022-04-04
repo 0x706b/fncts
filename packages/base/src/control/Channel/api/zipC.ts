@@ -1,7 +1,4 @@
-import type { Channel } from "../definition.js";
-
-import { IO } from "../../IO.js";
-import { MergeDecision } from "../internal/MergeDecision.js";
+import { MergeDecision } from "@fncts/base/control/Channel/internal/MergeDecision";
 
 /**
  * @tsplus fluent fncts.control.Channel zipC

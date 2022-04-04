@@ -1,4 +1,3 @@
-import type { Either } from "../../../data/Either.js";
 import type { PRef } from "../definition.js";
 
 import { concrete } from "../definition.js";

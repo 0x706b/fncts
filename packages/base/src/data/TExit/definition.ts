@@ -1,5 +1,3 @@
-import type { FiberId } from "../FiberId.js";
-
 import * as P from "../../prelude.js";
 import { hasTypeId } from "../../util/predicates.js";
 

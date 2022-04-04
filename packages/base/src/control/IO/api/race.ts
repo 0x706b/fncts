@@ -1,6 +1,3 @@
-import { Cause } from "../../../data/Cause.js";
-import { IO } from "../definition.js";
-
 function maybeDisconnect<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
   return IO.uninterruptibleMask((restore) => restore.force(io));
 }

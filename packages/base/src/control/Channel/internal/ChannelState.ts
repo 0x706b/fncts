@@ -1,8 +1,4 @@
-import type { Exit } from "../../../data/Exit.js";
-import type { UIO } from "../../IO.js";
-import type { ErasedExecutor } from "./ChannelExecutor.js";
-
-import { IO } from "../../IO.js";
+import type { ErasedExecutor } from "@fncts/base/control/Channel/internal/ChannelExecutor";
 
 export const enum ChannelStateTag {
   Emit = "Emit",

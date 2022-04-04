@@ -1,5 +1,4 @@
-import { IO } from "../IO.js";
-import { Console } from "./definition.js";
+import { Console } from "@fncts/base/control/Console/definition";
 
 export class LiveConsole extends Console {
   print(...data: unknown[]) {

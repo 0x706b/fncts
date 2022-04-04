@@ -1,4 +1,4 @@
-import type { Fold } from "../Fold.js";
+import type { Fold } from "@fncts/base/optics/Fold";
 
 export interface get<S, A> {
   (s: S): A;

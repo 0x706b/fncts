@@ -1,10 +1,4 @@
-import type { Conc } from "../../../collection/immutable/Conc.js";
-import type { UIO } from "../../IO.js";
-import type { PQueue } from "../definition.js";
-
-import { Just, Nothing } from "../../../data/Maybe.js";
-import { IO } from "../../IO.js";
-import { concrete, QueueInternal } from "../definition.js";
+import { concrete, QueueInternal } from "@fncts/base/control/Queue/definition";
 
 export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends QueueInternal<
   RA & R2,

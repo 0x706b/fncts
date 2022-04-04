@@ -1,10 +1,6 @@
-import type { Lazy } from "../../../data/function.js";
-import type { Tag } from "../../../data/Tag.js";
-import type { Has } from "../../../prelude.js";
 import type { Spreadable } from "../../../types.js";
 
 import { State } from "../../State.js";
-import { IO } from "../definition.js";
 
 /**
  * @tsplus static fncts.control.IOOps stateful

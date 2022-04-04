@@ -1,6 +1,3 @@
-import { Conc } from "../collection/immutable/Conc.js";
-import { InvalidCapacityError } from "../data/exceptions.js";
-
 export declare namespace Hub {
   export type Subscription<A> = SubscriptionInternal<A>;
 }

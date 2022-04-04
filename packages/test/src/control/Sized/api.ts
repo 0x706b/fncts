@@ -1,6 +1,3 @@
-import type { URIO } from "@fncts/base/control/IO";
-import type { Has } from "@fncts/base/prelude";
-
 import { Sized } from "./definition.js";
 
 /**

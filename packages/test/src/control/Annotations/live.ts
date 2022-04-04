@@ -1,10 +1,3 @@
-import type { RuntimeFiber } from "@fncts/base/control/Fiber.js";
-import type { FiberRef } from "@fncts/base/control/FiberRef";
-
-import { HashSet } from "@fncts/base/collection/immutable/HashSet.js";
-import { IO } from "@fncts/base/control/IO.js";
-import { Equatable } from "@fncts/base/prelude.js";
-
 import { TestAnnotation } from "../../data/TestAnnotation.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import { Annotations } from "./definition.js";
@@ -36,11 +29,11 @@ export class LiveAnnotations extends Annotations {
       .map((m) => m.get(TestAnnotation.Fibers))
       .chain((r) =>
         r.match(
-          () => IO.succeed(HashSet.makeDefault<RuntimeFiber<any, any>>()),
+          () => IO.succeed(HashSet.makeDefault<Fiber.Runtime<any, any>>()),
           (refs) =>
             IO.foreach(refs, (ref) => ref.get)
               .map((fibers) =>
-                fibers.foldLeft(HashSet.makeDefault<RuntimeFiber<any, any>>(), (s1, s2) =>
+                fibers.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s1, s2) =>
                   s1.union(s2),
                 ),
               )

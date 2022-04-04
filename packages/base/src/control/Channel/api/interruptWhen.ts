@@ -1,8 +1,4 @@
-import type { Future } from "../../Future.js";
-
-import { IO } from "../../IO.js";
-import { Channel } from "../definition.js";
-import { MergeDecision } from "../internal/MergeDecision.js";
+import { MergeDecision } from "@fncts/base/control/Channel/internal/MergeDecision";
 
 /**
  * Returns a new channel, which is the same as this one, except it will be interrupted when the

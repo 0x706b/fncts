@@ -1,6 +1,3 @@
-import type { FiberId } from "../FiberId.js";
-import type { TExit } from "./definition.js";
-
 import { Fail, Halt, Interrupt, Retry, Succeed } from "./definition.js";
 
 /**

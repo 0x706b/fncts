@@ -1,12 +1,3 @@
-import type { Has } from "../../prelude.js";
-import type { FIO, UIO } from "../IO.js";
-
-import { Exit } from "../../data/Exit.js";
-import { IO } from "../IO.js";
-import { Ref } from "../Ref.js";
-import { Scope } from "../Scope.js";
-import { ScopedRef } from "./definition.js";
-
 /**
  * @tsplus static fncts.control.ScopedRefOps fromAcquire
  */

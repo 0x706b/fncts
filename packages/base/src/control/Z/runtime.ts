@@ -1,9 +1,6 @@
-import { Conc } from "../../collection/immutable/Conc.js";
-import { Cause } from "../../data/Cause.js";
-import { Exit } from "../../data/Exit.js";
 import { identity } from "../../data/function.js";
 import { Stack } from "../../internal/Stack.js";
-import { concrete, isZError, Z, ZTag } from "./definition.js";
+import { concrete, isZError, ZTag } from "./definition.js";
 
 class MatchFrame {
   readonly _zTag = "MatchFrame";

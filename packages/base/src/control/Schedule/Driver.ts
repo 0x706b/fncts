@@ -1,6 +1,4 @@
 import type { NoSuchElementError } from "../../data/exceptions.js";
-import type { Nothing } from "../../data/Maybe.js";
-import type { IO, UIO } from "../IO.js";
 
 /**
  * @tsplus type fncts.control.Schedule.Driver

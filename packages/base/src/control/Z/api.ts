@@ -1,10 +1,3 @@
-import type { Lazy } from "../../data/function.js";
-import type { Maybe } from "../../data/Maybe.js";
-import type { Predicate } from "../../data/Predicate.js";
-
-import { Conc } from "../../collection/immutable/Conc.js";
-import { Cause } from "../../data/Cause.js";
-import { Either } from "../../data/Either.js";
 import { identity, tuple } from "../../data/function.js";
 import {
   Chain,
@@ -18,7 +11,6 @@ import {
   Succeed,
   SucceedNow,
   Tell,
-  Z,
 } from "./definition.js";
 
 /**

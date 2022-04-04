@@ -1,7 +1,3 @@
-import type { Has } from "../../prelude.js";
-import type { IO, UIO } from "../IO.js";
-import type { Scope } from "../Scope.js";
-
 export const ScopedRefTypeId = Symbol.for("fncts.base.control.ScopedRef");
 export type ScopedRefTypeId = typeof ScopedRefTypeId;
 

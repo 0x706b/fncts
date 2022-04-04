@@ -1,5 +1,3 @@
-import type { FIO } from "../IO.js";
-
 export const CachedTypeId = Symbol.for("fncts.base.control.Cached");
 export type CachedTypeId = typeof CachedTypeId;
 

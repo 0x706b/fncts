@@ -1,5 +1,3 @@
-import type { IO } from "../definition.js";
-
 import { tuple } from "../../../data/function.js";
 
 /**

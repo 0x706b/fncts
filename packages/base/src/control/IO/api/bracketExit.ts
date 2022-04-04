@@ -1,8 +1,3 @@
-import type { Exit } from "../../../data/Exit.js";
-
-import { Cause } from "../../../data/Cause.js";
-import { IO } from "../definition.js";
-
 /**
  * Acquires a resource, uses the resource, and then releases the resource.
  * Neither the acquisition nor the release will be interrupted, and the

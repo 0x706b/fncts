@@ -1,6 +1,3 @@
-import type { Exit } from "../../../data/Exit.js";
-import type { IO } from "../../IO.js";
-
 export const enum MergeDecisionTag {
   Done = "Done",
   Await = "Await",

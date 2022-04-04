@@ -1,9 +1,5 @@
 import type { TestAnnotation } from "../../data/TestAnnotation.js";
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
-import type { Vector } from "@fncts/base/collection/immutable/Vector";
-import type { Maybe } from "@fncts/base/data/Maybe";
-
-import { _Nil, Cons, List } from "@fncts/base/collection/immutable/List";
 
 export const enum TestAnnotationRendererTag {
   LeafRenderer = "LeafRenderer",
@@ -27,7 +23,7 @@ export class LeafRenderer {
         ),
       ).match(
         () => List.empty(),
-        (s) => Cons(s, _Nil),
+        (s) => Cons(s, Nil()),
       ),
     );
   }

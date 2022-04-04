@@ -1,6 +1,3 @@
-import type { Tag } from "@fncts/base/data/Tag";
-
-import { Equatable, Hashable } from "@fncts/base/prelude";
 import { hasTypeId } from "@fncts/base/util/predicates";
 
 export const TestAnnotationTypeId = Symbol.for("fncts.data.TestAnnotation");

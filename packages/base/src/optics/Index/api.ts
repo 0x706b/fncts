@@ -1,9 +1,8 @@
-import type { Maybe } from "../../data.js";
-import type { At } from "../At.js";
-import type { Iso } from "../Iso.js";
+import type { At } from "@fncts/base/optics/At";
+import type { Iso } from "@fncts/base/optics/Iso";
 
-import { Prism } from "../Prism.js";
-import { Index } from "./definition.js";
+import { Index } from "@fncts/base/optics/Index/definition";
+import { Prism } from "@fncts/base/optics/Prism";
 
 /**
  * @tsplus static fncts.optics.IndexOps fromAt

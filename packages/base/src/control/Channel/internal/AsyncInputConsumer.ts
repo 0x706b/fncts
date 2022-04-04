@@ -1,6 +1,3 @@
-import type { Cause } from "../../../data/Cause.js";
-import type { UIO } from "../../IO.js";
-
 /**
  * Consumer-side view of `SingleProducerAsyncInput` for variance purposes.
  */

@@ -1,6 +1,6 @@
-import type { Iso } from "../Iso.js";
+import type { Iso } from "@fncts/base/optics/Iso";
 
-import { At } from "./definition.js";
+import { At } from "@fncts/base/optics/At/definition";
 
 /**
  * @tsplus static fncts.optics.AtOps fromIso

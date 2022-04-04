@@ -1,11 +1,8 @@
-import type { Maybe } from "../data/Maybe.js";
-import type { ApplicativeMin } from "./Applicative.js";
-import type { Fail, FailMin } from "./Fail.js";
+import type { ApplicativeMin } from "@fncts/base/prelude/Applicative";
+import type { Fail, FailMin } from "@fncts/base/prelude/Fail";
 
-import { Either, Left } from "../data/Either/definition.js";
-import { identity } from "../data/function.js";
-import { Applicative } from "./Applicative.js";
-import { HKT } from "./HKT.js";
+import { identity } from "@fncts/base/data/function";
+import { Applicative } from "@fncts/base/prelude/Applicative";
 
 /**
  * @tsplus type fncts.prelude.ApplicativeExcept
@@ -241,5 +238,5 @@ export function eitherF<F extends HKT.CovariantE, C = HKT.None>(
   F: ApplicativeExceptMin<F, C>,
 ): EitherFn<F, C>;
 export function eitherF<F>(F: ApplicativeExceptMin<HKT.FCoE<F>>): EitherFn<HKT.FCoE<F>> {
-  return (fa) => F.catchAll_(F.map_(fa, Either.right), (e) => F.pure(Left(e)));
+  return (fa) => F.catchAll_(F.map_(fa, Either.right), (e) => F.pure(Either.left(e)));
 }

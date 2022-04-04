@@ -1,4 +1,3 @@
-import type { Exit } from "../../../data/Exit.js";
 import type { Journal } from "./Journal.js";
 
 export const TryCommitTypeId = Symbol.for("fncts.data.TryCommit");

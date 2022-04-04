@@ -1,6 +1,3 @@
-import type { Conc } from "../../collection/immutable/Conc.js";
-import type { Monoid, Semigroup } from "../../prelude.js";
-import type { FiberId } from "../FiberId.js";
 import type { TraceElement } from "../TraceElement.js";
 
 /**

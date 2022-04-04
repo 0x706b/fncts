@@ -1,16 +1,16 @@
-import type { Either } from "../../../data/Either.js";
-import type { Maybe } from "../../../data/Maybe.js";
-import type { Predicate, PredicateWithIndex } from "../../../data/Predicate.js";
-import type { Refinement, RefinementWithIndex } from "../../../data/Refinement.js";
-import type { HashMapF } from "./definition.js";
 import type { Node, UpdateFn } from "./internal.js";
+import type { HashMapF } from "@fncts/base/collection/immutable/HashMap/definition";
 
-import { pipe } from "../../../data/function.js";
-import { Just, Nothing } from "../../../data/Maybe.js";
-import * as P from "../../../prelude.js";
-import { HashSet } from "../HashSet/definition.js";
-import { HashMap, HashMapIterator } from "./definition.js";
-import { _EmptyNode, fromBitmap, hashFragment, isEmptyNode, SIZE, toBitmap } from "./internal.js";
+import { HashMapIterator } from "@fncts/base/collection/immutable/HashMap/definition";
+import {
+  _EmptyNode,
+  fromBitmap,
+  hashFragment,
+  isEmptyNode,
+  SIZE,
+  toBitmap,
+} from "@fncts/base/collection/immutable/HashMap/internal";
+import * as P from "@fncts/base/prelude";
 
 /**
  * Does `map` contain any elements?
@@ -597,7 +597,7 @@ export const witherSelf: P.witherSelf<HashMapF> = (self) => (A) => (f) =>
 
 export const wiltWithIndex_: P.wiltWithIndex_<HashMapF> = (A) => {
   const traverseWithIndexA_ = traverseWithIndex_(A);
-  return (wa, f) => pipe(traverseWithIndexA_(wa, f), A.map(separate));
+  return (wa, f) => traverseWithIndexA_(wa, f).via(A.map(separate));
 };
 
 export const wiltWithIndex: P.wiltWithIndex<HashMapF> = (A) => {

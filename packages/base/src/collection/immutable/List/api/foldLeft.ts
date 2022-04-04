@@ -1,5 +1,3 @@
-import type { List } from "../definition.js";
-
 /**
  * @tsplus fluent fncts.List foldLeft
  */
