@@ -512,9 +512,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.67":
-  version: 0.0.67
-  resolution: "@tsplus/installer@npm:0.0.67"
+"@tsplus/installer@npm:0.0.71":
+  version: 0.0.71
+  resolution: "@tsplus/installer@npm:0.0.71"
   dependencies:
     mkdirp: ^1.0.4
     rimraf: ^3.0.2
@@ -523,7 +523,7 @@ __metadata:
     zlib: ^1.0.5
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: ca4df4422d97535af133a3630245892b62f2cc6fd1c26824500a245570563d232156791a94220fe9e5ca810dc69f85686e921790020e712d4b60928496ac8505
+  checksum: 335d1d09e31fbb2dac761fe0de9ca57fd0c45eb1c169255303e994d8a2e5bb82af634114301499e7ac58cc6bd049f78c0cff48c8c6affb0af8203e812b1b2166
   languageName: node
   linkType: hard
 
@@ -1948,7 +1948,7 @@ __metadata:
     "@0x706b/eslint-plugin-align-assignments": ^0.1.2
     "@0x706b/eslint-plugin-module-specifier-extensions": ^0.1.3
     "@0x706b/prettier-eslint-8": ^0.0.3
-    "@tsplus/installer": 0.0.67
+    "@tsplus/installer": 0.0.71
     "@types/benchmark": ^2.1.1
     "@typescript-eslint/eslint-plugin": ^5.10.2
     "@typescript-eslint/experimental-utils": ^5.10.2
