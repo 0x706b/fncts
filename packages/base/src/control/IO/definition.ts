@@ -264,9 +264,8 @@ export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<
   constructor(
     readonly left: IO<R, E, A>,
     readonly right: IO<R1, E1, A1>,
-    readonly leftWins: (exit: Exit<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
-    readonly rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
-    readonly scope: Maybe<FiberScope>,
+    readonly leftWins: (exit: Fiber<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
+    readonly rightWins: (exit: Fiber<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
     readonly trace?: string,
   ) {
     super();

@@ -1,3 +1,5 @@
+import { ExitTag } from "@fncts/base/data/Exit.js";
+
 import { FiberScope } from "../../FiberScope.js";
 import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";
 
@@ -56,13 +58,36 @@ export function forkScopeMask_<R, E, A>(
  */
 export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
   left: IO<R, E, A>,
-  right: IO<R1, E1, A1>,
+  right: Lazy<IO<R1, E1, A1>>,
   leftWins: (exit: Exit<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
   rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
-  scope: Maybe<FiberScope> = Nothing(),
   __tsplusTrace?: string,
 ): IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
-  return new Race(left, right, leftWins, rightWins, scope, __tsplusTrace);
+  return IO.defer(
+    () =>
+      new Race(
+        left,
+        right(),
+        (winner, loser) =>
+          winner.await.chain((exit) => {
+            switch (exit._tag) {
+              case ExitTag.Success:
+                return winner.inheritRefs.chain(() => leftWins(exit, loser));
+              case ExitTag.Failure:
+                return leftWins(exit, loser);
+            }
+          }),
+        (winner, loser) =>
+          winner.await.chain((exit) => {
+            switch (exit._tag) {
+              case ExitTag.Success:
+                return winner.inheritRefs.chain(() => rightWins(exit, loser));
+              case ExitTag.Failure:
+                return rightWins(exit, loser);
+            }
+          }),
+      ),
+  );
 }
 
 export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;

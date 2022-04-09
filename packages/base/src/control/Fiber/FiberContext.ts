@@ -888,7 +888,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A> {
 
   private unsafeFork(
     io: Instruction,
-    forkScope: Maybe<FiberScope>,
+    forkScope: Maybe<FiberScope> = Nothing(),
     trace?: string,
   ): FiberContext<any, any> {
     const childFiberRefLocals: FiberRefLocals = new Map();
@@ -969,27 +969,21 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A> {
     race: Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>,
   ): IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
     const raceIndicator = new AtomicReference(true);
-    const left          = this.unsafeFork(concrete(race.left), race.scope, race.trace);
-    const right         = this.unsafeFork(concrete(race.right), race.scope, race.trace);
+    const left          = this.unsafeFork(concrete(race.left), Nothing(), race.trace);
+    const right         = this.unsafeFork(concrete(race.right), Nothing(), race.trace);
 
     return IO.async<R & R1 & R2 & R3, E2 | E3, A2 | A3>((cb) => {
-      const leftRegister = left.unsafeAddObserver((exit) => {
-        exit.match(
-          () => this.unsafeCompleteRace(left, right, race.leftWins, exit, raceIndicator, cb),
-          (v) => this.unsafeCompleteRace(left, right, race.leftWins, v, raceIndicator, cb),
-        );
+      const leftRegister = left.unsafeAddObserver(() => {
+        this.unsafeCompleteRace(left, right, race.leftWins, raceIndicator, cb);
       });
       if (leftRegister != null) {
-        this.unsafeCompleteRace(left, right, race.leftWins, leftRegister, raceIndicator, cb);
+        this.unsafeCompleteRace(left, right, race.leftWins, raceIndicator, cb);
       } else {
         const rightRegister = right.unsafeAddObserver((exit) => {
-          exit.match(
-            () => this.unsafeCompleteRace(right, left, race.rightWins, exit, raceIndicator, cb),
-            (v) => this.unsafeCompleteRace(right, left, race.rightWins, v, raceIndicator, cb),
-          );
+          this.unsafeCompleteRace(left, right, race.rightWins, raceIndicator, cb);
         });
         if (rightRegister != null) {
-          this.unsafeCompleteRace(right, left, race.rightWins, rightRegister, raceIndicator, cb);
+          this.unsafeCompleteRace(right, left, race.rightWins, raceIndicator, cb);
         }
       }
     }, left.fiberId.combine(right.fiberId));
@@ -998,16 +992,12 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A> {
   private unsafeCompleteRace<R, R1, R2, E2, A2, R3, E3, A3>(
     winner: Fiber<any, any>,
     loser: Fiber<any, any>,
-    cont: (exit: Exit<any, any>, fiber: Fiber<any, any>) => Erased,
-    winnerExit: Exit<any, any>,
+    cont: (fiber0: Fiber<any, any>, fiber1: Fiber<any, any>) => Erased,
     ab: AtomicReference<boolean>,
     cb: (_: IO<R & R1 & R2 & R3, E2 | E3, A2 | A3>) => void,
   ): void {
     if (ab.compareAndSet(true, false)) {
-      winnerExit.match(
-        () => cb(cont(winnerExit, loser)),
-        () => cb(winner.inheritRefs.chain(() => cont(winnerExit, loser))),
-      );
+      cb(cont(winner, loser));
     }
   }
 
