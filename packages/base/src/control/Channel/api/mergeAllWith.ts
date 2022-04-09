@@ -41,7 +41,7 @@ export function mergeAllWith_<
   OutElem,
   OutDone
 > {
-  return Channel.scoped(
+  return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
       IO.gen(function* (_) {
         yield* _(IO.addFinalizer(getChildren.chain(Fiber.interruptAll)));
@@ -149,8 +149,7 @@ export function mergeAllWith_<
         );
         return queue;
       }),
-    ),
-    (queue) => {
+    ).map((queue) => {
       const consumer: Channel<
         Env & Env1,
         unknown,
@@ -165,6 +164,6 @@ export function mergeAllWith_<
         ),
       );
       return consumer;
-    },
+    }),
   );
 }

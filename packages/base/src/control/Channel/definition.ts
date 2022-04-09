@@ -35,6 +35,23 @@ export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDo
   readonly _OutDone!: () => OutDone;
 }
 
+/**
+ * @tsplus unify fncts.control.Channel
+ */
+export function unifyChannel<X extends Channel<any, any, any, any, any, any, any>>(
+  _: X,
+): Channel<
+  [X] extends [Channel<infer Env, any, any, any, any, any, any>] ? Env : never,
+  [X] extends [Channel<any, infer InErr, any, any, any, any, any>] ? InErr : never,
+  [X] extends [Channel<any, any, infer InElem, any, any, any, any>] ? InElem : never,
+  [X] extends [Channel<any, any, any, infer InDone, any, any, any>] ? InDone : never,
+  [X] extends [Channel<any, any, any, any, infer OutErr, any, any>] ? OutErr : never,
+  [X] extends [Channel<any, any, any, any, any, infer OutElem, any>] ? OutElem : never,
+  [X] extends [Channel<any, any, any, any, any, any, infer OutDone>] ? OutDone : never
+> {
+  return _;
+}
+
 export abstract class Continuation<
   Env,
   InErr,

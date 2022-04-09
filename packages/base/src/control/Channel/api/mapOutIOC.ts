@@ -17,7 +17,7 @@ export function mapOutIOC_<
   n: number,
   f: (_: OutElem) => IO<Env1, OutErr1, OutElem1>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone> {
-  return Channel.scoped(
+  return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
       IO.gen(function* (_) {
         yield* _(IO.addFinalizer(getChildren.chain(Fiber.interruptAll)));
@@ -62,8 +62,7 @@ export function mapOutIOC_<
         );
         return queue;
       }),
-    ),
-    (queue) => {
+    ).map((queue) => {
       const consumer: Channel<
         Env & Env1,
         unknown,
@@ -78,6 +77,6 @@ export function mapOutIOC_<
         ),
       );
       return consumer;
-    },
+    }),
   );
 }

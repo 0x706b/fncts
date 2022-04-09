@@ -869,25 +869,11 @@ export function interrupt(
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps scoped
- */
-export function scoped_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, A>(
-  io: Lazy<IO<Env & Has<Scope>, OutErr, A>>,
-  use: (a: A) => Channel<Env1, InErr, InElem, InDone, OutErr1, OutElem, OutDone>,
-): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone> {
-  return Channel.acquireReleaseExitWith(
-    Scope.make,
-    (scope) => Channel.fromIO(scope.extend(io)).chain(use),
-    (scope, exit) => scope.close(exit),
-  );
-}
-
-/**
  * Use a managed to emit an output element
  *
- * @tsplus static fncts.control.ChannelOps scopedOut
+ * @tsplus static fncts.control.ChannelOps scoped
  */
-export function scopedOut<R, E, A>(
+export function scoped<R, E, A>(
   io: Lazy<IO<R & Has<Scope>, E, A>>,
 ): Channel<R, unknown, unknown, unknown, E, A, unknown> {
   return Channel.acquireReleaseOutExit(
@@ -1424,7 +1410,7 @@ export function unwrap<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 export function unwrapScoped<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: IO<R & Has<Scope>, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
 ): Channel<R & Env, InErr, InElem, InDone, E | OutErr, OutElem, OutDone> {
-  return Channel.scopedOut(self).concatAllWith(
+  return Channel.scoped(self).concatAllWith(
     (d, _) => d,
     (d, _) => d,
   );
