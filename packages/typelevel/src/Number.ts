@@ -1,6 +1,6 @@
-import type { Cast, Equals } from "./Any";
-import type { Or } from "./Boolean";
-import type { Iteration, IterationMap, IterationOf, Next, Pos, Prev } from "./Iteration";
+import type { Cast, Equals } from "./Any.js";
+import type { Or } from "./Boolean.js";
+import type { Iteration, IterationMap, IterationOf, Next, Pos, Prev } from "./Iteration.js";
 
 export type _IsNegative<N extends Iteration> = {
   "-": 1;
@@ -30,11 +30,11 @@ export type _Negate<N extends Iteration> = IterationMap[N[4]];
 
 export type Negate<N extends number> = N extends unknown ? _Negate<IterationOf<N>>[0] : never;
 
-export type _AddPositive<N1 extends Iteration, N2 extends Iteration> = {
-  0: _AddPositive<Next<N1>, Prev<N2>>;
-  1: N1;
-  2: IterationOf<number>;
-}[Pos<N2> extends 0 ? 1 : number extends Pos<N2> ? 2 : 0];
+export type _AddPositive<N1 extends Iteration, N2 extends Iteration> = Pos<N2> extends 0
+  ? N1
+  : number extends Pos<N2>
+  ? IterationOf<number>
+  : _AddPositive<Next<N1>, Prev<N2>>;
 
 export type AddPositive<N1 extends Iteration, N2 extends Iteration> = _AddPositive<
   N1,
@@ -43,11 +43,11 @@ export type AddPositive<N1 extends Iteration, N2 extends Iteration> = _AddPositi
   ? Cast<X, Iteration>
   : never;
 
-export type _AddNegative<N1 extends Iteration, N2 extends Iteration> = {
-  0: _AddNegative<Prev<N1>, Next<N2>>;
-  1: N1;
-  2: IterationOf<number>;
-}[Pos<N2> extends 0 ? 1 : number extends Pos<N2> ? 2 : 0];
+export type _AddNegative<N1 extends Iteration, N2 extends Iteration> = Pos<N2> extends 0
+  ? N1
+  : number extends Pos<N2>
+  ? IterationOf<number>
+  : _AddNegative<Prev<N1>, Next<N2>>;
 
 export type AddNegative<N1 extends Iteration, N2 extends Iteration> = _AddNegative<
   N1,

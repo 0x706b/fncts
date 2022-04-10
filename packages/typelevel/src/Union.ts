@@ -1,5 +1,5 @@
-import type { Cast, Equals, Extends, Is, Match } from "./Any";
-import type { List, Prepend } from "./List";
+import type { Cast, Equals, Extends, Is, Match } from "./Any.js";
+import type { List, Prepend } from "./List.js";
 
 export type IntersectionOf<U> = (U extends unknown ? (k: U) => void : never) extends (
   k: infer I,
@@ -13,12 +13,11 @@ export type Last<U> = IntersectionOf<U extends unknown ? (x: U) => void : never>
   ? P
   : never;
 
-type _ListOf<U, LN extends List = [], LastU = Last<U>> = {
-  0: _ListOf<Exclude<U, LastU>, Prepend<LN, LastU>>;
-  1: LN;
-}[Extends<[U], [never]>];
+type _UnionToTuple<U, LN extends List = [], LastU = Last<U>> = Extends<[U], [never]> extends 0
+  ? _UnionToTuple<Exclude<U, LastU>, Prepend<LN, LastU>>
+  : LN;
 
-export type ListOf<U> = _ListOf<U> extends infer X ? Cast<X, List> : never;
+export type ListOf<U> = _UnionToTuple<U> extends infer X ? Cast<X, List> : never;
 
 export type Has<A, B> = [B] extends [A] ? 1 : 0;
 

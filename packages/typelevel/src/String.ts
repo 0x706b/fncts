@@ -1,5 +1,5 @@
-import type { Cast, Literal } from "./Any";
-import type { List, Pop } from "./List";
+import type { Cast, Literal } from "./Any.js";
+import type { List, Pop } from "./List.js";
 
 type _Join<T extends List, D extends string> = T extends []
   ? ""

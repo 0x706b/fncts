@@ -1,8 +1,8 @@
-import type { At, Cast, Extends, Is, Key, Keys, Match } from "./Any";
-import type { BuiltIn } from "./BuiltIn";
-import type { Iteration, IterationOf, Next, Pos } from "./Iteration";
-import type { Append, Head, Length, List, Pop, PrependAll, Tail } from "./List";
-import type * as U from "./Union";
+import type { At, Cast, Extends, Is, Key, Keys, Match } from "./Any.js";
+import type { BuiltIn } from "./BuiltIn.js";
+import type { Iteration, IterationOf, Next, Pos } from "./Iteration.js";
+import type { Append, Head, Length, List, Pop, PrependAll, Tail } from "./List.js";
+import type * as U from "./Union.js";
 
 /*
  * -------------------------------------------------------------------------------------------------
@@ -27,9 +27,9 @@ type Index = number | string;
 
 type KeyToIndex<K extends Key, SP extends List<Index>> = number extends K ? Head<SP> : K & Index;
 
-const __Cont = Symbol();
+declare const __Cont: unique symbol;
 type __Cont = typeof __Cont;
-const __Path = Symbol();
+declare const __Path: unique symbol;
 type __Path = typeof __Path;
 
 type _MetaPath<O, SP extends List<Index> = [], P extends List<Index> = []> = {

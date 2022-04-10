@@ -1,9 +1,14 @@
-import type { Boolean } from "./Boolean";
-import type { BuiltIn } from "./BuiltIn";
-import type { List } from "./List";
-import type { Has } from "./Union";
+import type { Boolean } from "./Boolean.js";
+import type { BuiltIn } from "./BuiltIn.js";
+import type { List } from "./List.js";
+import type { Has } from "./Union.js";
 
 export type Cast<A, B> = A extends B ? A : B;
+
+export type Try<A1 , A2 , Catch = never> =
+    A1 extends A2
+    ? A1
+    : Catch;
 
 export type Extends<A, B> = [A] extends [never] ? 0 : A extends B ? 1 : 0;
 

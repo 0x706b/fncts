@@ -1,4 +1,4 @@
-import type * as O from "./Object";
+import type * as O from "./Object.js";
 
 export type List<A = any> = ReadonlyArray<A>;
 
