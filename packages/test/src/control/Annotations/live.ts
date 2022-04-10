@@ -7,7 +7,7 @@ export class LiveAnnotations extends Annotations {
     super();
   }
 
-  annotate<V>(key: TestAnnotation<V>, value: V) {
+  annotate<V>(key: TestAnnotation<V>, value: V): UIO<void> {
     return this.fiberRef.update((map) => map.annotate(key, value));
   }
 

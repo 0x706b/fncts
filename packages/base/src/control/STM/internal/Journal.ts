@@ -181,7 +181,7 @@ export function untrackedTodoTargets(oldJournal: Journal, newJournal: Journal): 
   return untracked;
 }
 
-export function tryCommitSync<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, r: R): TryCommit<E, A> {
+export function tryCommitSync<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, r: Environment<R>): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
   const analysis         = journal.analyze();
@@ -213,7 +213,7 @@ function tryCommit<R, E, A>(
   fiberId: FiberId,
   stm: STM<R, E, A>,
   state: AtomicReference<CommitState<E, A>>,
-  r: R,
+  r: Environment<R>,
 ): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
@@ -252,7 +252,7 @@ function suspendTryCommit<R, E, A>(
   stm: STM<R, E, A>,
   txnId: TxnId,
   state: AtomicReference<CommitState<E, A>>,
-  r: R,
+  r: Environment<R>,
   k: (_: IO<R, E, A>) => unknown,
   accum: Journal,
   journal: Journal,
@@ -293,7 +293,7 @@ export function tryCommitAsync<R, E, A>(
   stm: STM<R, E, A>,
   txnId: TxnId,
   state: AtomicReference<CommitState<E, A>>,
-  r: R,
+  r: Environment<R>,
 ): (k: (_: IO<R, E, A>) => unknown) => void {
   return (k) => {
     if (state.get.isRunning) {

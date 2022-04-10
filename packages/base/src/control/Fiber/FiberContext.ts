@@ -358,21 +358,6 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A> {
                     this.unsafeRunLater(concrete(IO.unit));
                     break;
                   }
-                  case IOTag.Environment: {
-                    current = concrete(current.f(this.unsafeGetRef(FiberRef.currentEnvironment)));
-                    break;
-                  }
-                  case IOTag.Provide: {
-                    const oldEnvironment = this.unsafeGetRef(FiberRef.currentEnvironment);
-                    this.unsafeSetRef(FiberRef.currentEnvironment, current.env);
-                    this.unsafeAddFinalizer(
-                      IO.succeed(() => {
-                        this.unsafeSetRef(FiberRef.currentEnvironment, oldEnvironment);
-                      }),
-                    );
-                    current = concrete(current.io);
-                    break;
-                  }
                   case IOTag.Defer: {
                     current = concrete(current.make());
                     break;

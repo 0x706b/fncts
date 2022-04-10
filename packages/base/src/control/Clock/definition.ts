@@ -137,7 +137,7 @@ export const ClockTag = Tag<Clock>(ClockKey);
 /**
  * @tsplus static fncts.control.ClockOps currentTime
  */
-export const currentTime = IO.serviceWithIO(Clock.Tag)((clock) => clock.currentTime);
+export const currentTime = IO.serviceWithIO((clock) => clock.currentTime, Clock.Tag);
 
 /**
  * @tsplus static fncts.control.ClockOps driver
@@ -146,14 +146,14 @@ export const currentTime = IO.serviceWithIO(Clock.Tag)((clock) => clock.currentT
 export function driver<State, Env, In, Out>(
   schedule: Schedule.WithState<State, Env, In, Out>,
 ): URIO<Has<Clock>, Schedule.Driver<State, Env, In, Out>> {
-  return IO.serviceWithIO(ClockTag)((clock) => clock.driver(schedule));
+  return IO.serviceWithIO((clock) => clock.driver(schedule), Clock.Tag);
 }
 
 /**
  * @tsplus static fncts.control.ClockOps sleep
  */
 export function sleep(duration: number, __tsplusTrace?: string): URIO<Has<Clock>, void> {
-  return IO.serviceWithIO(Clock.Tag)((clock) => clock.sleep(duration));
+  return IO.serviceWithIO((clock) => clock.sleep(duration), Clock.Tag);
 }
 
 /**
@@ -164,8 +164,9 @@ export function repeat<R, E, A>(io0: Lazy<IO<R, E, A>>) {
     schedule0: Lazy<Schedule<R1, A, B>>,
     __tsplusTrace?: string,
   ): IO<Has<Clock> & R & R1, E, B> =>
-    IO.serviceWithIO(Clock.Tag)((clock) =>
-      clock.repeatOrElse(io0)(schedule0, (e, _) => IO.fail(e)),
+    IO.serviceWithIO(
+      (clock) => clock.repeatOrElse(io0)(schedule0, (e, _) => IO.fail(e)),
+      Clock.Tag,
     );
 }
 
@@ -178,10 +179,12 @@ export function repeatOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
     orElse: (e: E, out: Maybe<B>) => IO<R2, E2, B>,
     __tsplusTrace?: string,
   ): IO<Has<Clock> & R & R1 & R2, E2, B> =>
-    IO.serviceWithIO(Clock.Tag)((clock) =>
-      clock
-        .repeatOrElseEither(io0)(schedule0, orElse)
-        .map((_) => _.value),
+    IO.serviceWithIO(
+      (clock) =>
+        clock
+          .repeatOrElseEither(io0)(schedule0, orElse)
+          .map((_) => _.value),
+      Clock.Tag,
     );
 }
 
@@ -194,7 +197,7 @@ export function repeatOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
     orElse: (e: E, out: Maybe<B>) => IO<R2, E2, C>,
     __tsplusTrace?: string,
   ): IO<Has<Clock> & R & R1 & R2, E2, Either<C, B>> =>
-    IO.serviceWithIO(Clock.Tag)((clock) => clock.repeatOrElseEither(io0)(schedule0, orElse));
+    IO.serviceWithIO((clock) => clock.repeatOrElseEither(io0)(schedule0, orElse), Clock.Tag);
 }
 
 /**
@@ -205,7 +208,7 @@ export function retry<R, E, A>(io0: Lazy<IO<R, E, A>>) {
     schedule0: Lazy<Schedule<R1, E, O>>,
     __tsplusTrace?: string,
   ): IO<Has<Clock> & R & R1, E, A> =>
-    IO.serviceWithIO(Clock.Tag)((clock) => clock.retryOrElse(io0)(schedule0, (e) => IO.fail(e)));
+    IO.serviceWithIO((clock) => clock.retryOrElse(io0)(schedule0, (e) => IO.fail(e)), Clock.Tag);
 }
 
 /**
@@ -217,10 +220,12 @@ export function retryOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
     orElse: (e: E, out: O) => IO<R2, E2, A>,
     __tsplusTrace?: string,
   ): IO<Has<Clock> & R & R1 & R2, E2, A> =>
-    IO.serviceWithIO(Clock.Tag)((clock) =>
-      clock
-        .retryOrElseEither(io0)(schedule0, orElse)
-        .map((_) => _.value),
+    IO.serviceWithIO(
+      (clock) =>
+        clock
+          .retryOrElseEither(io0)(schedule0, orElse)
+          .map((_) => _.value),
+      Clock.Tag,
     );
 }
 
@@ -247,7 +252,7 @@ export function retryOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
           ),
         );
 
-      return IO.serviceWithIO(Clock.Tag)((clock) => clock.driver(schedule).chain(loop));
+      return IO.serviceWithIO((clock) => clock.driver(schedule).chain(loop), Clock.Tag);
     });
 }
 

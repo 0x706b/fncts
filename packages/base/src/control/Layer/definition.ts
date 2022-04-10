@@ -54,7 +54,7 @@ export class Fold<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2> extends Layer<
   constructor(
     readonly self: Layer<RIn, E, ROut>,
     readonly failure: (cause: Cause<E>) => Layer<RIn1, E1, ROut1>,
-    readonly success: (r: ROut) => Layer<RIn2, E2, ROut2>,
+    readonly success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
   ) {
     super();
   }
@@ -69,7 +69,7 @@ export class Fresh<RIn, E, ROut> extends Layer<RIn, E, ROut> {
 
 export class FromScoped<RIn, E, ROut> extends Layer<RIn, E, ROut> {
   readonly _tag = LayerTag.Scoped;
-  constructor(readonly self: IO<RIn & Has<Scope>, E, ROut>) {
+  constructor(readonly self: IO<RIn & Has<Scope>, E, Environment<ROut>>) {
     super();
   }
 }
@@ -97,7 +97,7 @@ export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<
   constructor(
     readonly self: Layer<RIn, E, ROut>,
     readonly that: Layer<RIn1, E1, ROut1>,
-    readonly f: (a: ROut, b: ROut1) => ROut2,
+    readonly f: (a: Environment<ROut>, b: Environment<ROut1>) => Environment<ROut2>,
   ) {
     super();
   }
@@ -112,7 +112,7 @@ export class ZipWithC<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<
   constructor(
     readonly self: Layer<RIn, E, ROut>,
     readonly that: Layer<RIn1, E1, ROut1>,
-    readonly f: (a: ROut, b: ROut1) => ROut2,
+    readonly f: (a: Environment<ROut>, b: Environment<ROut1>) => Environment<ROut2>,
   ) {
     super();
   }

@@ -357,7 +357,7 @@ export class Provide<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> exten
 > {
   readonly _tag = ChannelTag.Provide;
   constructor(
-    readonly environment: Env,
+    readonly environment: Environment<Env>,
     readonly inner: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   ) {
     super();

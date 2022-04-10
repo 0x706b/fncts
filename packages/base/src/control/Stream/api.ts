@@ -967,7 +967,7 @@ export function crossWith_<R, E, A, R1, E1, B, C>(
  */
 export function contramapEnvironment_<R, E, A, R0>(
   ra: Stream<R, E, A>,
-  f: (r0: R0) => R,
+  f: (r0: Environment<R0>) => Environment<R>,
 ): Stream<R0, E, A> {
   return Stream.environment<R0>().chain((r0) => ra.provideEnvironment(f(r0)));
 }
@@ -1357,7 +1357,7 @@ export function ensuring_<R, E, A, R1>(
 /**
  * @tsplus static fncts.control.StreamOps environment
  */
-export function environment<R>(): Stream<R, never, R> {
+export function environment<R>(): Stream<R, never, Environment<R>> {
   return Stream.fromIO(IO.environment<R>());
 }
 
@@ -1366,7 +1366,7 @@ export function environment<R>(): Stream<R, never, R> {
  *
  * @tsplus static fncts.control.StreamOps environmentWith
  */
-export function environmentWith<R, A>(f: (r: R) => A): Stream<R, never, A> {
+export function environmentWith<R, A>(f: (r: Environment<R>) => A): Stream<R, never, A> {
   return Stream.environment<R>().map(f);
 }
 
@@ -1375,7 +1375,9 @@ export function environmentWith<R, A>(f: (r: R) => A): Stream<R, never, A> {
  *
  * @tsplus static fncts.control.StreamOps environmentWithIO
  */
-export function environmentWithIO<R0, R, E, A>(f: (r0: R0) => IO<R, E, A>): Stream<R0 & R, E, A> {
+export function environmentWithIO<R0, R, E, A>(
+  f: (r0: Environment<R0>) => IO<R, E, A>,
+): Stream<R0 & R, E, A> {
   return Stream.environment<R0>().mapIO(f);
 }
 
@@ -1385,7 +1387,7 @@ export function environmentWithIO<R0, R, E, A>(f: (r0: R0) => IO<R, E, A>): Stre
  * @tsplus static fncts.control.StreamOps environmentWithStream
  */
 export function environmentWithStream<R0, R, E, A>(
-  f: (r0: R0) => Stream<R, E, A>,
+  f: (r0: Environment<R0>) => Stream<R, E, A>,
 ): Stream<R0 & R, E, A> {
   return Stream.environment<R0>().chain(f);
 }
@@ -2470,7 +2472,10 @@ export function pipeThrough_<R, E, A, R1, E1, L, Z>(
  *
  * @tsplus fluent fncts.control.Stream provideEnvironment
  */
-export function provideEnvironment_<R, E, A>(ra: Stream<R, E, A>, r: R): Stream<unknown, E, A> {
+export function provideEnvironment_<R, E, A>(
+  ra: Stream<R, E, A>,
+  r: Environment<R>,
+): Stream<unknown, E, A> {
   return new Stream(ra.channel.provideEnvironment(r));
 }
 

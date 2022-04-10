@@ -12,7 +12,6 @@ import {
   Defer,
   DeferWith,
   Ensuring,
-  Environment,
   Fail,
   Fork,
   GetDescriptor,
@@ -21,7 +20,6 @@ import {
   IOError,
   Logged,
   Match,
-  Provide,
   SetRuntimeConfig,
   Succeed,
   SucceedNow,
@@ -396,13 +394,6 @@ export function collectIO_<R, E, A, R1, E1, A1, E2>(
 }
 
 /**
- * @tsplus fluent fncts.control.IO compose
- */
-export function compose_<R, E, A, E1, B>(ra: IO<R, E, A>, ab: IO<A, E1, B>): IO<R, E | E1, B> {
-  return ra.chain((a) => ab.provideEnvironment(a));
-}
-
-/**
  * @tsplus static fncts.control.IOOps condIO
  */
 export function condIO_<R, R1, E, A>(
@@ -411,16 +402,6 @@ export function condIO_<R, R1, E, A>(
   onFalse: URIO<R1, E>,
 ): IO<R & R1, E, A> {
   return b ? onTrue : onFalse.chain(IO.failNow);
-}
-
-/**
- * Provides some of the environment required to run this `IO`,
- * leaving the remainder `R0`.
- *
- * @tsplus fluent fncts.control.IO contramapEnvironment
- */
-export function contramapEnvironment_<R0, R, E, A>(self: IO<R, E, A>, f: (r0: R0) => R) {
-  return IO.environmentWithIO((r0: R0) => self.provideEnvironment(f(r0)));
 }
 
 /**
@@ -554,36 +535,6 @@ export function descriptorWith<R, E, A>(
  */
 export function either<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, Either<E, A>> {
   return ma.match(Either.left, Either.right);
-}
-
-/**
- * Accesses the environment provided to an `IO`
- *
- * @tsplus static fncts.control.IOOps environment
- */
-export function environment<R>(__tsplusTrace?: string): URIO<R, R> {
-  return IO.environmentWith(identity);
-}
-
-/**
- * Accesses the environment provided to an `IO`
- *
- * @tsplus static fncts.control.IOOps environmentWith
- */
-export function environmentWith<R, A>(f: (_: R) => A, __tsplusTrace?: string): URIO<R, A> {
-  return new Environment((r: R) => IO.succeedNow(f(r)), __tsplusTrace);
-}
-
-/**
- * Effectfully accesses the environment provided to an `IO`
- *
- * @tsplus static fncts.control.IOOps environmentWithIO
- */
-export function environmentWithIO<R0, R, E, A>(
-  f: (r: R0) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R & R0, E, A> {
-  return new Environment(f, __tsplusTrace);
 }
 
 /**
@@ -1186,52 +1137,6 @@ export function haltNow(e: unknown, __tsplusTrace?: string): UIO<never> {
 }
 
 /**
- * Provides all of the environment required to compute a MonadEnv
- *
- * Provides the `IO` with its required environment, which eliminates
- * its dependency on `R`.
- *
- * @tsplus fluent fncts.control.IO provideEnvironment
- */
-export function provideEnvironment_<R, E, A>(
-  self: IO<R, E, A>,
-  r: R,
-  __tsplusTrace?: string,
-): FIO<E, A> {
-  return new Provide(self, r, __tsplusTrace);
-}
-
-/**
- * @tsplus getter fncts.control.IO provideService
- */
-export function provideService_<R, E, A>(self: IO<R, E, A>) {
-  return <T>(tag: Tag<T>) =>
-    (service: T): IO<Erase<R, Has<T>>, E, A> =>
-      self.contramapEnvironment((r: R) => ({ ...r, ...tag.of(service) }));
-}
-
-/**
- * @tsplus static fncts.control.IOAspects provideService
- */
-export function provideService<T>(tag: Tag<T>) {
-  return (service: T) =>
-    <R, E, A>(io: IO<R & Has<T>, E, A>): IO<R, E, A> =>
-      // @ts-expect-error
-      io.provideService(tag)(service);
-}
-
-/**
- * Provides some of the environment required to run this effect,
- * leaving the remainder `R0` and combining it automatically using spread.
- */
-export function provideSomeEnvironment_<R, E, A, R0>(
-  ma: IO<R, E, A>,
-  r: R0,
-): IO<Intersection.Erase<R, R0>, E, A> {
-  return ma.contramapEnvironment((env) => ({ ...(env as R), ...r }));
-}
-
-/**
  * @tsplus fluent fncts.control.IO ifIO
  */
 export function ifIO_<R, E, R1, E1, B, R2, E2, C>(
@@ -1311,44 +1216,6 @@ export function iterate_<R, E, A>(
   return cont(initial)
     ? body(initial).chain((a) => IO.iterate(a, cont, body))
     : IO.succeedNow(initial);
-}
-
-/**
- * Joins two `IOs` into one, where one or the other is returned depending on the provided environment
- *
- * @tsplus fluent fncts.control.IO join
- */
-export function join_<R, E, A, R1, E1, A1>(
-  self: IO<R, E, A>,
-  that: IO<R1, E1, A1>,
-  __tsplusTrace?: string,
-): IO<Either<R, R1>, E | E1, A | A1> {
-  return IO.environmentWithIO(
-    (r: Either<R, R1>): IO<Either<R, R1>, E | E1, A | A1> =>
-      r.match(
-        (r) => self.provideEnvironment(r),
-        (r1) => that.provideEnvironment(r1),
-      ),
-  );
-}
-
-/**
- * Joins two `IOs` into one, where one or the other is returned depending on the provided environment
- *
- * @tsplus fluent fncts.control.IO joinEither
- */
-export function joinEither_<R, E, A, R1, E1, A1>(
-  ma: IO<R, E, A>,
-  mb: IO<R1, E1, A1>,
-  __tsplusTrace?: string,
-): IO<Either<R, R1>, E | E1, Either<A, A1>> {
-  return IO.environmentWithIO(
-    (r: Either<R, R1>): IO<Either<R, R1>, E | E1, Either<A, A1>> =>
-      r.match(
-        (r) => ma.provideEnvironment(r).map(Either.left),
-        (r1) => mb.provideEnvironment(r1).map(Either.right),
-      ),
-  );
 }
 
 /**
@@ -2020,21 +1887,6 @@ export function sequenceIterableDiscard<R, E, A>(
   __tsplusTrace?: string,
 ): IO<R, E, void> {
   return IO.foreachDiscard(as, identity);
-}
-
-/**
- * @tsplus static fncts.control.IOOps service
- */
-export function service<T>(tag: Tag<T>): IO<Has<T>, never, T> {
-  return IO.serviceWithIO(tag)(IO.succeedNow);
-}
-
-/**
- * @tsplus static fncts.control.IOOps serviceWithIO
- */
-export function serviceWithIO<T>(tag: Tag<T>) {
-  return <R, E, A>(f: (service: T) => IO<R, E, A>, __tsplusTrace?: string): IO<R & Has<T>, E, A> =>
-    IO.environmentWithIO((service: Has<T>) => f(tag.read(service)));
 }
 
 /**

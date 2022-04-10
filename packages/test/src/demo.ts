@@ -10,6 +10,8 @@ import { TestLogger } from "./control/TestLogger.js";
 import { ConsoleRenderer } from "./control/TestRenderer/ConsoleRenderer.js";
 import { TestAnnotationMap } from "./data/TestAnnotationMap.js";
 
+const ServiceATag = Tag<{ x: number }>(Symbol());
+
 const spec = suite(
   "TestSuite",
   test("Demo success", (0).assert(strictEqualTo(0))),
@@ -17,17 +19,23 @@ const spec = suite(
     "Demo failure",
     { a: { b: { c: { d: 100 } } } }.assert(strictEqualTo({ a: { b: { c: { d: 0 } } } })),
   ),
-  testIO("Demo IO", IO.environmentWith((_: { x: number }) => _.x).assert(strictEqualTo(10))),
+  testIO(
+    "Demo IO",
+    IO.environmentWith((_: Environment<Has<{ x: number }>>) => _.get(ServiceATag).x).assert(
+      strictEqualTo(10),
+    ),
+  ),
 );
 
-const liveAnnotations = Layer.fromIO(Annotations.Tag)(
+const liveAnnotations = Layer.fromIO(
   FiberRef.make(TestAnnotationMap.empty).map((ref) => new LiveAnnotations(ref)),
+  Annotations.Tag,
 );
 
-const env = Layer.fromRawIO(IO.succeedNow({ x: 10 }))
+const env = Layer.succeed({ x: 10 }, ServiceATag)
   .and(liveAnnotations)
   .and(TestLogger.fromConsole)
-  .using(Layer.fromIO(Console.Tag)(IO.succeedNow(new LiveConsole())));
+  .using(Layer.fromIO(IO.succeedNow(new LiveConsole()), Console.Tag));
 
 const executor = defaultTestExecutor(env);
 

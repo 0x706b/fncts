@@ -560,6 +560,17 @@ export const traverse: P.traverse<HashMapF> = (A) => {
 };
 
 /**
+ * @tsplus fluent fncts.collection.immutable.HashMap unsafeGet
+ */
+export function unsafeGet_<K, V>(self: HashMap<K, V>, key: K): V {
+  const element = self.getHash(key, self.config.hash(key));
+  if (element.isNothing()) {
+    throw new NoSuchElementError("Key not found");
+  }
+  return element.value;
+}
+
+/**
  * @tsplus getter fncts.collection.immutable.HashMap traverse
  */
 export const traverseSelf: P.traverseSelf<HashMapF> = (self) => (A) => (f) =>

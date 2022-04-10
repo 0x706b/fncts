@@ -10,7 +10,7 @@ export function unsafeTrack(): Supervisor<Conc<Fiber.Runtime<any, any>>> {
   return new (class extends Supervisor<Conc<Fiber.Runtime<any, any>>> {
     value = IO.succeed(Conc.from(set));
     unsafeOnStart<R, E, A>(
-      _environment: R,
+      _environment: Environment<R>,
       _effect: IO<R, E, A>,
       _parent: Maybe<Fiber.Runtime<E, A>>,
       fiber: Fiber.Runtime<E, A>,
@@ -33,7 +33,7 @@ export function fibersIn(
     new (class extends Supervisor<HashSet<Fiber.Runtime<any, any>>> {
       value = IO.succeed(ref.get);
       unsafeOnStart<R, E, A>(
-        _environment: R,
+        _environment: Environment<R>,
         _effect: IO<R, E, A>,
         _parent: Maybe<Fiber.Runtime<any, any>>,
         fiber: Fiber.Runtime<E, A>,

@@ -19,22 +19,23 @@ export const TestLoggerTag = Tag<TestLogger>(TestLoggerKey);
  * @tsplus static fncts.test.control.TestLoggerOps fromConsole
  */
 export const fromConsole: Layer<Has<Console>, never, Has<TestLogger>> = Layer.fromIO(
-  TestLogger.Tag,
-)(
-  IO.serviceWithIO(Console.Tag)((console) =>
-    IO.succeedNow(
-      new (class extends TestLogger {
-        logLine(line: string): UIO<void> {
-          return console.print(line);
-        }
-      })(),
-    ),
+  IO.serviceWithIO(
+    (console) =>
+      IO.succeedNow(
+        new (class extends TestLogger {
+          logLine(line: string): UIO<void> {
+            return console.print(line);
+          }
+        })(),
+      ),
+    Console.Tag,
   ),
+  TestLogger.Tag,
 );
 
 /**
  * @tsplus static fncts.test.control.TestLoggerOps logLine
  */
 export function logLine(line: string): URIO<Has<TestLogger>, void> {
-  return IO.serviceWithIO(TestLogger.Tag)((testLogger) => testLogger.logLine(line));
+  return IO.serviceWithIO((testLogger) => testLogger.logLine(line), TestLogger.Tag);
 }

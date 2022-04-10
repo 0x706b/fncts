@@ -39,7 +39,7 @@ export function report<E>(
       Vector(renderStats(duration, executedSpec)),
       testAnnotationRenderer,
     );
-    return IO.serviceWithIO(TestLogger.Tag)((l) => l.logLine(rendered.concat(stats).join("\n")));
+    return IO.serviceWithIO((l) => l.logLine(rendered.concat(stats).join("\n")), TestLogger.Tag);
   };
 }
 

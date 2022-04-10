@@ -105,10 +105,22 @@ export function getAndUpdateJust_<EA, EB, A>(
  *
  * @tsplus fluent fncts.control.FiberRef locally
  */
-export function locally_<EA, EB, A, B, R1, E1, C>(fiberRef: PFiberRef<EA, EB, A, B>, value: A) {
-  return (use: IO<R1, E1, C>): IO<R1, EA | E1, C> => {
+export function locally_<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>, value: A) {
+  return <R1, E1, C>(use: IO<R1, E1, C>): IO<R1, EA | E1, C> => {
     return fiberRef.locally(value)(use);
   };
+}
+
+/**
+ * Returns an `IO` that runs with `f` applied to the current fiber.
+ *
+ * Guarantees that fiber data is properly restored via `bracket`.
+ *
+ * @tsplus fluent fncts.control.FiberRef locallyWith
+ */
+export function locallyWith_<EA, EB, A>(self: PFiberRef<EA, EB, A, A>, f: (a: A) => A) {
+  return <R1, E1, C>(use: IO<R1, E1, C>): IO<R1, EA | EB | E1, C> =>
+    self.getWith((a) => self.locally(f(a))(use));
 }
 
 /**

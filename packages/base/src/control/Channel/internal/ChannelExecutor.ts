@@ -286,7 +286,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 
   constructor(
     initialChannel: () => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-    private providedEnv: unknown | null,
+    private providedEnv: Environment<unknown> | null,
     private executeCloseLastSubstream: (_: URIO<Env, unknown>) => URIO<Env, unknown>,
   ) {
     this.currentChannel = initialChannel() as ErasedChannel<Env>;
@@ -423,7 +423,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 const pio =
                   this.providedEnv === null
                     ? currentChannel.io
-                    : currentChannel.io.provideEnvironment(this.providedEnv as Env);
+                    : currentChannel.io.provideEnvironment(this.providedEnv as Environment<Env>);
                 result = new State.Effect(
                   pio.matchCauseIO(
                     (cause) => {

@@ -25,7 +25,7 @@ export class MemoMap {
       if (inMap.isJust()) {
         const [acquire, release] = inMap.value;
 
-        const cached = (acquire as FIO<E, A>).onExit((exit) =>
+        const cached = (acquire as FIO<E, Environment<A>>).onExit((exit) =>
           exit.match(
             () => IO.unit,
             () => scope.addFinalizerExit(release),
@@ -36,7 +36,7 @@ export class MemoMap {
       } else {
         return IO.gen(function* (_) {
           const observers    = yield* _(Ref.make(0));
-          const future       = yield* _(Future.make<E, A>());
+          const future       = yield* _(Future.make<E, Environment<A>>());
           const finalizerRef = yield* _(Ref.make<Finalizer>(Finalizer.noop));
 
           const resource = IO.uninterruptibleMask(({ restore }) =>
@@ -111,14 +111,14 @@ export function makeMemoMap(): UIO<MemoMap> {
 /**
  * @tsplus getter fncts.control.Layer build
  */
-export function build<R, E, A>(self: Layer<R, E, A>): IO<R & Has<Scope>, E, A> {
-  return IO.serviceWithIO(Scope.Tag)((scope) => self.build(scope));
+export function build<R, E, A>(self: Layer<R, E, A>): IO<R & Has<Scope>, E, Environment<A>> {
+  return IO.serviceWithIO((scope: Scope) => self.build(scope), Scope.Tag);
 }
 
 /**
  * @tsplus fluent fncts.control.Layer build
  */
-export function build_<R, E, A>(self: Layer<R, E, A>, scope: Scope): IO<R, E, A> {
+export function build_<R, E, A>(self: Layer<R, E, A>, scope: Scope): IO<R, E, Environment<A>> {
   return IO.gen(function* (_) {
     const memoMap = yield* _(makeMemoMap());
     const run     = yield* _(self.scope(scope));
@@ -132,7 +132,7 @@ export function build_<R, E, A>(self: Layer<R, E, A>, scope: Scope): IO<R, E, A>
 export function scope<R, E, A>(
   layer: Layer<R, E, A>,
   scope: Scope,
-): IO<unknown, never, (_: MemoMap) => IO<R, E, A>> {
+): IO<unknown, never, (_: MemoMap) => IO<R, E, Environment<A>>> {
   layer.concrete();
   switch (layer._tag) {
     case LayerTag.Fold: {

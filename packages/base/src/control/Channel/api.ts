@@ -40,7 +40,15 @@ export function as_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDon
 /**
  * @tsplus static fncts.control.ChannelOps ask
  */
-export function ask<Env>(): Channel<Env, unknown, unknown, unknown, never, never, Env> {
+export function ask<Env>(): Channel<
+  Env,
+  unknown,
+  unknown,
+  unknown,
+  never,
+  never,
+  Environment<Env>
+> {
   return Channel.fromIO(IO.environment<Env>());
 }
 
@@ -811,7 +819,7 @@ export function fromQueue<Err, Elem, Done>(
  */
 export function provideEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  env: Env,
+  env: Environment<Env>,
 ): Channel<unknown, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
   return new Provide(env, self);
 }
@@ -821,7 +829,7 @@ export function provideEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem,
  */
 export function contramapEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env0>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  f: (env0: Env0) => Env,
+  f: (env0: Environment<Env0>) => Environment<Env>,
 ): Channel<Env0, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
   return Channel.ask<Env0>().chain((env0) => self.provideEnvironment(f(env0)));
 }

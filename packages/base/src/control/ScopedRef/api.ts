@@ -9,7 +9,7 @@ export function fromAcquire<R, E, A>(
     IO.gen(function* (_) {
       const newScope = yield* _(Scope.make);
       const a        = yield* _(
-        restore(acquire(IO.$.provideService(Scope.Tag)(newScope))).tapCause((cause) =>
+        restore(acquire(IO.$.provideSomeService(newScope, Scope.Tag))).tapCause((cause) =>
           newScope.close(Exit.fail(cause)),
         ),
       );
@@ -33,7 +33,9 @@ class Synch<A> extends ScopedRef<A> {
       IO.uninterruptibleMask(({ restore }) =>
         IO.gen(function* (_) {
           const newScope = yield* _(Scope.make);
-          const exit     = yield* _(restore(acquire(IO.$.provideService(Scope.Tag)(newScope))).result);
+          const exit     = yield* _(
+            restore(acquire(IO.$.provideSomeService(newScope, Scope.Tag))).result,
+          );
           return yield* _(
             exit.match(
               (cause): UIO<readonly [FIO<E, void>, readonly [Scope.Closeable, A]]> =>

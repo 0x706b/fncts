@@ -14,22 +14,22 @@ export function get_<S>(self: State<S>, __tsplusTrace?: string): UIO<S> {
 /**
  * @tsplus static fncts.control.StateOps initial
  */
-export function initial<S>(tag: Tag<State<S>>) {
-  return (s: S): Layer<unknown, never, Has<State<S>>> =>
-    Layer.scoped(tag)(
-      FiberRef.make(s).map(
-        (ref) =>
-          new (class extends StateInternal<S> {
-            get: UIO<S> = ref.get;
-            set(s: S, __tsplusTrace?: string): UIO<void> {
-              return ref.set(s);
-            }
-            update(f: (s: S) => S, __tsplusTrace?: string): UIO<void> {
-              return ref.update(f);
-            }
-          })(),
-      ),
-    );
+export function initial<S>(s: S, tag: Tag<State<S>>): Layer<unknown, never, Has<State<S>>> {
+  return Layer.scoped(
+    FiberRef.make(s).map(
+      (ref) =>
+        new (class extends StateInternal<S> {
+          get: UIO<S> = ref.get;
+          set(s: S, __tsplusTrace?: string): UIO<void> {
+            return ref.set(s);
+          }
+          update(f: (s: S) => S, __tsplusTrace?: string): UIO<void> {
+            return ref.update(f);
+          }
+        })(),
+    ),
+    tag,
+  );
 }
 
 /**

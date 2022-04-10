@@ -165,7 +165,7 @@ export function contramap_<S, R, I, O, I2>(
  */
 export function contramapEnvironment_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
-  f: (env: R1) => R,
+  f: (env: Environment<R1>) => Environment<R>,
 ): Schedule.WithState<S, R1, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).contramapEnvironment(f),
@@ -563,7 +563,7 @@ export function onDecision_<S, R, I, O, R1>(
  */
 export function provideEnvironment_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
-  env: R,
+  env: Environment<R>,
 ): Schedule.WithState<S, unknown, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).provideEnvironment(env),

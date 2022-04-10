@@ -4,7 +4,7 @@ import { concrete } from "@fncts/base/control/IO/definition";
 import { Stack } from "@fncts/base/internal/Stack";
 
 export class Runtime<R> {
-  constructor(readonly environment: R, readonly runtimeConfig: RuntimeConfig) {}
+  constructor(readonly environment: Environment<R>, readonly runtimeConfig: RuntimeConfig) {}
 
   unsafeRunWith = <E, A>(
     io: IO<R, E, A>,
@@ -62,7 +62,7 @@ export class Runtime<R> {
  * @tsplus static fncts.control.IOOps runtime
  */
 export function runtime<R>(__tsplusTrace?: string): URIO<R, Runtime<R>> {
-  return IO.environmentWithIO((environment: R) =>
+  return IO.environmentWithIO((environment: Environment<R>) =>
     IO.runtimeConfig.map((config) => new Runtime(environment, config)),
   );
 }
@@ -78,7 +78,10 @@ export const defaultRuntimeConfig = new RuntimeConfig({
 });
 
 export const defaultRuntime = new Runtime(
-  Clock.Tag.of(Clock.Live) & Random.Tag.of(Random.Live) & Console.Tag.of(Console.Live),
+  Environment.empty
+    .add(Clock.Live, Clock.Tag)
+    .add(Random.Live, Random.Tag)
+    .add(Console.Live, Console.Tag),
   defaultRuntimeConfig,
 );
 

@@ -12,7 +12,7 @@ export function addFinalizer_(self: Scope, finalizer: Lazy<UIO<any>>): UIO<void>
  * @tsplus static fncts.control.ScopeOps addFinalizer
  */
 export function addFinalizer(finalizer: Lazy<UIO<void>>): IO<Has<Scope>, never, void> {
-  return IO.serviceWithIO(Scope.Tag)((scope) => scope.addFinalizer(finalizer));
+  return IO.serviceWithIO((scope) => scope.addFinalizer(finalizer), Scope.Tag);
 }
 
 /**
@@ -25,7 +25,7 @@ export const concurrent: UIO<Scope.Closeable> = makeWith(ExecutionStrategy.concu
  * @tsplus fluent fncts.control.Scope extend
  */
 export function extend_<R, E, A>(self: Scope, io: Lazy<IO<R & Has<Scope>, E, A>>): IO<R, E, A> {
-  return IO.defer(io).contramapEnvironment((r) => ({ ...r, ...Scope.Tag.of(self) }));
+  return IO.defer(io).contramapEnvironment((r) => r.union(Environment.empty.add(self, Scope.Tag)));
 }
 
 /**

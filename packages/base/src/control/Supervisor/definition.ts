@@ -5,7 +5,7 @@
 export abstract class Supervisor<A> {
   abstract readonly value: UIO<A>;
   abstract unsafeOnStart<R, E, A>(
-    environment: R,
+    environment: Environment<R>,
     effect: IO<R, E, A>,
     parent: Maybe<Fiber.Runtime<E, A>>,
     fiber: Fiber.Runtime<E, A>,
@@ -48,7 +48,7 @@ export class ProxySupervisor<A> extends Supervisor<A> {
     super();
   }
   unsafeOnStart<R, E, A>(
-    environment: R,
+    environment: Environment<R>,
     effect: IO<R, E, A>,
     parent: Maybe<Fiber.Runtime<E, A>>,
     fiber: Fiber.Runtime<E, A>,

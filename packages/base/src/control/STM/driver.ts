@@ -25,7 +25,7 @@ export class STMDriver<R, E, A> {
     readonly self: STM<R, E, A>,
     readonly journal: Journal,
     readonly fiberId: FiberId,
-    r0: R,
+    r0: Environment<R>,
   ) {
     this.envStack = Stack.make(r0);
   }

@@ -13,19 +13,19 @@ import { Dictionary } from "@fncts/base/collection/immutable/Dictionary/definiti
 /**
  * @tsplus global
  */
-import { HashMap } from "@fncts/base/collection/immutable/HashMap/definition";
+import { HashMap } from "@fncts/base/collection/immutable/HashMap";
 /**
  * @tsplus global
  */
-import { HashSet } from "@fncts/base/collection/immutable/HashSet/definition";
+import { HashSet } from "@fncts/base/collection/immutable/HashSet";
 /**
  * @tsplus global
  */
-import { Cons, List, Nil } from "@fncts/base/collection/immutable/List/definition";
+import { Cons, List, Nil } from "@fncts/base/collection/immutable/List";
 /**
  * @tsplus global
  */
-import { SortedMap } from "@fncts/base/collection/immutable/SortedMap/definition";
+import { SortedMap } from "@fncts/base/collection/immutable/SortedMap";
 /**
  * @tsplus global
  */
@@ -33,7 +33,7 @@ import { Vector } from "@fncts/base/collection/immutable/Vector";
 /**
  * @tsplus global
  */
-import {} from "@fncts/base/collection/Iterable/definition";
+import {} from "@fncts/base/collection/Iterable";
 /**
  * @tsplus global
  */
@@ -113,7 +113,7 @@ import { Random } from "@fncts/base/control/Random/definition";
 /**
  * @tsplus global
  */
-import { PRef,Ref } from "@fncts/base/control/Ref";
+import { PRef, Ref } from "@fncts/base/control/Ref";
 /**
  * @tsplus global
  */
@@ -121,7 +121,7 @@ import { Schedule } from "@fncts/base/control/Schedule/definition";
 /**
  * @tsplus global
  */
-import { Scope } from "@fncts/base/control/Scope/definition";
+import { Scope } from "@fncts/base/control/Scope";
 /**
  * @tsplus global
  */
@@ -189,6 +189,10 @@ import { Either } from "@fncts/base/data/Either/definition";
 /**
  * @tsplus global
  */
+import { Environment } from "@fncts/base/data/Environment";
+/**
+ * @tsplus global
+ */
 import { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 /**
  * @tsplus global
@@ -213,7 +217,7 @@ import { Identity } from "@fncts/base/data/Identity/definition";
 /**
  * @tsplus global
  */
-import { Just, Maybe, MaybeTag, Nothing } from "@fncts/base/data/Maybe/definition";
+import { Just, Maybe, MaybeTag, Nothing } from "@fncts/base/data/Maybe";
 /**
  * @tsplus global
  */
@@ -245,7 +249,7 @@ import { Struct } from "@fncts/base/data/Struct/definition";
 /**
  * @tsplus global
  */
-import { Tag } from "@fncts/base/data/Tag/definition";
+import { Tag } from "@fncts/base/data/Tag";
 /**
  * @tsplus global
  */

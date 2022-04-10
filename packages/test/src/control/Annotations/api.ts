@@ -7,14 +7,14 @@ import { Annotations } from "./definition.js";
  * @tsplus static fncts.test.control.AnnotationsOps annotate
  */
 export function annotate<V>(key: TestAnnotation<V>, value: V): URIO<Has<Annotations>, void> {
-  return IO.serviceWithIO(Annotations.Tag)((annotations) => annotations.annotate(key, value));
+  return IO.serviceWithIO((annotations) => annotations.annotate(key, value), Annotations.Tag);
 }
 
 /**
  * @tsplus static fncts.test.control.AnnotationsOps get
  */
 export function get<V>(key: TestAnnotation<V>): URIO<Has<Annotations>, V> {
-  return IO.serviceWithIO(Annotations.Tag)((annotations) => annotations.get(key));
+  return IO.serviceWithIO((annotations) => annotations.get(key), Annotations.Tag);
 }
 
 /**
@@ -23,7 +23,7 @@ export function get<V>(key: TestAnnotation<V>): URIO<Has<Annotations>, V> {
 export function withAnnotation<R, E, A>(
   io: IO<R, E, A>,
 ): IO<R & Has<Annotations>, Annotated<E>, Annotated<A>> {
-  return IO.serviceWithIO(Annotations.Tag)((annotations) => annotations.withAnnotation(io));
+  return IO.serviceWithIO((annotations) => annotations.withAnnotation(io), Annotations.Tag);
 }
 
 /**
@@ -32,4 +32,4 @@ export function withAnnotation<R, E, A>(
 export const supervisedFibers: URIO<
   Has<Annotations>,
   HashSet<Fiber.Runtime<any, any>>
-> = IO.serviceWithIO(Annotations.Tag)((annotations) => annotations.supervisedFibers);
+> = IO.serviceWithIO((annotations) => annotations.supervisedFibers, Annotations.Tag);

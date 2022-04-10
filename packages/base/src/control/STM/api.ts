@@ -75,7 +75,7 @@ export function environmentWithSTM<R0, R, E, A>(f: (r: R0) => STM<R, E, A>) {
  * @tsplus getter fncts.control.STM commit
  */
 export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
-  return IO.environmentWithIO((r: R) =>
+  return IO.environmentWithIO((r: Environment<R>) =>
     IO.deferWith((_, fiberId) => {
       const result = tryCommitSync(fiberId, stm, r);
       switch (result._tag) {

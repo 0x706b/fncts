@@ -29,5 +29,5 @@ export function retryOrElseEither_<R, E, A>(self: IO<R, E, A>) {
     orElse: (e: E, out: O) => IO<R2, E2, B>,
     __tsplusTrace?: string,
   ): IO<Has<Clock> & R & R1 & R2, E2, Either<B, A>> =>
-    IO.serviceWithIO(Clock.Tag)((clock) => clock.retryOrElseEither(self)(schedule0, orElse));
+    IO.serviceWithIO((clock) => clock.retryOrElseEither(self)(schedule0, orElse), Clock.Tag);
 }

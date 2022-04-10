@@ -200,6 +200,10 @@ import { Either } from "@fncts/base/data/Either/definition";
 /**
  * @tsplus global
  */
+import { Environment } from "@fncts/base/data/Environment/definition";
+/**
+ * @tsplus global
+ */
 import {
   ArrayIndexOutOfBoundsError,
   IllegalArgumentError,

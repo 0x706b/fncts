@@ -8,11 +8,11 @@ import { identity } from "@fncts/base/data/function";
 /**
  * @tsplus fluent fncts.control.Layer and
  */
-export function and_<RIn, E, ROut extends Spreadable, RIn1, E1, ROut1 extends Spreadable>(
+export function and_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<RIn1, E1, ROut1>,
 ): Layer<RIn & RIn1, E | E1, ROut & ROut1> {
-  return new ZipWithC(self, that, (a, b) => ({ ...a, ...b }));
+  return new ZipWithC(self, that, (a, b) => a.union(b));
 }
 
 /**
@@ -22,14 +22,7 @@ export function and_<RIn, E, ROut extends Spreadable, RIn1, E1, ROut1 extends Sp
  *
  * @tsplus fluent fncts.control.Layer andTo
  */
-export function andTo_<
-  RIn,
-  E,
-  ROut extends Spreadable,
-  RIn1 extends Spreadable,
-  E1,
-  ROut1 extends Spreadable,
->(
+export function andTo_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<RIn1, E1, ROut1>,
 ): Layer<RIn & Erase<ROut & RIn1, ROut>, E | E1, ROut & ROut1> {
@@ -43,14 +36,7 @@ export function andTo_<
  *
  * @tsplus fluent fncts.control.Layer andTo
  */
-export function andUsing_<
-  RIn,
-  E,
-  ROut extends Spreadable,
-  RIn1 extends Spreadable,
-  E1,
-  ROut1 extends Spreadable,
->(
+export function andUsing_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn1, E1, ROut1>,
   that: Layer<RIn, E, ROut>,
 ): Layer<RIn & Erase<ROut & RIn1, ROut>, E | E1, ROut & ROut1> {
@@ -64,7 +50,7 @@ export function catchAll_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   f: (e: E) => Layer<RIn1, E1, ROut1>,
 ): Layer<RIn & RIn1, E1, ROut | ROut1> {
-  return self.matchLayer(f, Layer.succeedNow);
+  return self.matchLayer(f, Layer.succeedEnvironmentNow);
 }
 
 /**
@@ -72,7 +58,7 @@ export function catchAll_<RIn, E, ROut, RIn1, E1, ROut1>(
  */
 export function chain_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
-  f: (r: ROut) => Layer<RIn1, E1, ROut1>,
+  f: (r: Environment<ROut>) => Layer<RIn1, E1, ROut1>,
 ): Layer<RIn & RIn1, E | E1, ROut1> {
   return self.matchLayer(Layer.failNow, f);
 }
@@ -126,9 +112,10 @@ export function failNow<E>(e: E): Layer<unknown, E, never> {
  * @tsplus getter fncts.control.Layer flatten
  */
 export function flatten<RIn, E, RIn1, E1, ROut>(
-  self: Layer<RIn, E, Layer<RIn1, E1, ROut>>,
+  self: Layer<RIn, E, Has<Layer<RIn1, E1, ROut>>>,
+  tag: Tag<Layer<RIn1, E1, ROut>>,
 ): Layer<RIn & RIn1, E | E1, ROut> {
-  return self.chain(identity);
+  return self.chain((environment) => environment.get(tag));
 }
 
 /**
@@ -141,16 +128,27 @@ export function fresh<R, E, A>(self: Layer<R, E, A>): Layer<R, E, A> {
 /**
  * @tsplus static fncts.control.LayerOps fromFunction
  */
-export function fromFunction<A>(tag: Tag<A>) {
-  return <R>(f: (r: R) => A): Layer<R, never, Has<A>> => Layer.fromIO(tag)(IO.environmentWith(f));
+export function fromFunction<R, A>(
+  f: (r: R) => A,
+  /** @tsplus implicit local */ tagR: Tag<R>,
+  /** @tsplus implicit local */ tagA: Tag<A>,
+): Layer<Has<R>, never, Has<A>> {
+  return Layer.fromIOEnvironment(
+    IO.serviceWith((service) => Environment.empty.add(f(service), Derive()), Derive()),
+  );
 }
 
 /**
  * @tsplus static fncts.control.LayerOps fromFunctionIO
  */
-export function fromFunctionIO<A>(tag: Tag<A>) {
-  return <R, R1, E>(f: (r: R) => IO<R1, E, A>): Layer<R & R1, E, Has<A>> =>
-    Layer.fromIO(tag)(IO.environmentWithIO(f));
+export function fromFunctionIO<R, E, A, R1>(
+  f: (r: R) => IO<R1, E, A>,
+  tagR: Tag<R>,
+  tagA: Tag<A>,
+): Layer<R1 & Has<R>, E, Has<A>> {
+  return Layer.fromIOEnvironment(
+    IO.serviceWithIO((service) => f(service).map((a) => Environment.empty.add(a, tagA)), tagR),
+  );
 }
 
 /**
@@ -158,7 +156,7 @@ export function fromFunctionIO<A>(tag: Tag<A>) {
  * @tsplus static fncts.control.LayerOps __call
  */
 export function fromIOEnvironment<R, E, A>(
-  io: IO<R, E, A>,
+  io: IO<R, E, Environment<A>>,
   __tsplusTrace?: string,
 ): Layer<R, E, A> {
   return new FromScoped(io);
@@ -167,37 +165,15 @@ export function fromIOEnvironment<R, E, A>(
 /**
  * @tsplus static fncts.control.LayerOps fromIO
  */
-export function fromIO<A>(tag: Tag<A>) {
-  return <R, E>(resource: IO<R, E, A>): Layer<R, E, Has<A>> =>
-    Layer.fromIOEnvironment(resource.chain((a) => environmentFor(tag, a)));
-}
-
-/**
- * @tsplus static fncts.control.LayerOps fromRawFunction
- */
-export function fromRawFunction<R, A>(f: (r: R) => A): Layer<R, never, A> {
-  return Layer.fromRawIO(IO.environmentWith(f));
-}
-
-/**
- * @tsplus static fncts.control.LayerOps fromRawFunctionIO
- */
-export function fromRawFunctionIO<R, R1, E, A>(f: (r: R) => IO<R1, E, A>): Layer<R & R1, E, A> {
-  return Layer.fromRawIO(IO.environmentWithIO(f));
-}
-
-/**
- * @tsplus static fncts.control.LayerOps fromRawIO
- */
-export function fromRawIO<R, E, A>(resource: IO<R, E, A>): Layer<R, E, A> {
-  return Layer(resource);
+export function fromIO<R, E, A>(resource: IO<R, E, A>, tag: Tag<A>): Layer<R, E, Has<A>> {
+  return Layer.fromIOEnvironment(resource.map((a) => Environment().add(a, tag)));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps fromValue
  */
-export function fromValue<A>(tag: Tag<A>) {
-  return (value: Lazy<A>): Layer<unknown, never, Has<A>> => Layer.fromIO(tag)(IO.succeed(value));
+export function fromValue<A>(value: Lazy<A>, tag: Tag<A>): Layer<unknown, never, Has<A>> {
+  return Layer.fromIO(IO.succeed(value), tag);
 }
 
 /**
@@ -220,7 +196,7 @@ export function haltNow(defect: unknown): Layer<unknown, never, never> {
 export function matchCauseLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
   self: Layer<RIn, E, ROut>,
   failure: (cause: Cause<E>) => Layer<RIn1, E1, ROut1>,
-  success: (r: ROut) => Layer<RIn2, E2, ROut2>,
+  success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
 ): Layer<RIn & RIn1 & RIn2, E1 | E2, ROut1 | ROut2> {
   return new Fold(self, failure, success);
 }
@@ -231,7 +207,7 @@ export function matchCauseLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>
 export function matchLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
   self: Layer<RIn, E, ROut>,
   failure: (e: E) => Layer<RIn1, E1, ROut1>,
-  success: (r: ROut) => Layer<RIn2, E2, ROut2>,
+  success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
 ): Layer<RIn & RIn1 & RIn2, E1 | E2, ROut1 | ROut2> {
   return self.matchCauseLayer(
     (cause) => cause.failureOrCause.match(failure, Layer.failCauseNow),
@@ -244,9 +220,9 @@ export function matchLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
  */
 export function map_<RIn, E, ROut, ROut1>(
   self: Layer<RIn, E, ROut>,
-  f: (r: ROut) => ROut1,
+  f: (r: Environment<ROut>) => Environment<ROut1>,
 ): Layer<RIn, E, ROut1> {
-  return self.chain((a) => Layer.succeedNow(f(a)));
+  return self.chain((a) => Layer.succeedEnvironmentNow(f(a)));
 }
 
 /**
@@ -265,7 +241,7 @@ export function mapError_<RIn, E, ROut, E1>(
 export function memoize<RIn, E, ROut>(
   self: Layer<RIn, E, ROut>,
 ): URIO<Has<Scope>, Layer<RIn, E, ROut>> {
-  return IO.serviceWithIO(Scope.Tag)((scope) => self.build(scope)).memoize.map(
+  return IO.serviceWithIO((scope: Scope) => self.build(scope), Scope.Tag).memoize.map(
     (_) => new FromScoped(_),
   );
 }
@@ -303,8 +279,9 @@ export function retry_<RIn, E, ROut, S, RIn1>(
   self: Layer<RIn, E, ROut>,
   schedule: Schedule.WithState<S, RIn1, E, any>,
 ): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
-  return Layer.succeedNow({ state: schedule.initial }).chain(({ state }) =>
-    retryLoop(self, schedule, state),
+  const tag = Tag<{ readonly state: S }>(Symbol());
+  return Layer.succeedNow({ state: schedule.initial }, tag).chain((environment) =>
+    retryLoop(self, schedule, environment.get(tag).state, tag),
   );
 }
 
@@ -312,8 +289,9 @@ function retryUpdate<S, RIn, E, X>(
   schedule: Schedule.WithState<S, RIn, E, X>,
   e: E,
   s: S,
-): Layer<RIn & Has<Clock>, E, { readonly state: S }> {
-  return Layer.fromRawIO(
+  tag: Tag<{ readonly state: S }>,
+): Layer<RIn & Has<Clock>, E, Has<{ readonly state: S }>> {
+  return Layer.fromIO(
     Clock.currentTime.chain((now) =>
       schedule
         .step(now, e, s)
@@ -323,6 +301,7 @@ function retryUpdate<S, RIn, E, X>(
             : Clock.sleep(decision.interval.startMilliseconds - now).as({ state }),
         ),
     ),
+    tag,
   );
 }
 
@@ -330,56 +309,77 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
   self: Layer<RIn, E, ROut>,
   schedule: Schedule.WithState<S, RIn1, E, X>,
   s: S,
+  tag: Tag<{ readonly state: S }>,
 ): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
   return self.catchAll((e) =>
-    retryUpdate(schedule, e, s).chain((env) => retryLoop(self, schedule, env.state).fresh),
+    retryUpdate(schedule, e, s, tag).chain(
+      (env) => retryLoop(self, schedule, env.get(tag).state, tag).fresh,
+    ),
   );
 }
 
 /**
  * @tsplus static fncts.control.LayerOps scoped
  */
-export function scoped<A>(tag: Tag<A>) {
-  return <R, E>(io: Lazy<IO<R & Has<Scope>, E, A>>): Layer<R, E, Has<A>> =>
-    Layer.scopedEnvironment(IO.defer(io).chain((a) => environmentFor(tag, a)));
+export function scoped<R, E, A>(
+  io: Lazy<IO<R & Has<Scope>, E, A>>,
+  tag: Tag<A>,
+): Layer<R, E, Has<A>> {
+  return Layer.scopedEnvironment(io().map((a) => Environment.empty.add(a, tag)));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps scopedEnvironment
  */
-export function scopedEnvironment<R, E, A>(io: Lazy<IO<R & Has<Scope>, E, A>>): Layer<R, E, A> {
+export function scopedEnvironment<R, E, A>(
+  io: Lazy<IO<R & Has<Scope>, E, Environment<A>>>,
+): Layer<R, E, A> {
   return new FromScoped(IO.defer(io));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps service
  */
-export function service<A>(tag: Tag<A>): Layer<Has<A>, never, A> {
-  return Layer(IO.service(tag));
+export function service<A>(tag: Tag<A>): Layer<Has<A>, never, Has<A>> {
+  return Layer.fromIO(IO.service(tag), tag);
 }
 
 /**
  * @tsplus static fncts.control.LayerOps succeed
  */
-export function succeed<A>(resource: Lazy<A>): Layer<unknown, never, A> {
-  return Layer(IO.succeed(resource));
+export function succeed<A>(resource: Lazy<A>, tag: Tag<A>): Layer<unknown, never, Has<A>> {
+  return Layer.fromIOEnvironment(IO.succeed(Environment.empty.add(resource(), tag)));
+}
+
+/**
+ * @tsplus static fncts.control.LayerOps succeedEnvironment
+ */
+export function succeedEnvironment<A>(a: Lazy<Environment<A>>): Layer<unknown, never, A> {
+  return Layer.fromIOEnvironment(IO.succeed(a));
+}
+
+/**
+ * @tsplus static fncts.control.LayerOps succeedEnvironmentNow
+ */
+export function succeedEnvironmentNow<A>(a: Environment<A>): Layer<unknown, never, A> {
+  return Layer.fromIOEnvironment(IO.succeedNow(a));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps succeedNow
  */
-export function succeedNow<A>(resource: A): Layer<unknown, never, A> {
-  return Layer(IO.succeedNow(resource));
+export function succeedNow<A>(resource: A, tag: Tag<A>): Layer<unknown, never, Has<A>> {
+  return Layer.fromIOEnvironment(IO.succeedNow(Environment.empty.add(resource, tag)));
 }
 
 /**
  * @tsplus fluent fncts.control.Layer to
  */
-export function to_<RIn, E, ROut, RIn1 extends Spreadable, E1, ROut1 extends Spreadable>(
+export function to_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<RIn1, E1, ROut1>,
 ): Layer<RIn & Erase<RIn1, ROut>, E | E1, ROut1>;
-export function to_<RIn, E, ROut extends Spreadable, RIn1 extends Spreadable, E1, ROut1>(
+export function to_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<ROut & RIn1, E1, ROut1>,
 ): Layer<RIn & RIn1, E | E1, ROut1> {
@@ -389,11 +389,11 @@ export function to_<RIn, E, ROut extends Spreadable, RIn1 extends Spreadable, E1
 /**
  * @tsplus fluent fncts.control.Layer using
  */
-export function using_<RIn, E, ROut, RIn1 extends Spreadable, E1, ROut1 extends Spreadable>(
+export function using_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn1, E1, ROut1>,
   that: Layer<RIn, E, ROut>,
 ): Layer<RIn & Erase<RIn1, ROut>, E | E1, ROut1>;
-export function using_<RIn, E, ROut extends Spreadable, RIn1 extends Spreadable, E1, ROut1>(
+export function using_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<ROut & RIn1, E1, ROut1>,
   that: Layer<RIn, E, ROut>,
 ): Layer<RIn & RIn1, E | E1, ROut1> {

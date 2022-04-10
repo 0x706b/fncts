@@ -55,17 +55,16 @@ export function combine_<R, E, T, R1, E1, T1>(
  */
 export function contramapEnvironment_<R, E, T, R0>(
   self: PSpec<R, E, T>,
-  f: (r0: R0) => R,
+  f: (r0: Environment<R0>) => Environment<R>,
 ): PSpec<R0, E, T> {
   return self.transform(
     matchTag(
       {
         Scoped: ({ scoped }) =>
           new ScopedCase(
-            scoped.contramapEnvironment((r: R0 & Has<Scope>) => ({
-              ...Scope.Tag.of(Scope.Tag.read(r)),
-              ...f(r),
-            })),
+            scoped.contramapEnvironment((r: Environment<R0 & Has<Scope>>) =>
+              Environment.empty.add(r.get(Scope.Tag), Scope.Tag).union(f(r)),
+            ),
           ),
         Test: ({ test, annotations }) => new TestCase(test.contramapEnvironment(f), annotations),
       },
@@ -113,7 +112,7 @@ export function execute<R, E, T>(
   self: PSpec<R, E, T>,
   defExec: ExecutionStrategy,
 ): IO<R & Has<Scope>, never, PSpec<unknown, E, T>> {
-  return IO.environmentWithIO((r: R & Has<Scope>) =>
+  return IO.environmentWithIO((r: Environment<R & Has<Scope>>) =>
     self.provideEnvironment(r).foreachExec(IO.failCauseNow, IO.succeedNow, defExec),
   );
 }
@@ -302,7 +301,10 @@ export function multipleCase<R, E, T>(specs: Conc<PSpec<R, E, T>>): PSpec<R, E, 
 /**
  * @tsplus fluent fncts.test.control.PSpec provideEnvironment
  */
-export function provideEnvironment_<R, E, T>(self: PSpec<R, E, T>, r: R): PSpec<unknown, E, T> {
+export function provideEnvironment_<R, E, T>(
+  self: PSpec<R, E, T>,
+  r: Environment<R>,
+): PSpec<unknown, E, T> {
   return self.contramapEnvironment(() => r);
 }
 

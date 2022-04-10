@@ -1,6 +1,3 @@
-import { IO } from "./control/IO.js";
-import { Left } from "./data/Either.js";
-
 const list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 IO.foreachC(list, (n) =>
@@ -9,7 +6,7 @@ IO.foreachC(list, (n) =>
       n === 8 ? k(IO.fail(new Error(`error: ${n}`))) : k(IO(n));
     }, 100);
 
-    return Left(IO.succeed(clearTimeout(handle)));
+    return Either.left(IO.succeed(clearTimeout(handle)));
   }),
 ).unsafeRunWith((exit) =>
   exit.match(
