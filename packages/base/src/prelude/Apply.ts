@@ -509,7 +509,7 @@ export interface sequenceT<F extends HKT, FC = HKT.None> {
           HKT.Intro<F, "E", E, any>,
           unknown
         >
-      >
+      >,
     ],
     K = HKT.Low<F, "K">,
     Q = HKT.Low<F, "Q">,
