@@ -1,5 +1,6 @@
 export * as Any from "./Any.js";
 export * as Boolean from "./Boolean.js";
+export { Check } from "./Check.js";
 export * as Function from "./Function.js";
 export * as Intersection from "./Intersection.js";
 export * as Iteration from "./Iteration.js";

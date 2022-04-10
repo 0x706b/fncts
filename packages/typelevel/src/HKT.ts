@@ -29,8 +29,8 @@ export interface HKT {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace HKT {
-  export declare const URI: unique symbol;
-  export declare const CURI: unique symbol;
+  declare const URI: unique symbol;
+  declare const CURI: unique symbol;
 
   export type Variance = "-" | "+" | "_";
 
@@ -305,7 +305,7 @@ export namespace HKT {
 
   export type None = {};
 
-  export declare const Fix: unique symbol;
+  declare const Fix: unique symbol;
 
   export interface Fix<N extends ParamName, A> {
     [Fix]: {
@@ -313,7 +313,7 @@ export namespace HKT {
     };
   }
 
-  export declare const Extend: unique symbol;
+  declare const Extend: unique symbol;
 
   export interface Extend<N extends ParamName, A> {
     [Extend]: {
@@ -333,30 +333,12 @@ export namespace HKT {
 
   export type IndexFor<F extends HKT, K> = F extends { readonly index: unknown } ? F["index"] : K;
 
-  export type InferKind<F extends HKT, FC, A> = [A] extends [
-    HKT.Kind<
-      F,
-      FC,
-      infer K,
-      infer Q,
-      infer W,
-      infer X,
-      infer I,
-      infer S,
-      infer R,
-      infer E,
-      infer B
-    >,
-  ]
-    ? HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, ReadonlyArray<B>>
-    : never;
-
   /*
    * Instance util
    */
 
   /**
-   * @tsplus smart:identity
+   * @tsplus macro identity
    */
   export function instance<F>(
     _: Omit<F, typeof URI | typeof CURI | "_F" | "_G" | "_CF" | "_CG">,

@@ -1,3 +1,4 @@
+import type { False, True } from "./Boolean.js";
 import type * as Union from "./Union.js";
 
 type EqualsWrapped<T> = T extends infer R & {}
@@ -5,9 +6,6 @@ type EqualsWrapped<T> = T extends infer R & {}
       [P in keyof R]: R[P];
     }
   : never;
-
-declare const True: unique symbol;
-declare const False: unique symbol;
 
 /**
  * @tsplus type fncts.Check

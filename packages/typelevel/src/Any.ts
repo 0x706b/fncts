@@ -1,4 +1,4 @@
-import type { Boolean } from "./Boolean.js";
+import type { Boolean, False, True } from "./Boolean.js";
 import type { BuiltIn } from "./BuiltIn.js";
 import type { List } from "./List.js";
 import type { Has } from "./Union.js";
@@ -10,15 +10,15 @@ export type Try<A1 , A2 , Catch = never> =
     ? A1
     : Catch;
 
-export type Extends<A, B> = [A] extends [never] ? 0 : A extends B ? 1 : 0;
+export type Extends<A, B> = [A] extends [never] ? False : A extends B ? True : False;
 
-export type Contains<A, B> = Extends<A, B> extends 1 ? 1 : 0;
+export type Contains<A, B> = Extends<A, B> extends True ? True : False;
 
-export type Equals<A, B> = (<X>() => X extends B ? 1 : 0) extends <X>() => X extends A ? 1 : 0
-  ? 1
-  : 0;
+export type Equals<A, B> = (<X>() => X extends B ? True : False) extends <X>() => X extends A ? True : False
+  ? True
+  : False;
 
-export type If<B extends Boolean, Then, Else = never> = B extends 1 ? Then : Else;
+export type If<B extends Boolean, Then, Else = never> = B extends True ? Then : Else;
 
 export type Match =
   | "default"
@@ -73,7 +73,7 @@ export type ComputeFlat<A> = A extends BuiltIn
 export type ComputeDeep<A, Seen = never> = A extends BuiltIn
   ? A
   : {
-      0: A extends Array<any>
+      [False]: A extends Array<any>
         ? A extends Array<Record<Key, any>>
           ? Array<{ [K in keyof A[number]]: ComputeDeep<A[number][K], A | Seen> } & unknown>
           : A
@@ -82,7 +82,7 @@ export type ComputeDeep<A, Seen = never> = A extends BuiltIn
           ? ReadonlyArray<{ [K in keyof A[number]]: ComputeDeep<A[number][K], A | Seen> } & unknown>
           : A
         : { [K in keyof A]: ComputeDeep<A[K], A | Seen> } & unknown;
-      1: A;
+      [True]: A;
     }[Has<Seen, A>];
 
 export type At<A, K extends Key> = A extends List

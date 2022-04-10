@@ -1,41 +1,44 @@
-export type False = 0;
-export type True = 1;
+export declare const False: unique symbol;
+export declare const True: unique symbol;
+
+export type False = typeof False;
+export type True = typeof True;
 export type Boolean = True | False;
 
 export type Or<B1 extends Boolean, B2 extends Boolean> = {
-  0: {
-    0: 0;
-    1: 1;
+  [False]: {
+    [False]: False;
+    [True]: True;
   };
-  1: {
-    0: 1;
-    1: 1;
+  [True]: {
+    [False]: True;
+    [True]: True;
   };
 }[B1][B2];
 
 export type And<B1 extends Boolean, B2 extends Boolean> = {
-  0: {
-    0: 0,
-    1: 0
+  [False]: {
+    [False]: False,
+    [True]: False
   },
-  1: {
-    0: 0,
-    1: 1
+  [True]: {
+    [False]: False,
+    [True]: True
   }
 }[B1][B2];
 
 export type Xor<B1 extends Boolean, B2 extends Boolean> = {
-  0: {
-    0: 0,
-    1: 1
+  [False]: {
+    [False]: False,
+    [True]: True
   },
-  1: {
-    0: 1,
-    1: 0
+  [True]: {
+    [False]: True,
+    [True]: False
   }
 }[B1][B2];
 
 export type Not<B extends Boolean> = {
-  0: 1,
-  1: 0
+  [False]: True,
+  [True]: False
 }[B];

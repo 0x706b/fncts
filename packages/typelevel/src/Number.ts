@@ -1,27 +1,27 @@
 import type { Cast, Equals } from "./Any.js";
-import type { Or } from "./Boolean.js";
+import type { False, Or, True } from "./Boolean.js";
 import type { Iteration, IterationMap, IterationOf, Next, Pos, Prev } from "./Iteration.js";
 
 export type _IsNegative<N extends Iteration> = {
-  "-": 1;
-  "+": 0;
-  "0": 0;
+  "-": True;
+  "+": False;
+  "0": False;
 }[N[1]];
 
 export type IsNegative<N extends number> = _IsNegative<IterationOf<N>>;
 
 export type _IsPositive<N extends Iteration> = {
-  "-": 0;
-  "+": 1;
-  "0": 0;
+  "-": False;
+  "+": True;
+  "0": False;
 }[N[1]];
 
 export type IsPositive<N extends number> = _IsPositive<IterationOf<N>>;
 
 export type _IsZero<N extends Iteration> = {
-  "-": 0;
-  "+": 0;
-  "0": 1;
+  "-": False;
+  "+": False;
+  "0": True;
 }[N[1]];
 
 export type IsZero<N extends number> = _IsZero<IterationOf<N>>;
@@ -57,8 +57,8 @@ export type AddNegative<N1 extends Iteration, N2 extends Iteration> = _AddNegati
   : never;
 
 export type _Add<N1 extends Iteration, N2 extends Iteration> = {
-  0: AddPositive<N1, N2>;
-  1: AddNegative<N1, N2>;
+  [False]: AddPositive<N1, N2>;
+  [True]: AddNegative<N1, N2>;
 }[_IsNegative<N2>];
 
 export type Add<N1 extends number, N2 extends number> = N1 extends unknown
@@ -76,8 +76,8 @@ export type Sub<N1 extends number, N2 extends number> = N1 extends unknown
   : never;
 
 export type _Absolute<N extends Iteration> = {
-  0: N;
-  1: _Negate<N>;
+  [False]: N;
+  [True]: _Negate<N>;
 }[_IsNegative<N>];
 
 export type Absolute<N extends number> = N extends unknown ? _Absolute<IterationOf<N>> : never;

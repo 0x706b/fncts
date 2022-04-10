@@ -1,4 +1,5 @@
 import type { At, Cast, Extends, Is, Key, Keys, Match } from "./Any.js";
+import type { False, True } from "./Boolean.js";
 import type { BuiltIn } from "./BuiltIn.js";
 import type { Iteration, IterationOf, Next, Pos } from "./Iteration.js";
 import type { Append, Head, Length, List, Pop, PrependAll, Tail } from "./List.js";
@@ -11,8 +12,8 @@ import type * as U from "./Union.js";
  */
 
 export type _Path<O, P extends List<Key>, I extends Iteration = IterationOf<0>> = {
-  0: _Path<At<O, P[Pos<I>]>, P, Next<I>>;
-  1: O;
+  [False]: _Path<At<O, P[Pos<I>]>, P, Next<I>>;
+  [True]: O;
 }[Extends<Pos<I>, Length<P>>];
 
 export type Path<O, P extends List<Key>> = _Path<O & {}, P> extends infer X ? Cast<X, any> : never;
@@ -134,8 +135,8 @@ export type Anyify<O> = {
 
 export type _ExcludeMatch<O, O1, M extends Match> = {
   [K in keyof O]-?: {
-    1: never;
-    0: K;
+    [True]: never;
+    [False]: K;
   }[Is<O[K], At<O1, K>, M>];
 }[keyof O];
 
@@ -192,7 +193,7 @@ type MergeFlatList<
   LOK extends Key = _OptionalKeys<L>,
 > = number extends Length<L | L1>
   ? MergeFlatChoice<L[number], L1[number], Ignore, Fill>[]
-  : Longer<L, L1> extends 1
+  : Longer<L, L1> extends True
   ? { [K in keyof L]: MergeProp<L[K], At<L1, K>, Fill, LOK, K> }
   : { [K in keyof L1]: MergeProp<At<L, K>, L1[K], Fill, LOK, K> };
 
@@ -214,7 +215,7 @@ export type MergeFlat<O, O1, Ignore = BuiltIn, Fill = undefined> = O extends unk
 
 type MergeDeepList<L extends List, L1 extends List, Ignore, Fill> = number extends Length<L | L1>
   ? MergeDeepChoice<L[number], L1[number], Ignore, Fill, never, any>[]
-  : Longer<L, L1> extends 1
+  : Longer<L, L1> extends True
   ? { [K in keyof L]: MergeDeepChoice<L[K], At<L1, K>, Ignore, Fill, _OptionalKeys<L>, K> }
   : { [K in keyof L1]: MergeDeepChoice<At<L, K>, L1[K], Ignore, Fill, _OptionalKeys<L>, K> };
 
@@ -269,7 +270,7 @@ type PatchFlatObject<O, O1, Fill, OKeys extends Key = keyof O> = {
 
 type PatchFlatList<L extends List, L1 extends List, Ignore, Fill> = number extends Length<L | L1>
   ? PatchFlatChoice<L[number], L1[number], Ignore, Fill>[]
-  : Longer<L, L1> extends 1
+  : Longer<L, L1> extends True
   ? { [K in keyof L]: PatchProp<L[K], At<L1, K>, Fill, keyof L, K> }
   : { [K in keyof L1]: PatchProp<At<L, K>, L1[K], Fill, keyof L, K> };
 
@@ -291,7 +292,7 @@ export type PatchFlat<O, O1, Ignore = BuiltIn, Fill = never> = O extends unknown
 
 type PatchDeepList<L extends List, L1 extends List, Ignore, Fill> = number extends Length<L | L1>
   ? PatchDeepChoice<L[number], L1[number], Ignore, Fill, never, any>[]
-  : Longer<L, L1> extends 1
+  : Longer<L, L1> extends True
   ? { [K in keyof L]: PatchDeepChoice<L[K], At<L1, K>, Ignore, Fill, keyof L, K> }
   : { [K in keyof L1]: PatchDeepChoice<At<L, K>, L1[K], Ignore, Fill, keyof L, K> };
 
