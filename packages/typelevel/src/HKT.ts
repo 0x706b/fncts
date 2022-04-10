@@ -1,4 +1,4 @@
-import type { Union } from "@fncts/typelevel";
+import type * as Union from "./Union.js";
 
 export interface HKT {
   readonly K?: unknown;

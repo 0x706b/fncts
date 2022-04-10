@@ -1,5 +1,5 @@
 import type { Node } from "@fncts/base/collection/immutable/HashMap/internal";
-import type { HashEq, HKT } from "@fncts/base/prelude";
+import type { HashEq } from "@fncts/base/prelude";
 
 import { isEmptyNode } from "@fncts/base/collection/immutable/HashMap/internal";
 import { identity, tuple } from "@fncts/base/data/function";

@@ -1,5 +1,3 @@
-import type { HKT } from "../../../prelude.js";
-
 interface FinalizerN extends HKT {
   readonly type: Finalizer;
 }

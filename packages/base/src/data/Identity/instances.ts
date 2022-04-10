@@ -1,7 +1,7 @@
 import * as P from "../../prelude.js";
 import { ap_, map_, pure, zipWith_ } from "./api.js";
 
-export interface IdentityF extends P.HKT {
+export interface IdentityF extends HKT {
   readonly type: Identity<this["A"]>;
 }
 

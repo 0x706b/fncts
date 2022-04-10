@@ -44,13 +44,13 @@ export function makeDefault<K, V>() {
  *
  * @tsplus fluent fncts.collection.immutable.HashMapOps fromFoldable
  */
-export function fromFoldable<F extends P.HKT, C, K, A>(
+export function fromFoldable<F extends HKT, C, K, A>(
   C: P.HashEq<K>,
   S: P.Semigroup<A>,
   F: P.Foldable<F, C>,
 ) {
   return <K_, Q, W, X, I, S, R, E>(
-    fka: P.HKT.Kind<F, C, K_, Q, W, X, I, S, R, E, readonly [K, A]>,
+    fka: HKT.Kind<F, C, K_, Q, W, X, I, S, R, E, readonly [K, A]>,
   ): HashMap<K, A> => {
     return F.foldLeft_(fka, make(C), (b, [k, a]) => {
       const oa = get_(b, k);

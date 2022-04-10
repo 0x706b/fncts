@@ -21,7 +21,6 @@ export * from "./prelude/Has.js";
 export * from "./prelude/Hash.js";
 export * from "./prelude/Hashable.js";
 export * from "./prelude/HashEq.js";
-export * from "./prelude/HKT.js";
 export * from "./prelude/Monad.js";
 export * from "./prelude/MonadExcept.js";
 export * from "./prelude/Monoid.js";

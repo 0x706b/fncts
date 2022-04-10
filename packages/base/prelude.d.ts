@@ -326,8 +326,8 @@ import { Hashable } from "@fncts/base/prelude/Hashable";
 /**
  * @tsplus global
  */
-import { HKT } from "@fncts/base/prelude/HKT";
+import { hasTypeId, isByte, isObject } from "@fncts/base/util/predicates";
 /**
  * @tsplus global
  */
-import { hasTypeId, isByte, isObject } from "@fncts/base/util/predicates";
+import { HKT } from "@fncts/typelevel/HKT";

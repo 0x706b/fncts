@@ -1,5 +1,3 @@
-import type { HKT } from "../../prelude.js";
-
 import * as P from "../../prelude.js";
 import {
   ap_,

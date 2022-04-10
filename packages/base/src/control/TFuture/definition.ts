@@ -1,4 +1,3 @@
-import type { HKT } from "../../prelude.js";
 import type { UTRef } from "../TRef.js";
 
 interface TFutureN extends HKT {

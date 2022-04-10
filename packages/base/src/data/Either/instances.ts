@@ -2,7 +2,7 @@ import * as P from "../../prelude.js";
 import { map_ } from "./api.js";
 import { EitherTag, Left, Right } from "./definition.js";
 
-export interface EitherF extends P.HKT {
+export interface EitherF extends HKT {
   readonly type: Either<this["E"], this["A"]>;
   readonly variance: {
     E: "+";
@@ -36,7 +36,7 @@ export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
  * @tsplus static fncts.data.EitherOps getEq
  */
 export function getFilerable<E>(ME: P.Monoid<E>) {
-  type FixE = P.HKT.Fix<"E", E>;
+  type FixE = HKT.Fix<"E", E>;
 
   const empty = Left(ME.nat);
 

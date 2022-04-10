@@ -1,5 +1,3 @@
-import type { HKT } from "../../../prelude.js";
-
 export class Exited {
   readonly _tag = "Exited";
   constructor(
