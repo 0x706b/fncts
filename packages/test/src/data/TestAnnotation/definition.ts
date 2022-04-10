@@ -25,7 +25,7 @@ export class TestAnnotation<V> implements Hashable, Equatable {
   [Symbol.equatable](that: unknown) {
     return (
       isTestAnnotation(that) &&
-      this.tag.key === that.tag.key &&
+      Equatable.strictEquals(this.tag, that.tag) &&
       this.identifier === that.identifier &&
       Equatable.strictEquals(this.initial, that.initial)
     );

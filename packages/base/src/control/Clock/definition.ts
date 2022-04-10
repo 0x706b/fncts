@@ -127,12 +127,10 @@ export abstract class Clock {
   }
 }
 
-export const ClockKey = Symbol.for("fncts.base.control.Clock.ServiceKey");
-
 /**
  * @tsplus static fncts.control.ClockOps Tag
  */
-export const ClockTag = Tag<Clock>(ClockKey);
+export const ClockTag = Tag<Clock>();
 
 /**
  * @tsplus static fncts.control.ClockOps currentTime

@@ -8,9 +8,7 @@ export abstract class Console {
   abstract debug(...data: unknown[]): UIO<void>;
 }
 
-export const ConsoleKey = Symbol.for("fncts.base.control.Console.ServiceKey");
-
 /**
  * @tsplus static fncts.control.ConsoleOps Tag
  */
-export const ConsoleTag = Tag<Console>(ConsoleKey);
+export const ConsoleTag = Tag<Console>();

@@ -25,9 +25,7 @@ export declare namespace Scope {
   type Closeable = Closeable_;
 }
 
-const ScopeKey = Symbol.for("fncts.base.control.Scope.Key");
-
 /**
  * @tsplus static fncts.control.ScopeOps Tag
  */
-export const ScopeTag = Tag<Scope>(ScopeKey);
+export const ScopeTag = Tag<Scope>();

@@ -3,7 +3,6 @@ import type { Erase } from "@fncts/typelevel/Intersection";
 
 import { Fold, Fresh, FromScoped, Layer, To, ZipWithC } from "@fncts/base/control/Layer/definition";
 import { DecisionTag } from "@fncts/base/control/Schedule";
-import { identity } from "@fncts/base/data/function";
 
 /**
  * @tsplus fluent fncts.control.Layer and
@@ -279,7 +278,7 @@ export function retry_<RIn, E, ROut, S, RIn1>(
   self: Layer<RIn, E, ROut>,
   schedule: Schedule.WithState<S, RIn1, E, any>,
 ): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
-  const tag = Tag<{ readonly state: S }>(Symbol());
+  const tag = Tag<{ readonly state: S }>();
   return Layer.succeedNow({ state: schedule.initial }, tag).chain((environment) =>
     retryLoop(self, schedule, environment.get(tag).state, tag),
   );
@@ -398,13 +397,4 @@ export function using_<RIn, E, ROut, RIn1, E1, ROut1>(
   that: Layer<RIn, E, ROut>,
 ): Layer<RIn & RIn1, E | E1, ROut1> {
   return new To(Layer(IO.environment<RIn1>()).and(that), self);
-}
-
-function environmentFor<A>(tag: Tag<A>, a: A): IO<unknown, never, Has<A>> {
-  return IO.environmentWith(
-    (r) =>
-      ({
-        [tag.key]: tag.mergeEnvironments(r, a)[tag.key],
-      } as Has<A>),
-  );
 }

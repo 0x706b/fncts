@@ -8,12 +8,10 @@ export abstract class TestLogger {
   abstract logLine(line: string): UIO<void>;
 }
 
-export const TestLoggerKey = Symbol.for("fncts.test.control.TestLogger.ServiceKey");
-
 /**
  * @tsplus static fncts.test.control.TestLoggerOps Tag
  */
-export const TestLoggerTag = Tag<TestLogger>(TestLoggerKey);
+export const TestLoggerTag = Tag<TestLogger>();
 
 /**
  * @tsplus static fncts.test.control.TestLoggerOps fromConsole

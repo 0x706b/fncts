@@ -10,7 +10,7 @@ import { TestLogger } from "./control/TestLogger.js";
 import { ConsoleRenderer } from "./control/TestRenderer/ConsoleRenderer.js";
 import { TestAnnotationMap } from "./data/TestAnnotationMap.js";
 
-const ServiceATag = Tag<{ x: number }>(Symbol());
+const ServiceATag = Tag<{ x: number }>();
 
 const spec = suite(
   "TestSuite",

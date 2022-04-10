@@ -1,11 +1,9 @@
 import type { ArrayInt } from "../../util/rand.js";
 
-export const RandomKey = Symbol.for("fncts.base.control.Random.ServiceKey");
-
 /**
  * @tsplus static fncts.control.RandomOps Tag
  */
-export const RandomTag = Tag<Random>(RandomKey);
+export const RandomTag = Tag<Random>();
 
 /**
  * @tsplus type fncts.control.Random
