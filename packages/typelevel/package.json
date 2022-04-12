@@ -1,5 +1,6 @@
 {
   "name": "@fncts/typelevel",
+  "type": "module",
   "typesVersions": {
     "*": {
       "*": [
@@ -8,7 +9,8 @@
     }
   },
   "exports": {
-    "./*": "./build/esm/*"
+    "./*": "./build/esm/*.js",
+    "./*.js": "./build/esm/*.js"
   },
   "scripts": {
     "build": "tsc -b",

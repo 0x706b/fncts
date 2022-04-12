@@ -458,7 +458,7 @@ export function foldLeftWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, b: 
   while (!(result = iterator.next()).done) {
     const array = result.value;
     for (let j = 0; j < array.length; j++) {
-      out = f(i, out, array[i]!);
+      out = f(i, out, array[j]!);
       i++;
     }
   }

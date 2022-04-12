@@ -1,14 +1,22 @@
 import type { Cause, Fail, Halt, Interrupt } from "../definition.js";
 
-import { show } from "../../../prelude/Showable.js";
+import { showWithOptions } from "../../../prelude/Showable.js";
 import { CauseTag, Unified } from "../definition.js";
 
 function unifyFail<E>(fail: Fail<E>): Unified {
-  return new Unified(fail.trace.fiberId, show(fail.value).split("\n"), fail.trace.toJS);
+  return new Unified(
+    fail.trace.fiberId,
+    showWithOptions(fail.value, { maxStringLength: Infinity }).split("\n"),
+    fail.trace.toJS,
+  );
 }
 
 function unifyHalt(halt: Halt): Unified {
-  return new Unified(halt.trace.fiberId, show(halt.value).split("\n"), halt.trace.toJS);
+  return new Unified(
+    halt.trace.fiberId,
+    showWithOptions(halt.value, { maxStringLength: Infinity }).split("\n"),
+    halt.trace.toJS,
+  );
 }
 
 function unifyInterrupt(interrupt: Interrupt): Unified {

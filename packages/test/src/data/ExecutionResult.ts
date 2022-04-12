@@ -1,5 +1,5 @@
-import type { Line } from "../../data/LogLine/Line.js";
-import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
+import type { Line } from "./LogLine/Line.js";
+import type { TestAnnotationMap } from "./TestAnnotationMap.js";
 
 import { matchTag_ } from "@fncts/base/util/pattern";
 

@@ -3,9 +3,9 @@
  * @tsplus companion fncts.control.ConsoleOps
  */
 export abstract class Console {
-  abstract print(...data: unknown[]): UIO<void>;
-  abstract error(...data: unknown[]): UIO<void>;
-  abstract debug(...data: unknown[]): UIO<void>;
+  abstract show(...data: unknown[]): UIO<void>;
+  abstract print(line: string): UIO<void>;
+  abstract error(line: string): UIO<void>;
 }
 
 /**

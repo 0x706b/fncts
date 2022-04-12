@@ -286,7 +286,7 @@ export class Concat<A> extends ConcImplementation<A> {
     this.right.copyToArray(n + this.left.length, dest);
   }
   [Symbol.iterator](): Iterator<A> {
-    return this.left.concat(this.right)[Symbol.iterator]();
+    return (this.left as Iterable<A>).concat(this.right)[Symbol.iterator]();
   }
   arrayIterator(): Iterator<ArrayLike<A>> {
     return Iterable.make(() => this.left.arrayIterator())

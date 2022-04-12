@@ -1,14 +1,14 @@
 import { Console } from "@fncts/base/control/Console/definition";
 
 export class LiveConsole extends Console {
-  print(...data: unknown[]) {
+  show(...data: unknown[]) {
     return IO(console.log(...data));
   }
-  error(...data: unknown[]) {
-    return IO(console.error(...data));
+  print(line: string) {
+    return IO(console.log(line));
   }
-  debug(...data: unknown[]) {
-    return IO(console.debug(...data));
+  error(line: string) {
+    return IO(console.debug(line));
   }
 }
 

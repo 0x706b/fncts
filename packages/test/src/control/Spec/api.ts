@@ -2,9 +2,11 @@ import type { Annotated } from "../Annotations.js";
 import type { SpecCase } from "./definition.js";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 import type { Spreadable } from "@fncts/base/types.js";
+import type { TestArgs } from "@fncts/test/data/TestArgs.js";
 
 import { identity, tuple } from "@fncts/base/data/function";
 import { matchTag, matchTag_ } from "@fncts/base/util/pattern";
+import { TestSuccess } from "@fncts/test/data/TestSuccess.js";
 
 import { TestAnnotation } from "../../data/TestAnnotation.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
@@ -98,7 +100,7 @@ export function countTests_<R, E, T>(
 export const empty: PSpec<unknown, never, never> = multipleCase(Conc.empty());
 
 /**
- * @tsplus fluent fncts.test.control.PSpec exec
+ * @tsplus static fncts.test.control.PSpecOps exec
  * @tsplus static fncts.test.control.PSpec.ExecCaseOps __call
  */
 export function exec<R, E, T>(spec: PSpec<R, E, T>, exec: ExecutionStrategy): PSpec<R, E, T> {
@@ -171,6 +173,20 @@ export function filterTags_<R, E, T>(
   f: (tag: string) => boolean,
 ): Maybe<PSpec<R, E, T>> {
   return spec.filterAnnotations(TestAnnotation.Tagged, (v) => v.exists(f));
+}
+
+/**
+ * @tsplus fluent fncts.test.control.PSpec filterByArgs
+ */
+export function filterByArgs<R, E>(spec: Spec<R, E>, args: TestArgs): Spec<R, E> {
+  return spec
+    .filterTags(args.tagSearchTerms.elem(String.Eq))
+    .chain((spec) =>
+      spec.filterLabels(
+        (label) => args.testSearchTerms.findIndex((term) => term.includes(label)) === -1,
+      ),
+    )
+    .getOrElse(() => spec);
 }
 
 /**
@@ -371,4 +387,36 @@ export function annotate_<R, E, T, V>(
       identity,
     ),
   );
+}
+
+/**
+ * @tsplus fluent fncts.test.control.PSpec whenIO
+ */
+export function whenIO_<R, E, R1, E1>(
+  self: PSpec<R, E, TestSuccess>,
+  b: IO<R1, E1, boolean>,
+): PSpec<R & R1 & Has<Annotations>, E | E1, TestSuccess> {
+  return matchTag_(self.caseValue, {
+    Exec: (c) => exec(c.spec.whenIO(b), c.exec),
+    Labeled: ({ label, spec }) => Spec.labeled(spec.whenIO(b), label),
+    Scoped: (c) => Spec.scoped(b.chain((b) => (b ? c.scoped : IO.succeedNow(Spec.empty)))),
+    Multiple: ({ specs }) => Spec.multiple(specs.map((_) => _.whenIO(b))),
+    Test: (c) =>
+      Spec.test(
+        b.chain((b) =>
+          IO.if(b, c.test, Annotations.annotate(TestAnnotation.Ignored, 1)).as(TestSuccess.Ignored),
+        ),
+        c.annotations,
+      ),
+  });
+}
+
+/**
+ * @tsplus fluent fncts.test.control.PSpec when
+ */
+export function when_<R, E>(
+  self: PSpec<R, E, TestSuccess>,
+  b: Lazy<boolean>,
+): PSpec<R & Has<Annotations>, E, TestSuccess> {
+  return self.whenIO(IO.succeed(b));
 }

@@ -1,15 +1,17 @@
 import type { AssertionResult, FailureDetailsResult } from "../../data/AssertionResult.js";
 import type { AssertionValue } from "../../data/AssertionValue.js";
 import type { ExecutedSpec } from "../../data/ExecutedSpec.js";
+import type { ExecutionResult } from "../../data/ExecutionResult.js";
 import type { TestResult } from "../../data/FailureDetails.js";
 import type { GenFailureDetails } from "../../data/GenFailureDetails.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
 import type { TestRenderer } from "../TestRenderer/definition.js";
-import type { ExecutionResult } from "./ExecutionResult.js";
 
 import { matchTag } from "@fncts/base/util/pattern.js";
 
 import { ExecutedSpecCaseTag } from "../../data/ExecutedSpec.js";
+import { Other } from "../../data/ExecutionResult.js";
+import { Failed, Ignored, Passed, rendered, Suite, Test } from "../../data/ExecutionResult.js";
 import { detail, primary, Style } from "../../data/LogLine.js";
 import { error, fr, warn } from "../../data/LogLine.js";
 import { Fragment } from "../../data/LogLine/Fragment.js";
@@ -18,27 +20,25 @@ import { Message } from "../../data/LogLine/Message.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import { TestTimeoutException } from "../../data/TestTimeoutException.js";
 import { TestLogger } from "../TestLogger.js";
-import { Other } from "./ExecutionResult.js";
-import { Failed, Ignored, Passed, rendered, Suite, Test } from "./ExecutionResult.js";
 
 export type TestReporter<E> = (
   duration: number,
   spec: ExecutedSpec<E>,
 ) => URIO<Has<TestLogger>, void>;
 
+/**
+ * @tsplus static fncts.test.DefaultTestReporter report
+ */
 export function report<E>(
-  testRenderer: TestRenderer,
+  renderTest: TestRenderer,
   testAnnotationRenderer: TestAnnotationRenderer,
 ): TestReporter<E> {
   return (duration, executedSpec) => {
-    const rendered = testRenderer.render(
+    const rendered = renderTest(
       renderLoop(executedSpec, 0, List.empty(), List.empty()),
       testAnnotationRenderer,
     );
-    const stats = testRenderer.render(
-      Vector(renderStats(duration, executedSpec)),
-      testAnnotationRenderer,
-    );
+    const stats = renderTest(Vector(renderStats(duration, executedSpec)), testAnnotationRenderer);
     return IO.serviceWithIO((l) => l.logLine(rendered.concat(stats).join("\n")), TestLogger.Tag);
   };
 }
@@ -69,6 +69,13 @@ export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>) 
   );
 
   return rendered(Other, "", Passed, 0, List(stats.toLine));
+}
+
+/**
+ * @tsplus static fncts.test.DefaultTestRenderer render
+ */
+export function render<E>(executedSpec: ExecutedSpec<E>): Vector<ExecutionResult> {
+  return renderLoop(executedSpec, 0, Nil(), Nil());
 }
 
 function renderLoop<E>(

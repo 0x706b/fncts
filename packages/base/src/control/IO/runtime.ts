@@ -85,6 +85,10 @@ export const defaultRuntime = new Runtime(
   defaultRuntimeConfig,
 );
 
+export const LiveIOEnv = Layer.succeed(Clock.Live, Clock.Tag)
+  .and(Layer.succeed(Random.Live, Random.Tag))
+  .and(Layer.succeed(Console.Live, Console.Tag));
+
 /**
  * @tsplus fluent fncts.control.IO unsafeRunAsync
  */

@@ -1,7 +1,7 @@
 import type { PRef } from "../definition.js";
 
 import { identity, tuple } from "../../../data/function.js";
-import { concrete } from "./definition.js";
+import { concreteSynchronized } from "./definition.js";
 
 /**
  * Maps and filters the `get` value of the `SRef` with the specified
@@ -156,7 +156,7 @@ export function modifyIO_<RA, RB, EA, EB, A, R1, E1, B>(
   f: (a: A) => IO<R1, E1, readonly [B, A]>,
   __tsplusTrace?: string,
 ): IO<RA & RB & R1, EA | EB | E1, B> {
-  concrete(self);
+  concreteSynchronized(self);
   return self.withPermit(self.unsafeGet.chain(f).chain(([b, a]) => self.unsafeSet(a).as(b)));
 }
 

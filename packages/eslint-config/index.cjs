@@ -35,6 +35,7 @@ module.exports = {
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-this-alias": "off",
     quotes: ["warn", "double", { avoidEscape: true }],
     "@typescript-eslint/semi": ["warn", "always"],
     "simple-import-sort/exports": "warn",

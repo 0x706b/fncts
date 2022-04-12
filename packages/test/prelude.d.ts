@@ -25,6 +25,10 @@ import { Cons, List, Nil } from "@fncts/base/collection/immutable/List";
 /**
  * @tsplus global
  */
+import { Queue as ImmutableQueue } from "@fncts/base/collection/immutable/Queue";
+/**
+ * @tsplus global
+ */
 import { SortedMap } from "@fncts/base/collection/immutable/SortedMap";
 /**
  * @tsplus global
@@ -57,7 +61,7 @@ import { Channel } from "@fncts/base/control/Channel";
 /**
  * @tsplus global
  */
-import { Clock } from "@fncts/base/control/Clock/definition";
+import { Clock } from "@fncts/base/control/Clock";
 /**
  * @tsplus global
  */
@@ -69,7 +73,7 @@ import { Eval } from "@fncts/base/control/Eval";
 /**
  * @tsplus global
  */
-import { Fiber } from "@fncts/base/control/Fiber/definition";
+import { Fiber } from "@fncts/base/control/Fiber";
 /**
  * @tsplus global
  */
@@ -81,7 +85,7 @@ import { FiberScope } from "@fncts/base/control/FiberScope/definition";
 /**
  * @tsplus global
  */
-import { Future } from "@fncts/base/control/Future/definition";
+import { Future } from "@fncts/base/control/Future";
 /**
  * @tsplus global
  */
@@ -277,4 +281,4 @@ import { Hashable } from "@fncts/base/prelude/Hashable";
 /**
  * @tsplus global
  */
-import { HKT } from "@fncts/base/prelude/HKT";
+import { HKT } from "@fncts/typelevel/HKT";

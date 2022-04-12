@@ -78,7 +78,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A> {
     return IO.succeed(() => this.unsafePoll());
   }
 
-  get inheritRefs() {
+  get inheritRefs(): UIO<void> {
     return IO.defer(() => {
       if (this.fiberRefLocals.size === 0) {
         return IO.unit;

@@ -9,6 +9,6 @@
 	],
 	"settings": {
 		"typescript.tsdk": "fncts/node_modules/typescript/lib",
-		"explorer.sortOrder": "mixed"
+  	"typescript.preferences.importModuleSpecifier": "non-relative"
 	},
 }

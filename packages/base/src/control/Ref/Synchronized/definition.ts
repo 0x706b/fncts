@@ -119,7 +119,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
 /**
  * @tsplus macro remove
  */
-export function concrete<RA, RB, EA, EB, A, B>(
+export function concreteSynchronized<RA, RB, EA, EB, A, B>(
   self: PSynchronized<RA, RB, EA, EB, A, B>,
 ): asserts self is PSynchronizedInternal<RA, RB, EA, EB, A, B> {
   //

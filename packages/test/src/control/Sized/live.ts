@@ -1,9 +1,9 @@
 import { Sized } from "./definition.js";
 
 /**
- * @tsplus static fncts.test.control.SizedOps live
+ * @tsplus static fncts.test.control.SizedOps Live
  */
-export function live(size: number): Layer<unknown, never, Has<Sized>> {
+export function Live(size: number): Layer<unknown, never, Has<Sized>> {
   return Layer.fromIO(
     FiberRef.make(size).map(
       (ref) =>

@@ -381,7 +381,7 @@ export function elem_<A>(E: P.Eq<A>) {
  * argument which returns the function to use to search for a value of type `A` in
  * an array of type `ReadonlyArray<A>`.
  *
- * @tsplus fluent fncts.collection.immutable.Array elem
+ * @tsplus getter fncts.collection.immutable.Array elem
  */
 export function elemSelf<A>(self: ReadonlyArray<A>) {
   return (E: P.Eq<A>) =>

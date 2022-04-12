@@ -2,8 +2,6 @@ import type { FiberContext } from "@fncts/base/control/Fiber/FiberContext";
 import type { Canceler } from "@fncts/base/control/IO/definition";
 import type * as P from "@fncts/base/prelude";
 import type { _E, _R } from "@fncts/base/types";
-import type { Intersection } from "@fncts/typelevel";
-import type { Erase } from "@fncts/typelevel/Intersection";
 
 import { ReadonlyArray } from "@fncts/base/collection/Array";
 import {
