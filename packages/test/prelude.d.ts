@@ -1,7 +1,4 @@
-/**
- * @tsplus global
- */
-import {} from "@fncts/base/collection/Array/definition";
+import {} from "@fncts/base/collection/compat/Array";
 /**
  * @tsplus global
  */
@@ -37,10 +34,6 @@ import { Vector } from "@fncts/base/collection/immutable/Vector";
 /**
  * @tsplus global
  */
-import {} from "@fncts/base/collection/Iterable";
-/**
- * @tsplus global
- */
 import { HashMap as MutableHashMap } from "@fncts/base/collection/mutable/HashMap";
 /**
  * @tsplus global
@@ -50,6 +43,10 @@ import { HashSet as MutableHashSet } from "@fncts/base/collection/mutable/HashSe
  * @tsplus global
  */
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
+/**
+ * @tsplus global
+ */
+import {} from "@fncts/base/collection/Seq";
 /**
  * @tsplus global
  */

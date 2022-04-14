@@ -53,7 +53,7 @@ import {
  *
  * @complexity O(n)
  *
- * @tsplus fluent fncts.collection.immutable.Vector append
+ * @tsplus fluent fncts.Vector append
  */
 export function append_<A>(as: Vector<A>, a: A): Vector<A> {
   const suffixSize = getSuffixSize(as);
@@ -80,7 +80,7 @@ export function append_<A>(as: Vector<A>, a: A): Vector<A> {
  * Maps a function over a Vector and concatenates all the resulting
  * Vectors together.
  *
- * @tsplus fluent fncts.collection.immutable.Vector chain
+ * @tsplus fluent fncts.Vector chain
  */
 export function chain_<A, B>(ma: Vector<A>, f: (a: A) => Vector<B>): Vector<B> {
   return ma.map(f).flatten;
@@ -89,7 +89,7 @@ export function chain_<A, B>(ma: Vector<A>, f: (a: A) => Vector<B>): Vector<B> {
 /**
  * Splits the Vector into chunks of the given size.
  *
- * @tsplus fluent fncts.collection.immutable.Vector chunksOf
+ * @tsplus fluent fncts.Vector chunksOf
  */
 export function chunksOf_<A>(as: Vector<A>, size: number): Vector<Vector<A>> {
   const { buffer, l2 } = as.foldLeft(
@@ -110,7 +110,7 @@ export function chunksOf_<A>(as: Vector<A>, size: number): Vector<Vector<A>> {
  * Concatenates two Vectors.
  *
  * @complexity O(log(n))
- * @tsplus fluent fncts.collection.immutable.Vector concat
+ * @tsplus fluent fncts.Vector concat
  */
 export function concat_<A, B>(self: Vector<A>, that: Vector<B>): Vector<A | B>;
 export function concat_<A>(self: Vector<A>, that: Vector<A>): Vector<A> {
@@ -180,7 +180,7 @@ function containsCb(value: any, state: ContainsState): boolean {
  * Otherwise it returns `false`.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector contains
+ * @tsplus fluent fncts.Vector contains
  */
 export function contains_<A>(as: Vector<A>, element: A): boolean {
   containsState.element = element;
@@ -192,7 +192,7 @@ export function contains_<A>(as: Vector<A>, element: A): boolean {
  * Returns a new Vector without the first `n` elements.
  *
  * @complexity `O(log(n))`
- * @tsplus fluent fncts.collection.immutable.Vector drop
+ * @tsplus fluent fncts.Vector drop
  */
 export function drop_<A>(as: Vector<A>, n: number): Vector<A> {
   return as.slice(n, as.length);
@@ -202,7 +202,7 @@ export function drop_<A>(as: Vector<A>, n: number): Vector<A> {
  * Returns a new Vector without the last `n` elements.
  *
  * @complexity `O(log(n))`
- * @tsplus fluent fncts.collection.immutable.Vector dropLast
+ * @tsplus fluent fncts.Vector dropLast
  */
 export function dropLast_<A>(as: Vector<A>, n: number): Vector<A> {
   return as.slice(0, as.length - n);
@@ -212,7 +212,7 @@ export function dropLast_<A>(as: Vector<A>, n: number): Vector<A> {
  * Returns a new Vector without repeated elements.
  *
  * @complexity `O(n)`
- * @tsplus getter fncts.collection.immutable.Vector dropRepeats
+ * @tsplus getter fncts.Vector dropRepeats
  */
 export function dropRepeats<A>(as: Vector<A>): Vector<A> {
   return as.dropRepeatsWith(Equatable.strictEquals);
@@ -223,7 +223,7 @@ export function dropRepeats<A>(as: Vector<A>): Vector<A> {
  * function to determine when elements are equal.
  *
  * @complexity `O(n)`
- * @tsplus fluent fncts.collection.immutable.Vector dropRepeatsWith
+ * @tsplus fluent fncts.Vector dropRepeatsWith
  */
 export function dropRepeatsWith_<A>(as: Vector<A>, predicate: (a: A, b: A) => boolean): Vector<A> {
   return as.foldLeft(Vector.emptyPushable(), (acc, a) =>
@@ -251,7 +251,7 @@ function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
  *
  * @complexity `O(k + log(n))` where `k` is the number of elements
  * satisfying the predicate.
- * @tsplus fluent fncts.collection.immutable.Vector dropWhile
+ * @tsplus fluent fncts.Vector dropWhile
  */
 export function dropWhile_<A>(as: Vector<A>, predicate: Predicate<A>): Vector<A> {
   const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, as);
@@ -269,7 +269,7 @@ function elemCb(value: any, state: ElemState): boolean {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Vector elem
+ * @tsplus getter fncts.Vector elem
  */
 export function elem_<A>(self: Vector<A>) {
   return (E: Eq<A>) => {
@@ -285,7 +285,7 @@ export function elem_<A>(self: Vector<A>) {
  * Returns true if the two Vectors are equivalent.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector equals
+ * @tsplus fluent fncts.Vector equals
  */
 export function equals_<A>(self: Vector<A>, that: Vector<A>): boolean {
   return self.corresponds(that, Equatable.strictEquals);
@@ -305,7 +305,7 @@ function everyCb<A>(value: A, state: any): boolean {
  * for all elements in the given Vector.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector every
+ * @tsplus fluent fncts.Vector every
  */
 export function every_<A, B extends A>(
   as: Vector<A>,
@@ -320,14 +320,14 @@ export function every_<A>(as: Vector<A>, predicate: Predicate<A>): boolean {
  * Creates an empty Vector.
  *
  * @complexity O(1)
- * @tsplus static fncts.collection.immutable.VectorOps empty
+ * @tsplus static fncts.VectorOps empty
  */
 export function empty<A = any>(): Vector<A> {
   return new Vector(0, 0, 0, emptyAffix, undefined, emptyAffix);
 }
 
 /**
- * @tsplus static fncts.collection.immutable.VectorOps emptyPushable
+ * @tsplus static fncts.VectorOps emptyPushable
  */
 export function emptyPushable<A>(): MutableVector<A> {
   return new Vector(0, 0, 0, [], undefined, []) as any;
@@ -343,7 +343,7 @@ function existsCb<A>(value: A, state: PredState): boolean {
  *
  * @complexity O(n)
  *
- * @tsplus fluent fncts.collection.immutable.Vector exists
+ * @tsplus fluent fncts.Vector exists
  */
 export function exists_<A>(as: Vector<A>, predicate: Predicate<A>): boolean {
   return foldLeftCb<A, PredState>(existsCb, { predicate, result: false }, as).result;
@@ -354,7 +354,7 @@ export function exists_<A>(as: Vector<A>, predicate: Predicate<A>): boolean {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector find
+ * @tsplus fluent fncts.Vector find
  */
 export function find_<A>(as: Vector<A>, predicate: Predicate<A>): Maybe<A> {
   return Maybe.fromNullable(as.unsafeFind(predicate));
@@ -377,7 +377,7 @@ function findIndexCb<A>(value: A, state: FindIndexState): boolean {
  * `-1`.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector findIndex
+ * @tsplus fluent fncts.Vector findIndex
  */
 export function findIndex_<A>(as: Vector<A>, predicate: Predicate<A>): number {
   const { found, index } = foldLeftCb<A, FindIndexState>(
@@ -393,7 +393,7 @@ export function findIndex_<A>(as: Vector<A>, predicate: Predicate<A>): number {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector findLast
+ * @tsplus fluent fncts.Vector findLast
  */
 export function findLast_<A>(as: Vector<A>, predicate: Predicate<A>): Maybe<A> {
   return Maybe.fromNullable(as.unsafeFindLast(predicate));
@@ -405,7 +405,7 @@ export function findLast_<A>(as: Vector<A>, predicate: Predicate<A>): Maybe<A> {
  * `-1`.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector findLastIndex
+ * @tsplus fluent fncts.Vector findLastIndex
  */
 export function findLastIndex_<A>(as: Vector<A>, predicate: Predicate<A>): number {
   const { found, index } = foldRightCb<A, FindIndexState>(
@@ -422,7 +422,7 @@ export function findLastIndex_<A>(as: Vector<A>, predicate: Predicate<A>): numbe
  *
  * @complexity O(n * log(m)), where n is the length of the outer Vector and m the length of the inner Vectors.
  *
- * @tsplus getter fncts.collection.immutable.Vector flatten
+ * @tsplus getter fncts.Vector flatten
  */
 export function flatten<A>(mma: Vector<Vector<A>>): Vector<A> {
   return mma.foldLeft<Vector<A>, Vector<A>>(Vector.empty(), (acc, a) => acc.concat(a));
@@ -432,7 +432,7 @@ export function flatten<A>(mma: Vector<Vector<A>>): Vector<A> {
  * Converts an array, an array-like, or an iterable into a Vector.
  *
  * @complexity O(n)
- * @tsplus static fncts.collection.immutable.VectorOps from
+ * @tsplus static fncts.VectorOps from
  */
 export function from<A>(sequence: A[] | ArrayLike<A> | Iterable<A>): Vector<A>;
 export function from<A>(sequence: any): Vector<A> {
@@ -454,14 +454,14 @@ export function from<A>(sequence: any): Vector<A> {
 /**
  * Folds a function over a Vector. Left-associative.
  *
- * @tsplus fluent fncts.collection.immutable.Vector foldLeft
+ * @tsplus fluent fncts.Vector foldLeft
  */
 export function foldLeft_<A, B>(fa: Vector<A>, initial: B, f: (acc: B, a: A) => B): B {
   return fa.foldLeftWithIndex(initial, (_, b, a) => f(b, a));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Vector foldLeftWithIndex
+ * @tsplus fluent fncts.Vector foldLeftWithIndex
  */
 export function foldLeftWithIndex_<A, B>(fa: Vector<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   const suffixSize = getSuffixSize(fa);
@@ -502,7 +502,7 @@ function foldWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolea
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Vector foldLeftWhile
+ * @tsplus fluent fncts.Vector foldLeftWhile
  */
 export function foldLeftWhile_<A, B>(
   fa: Vector<A>,
@@ -518,7 +518,7 @@ export function foldLeftWhile_<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Vector foldRightWhile
+ * @tsplus fluent fncts.Vector foldRightWhile
  */
 export function foldRightWhile_<A, B>(
   fa: Vector<A>,
@@ -534,7 +534,7 @@ export function foldRightWhile_<A, B>(
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Vector foldMap
+ * @tsplus getter fncts.Vector foldMap
  */
 export function foldMap_<A>(self: Vector<A>) {
   return <M>(M: Monoid<M>) =>
@@ -543,7 +543,7 @@ export function foldMap_<A>(self: Vector<A>) {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Vector foldMapWithIndex
+ * @tsplus getter fncts.Vector foldMapWithIndex
  */
 export function foldMapWithIndex_<A>(self: Vector<A>) {
   return <M>(M: Monoid<M>) =>
@@ -555,7 +555,7 @@ export function foldMapWithIndex_<A>(self: Vector<A>) {
  * Folds a function over a Vector. Right-associative.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector foldRight
+ * @tsplus fluent fncts.Vector foldRight
  */
 export function foldRight_<A, B>(fa: Vector<A>, initial: B, f: (value: A, acc: B) => B): B {
   return fa.foldRightWithIndex(initial, (_, a, b) => f(a, b));
@@ -565,7 +565,7 @@ export function foldRight_<A, B>(fa: Vector<A>, initial: B, f: (value: A, acc: B
  * Folds a function over a Vector. Right-associative.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector foldRightWithIndex
+ * @tsplus fluent fncts.Vector foldRightWithIndex
  */
 export function foldRightWithIndex_<A, B>(fa: Vector<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   const suffixSize = getSuffixSize(fa);
@@ -587,14 +587,14 @@ export function foldRightWithIndex_<A, B>(fa: Vector<A>, b: B, f: (i: number, a:
  * makes `forEach` faster when the new Vector is unneeded.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector forEach
+ * @tsplus fluent fncts.Vector forEach
  */
 export function forEach_<A>(as: Vector<A>, f: (a: A) => void): void {
   as.foldLeft(undefined as void, (_, element) => f(element));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Vector forEachWithIndex
+ * @tsplus fluent fncts.Vector forEachWithIndex
  */
 export function forEachWithIndex_<A>(as: Vector<A>, f: (i: number, a: A) => void): void {
   as.foldLeftWithIndex(undefined as void, (index, _, element) => f(index, element));
@@ -605,7 +605,7 @@ export function forEachWithIndex_<A>(as: Vector<A>, f: (i: number, a: A) => void
  * `undefined` is returned.
  *
  * @complexity O(log(n))
- * @tsplus fluent fncts.collection.immutable.Vector get
+ * @tsplus fluent fncts.Vector get
  */
 export function get_<A>(self: Vector<A>, index: number): Maybe<A> {
   return Maybe.fromNullable(self.unsafeGet(index));
@@ -619,7 +619,7 @@ export function get_<A>(self: Vector<A>, index: number): Maybe<A> {
  * equal elements should be grouped together the Vector should be sorted
  * before grouping.
  *
- * @tsplus fluent fncts.collection.immutable.Vector groupWith
+ * @tsplus fluent fncts.Vector groupWith
  */
 export function groupWith_<A>(as: Vector<A>, f: (a: A, b: A) => boolean): Vector<Vector<A>> {
   const result = Vector.emptyPushable<MutableVector<A>>();
@@ -638,7 +638,7 @@ export function groupWith_<A>(as: Vector<A>, f: (a: A, b: A) => boolean): Vector
  * Returns the first element of the Vector.
  *
  * @complexity O(1)
- * @tsplus getter fncts.collection.immutable.Vector head
+ * @tsplus getter fncts.Vector head
  */
 export function head<A>(self: Vector<A>): Maybe<NonNullable<A>> {
   return Maybe.fromNullable(self.unsafeHead);
@@ -660,7 +660,7 @@ function indexOfCb(value: any, state: IndexOfState): boolean {
  * to the given element. If no such element is found `-1` is returned.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector indexOf
+ * @tsplus fluent fncts.Vector indexOf
  */
 export function indexOf_<A>(as: Vector<A>, element: A): number {
   const state = { element, found: false, index: -1 };
@@ -672,7 +672,7 @@ export function indexOf_<A>(as: Vector<A>, element: A): number {
  * Inserts the given element at the given index in the Vector.
  *
  * @complexity O(log(n))
- * @tsplus fluent fncts.collection.immutable.Vector insertAt
+ * @tsplus fluent fncts.Vector insertAt
  */
 export function insertAt_<A>(as: Vector<A>, index: number, element: A): Vector<A> {
   return as.slice(0, index).append(element).concat(as.slice(index, as.length));
@@ -682,7 +682,7 @@ export function insertAt_<A>(as: Vector<A>, index: number, element: A): Vector<A
  * Inserts the given Vector of elements at the given index in the Vector.
  *
  * @complexity `O(log(n))`
- * @tsplus fluent fncts.collection.immutable.Vector insertAllAt
+ * @tsplus fluent fncts.Vector insertAllAt
  */
 export function insertAllAt_<A>(as: Vector<A>, index: number, elements: Vector<A>): Vector<A> {
   return as.slice(0, index).concat(elements).concat(as.slice(index, as.length));
@@ -691,7 +691,7 @@ export function insertAllAt_<A>(as: Vector<A>, index: number, elements: Vector<A
 /**
  * Inserts a separator between each element in a Vector.
  *
- * @tsplus fluent fncts.collection.immutable.Vector intersperse
+ * @tsplus fluent fncts.Vector intersperse
  */
 export function intersperse_<A>(as: Vector<A>, separator: A): Vector<A> {
   return (as.foldLeft(Vector.emptyPushable(), (l2, a) => l2.push(a).push(separator)) as Vector<A>)
@@ -699,14 +699,14 @@ export function intersperse_<A>(as: Vector<A>, separator: A): Vector<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Vector isEmpty
+ * @tsplus fluent fncts.Vector isEmpty
  */
 export function isEmpty<A>(l: Vector<A>): boolean {
   return l.length === 0;
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Vector isNonEmpty
+ * @tsplus fluent fncts.Vector isNonEmpty
  */
 export function isNonEmpty<A>(l: Vector<A>): boolean {
   return l.length > 0;
@@ -715,7 +715,7 @@ export function isNonEmpty<A>(l: Vector<A>): boolean {
 /**
  * Concatenates the strings in the Vector separated by a specified separator.
  *
- * @tsplus fluent fncts.collection.immutable.Vector join
+ * @tsplus fluent fncts.Vector join
  */
 export function join_(as: Vector<string>, separator: string): string {
   return as.foldLeft("", (a, b) => (a.length === 0 ? b : a + separator + b));
@@ -725,7 +725,7 @@ export function join_(as: Vector<string>, separator: string): string {
  * Returns the last element of the Vector.
  *
  * @complexity O(1)
- * @tsplus getter fncts.collection.immutable.Vector last
+ * @tsplus getter fncts.Vector last
  */
 export function last<A>(l: Vector<A>): Maybe<NonNullable<A>> {
   return Maybe.fromNullable(l.unsafeLast);
@@ -736,7 +736,7 @@ export function last<A>(l: Vector<A>): Maybe<NonNullable<A>> {
  * to the given element. If no such element is found `-1` is returned.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector lastIndexOf
+ * @tsplus fluent fncts.Vector lastIndexOf
  */
 export function lastIndexOf_<A>(as: Vector<A>, element: A): number {
   const state = { element, found: false, index: 0 };
@@ -749,7 +749,7 @@ export function lastIndexOf_<A>(as: Vector<A>, element: A): number {
  * `n` times.
  *
  * @complexity O(n)
- * @tsplus static fncts.collection.immutable.VectorOps makeBy
+ * @tsplus static fncts.VectorOps makeBy
  */
 export function makeBy<A>(n: number, f: (index: number) => A): Vector<A> {
   const l = emptyPushable<A>();
@@ -760,7 +760,7 @@ export function makeBy<A>(n: number, f: (index: number) => A): Vector<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Vector mapAccum
+ * @tsplus fluent fncts.Vector mapAccum
  */
 export function mapAccum_<A, S, B>(
   fa: Vector<A>,
@@ -779,7 +779,7 @@ export function mapAccum_<A, S, B>(
  * new Vector of the values that the function return.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector map
+ * @tsplus fluent fncts.Vector map
  */
 export function map_<A, B>(fa: Vector<A>, f: (a: A) => B): Vector<B> {
   return fa.mapWithIndex((_, a) => f(a));
@@ -790,7 +790,7 @@ export function map_<A, B>(fa: Vector<A>, f: (a: A) => B): Vector<B> {
  * new Vector of the values that the function return.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector mapWithIndex
+ * @tsplus fluent fncts.Vector mapWithIndex
  */
 export function mapWithIndex_<A, B>(fa: Vector<A>, f: (i: number, a: A) => B): Vector<B> {
   return new Vector(
@@ -804,7 +804,7 @@ export function mapWithIndex_<A, B>(fa: Vector<A>, f: (i: number, a: A) => B): V
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Vector mutableClone
+ * @tsplus getter fncts.Vector mutableClone
  */
 export function mutableClone<A>(as: Vector<A>): MutableVector<A> {
   return new Vector(as.bits, as.offset, as.length, as.prefix, as.root, as.suffix) as any;
@@ -819,7 +819,7 @@ export function mutableClone<A>(as: Vector<A>): MutableVector<A> {
  *
  * @complexity `O(log(n))`
  *
- * @tsplus fluent fncts.collection.immutable.Vector modifyAt
+ * @tsplus fluent fncts.Vector modifyAt
  */
 export function modifyAt_<A>(as: Vector<A>, i: number, f: (a: A) => A): Vector<A> {
   if (i < 0 || as.length <= i) {
@@ -834,7 +834,7 @@ export function modifyAt_<A>(as: Vector<A>, i: number, f: (a: A) => A): Vector<A
  *
  * @complexity O(n)
  *
- * @tsplus fluent fncts.collection.immutable.Vector none
+ * @tsplus fluent fncts.Vector none
  */
 export function none_<A>(as: Vector<A>, predicate: Predicate<A>): boolean {
   return !as.exists(predicate);
@@ -844,7 +844,7 @@ export function none_<A>(as: Vector<A>, predicate: Predicate<A>): boolean {
  * Takes two arguments and returns a Vector that contains them.
  *
  * @complexity O(1)
- * @tsplus static fncts.collection.immutable.VectorOps pair
+ * @tsplus static fncts.VectorOps pair
  */
 export function pair<A>(first: A, second: A): Vector<A> {
   return new Vector(2, 0, 2, emptyAffix, undefined, [first, second]);
@@ -855,7 +855,7 @@ export function pair<A>(first: A, second: A): Vector<A> {
  * empty the empty Vector is returned.
  *
  * @complexity `O(1)`
- * @tsplus getter fncts.collection.immutable.Vector pop
+ * @tsplus getter fncts.Vector pop
  */
 export function pop<A>(as: Vector<A>): Vector<A> {
   return as.slice(0, -1);
@@ -866,7 +866,7 @@ export function pop<A>(as: Vector<A>): Vector<A> {
  *
  * @complexity O(1)
  *
- * @tsplus fluent fncts.collection.immutable.Vector prepend
+ * @tsplus fluent fncts.Vector prepend
  */
 export function prepend_<A>(as: Vector<A>, a: A): Vector<A> {
   const prefixSize = getPrefixSize(as);
@@ -894,7 +894,7 @@ export function prepend_<A>(as: Vector<A>, a: A): Vector<A> {
  * Returns a Vector of numbers between an inclusive lower bound and an exclusive upper bound.
  *
  * @complexity O(n)
- * @tsplus static fncts.collection.immutable.VectorOps range
+ * @tsplus static fncts.VectorOps range
  */
 export function range(start: number, end: number): Vector<number> {
   const vec = emptyPushable<number>();
@@ -911,7 +911,7 @@ export function range(start: number, end: number): Vector<number> {
  *
  * @complexity `O(log(n))`
  *
- * @tsplus fluent fncts.collection.immutable.Vector remove
+ * @tsplus fluent fncts.Vector remove
  */
 export function remove_<A>(as: Vector<A>, from: number, amount: number): Vector<A> {
   return as.slice(0, from).concat(as.slice(from + amount, as.length));
@@ -922,7 +922,7 @@ export function remove_<A>(as: Vector<A>, from: number, amount: number): Vector<
  * in all positions.
  *
  * @complexity O(n)
- * @tsplus static fncts.collection.immutable.VectorOps replicate
+ * @tsplus static fncts.VectorOps replicate
  */
 export function replicate<A>(n: number, a: A): Vector<A> {
   let t   = n;
@@ -937,7 +937,7 @@ export function replicate<A>(n: number, a: A): Vector<A> {
  * Folds a function over a Vector from left to right while collecting
  * all the intermediate steps in a resulting Vector.
  *
- * @tsplus fluent fncts.collection.immutable.Vector scanLeft
+ * @tsplus fluent fncts.Vector scanLeft
  */
 export function scanLeft_<A, B>(as: Vector<A>, initial: B, f: (acc: B, value: A) => B): Vector<B> {
   return as.foldLeft(emptyPushable<B>().push(initial), (l2, a) =>
@@ -949,7 +949,7 @@ export function scanLeft_<A, B>(as: Vector<A>, initial: B, f: (acc: B, value: A)
  * Takes a single arguments and returns a singleton Vector that contains it.
  *
  * @complexity O(1)
- * @tsplus static fncts.collection.immutable.VectorOps single
+ * @tsplus static fncts.VectorOps single
  */
 export function single<A>(a: A): Vector<A> {
   return Vector(a);
@@ -961,7 +961,7 @@ export function single<A>(a: A): Vector<A> {
  * from the right end of the Vector.
  *
  * @complexity `O(log(n))`
- * @tsplus fluent fncts.collection.immutable.Vector slice
+ * @tsplus fluent fncts.Vector slice
  */
 export function slice_<A>(as: Vector<A>, from: number, to: number): Vector<A> {
   let { bits, length } = as;
@@ -1085,7 +1085,7 @@ export function slice_<A>(as: Vector<A>, from: number, to: number): Vector<A> {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Vector sort
+ * @tsplus getter fncts.Vector sort
  */
 export function sort_<A>(self: Vector<A>) {
   return (O: Ord<A>): Vector<A> => self.sortWith(O.compare_);
@@ -1100,7 +1100,7 @@ export function sort_<A>(self: Vector<A>) {
  *
  * @complexity O(n * log(n))
  *
- * @tsplus fluent fncts.collection.immutable.Vector sortWith
+ * @tsplus fluent fncts.Vector sortWith
  */
 export function sortWith_<A>(as: Vector<A>, compare: (a: A, b: A) => Ordering): Vector<A> {
   const arr: { idx: number; elm: A }[] = [];
@@ -1125,7 +1125,7 @@ export function sortWith_<A>(as: Vector<A>, compare: (a: A, b: A) => Ordering): 
  *
  * @complexity `O(log(n))`
  *
- * @tsplus fluent fncts.collection.immutable.Vector splitAt
+ * @tsplus fluent fncts.Vector splitAt
  */
 export function splitAt_<A>(as: Vector<A>, index: number): [Vector<A>, Vector<A>] {
   return [as.slice(0, index), as.slice(index, as.length)];
@@ -1137,7 +1137,7 @@ export function splitAt_<A>(as: Vector<A>, index: number): [Vector<A>, Vector<A>
  *
  * @complexity `O(n)`
  *
- * @tsplus fluent fncts.collection.immutable.Vector splitWhen
+ * @tsplus fluent fncts.Vector splitWhen
  */
 export function splitWhen_<A>(as: Vector<A>, predicate: Predicate<A>): [Vector<A>, Vector<A>] {
   const idx = as.findIndex(predicate);
@@ -1150,7 +1150,7 @@ export function splitWhen_<A>(as: Vector<A>, predicate: Predicate<A>): [Vector<A
  *
  * @complexity `O(1)`
  *
- * @tsplus getter fncts.collection.immutable.Vector tail
+ * @tsplus getter fncts.Vector tail
  */
 export function tail<A>(as: Vector<A>): Vector<A> {
   return as.slice(1, as.length);
@@ -1160,7 +1160,7 @@ export function tail<A>(as: Vector<A>): Vector<A> {
  * Takes the first `n` elements from a Vector and returns them in a new Vector.
  *
  * @complexity `O(log(n))`
- * @tsplus fluent fncts.collection.immutable.Vector take
+ * @tsplus fluent fncts.Vector take
  */
 export function take_<A>(as: Vector<A>, n: number): Vector<A> {
   return as.slice(0, n);
@@ -1173,7 +1173,7 @@ export function take_<A>(as: Vector<A>, n: number): Vector<A> {
  * @complexity `O(k + log(n))` where `k` is the number of elements satisfying
  * the predicate.
  *
- * @tsplus fluent fncts.collection.immutable.Vector takeWhile
+ * @tsplus fluent fncts.Vector takeWhile
  */
 export function takeWhile_<A>(as: Vector<A>, predicate: Predicate<A>): Vector<A> {
   const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, as);
@@ -1185,7 +1185,7 @@ export function takeWhile_<A>(as: Vector<A>, predicate: Predicate<A>): Vector<A>
  * Vector.
  *
  * @complexity `O(log(n))`
- * @tsplus fluent fncts.collection.immutable.Vector takeLast
+ * @tsplus fluent fncts.Vector takeLast
  */
 export function takeLast_<A>(as: Vector<A>, n: number): Vector<A> {
   return as.slice(as.length - n, as.length);
@@ -1198,7 +1198,7 @@ export function takeLast_<A>(as: Vector<A>, n: number): Vector<A> {
  * @complexity `O(k + log(n))` where `k` is the number of elements
  * satisfying the predicate.
  *
- * @tsplus fluent fncts.collection.immutable.Vector takeLastWhile
+ * @tsplus fluent fncts.Vector takeLastWhile
  */
 export function takeLastWhile_<A>(as: Vector<A>, predicate: Predicate<A>): Vector<A> {
   const { index } = foldRightCb(findNotIndexCb, { predicate, index: 0 }, as);
@@ -1209,7 +1209,7 @@ export function takeLastWhile_<A>(as: Vector<A>, predicate: Predicate<A>): Vecto
  * Converts a Vector into an array.
  *
  * @complexity `O(n)`
- * @tsplus getter fncts.collection.immutable.Vector toArray
+ * @tsplus getter fncts.Vector toArray
  */
 export function toArray<A>(self: Vector<A>): ReadonlyArray<A> {
   return self.foldLeft<A, A[]>([], arrayPush);
@@ -1219,7 +1219,7 @@ export function toArray<A>(self: Vector<A>): ReadonlyArray<A> {
  * Converts a Vector into a List.
  *
  * @complexity `O(n)`
- * @tsplus getter fncts.collection.immutable.Vector toList
+ * @tsplus getter fncts.Vector toList
  */
 export function toList<A>(self: Vector<A>): List<A> {
   const buffer = new ListBuffer<A>();
@@ -1234,14 +1234,14 @@ export function toList<A>(self: Vector<A>): List<A> {
  * Eq instance to determine when elements are equal
  *
  * @complexity `O(n)`
- * @tsplus getter fncts.collection.immutable.Vector uniq
+ * @tsplus getter fncts.Vector uniq
  */
 export function uniq<A>(as: Vector<A>) {
   return (E: Eq<A>) => as.dropRepeatsWith(E.equals_);
 }
 
 /**
- * @tsplus static fncts.collection.immutable.VectorOps unfold
+ * @tsplus static fncts.VectorOps unfold
  */
 export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Vector<A> {
   const out = emptyPushable<A>();
@@ -1274,7 +1274,7 @@ function findCb<A>(value: A, state: PredState): boolean {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector unsafeFind
+ * @tsplus fluent fncts.Vector unsafeFind
  */
 export function unsafeFind_<A>(as: Vector<A>, predicate: Predicate<A>): A | undefined {
   return foldLeftCb<A, PredState>(findCb, { predicate, result: undefined }, as).result;
@@ -1285,7 +1285,7 @@ export function unsafeFind_<A>(as: Vector<A>, predicate: Predicate<A>): A | unde
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector unsafeFindLast
+ * @tsplus fluent fncts.Vector unsafeFindLast
  */
 export function unsafeFindLast_<A>(as: Vector<A>, predicate: Predicate<A>): A | undefined {
   return foldRightCb<A, PredState>(findCb, { predicate, result: undefined }, as).result;
@@ -1296,7 +1296,7 @@ export function unsafeFindLast_<A>(as: Vector<A>, predicate: Predicate<A>): A | 
  * `undefined` is returned.
  *
  * @complexity O(log(n))
- * @tsplus fluent fncts.collection.immutable.Vector unsafeGet
+ * @tsplus fluent fncts.Vector unsafeGet
  */
 export function unsafeGet_<A>(l: Vector<A>, index: number): A | undefined {
   if (index < 0 || l.length <= index) {
@@ -1325,7 +1325,7 @@ export function unsafeGet_<A>(l: Vector<A>, index: number): A | undefined {
  * function returns undefined.
  *
  * @complexity O(1)
- * @tsplus getter fncts.collection.immutable.Vector unsafeHead
+ * @tsplus getter fncts.Vector unsafeHead
  */
 export function unsafeHead<A>(l: Vector<A>): A | undefined {
   const prefixSize = getPrefixSize(l);
@@ -1337,7 +1337,7 @@ export function unsafeHead<A>(l: Vector<A>): A | undefined {
  * function returns `undefined`.
  *
  * @complexity O(1)
- * @tsplus getter fncts.collection.immutable.Vector unsafeLast
+ * @tsplus getter fncts.Vector unsafeLast
  */
 export function unsafeLast<A>(l: Vector<A>): A | undefined {
   const suffixSize = getSuffixSize(l);
@@ -1350,7 +1350,7 @@ export function unsafeLast<A>(l: Vector<A>): A | undefined {
  * If the index is out of bounds the given Vector is returned unchanged.
  *
  * @complexity O(log(n))
- * @tsplus fluent fncts.collection.immutable.Vector updateAt
+ * @tsplus fluent fncts.Vector updateAt
  */
 export function updateAt_<A>(as: Vector<A>, i: number, a: A): Vector<A> {
   if (i < 0 || as.length <= i) {
@@ -1374,7 +1374,7 @@ export function updateAt_<A>(as: Vector<A>, i: number, a: A): Vector<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.VectorOps __call
+ * @tsplus static fncts.VectorOps __call
  */
 export function vector<A>(...elements: ReadonlyArray<A>): Vector<A> {
   const v = Vector.emptyPushable<A>();

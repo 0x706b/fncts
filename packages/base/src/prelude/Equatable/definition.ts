@@ -6,7 +6,7 @@ export const equatable = Symbol.for("fncts.prelude.equatable");
 export const _equatable: typeof equatable = equatable;
 
 /**
- * @tsplus type fncts.prelude.structural.Equatable
+ * @tsplus type fncts.prelude.Equatable
  */
 export interface Equatable {
   [equatable](that: unknown): boolean;
@@ -17,7 +17,7 @@ export function isEquatable(u: unknown): u is Equatable {
 }
 
 /**
- * @tsplus type fncts.prelude.structural.EquatableOps
+ * @tsplus type fncts.prelude.EquatableOps
  */
 export interface EquatableOps {}
 

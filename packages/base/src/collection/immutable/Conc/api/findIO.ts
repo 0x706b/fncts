@@ -23,7 +23,7 @@ function findIOLoop_<R, E, A>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc findIO
+ * @tsplus fluent fncts.Conc findIO
  */
 export function findIO_<R, E, A>(as: Conc<A>, f: (a: A) => IO<R, E, boolean>): IO<R, E, Maybe<A>> {
   concrete(as);

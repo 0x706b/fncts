@@ -2,7 +2,7 @@ export const EvalTypeId = Symbol.for("@fncts.base/control/Eval");
 export type EvalTypeId = typeof EvalTypeId;
 
 /**
- * @tsplus type fncts.Eval
+ * @tsplus type fncts.control.Eval
  */
 export interface Eval<A> {
   readonly _typeId: EvalTypeId;
@@ -10,7 +10,7 @@ export interface Eval<A> {
 }
 
 /**
- * @tsplus type fncts.EvalOps
+ * @tsplus type fncts.control.EvalOps
  */
 export interface EvalOps {}
 
@@ -53,7 +53,7 @@ export function concrete(_: Eval<any>): asserts _ is Concrete {
 }
 
 /**
- * @tsplus unify fncts.Eval
+ * @tsplus unify fncts.control.Eval
  */
 export function unifyEval<X extends Eval<any>>(
   self: X,

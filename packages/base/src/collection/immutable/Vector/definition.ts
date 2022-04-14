@@ -5,14 +5,14 @@ import type { Node } from "@fncts/base/collection/immutable/Vector/internal";
 import { foldLeftCb } from "@fncts/base/collection/immutable/Vector/internal";
 import { ForwardVectorIterator } from "@fncts/base/collection/immutable/Vector/internal";
 
-export const VectorTypeId = Symbol.for("fncts.collection.immutable.Vector");
+export const VectorTypeId = Symbol.for("fncts.Vector");
 export type VectorTypeId = typeof VectorTypeId;
 
 /**
  * Represents a Vector of elements.
  *
- * @tsplus type fncts.collection.immutable.Vector
- * @tsplus companion fncts.collection.immutable.VectorOps
+ * @tsplus type fncts.Vector
+ * @tsplus companion fncts.VectorOps
  */
 export class Vector<A> implements Iterable<A> {
   readonly _typeId: VectorTypeId = VectorTypeId;
@@ -44,7 +44,7 @@ export class Vector<A> implements Iterable<A> {
 }
 
 /**
- * @tsplus type fncts.collection.immutable.MutableVector
+ * @tsplus type fncts.base.MutableVector
  */
 export interface MutableVector<A> {
   readonly _typeId: VectorTypeId;
@@ -73,7 +73,7 @@ export function isVector(u: unknown): u is Vector<unknown> {
  * pair of elements with the given comparison function.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.collection.immutable.Vector corresponds
+ * @tsplus fluent fncts.Vector corresponds
  */
 export function corresponds_<A, B>(
   as: Vector<A>,

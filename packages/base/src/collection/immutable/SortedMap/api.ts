@@ -13,7 +13,7 @@ import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/no
 import { Stack } from "@fncts/base/internal/Stack";
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap find
+ * @tsplus fluent fncts.SortedMap find
  */
 export function find_<K, V>(
   m: SortedMap<K, V>,
@@ -51,7 +51,7 @@ export function find_<K, V>(
 /**
  * Iterates through the elements of the map inorder, performing the given function for each element
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap forEach
+ * @tsplus fluent fncts.SortedMap forEach
  */
 export function forEach_<K, V>(m: SortedMap<K, V>, visit: (key: K, value: V) => void) {
   if (m.root) {
@@ -63,7 +63,7 @@ export function forEach_<K, V>(m: SortedMap<K, V>, visit: (key: K, value: V) => 
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap forEachBetween
+ * @tsplus fluent fncts.SortedMap forEachBetween
  */
 export function forEachBetween_<K, V>(
   m: SortedMap<K, V>,
@@ -80,7 +80,7 @@ export function forEachBetween_<K, V>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap forEachLte
+ * @tsplus fluent fncts.SortedMap forEachLte
  */
 export function forEachLte_<K, V>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V) => void): void {
   if (m.root) {
@@ -92,7 +92,7 @@ export function forEachLte_<K, V>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap forEachLt
+ * @tsplus fluent fncts.SortedMap forEachLt
  */
 export function forEachLt_<K, V>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V) => void): void {
   if (m.root) {
@@ -104,7 +104,7 @@ export function forEachLt_<K, V>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V)
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap forEachGte
+ * @tsplus fluent fncts.SortedMap forEachGte
  */
 export function forEachGte_<K, V>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V) => void): void {
   if (m.root) {
@@ -116,7 +116,7 @@ export function forEachGte_<K, V>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap forEachGt
+ * @tsplus fluent fncts.SortedMap forEachGt
  */
 export function forEachGt_<K, V>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V) => void): void {
   if (m.root) {
@@ -130,7 +130,7 @@ export function forEachGt_<K, V>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V)
 /**
  * Searches the map for a given key, returning it's value, if it exists
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap get
+ * @tsplus fluent fncts.SortedMap get
  */
 export function get_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
   const cmp = m.ord.compare_;
@@ -157,7 +157,7 @@ export function get_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
 /**
  * Searches the map and returns the first value in sorted order that is > key, if it exists
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap getGt
+ * @tsplus fluent fncts.SortedMap getGt
  */
 export function getGt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
   const cmp     = m.ord.compare_;
@@ -181,7 +181,7 @@ export function getGt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
 /**
  * Searches the map and returns the first value in sorted order that is < key, if it exists
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap getLt
+ * @tsplus fluent fncts.SortedMap getLt
  */
 export function getLt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
   const cmp     = m.ord.compare_;
@@ -204,7 +204,7 @@ export function getLt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
 /**
  * Searches the map and returns the first value in sorted order that is <= key, if it exists
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap getLte
+ * @tsplus fluent fncts.SortedMap getLte
  */
 export function getLte_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
   const cmp     = m.ord.compare_;
@@ -228,7 +228,7 @@ export function getLte_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
 /**
  * Searches the map and returns the first value in sorted order that is >= key, if it exists
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap getGte
+ * @tsplus fluent fncts.SortedMap getGte
  */
 export function getGte_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
   const cmp     = m.ord.compare_;
@@ -254,7 +254,7 @@ export function getGte_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
  * This function inserts duplicate keys. For one that combines duplicate key's values,
  * see `insertWith_`
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap insert
+ * @tsplus fluent fncts.SortedMap insert
  */
 export function insert_<K, V>(m: SortedMap<K, V>, key: K, value: V): SortedMap<K, V> {
   if (isEmptyNode(m.root)) {
@@ -332,21 +332,21 @@ export function insertWith_<V>(S: Semigroup<V>) {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.SortedMap isEmpty
+ * @tsplus getter fncts.SortedMap isEmpty
  */
 export function isEmpty<K, V>(m: SortedMap<K, V>): boolean {
   return m.root === Leaf;
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.SortedMap isNonEmpty
+ * @tsplus getter fncts.SortedMap isNonEmpty
  */
 export function isNonEmpty<K, V>(m: SortedMap<K, V>): boolean {
   return m.root !== Leaf;
 }
 
 /**
- * @tsplus static fncts.collection.immutable.SortedMapOps make
+ * @tsplus static fncts.SortedMapOps make
  */
 export function make<K, V>(ord: Ord<K>) {
   return new SortedMap<K, V>(ord, null);
@@ -355,7 +355,7 @@ export function make<K, V>(ord: Ord<K>) {
 /**
  * Removes an element from the map
  *
- * @tsplus fluent fncts.collection.immutable.SortedMap remove
+ * @tsplus fluent fncts.SortedMap remove
  */
 export function remove_<K, V>(m: SortedMap<K, V>, key: K): SortedMap<K, V> {
   const iter = m.find(key)[Symbol.iterator]();
@@ -363,7 +363,7 @@ export function remove_<K, V>(m: SortedMap<K, V>, key: K): SortedMap<K, V> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap visitFull
+ * @tsplus fluent fncts.SortedMap visitFull
  */
 export function visitFull<K, V, A>(
   m: SortedMap<K, V>,
@@ -392,7 +392,7 @@ export function visitFull<K, V, A>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap visitLte
+ * @tsplus fluent fncts.SortedMap visitLte
  */
 export function visitLte<K, V, A>(
   m: SortedMap<K, V>,
@@ -426,7 +426,7 @@ export function visitLte<K, V, A>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap visitLt
+ * @tsplus fluent fncts.SortedMap visitLt
  */
 export function visitLt<K, V, A>(
   m: SortedMap<K, V>,
@@ -460,7 +460,7 @@ export function visitLt<K, V, A>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap visitGte
+ * @tsplus fluent fncts.SortedMap visitGte
  */
 export function visitGte<K, V, A>(
   m: SortedMap<K, V>,
@@ -497,7 +497,7 @@ export function visitGte<K, V, A>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap visitGt
+ * @tsplus fluent fncts.SortedMap visitGt
  */
 export function visitGt<K, V, A>(
   m: SortedMap<K, V>,
@@ -534,7 +534,7 @@ export function visitGt<K, V, A>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.SortedMap visitBetween
+ * @tsplus fluent fncts.SortedMap visitBetween
  */
 export function visitBetween<K, V, A>(
   m: SortedMap<K, V>,

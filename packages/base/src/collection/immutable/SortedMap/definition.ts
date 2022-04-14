@@ -8,8 +8,8 @@ import type { Ord } from "@fncts/base/prelude";
 import { forward } from "@fncts/base/collection/immutable/SortedMap/iterator";
 
 /**
- * @tsplus type fncts.collection.immutable.SortedMap
- * @tsplus companion fncts.collection.immutable.SortedMapOps
+ * @tsplus type fncts.SortedMap
+ * @tsplus companion fncts.SortedMapOps
  */
 export class SortedMap<K, V> implements SortedMapIterable<K, V> {
   constructor(readonly ord: Ord<K>, readonly root: RBNode<K, V>) {}

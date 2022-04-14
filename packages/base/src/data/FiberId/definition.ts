@@ -5,7 +5,7 @@ export type FiberIdTypeId = typeof FiberIdTypeId;
 
 const _hashNone = Hashable.hashString("fncts.data.FiberId.None");
 
-export class None {
+export class None implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "None";
   [Symbol.equatable](that: unknown) {
@@ -18,10 +18,13 @@ export class None {
 
 const _hashRuntime = Hashable.hashString("fncts.data.FiberId.Runtime");
 
-export class Runtime {
+export class Runtime implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "Runtime";
   constructor(readonly seqNumber: number, readonly startTime: number) {}
+  get [Symbol.hashable]() {
+    return Hashable.combineHash(_hashRuntime, Hashable.hashNumber(this.seqNumber));
+  }
   [Symbol.equatable](that: unknown): boolean {
     return (
       isFiberId(that) &&
@@ -34,14 +37,12 @@ export class Runtime {
 
 const _hashComposite = Hashable.hashString("fncts.data.FiberId.Composite");
 
-export class Composite {
+export class Composite implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "Composite";
   constructor(readonly fiberIds: HashSet<Runtime>) {}
   [Symbol.equatable](that: unknown) {
-    return (
-      isFiberId(that) && isComposite(that) && Equatable.strictEquals(this.fiberIds, that.fiberIds)
-    );
+    return isFiberId(that) && isComposite(that) && this.fiberIds == that.fiberIds;
   }
   get [Symbol.hashable]() {
     return Hashable.combineHash(_hashComposite, Hashable.hash(this.fiberIds));

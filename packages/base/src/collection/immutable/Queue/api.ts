@@ -1,14 +1,14 @@
 import { Queue } from "@fncts/base/collection/immutable/Queue/definition";
 
 /**
- * @tsplus getter fncts.collection.immutable.Queue length
+ * @tsplus getter fncts.ImmutableQueue length
  */
 export function length<A>(queue: Queue<A>): number {
   return queue._in.length + queue._out.length;
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Queue unsafeHead
+ * @tsplus getter fncts.ImmutableQueue unsafeHead
  */
 export function unsafeHead<A>(queue: Queue<A>): A {
   if (queue._out.isNonEmpty()) {
@@ -21,14 +21,14 @@ export function unsafeHead<A>(queue: Queue<A>): A {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Queue head
+ * @tsplus getter fncts.ImmutableQueue head
  */
 export function head<A>(queue: Queue<A>): Maybe<A> {
   return queue.isEmpty ? Nothing() : Just(queue.unsafeHead);
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Queue unsafeTail
+ * @tsplus getter fncts.ImmutableQueue unsafeTail
  */
 export function unsafeTail<A>(queue: Queue<A>): Queue<A> {
   if (queue._out.isNonEmpty()) {
@@ -41,28 +41,28 @@ export function unsafeTail<A>(queue: Queue<A>): Queue<A> {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Queue tail
+ * @tsplus getter fncts.ImmutableQueue tail
  */
 export function tail<A>(queue: Queue<A>): Maybe<Queue<A>> {
   return queue.isEmpty ? Nothing() : Just(queue.unsafeTail);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue prepend
+ * @tsplus fluent fncts.ImmutableQueue prepend
  */
 export function prepend_<A, B>(queue: Queue<A>, elem: B): Queue<A | B> {
   return new Queue(queue._in, queue._out.prepend(elem));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue enqueue
+ * @tsplus fluent fncts.ImmutableQueue enqueue
  */
 export function enqueue_<A, B>(queue: Queue<A>, elem: B): Queue<A | B> {
   return new Queue(queue._in.prepend(elem), queue._out);
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Queue unsafeDequeue
+ * @tsplus getter fncts.ImmutableQueue unsafeDequeue
  */
 export function unasfeDequeue<A>(queue: Queue<A>): readonly [A, Queue<A>] {
   if (queue._out.isEmpty() && queue._in.isNonEmpty()) {
@@ -76,7 +76,7 @@ export function unasfeDequeue<A>(queue: Queue<A>): readonly [A, Queue<A>] {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Queue dequeue
+ * @tsplus getter fncts.ImmutableQueue dequeue
  */
 export function dequeue<A>(queue: Queue<A>): Maybe<readonly [A, Queue<A>]> {
   if (queue.isEmpty) {
@@ -86,14 +86,14 @@ export function dequeue<A>(queue: Queue<A>): Maybe<readonly [A, Queue<A>]> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue map
+ * @tsplus fluent fncts.ImmutableQueue map
  */
 export function map_<A, B>(fa: Queue<A>, f: (a: A) => B): Queue<B> {
   return new Queue(fa._in.map(f), fa._out.map(f));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue foldLeft
+ * @tsplus fluent fncts.ImmutableQueue foldLeft
  */
 export function foldLeft_<A, B>(fa: Queue<A>, b: B, f: (b: B, a: A) => B): B {
   let acc   = b;
@@ -106,14 +106,14 @@ export function foldLeft_<A, B>(fa: Queue<A>, b: B, f: (b: B, a: A) => B): B {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue exists
+ * @tsplus fluent fncts.ImmutableQueue exists
  */
 export function exists_<A>(queue: Queue<A>, p: Predicate<A>): boolean {
   return queue._in.exists(p) || queue._out.exists(p);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue find
+ * @tsplus fluent fncts.ImmutableQueue find
  */
 export function find_<A>(queue: Queue<A>, p: Predicate<A>): Maybe<A> {
   let these = queue;
@@ -128,14 +128,14 @@ export function find_<A>(queue: Queue<A>, p: Predicate<A>): Maybe<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue filter
+ * @tsplus fluent fncts.ImmutableQueue filter
  */
 export function filter_<A>(queue: Queue<A>, p: Predicate<A>): Queue<A> {
   return new Queue(queue._in.filter(p), queue._out.filter(p));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Queue count
+ * @tsplus fluent fncts.ImmutableQueue count
  */
 export function count_<A>(queue: Queue<A>, p: Predicate<A>): number {
   return queue.foldLeft(0, (b, a) => (p(a) ? b + 1 : b));

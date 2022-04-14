@@ -1,4 +1,4 @@
-import { Iterable } from "../../Iterable/definition.js";
+import { Seq } from "../../Seq/definition.js";
 
 export interface ConcF extends HKT {
   readonly type: Conc<this["A"]>;
@@ -9,7 +9,7 @@ export const BUFFER_SIZE = 64;
 
 export const UPDATE_BUFFER_SIZE = 256;
 
-export const ConcTypeId = Symbol.for("fncts.collection.immutable.Conc");
+export const ConcTypeId = Symbol.for("fncts.Conc");
 export type ConcTypeId = typeof ConcTypeId;
 
 export const enum ConcTag {
@@ -25,10 +25,10 @@ export const enum ConcTag {
 }
 
 /**
- * @tsplus type fncts.collection.immutable.Conc
- * @tsplus companion fncts.collection.immutable.ConcOps
+ * @tsplus type fncts.Conc
+ * @tsplus companion fncts.ConcOps
  */
-export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
+export abstract class Conc<A> implements Seq<A>, Hashable, Equatable {
   readonly _typeId: ConcTypeId = ConcTypeId;
   readonly _A!: () => A;
   abstract readonly length: number;
@@ -43,7 +43,7 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
   }
 }
 
-abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
+abstract class ConcImplementation<A> extends Conc<A> {
   abstract readonly length: number;
   abstract readonly binary: boolean;
   abstract get(n: number): A;
@@ -96,18 +96,20 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
   concat<B>(that: ConcImplementation<B>): ConcImplementation<A | B> {
     concrete<A>(this);
     concrete<B>(that);
-    if (this._concTag === ConcTag.Empty) {
+    if (this._tag === ConcTag.Empty) {
       return that;
     }
-    if (that._concTag === ConcTag.Empty) {
+    if (that._tag === ConcTag.Empty) {
       return this;
     }
-    if (this._concTag === ConcTag.AppendN) {
+    if (this._tag === ConcTag.AppendN) {
       const conc = fromArray(this.buffer as Array<A>).take(this.bufferUsed);
       return this.start.concat(conc).concat(that);
     }
-    if (that._concTag === ConcTag.PrependN) {
-      const conc = fromArray((that.buffer as ReadonlyArray<A>).takeLast(that.bufferUsed));
+    if (that._tag === ConcTag.PrependN) {
+      const conc = fromArray(
+        that.bufferUsed === 0 ? [] : (that.buffer as B[]).slice(-that.bufferUsed),
+      );
       return this.concat(conc).concat(that.end);
     }
     const diff = that.depth - this.depth;
@@ -152,7 +154,7 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
       return this;
     } else {
       concrete<A>(this);
-      switch (this._concTag) {
+      switch (this._tag) {
         case ConcTag.Empty:
           return _Empty;
         case ConcTag.Slice:
@@ -205,7 +207,7 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
    */
   materialize(): ConcImplementation<A> {
     concrete(this);
-    switch (this._concTag) {
+    switch (this._tag) {
       case ConcTag.Empty:
         return this;
       case ConcTag.Chunk:
@@ -219,7 +221,7 @@ abstract class ConcImplementation<A> extends Conc<A> implements Iterable<A> {
 const alloc = typeof Buffer !== "undefined" ? Buffer.alloc : (n: number) => new Uint8Array(n);
 
 export class Empty<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.Empty;
+  readonly _tag = ConcTag.Empty;
 
   length = 0;
   depth  = 0;
@@ -266,7 +268,7 @@ export class Empty<A> extends ConcImplementation<A> {
 export const _Empty = new Empty<any>();
 
 export class Concat<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.Concat;
+  readonly _tag = ConcTag.Concat;
 
   length = this.left.length + this.right.length;
   depth  = 1 + Math.max(this.left.depth, this.right.depth);
@@ -286,22 +288,22 @@ export class Concat<A> extends ConcImplementation<A> {
     this.right.copyToArray(n + this.left.length, dest);
   }
   [Symbol.iterator](): Iterator<A> {
-    return (this.left as Iterable<A>).concat(this.right)[Symbol.iterator]();
+    return this.left.asSeq.concat(this.right)[Symbol.iterator]();
   }
   arrayIterator(): Iterator<ArrayLike<A>> {
-    return Iterable.make(() => this.left.arrayIterator())
-      .concat(Iterable.make(() => this.right.arrayIterator()))
+    return Seq.make(() => this.left.arrayIterator())
+      .concat(Seq.make(() => this.right.arrayIterator()))
       [Symbol.iterator]();
   }
   reverseArrayIterator(): Iterator<ArrayLike<A>> {
-    return Iterable.make(() => this.right.reverseArrayIterator())
-      .concat(Iterable.make(() => this.left.reverseArrayIterator()))
+    return Seq.make(() => this.right.reverseArrayIterator())
+      .concat(Seq.make(() => this.left.reverseArrayIterator()))
       [Symbol.iterator]();
   }
 }
 
 class AppendN<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.AppendN;
+  readonly _tag = ConcTag.AppendN;
 
   length: number;
   depth = 0;
@@ -319,9 +321,10 @@ class AppendN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return (this.start as Iterable<A>)
-      .concat((this.buffer as ReadonlyArray<A>).take(this.bufferUsed))
-      [Symbol.iterator]();
+    return this.start.asSeq
+      .concat(this.buffer)
+      .take(this.bufferUsed)
+      [Symbol.iterator]() as Iterator<A>;
   }
 
   append<A1>(a: A1): ConcImplementation<A | A1> {
@@ -382,7 +385,7 @@ class AppendN<A> extends ConcImplementation<A> {
 }
 
 class PrependN<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.PrependN;
+  readonly _tag = ConcTag.PrependN;
 
   length: number;
   left  = _Empty;
@@ -399,9 +402,10 @@ class PrependN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return ((this.buffer as ReadonlyArray<A>).take(this.bufferUsed) as Iterable<A>)
+    return this.buffer.asSeq
+      .take(this.bufferUsed)
       .concat(this.end)
-      [Symbol.iterator]();
+      [Symbol.iterator]() as Iterator<A>;
   }
 
   prepend<A1>(a: A1): ConcImplementation<A | A1> {
@@ -465,7 +469,7 @@ class PrependN<A> extends ConcImplementation<A> {
 }
 
 class Update<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.Update;
+  readonly _tag = ConcTag.Update;
 
   length: number;
   left  = _Empty;
@@ -544,7 +548,7 @@ class Update<A> extends ConcImplementation<A> {
 }
 
 export class Singleton<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.Singleton;
+  readonly _tag = ConcTag.Singleton;
 
   length = 1;
   depth  = 0;
@@ -573,18 +577,18 @@ export class Singleton<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator]() {
-    return Iterable.single(this.value)[Symbol.iterator]();
+    return Seq.single(this.value)[Symbol.iterator]();
   }
 
   arrayIterator() {
-    return Iterable.single([this.value])[Symbol.iterator]();
+    return Seq.single([this.value])[Symbol.iterator]();
   }
 
   reverseArrayIterator = this.arrayIterator;
 }
 
 export class Slice<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.Slice;
+  readonly _tag = ConcTag.Slice;
 
   length: number;
   binary: boolean;
@@ -622,7 +626,7 @@ export class Slice<A> extends ConcImplementation<A> {
 }
 
 export class Chunk<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.Chunk;
+  readonly _tag = ConcTag.Chunk;
 
   length: number;
   depth  = 0;
@@ -657,14 +661,14 @@ export class Chunk<A> extends ConcImplementation<A> {
   }
 
   arrayIterator() {
-    return Iterable.single(this._array)[Symbol.iterator]();
+    return Seq.single(this._array)[Symbol.iterator]();
   }
 
   reverseArrayIterator = this.arrayIterator;
 }
 
 export class ByteChunk<A> extends ConcImplementation<A> {
-  readonly _concTag = ConcTag.ByteChunk;
+  readonly _tag = ConcTag.ByteChunk;
 
   length: number;
   depth  = 0;
@@ -699,7 +703,7 @@ export class ByteChunk<A> extends ConcImplementation<A> {
   }
 
   arrayIterator(): Iterator<Array<A>> {
-    return unsafeCoerce(Iterable.single(this._array)[Symbol.iterator]());
+    return unsafeCoerce(Seq.single(this._array)[Symbol.iterator]());
   }
 
   reverseArrayIterator(): Iterator<Array<A>> {
@@ -738,7 +742,7 @@ function copyArray<A>(
 }
 
 /**
- * @tsplus static fncts.collection.immutable.ConcOps fromArray
+ * @tsplus static fncts.ConcOps fromArray
  */
 export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
   if (array.length === 0) {
@@ -749,7 +753,7 @@ export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.ConcOps isConc
+ * @tsplus static fncts.ConcOps isConc
  */
 export function isConc<A>(u: Iterable<A>): u is Conc<A>;
 export function isConc(u: unknown): u is Conc<unknown>;
@@ -758,7 +762,7 @@ export function isConc(u: unknown): u is Conc<unknown> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc corresponds
+ * @tsplus fluent fncts.Conc corresponds
  */
 export function corresponds_<A, B>(
   self: Conc<A>,
@@ -815,7 +819,7 @@ export function corresponds_<A, B>(
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc toArray
+ * @tsplus getter fncts.Conc toArray
  */
 export function toArray<A>(conc: Conc<A>): ReadonlyArray<A> {
   concrete(conc);

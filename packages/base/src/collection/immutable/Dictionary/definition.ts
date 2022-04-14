@@ -3,7 +3,7 @@ interface DictionaryN extends HKT {
 }
 
 /**
- * @tsplus type fncts.collection.immutable.Dictionary
+ * @tsplus type fncts.Dictionary
  */
 export interface Dictionary<A>
   extends Newtype<
@@ -14,7 +14,7 @@ export interface Dictionary<A>
   > {}
 
 /**
- * @tsplus type fncts.collection.immutable.DictionaryOps
+ * @tsplus type fncts.DictionaryOps
  */
 export interface DictionaryOps extends NewtypeIso<DictionaryN> {}
 

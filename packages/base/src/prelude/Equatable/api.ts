@@ -6,7 +6,7 @@ import {
 } from "@fncts/base/prelude/Equatable/fast-equals";
 
 /**
- * @tsplus static fncts.prelude.structural.EquatableOps deepEquals
+ * @tsplus static fncts.prelude.EquatableOps deepEquals
  */
 export const deepEquals = createComparator(
   createCircularEqualCreator((eq) => (a, b, meta) => {
@@ -21,9 +21,10 @@ export const deepEquals = createComparator(
 );
 
 /**
- * @tsplus static fncts.prelude.structural.EquatableOps strictEquals
+ * @tsplus static fncts.prelude.EquatableOps strictEquals
+ * @tsplus operator fncts.prelude.Equatable ==
  */
-export function strictEquals(a: unknown, b: unknown): boolean {
+export function strictEquals<A>(a: A, b: unknown): boolean {
   if (isEquatable(a)) {
     return a[Symbol.equatable](b);
   } else if (isEquatable(b)) {

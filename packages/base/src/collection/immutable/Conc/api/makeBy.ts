@@ -1,7 +1,7 @@
 /**
  * Fills a Conc with the result of applying `f` `n` times
  *
- * @tsplus static fncts.collection.immutable.ConcOps makeBy
+ * @tsplus static fncts.ConcOps makeBy
  */
 export function makeBy<A>(n: number, f: (n: number) => A): Conc<A> {
   if (n <= 0) {

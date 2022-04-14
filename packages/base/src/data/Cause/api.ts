@@ -99,10 +99,10 @@ function containsEval<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): Eva
  *
  * @tsplus getter fncts.data.Cause defects
  */
-export function defects<E>(self: Cause<E>): ReadonlyArray<unknown> {
-  return self.foldLeft([] as ReadonlyArray<unknown>, (a, c) =>
-    c._tag === CauseTag.Halt ? Just([...a, c.value]) : Nothing(),
-  );
+export function defects<E>(self: Cause<E>): List<unknown> {
+  return self.foldLeft(List.empty(), (z, c) =>
+    c.isHalt() ? Just(c.value + z) : Nothing(),
+  ).reverse;
 }
 
 /**
@@ -142,10 +142,10 @@ export function failed<E>(self: Cause<E>): boolean {
  *
  * @tsplus getter fncts.data.Cause failures
  */
-export function failures<E>(self: Cause<E>): ReadonlyArray<E> {
-  return self.foldLeft([] as readonly E[], (a, c) =>
-    c._tag === CauseTag.Fail ? Just(a.append(c.value)) : Nothing(),
-  );
+export function failures<E>(self: Cause<E>): List<E> {
+  return self.foldLeft(List.empty<E>(), (z, c) =>
+    c.isFail() ? Just(c.value + z) : Nothing(),
+  ).reverse;
 }
 
 /**

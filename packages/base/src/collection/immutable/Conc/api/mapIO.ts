@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.collection.immutable.Conc mapIO
+ * @tsplus fluent fncts.Conc mapIO
  */
 export function mapIO_<A, R, E, B>(as: Conc<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
   return IO.defer(() => {

@@ -5,14 +5,14 @@ import { now } from "@fncts/base/control/Eval/constructors";
 import * as P from "@fncts/base/prelude";
 
 /**
- * @tsplus static fncts.EvalOps Functor
+ * @tsplus static fncts.control.EvalOps Functor
  */
 export const Functor: P.Functor<EvalF> = P.Functor({
   map_,
 });
 
 /**
- * @tsplus static fncts.EvalOps Apply
+ * @tsplus static fncts.control.EvalOps Apply
  */
 export const Apply: P.Apply<EvalF> = P.Apply({
   map_,
@@ -21,7 +21,7 @@ export const Apply: P.Apply<EvalF> = P.Apply({
 });
 
 /**
- * @tsplus static fncts.EvalOps Applicative
+ * @tsplus static fncts.control.EvalOps Applicative
  */
 export const Applicative: P.Applicative<EvalF> = P.Applicative({
   map_,

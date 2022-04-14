@@ -99,16 +99,16 @@ export function prop_<S, A extends Record<string, any>, P extends keyof A>(
   return self.compose(Lens.getProp<A>()(prop));
 }
 
-function nestPath<A>(p: ReadonlyNonEmptyArray<string>, a: A): {} {
-  const out = {};
-  let view  = out;
-  let last  = "";
+function nestPath<A>(p: ReadonlyNonEmptyArray<string>, a: A): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  let view = out;
+  let last = "";
 
   for (let i = 0; i < p.length; i++) {
     const pi = p[i]!;
     view[pi] = {};
     if (!(i === p.length - 1)) {
-      view = view[pi];
+      view = view[pi] as Record<string, unknown>;
     }
     last = pi;
   }
@@ -120,15 +120,19 @@ function nestPath<A>(p: ReadonlyNonEmptyArray<string>, a: A): {} {
 /**
  * @tsplus fluent fncts.optics.Lens path
  */
-export function path_<S, A, P extends Array<string>>(
+export function path_<S, A extends Record<string, unknown>, P extends Array<string>>(
   self: Lens<S, A>,
   path: readonly [...AutoPath<A, P>],
 ): Lens<S, Path<A, P>> {
   return Lens({
-    get: (s) => path.foldLeft(self.get(s), (b, p) => b[p as string]) as Path<A, P>,
+    get: (s) =>
+      path.foldLeft<string, Record<string, unknown>>(self.get(s), (b, p) => b[p] as A) as Path<
+        A,
+        P
+      >,
     set_: (s, a) => {
       const os = self.get(s);
-      const oa = path.foldLeft(os, (b, p) => b[p as string]);
+      const oa = path.foldLeft(os, (b, p) => b[p as string] as A);
       if (a === oa) {
         return s;
       }

@@ -20,8 +20,8 @@ const DEFAULT_INITIAL_CAPACITY = 16;
 const DEFAULT_LOAD_FACTOR      = 0.75;
 
 /**
- * @tsplus type fncts.collection.mutable.HashSet
- * @tsplus companion fncts.collection.mutable.HashSetOps
+ * @tsplus type fncts.MutableHashSet
+ * @tsplus companion fncts.MutableHashSetOps
  */
 export class HashSet<A> implements Iterable<A> {
   constructor(

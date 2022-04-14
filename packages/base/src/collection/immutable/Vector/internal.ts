@@ -370,7 +370,7 @@ export function decrementDepth(bits: number): number {
 /**
  * Appends the value to the Vector by _mutating_ the Vector and its content.
  *
- * @tsplus fluent fncts.collection.immutable.MutableVector push
+ * @tsplus fluent fncts.base.MutableVector push
  */
 export function push<A>(l: MutableVector<A>, value: A): MutableVector<A> {
   const suffixSize = getSuffixSize(l);

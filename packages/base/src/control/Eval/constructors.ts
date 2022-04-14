@@ -1,22 +1,22 @@
 import { Defer, Value } from "@fncts/base/control/Eval/definition";
 
 /**
- * @tsplus static fncts.EvalOps now
+ * @tsplus static fncts.control.EvalOps now
  */
 export function now<A>(a: A): Eval<A> {
   return new Value(a);
 }
 
 /**
- * @tsplus static fncts.EvalOps defer
+ * @tsplus static fncts.control.EvalOps defer
  */
 export function defer<A>(make: Lazy<Eval<A>>): Eval<A> {
   return new Defer(make);
 }
 
 /**
- * @tsplus static fncts.EvalOps always
- * @tsplus static fncts.EvalOps __call
+ * @tsplus static fncts.control.EvalOps always
+ * @tsplus static fncts.control.EvalOps __call
  */
 export function always<A>(make: Lazy<A>): Eval<A> {
   return Eval.defer(Eval.now(make()));

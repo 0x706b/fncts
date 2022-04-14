@@ -4,42 +4,49 @@ import { Chain } from "@fncts/base/control/Eval/definition";
 import { identity } from "@fncts/base/data/function";
 
 /**
- * @tsplus fluent fncts.Eval chain
+ * @tsplus fluent fncts.control.Eval and
+ */
+export function and_(self: Eval<boolean>, that: Eval<boolean>): Eval<boolean> {
+  return self.zipWith((that), (b0, b1) => b0 && b1);
+}
+
+/**
+ * @tsplus fluent fncts.control.Eval chain
  */
 export function chain_<A, B>(self: Eval<A>, f: (a: A) => Eval<B>): Eval<B> {
   return new Chain(self, f);
 }
 
 /**
- * @tsplus getter fncts.Eval flatten
+ * @tsplus getter fncts.control.Eval flatten
  */
 export function flatten<A>(self: Eval<Eval<A>>): Eval<A> {
   return self.chain(identity);
 }
 
 /**
- * @tsplus fluent fncts.Eval map
+ * @tsplus fluent fncts.control.Eval map
  */
 export function map_<A, B>(self: Eval<A>, f: (a: A) => B): Eval<B> {
   return self.chain((a) => Eval.now(f(a)));
 }
 
 /**
- * @tsplus fluent fncts.Eval zipWith
+ * @tsplus fluent fncts.control.Eval zipWith
  */
 export function zipWith_<A, B, C>(self: Eval<A>, fb: Eval<B>, f: (a: A, b: B) => C): Eval<C> {
   return self.chain((a) => fb.map((b) => f(a, b)));
 }
 
 /**
- * @tsplus fluent fncts.Eval ap
+ * @tsplus fluent fncts.control.Eval ap
  */
 export function ap_<A, B>(self: Eval<(a: A) => B>, fa: Eval<A>): Eval<B> {
   return self.zipWith(fa, (f, a) => f(a));
 }
 
 /**
- * @tsplus static fncts.EvalOps sequenceT
+ * @tsplus static fncts.control.EvalOps sequenceT
  */
 export function sequenceT<A extends Array<Eval<any>>>(
   ...computations: A
@@ -71,7 +78,7 @@ function runGenEval<T extends GenEval<A>, A>(
 }
 
 /**
- * @tsplus static fncts.EvalOps gen
+ * @tsplus static fncts.control.EvalOps gen
  */
 export function gen<T extends GenEval<any>, A>(
   f: (i: { <A>(_: Eval<A>): GenEval<A> }) => Generator<T, A, any>,

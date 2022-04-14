@@ -13,8 +13,8 @@ import { identity } from "@fncts/base/data/function";
 import * as P from "@fncts/base/prelude";
 
 /**
- * @tsplus type fncts.collection.immutable.HashSet
- * @tsplus companion fncts.collection.immutable.HashSetOps
+ * @tsplus type fncts.HashSet
+ * @tsplus companion fncts.HashSetOps
  */
 export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
   constructor(

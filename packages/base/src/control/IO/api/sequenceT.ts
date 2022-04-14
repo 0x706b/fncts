@@ -1,4 +1,3 @@
-import type { ReadonlyNonEmptyArray } from "../../../collection/immutable/NonEmptyArray.js";
 import type { _A, _E, _R } from "../../../types.js";
 
 import { identity, unsafeCoerce } from "../../../data/function.js";

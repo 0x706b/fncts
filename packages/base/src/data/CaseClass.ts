@@ -1,6 +1,5 @@
 import type { Equals } from "@fncts/typelevel/Any";
-
-import { hasTypeId } from "../util/predicates.js";
+import type { True } from "@fncts/typelevel/Boolean";
 
 export const CaseClassTypeId = Symbol.for("fncts.data.CaseClass");
 export type CaseClassTypeId = typeof CaseClassTypeId;
@@ -9,7 +8,7 @@ const keysSymbol = Symbol.for("fncts.data.CaseClass.keys");
 const argsSymbol = Symbol.for("fncts.data.CaseClass.args");
 
 export interface CaseArgs {
-  readonly [CaseClassTypeId]: ReadonlyArray<string>;
+  readonly [CaseClassTypeId]: ImmutableArray<string>;
 }
 
 export interface Copy<T> {
@@ -17,8 +16,8 @@ export interface Copy<T> {
 }
 
 export interface CaseConstructor {
-  [CaseClassTypeId]: ReadonlyArray<string>;
-  new <T>(args: Equals<T, {}> extends 1 ? void : T): T & Copy<T> & CaseArgs;
+  [CaseClassTypeId]: ImmutableArray<string>;
+  new <T>(args: Equals<T, {}> extends True ? void : T): T & Copy<T> & CaseArgs;
 }
 
 export function isCaseClass(u: unknown): u is CaseConstructor {
@@ -32,21 +31,21 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
   implements Hashable, Equatable, CaseArgs
 {
   private [argsSymbol]: T;
-  private [keysSymbol]: ReadonlyArray<string> = [];
+  private [keysSymbol]: ImmutableArray<string> = ImmutableArray.empty();
   constructor(args: T) {
     this[argsSymbol] = args;
-    this[keysSymbol] = args ? Object.keys(args) : [];
+    this[keysSymbol] = args ? Object.keys(args).asImmutableArray : ImmutableArray.empty();
     Object.assign(this, args);
   }
 
-  get [CaseClassTypeId](): ReadonlyArray<string> {
+  get [CaseClassTypeId](): ImmutableArray<string> {
     return this[keysSymbol];
   }
 
   get [Symbol.hashable](): number {
     let h = hash0;
     for (const k of this[keysSymbol]) {
-      h = Hashable.combineHash(h, Hashable.hash(this[k]!));
+      h = Hashable.combineHash(h, Hashable.hash((this as T)[k]!));
     }
     return h;
   }
@@ -56,8 +55,8 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
       return true;
     }
     if (that instanceof this.constructor) {
-      const kthat = that[CaseClassTypeId];
-      const len   = kthat.length;
+      const thatKeys: readonly string[] = (that as T)[CaseClassTypeId];
+      const len = thatKeys.length;
       if (len !== this[keysSymbol].length) {
         return false;
       }
@@ -67,8 +66,8 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
 
       while (result && i < len) {
         result =
-          this[keysSymbol][i] === kthat[i] &&
-          Equatable.strictEquals(this[this[keysSymbol]![i]!], that[kthat[i]]);
+          this[keysSymbol][i] === thatKeys[i] &&
+          ((this as T)[this[keysSymbol]![i]!] as {}) == (that as T)[thatKeys[i]!];
         i++;
       }
 

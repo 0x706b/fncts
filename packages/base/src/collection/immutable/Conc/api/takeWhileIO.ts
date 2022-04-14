@@ -1,7 +1,7 @@
 import { concrete } from "@fncts/base/collection/immutable/Conc/definition";
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc takeWhileIO
+ * @tsplus fluent fncts.Conc takeWhileIO
  */
 export function takeWhileIO_<A, R, E>(
   as: Conc<A>,

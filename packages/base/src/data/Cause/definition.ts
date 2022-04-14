@@ -289,7 +289,7 @@ function structuralSymmetric<Id, A>(
   return (x, y) => f(x, y).zipWith(f(y, x), (a, b) => a || b);
 }
 
-function structuralEqualEmpty<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
+function structuralEqualEmpty<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (l._tag === CauseTag.Then || l._tag === CauseTag.Both) {
     if (l.left._tag === CauseTag.Empty) {
       return l.right.equalsEval(r);
@@ -303,24 +303,23 @@ function structuralEqualEmpty<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   }
 }
 
-function structuralThenAssociate<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
+function structuralThenAssociate<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Then &&
     l.left._tag === CauseTag.Then &&
     r._tag === CauseTag.Then &&
     r.right._tag === CauseTag.Then
   ) {
-    return Eval.sequenceArray([
-      l.left.left.equalsEval(r.left),
-      l.left.right.equalsEval(r.right.left),
-      l.right.equalsEval(r.right.right),
-    ]).map((bs) => bs.foldLeft(true as boolean, (b, a) => b && a));
+    return l.left.left
+      .equalsEval(r.left)
+      .and(l.left.right.equalsEval(r.right.left))
+      .and(l.right.equalsEval(r.right.right));
   } else {
     return Eval.now(false);
   }
 }
 
-function strcturalThenDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
+function strcturalThenDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Then &&
     l.right._tag === CauseTag.Both &&
@@ -328,12 +327,11 @@ function strcturalThenDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean>
     r.right._tag === CauseTag.Then &&
     r.left._tag === CauseTag.Then
   ) {
-    return Eval.sequenceArray([
-      r.left.left.equalsEval(r.right.left),
-      l.left.equalsEval(r.left.left),
-      l.right.left.equalsEval(r.left.right),
-      l.right.right.equalsEval(r.right.right),
-    ]).map((bs) => bs.foldLeft(true as boolean, (b, a) => b && a));
+    return r.left.left
+      .equalsEval(r.right.left)
+      .and(l.left.equalsEval(r.left.left))
+      .and(l.right.left.equalsEval(r.left.right))
+      .and(l.right.right.equalsEval(r.right.right));
   } else if (
     l._tag === CauseTag.Then &&
     l.left._tag === CauseTag.Both &&
@@ -341,18 +339,17 @@ function strcturalThenDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean>
     r.left._tag === CauseTag.Then &&
     r.right._tag === CauseTag.Then
   ) {
-    return Eval.sequenceArray([
-      r.left.right.equalsEval(r.right.right),
-      l.left.left.equalsEval(r.left.left),
-      l.left.right.equalsEval(r.right.left),
-      l.right.equalsEval(r.left.right),
-    ]).map((bs) => bs.foldLeft(true as boolean, (b, a) => b && a));
+    return r.left.right
+      .equalsEval(r.right.right)
+      .and(l.left.left.equalsEval(r.left.left))
+      .and(l.left.right.equalsEval(r.right.left))
+      .and(l.right.equalsEval(r.left.right));
   } else {
     return Eval.now(false);
   }
 }
 
-function structuralEqualThen<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
+function structuralEqualThen<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (l._tag === CauseTag.Then && r._tag === CauseTag.Then) {
     return l.left.equalsEval(r.left).zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
   } else {
@@ -360,24 +357,23 @@ function structuralEqualThen<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   }
 }
 
-function structuralBothAssociate<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
+function structuralBothAssociate<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Both &&
     l.left._tag === CauseTag.Both &&
     r._tag === CauseTag.Both &&
     r.right._tag === CauseTag.Both
   ) {
-    return Eval.sequenceArray([
-      l.left.left.equalsEval(r.left),
-      l.left.right.equalsEval(r.right.left),
-      l.right.equalsEval(r.right.right),
-    ]).map((bs) => bs.foldLeft(true as boolean, (b, a) => b && a));
+    return l.left.left
+      .equalsEval(r.left)
+      .and(l.left.right.equalsEval(r.right.left))
+      .and(l.right.equalsEval(r.right.right));
   } else {
     return Eval.now(false);
   }
 }
 
-function structuralBothDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
+function structuralBothDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
     l._tag === CauseTag.Both &&
     l.left._tag === CauseTag.Then &&
@@ -385,12 +381,11 @@ function structuralBothDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean
     r._tag === CauseTag.Then &&
     r.right._tag === CauseTag.Both
   ) {
-    return Eval.sequenceArray([
-      l.left.left.equalsEval(l.right.left),
-      l.left.left.equalsEval(r.left),
-      l.left.right.equalsEval(r.right.left),
-      l.right.right.equalsEval(r.right.right),
-    ]).map((bs) => bs.foldLeft(true as boolean, (b, a) => b && a));
+    return l.left.left
+      .equalsEval(l.right.left)
+      .and(l.left.left.equalsEval(r.left))
+      .and(l.left.right.equalsEval(r.right.left))
+      .and(l.right.right.equalsEval(r.right.right));
   } else if (
     l._tag === CauseTag.Both &&
     l.left._tag === CauseTag.Then &&
@@ -398,18 +393,17 @@ function structuralBothDistribute<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean
     r._tag === CauseTag.Then &&
     r.left._tag === CauseTag.Both
   ) {
-    return Eval.sequenceArray([
-      l.left.right.equalsEval(l.right.right),
-      l.left.left.equalsEval(r.left.left),
-      l.right.left.equalsEval(r.left.right),
-      l.left.right.equalsEval(r.right),
-    ]).map((bs) => bs.foldLeft(true as boolean, (b, a) => b && a));
+    return l.left.right
+      .equalsEval(l.right.right)
+      .and(l.left.left.equalsEval(r.left.left))
+      .and(l.right.left.equalsEval(r.left.right))
+      .and(l.left.right.equalsEval(r.right));
   } else {
     return Eval.now(false);
   }
 }
 
-function structuralEqualBoth<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
+function structuralEqualBoth<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (l._tag === CauseTag.Both && r._tag === CauseTag.Both) {
     return l.left.equalsEval(r.left).zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
   } else {
@@ -423,7 +417,7 @@ function structuralEqualBoth<Id, A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
  * -------------------------------------------------------------------------------------------------
  */
 
-function stepLoop<Id, A>(
+function stepLoop<A>(
   cause: Cause<A>,
   stack: List<Cause<A>>,
   parallel: HashSet<Cause<A>>,
@@ -486,11 +480,11 @@ function stepLoop<Id, A>(
   /* eslint-enable no-param-reassign */
 }
 
-function step<Id, A>(cause: Cause<A>): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
+function step<A>(cause: Cause<A>): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
   return stepLoop(cause, Nil(), HashSet.makeDefault(), Nil());
 }
 
-function flattenLoop<Id, A>(
+function flattenLoop<A>(
   causes: List<Cause<A>>,
   flattened: List<HashSet<Cause<A>>>,
 ): List<HashSet<Cause<A>>> {
@@ -516,11 +510,11 @@ function flattenLoop<Id, A>(
   throw new Error("BUG");
 }
 
-function flat<Id, A>(cause: Cause<A>): List<HashSet<Cause<A>>> {
+function flat<A>(cause: Cause<A>): List<HashSet<Cause<A>>> {
   return flattenLoop(Cons(cause, List.empty()), List.empty());
 }
 
-function hashCode<Id, A>(cause: Cause<A>): number {
+function hashCode<A>(cause: Cause<A>): number {
   const flattened = flat(cause);
   const size      = flattened.length;
   let head;

@@ -12,13 +12,13 @@
  * for more information regarding copyright ownership
  */
 
-import { _Nil } from "../List.js";
+import { _Nil } from "@fncts/base/collection/immutable/List.js";
 
 /**
- * @tsplus type fncts.collection.immutable.Queue
- * @tsplus companion fncts.collection.immutable.QueueOps
+ * @tsplus type fncts.ImmutableQueue
+ * @tsplus companion fncts.ImmutableQueueOps
  */
-export class Queue<A> implements Iterable<A> {
+export class Queue<A> implements Seq<A> {
   constructor(
     /* @internal */
     public _in: List<A>,

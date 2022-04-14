@@ -1,4 +1,4 @@
-export const CachedTypeId = Symbol.for("fncts.base.control.Cached");
+export const CachedTypeId = Symbol.for("fncts.control.Cached");
 export type CachedTypeId = typeof CachedTypeId;
 
 export abstract class CachedInternal<Error, Resource> {

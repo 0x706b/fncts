@@ -3,7 +3,6 @@ import type { Canceler } from "@fncts/base/control/IO/definition";
 import type * as P from "@fncts/base/prelude";
 import type { _E, _R } from "@fncts/base/types";
 
-import { ReadonlyArray } from "@fncts/base/collection/Array";
 import {
   Async,
   Chain,
@@ -739,8 +738,8 @@ export function filterOrFail_<R, E, A, E1>(
  *
  * @tsplus static fncts.control.IOOps firstSuccess
  */
-export function firstSuccess<R, E, A>(mas: ReadonlyNonEmptyArray<IO<R, E, A>>): IO<R, E, A> {
-  return mas.tail.foldLeft(mas.head, (b, a) => b.orElse(a));
+export function firstSuccess<R, E, A>(mas: NonEmptyArray<IO<R, E, A>>): IO<R, E, A> {
+  return mas.reduce((b, a) => b.orElse(a));
 }
 
 /**
@@ -1591,7 +1590,7 @@ export function orHaltWith_<R, E, A>(
  *
  * @tsplus fluent fncts.control.IO parallelErrors
  */
-export function parallelErrors<R, E, A>(io: IO<R, E, A>): IO<R, ReadonlyArray<E>, A> {
+export function parallelErrors<R, E, A>(io: IO<R, E, A>): IO<R, List<E>, A> {
   return io.matchCauseIO((cause) => {
     const f = cause.failures;
     if (f.length === 0) {
@@ -1741,8 +1740,8 @@ export function replicate_<R, E, A>(
   self: IO<R, E, A>,
   n: number,
   __tsplusTrace?: string,
-): ReadonlyArray<IO<R, E, A>> {
-  return ReadonlyArray.range(0, n).map(() => self);
+): ImmutableArray<IO<R, E, A>> {
+  return ImmutableArray.range(0, n).map(() => self);
 }
 
 /**

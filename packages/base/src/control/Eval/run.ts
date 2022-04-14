@@ -2,8 +2,8 @@ import { concrete, EvalTag } from "@fncts/base/control/Eval/definition";
 import { Stack } from "@fncts/base/internal/Stack";
 
 /**
- * @tsplus getter fncts.Eval run
- * @tsplus static fncts.EvalOps run
+ * @tsplus getter fncts.control.Eval run
+ * @tsplus static fncts.control.EvalOps run
  */
 export function run<A>(computation: Eval<A>): A {
   let frames: Stack<(a: any) => Eval<any>> | undefined = undefined;

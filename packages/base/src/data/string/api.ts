@@ -175,7 +175,7 @@ export const under = Pipeable(under_);
 /**
  * Join newline-separated strings together.
  *
- * @tsplus getter fncts.collection.immutable.Array unlines
+ * @tsplus getter fncts.base.ImmutableArray unlines
  */
 export function unlines(as: ReadonlyArray<string>): string {
   return as.join("\n");

@@ -17,7 +17,7 @@ import * as P from "@fncts/base/prelude";
 import { HashEq } from "@fncts/base/prelude";
 
 /**
- * @tsplus fluent fncts.collection.immutable.HashSet add
+ * @tsplus fluent fncts.HashSet add
  */
 export function add_<A>(set: HashSet<A>, value: A): HashSet<A> {
   return modifyHash(set, value, set.config.hash(value), false);
@@ -26,7 +26,7 @@ export function add_<A>(set: HashSet<A>, value: A): HashSet<A> {
 /**
  * Mark `set` as mutable.
  *
- * @tsplus getter fncts.collection.immutable.HashSet beginMutation
+ * @tsplus getter fncts.HashSet beginMutation
  */
 export function beginMutation<K>(set: HashSet<K>): HashSet<K> {
   return new HashSet(true, set._edit + 1, set.config, set._root, set._size);
@@ -35,7 +35,7 @@ export function beginMutation<K>(set: HashSet<K>): HashSet<K> {
 /**
  * Mark `set` as immutable.
  *
- * @tsplus getter fncts.collection.immutable.HashSet endMutation
+ * @tsplus getter fncts.HashSet endMutation
  */
 export function endMutation<K>(set: HashSet<K>): HashSet<K> {
   set._editable = false;
@@ -45,35 +45,35 @@ export function endMutation<K>(set: HashSet<K>): HashSet<K> {
 /**
  * Appy f to each element
  *
- * @tsplus fluent fncts.collection.immutable.HashSet forEach
+ * @tsplus fluent fncts.HashSet forEach
  */
 export function forEach_<V>(map: HashSet<V>, f: (v: V, m: HashSet<V>) => void): void {
   foldLeft_(map, undefined as void, (_, value) => f(value, map));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.HashSet has
+ * @tsplus fluent fncts.HashSet has
  */
 export function has_<A>(set: HashSet<A>, value: A): boolean {
   return hasHash(set, value, set.config.hash(value));
 }
 
 /**
- * @tsplus static fncts.collection.immutable.HashSetOps make
+ * @tsplus static fncts.HashSetOps make
  */
 export function make<A>(config: P.Hash<A> & P.Eq<A>): HashSet<A> {
   return new HashSet(false, 0, config, _EmptyNode, 0);
 }
 
 /**
- * @tsplus static fncts.collection.immutable.HashSetOps makeDefault
+ * @tsplus static fncts.HashSetOps makeDefault
  */
 export function makeDefault<A>(): HashSet<A> {
   return make<A>(P.HashEq.StructuralStrict);
 }
 
 /**
- * @tsplus static fncts.collection.immutable.HashSetOps fromDefault
+ * @tsplus static fncts.HashSetOps fromDefault
  */
 export function fromDefault<A>(...values: ReadonlyArray<A>): HashSet<A> {
   return mutate_(makeDefault<A>(), (set) => {
@@ -86,7 +86,7 @@ export function fromDefault<A>(...values: ReadonlyArray<A>): HashSet<A> {
 /**
  * Mutate `set` within the context of `f`.
  *
- * @tsplus fluent fncts.collection.immutable.HashSet mutate
+ * @tsplus fluent fncts.HashSet mutate
  */
 export function mutate_<A>(set: HashSet<A>, transient: (set: HashSet<A>) => void) {
   const s = beginMutation(set);
@@ -95,7 +95,7 @@ export function mutate_<A>(set: HashSet<A>, transient: (set: HashSet<A>) => void
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.HashSet remove
+ * @tsplus fluent fncts.HashSet remove
  */
 export function remove_<A>(set: HashSet<A>, value: A): HashSet<A> {
   return modifyHash(set, value, set.config.hash(value), true);
@@ -104,7 +104,7 @@ export function remove_<A>(set: HashSet<A>, value: A): HashSet<A> {
 /**
  * Calculate the number of keys pairs in a set
  *
- * @tsplus getter fncts.collection.immutable.HashSet size
+ * @tsplus getter fncts.HashSet size
  */
 export function size<A>(set: HashSet<A>): number {
   return set._size;
@@ -113,7 +113,7 @@ export function size<A>(set: HashSet<A>): number {
 /**
  * If element is present remove it, if not add it
  *
- * @tsplus fluent fncts.collection.immutable.HashSet toggle
+ * @tsplus fluent fncts.HashSet toggle
  */
 export function toggle_<A>(set: HashSet<A>, a: A): HashSet<A> {
   return (has_(set, a) ? remove_ : add_)(set, a);
@@ -140,7 +140,7 @@ export function map_<B>(C: P.HashEq<B>): <A>(fa: HashSet<A>, f: (x: A) => B) => 
 /**
  * Projects a Set through a function
  *
- * @tsplus fluent fncts.collection.immutable.HashSet map
+ * @tsplus fluent fncts.HashSet map
  */
 export function mapDefault<A, B>(self: HashSet<A>, f: (a: A) => B): HashSet<B> {
   return map_(P.HashEq.StructuralStrict as P.HashEq<B>)(self, f);
@@ -167,7 +167,7 @@ export function chain_<B>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.HashSet chain
+ * @tsplus fluent fncts.HashSet chain
  */
 export function chainDefault<A, B>(self: HashSet<A>, f: (a: A) => Iterable<B>): HashSet<B> {
   return chain_<B>(HashEq.StructuralStrict)(self, f);
@@ -176,7 +176,7 @@ export function chainDefault<A, B>(self: HashSet<A>, f: (a: A) => Iterable<B>): 
 /**
  * Creates an equal for a set
  *
- * @tsplus static fncts.collection.immutable.HashSetOps getEq
+ * @tsplus static fncts.HashSetOps getEq
  */
 export function getEq<A>(): P.Eq<HashSet<A>> {
   return P.Eq({
@@ -202,7 +202,7 @@ export function getEq<A>(): P.Eq<HashSet<A>> {
 /**
  * Filter set values using predicate
  *
- * @tsplus fluent fncts.collection.immutable.HashSet filter
+ * @tsplus fluent fncts.HashSet filter
  */
 export function filter_<A, B extends A>(set: HashSet<A>, refinement: Refinement<A, B>): HashSet<B>;
 export function filter_<A>(set: HashSet<A>, predicate: Predicate<A>): HashSet<A>;
@@ -236,7 +236,7 @@ export function filterMap_<B>(
 /**
  * Partition set values using predicate
  *
- * @tsplus fluent fncts.collection.immutable.HashSet partition
+ * @tsplus fluent fncts.HashSet partition
  */
 export function partition_<A, B extends A>(
   self: HashSet<A>,
@@ -286,7 +286,7 @@ export function partitionMap_<B, C>(
 /**
  * Reduce a state over the set elements
  *
- * @tsplus fluent fncts.collection.immutable.HashSet foldLeft
+ * @tsplus fluent fncts.HashSet foldLeft
  */
 export function foldLeft_<A, B>(fa: HashSet<A>, b: B, f: (b: B, v: A) => B): B {
   const root = fa._root;
@@ -312,7 +312,7 @@ export function foldLeft_<A, B>(fa: HashSet<A>, b: B, f: (b: B, v: A) => B): B {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.HashSet join
+ * @tsplus fluent fncts.HashSet join
  */
 export function join_(self: HashSet<string>, separator: string): string {
   if (self.size === 0) {
@@ -338,7 +338,7 @@ export function join_(self: HashSet<string>, separator: string): string {
 /**
  * Form the set difference
  *
- * @tsplus fluent fncts.collection.immutable.HashSet difference
+ * @tsplus fluent fncts.HashSet difference
  */
 export function difference_<A>(x: HashSet<A>, y: Iterable<A>): HashSet<A> {
   return mutate_(x, (s) => {
@@ -351,7 +351,7 @@ export function difference_<A>(x: HashSet<A>, y: Iterable<A>): HashSet<A> {
 /**
  * true if all elements match predicate
  *
- * @tsplus fluent fncts.collection.immutable.HashSet every
+ * @tsplus fluent fncts.HashSet every
  */
 export function every_<A>(self: HashSet<A>, predicate: Predicate<A>): boolean {
   for (const e of self) {
@@ -391,7 +391,7 @@ export function isSubset_<A>(x: HashSet<A>, y: HashSet<A>): boolean {
 /**
  * true if one or more elements match predicate
  *
- * @tsplus fluent fncts.collection.immutable.HashSet exists
+ * @tsplus fluent fncts.HashSet exists
  */
 export function exists_<A>(set: HashSet<A>, predicate: Predicate<A>): boolean {
   let found = false;
@@ -409,7 +409,7 @@ export function exists_<A>(set: HashSet<A>, predicate: Predicate<A>): boolean {
  *
  * the hash and equal of the 2 sets has to be the same
  *
- * @tsplus fluent fncts.collection.immutable.HashSet union
+ * @tsplus fluent fncts.HashSet union
  */
 export function union_<A>(l: HashSet<A>, r: Iterable<A>): HashSet<A> {
   return mutate_(l, (x) => {
@@ -420,7 +420,7 @@ export function union_<A>(l: HashSet<A>, r: Iterable<A>): HashSet<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.HashSet toArray
+ * @tsplus static fncts.HashSet toArray
  */
 export function toArray_<A>(set: HashSet<A>, O: P.Ord<A>): ReadonlyArray<A> {
   const r: Array<A> = [];

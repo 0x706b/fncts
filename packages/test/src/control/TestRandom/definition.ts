@@ -205,13 +205,13 @@ export class TestRandom implements Random {
       const out: Array<number> = [];
       while (true) {
         for (let index = 0; index !== rangeLength; ++index) {
-          const indexRangeSize = index === 0 ? rangeSize[0] + 1 : 0x100000000;
+          const indexRangeSize = index === 0 ? rangeSize.data[0]! + 1 : 0x100000000;
           const g              = yield* _(self.randomIntBounded(indexRangeSize));
           out[index]           = g;
         }
         for (let index = 0; index !== rangeLength; ++index) {
           const current        = out[index]!;
-          const currentInRange = rangeSize[index];
+          const currentInRange = rangeSize.data[index]!;
           if (current < currentInRange) {
             return out;
           } else if (current > currentInRange) {

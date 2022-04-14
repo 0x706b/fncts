@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.collection.immutable.Dictionary foldLeftWithIndex
+ * @tsplus fluent fncts.Dictionary foldLeftWithIndex
  */
 export function foldLeftWithIndex_<A, B>(
   self: Dictionary<A>,
@@ -17,21 +17,21 @@ export function foldLeftWithIndex_<A, B>(
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Dictionary keys
+ * @tsplus getter fncts.Dictionary keys
  */
 export function keys<A>(self: Dictionary<A>): ReadonlyArray<string> {
   return unsafeCoerce(Object.keys(self.toRecord));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Dictionary map
+ * @tsplus fluent fncts.Dictionary map
  */
 export function map_<A, B>(self: Dictionary<A>, f: (a: A) => B): Dictionary<B> {
   return self.mapWithIndex((_, a) => f(a));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Dictionary mapWithIndex
+ * @tsplus fluent fncts.Dictionary mapWithIndex
  */
 export function mapWithIndex_<A, B>(self: Dictionary<A>, f: (k: string, a: A) => B): Dictionary<B> {
   const out = {} as Record<string, B>;
@@ -45,7 +45,7 @@ export function mapWithIndex_<A, B>(self: Dictionary<A>, f: (k: string, a: A) =>
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Dictionary toRecord
+ * @tsplus getter fncts.Dictionary toRecord
  * @tsplus macro identity
  */
 export function toRecord<A>(self: Dictionary<A>): Record<string, A> {

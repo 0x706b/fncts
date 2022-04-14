@@ -98,7 +98,7 @@ export function repeat<R0>(
 
 export function timeoutWarning(duration: number): TestAspect<Has<Live>, any> {
   return <R1, E1>(spec: Spec<R1, E1>) => {
-    const loop = (labels: ReadonlyArray<string>, spec: Spec<R1, E1>): Spec<R1 & Has<Live>, E1> =>
+    const loop = (labels: Vector<string>, spec: Spec<R1, E1>): Spec<R1 & Has<Live>, E1> =>
       matchTag_(spec.caseValue, {
         Exec: ({ exec, spec }) => Spec.exec(loop(labels, spec), exec),
         Labeled: ({ label, spec }) => Spec.labeled(loop(labels.append(label), spec), label),
@@ -107,12 +107,12 @@ export function timeoutWarning(duration: number): TestAspect<Has<Live>, any> {
         Test: ({ test, annotations }) => Spec.test(warn(labels, test, duration), annotations),
       });
 
-    return loop([], spec);
+    return loop(Vector(), spec);
   };
 }
 
 function warn<R, E>(
-  labels: ReadonlyArray<string>,
+  labels: Vector<string>,
   test: IO<R, TestFailure<E>, TestSuccess>,
   duration: number,
 ) {
@@ -123,11 +123,11 @@ function warn<R, E>(
   );
 }
 
-function showWarning(labels: ReadonlyArray<string>, duration: number) {
+function showWarning(labels: Vector<string>, duration: number) {
   return Live.Live(Console.print(renderWarning(labels, duration)));
 }
 
-function renderWarning(labels: ReadonlyArray<string>, duration: number) {
+function renderWarning(labels: Vector<string>, duration: number) {
   return `Test ${labels.join(
     " - ",
   )} has taken more than ${duration} milliseconds to execute. If this is not expected, consider using TestAspect.timeout to timeout runaway tests for faster diagnostics`;

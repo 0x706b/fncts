@@ -1,7 +1,4 @@
-/**
- * @tsplus global
- */
-import { ReadonlyArray } from "@fncts/base/collection/Array/definition";
+import {} from "@fncts/base/collection/compat/Array";
 /**
  * @tsplus global
  */
@@ -21,14 +18,23 @@ import { HashSet } from "@fncts/base/collection/immutable/HashSet/definition";
 /**
  * @tsplus global
  */
-import { Cons, List, Nil } from "@fncts/base/collection/immutable/List/definition";
+import { ImmutableArray } from "@fncts/base/collection/immutable/ImmutableArray/definition";
 /**
  * @tsplus global
  */
 import {
+  ImmutableNonEmptyArray,
   NonEmptyArray,
   ReadonlyNonEmptyArray,
-} from "@fncts/base/collection/immutable/NonEmptyArray";
+} from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
+/**
+ * @tsplus global
+ */
+import { Cons, List, Nil } from "@fncts/base/collection/immutable/List/definition";
+/**
+ * @tsplus global
+ */
+import { ImmutableQueue } from "@fncts/base/collection/immutable/Queue/definition";
 /**
  * @tsplus global
  */
@@ -37,10 +43,6 @@ import { SortedMap } from "@fncts/base/collection/immutable/SortedMap/definition
  * @tsplus global
  */
 import { Vector } from "@fncts/base/collection/immutable/Vector";
-/**
- * @tsplus global
- */
-import { Iterable } from "@fncts/base/collection/Iterable/definition";
 /**
  * @tsplus global
  */
@@ -53,6 +55,10 @@ import { HashSet as MutableHashSet } from "@fncts/base/collection/mutable/HashSe
  * @tsplus global
  */
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
+/**
+ * @tsplus global
+ */
+import { Seq } from "@fncts/base/collection/Seq/definition";
 /**
  * @tsplus global
  */
@@ -263,6 +269,7 @@ import { Newtype, NewtypeIso } from "@fncts/base/data/Newtype";
  * @tsplus global
  */
 import {} from "@fncts/base/data/number/definition";
+import {} from "@fncts/base/data/object/definition";
 /**
  * @tsplus global
  */

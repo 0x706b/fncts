@@ -221,6 +221,13 @@ export function prepend_<A, B>(self: List<A>, elem: B): List<A | B> {
 }
 
 /**
+ * @tsplus operator fncts.List +
+ */
+export function prependOperator<A, B>(elem: A, self: List<B>): List<A | B> {
+  return new Cons<A | B>(elem, self);
+}
+
+/**
  * @tsplus fluent fncts.List prependAll
  */
 export function prependAll_<A, B>(self: List<A>, prefix: List<B>): List<A | B> {

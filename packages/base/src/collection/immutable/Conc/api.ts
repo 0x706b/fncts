@@ -10,22 +10,20 @@ import {
   Singleton,
   Slice,
 } from "@fncts/base/collection/immutable/Conc/definition";
-import { Iterable } from "@fncts/base/collection/Iterable/definition";
 import { EitherTag } from "@fncts/base/data/Either";
 import { identity, tuple } from "@fncts/base/data/function";
-import { These } from "@fncts/base/data/These";
 import { Stack } from "@fncts/base/internal/Stack";
 import * as P from "@fncts/base/prelude";
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc align
+ * @tsplus fluent fncts.Conc align
  */
 export function align_<A, B>(self: Conc<A>, fb: Conc<B>): Conc<These<A, B>> {
   return self.alignWith(fb, identity);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc alignWith
+ * @tsplus fluent fncts.Conc alignWith
  */
 export function alignWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (_: These<A, B>) => C): Conc<C> {
   concrete(self);
@@ -51,7 +49,7 @@ export function alignWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (_: These<A, 
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc append
+ * @tsplus fluent fncts.Conc append
  */
 export function append_<A1, A2>(self: Conc<A1>, a: A2): Conc<A1 | A2> {
   concrete(self);
@@ -70,14 +68,14 @@ export class ConcBuilder<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.ConcOps builder
+ * @tsplus static fncts.ConcOps builder
  */
 export function builder<A>(): ConcBuilder<A> {
   return new ConcBuilder(Conc.empty());
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc chain
+ * @tsplus fluent fncts.Conc chain
  */
 export function chain_<A, B>(ma: Conc<A>, f: (a: A) => Conc<B>): Conc<B> {
   concrete(ma);
@@ -96,7 +94,7 @@ export function chain_<A, B>(ma: Conc<A>, f: (a: A) => Conc<B>): Conc<B> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.ConcOps chainRecDepthFirst
+ * @tsplus static fncts.ConcOps chainRecDepthFirst
  */
 export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
   let buffer = f(a);
@@ -116,7 +114,7 @@ export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>):
 }
 
 /**
- * @tsplus static fncts.collection.immutable.ConcOps chainRecBreadthFirst
+ * @tsplus static fncts.ConcOps chainRecBreadthFirst
  */
 export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
   const initial = f(a);
@@ -145,7 +143,7 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc chop
+ * @tsplus fluent fncts.Conc chop
  */
 export function chop_<A, B>(self: Conc<A>, f: (as: Conc<A>) => readonly [B, Conc<A>]): Conc<B> {
   const out       = builder<B>();
@@ -159,7 +157,7 @@ export function chop_<A, B>(self: Conc<A>, f: (as: Conc<A>) => readonly [B, Conc
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc chunksOf
+ * @tsplus fluent fncts.Conc chunksOf
  */
 export function chunksOf_<A>(self: Conc<A>, n: number): Conc<Conc<A>> {
   return self.chop((as) => as.splitAt(n));
@@ -168,12 +166,12 @@ export function chunksOf_<A>(self: Conc<A>, n: number): Conc<Conc<A>> {
 /**
  * Transforms all elements of the Conc for as long as the specified partial function is defined.
  *
- * @tsplus fluent fncts.collection.immutable.Conc collectWhile
+ * @tsplus fluent fncts.Conc collectWhile
  */
 export function collectWhile_<A, B>(as: Conc<A>, f: (a: A) => Maybe<B>): Conc<B> {
   concrete(as);
 
-  switch (as._concTag) {
+  switch (as._tag) {
     case ConcTag.Singleton: {
       return f(as.value).match(() => Conc.empty(), Conc.single);
     }
@@ -197,14 +195,14 @@ export function collectWhile_<A, B>(as: Conc<A>, f: (a: A) => Maybe<B>): Conc<B>
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc compact
+ * @tsplus getter fncts.Conc compact
  */
 export function compact<A>(self: Conc<Maybe<A>>): Conc<A> {
   return self.filterMap(identity);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc concat
+ * @tsplus fluent fncts.Conc concat
  */
 export function concat_<A, B>(self: Conc<A>, that: Conc<B>): Conc<A | B> {
   concrete(self);
@@ -213,7 +211,7 @@ export function concat_<A, B>(self: Conc<A>, that: Conc<B>): Conc<A | B> {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc elem
+ * @tsplus getter fncts.Conc elem
  */
 export function elem_<A>(self: Conc<A>) {
   return (E: Eq<A>) =>
@@ -222,7 +220,7 @@ export function elem_<A>(self: Conc<A>) {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc exists
+ * @tsplus fluent fncts.Conc exists
  */
 export function exists_<A>(as: Conc<A>, predicate: Predicate<A>): boolean {
   concrete(as);
@@ -239,7 +237,7 @@ export function exists_<A>(as: Conc<A>, predicate: Predicate<A>): boolean {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc drop
+ * @tsplus fluent fncts.Conc drop
  */
 export function drop_<A>(self: Conc<A>, n: number): Conc<A> {
   concrete(self);
@@ -249,7 +247,7 @@ export function drop_<A>(self: Conc<A>, n: number): Conc<A> {
   } else if (n >= len) {
     return Conc.empty();
   } else {
-    switch (self._concTag) {
+    switch (self._tag) {
       case ConcTag.Slice:
         return new Slice(self.conc, self.offset + n, self.l - n);
       case ConcTag.Singleton:
@@ -263,11 +261,11 @@ export function drop_<A>(self: Conc<A>, n: number): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc dropWhile
+ * @tsplus fluent fncts.Conc dropWhile
  */
 export function dropWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
   concrete(self);
-  switch (self._concTag) {
+  switch (self._tag) {
     case ConcTag.Chunk: {
       const arr = self.arrayLike();
       let i     = 0;
@@ -299,7 +297,7 @@ export function dropWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc filter
+ * @tsplus fluent fncts.Conc filter
  */
 export function filter_<A, B extends A>(self: Conc<A>, p: Refinement<A, B>): Conc<B>;
 export function filter_<A>(self: Conc<A>, p: Predicate<A>): Conc<A>;
@@ -308,14 +306,14 @@ export function filter_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc filterMap
+ * @tsplus fluent fncts.Conc filterMap
  */
 export function filterMap_<A, B>(self: Conc<A>, f: (a: A) => Maybe<B>): Conc<B> {
   return self.filterMapWithIndex((_, a) => f(a));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc filterMapWithIndex
+ * @tsplus fluent fncts.Conc filterMapWithIndex
  */
 export function filterMapWithIndex_<A, B>(
   self: Conc<A>,
@@ -340,7 +338,7 @@ export function filterMapWithIndex_<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc filterWithIndex
+ * @tsplus fluent fncts.Conc filterWithIndex
  */
 export function filterWithIndex_<A, B extends A>(
   self: Conc<A>,
@@ -349,7 +347,7 @@ export function filterWithIndex_<A, B extends A>(
 export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A>;
 export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A> {
   concrete(self);
-  switch (self._concTag) {
+  switch (self._tag) {
     case ConcTag.Empty: {
       return _Empty;
     }
@@ -391,7 +389,7 @@ export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number,
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc find
+ * @tsplus fluent fncts.Conc find
  */
 export function find_<A>(self: Conc<A>, f: (a: A) => boolean): Maybe<A> {
   concrete(self);
@@ -412,7 +410,7 @@ export function find_<A>(self: Conc<A>, f: (a: A) => boolean): Maybe<A> {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc flatten
+ * @tsplus getter fncts.Conc flatten
  */
 export function flatten<A>(self: Conc<Conc<A>>): Conc<A> {
   return self.chain(identity);
@@ -421,7 +419,7 @@ export function flatten<A>(self: Conc<Conc<A>>): Conc<A> {
  * Folds over the elements in this Conc from the left.
  * Stops the fold early when the condition is not fulfilled.
  *
- * @tsplus fluent fncts.collection.immutable.Conc foldLeftWhile
+ * @tsplus fluent fncts.Conc foldLeftWhile
  */
 export function foldLeftWhile_<A, B>(as: Conc<A>, b: B, p: Predicate<B>, f: (b: B, a: A) => B): B {
   concrete(as);
@@ -440,14 +438,14 @@ export function foldLeftWhile_<A, B>(as: Conc<A>, b: B, p: Predicate<B>, f: (b: 
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc foldLeft
+ * @tsplus fluent fncts.Conc foldLeft
  */
 export function foldLeft_<A, B>(self: Conc<A>, b: B, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc foldLeftWithIndex
+ * @tsplus fluent fncts.Conc foldLeftWithIndex
  */
 export function foldLeftWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   concrete(self);
@@ -473,7 +471,7 @@ export function foldMap_<M>(M: P.Monoid<M>) {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc foldMap
+ * @tsplus getter fncts.Conc foldMap
  */
 export function foldMapSelf<A>(self: Conc<A>) {
   return <M>(M: P.Monoid<M>) =>
@@ -490,7 +488,7 @@ export function foldMapWithIndex_<M>(M: P.Monoid<M>) {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc foldMapWithIndex
+ * @tsplus getter fncts.Conc foldMapWithIndex
  */
 export function foldMapWithIndexSelf<A>(self: Conc<A>) {
   return <M>(M: P.Monoid<M>) =>
@@ -499,14 +497,14 @@ export function foldMapWithIndexSelf<A>(self: Conc<A>) {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc foldRight
+ * @tsplus fluent fncts.Conc foldRight
  */
 export function foldRight_<A, B>(fa: Conc<A>, b: B, f: (a: A, b: B) => B): B {
   return fa.foldRightWithIndex(b, (_, a, b) => f(a, b));
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc foldRightWithIndex
+ * @tsplus fluent fncts.Conc foldRightWithIndex
  */
 export function foldRightWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   concrete(self);
@@ -525,7 +523,7 @@ export function foldRightWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, a:
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc forEach
+ * @tsplus fluent fncts.Conc forEach
  */
 export function forEach_<A, B>(self: Conc<A>, f: (a: A) => B): void {
   concrete(self);
@@ -533,7 +531,7 @@ export function forEach_<A, B>(self: Conc<A>, f: (a: A) => B): void {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc forEachWithIndex
+ * @tsplus fluent fncts.Conc forEachWithIndex
  */
 export function forEachWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): void {
   concrete(self);
@@ -541,14 +539,14 @@ export function forEachWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc get
+ * @tsplus fluent fncts.Conc get
  */
 export function get_<A>(as: Conc<A>, n: number): Maybe<A> {
   return Maybe.tryCatch(() => unsafeGet_(as, n));
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc head
+ * @tsplus getter fncts.Conc head
  */
 export function head<A>(self: Conc<A>): Maybe<A> {
   concrete(self);
@@ -559,7 +557,7 @@ export function head<A>(self: Conc<A>): Maybe<A> {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc init
+ * @tsplus getter fncts.Conc init
  */
 export function init<A>(self: Conc<A>): Maybe<Conc<A>> {
   if (isEmpty(self)) {
@@ -569,7 +567,7 @@ export function init<A>(self: Conc<A>): Maybe<Conc<A>> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc join
+ * @tsplus fluent fncts.Conc join
  */
 export function join_(self: Conc<string>, separator: string): string {
   if (self.length === 0) {
@@ -579,7 +577,7 @@ export function join_(self: Conc<string>, separator: string): string {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc last
+ * @tsplus getter fncts.Conc last
  */
 export function last<A>(self: Conc<A>): Maybe<A> {
   concrete(self);
@@ -590,7 +588,7 @@ export function last<A>(self: Conc<A>): Maybe<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc map
+ * @tsplus fluent fncts.Conc map
  */
 export function map_<A, B>(self: Conc<A>, f: (a: A) => B): Conc<B> {
   return self.mapWithIndex((_, a) => f(a));
@@ -599,7 +597,7 @@ export function map_<A, B>(self: Conc<A>, f: (a: A) => B): Conc<B> {
 /**
  * Statefully maps over the Conc, producing new elements of type `B`.
  *
- * @tsplus fluent fncts.collection.immutable.Conc mapAccum
+ * @tsplus fluent fncts.Conc mapAccum
  */
 export function mapAccum_<A, S, B>(
   self: Conc<A>,
@@ -687,7 +685,7 @@ type Frame<A, B> =
   | PrependFrame<A, B>;
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc mapWithIndex
+ * @tsplus fluent fncts.Conc mapWithIndex
  */
 export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): Conc<B> {
   let current = self;
@@ -702,7 +700,7 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
     // eslint-disable-next-line no-constant-condition
     pushing: while (true) {
       concrete<A>(current);
-      switch (current._concTag) {
+      switch (current._tag) {
         case ConcTag.Singleton: {
           result = new Singleton(f(index++, current.value));
           break pushing;
@@ -712,7 +710,7 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
           break pushing;
         }
         case ConcTag.Chunk: {
-          result = new Chunk(current._array.mapWithIndex((i, a) => f(i + index, a)));
+          result = new Chunk(current._array.map((a, i) => f(i + index, a)));
           index += current.length;
           break pushing;
         }
@@ -789,7 +787,7 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc isEmpty
+ * @tsplus getter fncts.Conc isEmpty
  */
 export function isEmpty<A>(self: Conc<A>): boolean {
   concrete(self);
@@ -797,14 +795,14 @@ export function isEmpty<A>(self: Conc<A>): boolean {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc isNonEmpty
+ * @tsplus getter fncts.Conc isNonEmpty
  */
 export function isNonEmpty<A>(conc: Conc<A>): boolean {
   return !isEmpty(conc);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc partition
+ * @tsplus fluent fncts.Conc partition
  */
 export function partition_<A, B extends A>(
   self: Conc<A>,
@@ -816,7 +814,7 @@ export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc partitionMap
+ * @tsplus fluent fncts.Conc partitionMap
  */
 export function partitionMap_<A, B, C>(
   self: Conc<A>,
@@ -826,7 +824,7 @@ export function partitionMap_<A, B, C>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc partitionMapWithIndex
+ * @tsplus fluent fncts.Conc partitionMapWithIndex
  */
 export function partitionMapWithIndex_<A, B, C>(
   fa: Conc<A>,
@@ -853,7 +851,7 @@ export function partitionMapWithIndex_<A, B, C>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc partitionWithIndex
+ * @tsplus fluent fncts.Conc partitionWithIndex
  */
 export function partitionWithIndex_<A, B extends A>(
   self: Conc<A>,
@@ -889,7 +887,7 @@ export function partitionWithIndex_<A>(
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc prepend
+ * @tsplus fluent fncts.Conc prepend
  */
 export function prepend_<A, B>(self: Conc<A>, a: B): Conc<A | B> {
   concrete(self);
@@ -897,12 +895,12 @@ export function prepend_<A, B>(self: Conc<A>, a: B): Conc<A | B> {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc reverse
+ * @tsplus getter fncts.Conc reverse
  */
-export function reverse<A>(self: Conc<A>): Iterable<A> {
+export function reverse<A>(self: Conc<A>): Seq<A> {
   concrete(self);
   const arr = self.arrayLike();
-  return Iterable.make<A>(() => {
+  return Seq.make<A>(() => {
     let i = arr.length - 1;
     return {
       next: () => {
@@ -925,14 +923,14 @@ export function reverse<A>(self: Conc<A>): Iterable<A> {
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc separate
+ * @tsplus getter fncts.Conc separate
  */
 export function separate<E, A>(self: Conc<Either<E, A>>): readonly [Conc<E>, Conc<A>] {
   return self.partitionMap(identity);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc splitAt
+ * @tsplus fluent fncts.Conc splitAt
  */
 export function splitAt_<A>(self: Conc<A>, n: number): readonly [Conc<A>, Conc<A>] {
   return [self.take(n), self.drop(n)];
@@ -941,7 +939,7 @@ export function splitAt_<A>(self: Conc<A>, n: number): readonly [Conc<A>, Conc<A
 /**
  * Splits this Conc on the first element that matches this predicate.
  *
- * @tsplus fluent fncts.collection.immutable.Conc splitWhere
+ * @tsplus fluent fncts.Conc splitWhere
  */
 export function splitWhere_<A>(self: Conc<A>, f: (a: A) => boolean): readonly [Conc<A>, Conc<A>] {
   concrete(self);
@@ -969,7 +967,7 @@ export function splitWhere_<A>(self: Conc<A>, f: (a: A) => boolean): readonly [C
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc tail
+ * @tsplus getter fncts.Conc tail
  */
 export function tail<A>(conc: Conc<A>): Maybe<Conc<A>> {
   if (conc.isEmpty) {
@@ -979,7 +977,7 @@ export function tail<A>(conc: Conc<A>): Maybe<Conc<A>> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc take
+ * @tsplus fluent fncts.Conc take
  */
 export function take_<A>(self: Conc<A>, n: number): Conc<A> {
   concrete(self);
@@ -987,11 +985,11 @@ export function take_<A>(self: Conc<A>, n: number): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc takeWhile
+ * @tsplus fluent fncts.Conc takeWhile
  */
 export function takeWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
   concrete(self);
-  switch (self._concTag) {
+  switch (self._tag) {
     case ConcTag.Chunk: {
       const arr = self.arrayLike();
       let i     = 0;
@@ -1026,7 +1024,7 @@ export const traverse_: P.traverse_<ConcF> = (A) => (ta, f) =>
   traverseWithIndex_(A)(ta, (_, a) => f(a));
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc traverse
+ * @tsplus getter fncts.Conc traverse
  */
 export const traverseSelf: P.traverseSelf<ConcF> = (ta) => (A) => (f) =>
   traverseWithIndex_(A)(ta, (_, a) => f(a));
@@ -1039,13 +1037,13 @@ export const traverseWithIndex_: P.traverseWithIndex_<ConcF> = P.mkTraverseWithI
 );
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc traverseWithIndex
+ * @tsplus getter fncts.Conc traverseWithIndex
  */
 export const traverseSelfWithIndex: P.traverseWithIndexSelf<ConcF> = (ta) => (A) => (f) =>
   traverseWithIndex_(A)(ta, f);
 
 /**
- * @tsplus fluent fncts.collection.immutable.ConcOps unfold
+ * @tsplus fluent fncts.ConcOps unfold
  */
 export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A> {
   const out = builder<A>();
@@ -1063,8 +1061,8 @@ export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A>
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc unsafeGet
- * @tsplus index fncts.collection.immutable.Conc
+ * @tsplus fluent fncts.Conc unsafeGet
+ * @tsplus index fncts.Conc
  */
 export function unsafeGet_<A>(self: Conc<A>, n: number): A {
   concrete(self);
@@ -1078,7 +1076,7 @@ export function unsafeGet_<A>(self: Conc<A>, n: number): A {
  * or iterating over the elements of the Conc in lower level, performance
  * sensitive code unless you really only need the first element of the Conc.
  *
- * @tsplus getter fncts.collection.immutable.Conc unsafeHead
+ * @tsplus getter fncts.Conc unsafeHead
  */
 export function unsafeHead<A>(as: Conc<A>): A {
   concrete(as);
@@ -1090,7 +1088,7 @@ export function unsafeHead<A>(as: Conc<A>): A {
  * in that it will throw an exception if the Conc is empty. Consider using
  * `tail` to explicitly handle the possibility that the Conc is empty
  *
- * @tsplus getter fncts.collection.immutable.Conc unsafeTail
+ * @tsplus getter fncts.Conc unsafeTail
  */
 export function unsafeTail<A>(self: Conc<A>): Conc<A> {
   if (self.length === 0) {
@@ -1100,7 +1098,7 @@ export function unsafeTail<A>(self: Conc<A>): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc unsafeUpdateAt
+ * @tsplus fluent fncts.Conc unsafeUpdateAt
  */
 export function unsafeUpdateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Conc<A | A1> {
   concrete(self);
@@ -1108,7 +1106,7 @@ export function unsafeUpdateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Conc<A 
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc updateAt
+ * @tsplus fluent fncts.Conc updateAt
  */
 export function updateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Maybe<Conc<A | A1>> {
   try {
@@ -1119,14 +1117,14 @@ export function updateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Maybe<Conc<A 
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc zip
+ * @tsplus fluent fncts.Conc zip
  */
 export function zip_<A, B>(self: Conc<A>, fb: Conc<B>): Conc<readonly [A, B]> {
   return self.zipWith(fb, tuple);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc zipWith
+ * @tsplus fluent fncts.Conc zipWith
  */
 export function zipWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (a: A, b: B) => C): Conc<C> {
   concrete(self);
@@ -1167,14 +1165,14 @@ export function zipWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (a: A, b: B) =>
 }
 
 /**
- * @tsplus getter fncts.collection.immutable.Conc zipWithIndex
+ * @tsplus getter fncts.Conc zipWithIndex
  */
 export function zipWithIndex<A>(self: Conc<A>): Conc<readonly [A, number]> {
   return self.zipWithIndexOffset(0);
 }
 
 /**
- * @tsplus fluent fncts.collection.immutable.Conc zipWithIndexOffset
+ * @tsplus fluent fncts.Conc zipWithIndexOffset
  */
 export function zipWithIndexOffset_<A>(as: Conc<A>, offset: number): Conc<readonly [A, number]> {
   concrete(as);

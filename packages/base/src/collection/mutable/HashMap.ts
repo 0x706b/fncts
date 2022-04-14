@@ -20,8 +20,8 @@ const DEFAULT_INITIAL_CAPACITY = 16;
 const DEFAULT_LOAD_FACTOR      = 0.75;
 
 /**
- * @tsplus type fncts.collection.mutable.HashMap
- * @tsplus companion fncts.collection.mutable.HashMapOps
+ * @tsplus type fncts.MutableHashMap
+ * @tsplus companion fncts.MutableHashMapOps
  */
 export class HashMap<K, V> implements Iterable<readonly [K, V]> {
   constructor(

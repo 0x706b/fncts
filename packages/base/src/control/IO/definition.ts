@@ -4,15 +4,12 @@ import type { Trace as Trace_ } from "@fncts/base/data/Trace";
 export const IOTypeId = Symbol.for("fncts.control.IO");
 export type IOTypeId = typeof IOTypeId;
 
-export type IOId = "IO";
-
 /**
  * @tsplus type fncts.control.IO
  * @tsplus companion fncts.control.IOOps
  */
 export abstract class IO<R, E, A> {
   readonly _typeId: IOTypeId = IOTypeId;
-  readonly _U!: IOId;
   readonly _R!: (_: R) => void;
   readonly _E!: () => E;
   readonly _A!: () => A;

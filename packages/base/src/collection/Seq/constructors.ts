@@ -1,7 +1,7 @@
-import { Iterable } from "@fncts/base/collection/Iterable/definition";
+import { Seq } from "@fncts/base/collection/Seq/definition";
 
 /**
- * @tsplus static fncts.collection.immutable.IterableOps make
+ * @tsplus static fncts.SeqOps make
  */
 export function mkIterable<A>(iterator: () => Iterator<A>): Iterable<A> {
   return {
@@ -10,10 +10,10 @@ export function mkIterable<A>(iterator: () => Iterator<A>): Iterable<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.IterableOps empty
+ * @tsplus static fncts.SeqOps empty
  */
 export function empty<A>(): Iterable<A> {
-  return Iterable.make<A>(() => ({
+  return Seq.make<A>(() => ({
     next() {
       return { done: true, value: undefined };
     },
@@ -21,10 +21,10 @@ export function empty<A>(): Iterable<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.IterableOps single
+ * @tsplus static fncts.SeqOps single
  */
 export function single<A>(a: A): Iterable<A> {
-  return Iterable.make<A>(() => {
+  return Seq.make<A>(() => {
     let done = false;
     return {
       next() {
@@ -45,10 +45,10 @@ export function single<A>(a: A): Iterable<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.IterableOps makeBy
+ * @tsplus static fncts.SeqOps makeBy
  */
 export function makeBy<A>(n: number, f: (i: number) => A): Iterable<A> {
-  return Iterable.make<A>(() => {
+  return Seq.make<A>(() => {
     let i    = 0;
     let done = false;
     return {
@@ -66,7 +66,7 @@ export function makeBy<A>(n: number, f: (i: number) => A): Iterable<A> {
 }
 
 /**
- * @tsplus static fncts.collection.immutable.IterableOps range
+ * @tsplus static fncts.SeqOps range
  */
 export function range(start: number, end: number): Iterable<number> {
   return makeBy(end - start + 1, (i) => start + i);
