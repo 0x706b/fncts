@@ -1,4 +1,4 @@
-import { Console } from "@fncts/base/control/Console";
+import { Console } from "@fncts/io/Console";
 
 /**
  * @tsplus type fncts.test.control.TestLogger

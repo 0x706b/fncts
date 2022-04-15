@@ -15,7 +15,8 @@
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/src/*"],
       "@fncts/base/*": ["../base/src/*"],
-      "@fncts/test/*": ["../test/src/*"]
+      "@fncts/test/*": ["../test/src/*"],
+      "@fncts/io/*": ["../io/src/*"]
     }
   },
   "exclude": [

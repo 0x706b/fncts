@@ -406,6 +406,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@fncts/io@workspace:packages/io":
+  version: 0.0.0-use.local
+  resolution: "@fncts/io@workspace:packages/io"
+  dependencies:
+    "@fncts/config": "workspace:*"
+    "@fncts/eslint-config": "workspace:*"
+    "@fncts/typelevel": "workspace:*"
+    madge: ^5.0.1
+    typescript: ^4.6.2
+  languageName: unknown
+  linkType: soft
+
 "@fncts/test@workspace:packages/test":
   version: 0.0.0-use.local
   resolution: "@fncts/test@workspace:packages/test"

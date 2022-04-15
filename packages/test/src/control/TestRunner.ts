@@ -1,12 +1,12 @@
-import type { RuntimeConfig } from "@fncts/base/data/RuntimeConfig";
+import type { RuntimeConfig } from "@fncts/io/RuntimeConfig";
 import type { Annotations } from "@fncts/test/control/Annotations";
 import type { TestReporter } from "@fncts/test/control/DefaultTestReporter/render";
 import type { Spec } from "@fncts/test/control/Spec";
 import type { TestExecutor } from "@fncts/test/control/TestExecutor";
 import type { ExecutedSpec } from "@fncts/test/data/ExecutedSpec";
 
-import { Console } from "@fncts/base/control/Console";
-import { defaultRuntimeConfig } from "@fncts/base/control/IO";
+import { Console } from "@fncts/io/Console";
+import { defaultRuntimeConfig } from "@fncts/io/IO";
 import { DefaultTestReporter } from "@fncts/test/control/DefaultTestReporter";
 import { TestAnnotationRenderer } from "@fncts/test/control/TestAnnotationRenderer";
 import { TestLogger } from "@fncts/test/control/TestLogger";

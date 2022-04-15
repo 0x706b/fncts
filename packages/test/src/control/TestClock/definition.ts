@@ -1,9 +1,9 @@
-import type { FiberStatus } from "@fncts/base/data/FiberStatus";
+import type { FiberStatus } from "@fncts/io/FiberStatus";
 import type { Annotations } from "@fncts/test/control/Annotations";
 import type { Live } from "@fncts/test/control/Live";
 
-import { Console } from "@fncts/base/control/Console";
 import { matchTag } from "@fncts/base/util/pattern";
+import { Console } from "@fncts/io/Console";
 import { TestAnnotation } from "@fncts/test/data/TestAnnotation";
 
 export class Data {

@@ -1,8 +1,8 @@
 import type { TestAspect } from "@fncts/test/control/TestAspect/definition";
 import type { TestSuccess } from "@fncts/test/data/TestSuccess";
 
-import { Console } from "@fncts/base/control/Console";
 import { matchTag, matchTag_ } from "@fncts/base/util/pattern";
+import { Console } from "@fncts/io/Console";
 import { Annotations } from "@fncts/test/control/Annotations";
 import { Live } from "@fncts/test/control/Live";
 import { Spec, TestCase } from "@fncts/test/control/Spec";

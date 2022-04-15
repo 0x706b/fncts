@@ -1,4 +1,4 @@
-import type { Console } from "@fncts/base/control/Console";
+import type { Console } from "@fncts/io/Console";
 import type { Erase } from "@fncts/typelevel/Intersection";
 
 /**

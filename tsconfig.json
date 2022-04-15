@@ -11,6 +11,9 @@
       "path": "./packages/base"
     },
     {
+      "path": "./packages/io"
+    },
+    {
       "path": "./packages/test"
     },
   ]

@@ -1,6 +1,6 @@
-import type { Console } from "@fncts/base/control/Console";
+import type { Console } from "@fncts/io/Console";
 
-import { LiveIOEnv } from "@fncts/base/control/IO";
+import { LiveIOEnv } from "@fncts/io/IO";
 import { Annotations } from "@fncts/test/control/Annotations";
 import { Live } from "@fncts/test/control/Live";
 import { Sized } from "@fncts/test/control/Sized";

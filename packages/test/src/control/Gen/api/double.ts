@@ -1,8 +1,6 @@
 import type { FloatConstraints, NumberConstraints } from "../constraints.js";
 import type { ArrayInt64 } from "@fncts/base/util/rand";
 
-import { Random } from "@fncts/base/control/Random";
-import { Stream } from "@fncts/base/control/Stream";
 import { IllegalArgumentError } from "@fncts/base/data/exceptions";
 
 import {

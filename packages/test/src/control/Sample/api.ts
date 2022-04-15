@@ -1,8 +1,8 @@
 import type { ArrayInt64 } from "@fncts/base/util/rand";
 
-import { ChildExecutorDecision } from "@fncts/base/control/Channel/ChildExecutorDecision";
-import { UpstreamPullStrategy } from "@fncts/base/control/Channel/UpstreamPullStrategy";
 import { constVoid, identity, tuple } from "@fncts/base/data/function";
+import { ChildExecutorDecision } from "@fncts/io/Channel/ChildExecutorDecision";
+import { UpstreamPullStrategy } from "@fncts/io/Channel/UpstreamPullStrategy";
 
 import { add64, halve64, isEqual64, substract64 } from "../../util/math.js";
 import { Sample } from "./definition.js";

@@ -1,4 +1,4 @@
-import type { Console } from "@fncts/base/control/Console";
+import type { Console } from "@fncts/io/Console";
 import type { Live } from "@fncts/test/control/Live";
 
 import { showWithOptions } from "@fncts/base/typeclass/Showable";

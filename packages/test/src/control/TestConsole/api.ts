@@ -1,4 +1,4 @@
-import { Console } from "@fncts/base/control/Console";
+import { Console } from "@fncts/io/Console";
 import { Live } from "@fncts/test/control/Live";
 import { ConsoleData } from "@fncts/test/control/TestConsole/definition";
 import { TestConsole } from "@fncts/test/control/TestConsole/definition";
