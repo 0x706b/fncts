@@ -235,10 +235,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
  *
  * @tsplus fluent fncts.control.Z unsafeRun
  */
-export function unsafeRun_<W, S1, S2, A>(
-  ma: Z<W, S1, S2, unknown, never, A>,
-  s: S1,
-): readonly [S2, A] {
+export function unsafeRun_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, never, A>, s: S1): readonly [S2, A] {
   return ma.unsafeRunAll(s)[1].match((cause) => {
     // throw cause.squash
     throw new Error();
@@ -302,9 +299,7 @@ export function unsafeRunExit<E, A>(ma: Z<never, unknown, unknown, unknown, E, A
  *
  * @tsplus getter fncts.control.Z unsafeRunWriter
  */
-export function unsafeRunWriter<W, A>(
-  ma: Z<W, unknown, unknown, unknown, never, A>,
-): readonly [Conc<W>, A] {
+export function unsafeRunWriter<W, A>(ma: Z<W, unknown, unknown, unknown, never, A>): readonly [Conc<W>, A] {
   const [w, exit] = ma.unsafeRunAll({});
   return exit.match(
     () => {

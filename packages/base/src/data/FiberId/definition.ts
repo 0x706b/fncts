@@ -1,9 +1,9 @@
 import { hasTypeId } from "../../util/predicates.js";
 
-export const FiberIdTypeId = Symbol.for("fncts.data.FiberId");
+export const FiberIdTypeId = Symbol.for("fncts.FiberId");
 export type FiberIdTypeId = typeof FiberIdTypeId;
 
-const _hashNone = Hashable.hashString("fncts.data.FiberId.None");
+const _hashNone = Hashable.hashString("fncts.FiberId.None");
 
 export class None implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
@@ -16,7 +16,7 @@ export class None implements Hashable, Equatable {
   }
 }
 
-const _hashRuntime = Hashable.hashString("fncts.data.FiberId.Runtime");
+const _hashRuntime = Hashable.hashString("fncts.FiberId.Runtime");
 
 export class Runtime implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
@@ -26,16 +26,11 @@ export class Runtime implements Hashable, Equatable {
     return Hashable.combineHash(_hashRuntime, Hashable.hashNumber(this.seqNumber));
   }
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isFiberId(that) &&
-      isRuntime(that) &&
-      this.seqNumber === that.seqNumber &&
-      this.startTime === that.startTime
-    );
+    return isFiberId(that) && isRuntime(that) && this.seqNumber === that.seqNumber && this.startTime === that.startTime;
   }
 }
 
-const _hashComposite = Hashable.hashString("fncts.data.FiberId.Composite");
+const _hashComposite = Hashable.hashString("fncts.FiberId.Composite");
 
 export class Composite implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
@@ -50,40 +45,40 @@ export class Composite implements Hashable, Equatable {
 }
 
 /**
- * @tsplus type fncts.data.FiberId
+ * @tsplus type fncts.FiberId
  */
 export type FiberId = None | Runtime | Composite;
 
 /**
- * @tsplus type fncts.data.FiberIdOps
+ * @tsplus type fncts.FiberIdOps
  */
 export interface FiberIdOps {}
 
 export const FiberId: FiberIdOps = {};
 
 /**
- * @tsplus static fncts.data.FiberIdOps isFiberId
+ * @tsplus static fncts.FiberIdOps isFiberId
  */
 export function isFiberId(u: unknown): u is FiberId {
   return hasTypeId(u, FiberIdTypeId);
 }
 
 /**
- * @tsplus static fncts.data.FiberIdOps isNone
+ * @tsplus static fncts.FiberIdOps isNone
  */
 export function isNone(fiberId: FiberId): fiberId is None {
   return fiberId._tag === "None";
 }
 
 /**
- * @tsplus static fncts.data.FiberIdOps isRuntime
+ * @tsplus static fncts.FiberIdOps isRuntime
  */
 export function isRuntime(fiberId: FiberId): fiberId is Runtime {
   return fiberId._tag === "Runtime";
 }
 
 /**
- * @tsplus static fncts.data.FiberIdOps isComposite
+ * @tsplus static fncts.FiberIdOps isComposite
  */
 export function isComposite(fiberId: FiberId): fiberId is Composite {
   return fiberId._tag === "Composite";

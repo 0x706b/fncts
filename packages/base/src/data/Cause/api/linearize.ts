@@ -1,7 +1,7 @@
 import { Fail, Halt, Interrupt, Stackless, Then } from "../definition.js";
 
 /**
- * @tsplus getter fncts.data.Cause linearize
+ * @tsplus getter fncts.Cause linearize
  */
 export function linearize<E>(self: Cause<E>): HashSet<Cause<E>> {
   return self.fold({

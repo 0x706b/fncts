@@ -3,11 +3,7 @@ import { Exited, ReleaseMap } from "../definition.js";
 /**
  * @tsplus fluent fncts.control.Scope.ReleaseMap releaseAll
  */
-export function releaseAll_(
-  releaseMap: ReleaseMap,
-  exit: Exit<any, any>,
-  execStrategy: ExecutionStrategy,
-): UIO<any> {
+export function releaseAll_(releaseMap: ReleaseMap, exit: Exit<any, any>, execStrategy: ExecutionStrategy): UIO<any> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited":
@@ -20,10 +16,9 @@ export function releaseAll_(
             ([_, f]) => Finalizer.reverseGet(s.update(f))(exit).result,
           ).chain((exits) =>
             IO.fromExit(
-              (execStrategy._tag === "Sequential"
-                ? Exit.collectAll(exits)
-                : Exit.collectAllC(exits)
-              ).getOrElse(Exit.succeed(Conc.empty())),
+              (execStrategy._tag === "Sequential" ? Exit.collectAll(exits) : Exit.collectAllC(exits)).getOrElse(
+                Exit.succeed(Conc.empty()),
+              ),
             ),
           ),
           new Exited(s.nextKey, exit, s.update),

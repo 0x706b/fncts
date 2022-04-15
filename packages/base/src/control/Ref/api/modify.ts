@@ -86,10 +86,7 @@ export function modifyJust_<RA, RB, EA, EB, A, B>(
  * @tsplus fluent fncts.control.Ref getAndSet
  * @tsplus fluent fncts.control.Ref.Synchronized getAndSet
  */
-export function getAndSet_<RA, RB, EA, EB, A>(
-  self: PRef<RA, RB, EA, EB, A, A>,
-  a: A,
-): IO<RA & RB, EA | EB, A> {
+export function getAndSet_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, a: A): IO<RA & RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -198,9 +195,7 @@ export function updateJust_<RA, RB, EA, EB, A>(
     case "Atomic":
       return self.updateJust(f);
     default:
-      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) =>
-        tuple(undefined, f(a0).getOrElse(a0)),
-      );
+      return (self as PRef<RA, RB, EA, EB, A, A>).modify((a0) => tuple(undefined, f(a0).getOrElse(a0)));
   }
 }
 

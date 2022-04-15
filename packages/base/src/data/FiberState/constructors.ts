@@ -5,28 +5,21 @@ import { FiberStatus } from "../FiberStatus.js";
 import { Done, Executing } from "./definition.js";
 
 /**
- * @tsplus static fncts.data.FiberStateOps initial
+ * @tsplus static fncts.FiberStateOps initial
  */
 export function initial<E, A>(): FiberState<E, A> {
-  return new Executing(
-    FiberStatus.running(false),
-    new Set(),
-    Cause.empty(),
-    new Set(),
-    CancellerState.empty,
-    null,
-  );
+  return new Executing(FiberStatus.running(false), new Set(), Cause.empty(), new Set(), CancellerState.empty, null);
 }
 
 /**
- * @tsplus static fncts.data.FiberStateOps done
+ * @tsplus static fncts.FiberStateOps done
  */
 export function done<E, A>(value: Exit<E, A>): FiberState<E, A> {
   return new Done(value);
 }
 
 /**
- * @tsplus static fncts.data.FiberStateOps executing
+ * @tsplus static fncts.FiberStateOps executing
  */
 export function executing<E, A>(
   status: FiberStatus,

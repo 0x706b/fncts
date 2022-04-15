@@ -1,4 +1,4 @@
-import * as P from "../../prelude.js";
+import * as P from "../../typeclass.js";
 import { map_ } from "./api.js";
 
 export interface ConstF extends HKT {
@@ -10,7 +10,7 @@ export interface ConstF extends HKT {
 }
 
 /**
- * @tsplus static fncts.data.ConstOps getApply
+ * @tsplus static fncts.ConstOps getApply
  */
 export function getApply<E>(S: P.Semigroup<E>): P.Apply<ConstF, HKT.Fix<"E", E>> {
   type CE = HKT.Fix<"E", E>;
@@ -24,7 +24,7 @@ export function getApply<E>(S: P.Semigroup<E>): P.Apply<ConstF, HKT.Fix<"E", E>>
 }
 
 /**
- * @tsplus static fncts.data.ConstOps getApplicative
+ * @tsplus static fncts.ConstOps getApplicative
  */
 export function getApplicative<E>(M: P.Monoid<E>): P.Applicative<ConstF, HKT.Fix<"E", E>> {
   return P.Applicative({

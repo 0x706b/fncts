@@ -8,10 +8,7 @@ export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends Q
   A1,
   B
 > {
-  constructor(
-    readonly queue: QueueInternal<RA, RB, EA, EB, A, B>,
-    readonly f: (_: A1) => IO<R2, E2, boolean>,
-  ) {
+  constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (_: A1) => IO<R2, E2, boolean>) {
     super();
   }
 

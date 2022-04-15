@@ -1,5 +1,5 @@
 import type { Node } from "@fncts/base/collection/immutable/HashMap/internal";
-import type { HashEq } from "@fncts/base/prelude";
+import type { HashEq } from "@fncts/base/typeclass";
 
 import { isEmptyNode } from "@fncts/base/collection/immutable/HashMap/internal";
 import { identity, tuple } from "@fncts/base/data/function";
@@ -34,9 +34,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]>, Hashable, Equat
 
   get [Symbol.hashable](): number {
     return Hashable.hashIterator(
-      new HashMapIterator(this, ([k, v]) =>
-        Hashable.combineHash(Hashable.hash(k), Hashable.hash(v)),
-      ),
+      new HashMapIterator(this, ([k, v]) => Hashable.combineHash(Hashable.hash(k), Hashable.hash(v))),
     );
   }
 
@@ -71,13 +69,7 @@ export class HashMapIterator<K, V, T> implements IterableIterator<T> {
 }
 
 type Cont<K, V, A> =
-  | [
-      len: number,
-      children: Node<K, V>[],
-      i: number,
-      f: (node: readonly [K, V]) => A,
-      cont: Cont<K, V, A>,
-    ]
+  | [len: number, children: Node<K, V>[], i: number, f: (node: readonly [K, V]) => A, cont: Cont<K, V, A>]
   | undefined;
 
 function applyCont<K, V, A>(cont: Cont<K, V, A>) {

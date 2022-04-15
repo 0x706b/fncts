@@ -1,9 +1,9 @@
 import type { ImmutableArrayF } from "@fncts/base/collection/immutable/ImmutableArray/definition";
-import type { Monoid } from "@fncts/base/prelude";
+import type { Monoid } from "@fncts/base/typeclass";
 
 import { EitherTag } from "@fncts/base/data/Either";
 import { identity, tuple } from "@fncts/base/data/function";
-import * as P from "@fncts/base/prelude";
+import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus fluent fncts.ImmutableArray alignWith
@@ -38,30 +38,21 @@ export function alignWith_<A, B, C>(
 /**
  * @tsplus fluent fncts.ImmutableArray align
  */
-export function align_<A, B>(
-  self: ImmutableArray<A>,
-  fb: ImmutableArray<B>,
-): ImmutableArray<These<A, B>> {
+export function align_<A, B>(self: ImmutableArray<A>, fb: ImmutableArray<B>): ImmutableArray<These<A, B>> {
   return self.alignWith(fb, identity);
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray alt
  */
-export function alt_<A, B>(
-  self: ImmutableArray<A>,
-  that: Lazy<ImmutableArray<B>>,
-): ImmutableArray<A | B> {
+export function alt_<A, B>(self: ImmutableArray<A>, that: Lazy<ImmutableArray<B>>): ImmutableArray<A | B> {
   return self.concat(that());
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray ap
  */
-export function ap_<A, B>(
-  self: ImmutableArray<(a: A) => B>,
-  fa: ImmutableArray<A>,
-): ImmutableArray<B> {
+export function ap_<A, B>(self: ImmutableArray<(a: A) => B>, fa: ImmutableArray<A>): ImmutableArray<B> {
   return self.chain((f) => fa.map(f));
 }
 
@@ -93,10 +84,7 @@ export function crossWith_<A, B, C>(
 /**
  * @tsplus static fncts.ImmutableArrayOps chainRecDepthFirst
  */
-export function chainRecDepthFirst<A, B>(
-  a: A,
-  f: (a: A) => ImmutableArray<Either<A, B>>,
-): ImmutableArray<B> {
+export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => ImmutableArray<Either<A, B>>): ImmutableArray<B> {
   const buffer   = f(a).slice().unsafeAsMutable;
   const out: B[] = [];
 
@@ -115,10 +103,7 @@ export function chainRecDepthFirst<A, B>(
 /**
  * @tsplus static fncts.ImmutableArrayOps chainRecBreadthFirst
  */
-export function chainRecBreadthFirst<A, B>(
-  a: A,
-  f: (a: A) => ImmutableArray<Either<A, B>>,
-): ImmutableArray<B> {
+export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => ImmutableArray<Either<A, B>>): ImmutableArray<B> {
   const initial                     = f(a);
   const buffer: Array<Either<A, B>> = [];
   const out: Array<B>               = [];
@@ -175,10 +160,7 @@ export function chainWithIndex_<A, B>(
 /**
  * @tsplus fluent fncts.ImmutableArray chain
  */
-export function chain_<A, B>(
-  self: ImmutableArray<A>,
-  f: (a: A) => ImmutableArray<B>,
-): ImmutableArray<B> {
+export function chain_<A, B>(self: ImmutableArray<A>, f: (a: A) => ImmutableArray<B>): ImmutableArray<B> {
   return self.chainWithIndex((_, a) => f(a));
 }
 
@@ -215,20 +197,14 @@ export const chop = Pipeable(chop_);
 /**
  * @tsplus fluent fncts.ImmutableArray chunksOf
  */
-export function chunksOf_<A>(
-  self: ImmutableArray<A>,
-  n: number,
-): ImmutableArray<ImmutableArray<A>> {
+export function chunksOf_<A>(self: ImmutableArray<A>, n: number): ImmutableArray<ImmutableArray<A>> {
   return self.chop((as) => as.splitAt(n));
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray collectWhile
  */
-export function collectWhile_<A, B>(
-  as: ImmutableArray<A>,
-  f: (a: A) => Maybe<B>,
-): ImmutableArray<B> {
+export function collectWhile_<A, B>(as: ImmutableArray<A>, f: (a: A) => Maybe<B>): ImmutableArray<B> {
   const result: Array<B> = [];
   for (let i = 0; i < as.length; i++) {
     const o = f(as._array[i]!);
@@ -292,10 +268,7 @@ export function comprehension<A, R>(
  * @tsplus operator fncts.ImmutableArray +
  * @tsplus operator fncts.base.MutableArray +
  */
-export function concat_<A, B>(
-  self: ImmutableArray<A>,
-  that: ImmutableArray<B>,
-): ImmutableArray<A | B> {
+export function concat_<A, B>(self: ImmutableArray<A>, that: ImmutableArray<B>): ImmutableArray<A | B> {
   const lenx = self._array.length;
   if (lenx === 0) {
     return that;
@@ -326,8 +299,7 @@ export function deleteAt_<A>(as: ImmutableArray<A>, i: number): Maybe<ImmutableA
  */
 export function difference_<A>(E: P.Eq<A>) {
   const elemE_ = elem_(E);
-  return (self: ImmutableArray<A>, ys: ImmutableArray<A>): ImmutableArray<A> =>
-    self.filter((a) => !elemE_(ys, a));
+  return (self: ImmutableArray<A>, ys: ImmutableArray<A>): ImmutableArray<A> => self.filter((a) => !elemE_(ys, a));
 }
 
 /**
@@ -403,10 +375,7 @@ export function elemSelf<A>(self: ImmutableArray<A>) {
 /**
  * @tsplus fluent fncts.ImmutableArray every
  */
-export function every_<A, B extends A>(
-  self: ImmutableArray<A>,
-  p: Refinement<A, B>,
-): self is ImmutableArray<B>;
+export function every_<A, B extends A>(self: ImmutableArray<A>, p: Refinement<A, B>): self is ImmutableArray<B>;
 export function every_<A>(self: ImmutableArray<A>, p: Predicate<A>): boolean;
 export function every_<A>(self: ImmutableArray<A>, p: Predicate<A>): boolean {
   return self.everyWithIndex((_, a) => p(a));
@@ -419,14 +388,8 @@ export function everyWithIndex_<A, B extends A>(
   self: ImmutableArray<A>,
   p: RefinementWithIndex<number, A, B>,
 ): self is ImmutableArray<B>;
-export function everyWithIndex_<A>(
-  self: ImmutableArray<A>,
-  p: PredicateWithIndex<number, A>,
-): boolean;
-export function everyWithIndex_<A>(
-  self: ImmutableArray<A>,
-  p: PredicateWithIndex<number, A>,
-): boolean {
+export function everyWithIndex_<A>(self: ImmutableArray<A>, p: PredicateWithIndex<number, A>): boolean;
+export function everyWithIndex_<A>(self: ImmutableArray<A>, p: PredicateWithIndex<number, A>): boolean {
   let result = true;
   let i      = 0;
   while (result && i < self.length) {
@@ -439,10 +402,7 @@ export function everyWithIndex_<A>(
 /**
  * @tsplus fluent fncts.ImmutableArray exists
  */
-export function exists_<A>(
-  self: ImmutableArray<A>,
-  p: Predicate<A>,
-): self is ImmutableNonEmptyArray<A> {
+export function exists_<A>(self: ImmutableArray<A>, p: Predicate<A>): self is ImmutableNonEmptyArray<A> {
   let result = false;
   let i      = 0;
   while (!result && i < self.length) {
@@ -455,10 +415,7 @@ export function exists_<A>(
 /**
  * @tsplus fluent fncts.ImmutableArray filter
  */
-export function filter_<A, B extends A>(
-  self: ImmutableArray<A>,
-  p: Refinement<A, B>,
-): ImmutableArray<B>;
+export function filter_<A, B extends A>(self: ImmutableArray<A>, p: Refinement<A, B>): ImmutableArray<B>;
 export function filter_<A>(self: ImmutableArray<A>, p: Predicate<A>): ImmutableArray<A>;
 export function filter_<A>(self: ImmutableArray<A>, p: Predicate<A>): ImmutableArray<A> {
   return self.filterWithIndex((_, a) => p(a));
@@ -471,14 +428,8 @@ export function filterWithIndex_<A, B extends A>(
   self: ImmutableArray<A>,
   p: RefinementWithIndex<number, A, B>,
 ): ImmutableArray<B>;
-export function filterWithIndex_<A>(
-  self: ImmutableArray<A>,
-  p: PredicateWithIndex<number, A>,
-): ImmutableArray<A>;
-export function filterWithIndex_<A>(
-  self: ImmutableArray<A>,
-  p: PredicateWithIndex<number, A>,
-): ImmutableArray<A> {
+export function filterWithIndex_<A>(self: ImmutableArray<A>, p: PredicateWithIndex<number, A>): ImmutableArray<A>;
+export function filterWithIndex_<A>(self: ImmutableArray<A>, p: PredicateWithIndex<number, A>): ImmutableArray<A> {
   const result: Array<A> = [];
   for (let i = 0; i < self.length; i++) {
     const a = self._array[i]!;
@@ -492,10 +443,7 @@ export function filterWithIndex_<A>(
 /**
  * @tsplus fluent fncts.ImmutableArray filterMapWithIndex
  */
-export function filterMapWithIndex_<A, B>(
-  fa: ImmutableArray<A>,
-  f: (i: number, a: A) => Maybe<B>,
-): ImmutableArray<B> {
+export function filterMapWithIndex_<A, B>(fa: ImmutableArray<A>, f: (i: number, a: A) => Maybe<B>): ImmutableArray<B> {
   const result = [];
   for (let i = 0; i < fa.length; i++) {
     const maybeB = f(i, fa[i]!);
@@ -509,10 +457,7 @@ export function filterMapWithIndex_<A, B>(
 /**
  * @tsplus fluent fncts.ImmutableArray filterMap
  */
-export function filterMap_<A, B>(
-  self: ImmutableArray<A>,
-  f: (a: A) => Maybe<B>,
-): ImmutableArray<B> {
+export function filterMap_<A, B>(self: ImmutableArray<A>, f: (a: A) => Maybe<B>): ImmutableArray<B> {
   return self.filterMapWithIndex((_, a) => f(a));
 }
 
@@ -535,18 +480,9 @@ export function findIndex_<A>(as: ImmutableArray<A>, predicate: Predicate<A>): M
 /**
  * @tsplus fluent fncts.ImmutableArray findWithIndex
  */
-export function findWithIndex_<A, B extends A>(
-  as: ImmutableArray<A>,
-  p: RefinementWithIndex<number, A, B>,
-): Maybe<B>;
-export function findWithIndex_<A>(
-  as: ImmutableArray<A>,
-  p: PredicateWithIndex<number, A>,
-): Maybe<A>;
-export function findWithIndex_<A>(
-  as: ImmutableArray<A>,
-  p: PredicateWithIndex<number, A>,
-): Maybe<A> {
+export function findWithIndex_<A, B extends A>(as: ImmutableArray<A>, p: RefinementWithIndex<number, A, B>): Maybe<B>;
+export function findWithIndex_<A>(as: ImmutableArray<A>, p: PredicateWithIndex<number, A>): Maybe<A>;
+export function findWithIndex_<A>(as: ImmutableArray<A>, p: PredicateWithIndex<number, A>): Maybe<A> {
   const len = as.length;
   for (let i = 0; i < len; i++) {
     if (p(i, as._array[i]!)) {
@@ -566,10 +502,7 @@ export function findMap_<A, B>(as: ImmutableArray<A>, f: (a: A) => Maybe<B>): Ma
 /**
  * @tsplus fluent fncts.ImmutableArray findMapWithIndex
  */
-export function findMapWithIndex_<A, B>(
-  as: ImmutableArray<A>,
-  f: (index: number, a: A) => Maybe<B>,
-): Maybe<B> {
+export function findMapWithIndex_<A, B>(as: ImmutableArray<A>, f: (index: number, a: A) => Maybe<B>): Maybe<B> {
   const len = as.length;
   for (let i = 0; i < len; i++) {
     const v = f(i, as._array[i]!);
@@ -612,10 +545,7 @@ export function findLastMap_<A, B>(as: ImmutableArray<A>, f: (a: A) => Maybe<B>)
 /**
  * @tsplus fluent fncts.ImmutableArray findLastMapWithIndex
  */
-export function findLastMapWithIndex_<A, B>(
-  as: ImmutableArray<A>,
-  f: (i: number, a: A) => Maybe<B>,
-): Maybe<B> {
+export function findLastMapWithIndex_<A, B>(as: ImmutableArray<A>, f: (i: number, a: A) => Maybe<B>): Maybe<B> {
   const len = as.length;
   for (let i = len - 1; i >= 0; i--) {
     const v = f(i, as._array[i]!);
@@ -630,11 +560,7 @@ export function findLastMapWithIndex_<A, B>(
  * @tsplus fluent fncts.ImmutableArray foldLeftWithIndex
  * @tsplus fluent fncts.base.MutableArray foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(
-  self: ImmutableArray<A>,
-  b: B,
-  f: (i: number, b: B, a: A) => B,
-): B {
+export function foldLeftWithIndex_<A, B>(self: ImmutableArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   const len = self.length;
   let r     = b;
   for (let i = 0; i < len; i++) {
@@ -655,12 +581,7 @@ export function foldLeft_<A, B>(self: ImmutableArray<A>, b: B, f: (b: B, a: A) =
  * @tsplus fluent fncts.ImmutableArray foldLeftWhile
  * @tsplus fluent fncts.base.MutableArray foldLeftWhile
  */
-export function foldLeftWhile_<A, B>(
-  self: ImmutableArray<A>,
-  b: B,
-  p: Predicate<B>,
-  f: (b: B, a: A) => B,
-): B {
+export function foldLeftWhile_<A, B>(self: ImmutableArray<A>, b: B, p: Predicate<B>, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndexWhile(b, p, (_, b, a) => f(b, a));
 }
 
@@ -737,11 +658,7 @@ export function foldMapSelf<A>(self: ImmutableArray<A>) {
  * @tsplus fluent fncts.ImmutableArray foldRightWithIndex
  * @tsplus fluent fncts.base.MutableArray foldRightWithIndex
  */
-export function foldRightWithIndex_<A, B>(
-  self: ImmutableArray<A>,
-  b: B,
-  f: (i: number, a: A, b: B) => B,
-): B {
+export function foldRightWithIndex_<A, B>(self: ImmutableArray<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   let r = b;
   for (let i = self.length - 1; i >= 0; i--) {
     r = f(i, self._array[i]!, r);
@@ -761,12 +678,7 @@ export function foldRight_<A, B>(self: ImmutableArray<A>, b: B, f: (a: A, b: B) 
  * @tsplus fluent fncts.ImmutableArray foldRighWhile
  * @tsplus fluent fncts.base.MutableArray foldRightWhile
  */
-export function foldRightWhile_<A, B>(
-  self: ImmutableArray<A>,
-  b: B,
-  p: Predicate<B>,
-  f: (a: A, b: B) => B,
-): B {
+export function foldRightWhile_<A, B>(self: ImmutableArray<A>, b: B, p: Predicate<B>, f: (a: A, b: B) => B): B {
   return self.foldRightWithIndexWhile(b, p, (_, a, b) => f(a, b));
 }
 
@@ -804,9 +716,7 @@ export function get_<A>(self: ImmutableArray<A>, i: number): Maybe<A> {
   return self.isOutOfBound(i) ? Nothing() : Just(self._array[i]!);
 }
 
-export function group<A>(
-  E: P.Eq<A>,
-): (self: ImmutableArray<A>) => ImmutableArray<ImmutableNonEmptyArray<A>> {
+export function group<A>(E: P.Eq<A>): (self: ImmutableArray<A>) => ImmutableArray<ImmutableNonEmptyArray<A>> {
   return chop((self) => {
     const h   = self._array[0]!;
     const out = [h];
@@ -826,10 +736,7 @@ export function group<A>(
 /**
  * @tsplus fluent fncts.ImmutableArray group
  */
-export function chopSelf<A>(
-  self: ImmutableArray<A>,
-  E: P.Eq<A>,
-): ImmutableArray<ImmutableNonEmptyArray<A>> {
+export function chopSelf<A>(self: ImmutableArray<A>, E: P.Eq<A>): ImmutableArray<ImmutableNonEmptyArray<A>> {
   return group(E)(self);
 }
 
@@ -877,8 +784,7 @@ export function insertAt_<A>(self: ImmutableArray<A>, i: number, a: A): Maybe<Im
 
 export function intersection_<A>(E: P.Eq<A>) {
   const elemE = elem_(E);
-  return (self: ImmutableArray<A>, that: ImmutableArray<A>): ImmutableArray<A> =>
-    self.filter((a) => elemE(that, a));
+  return (self: ImmutableArray<A>, that: ImmutableArray<A>): ImmutableArray<A> => self.filter((a) => elemE(that, a));
 }
 
 /**
@@ -979,10 +885,7 @@ export function mapAccum_<A, S, B>(
 /**
  * @tsplus fluent fncts.ImmutableArray mapWithIndex
  */
-export function mapWithIndex_<A, B>(
-  self: ImmutableArray<A>,
-  f: (i: number, a: A) => B,
-): ImmutableArray<B> {
+export function mapWithIndex_<A, B>(self: ImmutableArray<A>, f: (i: number, a: A) => B): ImmutableArray<B> {
   const len = self._array.length;
   const bs  = Array<B>(len);
   for (let i = 0; i < len; i++) {
@@ -994,21 +897,14 @@ export function mapWithIndex_<A, B>(
 /**
  * @tsplus fluent fncts.ImmutableArray modifyAt
  */
-export function modifyAt_<A>(
-  self: ImmutableArray<A>,
-  i: number,
-  f: (a: A) => A,
-): Maybe<ImmutableArray<A>> {
+export function modifyAt_<A>(self: ImmutableArray<A>, i: number, f: (a: A) => A): Maybe<ImmutableArray<A>> {
   return self.isOutOfBound(i) ? Nothing() : Just(self.unsafeModifyAt(i, f));
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray mutate
  */
-export function mutate_<A>(
-  self: ImmutableArray<A>,
-  f: (self: Array<A>) => void,
-): ImmutableArray<A> {
+export function mutate_<A>(self: ImmutableArray<A>, f: (self: Array<A>) => void): ImmutableArray<A> {
   const mut = mutableClone(self);
   f(mut);
   return mut.asImmutableArray;
@@ -1173,11 +1069,7 @@ export function rotate_<A>(self: ImmutableArray<A>, n: number): ImmutableArray<A
 /**
  * @tsplus fluent fncts.ImmutableArray scanLeft
  */
-export function scanLeft_<A, B>(
-  self: ImmutableArray<A>,
-  b: B,
-  f: (b: B, a: A) => B,
-): ImmutableArray<B> {
+export function scanLeft_<A, B>(self: ImmutableArray<A>, b: B, f: (b: B, a: A) => B): ImmutableArray<B> {
   const l = self.length;
   const r = Array(l + 1);
   r[0]    = b;
@@ -1190,11 +1082,7 @@ export function scanLeft_<A, B>(
 /**
  * @tsplus fluent fncts.ImmutableArray scanRight
  */
-export function scanRight_<A, B>(
-  self: ImmutableArray<A>,
-  b: B,
-  f: (a: A, b: B) => B,
-): ImmutableArray<B> {
+export function scanRight_<A, B>(self: ImmutableArray<A>, b: B, f: (a: A, b: B) => B): ImmutableArray<B> {
   const l = self.length;
   const r = Array(l + 1);
   r[l]    = b;
@@ -1208,18 +1096,13 @@ export function scanRight_<A, B>(
  * @tsplus fluent fncts.ImmutableArray sort
  */
 export function sort<A extends B, B>(self: ImmutableArray<A>, O: P.Ord<B>): ImmutableArray<A> {
-  return self.isEmpty() || self.length === 1
-    ? self
-    : self._array.slice().sort(O.compare_).asImmutableArray;
+  return self.isEmpty() || self.length === 1 ? self : self._array.slice().sort(O.compare_).asImmutableArray;
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray sortBy
  */
-export function sortBy<A extends B, B>(
-  self: ImmutableArray<A>,
-  Os: ImmutableArray<P.Ord<B>>,
-): ImmutableArray<A> {
+export function sortBy<A extends B, B>(self: ImmutableArray<A>, Os: ImmutableArray<P.Ord<B>>): ImmutableArray<A> {
   return self.sort(Os.fold(P.Ord.getMonoid()));
 }
 
@@ -1230,10 +1113,7 @@ export function spanLeft_<A, B extends A>(
   self: ImmutableArray<A>,
   p: Refinement<A, B>,
 ): readonly [ImmutableArray<B>, ImmutableArray<A>];
-export function spanLeft_<A>(
-  self: ImmutableArray<A>,
-  p: Predicate<A>,
-): readonly [ImmutableArray<A>, ImmutableArray<A>];
+export function spanLeft_<A>(self: ImmutableArray<A>, p: Predicate<A>): readonly [ImmutableArray<A>, ImmutableArray<A>];
 export function spanLeft_<A>(
   self: ImmutableArray<A>,
   p: Predicate<A>,
@@ -1309,21 +1189,14 @@ export function spanIndexRight_<A>(as: ImmutableArray<A>, predicate: Predicate<A
 /**
  * @tsplus fluent fncts.ImmutableArray slice
  */
-export function slice_<A>(
-  self: ImmutableArray<A>,
-  start?: number,
-  end?: number,
-): ImmutableArray<A> {
+export function slice_<A>(self: ImmutableArray<A>, start?: number, end?: number): ImmutableArray<A> {
   return self._array.slice(start, end).asImmutableArray;
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray splitAt
  */
-export function splitAt_<A>(
-  as: ImmutableArray<A>,
-  n: number,
-): readonly [ImmutableArray<A>, ImmutableArray<A>] {
+export function splitAt_<A>(as: ImmutableArray<A>, n: number): readonly [ImmutableArray<A>, ImmutableArray<A>] {
   return [as.slice(0, n), as.slice(n)];
 }
 
@@ -1378,10 +1251,7 @@ export function takeLast_<A>(as: ImmutableArray<A>, n: number): ImmutableArray<A
 /**
  * @tsplus fluent fncts.ImmutableArray takeWhile
  */
-export function takeWhile_<A, B extends A>(
-  self: ImmutableArray<A>,
-  p: Refinement<A, B>,
-): ImmutableArray<B>;
+export function takeWhile_<A, B extends A>(self: ImmutableArray<A>, p: Refinement<A, B>): ImmutableArray<B>;
 export function takeWhile_<A>(self: ImmutableArray<A>, p: Predicate<A>): ImmutableArray<A>;
 export function takeWhile_<A>(self: ImmutableArray<A>, p: Predicate<A>): ImmutableArray<A> {
   const i    = self.spanIndexLeft(p);
@@ -1392,13 +1262,12 @@ export function takeWhile_<A>(self: ImmutableArray<A>, p: Predicate<A>): Immutab
   return init.asImmutableArray;
 }
 
-export const traverseWithIndex_: P.traverseWithIndex_<ImmutableArrayF> =
-  P.mkTraverseWithIndex_<ImmutableArrayF>()(
-    (_) => (A) => (ta, f) =>
-      ta.foldLeftWithIndex(A.pure(ImmutableArray.empty<typeof _.B>()), (i, fbs, a) =>
-        A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b)),
-      ),
-  );
+export const traverseWithIndex_: P.traverseWithIndex_<ImmutableArrayF> = P.mkTraverseWithIndex_<ImmutableArrayF>()(
+  (_) => (A) => (ta, f) =>
+    ta.foldLeftWithIndex(A.pure(ImmutableArray.empty<typeof _.B>()), (i, fbs, a) =>
+      A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b)),
+    ),
+);
 
 /**
  * @tsplus dataFirst traverseWithIndex_
@@ -1409,18 +1278,15 @@ export const traverseWithIndex: P.traverseWithIndex<ImmutableArrayF> = (A) => (f
 /**
  * @tsplus getter fncts.ImmutableArray traverseWithIndex
  */
-export const traverseWithIndexSelf: P.traverseWithIndexSelf<ImmutableArrayF> =
-  (self) => (A) => (f) =>
-    traverseWithIndex_(A)(self, f);
+export const traverseWithIndexSelf: P.traverseWithIndexSelf<ImmutableArrayF> = (self) => (A) => (f) =>
+  traverseWithIndex_(A)(self, f);
 
-export const traverse_: P.traverse_<ImmutableArrayF> = (A) => (self, f) =>
-  self.traverseWithIndex(A)((_, a) => f(a));
+export const traverse_: P.traverse_<ImmutableArrayF> = (A) => (self, f) => self.traverseWithIndex(A)((_, a) => f(a));
 
 /**
  * @tsplus dataFirst traverse_
  */
-export const traverse: P.traverse<ImmutableArrayF> = (A) => (f) => (self) =>
-  self.traverseWithIndex(A)((_, a) => f(a));
+export const traverse: P.traverse<ImmutableArrayF> = (A) => (f) => (self) => self.traverseWithIndex(A)((_, a) => f(a));
 
 /**
  * @tsplus getter fncts.ImmutableArray traverse
@@ -1501,11 +1367,7 @@ export function unsafeInsertAt_<A>(as: ImmutableArray<A>, i: number, a: A): Immu
 /**
  * @tsplus fluent fncts.ImmutableArray unsafeModifyAt
  */
-export function unsafeModifyAt_<A>(
-  as: ImmutableArray<A>,
-  i: number,
-  f: (a: A) => A,
-): ImmutableArray<A> {
+export function unsafeModifyAt_<A>(as: ImmutableArray<A>, i: number, f: (a: A) => A): ImmutableArray<A> {
   const next = f(as[i]!);
   if (as[i] === next) {
     return as;
@@ -1531,9 +1393,7 @@ export function unsafeUpdateAt_<A>(as: ImmutableArray<A>, i: number, a: A): Immu
 /**
  * @tsplus getter fncts.ImmutableArray unzip
  */
-export function unzip<A, B>(
-  self: ImmutableArray<readonly [A, B]>,
-): readonly [ImmutableArray<A>, ImmutableArray<B>] {
+export function unzip<A, B>(self: ImmutableArray<readonly [A, B]>): readonly [ImmutableArray<A>, ImmutableArray<B>] {
   const fa = Array<A>(self.length);
   const fb = Array<B>(self.length);
 
@@ -1552,50 +1412,43 @@ export function updateAt_<A>(as: ImmutableArray<A>, i: number, a: A): Maybe<Immu
   return as.isOutOfBound(i) ? Nothing() : Just(as.unsafeUpdateAt(i, a));
 }
 
-export const wilt_: P.wilt_<ImmutableArrayF> = (A) => (self, f) =>
-  self.wiltWithIndex(A)((_, a) => f(a));
+export const wilt_: P.wilt_<ImmutableArrayF> = (A) => (self, f) => self.wiltWithIndex(A)((_, a) => f(a));
 
 /**
  * @tsplus pipeable fncts.ImmutableArray wilt_
  */
-export const wilt: P.wilt<ImmutableArrayF> = (A) => (f) => (self) =>
-  self.wiltWithIndex(A)((_, a) => f(a));
+export const wilt: P.wilt<ImmutableArrayF> = (A) => (f) => (self) => self.wiltWithIndex(A)((_, a) => f(a));
 
 /**
  * @tsplus fluent fncts.ImmutableArray wilt
  */
-export const wiltSelf: P.wiltSelf<ImmutableArrayF> = (self) => (A) => (f) =>
-  self.wiltWithIndex(A)((_, a) => f(a));
+export const wiltSelf: P.wiltSelf<ImmutableArrayF> = (self) => (A) => (f) => self.wiltWithIndex(A)((_, a) => f(a));
 
-export const wiltWithIndex_: P.wiltWithIndex_<ImmutableArrayF> =
-  P.mkWiltWithIndex_<ImmutableArrayF>()(
-    (_) => (A) => (self, f) =>
-      A.map_(
-        self.foldLeftWithIndex(
-          A.pure([[] as Array<typeof _.B>, [] as Array<typeof _.B2>] as const),
-          (i, fbs, a) =>
-            A.zipWith_(f(i, a), fbs, (eb, r) =>
-              eb.match(
-                (b1) => {
-                  r[0].push(b1);
-                  return r;
-                },
-                (b2) => {
-                  r[1].push(b2);
-                  return r;
-                },
-              ),
-            ),
+export const wiltWithIndex_: P.wiltWithIndex_<ImmutableArrayF> = P.mkWiltWithIndex_<ImmutableArrayF>()(
+  (_) => (A) => (self, f) =>
+    A.map_(
+      self.foldLeftWithIndex(A.pure([[] as Array<typeof _.B>, [] as Array<typeof _.B2>] as const), (i, fbs, a) =>
+        A.zipWith_(f(i, a), fbs, (eb, r) =>
+          eb.match(
+            (b1) => {
+              r[0].push(b1);
+              return r;
+            },
+            (b2) => {
+              r[1].push(b2);
+              return r;
+            },
+          ),
         ),
-        ([b1s, b2s]) => [b1s.asImmutableArray, b2s.asImmutableArray],
       ),
-  );
+      ([b1s, b2s]) => [b1s.asImmutableArray, b2s.asImmutableArray],
+    ),
+);
 
 /**
  * @tsplus dataFirst wiltWithIndex_
  */
-export const wiltWithIndex: P.wiltWithIndex<ImmutableArrayF> = (A) => (f) => (self) =>
-  wiltWithIndex_(A)(self, f);
+export const wiltWithIndex: P.wiltWithIndex<ImmutableArrayF> = (A) => (f) => (self) => wiltWithIndex_(A)(self, f);
 
 /**
  * @tsplus getter fncts.ImmutableArray wiltWithIndex
@@ -1603,8 +1456,7 @@ export const wiltWithIndex: P.wiltWithIndex<ImmutableArrayF> = (A) => (f) => (se
 export const wiltWithIndexSelf: P.wiltWithIndexSelf<ImmutableArrayF> = (self) => (A) => (f) =>
   wiltWithIndex_(A)(self, f);
 
-export const wither_: P.wither_<ImmutableArrayF> = (A) => (self, f) =>
-  witherWithIndex_(A)(self, (_, a) => f(a));
+export const wither_: P.wither_<ImmutableArrayF> = (A) => (self, f) => witherWithIndex_(A)(self, (_, a) => f(a));
 
 /**
  * @tsplus dataFirst wither_
@@ -1617,27 +1469,25 @@ export const wither: P.wither<ImmutableArrayF> = (A) => (f) => (self) => wither_
 export const witherSelf: P.witherSelf<ImmutableArrayF> = (self) => (A) => (f) =>
   witherWithIndex_(A)(self, (_, a) => f(a));
 
-export const witherWithIndex_: P.witherWithIndex_<ImmutableArrayF> =
-  P.mkWitherWithIndex_<ImmutableArrayF>()(
-    (_) => (A) => (self, f) =>
-      A.map_(
-        self.foldLeftWithIndex(A.pure([] as Array<typeof _.B>), (i, b, a) =>
-          A.zipWith_(f(i, a), b, (maybeB, bs) => {
-            if (maybeB.isJust()) {
-              bs.push(maybeB.value);
-            }
-            return bs;
-          }),
-        ),
-        (bs) => bs.asImmutableArray,
+export const witherWithIndex_: P.witherWithIndex_<ImmutableArrayF> = P.mkWitherWithIndex_<ImmutableArrayF>()(
+  (_) => (A) => (self, f) =>
+    A.map_(
+      self.foldLeftWithIndex(A.pure([] as Array<typeof _.B>), (i, b, a) =>
+        A.zipWith_(f(i, a), b, (maybeB, bs) => {
+          if (maybeB.isJust()) {
+            bs.push(maybeB.value);
+          }
+          return bs;
+        }),
       ),
-  );
+      (bs) => bs.asImmutableArray,
+    ),
+);
 
 /**
  * @tsplus dataFirst witherWithIndex_
  */
-export const witherWithIndex: P.witherWithIndex<ImmutableArrayF> = (A) => (f) => (self) =>
-  witherWithIndex_(A)(self, f);
+export const witherWithIndex: P.witherWithIndex<ImmutableArrayF> = (A) => (f) => (self) => witherWithIndex_(A)(self, f);
 
 /**
  * @tsplus fluent fncts.ImmutableArray witherWithIndex
@@ -1648,10 +1498,7 @@ export const witherWithIndexSelf: P.witherWithIndexSelf<ImmutableArrayF> = (self
 /**
  * @tsplus fluent fncts.ImmutableArray zip
  */
-export function zip_<A, B>(
-  self: ImmutableArray<A>,
-  that: ImmutableArray<B>,
-): ImmutableArray<readonly [A, B]> {
+export function zip_<A, B>(self: ImmutableArray<A>, that: ImmutableArray<B>): ImmutableArray<readonly [A, B]> {
   return self.zipWith(that, tuple);
 }
 

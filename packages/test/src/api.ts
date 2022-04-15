@@ -11,10 +11,7 @@ import { FailureDetails } from "./data/FailureDetails.js";
 import { FreeBooleanAlgebra } from "./data/FreeBooleanAlgebra.js";
 import { TestAnnotationMap } from "./data/TestAnnotationMap.js";
 
-function traverseResultLoop<A>(
-  whole: AssertionValue<A>,
-  failureDetails: FailureDetails,
-): TestResult {
+function traverseResultLoop<A>(whole: AssertionValue<A>, failureDetails: FailureDetails): TestResult {
   if (whole.isSameAssertionAs(failureDetails.assertion.head)) {
     return FreeBooleanAlgebra.success(new FailureDetailsResult(failureDetails));
   } else {
@@ -22,19 +19,12 @@ function traverseResultLoop<A>(
     const r0       = fragment.value;
     const result   = r0.isSuccess ? r0 : r0.invert;
     return result.chain((fragment) =>
-      traverseResultLoop(
-        fragment,
-        new FailureDetails(Cons(whole, failureDetails.assertion), failureDetails.gen),
-      ),
+      traverseResultLoop(fragment, new FailureDetails(Cons(whole, failureDetails.assertion), failureDetails.gen)),
     );
   }
 }
 
-export function traverseResult<A>(
-  value: A,
-  assertResult: AssertResult<A>,
-  assertion: AssertionIO<A>,
-): TestResult {
+export function traverseResult<A>(value: A, assertResult: AssertResult<A>, assertion: AssertionIO<A>): TestResult {
   return assertResult.chain((fragment) =>
     traverseResultLoop(
       fragment,
@@ -62,10 +52,7 @@ export function assert_<A>(value: A, assertion: Assertion<A>): TestResult {
 /**
  * @tsplus fluent fncts.control.IO assert
  */
-export function assertIO_<R, E, A>(
-  io: IO<R, E, A>,
-  assertion: AssertionIO<A>,
-): IO<R, E, TestResult> {
+export function assertIO_<R, E, A>(io: IO<R, E, A>, assertion: AssertionIO<A>): IO<R, E, TestResult> {
   return IO.gen(function* (_) {
     const value        = yield* _(io);
     const assertResult = yield* _(assertion.runIO(value));

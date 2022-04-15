@@ -13,7 +13,7 @@
  */
 
 import { copyOfArray, improveHash, tableSizeFor } from "@fncts/base/collection/mutable/internal";
-import { HashEq } from "@fncts/base/prelude/HashEq";
+import { HashEq } from "@fncts/base/typeclass/HashEq";
 import { assert } from "@fncts/base/util/assert";
 
 const DEFAULT_INITIAL_CAPACITY = 16;

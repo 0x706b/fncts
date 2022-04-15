@@ -7,18 +7,11 @@ import { matchTag } from "@fncts/base/util/pattern";
 import { TestAnnotation } from "@fncts/test/data/TestAnnotation";
 
 export class Data {
-  constructor(
-    readonly duration: number,
-    readonly sleeps: List<readonly [number, Future<never, void>]>,
-  ) {}
+  constructor(readonly duration: number, readonly sleeps: List<readonly [number, Future<never, void>]>) {}
 }
 
 export class Sleep {
-  constructor(
-    readonly duration: number,
-    readonly promise: Future<never, void>,
-    readonly fiberId: FiberId,
-  ) {}
+  constructor(readonly duration: number, readonly promise: Future<never, void>, readonly fiberId: FiberId) {}
 }
 
 interface Start {
@@ -114,11 +107,7 @@ export class TestClock extends Clock {
           (_) => IO.succeed(HashSet.makeDefault()),
           (fibers) =>
             IO.foreach(fibers, (ref) => ref.get)
-              .map((_) =>
-                _.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s0, s1) =>
-                  s0.union(s1),
-                ),
-              )
+              .map((_) => _.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s0, s1) => s0.union(s1)))
               .map((set) => set.filter((f) => !Equatable.strictEquals(f.id, descriptor.id))),
         ),
       ),
@@ -164,10 +153,7 @@ export class TestClock extends Clock {
         return sorted.head
           .chain(([duration, promise]) =>
             duration <= end
-              ? Just([
-                  Just([end, promise] as const),
-                  new Data(duration, sorted.unsafeTail),
-                ] as const)
+              ? Just([Just([end, promise] as const), new Data(duration, sorted.unsafeTail)] as const)
               : Nothing(),
           )
           .getOrElse([Nothing(), new Data(end, data.sleeps)] as const);
@@ -202,11 +188,7 @@ export class TestClock extends Clock {
     matchTag(
       {
         Start: () =>
-          Just(
-            this.live
-              .provide(Clock.sleep(5000) > Console.print(warning))
-              .interruptible.fork.map(Pending),
-          ),
+          Just(this.live.provide(Clock.sleep(5000) > Console.print(warning)).interruptible.fork.map(Pending)),
       },
       () => Nothing<IO<unknown, never, WarningData>>(),
     ),

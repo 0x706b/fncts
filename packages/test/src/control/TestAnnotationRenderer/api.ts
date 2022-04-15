@@ -8,10 +8,7 @@ import { CompositeRenderer, TestAnnotationRendererTag } from "./definition.js";
  * @tsplus fluent fncts.test.control.TestAnnotationRenderer combine
  * @tsplus operator fncts.test.control.TestAnnotationRenderer +
  */
-export function combine_(
-  self: TestAnnotationRenderer,
-  that: TestAnnotationRenderer,
-): TestAnnotationRenderer {
+export function combine_(self: TestAnnotationRenderer, that: TestAnnotationRenderer): TestAnnotationRenderer {
   if (
     self._tag === TestAnnotationRendererTag.CompositeRenderer &&
     that._tag === TestAnnotationRendererTag.CompositeRenderer
@@ -30,27 +27,21 @@ export function combine_(
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Ignored
  */
 export const ignored: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Ignored, (children) =>
-    children.head.chain((n) => (n === 0 ? Nothing() : Just(`ignored: ${n}`))),
-  ),
+  f(TestAnnotation.Ignored, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`ignored: ${n}`)))),
 );
 
 /**
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Repeated
  */
 export const repeated: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Repeated, (children) =>
-    children.head.chain((n) => (n === 0 ? Nothing() : Just(`repeated: ${n}`))),
-  ),
+  f(TestAnnotation.Repeated, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`repeated: ${n}`)))),
 );
 
 /**
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Retried
  */
 export const retried: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Repeated, (children) =>
-    children.head.chain((n) => (n === 0 ? Nothing() : Just(`retried: ${n}`))),
-  ),
+  f(TestAnnotation.Repeated, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`retried: ${n}`)))),
 );
 
 /**
@@ -59,9 +50,7 @@ export const retried: TestAnnotationRenderer = new LeafRenderer((f) =>
 export const tagged: TestAnnotationRenderer = new LeafRenderer((f) =>
   f(TestAnnotation.Tagged, (children) =>
     children.head.chain((child) =>
-      child.size === 0
-        ? Nothing()
-        : Just(`tagged: ${child.map((s) => s.surround('"')).join(", ")}`),
+      child.size === 0 ? Nothing() : Just(`tagged: ${child.map((s) => s.surround('"')).join(", ")}`),
     ),
   ),
 );
@@ -70,9 +59,7 @@ export const tagged: TestAnnotationRenderer = new LeafRenderer((f) =>
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Timed
  */
 export const timed: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Timing, (children) =>
-    children.head.chain((n) => (n === 0 ? Nothing() : Just(`${n}ms`))),
-  ),
+  f(TestAnnotation.Timing, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`${n}ms`)))),
 );
 
 /**
@@ -83,6 +70,4 @@ export const silent: TestAnnotationRenderer = new CompositeRenderer(Vector.empty
 /**
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Default
  */
-export const Default: TestAnnotationRenderer = new CompositeRenderer(
-  Vector(ignored, repeated, retried, tagged, timed),
-);
+export const Default: TestAnnotationRenderer = new CompositeRenderer(Vector(ignored, repeated, retried, tagged, timed));

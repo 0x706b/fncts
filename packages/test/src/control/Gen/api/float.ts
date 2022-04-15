@@ -6,9 +6,7 @@ import { Gen } from "../definition.js";
 /**
  * @tsplus static fncts.test.control.GenOps float
  */
-export function float(
-  constraints: NumberConstraints & FloatConstraints = {},
-): Gen<Has<Random>, number> {
+export function float(constraints: NumberConstraints & FloatConstraints = {}): Gen<Has<Random>, number> {
   const {
     noDefaultInfinity = false,
     min = noDefaultInfinity ? -MAX_VALUE_32 : Number.NEGATIVE_INFINITY,
@@ -21,9 +19,7 @@ export function float(
       const maxIndex = yield* _(safeFloatToIndex(max, "max"));
       if (minIndex > maxIndex) {
         return yield* _(
-          IO.haltNow(
-            new Error("Gen.float constraints.min must be less than or equal to constraints.max"),
-          ),
+          IO.haltNow(new Error("Gen.float constraints.min must be less than or equal to constraints.max")),
         );
       }
       if (noNaN) {

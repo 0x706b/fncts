@@ -60,18 +60,8 @@ export class PCGRandom {
    *
    * @memberOf PCGRandom
    */
-  constructor(
-    seedHi: OptionalNumber,
-    seedLo: OptionalNumber,
-    incHi: OptionalNumber,
-    incLo: OptionalNumber,
-  );
-  constructor(
-    seedHi?: OptionalNumber,
-    seedLo?: OptionalNumber,
-    incHi?: OptionalNumber,
-    incLo?: OptionalNumber,
-  ) {
+  constructor(seedHi: OptionalNumber, seedLo: OptionalNumber, incHi: OptionalNumber, incLo: OptionalNumber);
+  constructor(seedHi?: OptionalNumber, seedLo?: OptionalNumber, incHi?: OptionalNumber, incLo?: OptionalNumber) {
     if (isNothing(seedLo) && isNothing(seedHi)) {
       seedLo = (Math.random() * 0xffffffff) >>> 0;
       seedHi = 0;
@@ -91,13 +81,7 @@ export class PCGRandom {
 
     this._state = new Int32Array([0, 0, (<number>incHi) >>> 0, ((incLo || 0) | 1) >>> 0]);
     this._next();
-    add64(
-      this._state,
-      this._state[0]!,
-      this._state[1]!,
-      (<number>seedHi) >>> 0,
-      (<number>seedLo) >>> 0,
-    );
+    add64(this._state, this._state[0]!, this._state[1]!, (<number>seedHi) >>> 0, (<number>seedLo) >>> 0);
     this._next();
     return this;
   }

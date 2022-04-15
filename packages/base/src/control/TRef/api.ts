@@ -47,10 +47,7 @@ export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<unknown, EB, B>
  *
  * @tsplus fluent fncts.control.TRef modify
  */
-export function modify_<E, A, B>(
-  self: TRef<E, E, A, A>,
-  f: (a: A) => readonly [B, A],
-): STM<unknown, E, B> {
+export function modify_<E, A, B>(self: TRef<E, E, A, A>, f: (a: A) => readonly [B, A]): STM<unknown, E, B> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -210,10 +207,7 @@ export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
  *
  * @tsplus fluent fncts.control.TRef getAndUpdateJust
  */
-export function getAndUpdateJust_<E, A>(
-  self: TRef<E, E, A, A>,
-  f: (a: A) => Maybe<A>,
-): STM<unknown, E, A> {
+export function getAndUpdateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -263,10 +257,7 @@ export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unkno
  *
  * @tsplus fluent fncts.control.TRef updateJust
  */
-export function updateJust_<E, A>(
-  self: TRef<E, E, A, A>,
-  f: (a: A) => Maybe<A>,
-): STM<unknown, E, void> {
+export function updateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, void> {
   return self.update((a) => f(a).getOrElse(a));
 }
 
@@ -301,10 +292,7 @@ export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
  *
  * @tsplus fluent fncts.control.TRef updateJustAndGet
  */
-export function updateJustAndGet_<E, A>(
-  self: TRef<E, E, A, A>,
-  f: (a: A) => Maybe<A>,
-): STM<unknown, E, A> {
+export function updateJustAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, A> {
   return self.updateAndGet((a) => f(a).getOrElse(a));
 }
 

@@ -20,16 +20,14 @@ export function get<V>(key: TestAnnotation<V>): URIO<Has<Annotations>, V> {
 /**
  * @tsplus static fncts.test.control.AnnotationsOps withAnnotations
  */
-export function withAnnotation<R, E, A>(
-  io: IO<R, E, A>,
-): IO<R & Has<Annotations>, Annotated<E>, Annotated<A>> {
+export function withAnnotation<R, E, A>(io: IO<R, E, A>): IO<R & Has<Annotations>, Annotated<E>, Annotated<A>> {
   return IO.serviceWithIO((annotations) => annotations.withAnnotation(io), Annotations.Tag);
 }
 
 /**
  * @tsplus static fncts.test.control.AnnotationsOps supervisedFibers
  */
-export const supervisedFibers: URIO<
-  Has<Annotations>,
-  HashSet<Fiber.Runtime<any, any>>
-> = IO.serviceWithIO((annotations) => annotations.supervisedFibers, Annotations.Tag);
+export const supervisedFibers: URIO<Has<Annotations>, HashSet<Fiber.Runtime<any, any>>> = IO.serviceWithIO(
+  (annotations) => annotations.supervisedFibers,
+  Annotations.Tag,
+);

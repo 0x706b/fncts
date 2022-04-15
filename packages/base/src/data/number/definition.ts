@@ -1,11 +1,11 @@
 declare global {
   /**
-   * @tsplus type fncts.data.Number
+   * @tsplus type fncts.Number
    */
   export interface Number {}
 
   /**
-   * @tsplus type fncts.data.NumberOps
+   * @tsplus type fncts.NumberOps
    */
   export interface NumberConstructor {}
 }

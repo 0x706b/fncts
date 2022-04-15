@@ -10,7 +10,7 @@ import {
   toBitmap,
 } from "@fncts/base/collection/immutable/HashMap/internal";
 import { identity } from "@fncts/base/data/function";
-import * as P from "@fncts/base/prelude";
+import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus type fncts.HashSet
@@ -171,16 +171,7 @@ export class CollisionNode<A> {
   ): Node<A> {
     if (hash === this.hash) {
       const canEdit = canEditNode(edit, this);
-      const list    = updateCollisionList(
-        remove,
-        canEdit,
-        edit,
-        eq,
-        this.hash,
-        this.children,
-        value,
-        size,
-      );
+      const list    = updateCollisionList(remove, canEdit, edit, eq, this.hash, this.children, value, size);
       if (list === this.children) return this;
       return list.length > 1 ? new CollisionNode(edit, this.hash, list) : list[0]!;
     }
@@ -286,15 +277,7 @@ export class ArrayNode<A> {
     const children = this.children;
     const frag     = hashFragment(shift, hash);
     const child    = children[frag]!;
-    const newChild = (child || _EmptyNode).modify(
-      remove,
-      edit,
-      eq,
-      shift + SIZE,
-      hash,
-      value,
-      size,
-    );
+    const newChild = (child || _EmptyNode).modify(remove, edit, eq, shift + SIZE, hash, value, size);
 
     if (child === newChild) return this;
 
@@ -340,13 +323,7 @@ function pack<A>(edit: number, count: number, removed: number, elements: Array<N
   return new IndexedNode(edit, bitmap, children);
 }
 
-function expand<A>(
-  edit: number,
-  frag: number,
-  child: Node<A>,
-  bitmap: number,
-  subNodes: Array<Node<A>>,
-) {
+function expand<A>(edit: number, frag: number, child: Node<A>, bitmap: number, subNodes: Array<Node<A>>) {
   const arr = [];
   let bit   = bitmap;
   let count = 0;
@@ -358,31 +335,18 @@ function expand<A>(
   return new ArrayNode(edit, count + 1, arr);
 }
 
-function mergeLeaves<A>(
-  edit: number,
-  shift: number,
-  h1: number,
-  n1: Node<A>,
-  h2: number,
-  n2: Node<A>,
-): Node<A> {
+function mergeLeaves<A>(edit: number, shift: number, h1: number, n1: Node<A>, h2: number, n2: Node<A>): Node<A> {
   if (h1 === h2) return new CollisionNode(edit, h1, [n2, n1]);
   const subH1 = hashFragment(shift, h1);
   const subH2 = hashFragment(shift, h2);
   return new IndexedNode(
     edit,
     toBitmap(subH1) | toBitmap(subH2),
-    subH1 === subH2
-      ? [mergeLeaves(edit, shift + SIZE, h1, n1, h2, n2)]
-      : subH1 < subH2
-      ? [n1, n2]
-      : [n2, n1],
+    subH1 === subH2 ? [mergeLeaves(edit, shift + SIZE, h1, n1, h2, n2)] : subH1 < subH2 ? [n1, n2] : [n2, n1],
   );
 }
 
-type Cont<V, A> =
-  | [len: number, children: Array<Node<V>>, i: number, f: (node: V) => A, cont: Cont<V, A>]
-  | undefined;
+type Cont<V, A> = [len: number, children: Array<Node<V>>, i: number, f: (node: V) => A, cont: Cont<V, A>] | undefined;
 
 function applyCont<V, A>(cont: Cont<V, A>) {
   return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : undefined;

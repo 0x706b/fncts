@@ -1,4 +1,4 @@
-import { showWithOptions } from "@fncts/base/prelude/Showable";
+import { showWithOptions } from "@fncts/base/typeclass/Showable";
 
 import { AssertionValue } from "./definition.js";
 

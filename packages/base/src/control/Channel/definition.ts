@@ -52,17 +52,7 @@ export function unifyChannel<X extends Channel<any, any, any, any, any, any, any
   return _;
 }
 
-export abstract class Continuation<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutErr2,
-  OutElem,
-  OutDone,
-  OutDone2,
-> {
+export abstract class Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> {
   readonly _Env!: (_: Env) => void;
   readonly _InErr!: (_: InErr) => void;
   readonly _InElem!: (_: InElem) => void;
@@ -87,19 +77,13 @@ export class ContinuationK<
 > extends Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> {
   readonly _tag = ChannelTag.ContinuationK;
   constructor(
-    readonly onSuccess: (
-      _: OutDone,
-    ) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
-    readonly onHalt: (
-      _: Cause<OutErr>,
-    ) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
+    readonly onSuccess: (_: OutDone) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
+    readonly onHalt: (_: Cause<OutErr>) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
   ) {
     super();
   }
 
-  onExit(
-    exit: Exit<OutErr, OutDone>,
-  ): Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2> {
+  onExit(exit: Exit<OutErr, OutDone>): Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2> {
     return exit.match(this.onHalt, this.onSuccess);
   }
 }
@@ -124,17 +108,7 @@ export class ContinuationFinalizer<Env, OutErr, OutDone> extends Continuation<
 /**
  * @optimize remove
  */
-export function concreteContinuation<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutErr2,
-  OutElem,
-  OutDone,
-  OutDone2,
->(
+export function concreteContinuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>(
   _: Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>,
 ): asserts _ is
   | ContinuationK<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>
@@ -142,18 +116,15 @@ export function concreteContinuation<
   //
 }
 
-export class PipeTo<
+export class PipeTo<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutElem2, OutDone, OutDone2> extends Channel<
   Env,
   InErr,
   InElem,
   InDone,
-  OutErr,
   OutErr2,
-  OutElem,
   OutElem2,
-  OutDone,
-  OutDone2,
-> extends Channel<Env, InErr, InElem, InDone, OutErr2, OutElem2, OutDone2> {
+  OutDone2
+> {
   readonly _tag = ChannelTag.PipeTo;
   constructor(
     readonly left: () => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -163,105 +134,57 @@ export class PipeTo<
   }
 }
 
-export class Fold<
+export class Fold<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> extends Channel<
   Env,
   InErr,
   InElem,
   InDone,
-  OutErr,
   OutErr2,
   OutElem,
-  OutDone,
-  OutDone2,
-> extends Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2> {
+  OutDone2
+> {
   readonly _tag = ChannelTag.Fold;
   constructor(
     readonly value: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-    readonly k: ContinuationK<
-      Env,
-      InErr,
-      InElem,
-      InDone,
-      OutErr,
-      OutErr2,
-      OutElem,
-      OutDone,
-      OutDone2
-    >,
+    readonly k: ContinuationK<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>,
   ) {
     super();
   }
 }
 
-export class Read<
+export class Read<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> extends Channel<
   Env,
   InErr,
   InElem,
   InDone,
-  OutErr,
   OutErr2,
   OutElem,
-  OutDone,
-  OutDone2,
-> extends Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2> {
+  OutDone2
+> {
   readonly _tag = ChannelTag.Read;
   constructor(
     readonly more: (_: InElem) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
-    readonly done: ContinuationK<
-      Env,
-      InErr,
-      InElem,
-      InDone,
-      OutErr,
-      OutErr2,
-      OutElem,
-      OutDone,
-      OutDone2
-    >,
+    readonly done: ContinuationK<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>,
   ) {
     super();
   }
 }
 
-export class Done<OutDone> extends Channel<
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  never,
-  never,
-  OutDone
-> {
+export class Done<OutDone> extends Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
   readonly _tag = ChannelTag.Done;
   constructor(readonly terminal: () => OutDone) {
     super();
   }
 }
 
-export class Fail<OutErr> extends Channel<
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  OutErr,
-  never,
-  never
-> {
+export class Fail<OutErr> extends Channel<unknown, unknown, unknown, unknown, OutErr, never, never> {
   readonly _tag = ChannelTag.Halt;
   constructor(readonly cause: () => Cause<OutErr>) {
     super();
   }
 }
 
-export class FromIO<Env, OutErr, OutDone> extends Channel<
-  Env,
-  unknown,
-  unknown,
-  unknown,
-  OutErr,
-  never,
-  OutDone
-> {
+export class FromIO<Env, OutErr, OutDone> extends Channel<Env, unknown, unknown, unknown, OutErr, never, OutDone> {
   readonly _tag = ChannelTag.FromIO;
   constructor(readonly io: IO<Env, OutErr, OutDone>) {
     super();
@@ -278,9 +201,7 @@ export class Defer<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> extends
   OutDone
 > {
   readonly _tag = ChannelTag.Defer;
-  constructor(
-    readonly effect: () => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  ) {
+  constructor(readonly effect: () => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>) {
     super();
   }
 }
@@ -328,20 +249,9 @@ export class ConcatAll<
   }
 }
 
-export class BracketOut<R, E, Z, OutDone> extends Channel<
-  R,
-  unknown,
-  unknown,
-  unknown,
-  E,
-  Z,
-  OutDone
-> {
+export class BracketOut<R, E, Z, OutDone> extends Channel<R, unknown, unknown, unknown, E, Z, OutDone> {
   readonly _tag = ChannelTag.BracketOut;
-  constructor(
-    readonly acquire: IO<R, E, Z>,
-    readonly finalizer: (_: Z, exit: Exit<any, any>) => URIO<R, any>,
-  ) {
+  constructor(readonly acquire: IO<R, E, Z>, readonly finalizer: (_: Z, exit: Exit<any, any>) => URIO<R, any>) {
     super();
   }
 }
@@ -364,15 +274,7 @@ export class Provide<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> exten
   }
 }
 
-export class Emit<OutElem, OutDone> extends Channel<
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  never,
-  OutElem,
-  OutDone
-> {
+export class Emit<OutElem, OutDone> extends Channel<unknown, unknown, unknown, unknown, never, OutElem, OutDone> {
   readonly _tag = ChannelTag.Emit;
   constructor(readonly out: () => OutElem) {
     super();

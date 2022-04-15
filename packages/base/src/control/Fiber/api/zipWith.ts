@@ -16,11 +16,7 @@ export function zipWith_<E, A, E1, B, C>(
     getRef: (ref) => self.getRef(ref).zipWith(that.getRef(ref), (a, b) => ref.join(a, b)),
     inheritRefs: self.inheritRefs.apSecond(that.inheritRefs),
     interruptAs: (id) =>
-      self
-        .interruptAs(id)
-        .zipWith(that.interruptAs(id), (ea, eb) => ea.zipWithCause(eb, f, Cause.both)),
-    poll: self.poll.zipWith(that.poll, (fa, fb) =>
-      fa.zipWith(fb, (ea, eb) => ea.zipWithCause(eb, f, Cause.both)),
-    ),
+      self.interruptAs(id).zipWith(that.interruptAs(id), (ea, eb) => ea.zipWithCause(eb, f, Cause.both)),
+    poll: self.poll.zipWith(that.poll, (fa, fb) => fa.zipWith(fb, (ea, eb) => ea.zipWithCause(eb, f, Cause.both))),
   };
 }

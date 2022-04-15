@@ -7,9 +7,7 @@ import { concrete } from "@fncts/base/control/Queue/definition";
  *
  * @tsplus getter fncts.control.Queue awaitShutdown
  */
-export function awaitShutdown<RA, RB, EA, EB, A, B>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-): UIO<void> {
+export function awaitShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): UIO<void> {
   concrete(queue);
   return queue.awaitShutdown;
 }
@@ -29,9 +27,7 @@ export function capacity<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, 
  *
  * @tsplus getter fncts.control.Queue isShutdown
  */
-export function isShutdown<RA, RB, EA, EB, A, B>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-): UIO<boolean> {
+export function isShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): UIO<boolean> {
   concrete(queue);
   return queue.isShutdown;
 }
@@ -41,10 +37,7 @@ export function isShutdown<RA, RB, EA, EB, A, B>(
  *
  * @tsplus fluent fncts.control.Queue offer
  */
-export function offer_<RA, RB, EA, EB, A, B>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-  a: A,
-): IO<RA, EA, boolean> {
+export function offer_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, a: A): IO<RA, EA, boolean> {
   concrete(queue);
   return queue.offer(a);
 }
@@ -67,10 +60,7 @@ export function offer_<RA, RB, EA, EB, A, B>(
  *
  * @tsplus fluent fncts.control.Queue offerAll
  */
-export function offerAll_<RA, RB, EA, EB, A, B>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-  as: Iterable<A>,
-) {
+export function offerAll_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, as: Iterable<A>) {
   concrete(queue);
   return queue.offerAll(as);
 }

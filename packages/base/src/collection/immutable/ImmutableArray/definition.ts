@@ -1,4 +1,3 @@
-
 export const ImmutableArrayTypeId = Symbol.for("fncts.ImmutableArray");
 export type ImmutableArrayTypeId = typeof ImmutableArrayTypeId;
 

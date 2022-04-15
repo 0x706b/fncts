@@ -15,6 +15,5 @@ export function fromAt<T, J, B>(at: At<T, J, Maybe<B>>): Index<T, J, B> {
  * @tsplus static fncts.optics.IndexOps fromIso
  */
 export function fromIso<T, S>(iso: Iso<T, S>) {
-  return <I, A>(index: Index<S, I, A>): Index<T, I, A> =>
-    Index({ index: (i) => iso.compose(index.index(i)) });
+  return <I, A>(index: Index<S, I, A>): Index<T, I, A> => Index({ index: (i) => iso.compose(index.index(i)) });
 }

@@ -1,5 +1,5 @@
 import type { RBNode } from "@fncts/base/collection/immutable/SortedMap/node";
-import type { Ordering } from "@fncts/base/prelude";
+import type { Ordering } from "@fncts/base/typeclass";
 
 import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/node";
 
@@ -28,11 +28,7 @@ function recountNode<K, V>(n: Node<K, V>): void {
   n.count = 1 + (n.left ? n.left.count : 0) + (n.right ? n.right.count : 0);
 }
 
-export function rebuildModifiedPath<K, V>(
-  nodeStack: Array<Node<K, V>>,
-  orderStack: Array<Ordering>,
-  inc = 1,
-): void {
+export function rebuildModifiedPath<K, V>(nodeStack: Array<Node<K, V>>, orderStack: Array<Ordering>, inc = 1): void {
   for (let s = nodeStack.length - 2; s >= 0; --s) {
     const n = nodeStack[s]!;
     if (orderStack[s]! <= 0) {

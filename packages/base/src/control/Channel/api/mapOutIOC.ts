@@ -1,18 +1,7 @@
 /**
  * @tsplus fluent fncts.control.Channel mapOutIOC
  */
-export function mapOutIOC_<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone,
-  Env1,
-  OutErr1,
-  OutElem1,
->(
+export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   n: number,
   f: (_: OutElem) => IO<Env1, OutErr1, OutElem1>,
@@ -38,8 +27,7 @@ export function mapOutIOC_<
                 (outDone) =>
                   permits
                     .withPermits(n)(IO.unit)
-                    .interruptible.apSecond(queue.offer(IO.succeedNow(Either.left(outDone))))
-                    .asUnit,
+                    .interruptible.apSecond(queue.offer(IO.succeedNow(Either.left(outDone)))).asUnit,
                 (outElem) =>
                   IO.gen(function* (_) {
                     const p     = yield* _(Future.make<OutErr1, OutElem1>());
@@ -63,19 +51,12 @@ export function mapOutIOC_<
         return queue;
       }),
     ).map((queue) => {
-      const consumer: Channel<
-        Env & Env1,
-        unknown,
-        unknown,
-        unknown,
-        OutErr | OutErr1,
-        OutElem1,
-        OutDone
-      > = Channel.unwrap(
-        queue.take.flatten.matchCause(Channel.failCauseNow, (r) =>
-          r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),
-        ),
-      );
+      const consumer: Channel<Env & Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem1, OutDone> =
+        Channel.unwrap(
+          queue.take.flatten.matchCause(Channel.failCauseNow, (r) =>
+            r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),
+          ),
+        );
       return consumer;
     }),
   );

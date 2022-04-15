@@ -1,9 +1,6 @@
 import type { ChannelState } from "@fncts/base/control/Channel/internal/ChannelState";
 
-import {
-  ChannelExecutor,
-  readUpstream,
-} from "@fncts/base/control/Channel/internal/ChannelExecutor";
+import { ChannelExecutor, readUpstream } from "@fncts/base/control/Channel/internal/ChannelExecutor";
 import { ChannelStateTag } from "@fncts/base/control/Channel/internal/ChannelState";
 import { identity } from "@fncts/base/data/function";
 

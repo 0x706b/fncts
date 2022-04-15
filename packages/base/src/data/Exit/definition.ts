@@ -1,16 +1,16 @@
-import * as P from "../../prelude.js";
+import * as P from "../../typeclass.js";
 import { hasTypeId } from "../../util/predicates.js";
 
-export const ExitTypeId = Symbol.for("fncts.data.Exit");
+export const ExitTypeId = Symbol.for("fncts.Exit");
 export type ExitTypeId = typeof ExitTypeId;
 
 /**
- * @tsplus type fncts.data.Exit
+ * @tsplus type fncts.Exit
  */
 export type Exit<E, A> = Success<A> | Failure<E>;
 
 /**
- * @tsplus type fncts.data.ExitOps
+ * @tsplus type fncts.ExitOps
  */
 export interface ExitOps {}
 
@@ -22,8 +22,8 @@ export const enum ExitTag {
 }
 
 /**
- * @tsplus type fncts.data.Exit.Failure
- * @tsplus companion fncts.data.Exit.FailureOps
+ * @tsplus type fncts.Exit.Failure
+ * @tsplus companion fncts.Exit.FailureOps
  */
 export class Failure<E> {
   readonly _E!: () => E;
@@ -42,8 +42,8 @@ export class Failure<E> {
 }
 
 /**
- * @tsplus type fncts.data.Exit.Success
- * @tsplus companion fncts.data.Exit.SuccessOps
+ * @tsplus type fncts.Exit.Success
+ * @tsplus companion fncts.Exit.SuccessOps
  */
 export class Success<A> implements P.Hashable, P.Equatable {
   readonly _E!: () => never;
@@ -62,41 +62,38 @@ export class Success<A> implements P.Hashable, P.Equatable {
 }
 
 /**
- * @tsplus static fncts.data.ExitOps isExit
+ * @tsplus static fncts.ExitOps isExit
  */
 export function isExit(u: unknown): u is Exit<unknown, unknown> {
   return hasTypeId(u, ExitTypeId);
 }
 
 /**
- * @tsplus fluent fncts.data.Exit isFailure
+ * @tsplus fluent fncts.Exit isFailure
  */
 export function isFailure<E, A>(exit: Exit<E, A>): exit is Failure<E> {
   return exit._tag === ExitTag.Failure;
 }
 
 /**
- * @tsplus fluent fncts.data.Exit isInterrupt
+ * @tsplus fluent fncts.Exit isInterrupt
  */
 export function isInterrupt<E, A>(exit: Exit<E, A>): exit is Failure<E> {
   return exit.isFailure() ? exit.cause.interrupted : false;
 }
 
 /**
- * @tsplus fluent fncts.data.Exit isSuccess
+ * @tsplus fluent fncts.Exit isSuccess
  */
 export function isSuccess<E, A>(exit: Exit<E, A>): exit is Success<A> {
   return exit._tag === ExitTag.Success;
 }
 
 /**
- * @tsplus unify fncts.data.Exit
+ * @tsplus unify fncts.Exit
  */
 export function unifyExit<X extends Exit<any, any>>(
   _: X,
-): Exit<
-  [X] extends [Exit<infer E, any>] ? E : never,
-  [X] extends [Exit<any, infer A>] ? A : never
-> {
+): Exit<[X] extends [Exit<infer E, any>] ? E : never, [X] extends [Exit<any, infer A>] ? A : never> {
   return _;
 }

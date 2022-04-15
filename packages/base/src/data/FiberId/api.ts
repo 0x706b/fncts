@@ -1,7 +1,7 @@
 import { Composite, isComposite, isNone } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.data.FiberId combine
+ * @tsplus fluent fncts.FiberId combine
  */
 export function combine_(id0: FiberId, id1: FiberId): FiberId {
   if (isNone(id0)) {
@@ -24,7 +24,7 @@ export function combine_(id0: FiberId, id1: FiberId): FiberId {
 }
 
 /**
- * @tsplus getter fncts.data.FiberId ids
+ * @tsplus getter fncts.FiberId ids
  */
 export function ids(self: FiberId): HashSet<number> {
   switch (self._tag) {
@@ -38,7 +38,7 @@ export function ids(self: FiberId): HashSet<number> {
 }
 
 /**
- * @tsplus getter fncts.data.FiberId threadName
+ * @tsplus getter fncts.FiberId threadName
  */
 export function threadName(self: FiberId): string {
   return `fncts-fiber-${self.ids.map((n) => n.toString()).join(",")}`;

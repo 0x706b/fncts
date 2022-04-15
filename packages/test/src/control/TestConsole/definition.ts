@@ -1,7 +1,7 @@
 import type { Console } from "@fncts/base/control/Console";
 import type { Live } from "@fncts/test/control/Live";
 
-import { showWithOptions } from "@fncts/base/prelude/Showable";
+import { showWithOptions } from "@fncts/base/typeclass/Showable";
 
 export class ConsoleData extends CaseClass<{
   readonly input: Vector<string>;
@@ -15,11 +15,7 @@ export class ConsoleData extends CaseClass<{
  * @tsplus companion fncts.test.TestConsoleOps
  */
 export class TestConsole implements Console {
-  constructor(
-    readonly consoleState: Ref<ConsoleData>,
-    readonly live: Live,
-    readonly debugState: FiberRef<boolean>,
-  ) {}
+  constructor(readonly consoleState: Ref<ConsoleData>, readonly live: Live, readonly debugState: FiberRef<boolean>) {}
   show(...input: ReadonlyArray<unknown>): UIO<void> {
     return this.consoleState.update((data) =>
       data.copy({
@@ -49,9 +45,7 @@ export class TestConsole implements Console {
   errOutput   = this.consoleState.get.map((data) => data.errOutput);
   debugOutput = this.consoleState.get.map((data) => data.debugOutput);
   feedLines(...lines: ReadonlyArray<string>): UIO<void> {
-    return this.consoleState.update((data) =>
-      data.copy({ input: data.input.concat(Vector.from(lines)) }),
-    );
+    return this.consoleState.update((data) => data.copy({ input: data.input.concat(Vector.from(lines)) }));
   }
   silent<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
     return this.debugState.locally(false)(io);

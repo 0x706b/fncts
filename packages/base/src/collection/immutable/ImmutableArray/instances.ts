@@ -28,7 +28,7 @@ import {
   witherWithIndex_,
 } from "@fncts/base/collection/immutable/ImmutableArray/api";
 import { empty } from "@fncts/base/collection/immutable/ImmutableArray/constructors";
-import * as P from "@fncts/base/prelude";
+import * as P from "@fncts/base/typeclass";
 
 export const Align = P.Align<ImmutableArrayF>({
   map_,

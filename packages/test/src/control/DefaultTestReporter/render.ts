@@ -21,24 +21,15 @@ import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import { TestTimeoutException } from "../../data/TestTimeoutException.js";
 import { TestLogger } from "../TestLogger.js";
 
-export type TestReporter<E> = (
-  duration: number,
-  spec: ExecutedSpec<E>,
-) => URIO<Has<TestLogger>, void>;
+export type TestReporter<E> = (duration: number, spec: ExecutedSpec<E>) => URIO<Has<TestLogger>, void>;
 
 /**
  * @tsplus static fncts.test.DefaultTestReporter report
  */
-export function report<E>(
-  renderTest: TestRenderer,
-  testAnnotationRenderer: TestAnnotationRenderer,
-): TestReporter<E> {
+export function report<E>(renderTest: TestRenderer, testAnnotationRenderer: TestAnnotationRenderer): TestReporter<E> {
   return (duration, executedSpec) => {
-    const rendered = renderTest(
-      renderLoop(executedSpec, 0, List.empty(), List.empty()),
-      testAnnotationRenderer,
-    );
-    const stats = renderTest(Vector(renderStats(duration, executedSpec)), testAnnotationRenderer);
+    const rendered = renderTest(renderLoop(executedSpec, 0, List.empty(), List.empty()), testAnnotationRenderer);
+    const stats    = renderTest(Vector(renderStats(duration, executedSpec)), testAnnotationRenderer);
     return IO.serviceWithIO((l) => l.logLine(rendered.concat(stats).join("\n")), TestLogger.Tag);
   };
 }
@@ -53,10 +44,11 @@ export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>) 
           ([x1, x2, x3], [y1, y2, y3]) => [x1 + y1, x2 + y2, x3 + y3] as const,
         ),
       Test: ({ test }) =>
-        test.match(
-          () => [0, 0, 1],
-          matchTag({ Succeeded: () => [1, 0, 0], Ignored: () => [0, 1, 0] }),
-        ) as readonly [number, number, number],
+        test.match(() => [0, 0, 1], matchTag({ Succeeded: () => [1, 0, 0], Ignored: () => [0, 1, 0] })) as readonly [
+          number,
+          number,
+          number,
+        ],
     }),
   );
 
@@ -86,12 +78,7 @@ function renderLoop<E>(
 ): Vector<ExecutionResult> {
   switch (executedSpec.caseValue._tag) {
     case ExecutedSpecCaseTag.Labeled: {
-      return renderLoop(
-        executedSpec.caseValue.spec,
-        depth,
-        ancestors,
-        labels.prepend(executedSpec.caseValue.label),
-      );
+      return renderLoop(executedSpec.caseValue.spec, depth, ancestors, labels.prepend(executedSpec.caseValue.label));
     }
     case ExecutedSpecCaseTag.Multiple: {
       const specs       = executedSpec.caseValue.specs;
@@ -150,31 +137,16 @@ function renderLoop<E>(
               Or: (l, r) => l || r,
               Not: (v) => v.invert,
             }),
-          RuntimeFailure: ({ cause }) =>
-            renderRuntimeCause(cause, labels.reverse.join(" - "), depth, true),
+          RuntimeFailure: ({ cause }) => renderRuntimeCause(cause, labels.reverse.join(" - "), depth, true),
         }),
         matchTag({
           Succeeded: () =>
-            rendered(
-              Test,
-              labels.reverse.join(" - "),
-              Passed,
-              depth,
-              List(fr(labels.reverse.join(" - ")).toLine),
-            ),
+            rendered(Test, labels.reverse.join(" - "), Passed, depth, List(fr(labels.reverse.join(" - ")).toLine)),
           Ignored: () =>
-            rendered(
-              Test,
-              labels.reverse.join(" - "),
-              Ignored,
-              depth,
-              List(warn(labels.reverse.join(" - ")).toLine),
-            ),
+            rendered(Test, labels.reverse.join(" - "), Ignored, depth, List(warn(labels.reverse.join(" - ")).toLine)),
         }),
       );
-      return Vector(
-        renderedResult.withAnnotations(ancestors.prepend(executedSpec.caseValue.annotations)),
-      );
+      return Vector(renderedResult.withAnnotations(ancestors.prepend(executedSpec.caseValue.annotations)));
     }
   }
 }
@@ -208,18 +180,14 @@ function renderFailureLabel(label: string, offset: number): Line {
 
 function renderAssertFailure(result: TestResult, label: string, depth: number): ExecutionResult {
   return result.fold({
-    Value: (details) =>
-      rendered(Test, label, Failed, depth, List.from(renderFailure(label, depth, details).lines)),
+    Value: (details) => rendered(Test, label, Failed, depth, List.from(renderFailure(label, depth, details).lines)),
     And: (l, r) => l && r,
     Or: (l, r) => l || r,
     Not: (v) => v.invert,
   });
 }
 
-function renderAssertionFailureDetails(
-  failureDetails: Cons<AssertionValue<any>>,
-  offset: number,
-): Message {
+function renderAssertionFailureDetails(failureDetails: Cons<AssertionValue<any>>, offset: number): Message {
   /**
    * @tsplus tailrec
    */
@@ -228,10 +196,7 @@ function renderAssertionFailureDetails(
     const whole    = failureDetails.tail.chain((l) => l.head);
     const details  = failureDetails.tail.chain((l) => l.tail);
     if (fragment.isJust() && whole.isJust() && details.isJust()) {
-      return loop(
-        Cons(whole.value, details.value),
-        rendered + renderWhole(fragment.value, whole.value, offset),
-      );
+      return loop(Cons(whole.value, details.value), rendered + renderWhole(fragment.value, whole.value, offset));
     } else {
       return rendered;
     }
@@ -239,10 +204,7 @@ function renderAssertionFailureDetails(
   return renderFragment(failureDetails.head, offset) + loop(failureDetails, Message.empty);
 }
 
-function renderGenFailureDetails(
-  failureDetails: Maybe<GenFailureDetails>,
-  offset: number,
-): Message {
+function renderGenFailureDetails(failureDetails: Maybe<GenFailureDetails>, offset: number): Message {
   return failureDetails.match(
     () => Message.empty,
     (details) => {
@@ -250,32 +212,22 @@ function renderGenFailureDetails(
       const initial        = `${details.initialInput}`;
       const renderShrunken = (
         Fragment(
-          `Test failed after ${details.iterations + 1} iteration${
-            details.iterations > 0 ? "s" : ""
-          } with input: `,
+          `Test failed after ${details.iterations + 1} iteration${details.iterations > 0 ? "s" : ""} with input: `,
         ) + error(shrunken)
       ).withOffset(offset + 1);
 
       return initial === shrunken
         ? renderShrunken.toMessage
-        : renderShrunken |
-            (Fragment("Original input before shrinking was: ") + error(initial)).withOffset(
-              offset + 1,
-            );
+        : renderShrunken | (Fragment("Original input before shrinking was: ") + error(initial)).withOffset(offset + 1);
     },
   );
 }
 
 function renderFragment<A>(fragment: AssertionValue<A>, offset: number): Message {
   return (
-    (primary(renderValue(fragment, offset + 1)) + renderSatisfied(fragment)).withOffset(offset)
-      .toMessage +
+    (primary(renderValue(fragment, offset + 1)) + renderSatisfied(fragment)).withOffset(offset).toMessage +
     Message(
-      Vector.from(
-        fragment.assertion.value.rendered
-          .split(/\n/)
-          .map((s) => detail(s).toLine.withOffset(offset)),
-      ),
+      Vector.from(fragment.assertion.value.rendered.split(/\n/).map((s) => detail(s).toLine.withOffset(offset))),
     ).withOffset(offset)
   );
 }
@@ -293,24 +245,16 @@ function renderValue<A>(av: AssertionValue<A>, offset: number) {
 }
 
 function expressionRedundant(valueStr: string, expression: string) {
-  const strip = (s: string) =>
-    s.replace('"', "").replace(" ", "").replace("\n", "").replace("\\n", "");
+  const strip = (s: string) => s.replace('"', "").replace(" ", "").replace("\n", "").replace("\\n", "");
 
   return strip(valueStr) === strip(expression);
 }
 
 function renderSatisfied<A>(assertionValue: AssertionValue<A>): Fragment {
-  return assertionValue.result.value.isSuccess
-    ? Fragment(" satisfied ")
-    : Fragment(" did not satisfy ");
+  return assertionValue.result.value.isSuccess ? Fragment(" satisfied ") : Fragment(" did not satisfy ");
 }
 
-function renderRuntimeCause<E>(
-  cause: Cause<E>,
-  label: string,
-  depth: number,
-  includeCause: boolean,
-) {
+function renderRuntimeCause<E>(cause: Cause<E>, label: string, depth: number, includeCause: boolean) {
   const failureDetails = List(renderFailureLabel(label, depth)).concat(
     List(renderCause(cause, depth))
       .filter(() => includeCause)
@@ -331,11 +275,7 @@ function renderCause(cause: Cause<any>, offset: number): Message {
     (remainingCause) =>
       prefix +
       Message(
-        Vector.from(
-          remainingCause.prettyPrint
-            .split("\n")
-            .map((s) => Line.fromString(s).withOffset(offset + 1)),
-        ),
+        Vector.from(remainingCause.prettyPrint.split("\n").map((s) => Line.fromString(s).withOffset(offset + 1))),
       ),
   );
 }

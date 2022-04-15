@@ -35,12 +35,8 @@ export function mergeWith_<
 >(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-  leftDone: (
-    ex: Exit<OutErr, OutDone>,
-  ) => MergeDecision<Env2, OutErr1, OutDone1, OutErr2, OutDone2>,
-  rightDone: (
-    ex: Exit<OutErr1, OutDone1>,
-  ) => MergeDecision<Env3, OutErr, OutDone, OutErr3, OutDone3>,
+  leftDone: (ex: Exit<OutErr, OutDone>) => MergeDecision<Env2, OutErr1, OutDone1, OutErr2, OutDone2>,
+  rightDone: (ex: Exit<OutErr1, OutDone1>) => MergeDecision<Env3, OutErr, OutDone, OutErr3, OutDone3>,
 ): Channel<
   Env & Env1 & Env2 & Env3,
   InErr & InErr1,
@@ -52,9 +48,7 @@ export function mergeWith_<
 > {
   return Channel.unwrapScoped(
     IO.gen(function* (_) {
-      const input = yield* _(
-        SingleProducerAsyncInput<InErr & InErr1, InElem & InElem1, InDone & InDone1>(),
-      );
+      const input       = yield* _(SingleProducerAsyncInput<InErr & InErr1, InElem & InElem1, InDone & InDone1>());
       const queueReader = Channel.fromInput(input);
       const pullL       = yield* _(queueReader.pipeTo(self).toPull);
       const pullR       = yield* _(queueReader.pipeTo(that).toPull);
@@ -78,21 +72,13 @@ export function mergeWith_<
         (
           done: (
             ex: Exit<Err, Done>,
-          ) => MergeDecision<
-            Env & Env1 & Env2 & Env3,
-            Err2,
-            Done2,
-            OutErr2 | OutErr3,
-            OutDone2 | OutDone3
-          >,
+          ) => MergeDecision<Env & Env1 & Env2 & Env3, Err2, Done2, OutErr2 | OutErr3, OutDone2 | OutDone3>,
           both: (
             f1: Fiber<Err, Either<Done, OutElem | OutElem1>>,
             f2: Fiber<Err2, Either<Done2, OutElem | OutElem1>>,
           ) => LocalMergeState,
           single: (
-            f: (
-              ex: Exit<Err2, Done2>,
-            ) => IO<Env & Env1 & Env2 & Env3, OutErr2 | OutErr3, OutDone2 | OutDone3>,
+            f: (ex: Exit<Err2, Done2>) => IO<Env & Env1 & Env2 & Env3, OutErr2 | OutErr3, OutDone2 | OutDone3>,
           ) => LocalMergeState,
         ): IO<
           Env & Env1 & Env2 & Env3,
@@ -108,13 +94,7 @@ export function mergeWith_<
           >
         > => {
           const onDecision = (
-            decision: MergeDecision<
-              Env & Env1 & Env2 & Env3,
-              Err2,
-              Done2,
-              OutErr2 | OutErr3,
-              OutDone2 | OutDone3
-            >,
+            decision: MergeDecision<Env & Env1 & Env2 & Env3, Err2, Done2, OutErr2 | OutErr3, OutDone2 | OutDone3>,
           ) => {
             decision.concrete();
             switch (decision._tag) {
@@ -139,9 +119,7 @@ export function mergeWith_<
               r.match(
                 (d) => onDecision(done(Exit.succeed(d))),
                 (elem) =>
-                  pull.forkDaemon.map((leftFiber) =>
-                    Channel.writeNow(elem).apSecond(go(both(leftFiber, fiber))),
-                  ),
+                  pull.forkDaemon.map((leftFiber) => Channel.writeNow(elem).apSecond(go(both(leftFiber, fiber)))),
               ),
           );
         };
@@ -209,16 +187,10 @@ export function mergeWith_<
       };
       return Channel.fromIO(
         pullL.forkDaemon.zipWith(pullR.forkDaemon, (a, b) =>
-          MergeState.BothRunning<
-            unknown,
-            OutErr,
-            OutErr1,
-            unknown,
-            OutElem | OutElem1,
-            OutDone,
-            OutDone1,
-            unknown
-          >(a, b),
+          MergeState.BothRunning<unknown, OutErr, OutErr1, unknown, OutElem | OutElem1, OutDone, OutDone1, unknown>(
+            a,
+            b,
+          ),
         ),
       )
         .chain(go)

@@ -47,9 +47,7 @@ export const {
 
 function _rgb(offset = 0) {
   return (r: number, g: number, b: number) => (s: string) =>
-    `\u001b[${38 + offset};2;${r};${g};${b}m${s}${
-      offset === ANSI_BACKGROUND_OFFSET ? RESET_BG : RESET_FG
-    }`;
+    `\u001b[${38 + offset};2;${r};${g};${b}m${s}${offset === ANSI_BACKGROUND_OFFSET ? RESET_BG : RESET_FG}`;
 }
 
 export function rgb(r: number, g: number, b: number): (s: string) => string {
@@ -244,10 +242,7 @@ function generateStyles() {
     [K in keyof typeof colors as `bgBright${Capitalize<K>}`]: [number, number];
   } = Dictionary.get(colors).foldLeftWithIndex({} as any, (k, b, [c, r]) => ({
     ...b,
-    [`bgBright${k.capitalize}`]: [
-      c + ANSI_BRIGHT_OFFSET + ANSI_BACKGROUND_OFFSET,
-      r + ANSI_BACKGROUND_OFFSET,
-    ],
+    [`bgBright${k.capitalize}`]: [c + ANSI_BRIGHT_OFFSET + ANSI_BACKGROUND_OFFSET, r + ANSI_BACKGROUND_OFFSET],
   }));
 
   return {

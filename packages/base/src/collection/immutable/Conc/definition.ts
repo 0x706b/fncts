@@ -107,9 +107,7 @@ abstract class ConcImplementation<A> extends Conc<A> {
       return this.start.concat(conc).concat(that);
     }
     if (that._tag === ConcTag.PrependN) {
-      const conc = fromArray(
-        that.bufferUsed === 0 ? [] : (that.buffer as B[]).slice(-that.bufferUsed),
-      );
+      const conc = fromArray(that.bufferUsed === 0 ? [] : (that.buffer as B[]).slice(-that.bufferUsed));
       return this.concat(conc).concat(that.end);
     }
     const diff = that.depth - this.depth;
@@ -170,23 +168,13 @@ abstract class ConcImplementation<A> extends Conc<A> {
     const binary = this.binary && isByte(a);
     const buffer = this.binary && binary ? alloc(BUFFER_SIZE) : Array<A | A1>(BUFFER_SIZE);
     buffer[0]    = a;
-    return new AppendN<A | A1>(
-      this as ConcImplementation<A | A1>,
-      buffer,
-      1,
-      this.binary && binary,
-    );
+    return new AppendN<A | A1>(this as ConcImplementation<A | A1>, buffer, 1, this.binary && binary);
   }
   prepend<A1>(a: A1): ConcImplementation<A | A1> {
     const binary            = this.binary && isByte(a);
     const buffer            = this.binary && binary ? alloc(BUFFER_SIZE) : Array<A | A1>(BUFFER_SIZE);
     buffer[BUFFER_SIZE - 1] = a;
-    return new PrependN<A | A1>(
-      this as ConcImplementation<A | A1>,
-      buffer,
-      1,
-      this.binary && binary,
-    );
+    return new PrependN<A | A1>(this as ConcImplementation<A | A1>, buffer, 1, this.binary && binary);
   }
 
   update<A1>(index: number, a1: A1): ConcImplementation<A | A1> {
@@ -321,10 +309,7 @@ class AppendN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.start.asSeq
-      .concat(this.buffer)
-      .take(this.bufferUsed)
-      [Symbol.iterator]() as Iterator<A>;
+    return this.start.asSeq.concat(this.buffer).take(this.bufferUsed)[Symbol.iterator]() as Iterator<A>;
   }
 
   append<A1>(a: A1): ConcImplementation<A | A1> {
@@ -402,10 +387,7 @@ class PrependN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.buffer.asSeq
-      .take(this.bufferUsed)
-      .concat(this.end)
-      [Symbol.iterator]() as Iterator<A>;
+    return this.buffer.asSeq.take(this.bufferUsed).concat(this.end)[Symbol.iterator]() as Iterator<A>;
   }
 
   prepend<A1>(a: A1): ConcImplementation<A | A1> {
@@ -510,23 +492,11 @@ class Update<A> extends ConcImplementation<A> {
         }
         this.bufferIndices[this.used] = i;
         buffer[this.used]             = a;
-        return new Update(
-          this.conc,
-          this.bufferIndices,
-          buffer,
-          this.used + 1,
-          this.binary && binary,
-        );
+        return new Update(this.conc, this.bufferIndices, buffer, this.used + 1, this.binary && binary);
       }
       this.bufferIndices[this.used] = i;
       this.bufferValues[this.used]  = a;
-      return new Update(
-        this.conc,
-        this.bufferIndices,
-        this.bufferValues,
-        this.used + 1,
-        this.binary && binary,
-      );
+      return new Update(this.conc, this.bufferIndices, this.bufferValues, this.used + 1, this.binary && binary);
     } else {
       const bufferIndices = Array<number>(UPDATE_BUFFER_SIZE);
       const bufferValues  = this.binary && binary ? alloc(UPDATE_BUFFER_SIZE) : Array<any>(UPDATE_BUFFER_SIZE);
@@ -716,15 +686,7 @@ export class ByteChunk<A> extends ConcImplementation<A> {
  */
 export function concrete<A>(
   _: Conc<A>,
-): asserts _ is
-  | Empty<A>
-  | Singleton<A>
-  | Concat<A>
-  | AppendN<A>
-  | PrependN<A>
-  | Slice<A>
-  | Chunk<A>
-  | ByteChunk<A> {
+): asserts _ is Empty<A> | Singleton<A> | Concat<A> | AppendN<A> | PrependN<A> | Slice<A> | Chunk<A> | ByteChunk<A> {
   //
 }
 
@@ -764,11 +726,7 @@ export function isConc(u: unknown): u is Conc<unknown> {
 /**
  * @tsplus fluent fncts.Conc corresponds
  */
-export function corresponds_<A, B>(
-  self: Conc<A>,
-  bs: Conc<B>,
-  f: (a: A, b: B) => boolean,
-): boolean {
+export function corresponds_<A, B>(self: Conc<A>, bs: Conc<B>, f: (a: A, b: B) => boolean): boolean {
   if (self.length !== bs.length) {
     return false;
   }

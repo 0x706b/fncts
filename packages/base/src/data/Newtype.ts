@@ -1,5 +1,5 @@
 /**
- * @tsplus type fncts.data.Newtype
+ * @tsplus type fncts.Newtype
  */
 export interface Newtype<URI, A, C = HKT.None> {
   readonly _URI: URI;
@@ -12,7 +12,7 @@ export declare namespace Newtype {
 }
 
 /**
- * @tsplus type fncts.data.NewtypeOps
+ * @tsplus type fncts.NewtypeOps
  */
 export interface NewtypeOps {}
 
@@ -58,7 +58,7 @@ export interface NewtypeIso<N extends NewtypeHKT, C = N["type"]["_C"]> {
 }
 
 /**
- * @tsplus static fncts.data.NewtypeOps __call
+ * @tsplus static fncts.NewtypeOps __call
  */
 export const newtype = <N extends NewtypeHKT>(): NewtypeIso<N> => ({
   get: unsafeCoerce,

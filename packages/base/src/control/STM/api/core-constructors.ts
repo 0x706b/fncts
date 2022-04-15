@@ -1,11 +1,4 @@
-import {
-  Effect,
-  FailException,
-  InterruptException,
-  RetryException,
-  Succeed,
-  SucceedNow,
-} from "../definition.js";
+import { Effect, FailException, InterruptException, RetryException, Succeed, SucceedNow } from "../definition.js";
 
 /**
  * Returns a value that models failure in the transaction.

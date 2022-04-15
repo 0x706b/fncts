@@ -84,11 +84,7 @@ export function isIO(u: unknown): u is IO<any, any, any> {
  */
 export class Chain<R, R1, E, E1, A, A1> extends IO<R & R1, E | E1, A1> {
   readonly _tag = IOTag.Chain;
-  constructor(
-    readonly io: IO<R, E, A>,
-    readonly f: (a: A) => IO<R1, E1, A1>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly io: IO<R, E, A>, readonly f: (a: A) => IO<R1, E1, A1>, readonly trace?: string) {
     super();
   }
 }
@@ -115,10 +111,7 @@ export class Succeed<A> extends IO<unknown, never, A> {
 
 export class SucceedWith<A> extends IO<unknown, never, A> {
   readonly _tag = IOTag.SucceedWith;
-  constructor(
-    readonly effect: (runtimeConfig: RuntimeConfig, fiberId: FiberId) => A,
-    readonly trace?: string,
-  ) {
+  constructor(readonly effect: (runtimeConfig: RuntimeConfig, fiberId: FiberId) => A, readonly trace?: string) {
     super();
   }
 }
@@ -168,11 +161,7 @@ export type FailureReporter = (e: Cause<unknown>) => void;
 export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
   readonly _tag = IOTag.Fork;
 
-  constructor(
-    readonly io: IO<R, E, A>,
-    readonly scope: Maybe<FiberScope>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly io: IO<R, E, A>, readonly scope: Maybe<FiberScope>, readonly trace?: string) {
     super();
   }
 }
@@ -216,10 +205,7 @@ export class Defer<R, E, A> extends IO<R, E, A> {
 export class DeferWith<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.DeferWith;
 
-  constructor(
-    readonly make: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly make: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>, readonly trace?: string) {
     super();
   }
 }
@@ -227,11 +213,7 @@ export class DeferWith<R, E, A> extends IO<R, E, A> {
 /**
  * @internal
  */
-export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<
-  R & R1 & R2 & R3,
-  E2 | E3,
-  A2 | A3
-> {
+export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
   readonly _tag = "Race";
 
   constructor(
@@ -284,11 +266,7 @@ export class GetDescriptor<R, E, A> extends IO<R, E, A> {
 export class Supervise<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.Supervise;
 
-  constructor(
-    readonly io: IO<R, E, A>,
-    readonly supervisor: Supervisor<any>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly io: IO<R, E, A>, readonly supervisor: Supervisor<any>, readonly trace?: string) {
     super();
   }
 }
@@ -299,10 +277,7 @@ export class Supervise<R, E, A> extends IO<R, E, A> {
 export class FiberRefGetAll<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.FiberRefGetAll;
 
-  constructor(
-    readonly make: (refs: Map<FiberRef.Runtime<unknown>, any>) => IO<R, E, A>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly make: (refs: Map<FiberRef.Runtime<unknown>, any>) => IO<R, E, A>, readonly trace?: string) {
     super();
   }
 }
@@ -313,11 +288,7 @@ export class FiberRefGetAll<R, E, A> extends IO<R, E, A> {
 export class FiberRefModify<A, B> extends IO<unknown, never, B> {
   readonly _tag = IOTag.FiberRefModify;
 
-  constructor(
-    readonly fiberRef: FiberRef.Runtime<A>,
-    readonly f: (a: A) => readonly [B, A],
-    readonly trace?: string,
-  ) {
+  constructor(readonly fiberRef: FiberRef.Runtime<A>, readonly f: (a: A) => readonly [B, A], readonly trace?: string) {
     super();
   }
 }
@@ -343,11 +314,7 @@ export class FiberRefDelete extends IO<unknown, never, void> {
 
 export class FiberRefWith<R, E, A, B> extends IO<R, E, B> {
   readonly _tag = IOTag.FiberRefWith;
-  constructor(
-    readonly fiberRef: FiberRef.Runtime<A>,
-    readonly f: (a: A) => IO<R, E, B>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly fiberRef: FiberRef.Runtime<A>, readonly f: (a: A) => IO<R, E, B>, readonly trace?: string) {
     super();
   }
 }
@@ -369,11 +336,7 @@ export class GetForkScope<R, E, A> extends IO<R, E, A> {
 export class OverrideForkScope<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.OverrideForkScope;
 
-  constructor(
-    readonly io: IO<R, E, A>,
-    readonly forkScope: Maybe<FiberScope>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly io: IO<R, E, A>, readonly forkScope: Maybe<FiberScope>, readonly trace?: string) {
     super();
   }
 }
@@ -388,11 +351,7 @@ export class GetRuntimeConfig<R, E, A> extends IO<R, E, A> {
 
 export class Ensuring<R, E, A, R1> extends IO<R & R1, E, A> {
   readonly _tag = IOTag.Ensuring;
-  constructor(
-    readonly io: IO<R, E, A>,
-    readonly finalizer: IO<R1, never, any>,
-    readonly trace?: string,
-  ) {
+  constructor(readonly io: IO<R, E, A>, readonly finalizer: IO<R1, never, any>, readonly trace?: string) {
     super();
   }
 }

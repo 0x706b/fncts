@@ -1,11 +1,7 @@
 import type { Queue } from "@fncts/base/control/Queue/definition";
 
 import { _makeQueue } from "@fncts/base/control/Queue/internal";
-import {
-  BackPressureStrategy,
-  DroppingStrategy,
-  SlidingStrategy,
-} from "@fncts/base/control/Queue/strategy";
+import { BackPressureStrategy, DroppingStrategy, SlidingStrategy } from "@fncts/base/control/Queue/strategy";
 import { bounded, unbounded } from "@fncts/base/internal/MutableQueue.js";
 
 /**

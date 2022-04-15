@@ -3,7 +3,7 @@ interface StructN extends HKT {
 }
 
 /**
- * @tsplus type fncts.data.Struct
+ * @tsplus type fncts.Struct
  */
 export interface Struct<A>
   extends Newtype<
@@ -14,7 +14,7 @@ export interface Struct<A>
   > {}
 
 /**
- * @tsplus type fncts.data.StructOps
+ * @tsplus type fncts.StructOps
  */
 export interface StructOps extends NewtypeIso<StructN> {}
 

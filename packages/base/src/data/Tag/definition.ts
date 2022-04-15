@@ -1,17 +1,17 @@
-import type { Has } from "@fncts/base/prelude";
+import type { Has } from "@fncts/base/typeclass";
 
 import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
 
-export const TagTypeId = Symbol.for("fncts.data.Tag");
+export const TagTypeId = Symbol.for("fncts.Tag");
 export type TagTypeId = typeof TagTypeId;
 
-const _tagHash = Hashable.hashString("fncts.data.Tag");
+const _tagHash = Hashable.hashString("fncts.Tag");
 
 /**
  * Tag Encodes capabilities of reading and writing a service T into a generic environment
  *
- * @tsplus type fncts.data.Tag
- * @tsplus companion fncts.data.TagOps
+ * @tsplus type fncts.Tag
+ * @tsplus companion fncts.TagOps
  */
 export class Tag<T> implements Hashable, Equatable {
   readonly _T!: (_: never) => T;

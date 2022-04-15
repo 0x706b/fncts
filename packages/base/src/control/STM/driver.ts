@@ -3,13 +3,7 @@ import type { Journal } from "./internal/Journal.js";
 
 import { Stack } from "../../internal/Stack.js";
 import { STMTag } from "../STM.js";
-import {
-  concrete,
-  isFailException,
-  isHaltException,
-  isInterruptException,
-  isRetryException,
-} from "./definition.js";
+import { concrete, isFailException, isHaltException, isInterruptException, isRetryException } from "./definition.js";
 
 type Erased = STM<unknown, unknown, unknown>;
 type Cont =
@@ -21,12 +15,7 @@ export class STMDriver<R, E, A> {
   private contStack: Stack<Cont> | undefined;
   private envStack: Stack<unknown>;
 
-  constructor(
-    readonly self: STM<R, E, A>,
-    readonly journal: Journal,
-    readonly fiberId: FiberId,
-    r0: Environment<R>,
-  ) {
+  constructor(readonly self: STM<R, E, A>, readonly journal: Journal, readonly fiberId: FiberId, r0: Environment<R>) {
     this.envStack = Stack.make(r0);
   }
 

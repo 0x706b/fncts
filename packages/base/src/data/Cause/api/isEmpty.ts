@@ -4,7 +4,7 @@ import { CauseTag } from "../definition.js";
 /**
  * Determines whether the `Cause` is `Empty` by recursively traversing the `Cause`
  *
- * @tsplus getter fncts.data.Cause isEmpty
+ * @tsplus getter fncts.Cause isEmpty
  */
 export function isEmpty<E>(cause: Cause<E>): boolean {
   if (cause._tag === CauseTag.Empty) {

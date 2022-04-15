@@ -1,4 +1,4 @@
-import * as P from "../../prelude.js";
+import * as P from "../../typeclass.js";
 import {
   ap_,
   chain_,

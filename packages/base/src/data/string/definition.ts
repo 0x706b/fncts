@@ -1,11 +1,11 @@
 declare global {
   /**
-   * @tsplus type fncts.data.String
+   * @tsplus type fncts.String
    */
   export interface String {}
 
   /**
-   * @tsplus type fncts.data.StringOps
+   * @tsplus type fncts.StringOps
    */
   export interface StringConstructor {}
 }

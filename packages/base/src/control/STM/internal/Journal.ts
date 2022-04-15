@@ -76,9 +76,7 @@ type JournalAnalysis = Invalid | ReadOnly | ReadWrite;
 export function analyzeJournal(journal: Journal): JournalAnalysis {
   let result: JournalAnalysis = ReadOnly;
   for (const entry of journal) {
-    result = entry[1].use((entry) =>
-      entry.isInvalid() ? Invalid : entry.isChanged() ? ReadWrite : result,
-    );
+    result = entry[1].use((entry) => (entry.isInvalid() ? Invalid : entry.isChanged() ? ReadWrite : result));
     if (result === Invalid) {
       return result;
     }
@@ -181,11 +179,7 @@ export function untrackedTodoTargets(oldJournal: Journal, newJournal: Journal): 
   return untracked;
 }
 
-export function tryCommitSync<R, E, A>(
-  fiberId: FiberId,
-  stm: STM<R, E, A>,
-  r: Environment<R>,
-): TryCommit<E, A> {
+export function tryCommitSync<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, r: Environment<R>): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
   const analysis         = journal.analyze();

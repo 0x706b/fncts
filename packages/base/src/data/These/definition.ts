@@ -8,7 +8,7 @@ export const TheseTypeId = Symbol.for("fncts.base.data.These");
 export type TheseTypeId = typeof TheseTypeId;
 
 /**
- * @tsplus type fncts.data.These.Left
+ * @tsplus type fncts.These.Left
  */
 export class Left<E> {
   readonly _typeId: TheseTypeId = TheseTypeId;
@@ -17,7 +17,7 @@ export class Left<E> {
 }
 
 /**
- * @tsplus type fncts.data.These.Right
+ * @tsplus type fncts.These.Right
  */
 export class Right<A> {
   readonly _typeId: TheseTypeId = TheseTypeId;
@@ -26,7 +26,7 @@ export class Right<A> {
 }
 
 /**
- * @tsplus type fncts.data.These.Both
+ * @tsplus type fncts.These.Both
  */
 export class Both<E, A> {
   readonly _typeId: TheseTypeId = TheseTypeId;
@@ -35,12 +35,12 @@ export class Both<E, A> {
 }
 
 /**
- * @tsplus type fncts.data.These
+ * @tsplus type fncts.These
  */
 export type These<E, A> = Left<E> | Right<A> | Both<E, A>;
 
 /**
- * @tsplus type fncts.data.TheseOps
+ * @tsplus type fncts.TheseOps
  */
 export interface TheseOps {}
 

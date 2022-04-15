@@ -4,20 +4,14 @@ import { And, FreeBooleanAlgebra, FreeBooleanAlgebraTag, Not, Or, Value } from "
  * @tsplus fluent fncts.data.FreeBooleanAlgebra and
  * @tsplus operator fncts.data.FreeBooleanAlgebra &&
  */
-export function and_<A>(
-  left: FreeBooleanAlgebra<A>,
-  right: FreeBooleanAlgebra<A>,
-): FreeBooleanAlgebra<A> {
+export function and_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return new And(left, right);
 }
 
 /**
  * @tsplus fluent fncts.data.FreeBooleanAlgebra chain
  */
-export function chain_<A, B>(
-  self: FreeBooleanAlgebra<A>,
-  f: (a: A) => FreeBooleanAlgebra<B>,
-): FreeBooleanAlgebra<B> {
+export function chain_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => FreeBooleanAlgebra<B>): FreeBooleanAlgebra<B> {
   return self.fold({
     Value: f,
     And: (l, r) => l && r,
@@ -105,20 +99,14 @@ export function fold_<A, B>(
 /**
  * @tsplus fluent fncts.data.FreeBooleanAlgebra iff
  */
-export function iff_<A>(
-  left: FreeBooleanAlgebra<A>,
-  right: FreeBooleanAlgebra<A>,
-): FreeBooleanAlgebra<A> {
+export function iff_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return left.implies(right) && right.implies(left);
 }
 
 /**
  * @tsplus fluent fncts.data.FreeBooleanAlgebra implies
  */
-export function implies_<A>(
-  left: FreeBooleanAlgebra<A>,
-  right: FreeBooleanAlgebra<A>,
-): FreeBooleanAlgebra<A> {
+export function implies_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return left.invert || right;
 }
 
@@ -152,10 +140,7 @@ export function not<A>(self: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
  * @tsplus fluent fncts.data.FreeBooleanAlgebra or
  * @tsplus operator fncts.data.FreeBooleanAlgebra ||
  */
-export function or_<A>(
-  left: FreeBooleanAlgebra<A>,
-  right: FreeBooleanAlgebra<A>,
-): FreeBooleanAlgebra<A> {
+export function or_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return new Or(left, right);
 }
 

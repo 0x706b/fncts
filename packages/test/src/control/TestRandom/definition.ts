@@ -14,51 +14,31 @@ export const TestRandomTag = Tag<TestRandom>();
 export class TestRandom implements Random {
   constructor(readonly randomState: Ref<Data>, readonly bufferState: Ref<Buffer>) {}
 
-  clearBooleans: UIO<void> = this.bufferState.update((buff) =>
-    buff.copy({ booleans: Vector.empty() }),
-  );
-  clearBytes: UIO<void>   = this.bufferState.update((buff) => buff.copy({ bytes: Vector.empty() }));
-  clearChars: UIO<void>   = this.bufferState.update((buff) => buff.copy({ chars: Vector.empty() }));
-  clearDoubles: UIO<void> = this.bufferState.update((buff) =>
-    buff.copy({ doubles: Vector.empty() }),
-  );
-  clearInts: UIO<void>    = this.bufferState.update((buff) => buff.copy({ integers: Vector.empty() }));
-  clearStrings: UIO<void> = this.bufferState.update((buff) =>
-    buff.copy({ strings: Vector.empty() }),
-  );
+  clearBooleans: UIO<void> = this.bufferState.update((buff) => buff.copy({ booleans: Vector.empty() }));
+  clearBytes: UIO<void>    = this.bufferState.update((buff) => buff.copy({ bytes: Vector.empty() }));
+  clearChars: UIO<void>    = this.bufferState.update((buff) => buff.copy({ chars: Vector.empty() }));
+  clearDoubles: UIO<void>  = this.bufferState.update((buff) => buff.copy({ doubles: Vector.empty() }));
+  clearInts: UIO<void>     = this.bufferState.update((buff) => buff.copy({ integers: Vector.empty() }));
+  clearStrings: UIO<void>  = this.bufferState.update((buff) => buff.copy({ strings: Vector.empty() }));
   feedBooleans(...booleans: ReadonlyArray<boolean>): UIO<void> {
-    return this.bufferState.update((buff) =>
-      buff.copy({ booleans: Vector.from(booleans).concat(buff.booleans) }),
-    );
+    return this.bufferState.update((buff) => buff.copy({ booleans: Vector.from(booleans).concat(buff.booleans) }));
   }
   feedBytes(...bytes: ReadonlyArray<ReadonlyArray<Byte>>): UIO<void> {
-    return this.bufferState.update((data) =>
-      data.copy({ bytes: Vector.from(bytes).concat(data.bytes) }),
-    );
+    return this.bufferState.update((data) => data.copy({ bytes: Vector.from(bytes).concat(data.bytes) }));
   }
   feedChars(...chars: ReadonlyArray<string>): UIO<void> {
-    return this.bufferState.update((data) =>
-      data.copy({ chars: Vector.from(chars).concat(data.chars) }),
-    );
+    return this.bufferState.update((data) => data.copy({ chars: Vector.from(chars).concat(data.chars) }));
   }
   feedDoubles(...doubles: ReadonlyArray<number>): UIO<void> {
-    return this.bufferState.update((data) =>
-      data.copy({ doubles: Vector.from(doubles).concat(data.doubles) }),
-    );
+    return this.bufferState.update((data) => data.copy({ doubles: Vector.from(doubles).concat(data.doubles) }));
   }
   feedInts(...ints: ReadonlyArray<number>): UIO<void> {
-    return this.bufferState.update((data) =>
-      data.copy({ integers: Vector.from(ints).concat(data.integers) }),
-    );
+    return this.bufferState.update((data) => data.copy({ integers: Vector.from(ints).concat(data.integers) }));
   }
   feedStrings(...strings: ReadonlyArray<string>): UIO<void> {
-    return this.bufferState.update((data) =>
-      data.copy({ strings: Vector.from(strings).concat(data.strings) }),
-    );
+    return this.bufferState.update((data) => data.copy({ strings: Vector.from(strings).concat(data.strings) }));
   }
-  getSeed: UIO<number> = this.randomState.get.map(
-    (data) => ((data.seed1 << 24) | data.seed2) ^ 0x5deece66d,
-  );
+  getSeed: UIO<number> = this.randomState.get.map((data) => ((data.seed1 << 24) | data.seed2) ^ 0x5deece66d);
 
   setSeed(seed: number): UIO<void> {
     const mash    = Mash();
@@ -78,10 +58,7 @@ export class TestRandom implements Random {
     return [buffer.integers.head, buffer.copy({ integers: buffer.integers.drop(1) })];
   };
 
-  private getOrElse = <A>(
-    buffer: (_: Buffer) => readonly [Maybe<A>, Buffer],
-    random: UIO<A>,
-  ): UIO<A> => {
+  private getOrElse = <A>(buffer: (_: Buffer) => readonly [Maybe<A>, Buffer], random: UIO<A>): UIO<A> => {
     return this.bufferState.modify(buffer).chain((_) => _.match(() => random, IO.succeedNow));
   };
 
@@ -100,10 +77,9 @@ export class TestRandom implements Random {
       const multiplier2 = Math.floor(multiplier) & ((1 << 24) - 1);
       const product1    = data.seed1 * multiplier1 + data.seed1 * multiplier2;
       const product2    = data.seed2 * multiplier2 + 0xb;
-      const newSeed1    = (this.mostSignificantBits(product2) + this.leastSignificantBits(product1)) &
-        ((1 << 24) - 1);
-      const newSeed2 = this.leastSignificantBits(product2);
-      const result   = (newSeed1 << 8) | (newSeed2 >> 16);
+      const newSeed1    = (this.mostSignificantBits(product2) + this.leastSignificantBits(product1)) & ((1 << 24) - 1);
+      const newSeed2    = this.leastSignificantBits(product2);
+      const result      = (newSeed1 << 8) | (newSeed2 >> 16);
       return [result >>> (32 - bits), new Data(newSeed1, newSeed2, data.nextNextGaussians)];
     });
   };
@@ -111,12 +87,7 @@ export class TestRandom implements Random {
   private randomBoolean = this.randomBits(1).map((n) => n !== 0);
 
   private randomBytes = (length: number): UIO<ReadonlyArray<Byte>> => {
-    const loop = (
-      i: number,
-      rnd: UIO<number>,
-      n: number,
-      acc: UIO<List<Byte>>,
-    ): UIO<List<Byte>> => {
+    const loop = (i: number, rnd: UIO<number>, n: number, acc: UIO<List<Byte>>): UIO<List<Byte>> => {
       if (i === length) {
         return acc.map((l) => l.reverse);
       } else if (n > 0) {
@@ -133,16 +104,12 @@ export class TestRandom implements Random {
       }
     };
 
-    return loop(0, this.randomInt, Math.min(length, 4), IO.succeedNow(List.empty())).map((list) =>
-      Array.from(list),
-    );
+    return loop(0, this.randomInt, Math.min(length, 4), IO.succeedNow(List.empty())).map((list) => Array.from(list));
   };
 
   private randomIntBounded = (n: number) => {
     if (n <= 0) {
-      return IO.haltNow(
-        new IllegalArgumentError("n must be positive", "TestRandom.randomIntBounded"),
-      );
+      return IO.haltNow(new IllegalArgumentError("n must be positive", "TestRandom.randomIntBounded"));
     } else if ((n & -n) === n) {
       return this.randomBits(31).map((_) => _ >> Math.clz32(n));
     } else {
@@ -198,9 +165,7 @@ export class TestRandom implements Random {
   nextArrayIntBetween(low: ArrayInt, high: ArrayInt): UIO<ArrayInt> {
     const self = this;
     return IO.gen(function* (_) {
-      const rangeSize = trimArrayIntInplace(
-        addOneToPositiveArrayInt(substractArrayIntToNew(high, low)),
-      );
+      const rangeSize          = trimArrayIntInplace(addOneToPositiveArrayInt(substractArrayIntToNew(high, low)));
       const rangeLength        = rangeSize.data.length;
       const out: Array<number> = [];
       while (true) {
@@ -298,11 +263,7 @@ export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt)
   }
   const data: number[] = [];
   let reminder         = 0;
-  for (
-    let indexA = dataA.length - 1, indexB = dataB.length - 1;
-    indexA >= 0 || indexB >= 0;
-    --indexA, --indexB
-  ) {
+  for (let indexA = dataA.length - 1, indexB = dataB.length - 1; indexA >= 0 || indexB >= 0; --indexA, --indexB) {
     const vA      = indexA >= 0 ? dataA[indexA]! : 0;
     const vB      = indexB >= 0 ? dataB[indexB]! : 0;
     const current = vA - vB - reminder;
@@ -347,11 +308,7 @@ export function addArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt): Arra
   let reminder         = 0;
   const dataA          = arrayIntA.data;
   const dataB          = arrayIntB.data;
-  for (
-    let indexA = dataA.length - 1, indexB = dataB.length - 1;
-    indexA >= 0 || indexB >= 0;
-    --indexA, --indexB
-  ) {
+  for (let indexA = dataA.length - 1, indexB = dataB.length - 1; indexA >= 0 || indexB >= 0; --indexA, --indexB) {
     const vA      = indexA >= 0 ? dataA[indexA]! : 0;
     const vB      = indexB >= 0 ? dataB[indexB]! : 0;
     const current = vA + vB + reminder;

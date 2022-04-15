@@ -9,18 +9,7 @@ import { MergeDecision } from "@fncts/base/control/Channel/internal/MergeDecisio
  *
  * @tsplus fluent fncts.control.Channel interruptWhen
  */
-export function interruptWhen_<
-  Env,
-  Env1,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutErr1,
-  OutElem,
-  OutDone,
-  OutDone1,
->(
+export function interruptWhen_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   io: IO<Env1, OutErr1, OutDone1>,
 ): Channel<Env1 & Env, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone | OutDone1> {
@@ -40,17 +29,7 @@ export function interruptWhen_<
  *
  * @tsplus fluent fncts.control.Channel interruptWhen
  */
-export function interruptWhenFuture_<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutErr1,
-  OutElem,
-  OutDone,
-  OutDone1,
->(
+export function interruptWhenFuture_<Env, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   promise: Future<OutErr1, OutDone1>,
 ): Channel<Env, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone | OutDone1> {

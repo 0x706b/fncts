@@ -110,11 +110,7 @@ export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
  * Returns an `STM` effect whose failure and success channels have been mapped by
  * the specified pair of functions, `f` and `g`.
  */
-export function bimap_<R, E, A, E1, B>(
-  stm: STM<R, E, A>,
-  g: (e: E) => E1,
-  f: (a: A) => B,
-): STM<R, E1, B> {
+export function bimap_<R, E, A, E1, B>(stm: STM<R, E, A>, g: (e: E) => E1, f: (a: A) => B): STM<R, E1, B> {
   return stm.matchSTM(
     (e) => STM.failNow(g(e)),
     (a) => STM.succeedNow(f(a)),
@@ -157,15 +153,7 @@ export function catchJust_<R, E, A, R1, E1, B>(
  *
  * @tsplus fluent fncts.control.STM catchTag
  */
-export function catchTag_<
-  K extends E["_tag"] & string,
-  E extends { _tag: string },
-  R,
-  A,
-  R1,
-  E1,
-  A1,
->(
+export function catchTag_<K extends E["_tag"] & string, E extends { _tag: string }, R, A, R1, E1, A1>(
   stm: STM<R, E, A>,
   k: K,
   f: (e: Extract<E, { _tag: K }>) => STM<R1, E1, A1>,
@@ -184,10 +172,7 @@ export function catchTag_<
  *
  * @tsplus fluent fncts.control.STM chainError
  */
-export function chainError_<R, E, A, R2, E2>(
-  stm: STM<R, E, A>,
-  f: (e: E) => STM<R2, never, E2>,
-): STM<R2 & R, E2, A> {
+export function chainError_<R, E, A, R2, E2>(stm: STM<R, E, A>, f: (e: E) => STM<R2, never, E2>): STM<R2 & R, E2, A> {
   return stm.swapWith((effect) => effect.chain(f));
 }
 
@@ -242,10 +227,7 @@ export function continueOrFailSTM_<R, E, E1, A, R2, E2, A2>(
  *
  * @tsplus fluent fncts.control.STM continueOrRetry
  */
-export function continueOrRetry_<R, E, A, A2>(
-  fa: STM<R, E, A>,
-  pf: (a: A) => Maybe<A2>,
-): STM<R, E, A2> {
+export function continueOrRetry_<R, E, A, A2>(fa: STM<R, E, A>, pf: (a: A) => Maybe<A2>): STM<R, E, A2> {
   return fa.continueOrRetrySTM((a) => pf(a).map(STM.succeedNow));
 }
 
@@ -331,9 +313,7 @@ export function filterOrElse_<R, E, A, R2, E2, A2>(
   p: Predicate<A>,
   or: unknown,
 ): STM<R & R2, E | E2, A | A2> {
-  return fa.chain((a) =>
-    p(a) ? STM.succeedNow(a) : STM.defer((or as (a: A) => STM<R2, E2, A2>)(a)),
-  );
+  return fa.chain((a) => (p(a) ? STM.succeedNow(a) : STM.defer((or as (a: A) => STM<R2, E2, A2>)(a))));
 }
 
 /**
@@ -351,11 +331,7 @@ export function filterOrFail_<R, E, E1, A>(
   p: Predicate<A>,
   failWith: (a: A) => E1,
 ): STM<R, E | E1, A>;
-export function filterOrFail_<R, E, E1, A>(
-  fa: STM<R, E, A>,
-  p: Predicate<A>,
-  failWith: unknown,
-): STM<R, E | E1, A> {
+export function filterOrFail_<R, E, E1, A>(fa: STM<R, E, A>, p: Predicate<A>, failWith: unknown): STM<R, E | E1, A> {
   return fa.filterOrElse(p, (a) => STM.fail((failWith as (a: A) => E1)(a)));
 }
 
@@ -369,16 +345,8 @@ export function filterOrHalt_<R, E, A, B extends A>(
   p: Refinement<A, B>,
   haltWith: (a: Exclude<A, B>) => unknown,
 ): STM<R, E, B>;
-export function filterOrHalt_<R, E, A>(
-  fa: STM<R, E, A>,
-  p: Predicate<A>,
-  haltWith: (a: A) => unknown,
-): STM<R, E, A>;
-export function filterOrHalt_<R, E, A>(
-  fa: STM<R, E, A>,
-  p: Predicate<A>,
-  haltWith: unknown,
-): STM<R, E, A> {
+export function filterOrHalt_<R, E, A>(fa: STM<R, E, A>, p: Predicate<A>, haltWith: (a: A) => unknown): STM<R, E, A>;
+export function filterOrHalt_<R, E, A>(fa: STM<R, E, A>, p: Predicate<A>, haltWith: unknown): STM<R, E, A> {
   return fa.filterOrElse(p, (a) => STM.halt((haltWith as (a: A) => unknown)(a)));
 }
 
@@ -396,10 +364,7 @@ export function flatten<R, E, R1, E1, B>(stm: STM<R, E, STM<R1, E1, B>>): STM<R1
  *
  * @tsplus fluent fncts.control.STM flattenErrorOption
  */
-export function flattenErrorOption_<R, E, A, E2>(
-  stm: STM<R, Maybe<E>, A>,
-  def: Lazy<E2>,
-): STM<R, E | E2, A> {
+export function flattenErrorOption_<R, E, A, E2>(stm: STM<R, Maybe<E>, A>, def: Lazy<E2>): STM<R, E | E2, A> {
   return stm.mapError((me) => me.getOrElse(def));
 }
 
@@ -409,10 +374,7 @@ export function flattenErrorOption_<R, E, A, E2>(
  *
  * @tsplus static fncts.control.STMOps foreach
  */
-export function foreach_<A, R, E, B>(
-  it: Iterable<A>,
-  f: (a: A) => STM<R, E, B>,
-): STM<R, E, readonly B[]> {
+export function foreach_<A, R, E, B>(it: Iterable<A>, f: (a: A) => STM<R, E, B>): STM<R, E, readonly B[]> {
   return STM.defer(() => {
     let stm = STM.succeedNow([]) as STM<R, E, B[]>;
 
@@ -471,10 +433,7 @@ export function provideEnvironment_<R, E, A>(stm: STM<R, E, A>, r: R): STM<unkno
  *
  * @tsplus fluent fncts.control.STM contramapEnvironment
  */
-export function contramapEnvironment_<R, E, A, R0>(
-  self: STM<R, E, A>,
-  f: (r: R0) => R,
-): STM<R0, E, A> {
+export function contramapEnvironment_<R, E, A, R0>(self: STM<R, E, A>, f: (r: R0) => R): STM<R0, E, A> {
   return new ContramapEnvironment(self, f);
 }
 
@@ -601,10 +560,7 @@ export function left<R, E, B, C>(stm: STM<R, E, Either<B, C>>): STM<R, Maybe<E>,
  *
  * @tsplus fluent fncts.control.STM leftOrFail
  */
-export function leftOrFail_<R, E, B, C, E1>(
-  stm: STM<R, E, Either<B, C>>,
-  orFail: (c: C) => E1,
-): STM<R, E | E1, B> {
+export function leftOrFail_<R, E, B, C, E1>(stm: STM<R, E, Either<B, C>>, orFail: (c: C) => E1): STM<R, E | E1, B> {
   return stm.chain((bc) => bc.match(STM.succeedNow, (c) => STM.fail(orFail(c))));
 }
 
@@ -623,11 +579,7 @@ export function mapError_<R, E, A, E1>(stm: STM<R, E, A>, f: (a: E) => E1): STM<
  *
  * @tsplus fluent fncts.control.STM match
  */
-export function match_<R, E, A, B, C>(
-  stm: STM<R, E, A>,
-  g: (e: E) => C,
-  f: (a: A) => B,
-): STM<R, never, B | C> {
+export function match_<R, E, A, B, C>(stm: STM<R, E, A>, g: (e: E) => C, f: (a: A) => B): STM<R, never, B | C> {
   return stm.matchSTM(
     (e) => STM.succeedNow(g(e)),
     (a) => STM.succeedNow(f(a)),
@@ -697,10 +649,7 @@ export function swapWith_<R, E, A, R2, E2, A2>(
  *
  * @tsplus fluent fncts.control.STM tap
  */
-export function tap_<R, E, A, R1, E1, B>(
-  stm: STM<R, E, A>,
-  f: (a: A) => STM<R1, E1, B>,
-): STM<R1 & R, E | E1, A> {
+export function tap_<R, E, A, R1, E1, B>(stm: STM<R, E, A>, f: (a: A) => STM<R1, E1, B>): STM<R1 & R, E | E1, A> {
   return stm.chain((a) => f(a).as(a));
 }
 

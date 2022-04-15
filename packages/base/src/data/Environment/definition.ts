@@ -1,13 +1,13 @@
 /**
  * @tsplus static fncts.prelude.builtin.SymbolOps env
  */
-export const EnvSymbol = Symbol.for("fncts.data.Env");
+export const EnvSymbol = Symbol.for("fncts.Env");
 
 export type EnvSymbol = typeof EnvSymbol;
 
 /**
- * @tsplus type fncts.data.Environment
- * @tsplus companion fncts.data.EnvironmentOps
+ * @tsplus type fncts.Environment
+ * @tsplus companion fncts.EnvironmentOps
  */
 export class Environment<R> implements Hashable, Equatable {
   readonly _typeId: EnvSymbol = EnvSymbol;

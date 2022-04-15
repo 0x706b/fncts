@@ -7,7 +7,7 @@ import { identity } from "@fncts/base/data/function";
  * @tsplus fluent fncts.control.Eval and
  */
 export function and_(self: Eval<boolean>, that: Eval<boolean>): Eval<boolean> {
-  return self.zipWith((that), (b0, b1) => b0 && b1);
+  return self.zipWith(that, (b0, b1) => b0 && b1);
 }
 
 /**
@@ -48,9 +48,7 @@ export function ap_<A, B>(self: Eval<(a: A) => B>, fa: Eval<A>): Eval<B> {
 /**
  * @tsplus static fncts.control.EvalOps sequenceT
  */
-export function sequenceT<A extends Array<Eval<any>>>(
-  ...computations: A
-): Eval<{ [K in keyof A]: _A<A[K]> }> {
+export function sequenceT<A extends Array<Eval<any>>>(...computations: A): Eval<{ [K in keyof A]: _A<A[K]> }> {
   return Eval.defer(Eval.now(computations.map((e) => e.run)) as Eval<any>);
 }
 

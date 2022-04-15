@@ -40,15 +40,7 @@ export function as_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDon
 /**
  * @tsplus static fncts.control.ChannelOps ask
  */
-export function ask<Env>(): Channel<
-  Env,
-  unknown,
-  unknown,
-  unknown,
-  never,
-  never,
-  Environment<Env>
-> {
+export function ask<Env>(): Channel<Env, unknown, unknown, unknown, never, never, Environment<Env>> {
   return Channel.fromIO(IO.environment<Env>());
 }
 
@@ -64,16 +56,7 @@ export function asUnit<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 /**
  * @tsplus static fncts.control.ChannelOps acquireReleaseWith
  */
-export function acquireReleaseWith_<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem1,
-  OutDone,
-  Acquired,
->(
+export function acquireReleaseWith_<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone, Acquired>(
   acquire: IO<Env, OutErr, Acquired>,
   use: (a: Acquired) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone>,
   release: (a: Acquired) => URIO<Env, any>,
@@ -84,23 +67,12 @@ export function acquireReleaseWith_<
 /**
  * @tsplus static fncts.control.ChannelOps acquireReleaseExitWith
  */
-export function acquireReleaseExitWith_<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem1,
-  OutDone,
-  Acquired,
->(
+export function acquireReleaseExitWith_<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone, Acquired>(
   acquire: IO<Env, OutErr, Acquired>,
   use: (a: Acquired) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone>,
   release: (a: Acquired, exit: Exit<OutErr, OutDone>) => URIO<Env, any>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone> {
-  return Channel.fromIO(
-    Ref.make<(exit: Exit<OutErr, OutDone>) => URIO<Env, any>>((_) => IO.unit),
-  ).chain((ref) =>
+  return Channel.fromIO(Ref.make<(exit: Exit<OutErr, OutDone>) => URIO<Env, any>>((_) => IO.unit)).chain((ref) =>
     Channel.fromIO(acquire.tap((a) => ref.set((exit) => release(a, exit))).uninterruptible)
       .chain(use)
       .ensuringWith((exit) => ref.get.chain((fin) => fin(exit))),
@@ -263,15 +235,7 @@ export function catchAllCause_<
  * @tsplus getter fncts.control.Channel concatAll
  */
 export function concatAll<Env, InErr, InElem, InDone, OutErr, OutElem>(
-  channels: Channel<
-    Env,
-    InErr,
-    InElem,
-    InDone,
-    OutErr,
-    Channel<Env, InErr, InElem, InDone, OutErr, OutElem, any>,
-    any
-  >,
+  channels: Channel<Env, InErr, InElem, InDone, OutErr, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, any>, any>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, any> {
   return channels.concatAllWith(
     () => void 0,
@@ -309,15 +273,7 @@ export function concatMapWith_<
   f: (o: OutElem) => Channel<Env2, InErr2, InElem2, InDone2, OutErr2, OutElem2, OutDone>,
   g: (o: OutDone, o1: OutDone) => OutDone,
   h: (o: OutDone, o2: OutDone2) => OutDone3,
-): Channel<
-  Env & Env2,
-  InErr & InErr2,
-  InElem & InElem2,
-  InDone & InDone2,
-  OutErr | OutErr2,
-  OutElem2,
-  OutDone3
-> {
+): Channel<Env & Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem2, OutDone3> {
   return new ConcatAll<
     Env & Env2,
     InErr & InErr2,
@@ -371,15 +327,7 @@ export function concatMapWithCustom_<
   h: (o: OutDone, o2: OutDone2) => OutDone3,
   onPull: (_: UpstreamPullRequest<OutElem>) => UpstreamPullStrategy<OutElem2>,
   onEmit: (_: OutElem2) => ChildExecutorDecision,
-): Channel<
-  Env & Env2,
-  InErr & InErr2,
-  InElem & InElem2,
-  InDone & InDone2,
-  OutErr | OutErr2,
-  OutElem2,
-  OutDone3
-> {
+): Channel<Env & Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem2, OutDone3> {
   return new ConcatAll<
     Env & Env2,
     InErr & InErr2,
@@ -426,15 +374,7 @@ export function concatAllWith_<
   >,
   f: (o: OutDone, o1: OutDone) => OutDone,
   g: (o: OutDone, o2: OutDone2) => OutDone3,
-): Channel<
-  Env & Env2,
-  InErr & InErr2,
-  InElem & InElem2,
-  InDone & InDone2,
-  OutErr | OutErr2,
-  OutElem,
-  OutDone3
-> {
+): Channel<Env & Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem, OutDone3> {
   return new ConcatAll<
     Env & Env2,
     InErr & InErr2,
@@ -481,15 +421,7 @@ export function concatMap_<
 >(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2>,
   f: (o: OutElem) => Channel<Env2, InErr2, InElem2, InDone2, OutErr2, OutElem2, OutDone>,
-): Channel<
-  Env & Env2,
-  InErr & InErr2,
-  InElem & InElem2,
-  InDone & InDone2,
-  OutErr | OutErr2,
-  OutElem2,
-  unknown
-> {
+): Channel<Env & Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem2, unknown> {
   return self.concatMapWith(
     f,
     () => void 0,
@@ -618,9 +550,7 @@ export function doneCollect<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
     IO.succeed(() => {
       const builder = Conc.builder<OutElem>();
 
-      return self
-        .pipeTo(doneCollectReader(builder))
-        .mapIO((z) => IO.succeedNow(tuple(builder.result(), z)));
+      return self.pipeTo(doneCollectReader(builder)).mapIO((z) => IO.succeedNow(tuple(builder.result(), z)));
     }),
   );
 }
@@ -634,8 +564,11 @@ export function doneCollect<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
 export function drain<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, never, OutDone> {
-  const drainer: Channel<Env, OutErr, OutElem, OutDone, OutErr, never, OutDone> =
-    Channel.readWithCause((_) => drainer, Channel.failCauseNow, Channel.endNow);
+  const drainer: Channel<Env, OutErr, OutElem, OutDone, OutErr, never, OutDone> = Channel.readWithCause(
+    (_) => drainer,
+    Channel.failCauseNow,
+    Channel.endNow,
+  );
   return channel.pipeTo(drainer);
 }
 
@@ -671,10 +604,7 @@ export function ensuringWith_<Env, Env2, InErr, InElem, InDone, OutErr, OutElem,
   channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   finalizer: (e: Exit<OutErr, OutDone>) => IO<Env2, never, unknown>,
 ): Channel<Env & Env2, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  return new Ensuring<Env & Env2, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
-    channel,
-    finalizer,
-  );
+  return new Ensuring<Env & Env2, InErr, InElem, InDone, OutErr, OutElem, OutDone>(channel, finalizer);
 }
 
 /**
@@ -694,9 +624,7 @@ export function embedInput_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
  *
  * @tsplus static fncts.control.ChannelOps fail
  */
-export function fail<E>(
-  error: Lazy<E>,
-): Channel<unknown, unknown, unknown, unknown, E, never, never> {
+export function fail<E>(error: Lazy<E>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return new Fail(() => Cause.fail(error()));
 }
 
@@ -754,9 +682,7 @@ export function flatten<
 /**
  * @tsplus static fncts.control.ChannelOps fromEither
  */
-export function fromEither<E, A>(
-  either: Lazy<Either<E, A>>,
-): Channel<unknown, unknown, unknown, unknown, E, never, A> {
+export function fromEither<E, A>(either: Lazy<Either<E, A>>): Channel<unknown, unknown, unknown, unknown, E, never, A> {
   return Channel.defer(either().match(Channel.failNow, Channel.succeedNow));
 }
 
@@ -767,11 +693,7 @@ export function fromInput<Err, Elem, Done>(
   input: AsyncInputConsumer<Err, Elem, Done>,
 ): Channel<unknown, unknown, unknown, unknown, Err, Elem, Done> {
   return unwrap(
-    input.takeWith(
-      Channel.failCauseNow,
-      (elem) => Channel.writeNow(elem).apSecond(fromInput(input)),
-      Channel.endNow,
-    ),
+    input.takeWith(Channel.failCauseNow, (elem) => Channel.writeNow(elem).apSecond(fromInput(input)), Channel.endNow),
   );
 }
 
@@ -780,21 +702,15 @@ export function fromInput<Err, Elem, Done>(
  *
  * @tsplus static fncts.control.ChannelOps fromIO
  */
-export function fromIO<R, E, A>(
-  io: IO<R, E, A>,
-): Channel<R, unknown, unknown, unknown, E, never, A> {
+export function fromIO<R, E, A>(io: IO<R, E, A>): Channel<R, unknown, unknown, unknown, E, never, A> {
   return new FromIO(io);
 }
 
 /**
  * @tsplus static fncts.control.ChannelOps fromOption
  */
-export function fromOption<A>(
-  option: Lazy<Maybe<A>>,
-): Channel<unknown, unknown, unknown, unknown, Nothing, never, A> {
-  return Channel.defer(
-    option().match(() => Channel.failNow(Nothing() as Nothing), Channel.succeedNow),
-  );
+export function fromOption<A>(option: Lazy<Maybe<A>>): Channel<unknown, unknown, unknown, unknown, Nothing, never, A> {
+  return Channel.defer(option().match(() => Channel.failNow(Nothing() as Nothing), Channel.succeedNow));
 }
 
 /**
@@ -839,9 +755,7 @@ export function contramapEnvironment_<Env, InErr, InElem, InDone, OutErr, OutEle
  *
  * @tsplus static fncts.control.ChannelOps haltNow
  */
-export function haltNow(
-  defect: unknown,
-): Channel<unknown, unknown, unknown, unknown, never, never, never> {
+export function haltNow(defect: unknown): Channel<unknown, unknown, unknown, unknown, never, never, never> {
   return new Fail(() => Cause.halt(defect));
 }
 
@@ -850,9 +764,7 @@ export function haltNow(
  *
  * @tsplus static fncts.control.ChannelOps halt
  */
-export function halt(
-  defect: Lazy<unknown>,
-): Channel<unknown, unknown, unknown, unknown, never, never, never> {
+export function halt(defect: Lazy<unknown>): Channel<unknown, unknown, unknown, unknown, never, never, never> {
   return new Fail(() => Cause.halt(defect()));
 }
 
@@ -860,19 +772,13 @@ export function halt(
  * @tsplus static fncts.control.ChannelOps id
  */
 export function id<Err, Elem, Done>(): Channel<unknown, Err, Elem, Done, Err, Elem, Done> {
-  return Channel.readWith(
-    (_in) => write(_in).apSecond(id<Err, Elem, Done>()),
-    Channel.failNow,
-    Channel.endNow,
-  );
+  return Channel.readWith((_in) => write(_in).apSecond(id<Err, Elem, Done>()), Channel.failNow, Channel.endNow);
 }
 
 /**
  * @tsplus static fncts.control.ChannelOps interrupt
  */
-export function interrupt(
-  fiberId: FiberId,
-): Channel<unknown, unknown, unknown, unknown, never, never, never> {
+export function interrupt(fiberId: FiberId): Channel<unknown, unknown, unknown, unknown, never, never, never> {
   return Channel.failCauseNow(Cause.interrupt(fiberId));
 }
 
@@ -929,18 +835,7 @@ export function mapErrorCause_<Env, InErr, InElem, InDone, OutErr, OutErr2, OutE
  *
  * @tsplus fluent fncts.control.Channel mapIO
  */
-export function mapIO_<
-  Env,
-  Env1,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutErr1,
-  OutElem,
-  OutDone,
-  OutDone1,
->(
+export function mapIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (o: OutDone) => IO<Env1, OutErr1, OutDone1>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone1> {
@@ -977,18 +872,7 @@ const mapOutIOReader = <Env, Env1, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
 /**
  * @tsplus fluent fncts.control.Channel mapOutIO
  */
-export function mapOutIO_<
-  Env,
-  Env1,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutErr1,
-  OutElem,
-  OutElem1,
-  OutDone,
->(
+export function mapOutIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (o: OutElem) => IO<Env1, OutErr1, OutElem1>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone> {
@@ -1024,9 +908,7 @@ export function matchCauseChannel_<
   OutDone3,
 >(
   channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  onError: (
-    c: Cause<OutErr>,
-  ) => Channel<Env1, InErr1, InElem1, InDone1, OutErr2, OutElem1, OutDone2>,
+  onError: (c: Cause<OutErr>) => Channel<Env1, InErr1, InElem1, InDone1, OutErr2, OutElem1, OutDone2>,
   onSuccess: (o: OutDone) => Channel<Env2, InErr2, InElem2, InDone2, OutErr3, OutElem2, OutDone3>,
 ): Channel<
   Env & Env1 & Env2,
@@ -1063,8 +945,7 @@ export function matchCauseChannel_<
   );
 }
 
-export const never: Channel<unknown, unknown, unknown, unknown, never, never, never> =
-  Channel.fromIO(IO.never);
+export const never: Channel<unknown, unknown, unknown, unknown, never, never, never> = Channel.fromIO(IO.never);
 
 /**
  * Returns a new channel that will perform the operations of this one, until failure, and then
@@ -1127,34 +1008,11 @@ export function orHaltWith_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
  *
  * @tsplus fluent fncts.control.Channel pipeTo
  */
-export function pipeTo_<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone,
-  Env1,
-  OutErr1,
-  OutElem1,
-  OutDone1,
->(
+export function pipeTo_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1, OutDone1>(
   left: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   right: Channel<Env1, OutErr, OutElem, OutDone, OutErr1, OutElem1, OutDone1>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr1, OutElem1, OutDone1> {
-  return new PipeTo<
-    Env & Env1,
-    InErr,
-    InElem,
-    InDone,
-    OutErr,
-    OutErr1,
-    OutElem,
-    OutElem1,
-    OutDone,
-    OutDone1
-  >(
+  return new PipeTo<Env & Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutElem1, OutDone, OutDone1>(
     () => left,
     () => right,
   );
@@ -1173,19 +1031,7 @@ function isChannelFailure<E>(u: unknown): u is ChannelFailure<E> {
 /**
  * @tsplus fluent fncts.control.Channel pipeToOrFail
  */
-export function pipeToOrFail_<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone,
-  Env1,
-  OutErr1,
-  OutElem1,
-  OutDone1,
->(
+export function pipeToOrFail_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1, OutDone1>(
   left: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   right: Channel<Env1, never, OutElem, OutDone, OutErr1, OutElem1, OutDone1>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone1> {
@@ -1313,11 +1159,7 @@ export function readWith<
   OutElem | OutElem1 | OutElem2,
   OutDone | OutDone1 | OutDone2
 > {
-  return Channel.readWithCause(
-    inp,
-    (c) => c.failureOrCause.match(error, Channel.failCauseNow),
-    done,
-  );
+  return Channel.readWithCause(inp, (c) => c.failureOrCause.match(error, Channel.failCauseNow), done);
 }
 
 /**
@@ -1349,18 +1191,14 @@ export function toQueue<Err, Done, Elem>(
  *
  * @tsplus static fncts.control.ChannelOps write
  */
-export function write<OutElem>(
-  out: Lazy<OutElem>,
-): Channel<unknown, unknown, unknown, unknown, never, OutElem, void> {
+export function write<OutElem>(out: Lazy<OutElem>): Channel<unknown, unknown, unknown, unknown, never, OutElem, void> {
   return new Emit(out);
 }
 
 /**
  * @tsplus static fncts.control.ChannelOps writeAll
  */
-export function writeAll<Out>(
-  outs: ReadonlyArray<Out>,
-): Channel<unknown, unknown, unknown, unknown, never, Out, void> {
+export function writeAll<Out>(outs: ReadonlyArray<Out>): Channel<unknown, unknown, unknown, unknown, never, Out, void> {
   return Channel.writeChunk(Conc.from(outs));
 }
 
@@ -1376,9 +1214,7 @@ function writeChunkWriter<Out>(
 /**
  * @tsplus static fncts.control.ChannelOps writeChunk
  */
-export function writeChunk<Out>(
-  outs: Conc<Out>,
-): Channel<unknown, unknown, unknown, unknown, never, Out, void> {
+export function writeChunk<Out>(outs: Conc<Out>): Channel<unknown, unknown, unknown, unknown, never, Out, void> {
   return writeChunkWriter(outs, 0, outs.length);
 }
 
@@ -1387,17 +1223,14 @@ export function writeChunk<Out>(
  *
  * @tsplus static fncts.control.ChannelOps writeNow
  */
-export function writeNow<OutElem>(
-  out: OutElem,
-): Channel<unknown, unknown, unknown, unknown, never, OutElem, void> {
+export function writeNow<OutElem>(out: OutElem): Channel<unknown, unknown, unknown, unknown, never, OutElem, void> {
   return new Emit(() => out);
 }
 
 /**
  * @tsplus static fncts.control.ChannelOps unit
  */
-export const unit: Channel<unknown, unknown, unknown, unknown, never, never, void> =
-  Channel.endNow(undefined);
+export const unit: Channel<unknown, unknown, unknown, unknown, never, never, void> = Channel.endNow(undefined);
 
 /**
  * Makes a channel from an effect that returns a channel in case of success

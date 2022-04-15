@@ -10,9 +10,7 @@ export class RenderFunction {
   constructor(readonly name: string, readonly paramLists: Conc<Conc<RenderParam>>) {}
 
   get rendered(): string {
-    return `${this.name}(${this.paramLists
-      .map((ps) => ps.map((p) => p.rendered).join(", "))
-      .join("")})`;
+    return `${this.name}(${this.paramLists.map((ps) => ps.map((p) => p.rendered).join(", ")).join("")})`;
   }
 }
 

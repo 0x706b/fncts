@@ -5,9 +5,7 @@ import { Data, Start, TestClock } from "@fncts/test/control/TestClock/definition
 /**
  * @tsplus static fncts.test.control.TestClockOps make
  */
-export function make(
-  data: Data,
-): Layer<Has<Live> & Has<Annotations>, never, Has<Clock> & Has<TestClock>> {
+export function make(data: Data): Layer<Has<Live> & Has<Annotations>, never, Has<Clock> & Has<TestClock>> {
   return Layer.scopedEnvironment(
     IO.gen(function* (_) {
       const live         = yield* _(IO.service(Live.Tag));
@@ -15,10 +13,7 @@ export function make(
       const ref          = yield* _(Ref.make(data));
       const synchronized = yield* _(Ref.Synchronized.make(Start));
       const test         = yield* _(
-        IO.acquireRelease(
-          IO.succeed(new TestClock(ref, live, annotations, synchronized)),
-          (tc) => tc.warningDone,
-        ),
+        IO.acquireRelease(IO.succeed(new TestClock(ref, live, annotations, synchronized)), (tc) => tc.warningDone),
       );
       return Environment().add(test, TestClock.Tag).add(test, Clock.Tag);
     }),
@@ -28,8 +23,9 @@ export function make(
 /**
  * @tsplus static fncts.test.control.TestClockOps Live
  */
-export const live: Layer<Has<Live> & Has<Annotations>, never, Has<Clock> & Has<TestClock>> =
-  TestClock.make(new Data(0, Nil()));
+export const live: Layer<Has<Live> & Has<Annotations>, never, Has<Clock> & Has<TestClock>> = TestClock.make(
+  new Data(0, Nil()),
+);
 
 /**
  * @tsplus static fncts.test.control.TestClockOps adjust

@@ -13,7 +13,7 @@
  */
 
 import { copyOfArray, improveHash, tableSizeFor } from "@fncts/base/collection/mutable/internal";
-import { HashEq } from "@fncts/base/prelude/HashEq";
+import { HashEq } from "@fncts/base/typeclass/HashEq";
 import { assert } from "@fncts/base/util/assert";
 
 const DEFAULT_INITIAL_CAPACITY = 16;
@@ -233,12 +233,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     } else {
       this.table    = copyOfArray(this.table, newLen);
       const preLow  = new Node<K, V>(unsafeCoerce(undefined), 0, unsafeCoerce(undefined), undefined);
-      const preHigh = new Node<K, V>(
-        unsafeCoerce(undefined),
-        0,
-        unsafeCoerce(undefined),
-        undefined,
-      );
+      const preHigh = new Node<K, V>(unsafeCoerce(undefined), 0, unsafeCoerce(undefined), undefined);
       while (oldLen < newLen) {
         let i = 0;
         while (i < oldLen) {
@@ -278,12 +273,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
 }
 
 class Node<K, V> {
-  constructor(
-    public key: K,
-    public hash: number,
-    public value: V,
-    public next: Node<K, V> | undefined,
-  ) {}
+  constructor(public key: K, public hash: number, public value: V, public next: Node<K, V> | undefined) {}
 
   findNode(k: K, h: number, equals: (x: K, y: K) => boolean): Node<K, V> | undefined {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -313,10 +303,7 @@ export class HashMapIterator<K, V, A> implements Iterator<A> {
   private i = 0;
   private len: number;
   private done = false;
-  constructor(
-    private table: Array<Node<K, V> | undefined>,
-    private extract: (nd: Node<K, V>) => A,
-  ) {
+  constructor(private table: Array<Node<K, V> | undefined>, private extract: (nd: Node<K, V>) => A) {
     this.len = table.length;
   }
 

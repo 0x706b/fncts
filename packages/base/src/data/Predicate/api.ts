@@ -1,5 +1,5 @@
 /**
- * @tsplus getter fncts.data.Predicate invert
+ * @tsplus getter fncts.Predicate invert
  */
 export function invert<A>(self: Predicate<A>): Predicate<A> {
   return (a) => !self(a);

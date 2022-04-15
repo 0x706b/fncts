@@ -3,16 +3,7 @@ import type { Fragment } from "../../data/LogLine/Fragment.js";
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
 
-import {
-  blue,
-  bold,
-  cyan,
-  dim,
-  green,
-  red,
-  underline,
-  yellow,
-} from "@fncts/base/util/AnsiFormat.js";
+import { blue, bold, cyan, dim, green, red, underline, yellow } from "@fncts/base/util/AnsiFormat.js";
 import { matchTag_ } from "@fncts/base/util/pattern.js";
 
 import { fr, info, sp, warn } from "../../data/LogLine.js";
@@ -87,10 +78,7 @@ function renderToStringLines(message: Message): Vector<string> {
   );
 }
 
-function renderAnnotations(
-  annotations: List<TestAnnotationMap>,
-  annotationRenderer: TestAnnotationRenderer,
-): Message {
+function renderAnnotations(annotations: List<TestAnnotationMap>, annotationRenderer: TestAnnotationRenderer): Message {
   if (annotations.isEmpty()) {
     return Message.empty;
   }

@@ -1,26 +1,26 @@
-import type { Nullable } from "../../types/Nullable.js";
+import type { Nullable } from "@fncts/base/types";
 
 import { Either, Left, Right } from "./definition.js";
 
 /**
- * @tsplus static fncts.data.EitherOps left
- * @tsplus static fncts.data.Either.LeftOps __call
+ * @tsplus static fncts.EitherOps left
+ * @tsplus static fncts.Either.LeftOps __call
  */
 export function left<E = never, A = never>(e: E): Either<E, A> {
   return new Left(e);
 }
 
 /**
- * @tsplus static fncts.data.EitherOps right
- * @tsplus static fncts.data.Either.RightOps __call
+ * @tsplus static fncts.EitherOps right
+ * @tsplus static fncts.Either.RightOps __call
  */
 export function right<E = never, A = never>(a: A): Either<E, A> {
   return new Right(a);
 }
 
 /**
- * @tsplus static fncts.data.EitherOps fromMaybe
- * @tsplus fluent fncts.data.Maybe toEither
+ * @tsplus static fncts.EitherOps fromMaybe
+ * @tsplus fluent fncts.Maybe toEither
  */
 export function fromMaybe_<E, A>(self: Maybe<A>, nothing: Lazy<E>): Either<E, A> {
   return self.match(
@@ -30,14 +30,14 @@ export function fromMaybe_<E, A>(self: Maybe<A>, nothing: Lazy<E>): Either<E, A>
 }
 
 /**
- * @tsplus static fncts.data.EitherOps fromNullable
+ * @tsplus static fncts.EitherOps fromNullable
  */
 export function fromNullable_<E, A>(value: A, nullable: Lazy<E>): Either<E, NonNullable<A>> {
   return value == null ? Left(nullable()) : Right(value as NonNullable<A>);
 }
 
 /**
- * @tsplus static fncts.data.EitherOps fromNullableK
+ * @tsplus static fncts.EitherOps fromNullableK
  */
 export function fromNullableK<E, P extends ReadonlyArray<unknown>, A>(
   f: (...params: P) => Nullable<A>,
@@ -47,28 +47,16 @@ export function fromNullableK<E, P extends ReadonlyArray<unknown>, A>(
 }
 
 /**
- * @tsplus static fncts.data.EitherOps fromPredicate
+ * @tsplus static fncts.EitherOps fromPredicate
  */
-export function fromPredicate_<E, A, B extends A>(
-  value: A,
-  p: Refinement<A, B>,
-  otherwise: (a: A) => E,
-): Either<E, B>;
-export function fromPredicate_<E, A>(
-  value: A,
-  p: Predicate<A>,
-  otherwise: (a: A) => E,
-): Either<E, A>;
-export function fromPredicate_<E, A>(
-  value: A,
-  p: Predicate<A>,
-  otherwise: (a: A) => E,
-): Either<E, A> {
+export function fromPredicate_<E, A, B extends A>(value: A, p: Refinement<A, B>, otherwise: (a: A) => E): Either<E, B>;
+export function fromPredicate_<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A>;
+export function fromPredicate_<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A> {
   return p(value) ? Right(value) : left(otherwise(value));
 }
 
 /**
- * @tsplus static fncts.data.EitherOps tryCatch
+ * @tsplus static fncts.EitherOps tryCatch
  */
 export function tryCatch<E, A>(thunk: () => A, exception: (e: unknown) => E): Either<E, A> {
   try {
@@ -79,7 +67,7 @@ export function tryCatch<E, A>(thunk: () => A, exception: (e: unknown) => E): Ei
 }
 
 /**
- * @tsplus static fncts.data.EitherOps tryCatchK
+ * @tsplus static fncts.EitherOps tryCatchK
  */
 export function tryCatchK<P extends ReadonlyArray<unknown>, E, A>(
   f: (...params: P) => A,

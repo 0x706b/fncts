@@ -1,7 +1,7 @@
 import type { Sized } from "../../Sized.js";
 import type { EqConstraint, LengthConstraints } from "../constraints.js";
 
-import { Eq, Equatable } from "@fncts/base/prelude.js";
+import { Eq, Equatable } from "@fncts/base/typeclass";
 
 import { Gen } from "../definition.js";
 

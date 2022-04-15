@@ -16,9 +16,7 @@ import {
 /**
  * @tsplus getter fncts.control.Z absolve
  */
-export function absolve<W, S1, S2, R, E, E1, A>(
-  fa: Z<W, S1, S2, R, E, Either<E1, A>>,
-): Z<W, S1, S2, R, E | E1, A> {
+export function absolve<W, S1, S2, R, E, E1, A>(fa: Z<W, S1, S2, R, E, Either<E1, A>>): Z<W, S1, S2, R, E | E1, A> {
   return fa.chain((ea) => ea.match(Z.failNow, Z.succeedNow));
 }
 
@@ -159,9 +157,7 @@ export function defer<W, S1, S2, R, E, A>(
  *
  * @tsplus getter fncts.control.Z either
  */
-export function either<W, S1, S2, R, E, A>(
-  fa: Z<W, S1, S2, R, E, A>,
-): Z<W, S1, S1 | S2, R, never, Either<E, A>> {
+export function either<W, S1, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, S1 | S2, R, never, Either<E, A>> {
   return fa.match(Either.left, Either.right);
 }
 
@@ -200,20 +196,14 @@ export function erase<W, S1, S2, R, E, A>(wa: Z<W, S1, S2, R, E, A>): Z<never, S
 /**
  * @tsplus static fncts.control.ZOps fail
  */
-export function fail<E>(
-  e: Lazy<E>,
-  __tsplusTrace?: string,
-): Z<never, unknown, never, unknown, E, never> {
+export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Z<never, unknown, never, unknown, E, never> {
   return Z.failCause(Cause.fail(e()));
 }
 
 /**
  * @tsplus static fncts.control.ZOps failNow
  */
-export function failNow<E>(
-  e: E,
-  __tsplusTrace?: string,
-): Z<never, unknown, never, unknown, E, never> {
+export function failNow<E>(e: E, __tsplusTrace?: string): Z<never, unknown, never, unknown, E, never> {
   return Z.failCauseNow(Cause.fail(e));
 }
 
@@ -230,10 +220,7 @@ export function failCause<E>(
 /**
  * @tsplus static fncts.control.ZOps failCauseNow
  */
-export function failCauseNow<E>(
-  cause: Cause<E>,
-  __tsplusTrace?: string,
-): Z<never, unknown, never, unknown, E, never> {
+export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Z<never, unknown, never, unknown, E, never> {
   return new Fail(cause);
 }
 
@@ -272,29 +259,21 @@ export function getsZ<S, W, R, E, A>(f: (s: S) => Z<W, S, S, R, E, A>): Z<W, S, 
 /**
  * @tsplus static fncts.control.ZOps halt
  */
-export function halt(
-  defect: Lazy<unknown>,
-  __tsplusTrace?: string,
-): Z<never, unknown, never, unknown, never, never> {
+export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Z<never, unknown, never, unknown, never, never> {
   return Z.failCause(Cause.halt(defect()));
 }
 
 /**
  * @tsplus static fncts.control.ZOps haltNow
  */
-export function haltNow(
-  defect: unknown,
-  __tsplusTrace?: string,
-): Z<never, unknown, never, unknown, never, never> {
+export function haltNow(defect: unknown, __tsplusTrace?: string): Z<never, unknown, never, unknown, never, never> {
   return Z.failCauseNow(Cause.halt(defect));
 }
 
 /**
  * @tsplus getter fncts.control.Z listen
  */
-export function listen<W, S1, S2, R, E, A>(
-  wa: Z<W, S1, S2, R, E, A>,
-): Z<W, S1, S2, R, E, readonly [A, Conc<W>]> {
+export function listen<W, S1, S2, R, E, A>(wa: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, E, readonly [A, Conc<W>]> {
   return wa.matchLogCauseZ(
     (_, e) => Z.failCauseNow(e),
     (ws, a) => Z.succeedNow([a, ws]),
@@ -314,20 +293,14 @@ export function listens_<W, S1, S2, R, E, A, B>(
 /**
  * @tsplus fluent fncts.control.Z map
  */
-export function map_<W, S1, S2, R, E, A, B>(
-  fa: Z<W, S1, S2, R, E, A>,
-  f: (a: A) => B,
-): Z<W, S1, S2, R, E, B> {
+export function map_<W, S1, S2, R, E, A, B>(fa: Z<W, S1, S2, R, E, A>, f: (a: A) => B): Z<W, S1, S2, R, E, B> {
   return fa.chain((a) => Z.succeedNow(f(a)));
 }
 
 /**
  * @tsplus fluent fncts.control.Z mapError
  */
-export function mapError_<W, S1, S2, R, E, A, G>(
-  pab: Z<W, S1, S2, R, E, A>,
-  f: (e: E) => G,
-): Z<W, S1, S2, R, G, A> {
+export function mapError_<W, S1, S2, R, E, A, G>(pab: Z<W, S1, S2, R, E, A>, f: (e: E) => G): Z<W, S1, S2, R, G, A> {
   return pab.matchZ((e) => Z.failNow(f(e)), Z.succeedNow);
 }
 
@@ -348,10 +321,7 @@ export function mapLog_<W, S1, S2, R, E, A, W1>(
  *
  * @tsplus fluent fncts.control.Z mapState
  */
-export function mapState_<W, S1, S2, R, E, A, S3>(
-  ma: Z<W, S1, S2, R, E, A>,
-  f: (s: S2) => S3,
-): Z<W, S1, S3, R, E, A> {
+export function mapState_<W, S1, S2, R, E, A, S3>(ma: Z<W, S1, S2, R, E, A>, f: (s: S2) => S3): Z<W, S1, S3, R, E, A> {
   return ma.transform((s, a) => [a, f(s)]);
 }
 
@@ -384,10 +354,7 @@ export function matchZ_<W, S1, S5, S2, R, E, A, W1, S3, R1, E1, B, W2, S4, R2, E
   onFailure: (e: E) => Z<W1, S5, S3, R1, E1, B>,
   onSuccess: (a: A) => Z<W2, S2, S4, R2, E2, C>,
 ): Z<W | W1 | W2, S1 & S5, S3 | S4, R & R1 & R2, E1 | E2, B | C> {
-  return fa.matchCauseZ(
-    (cause) => cause.failureOrCause.match(onFailure, Z.failCauseNow),
-    onSuccess,
-  );
+  return fa.matchCauseZ((cause) => cause.failureOrCause.match(onFailure, Z.failCauseNow), onSuccess);
 }
 
 /**
@@ -443,9 +410,7 @@ export function matchLogCauseZ_<W, S1, S2, R, E, A, W1, S0, S3, R1, E1, B, W2, S
  *
  * @tsplus static fncts.control.ZOps modify
  */
-export function modify<S1, S2, A>(
-  f: (s: S1) => readonly [A, S2],
-): Z<never, S1, S2, unknown, never, A> {
+export function modify<S1, S2, A>(f: (s: S1) => readonly [A, S2]): Z<never, S1, S2, unknown, never, A> {
   return new Modify(f);
 }
 
@@ -454,9 +419,7 @@ export function modify<S1, S2, A>(
  *
  * @tsplus static fncts.control.ZOps modifyEither
  */
-export function modifyEither<S1, S2, E, A>(
-  f: (s: S1) => Either<E, readonly [A, S2]>,
-): Z<never, S1, S2, unknown, E, A> {
+export function modifyEither<S1, S2, E, A>(f: (s: S1) => Either<E, readonly [A, S2]>): Z<never, S1, S2, unknown, E, A> {
   return Z.get<S1>()
     .map(f)
     .chain((r) => r.match(Z.failNow, ([a, s2]) => Z.succeedNow(a).mapState(() => s2)));
@@ -491,10 +454,7 @@ export function orElseEither_<W, S1, S2, R, E, A, S3, S4, R1, E1, A1>(
 /**
  * @tsplus fluent fncts.control.Z provideEnvironment
  */
-export function provideEnvironment_<W, S1, S2, R, E, A>(
-  fa: Z<W, S1, S2, R, E, A>,
-  r: R,
-): Z<W, S1, S2, unknown, E, A> {
+export function provideEnvironment_<W, S1, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>, r: R): Z<W, S1, S2, unknown, E, A> {
   return new Provide(fa, r);
 }
 
@@ -513,10 +473,7 @@ export function put<S>(s: S): Z<never, unknown, S, unknown, never, void> {
  *
  * @tsplus fluent fncts.control.Z repeatN
  */
-export function repeatN_<W, S1, S2 extends S1, R, E, A>(
-  ma: Z<W, S1, S2, R, E, A>,
-  n: number,
-): Z<W, S1, S2, R, E, A> {
+export function repeatN_<W, S1, S2 extends S1, R, E, A>(ma: Z<W, S1, S2, R, E, A>, n: number): Z<W, S1, S2, R, E, A> {
   return ma.chain((a) => (n <= 0 ? Z.succeedNow(a) : ma.repeatN(n - 1)));
 }
 
@@ -606,10 +563,7 @@ export function update<S1, S2>(f: (s: S1) => S2): Z<never, S1, S2, unknown, neve
 /**
  * @tsplus fluent fncts.control.Z write
  */
-export function write_<W, S1, S2, R, E, A, W1>(
-  ma: Z<W, S1, S2, R, E, A>,
-  w: W1,
-): Z<W | W1, S1, S2, R, E, A> {
+export function write_<W, S1, S2, R, E, A, W1>(ma: Z<W, S1, S2, R, E, A>, w: W1): Z<W | W1, S1, S2, R, E, A> {
   return ma.writeAll(Conc.single(w));
 }
 

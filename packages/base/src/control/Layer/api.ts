@@ -132,9 +132,7 @@ export function fromFunction<R, A>(
   /** @tsplus implicit local */ tagR: Tag<R>,
   /** @tsplus implicit local */ tagA: Tag<A>,
 ): Layer<Has<R>, never, Has<A>> {
-  return Layer.fromIOEnvironment(
-    IO.serviceWith((service) => Environment.empty.add(f(service), Derive()), Derive()),
-  );
+  return Layer.fromIOEnvironment(IO.serviceWith((service) => Environment.empty.add(f(service), Derive()), Derive()));
 }
 
 /**
@@ -154,10 +152,7 @@ export function fromFunctionIO<R, E, A, R1>(
  * @tsplus static fncts.control.LayerOps fromIOEnvironment
  * @tsplus static fncts.control.LayerOps __call
  */
-export function fromIOEnvironment<R, E, A>(
-  io: IO<R, E, Environment<A>>,
-  __tsplusTrace?: string,
-): Layer<R, E, A> {
+export function fromIOEnvironment<R, E, A>(io: IO<R, E, Environment<A>>, __tsplusTrace?: string): Layer<R, E, A> {
   return new FromScoped(io);
 }
 
@@ -208,10 +203,7 @@ export function matchLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
   failure: (e: E) => Layer<RIn1, E1, ROut1>,
   success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
 ): Layer<RIn & RIn1 & RIn2, E1 | E2, ROut1 | ROut2> {
-  return self.matchCauseLayer(
-    (cause) => cause.failureOrCause.match(failure, Layer.failCauseNow),
-    success,
-  );
+  return self.matchCauseLayer((cause) => cause.failureOrCause.match(failure, Layer.failCauseNow), success);
 }
 
 /**
@@ -227,22 +219,15 @@ export function map_<RIn, E, ROut, ROut1>(
 /**
  * @tsplus fluent fncts.control.Layer mapError
  */
-export function mapError_<RIn, E, ROut, E1>(
-  self: Layer<RIn, E, ROut>,
-  f: (e: E) => E1,
-): Layer<RIn, E1, ROut> {
+export function mapError_<RIn, E, ROut, E1>(self: Layer<RIn, E, ROut>, f: (e: E) => E1): Layer<RIn, E1, ROut> {
   return self.catchAll((e) => Layer.failNow(f(e)));
 }
 
 /**
  * @tsplus getter fncts.control.Layer memoize
  */
-export function memoize<RIn, E, ROut>(
-  self: Layer<RIn, E, ROut>,
-): URIO<Has<Scope>, Layer<RIn, E, ROut>> {
-  return IO.serviceWithIO((scope: Scope) => self.build(scope), Scope.Tag).memoize.map(
-    (_) => new FromScoped(_),
-  );
+export function memoize<RIn, E, ROut>(self: Layer<RIn, E, ROut>): URIO<Has<Scope>, Layer<RIn, E, ROut>> {
+  return IO.serviceWithIO((scope: Scope) => self.build(scope), Scope.Tag).memoize.map((_) => new FromScoped(_));
 }
 
 /**
@@ -311,28 +296,21 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
   tag: Tag<{ readonly state: S }>,
 ): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
   return self.catchAll((e) =>
-    retryUpdate(schedule, e, s, tag).chain(
-      (env) => retryLoop(self, schedule, env.get(tag).state, tag).fresh,
-    ),
+    retryUpdate(schedule, e, s, tag).chain((env) => retryLoop(self, schedule, env.get(tag).state, tag).fresh),
   );
 }
 
 /**
  * @tsplus static fncts.control.LayerOps scoped
  */
-export function scoped<R, E, A>(
-  io: Lazy<IO<R & Has<Scope>, E, A>>,
-  tag: Tag<A>,
-): Layer<R, E, Has<A>> {
+export function scoped<R, E, A>(io: Lazy<IO<R & Has<Scope>, E, A>>, tag: Tag<A>): Layer<R, E, Has<A>> {
   return Layer.scopedEnvironment(io().map((a) => Environment.empty.add(a, tag)));
 }
 
 /**
  * @tsplus static fncts.control.LayerOps scopedEnvironment
  */
-export function scopedEnvironment<R, E, A>(
-  io: Lazy<IO<R & Has<Scope>, E, Environment<A>>>,
-): Layer<R, E, A> {
+export function scopedEnvironment<R, E, A>(io: Lazy<IO<R & Has<Scope>, E, Environment<A>>>): Layer<R, E, A> {
   return new FromScoped(IO.defer(io));
 }
 

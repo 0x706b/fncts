@@ -22,14 +22,6 @@ export function mergeMap_<
   n: number,
   bufferSize = 16,
   mergeStrategy: MergeStrategy = "BackPressure",
-): Channel<
-  Env & Env1,
-  InErr & InErr1,
-  InElem & InElem1,
-  InDone & InDone1,
-  OutErr | OutErr1,
-  OutElem1,
-  unknown
-> {
+): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem1, unknown> {
   return self.mapOut(f).mergeAll(n, bufferSize, mergeStrategy);
 }

@@ -1,11 +1,11 @@
 import type { Equals } from "@fncts/typelevel/Any";
 import type { True } from "@fncts/typelevel/Boolean";
 
-export const CaseClassTypeId = Symbol.for("fncts.data.CaseClass");
+export const CaseClassTypeId = Symbol.for("fncts.CaseClass");
 export type CaseClassTypeId = typeof CaseClassTypeId;
 
-const keysSymbol = Symbol.for("fncts.data.CaseClass.keys");
-const argsSymbol = Symbol.for("fncts.data.CaseClass.args");
+const keysSymbol = Symbol.for("fncts.CaseClass.keys");
+const argsSymbol = Symbol.for("fncts.CaseClass.args");
 
 export interface CaseArgs {
   readonly [CaseClassTypeId]: ImmutableArray<string>;
@@ -24,7 +24,7 @@ export function isCaseClass(u: unknown): u is CaseConstructor {
   return hasTypeId(u, CaseClassTypeId);
 }
 
-const hash0 = Hashable.hashString("fncts.data.CaseClass");
+const hash0 = Hashable.hashString("fncts.CaseClass");
 
 // @ts-expect-error
 export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, any>>

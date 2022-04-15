@@ -5,11 +5,11 @@ export const enum MaybeTag {
   Nothing = "Nothing",
 }
 
-export const MaybeTypeId = Symbol.for("fncts.data.Maybe");
+export const MaybeTypeId = Symbol.for("fncts.Maybe");
 export type MaybeTypdId = typeof MaybeTypeId;
 
-const _justHash    = Hashable.hashString("fncts.data.Just");
-const _nothingHash = Hashable.hashString("fncts.data.Nothing");
+const _justHash    = Hashable.hashString("fncts.Just");
+const _nothingHash = Hashable.hashString("fncts.Nothing");
 
 /**
  * @tsplus type fncts.Just
@@ -43,43 +43,39 @@ export class Nothing {
 }
 
 /**
- * @tsplus type fncts.data.Maybe
+ * @tsplus type fncts.Maybe
  */
 export type Maybe<A> = Just<A> | Nothing;
 
 /**
- * @tsplus type fncts.data.MaybeOps
+ * @tsplus type fncts.MaybeOps
  */
 export interface MaybeOps {}
 
 export const Maybe: MaybeOps = {};
 
 /**
- * @tsplus unify fncts.data.Maybe
+ * @tsplus unify fncts.Maybe
  */
-export function unifyMaybe<X extends Maybe<any>>(
-  self: X,
-): Maybe<[X] extends [Maybe<infer A>] ? A : never> {
+export function unifyMaybe<X extends Maybe<any>>(self: X): Maybe<[X] extends [Maybe<infer A>] ? A : never> {
   return self;
 }
 
 /**
- * @tsplus static fncts.data.MaybeOps isMaybe
+ * @tsplus static fncts.MaybeOps isMaybe
  */
 export function isMaybe(u: unknown): u is Maybe<unknown> {
   return (
     isObject(u) &&
     (MaybeTypeId in u ||
-      ("_tag" in u &&
-        typeof u["_tag"] === "string" &&
-        (u["_tag"] === "Nothing" || u["_tag"] === "Just")))
+      ("_tag" in u && typeof u["_tag"] === "string" && (u["_tag"] === "Nothing" || u["_tag"] === "Just")))
   );
 }
 
 /**
  * A type predicate determining if a `Maybe` is `Just`
  *
- * @tsplus fluent fncts.data.Maybe isJust
+ * @tsplus fluent fncts.Maybe isJust
  */
 export function isJust<A>(self: Maybe<A>): self is Just<A> {
   return self._tag === MaybeTag.Just;
@@ -88,7 +84,7 @@ export function isJust<A>(self: Maybe<A>): self is Just<A> {
 /**
  * A type predicate determining if a `Maybe` is `Nothing`
  *
- * @tsplus fluent fncts.data.Maybe isNothing
+ * @tsplus fluent fncts.Maybe isNothing
  */
 export function isNothing<A>(self: Maybe<A>): self is Nothing {
   return self._tag === MaybeTag.Nothing;

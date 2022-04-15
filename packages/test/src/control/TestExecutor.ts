@@ -11,10 +11,7 @@ import { TestAnnotationMap } from "../data/TestAnnotationMap.js";
 import { RuntimeFailure } from "../data/TestFailure.js";
 
 export interface TestExecutor<R> {
-  readonly run: <E>(
-    spec: Spec<R & Has<Annotations>, E>,
-    defExec: ExecutionStrategy,
-  ) => UIO<ExecutedSpec<E>>;
+  readonly run: <E>(spec: Spec<R & Has<Annotations>, E>, defExec: ExecutionStrategy) => UIO<ExecutedSpec<E>>;
   readonly environment: Layer<unknown, never, R>;
 }
 
@@ -22,18 +19,14 @@ export function defaultTestExecutor<R>(
   env: Layer<unknown, never, R & Has<Annotations>>,
 ): TestExecutor<R & Has<Annotations>> {
   return {
-    run: <E>(
-      spec: Spec<R & Has<Annotations>, E>,
-      defExec: ExecutionStrategy,
-    ): UIO<ExecutedSpec<E>> =>
+    run: <E>(spec: Spec<R & Has<Annotations>, E>, defExec: ExecutionStrategy): UIO<ExecutedSpec<E>> =>
       spec.annotated
         .provideLayer(env)
         .foreachExec(
           (cause): UIO<Annotated<Either<TestFailure<E>, TestSuccess>>> =>
             cause.failureOrCause.match(
               ([failure, annotations]) => IO.succeedNow([Either.left(failure), annotations]),
-              (cause) =>
-                IO.succeedNow([Either.left(new RuntimeFailure(cause)), TestAnnotationMap.empty]),
+              (cause) => IO.succeedNow([Either.left(new RuntimeFailure(cause)), TestAnnotationMap.empty]),
             ),
           ([success, annotations]): UIO<Annotated<Either<TestFailure<E>, TestSuccess>>> =>
             IO.succeedNow([Either.right(success), annotations]),
@@ -42,14 +35,7 @@ export function defaultTestExecutor<R>(
         .scoped.chain(
           (s) =>
             s.foldScoped(
-              (
-                spec: SpecCase<
-                  unknown,
-                  never,
-                  Annotated<Either<TestFailure<E>, TestSuccess>>,
-                  ExecutedSpec<E>
-                >,
-              ) =>
+              (spec: SpecCase<unknown, never, Annotated<Either<TestFailure<E>, TestSuccess>>, ExecutedSpec<E>>) =>
                 matchTag_(spec, {
                   Exec: ({ spec }) => IO.succeedNow(spec),
                   Labeled: ({ label, spec }) => IO.succeedNow(ExecutedSpec.labeled(spec, label)),

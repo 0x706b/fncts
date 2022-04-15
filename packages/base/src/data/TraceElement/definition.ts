@@ -10,39 +10,35 @@ export interface SourceLocation {
 }
 
 /**
- * @tsplus type fncts.data.TraceElement
+ * @tsplus type fncts.TraceElement
  */
 export type TraceElement = NoLocation | SourceLocation;
 
 /**
- * @tsplus type fncts.data.TraceElementOps
+ * @tsplus type fncts.TraceElementOps
  */
 export interface TraceElementOps {}
 
 export const TraceElement: TraceElementOps = {};
 
 /**
- * @tsplus static fncts.data.TraceElementOps NoLocation
+ * @tsplus static fncts.TraceElementOps NoLocation
  */
 export const NoLocation: TraceElement = {
   _tag: "NoLocation",
 };
 
 /**
- * @tsplus static fncts.data.TraceElementOps SourceLocation
+ * @tsplus static fncts.TraceElementOps SourceLocation
  */
-export function SourceLocation(
-  fileName: string,
-  lineNumber: number,
-  columnNumber: number,
-): TraceElement {
+export function SourceLocation(fileName: string, lineNumber: number, columnNumber: number): TraceElement {
   return { _tag: "SourceLocation", fileName, lineNumber, columnNumber };
 }
 
 const LOCATION_REGEX = /^(.*?):(\d*?):(\d*?)$/;
 
 /**
- * @tsplus static fncts.data.TraceElementOps parse
+ * @tsplus static fncts.TraceElementOps parse
  */
 export function parse(trace?: string): TraceElement {
   if (trace) {
@@ -59,7 +55,7 @@ export function parse(trace?: string): TraceElement {
 }
 
 /**
- * @tsplus getter fncts.data.TraceElement show
+ * @tsplus getter fncts.TraceElement show
  */
 export function show(self: TraceElement): string {
   switch (self._tag) {

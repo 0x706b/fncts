@@ -1,4 +1,4 @@
-import type { Applicative, Monoid } from "@fncts/base/prelude";
+import type { Applicative, Monoid } from "@fncts/base/typeclass";
 
 import { Fold } from "@fncts/base/optics/Fold";
 import { PSetter } from "@fncts/base/optics/Setter";

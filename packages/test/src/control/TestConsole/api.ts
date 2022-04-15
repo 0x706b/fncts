@@ -6,10 +6,7 @@ import { TestConsole } from "@fncts/test/control/TestConsole/definition";
 /**
  * @tsplus static fncts.test.TestConsoleOps make
  */
-export function make(
-  data: ConsoleData,
-  debug = true,
-): Layer<Has<Live>, never, Has<Console> & Has<TestConsole>> {
+export function make(data: ConsoleData, debug = true): Layer<Has<Live>, never, Has<Console> & Has<TestConsole>> {
   return Layer.fromIOEnvironment(
     IO.serviceWithIO(
       (live) =>

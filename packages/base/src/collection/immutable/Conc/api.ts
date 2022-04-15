@@ -1,5 +1,5 @@
 import type { Concat, ConcF } from "@fncts/base/collection/immutable/Conc/definition";
-import type { Eq } from "@fncts/base/prelude";
+import type { Eq } from "@fncts/base/typeclass";
 
 import {
   _Empty,
@@ -13,7 +13,7 @@ import {
 import { EitherTag } from "@fncts/base/data/Either";
 import { identity, tuple } from "@fncts/base/data/function";
 import { Stack } from "@fncts/base/internal/Stack";
-import * as P from "@fncts/base/prelude";
+import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus fluent fncts.Conc align
@@ -315,10 +315,7 @@ export function filterMap_<A, B>(self: Conc<A>, f: (a: A) => Maybe<B>): Conc<B> 
 /**
  * @tsplus fluent fncts.Conc filterMapWithIndex
  */
-export function filterMapWithIndex_<A, B>(
-  self: Conc<A>,
-  f: (i: number, a: A) => Maybe<B>,
-): Conc<B> {
+export function filterMapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => Maybe<B>): Conc<B> {
   concrete(self);
   const iterator = self.arrayIterator();
   const out      = builder<B>();
@@ -340,10 +337,7 @@ export function filterMapWithIndex_<A, B>(
 /**
  * @tsplus fluent fncts.Conc filterWithIndex
  */
-export function filterWithIndex_<A, B extends A>(
-  self: Conc<A>,
-  p: RefinementWithIndex<number, A, B>,
-): Conc<B>;
+export function filterWithIndex_<A, B extends A>(self: Conc<A>, p: RefinementWithIndex<number, A, B>): Conc<B>;
 export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A>;
 export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A> {
   concrete(self);
@@ -599,11 +593,7 @@ export function map_<A, B>(self: Conc<A>, f: (a: A) => B): Conc<B> {
  *
  * @tsplus fluent fncts.Conc mapAccum
  */
-export function mapAccum_<A, S, B>(
-  self: Conc<A>,
-  s: S,
-  f: (s: S, a: A) => readonly [B, S],
-): readonly [Conc<B>, S] {
+export function mapAccum_<A, S, B>(self: Conc<A>, s: S, f: (s: S, a: A) => readonly [B, S]): readonly [Conc<B>, S] {
   concrete(self);
   const iterator = self.arrayIterator();
   const out      = builder<B>();
@@ -622,12 +612,7 @@ export function mapAccum_<A, S, B>(
   return tuple(out.result(), s);
 }
 
-function mapArrayLike<A, B>(
-  as: ArrayLike<A>,
-  len: number,
-  startIndex: number,
-  f: (i: number, a: A) => B,
-): Conc<B> {
+function mapArrayLike<A, B>(as: ArrayLike<A>, len: number, startIndex: number, f: (i: number, a: A) => B): Conc<B> {
   let bs = Conc.empty<B>();
   for (let i = 0; i < len; i++) {
     bs = append_(bs, f(i + startIndex, as[i]!));
@@ -665,11 +650,7 @@ class ConcatRightFrame<B> {
 
 class AppendFrame<A> {
   readonly _tag = "Append";
-  constructor(
-    readonly buffer: ArrayLike<A>,
-    readonly bufferUsed: number,
-    readonly startIndex: number,
-  ) {}
+  constructor(readonly buffer: ArrayLike<A>, readonly bufferUsed: number, readonly startIndex: number) {}
 }
 
 class PrependFrame<A, B> {
@@ -677,12 +658,7 @@ class PrependFrame<A, B> {
   constructor(readonly pre: Conc<B>, readonly end: Conc<A>) {}
 }
 
-type Frame<A, B> =
-  | DoneFrame
-  | ConcatLeftFrame<A>
-  | ConcatRightFrame<B>
-  | AppendFrame<A>
-  | PrependFrame<A, B>;
+type Frame<A, B> = DoneFrame | ConcatLeftFrame<A> | ConcatRightFrame<B> | AppendFrame<A> | PrependFrame<A, B>;
 
 /**
  * @tsplus fluent fncts.Conc mapWithIndex
@@ -720,10 +696,7 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
           continue pushing;
         }
         case ConcTag.AppendN: {
-          stack = Stack.make(
-            new AppendFrame(current.buffer as ArrayLike<A>, current.bufferUsed, index),
-            stack,
-          );
+          stack   = Stack.make(new AppendFrame(current.buffer as ArrayLike<A>, current.bufferUsed, index), stack);
           current = current.start;
           continue pushing;
         }
@@ -804,10 +777,7 @@ export function isNonEmpty<A>(conc: Conc<A>): boolean {
 /**
  * @tsplus fluent fncts.Conc partition
  */
-export function partition_<A, B extends A>(
-  self: Conc<A>,
-  p: Refinement<A, B>,
-): readonly [Conc<A>, Conc<B>];
+export function partition_<A, B extends A>(self: Conc<A>, p: Refinement<A, B>): readonly [Conc<A>, Conc<B>];
 export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>, Conc<A>];
 export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>, Conc<A>] {
   return self.partitionWithIndex((_, a) => p(a));
@@ -816,10 +786,7 @@ export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>
 /**
  * @tsplus fluent fncts.Conc partitionMap
  */
-export function partitionMap_<A, B, C>(
-  self: Conc<A>,
-  f: (a: A) => Either<B, C>,
-): readonly [Conc<B>, Conc<C>] {
+export function partitionMap_<A, B, C>(self: Conc<A>, f: (a: A) => Either<B, C>): readonly [Conc<B>, Conc<C>] {
   return self.partitionMapWithIndex((_, a) => f(a));
 }
 
@@ -857,14 +824,8 @@ export function partitionWithIndex_<A, B extends A>(
   self: Conc<A>,
   p: RefinementWithIndex<number, A, B>,
 ): readonly [Conc<A>, Conc<B>];
-export function partitionWithIndex_<A>(
-  self: Conc<A>,
-  p: PredicateWithIndex<number, A>,
-): readonly [Conc<A>, Conc<A>];
-export function partitionWithIndex_<A>(
-  self: Conc<A>,
-  p: PredicateWithIndex<number, A>,
-): readonly [Conc<A>, Conc<A>] {
+export function partitionWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): readonly [Conc<A>, Conc<A>];
+export function partitionWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): readonly [Conc<A>, Conc<A>] {
   concrete(self);
   const iterator = self.arrayIterator();
   const left     = builder<A>();
@@ -1020,27 +981,22 @@ export function takeWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
   }
 }
 
-export const traverse_: P.traverse_<ConcF> = (A) => (ta, f) =>
-  traverseWithIndex_(A)(ta, (_, a) => f(a));
+export const traverse_: P.traverse_<ConcF> = (A) => (ta, f) => traverseWithIndex_(A)(ta, (_, a) => f(a));
 
 /**
  * @tsplus getter fncts.Conc traverse
  */
-export const traverseSelf: P.traverseSelf<ConcF> = (ta) => (A) => (f) =>
-  traverseWithIndex_(A)(ta, (_, a) => f(a));
+export const traverseSelf: P.traverseSelf<ConcF> = (ta) => (A) => (f) => traverseWithIndex_(A)(ta, (_, a) => f(a));
 
 export const traverseWithIndex_: P.traverseWithIndex_<ConcF> = P.mkTraverseWithIndex_<ConcF>()(
   (_) => (A) => (ta, f) =>
-    ta.foldLeftWithIndex(A.pure(Conc.empty()), (i, fbs, a) =>
-      A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b)),
-    ),
+    ta.foldLeftWithIndex(A.pure(Conc.empty()), (i, fbs, a) => A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b))),
 );
 
 /**
  * @tsplus getter fncts.Conc traverseWithIndex
  */
-export const traverseSelfWithIndex: P.traverseWithIndexSelf<ConcF> = (ta) => (A) => (f) =>
-  traverseWithIndex_(A)(ta, f);
+export const traverseSelfWithIndex: P.traverseWithIndexSelf<ConcF> = (ta) => (A) => (f) => traverseWithIndex_(A)(ta, f);
 
 /**
  * @tsplus fluent fncts.ConcOps unfold

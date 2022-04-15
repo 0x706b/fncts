@@ -69,14 +69,7 @@ export class ExecutionResult {
   ) {}
 
   withAnnotations(annotations: List<TestAnnotationMap>): ExecutionResult {
-    return new ExecutionResult(
-      this.resultType,
-      this.label,
-      this.status,
-      this.offset,
-      annotations,
-      this.lines,
-    );
+    return new ExecutionResult(this.resultType, this.label, this.status, this.offset, annotations, this.lines);
   }
 }
 
@@ -154,23 +147,7 @@ export function or_(self: ExecutionResult, that: ExecutionResult): ExecutionResu
 export function invert(self: ExecutionResult): ExecutionResult {
   return matchTag_(self.status, {
     Ignored: () => self,
-    Failed: () =>
-      new ExecutionResult(
-        self.resultType,
-        self.label,
-        Passed,
-        self.offset,
-        self.annotations,
-        self.lines,
-      ),
-    Passed: () =>
-      new ExecutionResult(
-        self.resultType,
-        self.label,
-        Failed,
-        self.offset,
-        self.annotations,
-        self.lines,
-      ),
+    Failed: () => new ExecutionResult(self.resultType, self.label, Passed, self.offset, self.annotations, self.lines),
+    Passed: () => new ExecutionResult(self.resultType, self.label, Failed, self.offset, self.annotations, self.lines),
   });
 }

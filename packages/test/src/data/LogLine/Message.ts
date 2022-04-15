@@ -88,9 +88,7 @@ export function withOffset(self: Message, offset: number): Message {
 export function intersperse(self: Message, line: Line): Message {
   return new Message(
     Vector.from(
-      self.lines.foldRight(List.empty<Line>(), (ln, rest) =>
-        Cons(ln, rest.isEmpty() ? Nil() : Cons(line, rest)),
-      ),
+      self.lines.foldRight(List.empty<Line>(), (ln, rest) => Cons(ln, rest.isEmpty() ? Nil() : Cons(line, rest))),
     ),
   );
 }

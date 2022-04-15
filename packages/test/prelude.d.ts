@@ -266,15 +266,7 @@ import { Trace } from "@fncts/base/data/Trace/definition";
 /**
  * @tsplus global
  */
-import { Equatable } from "@fncts/base/prelude/Equatable";
-/**
- * @tsplus global
- */
-import { Has } from "@fncts/base/prelude/Has";
-/**
- * @tsplus global
- */
-import { Hashable } from "@fncts/base/prelude/Hashable";
+import { Equatable, Has, Hashable } from "@fncts/base/typeclass";
 /**
  * @tsplus global
  */

@@ -2,7 +2,7 @@ import type { EvalF } from "@fncts/base/control/Eval/definition";
 
 import { ap_, map_, zipWith_ } from "@fncts/base/control/Eval/api";
 import { now } from "@fncts/base/control/Eval/constructors";
-import * as P from "@fncts/base/prelude";
+import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus static fncts.control.EvalOps Functor

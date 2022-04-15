@@ -42,9 +42,7 @@ export abstract class Z<W, S1, S2, R, E, A> {
 /**
  * @tsplus unify fncts.control.Z
  */
-export function unifyZ<X extends Z<any, any, any, any, any, any>>(
-  _: X,
-): Z<_W<X>, _S1<X>, _S2<X>, _R<X>, _E<X>, _A<X>> {
+export function unifyZ<X extends Z<any, any, any, any, any, any>>(_: X): Z<_W<X>, _S1<X>, _S2<X>, _R<X>, _E<X>, _A<X>> {
   return _;
 }
 

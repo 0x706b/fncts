@@ -1,7 +1,7 @@
 import { Struct } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.data.Struct map
+ * @tsplus fluent fncts.Struct map
  */
 export function map_<A, B>(self: Struct<A>, f: (a: A[keyof A]) => B): Struct<Record<keyof A, B>> {
   const out  = {} as Record<keyof A, B>;
@@ -14,7 +14,7 @@ export function map_<A, B>(self: Struct<A>, f: (a: A[keyof A]) => B): Struct<Rec
 }
 
 /**
- * @tsplus getter fncts.data.Struct reverseGet
+ * @tsplus getter fncts.Struct reverseGet
  * @tsplus macro identity
  */
 export function reverseGet<A>(self: Struct<A>): A {

@@ -67,9 +67,7 @@ export function makeWith(executionStrategy: Lazy<ExecutionStrategy>): UIO<Scope.
           return IO.uninterruptible(
             IO.gen(function* (_) {
               const scope     = yield* _(Scope.make);
-              const finalizer = yield* _(
-                releaseMap.add(Finalizer.get((exit) => scope.close(exit))),
-              );
+              const finalizer = yield* _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
               yield* _(scope.addFinalizerExit(finalizer));
               return scope;
             }),
@@ -114,9 +112,6 @@ export function unsafeMakeWith(executionStrategy: ExecutionStrategy): Scope.Clos
 /**
  * @tsplus fluent fncts.control.Scope.Closeable use
  */
-export function use_<R, E, A>(
-  self: Scope.Closeable,
-  io: Lazy<IO<R & Has<Scope>, E, A>>,
-): IO<R, E, A> {
+export function use_<R, E, A>(self: Scope.Closeable, io: Lazy<IO<R & Has<Scope>, E, A>>): IO<R, E, A> {
   return self.extend(io).onExit((exit) => self.close(exit));
 }

@@ -1,7 +1,7 @@
 import { TheseTag } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.data.These match
+ * @tsplus fluent fncts.These match
  */
 export function match_<E, A, B, C, D>(
   self: These<E, A>,

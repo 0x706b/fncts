@@ -17,16 +17,12 @@ import { ExecCase, LabeledCase, MultipleCase, PSpec, ScopedCase, TestCase } from
 /**
  * @tsplus getter fncts.test.control.PSpec annotated
  */
-export function annotated<R, E, T>(
-  spec: PSpec<R, E, T>,
-): PSpec<R & Has<Annotations>, Annotated<E>, Annotated<T>> {
+export function annotated<R, E, T>(spec: PSpec<R, E, T>): PSpec<R & Has<Annotations>, Annotated<E>, Annotated<T>> {
   return spec.transform(
     matchTag(
       {
-        Scoped: ({ scoped }) =>
-          new ScopedCase(scoped.mapError((e) => tuple(e, TestAnnotationMap.empty))),
-        Test: ({ test, annotations }) =>
-          new TestCase(Annotations.withAnnotations(test), annotations),
+        Scoped: ({ scoped }) => new ScopedCase(scoped.mapError((e) => tuple(e, TestAnnotationMap.empty))),
+        Test: ({ test, annotations }) => new TestCase(Annotations.withAnnotations(test), annotations),
       },
       identity,
     ),
@@ -78,17 +74,13 @@ export function contramapEnvironment_<R, E, T, R0>(
 /**
  * @tsplus fluent fncts.test.control.PSpec countTests
  */
-export function countTests_<R, E, T>(
-  spec: PSpec<R, E, T>,
-  f: (t: T) => boolean,
-): IO<R & Has<Scope>, E, number> {
+export function countTests_<R, E, T>(spec: PSpec<R, E, T>, f: (t: T) => boolean): IO<R & Has<Scope>, E, number> {
   return spec.fold(
     matchTag({
       Exec: ({ spec }) => spec,
       Labeled: ({ spec }) => spec,
       Scoped: ({ scoped }) => scoped.flatten,
-      Multiple: ({ specs }) =>
-        IO.sequenceIterable(specs).map((specs) => specs.foldLeft(0, (b, a) => b + a)),
+      Multiple: ({ specs }) => IO.sequenceIterable(specs).map((specs) => specs.foldLeft(0, (b, a) => b + a)),
       Test: ({ test }) => test.map((t) => (f(t) ? 1 : 0)),
     }),
   );
@@ -129,34 +121,26 @@ export function filterAnnotations_<R, E, T, V>(
 ): Maybe<PSpec<R, E, T>> {
   return matchTag_(spec.caseValue, {
     Exec: ({ spec, exec }) => spec.filterAnnotations(key, f).map((spec) => ExecCase(spec, exec)),
-    Labeled: ({ label, spec }) =>
-      spec.filterAnnotations(key, f).map((spec) => LabeledCase(spec, label)),
+    Labeled: ({ label, spec }) => spec.filterAnnotations(key, f).map((spec) => LabeledCase(spec, label)),
     Scoped: ({ scoped }) =>
       Just(ScopedCase(scoped.map((spec) => spec.filterAnnotations(key, f).getOrElse(Spec.empty)))),
     Multiple: ({ specs }) => {
       const filtered = specs.filterMap((spec) => spec.filterAnnotations(key, f));
       return filtered.isEmpty ? Nothing() : Just(MultipleCase(filtered));
     },
-    Test: ({ test, annotations }) =>
-      f(annotations.get(key)) ? Just(TestCase(test, annotations)) : Nothing(),
+    Test: ({ test, annotations }) => (f(annotations.get(key)) ? Just(TestCase(test, annotations)) : Nothing()),
   });
 }
 
 /**
  * @tsplus fluent fncts.test.control.PSpec filterLabels
  */
-export function filterLabels_<R, E, T>(
-  spec: PSpec<R, E, T>,
-  f: (label: string) => boolean,
-): Maybe<PSpec<R, E, T>> {
+export function filterLabels_<R, E, T>(spec: PSpec<R, E, T>, f: (label: string) => boolean): Maybe<PSpec<R, E, T>> {
   return matchTag_(spec.caseValue, {
     Exec: ({ spec, exec }) => spec.filterLabels(f).map((spec) => ExecCase(spec, exec)),
     Labeled: ({ label, spec }) =>
-      f(label)
-        ? Just(LabeledCase(spec, label))
-        : spec.filterLabels(f).map((spec) => LabeledCase(spec, label)),
-    Scoped: ({ scoped }) =>
-      Just(ScopedCase(scoped.map((spec) => spec.filterLabels(f).getOrElse(Spec.empty)))),
+      f(label) ? Just(LabeledCase(spec, label)) : spec.filterLabels(f).map((spec) => LabeledCase(spec, label)),
+    Scoped: ({ scoped }) => Just(ScopedCase(scoped.map((spec) => spec.filterLabels(f).getOrElse(Spec.empty)))),
     Multiple: ({ specs }) => {
       const filtered = specs.filterMap((spec) => spec.filterLabels(f));
       return filtered.isEmpty ? Nothing() : Just(MultipleCase(filtered));
@@ -168,10 +152,7 @@ export function filterLabels_<R, E, T>(
 /**
  * @tsplus fluent fncts.test.control.PSpec filterTags
  */
-export function filterTags_<R, E, T>(
-  spec: PSpec<R, E, T>,
-  f: (tag: string) => boolean,
-): Maybe<PSpec<R, E, T>> {
+export function filterTags_<R, E, T>(spec: PSpec<R, E, T>, f: (tag: string) => boolean): Maybe<PSpec<R, E, T>> {
   return spec.filterAnnotations(TestAnnotation.Tagged, (v) => v.exists(f));
 }
 
@@ -182,9 +163,7 @@ export function filterByArgs<R, E>(spec: Spec<R, E>, args: TestArgs): Spec<R, E>
   return spec
     .filterTags(args.tagSearchTerms.elem(String.Eq))
     .chain((spec) =>
-      spec.filterLabels(
-        (label) => args.testSearchTerms.findIndex((term) => term.includes(label)) === -1,
-      ),
+      spec.filterLabels((label) => args.testSearchTerms.findIndex((term) => term.includes(label)) === -1),
     )
     .getOrElse(() => spec);
 }
@@ -212,8 +191,7 @@ export function foldScoped_<R, E, T, R1, E1, Z>(
 ): IO<R & R1 & Has<Scope>, E1, Z> {
   return matchTag_(spec.caseValue, {
     Exec: ({ exec, spec }) => spec.foldScoped(f, exec).chain((z) => f(new ExecCase(exec, z))),
-    Labeled: ({ label, spec }) =>
-      spec.foldScoped(f, defExec).chain((z) => f(new LabeledCase(label, z))),
+    Labeled: ({ label, spec }) => spec.foldScoped(f, defExec).chain((z) => f(new LabeledCase(label, z))),
     Scoped: ({ scoped }) =>
       scoped.matchCauseIO(
         (cause) => f(new ScopedCase(IO.haltNow(cause))),
@@ -292,10 +270,7 @@ export function mapError<R, E, T, E1>(self: PSpec<R, E, T>, f: (e: E) => E1): PS
 /**
  * @tsplus fluent fncts.test.control.SpecCase map
  */
-export function mapSpecCase_<R, E, T, A, B>(
-  fa: SpecCase<R, E, T, A>,
-  f: (a: A) => B,
-): SpecCase<R, E, T, B> {
+export function mapSpecCase_<R, E, T, A, B>(fa: SpecCase<R, E, T, A>, f: (a: A) => B): SpecCase<R, E, T, B> {
   return matchTag_(fa, {
     Exec: ({ exec, spec }) => new ExecCase(exec, f(spec)),
     Labeled: ({ label, spec }) => new LabeledCase(label, f(spec)),
@@ -317,10 +292,7 @@ export function multipleCase<R, E, T>(specs: Conc<PSpec<R, E, T>>): PSpec<R, E, 
 /**
  * @tsplus fluent fncts.test.control.PSpec provideEnvironment
  */
-export function provideEnvironment_<R, E, T>(
-  self: PSpec<R, E, T>,
-  r: Environment<R>,
-): PSpec<unknown, E, T> {
+export function provideEnvironment_<R, E, T>(self: PSpec<R, E, T>, r: Environment<R>): PSpec<unknown, E, T> {
   return self.contramapEnvironment(() => r);
 }
 
@@ -334,8 +306,7 @@ export function provideLayer_<RIn, E, ROut extends Spreadable, R, E1, T>(
   return self.transform(
     matchTag(
       {
-        Scoped: ({ scoped }) =>
-          new ScopedCase(scoped.provideLayer(Layer.environment<Has<Scope>>().and(layer))),
+        Scoped: ({ scoped }) => new ScopedCase(scoped.provideLayer(Layer.environment<Has<Scope>>().and(layer))),
         Test: ({ test, annotations }) => new TestCase(test.provideLayer(layer), annotations),
       },
       identity,
@@ -348,10 +319,7 @@ export function provideLayer_<RIn, E, ROut extends Spreadable, R, E1, T>(
  * @tsplus static fncts.test.control.PSpecOps test
  * @tsplus static fncts.test.control.PSpec.TestCaseOps __call
  */
-export function testCase<R, E, T>(
-  test: IO<R, E, T>,
-  annotations: TestAnnotationMap,
-): PSpec<R, E, T> {
+export function testCase<R, E, T>(test: IO<R, E, T>, annotations: TestAnnotationMap): PSpec<R, E, T> {
   return new PSpec(new TestCase(test, annotations));
 }
 
@@ -374,11 +342,7 @@ export function transform_<R, E, T, R1, E1, T1>(
 /**
  * @tsplus fluent fncts.test.control.PSpec annotate
  */
-export function annotate_<R, E, T, V>(
-  self: PSpec<R, E, T>,
-  key: TestAnnotation<V>,
-  value: V,
-): PSpec<R, E, T> {
+export function annotate_<R, E, T, V>(self: PSpec<R, E, T>, key: TestAnnotation<V>, value: V): PSpec<R, E, T> {
   return self.transform(
     matchTag(
       {
@@ -403,9 +367,7 @@ export function whenIO_<R, E, R1, E1>(
     Multiple: ({ specs }) => Spec.multiple(specs.map((_) => _.whenIO(b))),
     Test: (c) =>
       Spec.test(
-        b.chain((b) =>
-          IO.if(b, c.test, Annotations.annotate(TestAnnotation.Ignored, 1)).as(TestSuccess.Ignored),
-        ),
+        b.chain((b) => IO.if(b, c.test, Annotations.annotate(TestAnnotation.Ignored, 1)).as(TestSuccess.Ignored)),
         c.annotations,
       ),
   });

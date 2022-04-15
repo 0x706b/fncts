@@ -106,10 +106,7 @@ export function map_<E, A, B>(self: Take<E, A>, f: (a: A) => B): Take<E, B> {
  *
  * @tsplus fluent fncts.control.Stream.Take tap
  */
-export function tap_<R, E, E1, A>(
-  self: Take<E, A>,
-  f: (chunk: Conc<A>) => IO<R, E1, any>,
-): IO<R, E1, void> {
+export function tap_<R, E, E1, A>(self: Take<E, A>, f: (chunk: Conc<A>) => IO<R, E1, any>): IO<R, E1, void> {
   return self.exit.foreachIO(f);
 }
 

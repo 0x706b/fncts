@@ -51,10 +51,7 @@ export function multiple<E>(specs: Conc<ExecutedSpec<E>>): ExecutedSpec<E> {
 /**
  * @tsplus static fncts.test.data.ExecutedSpecOps test
  */
-export function test<E>(
-  test: Either<TestFailure<E>, TestSuccess>,
-  annotations: TestAnnotationMap,
-): ExecutedSpec<E> {
+export function test<E>(test: Either<TestFailure<E>, TestSuccess>, annotations: TestAnnotationMap): ExecutedSpec<E> {
   return new ExecutedSpec(new TestCase(test, annotations));
 }
 
@@ -67,8 +64,7 @@ export function transform_<E, E1>(
 ): ExecutedSpec<E1> {
   return matchTag_(self.caseValue, {
     Labeled: ({ label, spec }) => new ExecutedSpec(f(new LabeledCase(label, spec.transform(f)))),
-    Multiple: ({ specs }) =>
-      new ExecutedSpec(f(new MultipleCase(specs.map((spec) => spec.transform(f))))),
+    Multiple: ({ specs }) => new ExecutedSpec(f(new MultipleCase(specs.map((spec) => spec.transform(f))))),
     Test: (t) => new ExecutedSpec(f(t)),
   });
 }
@@ -76,10 +72,7 @@ export function transform_<E, E1>(
 /**
  * @tsplus fluent fncts.test.data.ExecutedSpec exists
  */
-export function exists_<E>(
-  self: ExecutedSpec<E>,
-  f: (_: SpecCase<E, boolean>) => boolean,
-): boolean {
+export function exists_<E>(self: ExecutedSpec<E>, f: (_: SpecCase<E, boolean>) => boolean): boolean {
   return self.fold(
     matchTag({
       Labeled: (c) => c.spec || f(c),

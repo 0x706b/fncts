@@ -55,8 +55,7 @@ function extractFailures<E>(executedSpec: ExecutedSpec<E>): Vector<ExecutedSpec<
   return executedSpec.fold(
     matchTag({
       Labeled: ({ label, spec }) => spec.map((spec) => ExecutedSpec.labeled(spec, label)),
-      Test: (c) =>
-        c.test.isLeft() ? Vector.single(new ExecutedSpec(c)) : Vector.empty<ExecutedSpec<E>>(),
+      Test: (c) => (c.test.isLeft() ? Vector.single(new ExecutedSpec(c)) : Vector.empty<ExecutedSpec<E>>()),
       Multiple: ({ specs }) => {
         const newSpecs = specs.chain(Conc.from);
         if (newSpecs.isNonEmpty) {

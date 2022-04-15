@@ -1,13 +1,13 @@
-import * as P from "../../prelude.js";
-import { EQ, GT, LT } from "../../prelude.js";
+import * as P from "../../typeclass.js";
+import { EQ, GT, LT } from "../../typeclass.js";
 
 /**
- * @tsplus static fncts.data.NumberOps Eq
+ * @tsplus static fncts.NumberOps Eq
  */
 export const Eq: P.Eq<number> = P.Eq({ equals_: (x, y) => x === y });
 
 /**
- * @tsplus static fncts.data.NumberOps Ord
+ * @tsplus static fncts.NumberOps Ord
  */
 export const Ord: P.Ord<number> = P.Ord({
   compare_: (x, y) => (x < y ? LT : x > y ? GT : EQ),

@@ -1,13 +1,13 @@
 /**
- * @tsplus type fncts.data.LogSpan
- * @tsplus companion fncts.data.LogSpanOps
+ * @tsplus type fncts.LogSpan
+ * @tsplus companion fncts.LogSpanOps
  */
 export class LogSpan {
   constructor(readonly label: string, readonly startTime: number) {}
 }
 
 /**
- * @tsplus fluent fncts.data.LogSpan render
+ * @tsplus fluent fncts.LogSpan render
  */
 export function render(self: LogSpan, now: number): string {
   let s = "";

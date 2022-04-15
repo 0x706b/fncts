@@ -29,8 +29,7 @@ export const POptional: POptionalOps = {};
  */
 export function mkPOptional<S, T, A, B>(F: POptionalMin<S, T, A, B>): POptional<S, T, A, B> {
   const getMaybe: getMaybe<S, A>               = (s) => F.getOrModify(s).getRight;
-  const modifyMaybe_: modifyMaybe_<S, T, A, B> = (s, f) =>
-    getMaybe(s).map((a) => F.replace_(s, f(a)));
+  const modifyMaybe_: modifyMaybe_<S, T, A, B> = (s, f) => getMaybe(s).map((a) => F.replace_(s, f(a)));
 
   return {
     getOrModify: F.getOrModify,

@@ -2,10 +2,8 @@
  * @tsplus getter fncts.control.IO repeat
  */
 export function repeat_<R, E, A>(self: IO<R, E, A>) {
-  return <R1, B>(
-    schedule0: Lazy<Schedule<R1, A, B>>,
-    __tsplusTrace?: string,
-  ): IO<Has<Clock> & R & R1, E, B> => self.repeatOrElse(schedule0, (e, _) => IO.fail(e));
+  return <R1, B>(schedule0: Lazy<Schedule<R1, A, B>>, __tsplusTrace?: string): IO<Has<Clock> & R & R1, E, B> =>
+    self.repeatOrElse(schedule0, (e, _) => IO.fail(e));
 }
 
 /**
@@ -16,8 +14,7 @@ export function repeatOrElse_<R, E, A>(self: IO<R, E, A>) {
     schedule0: Lazy<Schedule<R1, A, B>>,
     orElse: (e: E, out: Maybe<B>) => IO<R2, E2, B>,
     __tsplusTrace?: string,
-  ): IO<Has<Clock> & R & R1 & R2, E2, B> =>
-    self.repeatOrElseEither(schedule0, orElse).map((_) => _.value);
+  ): IO<Has<Clock> & R & R1 & R2, E2, B> => self.repeatOrElseEither(schedule0, orElse).map((_) => _.value);
 }
 
 /**

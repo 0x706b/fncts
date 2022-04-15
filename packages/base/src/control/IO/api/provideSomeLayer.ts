@@ -16,10 +16,7 @@ export function provideSomeLayer_<R, E, A, RIn, E1, ROut>(
 /**
  * @tsplus static fncts.control.IOAspects provideSomeLayer
  */
-export function provideSomeLayer<RIn, E1, ROut>(
-  layer: Layer<RIn, E1, ROut>,
-  __tsplusTrace?: string,
-) {
+export function provideSomeLayer<RIn, E1, ROut>(layer: Layer<RIn, E1, ROut>, __tsplusTrace?: string) {
   return <R, E, A>(self: IO<R & ROut, E, A>): IO<R & RIn, E | E1, A> =>
     // @ts-expect-error
     self.provideSomeLayer(layer);

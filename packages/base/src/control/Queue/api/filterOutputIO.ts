@@ -1,17 +1,7 @@
 import { concrete, QueueInternal } from "@fncts/base/control/Queue/definition";
 
-export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<
-  RA,
-  RB & RB1,
-  EA,
-  EB | EB1,
-  A,
-  B
-> {
-  constructor(
-    readonly queue: QueueInternal<RA, RB, EA, EB, A, B>,
-    readonly f: (b: B) => IO<RB1, EB1, boolean>,
-  ) {
+export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, RB & RB1, EA, EB | EB1, A, B> {
+  constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RB1, EB1, boolean>) {
     super();
   }
 
@@ -37,9 +27,7 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
     this.f(b).chain((p) => (p ? IO.succeedNow(b) : this.take)),
   );
 
-  takeAll: IO<RB & RB1, EB | EB1, Conc<B>> = this.queue.takeAll.chain((bs) =>
-    IO.filter(bs, this.f),
-  );
+  takeAll: IO<RB & RB1, EB | EB1, Conc<B>> = this.queue.takeAll.chain((bs) => IO.filter(bs, this.f));
 
   loop(max: number, acc: Conc<B>): IO<RB & RB1, EB | EB1, Conc<B>> {
     return this.queue.takeUpTo(max).chain((bs) => {

@@ -16,26 +16,8 @@ import { identity } from "@fncts/base/data/function";
 import { Stack } from "@fncts/base/internal/Stack";
 
 type ErasedChannel<R> = Channel<R, unknown, unknown, unknown, unknown, unknown, unknown>;
-export type ErasedExecutor<R> = ChannelExecutor<
-  R,
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  unknown
->;
-type ErasedContinuation<R> = Continuation<
-  R,
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  unknown,
-  unknown
->;
+export type ErasedExecutor<R> = ChannelExecutor<R, unknown, unknown, unknown, unknown, unknown, unknown>;
+type ErasedContinuation<R> = Continuation<R, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
 
 type Finalizer<R> = (exit: Exit<unknown, unknown>) => URIO<R, unknown>;
 
@@ -338,9 +320,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                           );
                         }
                         case State.ChannelStateTag.Emit: {
-                          return currentChannel.input
-                            .emit(inputExecutor.getEmit())
-                            .chain(() => drainer);
+                          return currentChannel.input.emit(inputExecutor.getEmit()).chain(() => drainer);
                         }
                         case State.ChannelStateTag.Effect: {
                           return state.effect.matchCauseIO(
@@ -451,10 +431,9 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 break;
               }
               case ChannelTag.Emit: {
-                this.emitted = currentChannel.out();
-                this.currentChannel =
-                  this.activeSubexecutor !== null ? null : Channel.endNow(undefined);
-                result = State._Emit;
+                this.emitted        = currentChannel.out();
+                this.currentChannel = this.activeSubexecutor !== null ? null : Channel.endNow(undefined);
+                result              = State._Emit;
                 break;
               }
               case ChannelTag.Ensuring: {
@@ -464,15 +443,10 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               case ChannelTag.ConcatAll: {
                 const innerExecuteLastClose = (f: URIO<Env, any>) =>
                   IO.succeed(() => {
-                    const prevLastClose =
-                      this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
+                    const prevLastClose     = this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
                     this.closeLastSubstream = prevLastClose.chain(() => f);
                   });
-                const exec = new ChannelExecutor(
-                  () => currentChannel.value,
-                  this.providedEnv,
-                  innerExecuteLastClose,
-                );
+                const exec             = new ChannelExecutor(() => currentChannel.value, this.providedEnv, innerExecuteLastClose);
                 exec.input             = this.input;
                 this.activeSubexecutor = new PullFromUpstream(
                   exec,
@@ -518,10 +492,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     return result as ChannelState<Env, OutErr>;
   }
 
-  private restorePipe(
-    exit: Exit<unknown, unknown>,
-    prev: ErasedExecutor<Env> | null,
-  ): IO<Env, never, unknown> | null {
+  private restorePipe(exit: Exit<unknown, unknown>, prev: ErasedExecutor<Env> | null): IO<Env, never, unknown> | null {
     const currInput = this.input;
     this.input      = prev;
     return currInput !== null ? currInput.close(exit) : IO.unit;
@@ -547,9 +518,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         }
       }
     };
-    const effect = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).chain(
-      IO.fromExitNow,
-    );
+    const effect   = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).chain(IO.fromExitNow);
     this.doneStack = Nil();
     this.storeInProgressFinalizer(effect);
     return effect;
@@ -1090,9 +1059,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     this.doneStack = this.doneStack.prepend(new ContinuationFinalizer(f));
   }
 
-  private runBracketOut(
-    bracketOut: BracketOut<Env, unknown, unknown, unknown>,
-  ): ChannelState<Env, unknown> | null {
+  private runBracketOut(bracketOut: BracketOut<Env, unknown, unknown, unknown>): ChannelState<Env, unknown> | null {
     return new State.Effect(
       IO.uninterruptibleMask(({ restore }) =>
         restore(bracketOut.acquire).matchCauseIO(

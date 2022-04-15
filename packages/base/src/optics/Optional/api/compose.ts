@@ -9,8 +9,7 @@ export function compose_<S, T, A, B, C, D>(
   that: POptional<A, B, C, D>,
 ): POptional<S, T, C, D> {
   return POptional({
-    getOrModify: (s) =>
-      self.getOrModify(s).chain((a) => that.getOrModify(a).bimap((b) => self.set_(s, b), identity)),
+    getOrModify: (s) => self.getOrModify(s).chain((a) => that.getOrModify(a).bimap((b) => self.set_(s, b), identity)),
     replace_: (s, d) => self.modify_(s, that.set(d)),
   });
 }

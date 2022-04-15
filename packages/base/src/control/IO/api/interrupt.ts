@@ -74,9 +74,7 @@ export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: stri
  *
  * @tsplus static fncts.control.IOOps uninterruptibleMask
  */
-export function uninterruptibleMask<R, E, A>(
-  f: (restore: InterruptStatusRestore) => IO<R, E, A>,
-): IO<R, E, A> {
+export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore) => IO<R, E, A>): IO<R, E, A> {
   return IO.checkInterruptible((flag) => f(new InterruptStatusRestore(flag)).uninterruptible);
 }
 

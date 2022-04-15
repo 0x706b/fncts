@@ -18,10 +18,7 @@ export function component_<S, A extends ReadonlyArray<unknown>, P extends keyof 
 /**
  * @tsplus fluent fncts.optics.PLens compose
  */
-export function compose_<S, T, A, B, C, D>(
-  self: PLens<S, T, A, B>,
-  that: PLens<A, B, C, D>,
-): PLens<S, T, C, D> {
+export function compose_<S, T, A, B, C, D>(self: PLens<S, T, A, B>, that: PLens<A, B, C, D>): PLens<S, T, C, D> {
   return PLens({
     get: self.get.compose(that.get),
     set_: (s, d) => self.modify_(s, that.set(d)),
@@ -92,10 +89,7 @@ export function invmap_<S, A, B>(self: Lens<S, A>, f: (a: A) => B, g: (b: B) => 
 /**
  * @tsplus fluent fncts.optics.Lens prop
  */
-export function prop_<S, A extends Record<string, any>, P extends keyof A>(
-  self: Lens<S, A>,
-  prop: P,
-): Lens<S, A[P]> {
+export function prop_<S, A extends Record<string, any>, P extends keyof A>(self: Lens<S, A>, prop: P): Lens<S, A[P]> {
   return self.compose(Lens.getProp<A>()(prop));
 }
 
@@ -125,11 +119,7 @@ export function path_<S, A extends Record<string, unknown>, P extends Array<stri
   path: readonly [...AutoPath<A, P>],
 ): Lens<S, Path<A, P>> {
   return Lens({
-    get: (s) =>
-      path.foldLeft<string, Record<string, unknown>>(self.get(s), (b, p) => b[p] as A) as Path<
-        A,
-        P
-      >,
+    get: (s) => path.foldLeft<string, Record<string, unknown>>(self.get(s), (b, p) => b[p] as A) as Path<A, P>,
     set_: (s, a) => {
       const os = self.get(s);
       const oa = path.foldLeft(os, (b, p) => b[p as string] as A);

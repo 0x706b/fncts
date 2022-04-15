@@ -1,18 +1,19 @@
-import type { Eq } from "@fncts/base/prelude";
+import type { Eq } from "@fncts/base/typeclass";
 
 /**
  * @tsplus getter fncts.base.Array elem
  * @tsplus getter fncts.base.ReadonlyArray elem
  */
 export function elem<A>(self: ReadonlyArray<A>) {
-  return (eq: Eq<A>) => (a: A): boolean => {
-    for (let i = 0; i < self.length; i++) {
-      if (eq.equals_(self[i]!, a)) {
-        return true;
+  return (eq: Eq<A>) =>
+    (a: A): boolean => {
+      for (let i = 0; i < self.length; i++) {
+        if (eq.equals_(self[i]!, a)) {
+          return true;
+        }
       }
-    }
-    return false;
-  };
+      return false;
+    };
 }
 
 /**
@@ -43,11 +44,7 @@ export function foldLeft<A, B>(self: ReadonlyArray<A>, b: B, f: (b: B, a: A) => 
  * @tsplus fluent fncts.base.Array foldLeftWithIndex
  * @tsplus fluent fncts.base.ReadonlyArray foldLeftWithIndex
  */
-export function foldLeftWithIndex<A, B>(
-  self: ReadonlyArray<A>,
-  b: B,
-  f: (i: number, b: B, a: A) => B,
-): B {
+export function foldLeftWithIndex<A, B>(self: ReadonlyArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   let out = b;
   for (let i = 0; i < self.length; i++) {
     out = f(i, b, self[i]!);

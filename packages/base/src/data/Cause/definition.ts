@@ -1,18 +1,18 @@
-import * as P from "../../prelude.js";
-import { Hashable } from "../../prelude.js";
+import * as P from "../../typeclass.js";
+import { Hashable } from "../../typeclass.js";
 import { isObject } from "../../util/predicates.js";
 import { tuple } from "../function.js";
 
-export const CauseTypeId = Symbol.for("fncts.data.Cause");
+export const CauseTypeId = Symbol.for("fncts.Cause");
 export type CauseTypeId = typeof CauseTypeId;
 
 /**
- * @tsplus type fncts.data.Cause
+ * @tsplus type fncts.Cause
  */
 export type Cause<E> = Empty | Halt | Interrupt | Fail<E> | Then<E> | Both<E> | Stackless<E>;
 
 /**
- * @tsplus type fncts.data.CauseOps
+ * @tsplus type fncts.CauseOps
  */
 export interface CauseOps {}
 
@@ -32,10 +32,10 @@ export const enum CauseTag {
   Stackless = "Stackless",
 }
 
-const _emptyHash = P.Hashable.hashString("fncts.data.Cause");
+const _emptyHash = P.Hashable.hashString("fncts.Cause");
 
 /**
- * @tsplus companion fncts.data.Cause.EmptyOps
+ * @tsplus companion fncts.Cause.EmptyOps
  */
 export class Empty {
   readonly _E!: () => never;
@@ -68,7 +68,7 @@ export class Empty {
 export const _Empty = new Empty();
 
 /**
- * @tsplus companion fncts.data.Cause.FailOps
+ * @tsplus companion fncts.Cause.FailOps
  */
 export class Fail<E> {
   readonly _E!: () => E;
@@ -105,7 +105,7 @@ export class Fail<E> {
 }
 
 /**
- * @tsplus companion fncts.data.Cause.HaltOps
+ * @tsplus companion fncts.Cause.HaltOps
  */
 export class Halt {
   readonly _E!: () => never;
@@ -142,7 +142,7 @@ export class Halt {
 }
 
 /**
- * @tsplus companion fncts.data.Cause.InterruptOps
+ * @tsplus companion fncts.Cause.InterruptOps
  */
 export class Interrupt {
   readonly _E!: () => never;
@@ -180,7 +180,7 @@ export class Interrupt {
 }
 
 /**
- * @tsplus companion fncts.data.Cause.ThenOps
+ * @tsplus companion fncts.Cause.ThenOps
  */
 export class Then<E> {
   readonly _E!: () => E;
@@ -213,7 +213,7 @@ export class Then<E> {
 }
 
 /**
- * @tsplus companion fncts.data.Cause.BothOps
+ * @tsplus companion fncts.Cause.BothOps
  */
 export class Both<E> {
   readonly _E!: () => E;
@@ -246,7 +246,7 @@ export class Both<E> {
 }
 
 /**
- * @tsplus companion fncts.data.Cause.StacklessOps
+ * @tsplus companion fncts.Cause.StacklessOps
  */
 export class Stackless<E> {
   readonly _E!: () => E;
@@ -270,11 +270,7 @@ export class Stackless<E> {
 }
 
 export class Unified {
-  constructor(
-    readonly fiberId: FiberId,
-    readonly message: ReadonlyArray<string>,
-    readonly trace: Conc<string>,
-  ) {}
+  constructor(readonly fiberId: FiberId, readonly message: ReadonlyArray<string>, readonly trace: Conc<string>) {}
 }
 
 /*
@@ -484,10 +480,7 @@ function step<A>(cause: Cause<A>): readonly [HashSet<Cause<A>>, List<Cause<A>>] 
   return stepLoop(cause, Nil(), HashSet.makeDefault(), Nil());
 }
 
-function flattenLoop<A>(
-  causes: List<Cause<A>>,
-  flattened: List<HashSet<Cause<A>>>,
-): List<HashSet<Cause<A>>> {
+function flattenLoop<A>(causes: List<Cause<A>>, flattened: List<HashSet<Cause<A>>>): List<HashSet<Cause<A>>> {
   // eslint-disable-next-line no-constant-condition
   while (1) {
     const [parallel, sequential] = causes.foldLeft(

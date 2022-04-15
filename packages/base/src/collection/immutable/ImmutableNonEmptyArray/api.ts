@@ -2,7 +2,7 @@ import type { ImmutableNonEmptyArrayF } from "@fncts/base/collection/immutable/I
 
 import { allocWithHead } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/constructors";
 import { identity } from "@fncts/base/data/function";
-import * as P from "@fncts/base/prelude";
+import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray ap
@@ -17,10 +17,7 @@ export function ap_<A, B>(
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray append
  */
-export function append_<A, B>(
-  self: ImmutableNonEmptyArray<A>,
-  last: B,
-): ImmutableNonEmptyArray<A | B> {
+export function append_<A, B>(self: ImmutableNonEmptyArray<A>, last: B): ImmutableNonEmptyArray<A | B> {
   const len = self.length;
   const r   = Array<A | B>(len + 1);
   r[len]    = last;
@@ -143,10 +140,7 @@ export function chunksOf_<A>(
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray concat
  */
-export function concat_<A, B>(
-  self: ImmutableNonEmptyArray<A>,
-  that: ImmutableArray<B>,
-): ImmutableNonEmptyArray<A | B> {
+export function concat_<A, B>(self: ImmutableNonEmptyArray<A>, that: ImmutableArray<B>): ImmutableNonEmptyArray<A | B> {
   const leny = that.length;
   if (leny === 0) {
     return self;
@@ -201,9 +195,7 @@ export function elemSelf<A>(self: ImmutableNonEmptyArray<A>) {
 /**
  * @tsplus getter fncts.ImmutableNonEmptyArray flatten
  */
-export function flatten<A>(
-  self: ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>>,
-): ImmutableNonEmptyArray<A> {
+export function flatten<A>(self: ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>>): ImmutableNonEmptyArray<A> {
   return self.chain(identity);
 }
 
@@ -231,11 +223,7 @@ export function foldLeft_<A, B>(self: ImmutableNonEmptyArray<A>, b: B, f: (b: B,
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(
-  self: ImmutableNonEmptyArray<A>,
-  b: B,
-  f: (i: number, b: B, a: A) => B,
-): B {
+export function foldLeftWithIndex_<A, B>(self: ImmutableNonEmptyArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   const len = self.length;
   let r     = b;
   for (let i = 0; i < len; i++) {
@@ -290,11 +278,7 @@ export function foldRight_<A, B>(self: ImmutableNonEmptyArray<A>, b: B, f: (a: A
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray foldRightWithIndex
  */
-export function foldRightWithIndex_<A, B>(
-  self: ImmutableNonEmptyArray<A>,
-  b: B,
-  f: (i: number, a: A, b: B) => B,
-): B {
+export function foldRightWithIndex_<A, B>(self: ImmutableNonEmptyArray<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   let r = b;
   for (let i = self.length - 1; i >= 0; i--) {
     r = f(i, self._array[i]!, r);
@@ -346,10 +330,7 @@ export function isOutOfBound_<A>(as: ImmutableNonEmptyArray<A>, i: number): bool
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray map
  */
-export function map_<A, B>(
-  self: ImmutableNonEmptyArray<A>,
-  f: (a: A) => B,
-): ImmutableNonEmptyArray<B> {
+export function map_<A, B>(self: ImmutableNonEmptyArray<A>, f: (a: A) => B): ImmutableNonEmptyArray<B> {
   return self.mapWithIndex((_, a) => f(a));
 }
 
@@ -407,10 +388,7 @@ export function mutableClone<A>(as: ImmutableNonEmptyArray<A>): ImmutableNonEmpt
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray prepend
  */
-export function prepend_<A, B>(
-  self: ImmutableNonEmptyArray<A>,
-  head: B,
-): ImmutableNonEmptyArray<A | B> {
+export function prepend_<A, B>(self: ImmutableNonEmptyArray<A>, head: B): ImmutableNonEmptyArray<A | B> {
   const len = self.length;
   const out = Array<A | B>(len + 1);
   out[0]    = head;
@@ -434,8 +412,7 @@ export function reverse<A>(self: ImmutableNonEmptyArray<A>): ImmutableNonEmptyAr
   return ImmutableNonEmptyArray.from(out);
 }
 
-export const sequence: P.sequence<ImmutableNonEmptyArrayF> = (A) => (self) =>
-  self.traverse(A)(identity);
+export const sequence: P.sequence<ImmutableNonEmptyArrayF> = (A) => (self) => self.traverse(A)(identity);
 
 /**
  * @tsplus getter fncts.ImmutableNonEmptyArray sequence
@@ -460,17 +437,13 @@ export function sort<B>(O: P.Ord<B>) {
   return <A extends B>(self: ImmutableNonEmptyArray<A>): ImmutableNonEmptyArray<A> =>
     self.length === 1
       ? self
-      : self._array.slice().sort((first, second) => O.compare_(first, second))
-          .unsafeAsNonEmptyArray;
+      : self._array.slice().sort((first, second) => O.compare_(first, second)).unsafeAsNonEmptyArray;
 }
 
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray sort
  */
-export function sortSelf<A extends B, B>(
-  self: ImmutableNonEmptyArray<A>,
-  O: P.Ord<B>,
-): ImmutableNonEmptyArray<A> {
+export function sortSelf<A extends B, B>(self: ImmutableNonEmptyArray<A>, O: P.Ord<B>): ImmutableNonEmptyArray<A> {
   return sort(O)(self);
 }
 
@@ -486,9 +459,8 @@ export const traverseWithIndex_: P.traverseWithIndex_<ImmutableNonEmptyArrayF> =
 /**
  * @tsplus getter fncts.ImmutableNonEmptyArray traverseWithIndex
  */
-export const traverseWithIndexSelf: P.traverseWithIndexSelf<ImmutableNonEmptyArrayF> =
-  (self) => (A) => (f) =>
-    traverseWithIndex_(A)(self, f);
+export const traverseWithIndexSelf: P.traverseWithIndexSelf<ImmutableNonEmptyArrayF> = (self) => (A) => (f) =>
+  traverseWithIndex_(A)(self, f);
 
 export const traverse_: P.traverse_<ImmutableNonEmptyArrayF> = (A) => (self, f) =>
   self.traverseWithIndex(A)((_, a) => f(a));

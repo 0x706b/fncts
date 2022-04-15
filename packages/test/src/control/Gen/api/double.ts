@@ -37,9 +37,7 @@ export function arrayInt64(min: ArrayInt64, max: ArrayInt64): Gen<Has<Random>, A
 /**
  * @tsplus static fncts.test.control.GenOps double
  */
-export function double(
-  constraints: NumberConstraints & FloatConstraints = {},
-): Gen<Has<Random>, number> {
+export function double(constraints: NumberConstraints & FloatConstraints = {}): Gen<Has<Random>, number> {
   const {
     noDefaultInfinity = false,
     noNaN = false,
@@ -51,11 +49,7 @@ export function double(
       const minIndex = yield* _(safeDoubleToIndex(min, "min"));
       const maxIndex = yield* _(safeDoubleToIndex(max, "max"));
       if (isStrictlySmaller64(maxIndex, minIndex)) {
-        return yield* _(
-          IO.haltNow(
-            new IllegalArgumentError("min must be less than or equal to max", "Gen.double"),
-          ),
-        );
+        return yield* _(IO.haltNow(new IllegalArgumentError("min must be less than or equal to max", "Gen.double")));
       }
       if (noNaN) {
         return arrayInt64(minIndex, maxIndex).map(indexToDouble);
@@ -64,8 +58,7 @@ export function double(
       const minIndexWithNaN = positiveMaxIdx ? minIndex : substract64(minIndex, Unit64);
       const maxIndexWithNaN = positiveMaxIdx ? add64(maxIndex, Unit64) : maxIndex;
       return arrayInt64(minIndexWithNaN, maxIndexWithNaN).map((index) => {
-        if (isStrictlySmaller64(maxIndex, index) || isStrictlySmaller64(index, minIndex))
-          return Number.NaN;
+        if (isStrictlySmaller64(maxIndex, index) || isStrictlySmaller64(index, minIndex)) return Number.NaN;
         else return indexToDouble(index);
       });
     }),

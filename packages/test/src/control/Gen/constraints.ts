@@ -1,5 +1,5 @@
 import type { Gen } from "./definition.js";
-import type { Eq } from "@fncts/base/prelude";
+import type { Eq } from "@fncts/base/typeclass";
 
 export interface LengthConstraints {
   minLength?: number;

@@ -321,15 +321,15 @@ import { TraceElement } from "@fncts/base/data/TraceElement/definition";
 /**
  * @tsplus global
  */
-import { Equatable } from "@fncts/base/prelude/Equatable";
+import { Equatable } from "@fncts/base/typeclass/Equatable";
 /**
  * @tsplus global
  */
-import { Has } from "@fncts/base/prelude/Has";
+import { Has } from "@fncts/base/typeclass/Has";
 /**
  * @tsplus global
  */
-import { Hashable } from "@fncts/base/prelude/Hashable";
+import { Hashable } from "@fncts/base/typeclass/Hashable";
 /**
  * @tsplus global
  */

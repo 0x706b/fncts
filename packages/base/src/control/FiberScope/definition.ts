@@ -23,10 +23,7 @@ export class Global extends FiberScope {
 }
 
 export class Local extends FiberScope {
-  constructor(
-    readonly fiberId: FiberId,
-    private parentRef: WeakRef<FiberContext<unknown, unknown>>,
-  ) {
+  constructor(readonly fiberId: FiberId, private parentRef: WeakRef<FiberContext<unknown, unknown>>) {
     super();
   }
   unsafeAdd(child: FiberContext<unknown, unknown>): boolean {

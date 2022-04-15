@@ -12,10 +12,7 @@ export function auto<R, Error, Resource>(
   return IO.gen(function* (_) {
     const manual = yield* _(Cached.manual(acquire));
     yield* _(
-      IO.acquireRelease(
-        IO.interruptible(manual.refresh.schedule(policy)).forkDaemon,
-        (fiber) => fiber.interrupt,
-      ),
+      IO.acquireRelease(IO.interruptible(manual.refresh.schedule(policy)).forkDaemon, (fiber) => fiber.interrupt),
     );
     return manual;
   });
@@ -24,10 +21,7 @@ export function auto<R, Error, Resource>(
 /**
  * @tsplus getter fncts.control.Cached get
  */
-export function get_<Error, Resource>(
-  self: Cached<Error, Resource>,
-  __tsplusTrace?: string,
-): FIO<Error, Resource> {
+export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, Resource> {
   concrete(self);
   return self.get;
 }
@@ -46,10 +40,7 @@ export function manual<R, Error, Resource>(
 }
 
 class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
-  constructor(
-    readonly ref: ScopedRef<Exit<Error, Resource>>,
-    readonly acquire: IO<Has<Scope>, Error, Resource>,
-  ) {
+  constructor(readonly ref: ScopedRef<Exit<Error, Resource>>, readonly acquire: IO<Has<Scope>, Error, Resource>) {
     super();
   }
   get: FIO<Error, Resource> = this.ref.get.chain(IO.fromExitNow);
@@ -59,10 +50,7 @@ class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
 /**
  * @tsplus getter fncts.control.Cached refresh
  */
-export function refresh_<Error, Resource>(
-  self: Cached<Error, Resource>,
-  __tsplusTrace?: string,
-): FIO<Error, void> {
+export function refresh_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, void> {
   concrete(self);
   return self.refresh;
 }

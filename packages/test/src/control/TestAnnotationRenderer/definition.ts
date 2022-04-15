@@ -9,9 +9,7 @@ export const enum TestAnnotationRendererTag {
 export class LeafRenderer {
   readonly _tag = TestAnnotationRendererTag.LeafRenderer;
   constructor(
-    readonly use: <X>(
-      f: <V>(annotation: TestAnnotation<V>, render: (_: List<V>) => Maybe<string>) => X,
-    ) => X,
+    readonly use: <X>(f: <V>(annotation: TestAnnotation<V>, render: (_: List<V>) => Maybe<string>) => X) => X,
   ) {}
 
   run(ancestors: List<TestAnnotationMap>, child: TestAnnotationMap): List<string> {

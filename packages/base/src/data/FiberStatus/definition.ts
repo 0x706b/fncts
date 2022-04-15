@@ -6,7 +6,7 @@ export const enum FiberStatusTag {
 }
 
 /**
- * @tsplus companion fncts.data.FiberStatus.DoneOps
+ * @tsplus companion fncts.FiberStatus.DoneOps
  */
 export class Done {
   readonly _tag = FiberStatusTag.Done;
@@ -21,7 +21,7 @@ export class Done {
 }
 
 /**
- * @tsplus companion fncts.data.FiberStatus.FinishingOps
+ * @tsplus companion fncts.FiberStatus.FinishingOps
  */
 export class Finishing {
   readonly _tag = FiberStatusTag.Finishing;
@@ -37,7 +37,7 @@ export class Finishing {
 }
 
 /**
- * @tsplus companion fncts.data.FiberStatus.RunningOps
+ * @tsplus companion fncts.FiberStatus.RunningOps
  */
 export class Running {
   readonly _tag = FiberStatusTag.Running;
@@ -53,7 +53,7 @@ export class Running {
 }
 
 /**
- * @tsplus companion fncts.data.FiberStatus.SuspendedOps
+ * @tsplus companion fncts.FiberStatus.SuspendedOps
  */
 export class Suspended {
   readonly _tag = FiberStatusTag.Suspended;
@@ -70,23 +70,17 @@ export class Suspended {
   }
 
   withInterrupting(newInterrupting: boolean) {
-    return new Suspended(
-      newInterrupting,
-      this.interruptible,
-      this.epoch,
-      this.blockingOn,
-      this.asyncTrace,
-    );
+    return new Suspended(newInterrupting, this.interruptible, this.epoch, this.blockingOn, this.asyncTrace);
   }
 }
 
 /**
- * @tsplus type fncts.data.FiberStatus
+ * @tsplus type fncts.FiberStatus
  */
 export type FiberStatus = Done | Finishing | Running | Suspended;
 
 /**
- * @tsplus type fncts.data.FiberStatusOps
+ * @tsplus type fncts.FiberStatusOps
  */
 export interface FiberStatusOps {}
 

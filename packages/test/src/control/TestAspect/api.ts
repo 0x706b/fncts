@@ -18,9 +18,7 @@ export const id: TestAspectPoly = Function.identity;
 export const ignore: TestAspectAtLeastR<Has<Annotations>> = (spec) => spec.when(false);
 
 export function perTest<R, E>(
-  f: <R1, E1>(
-    test: IO<R1, TestFailure<E1>, TestSuccess>,
-  ) => IO<R & R1, TestFailure<E | E1>, TestSuccess>,
+  f: <R1, E1>(test: IO<R1, TestFailure<E1>, TestSuccess>) => IO<R & R1, TestFailure<E | E1>, TestSuccess>,
 ): TestAspect<R, E> {
   return (spec) =>
     spec.transform(
@@ -36,18 +34,14 @@ export function perTest<R, E>(
 export function after<R, E, A>(effect: IO<R, E, A>): TestAspect<R, E> {
   return perTest<R, E>((test) =>
     test.result
-      .zipWith(
-        effect.catchAllCause((cause) => IO.fail(new RuntimeFailure(cause))).result,
-        (ex0, ex1) => ex0.apFirst(ex1),
+      .zipWith(effect.catchAllCause((cause) => IO.fail(new RuntimeFailure(cause))).result, (ex0, ex1) =>
+        ex0.apFirst(ex1),
       )
       .chain(IO.fromExitNow),
   );
 }
 
-export function around<R, E, A, R1>(
-  before: IO<R, E, A>,
-  after: (a: A) => IO<R1, never, any>,
-): TestAspect<R & R1, E> {
+export function around<R, E, A, R1>(before: IO<R, E, A>, after: (a: A) => IO<R1, never, any>): TestAspect<R & R1, E> {
   return perTest<R & R1, E>((test) =>
     before.catchAllCause((c) => IO.fail(new RuntimeFailure(c))).bracket(() => test, after),
   );
@@ -111,11 +105,7 @@ export function timeoutWarning(duration: number): TestAspect<Has<Live>, any> {
   };
 }
 
-function warn<R, E>(
-  labels: Vector<string>,
-  test: IO<R, TestFailure<E>, TestSuccess>,
-  duration: number,
-) {
+function warn<R, E>(labels: Vector<string>, test: IO<R, TestFailure<E>, TestSuccess>, duration: number) {
   return test.raceWith(
     Live.withLive(showWarning(labels, duration), (io) => Clock.sleep(duration) > io),
     (result, fiber) => fiber.interrupt > IO.fromExitNow(result),

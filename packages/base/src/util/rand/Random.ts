@@ -61,10 +61,7 @@ export class MutableRandom {
    */
   nextInt(min: number, max: number): number;
   nextInt(min?: number, max?: number): number {
-    return this.uniformIn(
-      min == null ? MutableRandom.MIN_INT : min,
-      max == null ? MutableRandom.MAX_INT : max,
-    );
+    return this.uniformIn(min == null ? MutableRandom.MIN_INT : min, max == null ? MutableRandom.MAX_INT : max);
   }
 
   /**

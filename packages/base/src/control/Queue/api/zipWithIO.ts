@@ -1,23 +1,14 @@
 import { concrete, QueueInternal } from "@fncts/base/control/Queue/definition";
 import { tuple } from "@fncts/base/data/function";
 
-export class ZipWithIO<
-  RA,
-  RB,
-  EA,
-  EB,
-  RA1,
-  RB1,
-  EA1,
-  EB1,
-  A1 extends A,
-  C,
-  B,
-  R3,
-  E3,
-  D,
-  A,
-> extends QueueInternal<RA & RA1, RB & RB1 & R3, EA | EA1, E3 | EB | EB1, A1, D> {
+export class ZipWithIO<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, R3, E3, D, A> extends QueueInternal<
+  RA & RA1,
+  RB & RB1 & R3,
+  EA | EA1,
+  E3 | EB | EB1,
+  A1,
+  D
+> {
   constructor(
     readonly fa: QueueInternal<RA, RB, EA, EB, A, B>,
     readonly fb: QueueInternal<RA1, RB1, EA1, EB1, A1, C>,
@@ -44,9 +35,7 @@ export class ZipWithIO<
 
   size: UIO<number> = this.fa.size.zipWithC(this.fb.size, (x, y) => Math.max(x, y));
 
-  take: IO<RB & RB1 & R3, E3 | EB | EB1, D> = this.fa.take
-    .zipC(this.fb.take)
-    .chain(([b, c]) => this.f(b, c));
+  take: IO<RB & RB1 & R3, E3 | EB | EB1, D> = this.fa.take.zipC(this.fb.take).chain(([b, c]) => this.f(b, c));
 
   takeAll: IO<RB & RB1 & R3, E3 | EB | EB1, Conc<D>> = this.fa.takeAll
     .zipC(this.fb.takeAll)

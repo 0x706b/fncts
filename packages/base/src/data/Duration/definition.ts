@@ -1,11 +1,11 @@
 import { hasTypeId } from "../../util/predicates.js";
 
-export const DurationTypeId = Symbol.for("fncts.data.Duration");
+export const DurationTypeId = Symbol.for("fncts.Duration");
 export type DurationTypeId = typeof DurationTypeId;
 
 /**
- * @tsplus type fncts.data.Duration
- * @tsplus companion fncts.data.DurationOps
+ * @tsplus type fncts.Duration
+ * @tsplus companion fncts.DurationOps
  */
 export class Duration implements Equatable, Hashable {
   readonly _typeId: DurationTypeId = DurationTypeId;

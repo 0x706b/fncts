@@ -1,5 +1,5 @@
 /**
- * @tsplus type fncts.data.Predicate
+ * @tsplus type fncts.Predicate
  */
 export interface Predicate<A> {
   (a: A): boolean;

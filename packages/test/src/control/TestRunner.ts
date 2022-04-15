@@ -21,14 +21,10 @@ export class TestRunner<R, E> {
     reporter?: TestReporter<E>,
     bootstrap?: Layer<unknown, never, Has<TestLogger> & Has<Clock>>,
   ) {
-    this.reporter =
-      reporter ??
-      DefaultTestReporter.report(ConsoleRenderer.render, TestAnnotationRenderer.Default);
+    this.reporter = reporter ?? DefaultTestReporter.report(ConsoleRenderer.render, TestAnnotationRenderer.Default);
     this.bootstrap =
       bootstrap ??
-      Layer.succeed(Console.Live, Console.Tag)
-        .to(TestLogger.fromConsole)
-        .and(Layer.succeed(Clock.Live, Clock.Tag));
+      Layer.succeed(Console.Live, Console.Tag).to(TestLogger.fromConsole).and(Layer.succeed(Clock.Live, Clock.Tag));
   }
 
   run(spec: Spec<R & Has<Annotations>, E>): URIO<Has<TestLogger> & Has<Clock>, ExecutedSpec<E>> {

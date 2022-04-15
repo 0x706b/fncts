@@ -6,9 +6,7 @@ import { ContinuationK, Done, Fail, Fold } from "./definition.js";
  *
  * @tsplus static fncts.control.ChannelOps failCause
  */
-export function failCause<E>(
-  result: Lazy<Cause<E>>,
-): Channel<unknown, unknown, unknown, unknown, E, never, never> {
+export function failCause<E>(result: Lazy<Cause<E>>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return new Fail(result);
 }
 
@@ -17,9 +15,7 @@ export function failCause<E>(
  *
  * @tsplus static fncts.control.ChannelOps failCauseNow
  */
-export function failCauseNow<E>(
-  result: Cause<E>,
-): Channel<unknown, unknown, unknown, unknown, E, never, never> {
+export function failCauseNow<E>(result: Cause<E>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return Channel.failCause(result);
 }
 
@@ -39,9 +35,7 @@ export function end<OutDone>(
  *
  * @tsplus static fncts.control.ChannelOps endNow
  */
-export function endNow<OutDone>(
-  result: OutDone,
-): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
+export function endNow<OutDone>(result: OutDone): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
   return Channel.end(result);
 }
 
@@ -50,9 +44,7 @@ export function endNow<OutDone>(
  *
  * @tsplus static fncts.control.ChannelOps succeed
  */
-export function succeed<Z>(
-  z: Lazy<Z>,
-): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
+export function succeed<Z>(z: Lazy<Z>): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
   return Channel.end(z);
 }
 

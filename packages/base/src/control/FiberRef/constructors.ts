@@ -36,11 +36,7 @@ export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing(
 /**
  * @tsplus static fncts.control.FiberRefOps currentEnvironment
  */
-export const currentEnvironment = FiberRef.unsafeMake<Environment<unknown>>(
-  Environment.empty,
-  identity,
-  (a, _) => a,
-);
+export const currentEnvironment = FiberRef.unsafeMake<Environment<unknown>>(Environment.empty, identity, (a, _) => a);
 
 /**
  * @tsplus static fncts.control.FiberRefOps fiberName
@@ -60,6 +56,4 @@ export const currentLogSpan = FiberRef.unsafeMake<List<LogSpan>>(Nil());
 /**
  * @tsplus static fncts.control.FiberRefOps currentLogAnnotations
  */
-export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>>(
-  HashMap.makeDefault(),
-);
+export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>>(HashMap.makeDefault());

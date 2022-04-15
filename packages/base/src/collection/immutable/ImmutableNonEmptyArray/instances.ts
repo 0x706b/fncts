@@ -16,7 +16,7 @@ import {
   traverseWithIndex_,
 } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/api";
 import { make } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/constructors";
-import * as P from "@fncts/base/prelude";
+import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Semialign

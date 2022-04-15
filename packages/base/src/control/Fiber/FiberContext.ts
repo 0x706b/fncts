@@ -178,11 +178,9 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       const flags = this.runtimeConfig.flags;
 
       const superviseOps =
-        flags.isEnabled(RuntimeConfigFlag.SuperviseOperations) &&
-        this.currentSupervisor !== Supervisor.none;
+        flags.isEnabled(RuntimeConfigFlag.SuperviseOperations) && this.currentSupervisor !== Supervisor.none;
 
-      this.runtimeConfig.flags.isEnabled(RuntimeConfigFlag.EnableCurrentFiber) &&
-        currentFiber.set(this);
+      this.runtimeConfig.flags.isEnabled(RuntimeConfigFlag.EnableCurrentFiber) && currentFiber.set(this);
 
       this.currentSupervisor !== Supervisor.none && this.currentSupervisor.unsafeOnResume(this);
 
@@ -240,9 +238,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     break;
                   }
                   case IOTag.Trace: {
-                    current = this.unsafeNextEffect(
-                      this.unsafeCaptureTrace(Cons(current.trace, Nil())),
-                    );
+                    current = this.unsafeNextEffect(this.unsafeCaptureTrace(Cons(current.trace, Nil())));
                     break;
                   }
                   case IOTag.SucceedNow: {
@@ -254,23 +250,17 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     break;
                   }
                   case IOTag.SucceedWith: {
-                    current = this.unsafeNextEffect(
-                      current.effect(this.runtimeConfig, this.fiberId),
-                    );
+                    current = this.unsafeNextEffect(current.effect(this.runtimeConfig, this.fiberId));
                     break;
                   }
                   case IOTag.Fail: {
-                    const fastPathTrace: List<string> =
-                      extraTrace === undefined ? Nil() : Cons(extraTrace, Nil());
+                    const fastPathTrace: List<string> = extraTrace === undefined ? Nil() : Cons(extraTrace, Nil());
                     extraTrace = undefined;
 
                     const cause       = current.cause();
                     const tracedCause = cause.isTraced
                       ? cause
-                      : Cause.traced(
-                          cause,
-                          this.unsafeCaptureTrace(Cons(current.trace, fastPathTrace)),
-                        );
+                      : Cause.traced(cause, this.unsafeCaptureTrace(Cons(current.trace, fastPathTrace)));
 
                     const discardedFolds            = this.unsafeUnwindStack();
                     const strippedCause: Cause<any> = discardedFolds
@@ -315,9 +305,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     break;
                   }
                   case IOTag.GetInterrupt: {
-                    current = concrete(
-                      current.f(InterruptStatus.fromBoolean(this.unsafeIsInterruptible)),
-                    );
+                    current = concrete(current.f(InterruptStatus.fromBoolean(this.unsafeIsInterruptible)));
                     break;
                   }
                   case IOTag.Async: {
@@ -336,11 +324,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                         if (this.unsafeShouldInterrupt) {
                           if (this.unsafeExitAsync(epoch)) {
                             this.unsafeSetInterrupting(true);
-                            current = concrete(
-                              r.left.chain(() =>
-                                IO.failCauseNow(this.unsafeClearSuppressedCause()),
-                              ),
-                            );
+                            current = concrete(r.left.chain(() => IO.failCauseNow(this.unsafeClearSuppressedCause())));
                           } else {
                             current = null;
                           }
@@ -443,11 +427,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                   }
 
                   case IOTag.GetForkScope: {
-                    current = concrete(
-                      current.f(
-                        this.unsafeGetRef(FiberRef.forkScopeOverride).getOrElse(this.scope),
-                      ),
-                    );
+                    current = concrete(current.f(this.unsafeGetRef(FiberRef.forkScopeOverride).getOrElse(this.scope)));
                     break;
                   }
 
@@ -712,10 +692,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     }
   }
 
-  private unsafeNotifyObservers(
-    v: Exit<E, A>,
-    observers: Set<FiberState.Callback<never, Exit<E, A>>>,
-  ) {
+  private unsafeNotifyObservers(v: Exit<E, A>, observers: Set<FiberState.Callback<never, Exit<E, A>>>) {
     if (observers.size > 0) {
       const result = Exit.succeed(v);
       observers.forEach((k) => k(result));
@@ -1018,8 +995,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
   private unsafeEvalOn(effect: UIO<any>, orElse: UIO<any>): UIO<void> {
     if (this.state._tag === "Executing") {
-      const newMailbox =
-        this.state.mailbox == null ? effect : this.state.mailbox.chain(() => effect);
+      const newMailbox   = this.state.mailbox == null ? effect : this.state.mailbox.chain(() => effect);
       this.state.mailbox = newMailbox;
       return IO.unit;
     } else {

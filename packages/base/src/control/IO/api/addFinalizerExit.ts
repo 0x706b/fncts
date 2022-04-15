@@ -7,10 +7,6 @@ export function addFinalizerExit<R>(
   return IO.gen(function* (_) {
     const environment = yield* _(IO.environment<R>());
     const scope       = yield* _(IO.scope);
-    yield* _(
-      scope.addFinalizerExit(
-        Finalizer.get((exit) => finalizer(exit).provideEnvironment(environment)),
-      ),
-    );
+    yield* _(scope.addFinalizerExit(Finalizer.get((exit) => finalizer(exit).provideEnvironment(environment))));
   });
 }

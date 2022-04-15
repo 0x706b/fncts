@@ -1,4 +1,4 @@
-import type * as P from "@fncts/base/prelude";
+import type * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus getter fncts.Seq traverseToConcWithIndex

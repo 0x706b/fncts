@@ -75,11 +75,7 @@ export function isVector(u: unknown): u is Vector<unknown> {
  * @complexity O(n)
  * @tsplus fluent fncts.Vector corresponds
  */
-export function corresponds_<A, B>(
-  as: Vector<A>,
-  bs: Vector<B>,
-  f: (a: A, b: B) => boolean,
-): boolean {
+export function corresponds_<A, B>(as: Vector<A>, bs: Vector<B>, f: (a: A, b: B) => boolean): boolean {
   if (as.length !== bs.length) {
     return false;
   } else {

@@ -1,11 +1,7 @@
 /**
  * @tsplus fluent fncts.Dictionary foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(
-  self: Dictionary<A>,
-  b: B,
-  f: (k: string, b: B, a: A) => B,
-): B {
+export function foldLeftWithIndex_<A, B>(self: Dictionary<A>, b: B, f: (k: string, b: B, a: A) => B): B {
   let out   = b;
   const ks  = self.keys;
   const len = ks.length;

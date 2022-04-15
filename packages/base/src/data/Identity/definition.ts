@@ -1,10 +1,10 @@
 /**
- * @tsplus type fncts.data.Identity
+ * @tsplus type fncts.Identity
  */
 export type Identity<A> = A;
 
 /**
- * @tsplus type fncts.data.IdentityOps
+ * @tsplus type fncts.IdentityOps
  */
 export interface IdentityOps {}
 

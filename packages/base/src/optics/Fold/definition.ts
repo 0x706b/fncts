@@ -1,4 +1,4 @@
-import type { Monoid } from "@fncts/base/prelude";
+import type { Monoid } from "@fncts/base/typeclass";
 
 export interface foldMap_<S, A> {
   <M>(M: Monoid<M>): (s: S, f: (a: A) => M) => M;

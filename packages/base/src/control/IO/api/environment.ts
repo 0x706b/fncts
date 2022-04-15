@@ -28,10 +28,7 @@ export function environment<R>(__tsplusTrace?: string): URIO<R, Environment<R>> 
  *
  * @tsplus static fncts.control.IOOps environmentWith
  */
-export function environmentWith<R, A>(
-  f: (_: Environment<R>) => A,
-  __tsplusTrace?: string,
-): URIO<R, A> {
+export function environmentWith<R, A>(f: (_: Environment<R>) => A, __tsplusTrace?: string): URIO<R, A> {
   return IO.environment<R>().map(f);
 }
 
@@ -55,11 +52,7 @@ export function environmentWithIO<R0, R, E, A>(
  *
  * @tsplus fluent fncts.control.IO provideEnvironment
  */
-export function provideEnvironment_<R, E, A>(
-  self: IO<R, E, A>,
-  r: Environment<R>,
-  __tsplusTrace?: string,
-): FIO<E, A> {
+export function provideEnvironment_<R, E, A>(self: IO<R, E, A>, r: Environment<R>, __tsplusTrace?: string): FIO<E, A> {
   return FiberRef.currentEnvironment.locallyWith((_) => _.union(r))(self as FIO<E, A>);
 }
 
@@ -129,7 +122,5 @@ export function serviceWithIO<T, R, E, A>(
   tag: Tag<T>,
   __tsplusTrace?: string,
 ): IO<R & Has<T>, E, A> {
-  return IO.defer(
-    FiberRef.currentEnvironment.get.chain((environment) => f(environment.unsafeGet(tag))),
-  );
+  return IO.defer(FiberRef.currentEnvironment.get.chain((environment) => f(environment.unsafeGet(tag))));
 }

@@ -1,7 +1,7 @@
-import type { Nullable } from "../../types/Nullable.js";
+import type { Nullable } from "@fncts/base/types";
 
 /**
- * @tsplus static fncts.data.MaybeOps just
+ * @tsplus static fncts.MaybeOps just
  * @tsplus static fncts.JustOps __call
  */
 export function just<A>(a: A): Maybe<A> {
@@ -11,7 +11,7 @@ export function just<A>(a: A): Maybe<A> {
 const _Nothing = new Nothing();
 
 /**
- * @tsplus static fncts.data.MaybeOps nothing
+ * @tsplus static fncts.MaybeOps nothing
  * @tsplus static fncts.NothingOps __call
  */
 export function nothing<A = never>(): Maybe<A> {
@@ -19,23 +19,21 @@ export function nothing<A = never>(): Maybe<A> {
 }
 
 /**
- * @tsplus static fncts.data.MaybeOps fromNullable
+ * @tsplus static fncts.MaybeOps fromNullable
  */
 export function fromNullable<A>(a: Nullable<A>): Maybe<NonNullable<A>> {
   return a == null ? Nothing() : Just(a as NonNullable<A>);
 }
 
 /**
- * @tsplus static fncts.data.MaybeOps fromNullableK
+ * @tsplus static fncts.MaybeOps fromNullableK
  */
-export function fromNullableK<P extends ReadonlyArray<unknown>, A>(
-  f: (...params: P) => Nullable<A>,
-) {
+export function fromNullableK<P extends ReadonlyArray<unknown>, A>(f: (...params: P) => Nullable<A>) {
   return (...params: P): Maybe<NonNullable<A>> => Maybe.fromNullable(f(...params));
 }
 
 /**
- * @tsplus static fncts.data.MaybeOps fromPredicate
+ * @tsplus static fncts.MaybeOps fromPredicate
  */
 export function fromPredicate_<A>(a: A, p: Predicate<A>): Maybe<A>;
 export function fromPredicate_<A, B extends A>(a: A, p: Refinement<A, B>): Maybe<A>;
@@ -44,7 +42,7 @@ export function fromPredicate_<A>(a: A, p: Predicate<A>): Maybe<A> {
 }
 
 /**
- * @tsplus static fncts.data.MaybeOps tryCatch
+ * @tsplus static fncts.MaybeOps tryCatch
  */
 export function tryCatch<A>(thunk: () => A): Maybe<A> {
   try {
@@ -55,7 +53,7 @@ export function tryCatch<A>(thunk: () => A): Maybe<A> {
 }
 
 /**
- * @tsplus static fncts.data.MaybeOps tryCatchK
+ * @tsplus static fncts.MaybeOps tryCatchK
  */
 export function tryCatchK<P extends ReadonlyArray<unknown>, A>(f: (...params: P) => A) {
   return (...params: P): Maybe<A> => tryCatch(() => f(...params));
@@ -70,11 +68,9 @@ function raisePartial(): never {
 }
 
 /**
- * @tsplus static fncts.data.MaybeOps partial
+ * @tsplus static fncts.MaybeOps partial
  */
-export function partial<P extends ReadonlyArray<unknown>, A>(
-  f: (miss: () => never) => (...params: P) => A,
-) {
+export function partial<P extends ReadonlyArray<unknown>, A>(f: (miss: () => never) => (...params: P) => A) {
   return (...params: P): Maybe<A> => {
     try {
       return Just(f(raisePartial)(...params));

@@ -1,6 +1,6 @@
 import type { SortedMapIterable } from "@fncts/base/collection/immutable/SortedMap/iterator";
 import type { RBNode } from "@fncts/base/collection/immutable/SortedMap/node";
-import type { Ord, Ordering, Semigroup } from "@fncts/base/prelude";
+import type { Ord, Ordering, Semigroup } from "@fncts/base/typeclass";
 
 import { SortedMap } from "@fncts/base/collection/immutable/SortedMap/definition";
 import {
@@ -15,11 +15,7 @@ import { Stack } from "@fncts/base/internal/Stack";
 /**
  * @tsplus fluent fncts.SortedMap find
  */
-export function find_<K, V>(
-  m: SortedMap<K, V>,
-  key: K,
-  direction: 0 | 1 = 0,
-): SortedMapIterable<K, V> {
+export function find_<K, V>(m: SortedMap<K, V>, key: K, direction: 0 | 1 = 0): SortedMapIterable<K, V> {
   return {
     ord: m.ord,
     [Symbol.iterator]() {
@@ -65,12 +61,7 @@ export function forEach_<K, V>(m: SortedMap<K, V>, visit: (key: K, value: V) => 
 /**
  * @tsplus fluent fncts.SortedMap forEachBetween
  */
-export function forEachBetween_<K, V>(
-  m: SortedMap<K, V>,
-  min: K,
-  max: K,
-  visit: (k: K, v: V) => void,
-): void {
+export function forEachBetween_<K, V>(m: SortedMap<K, V>, min: K, max: K, visit: (k: K, v: V) => void): void {
   if (m.root) {
     m.visitBetween(min, max, (k, v) => {
       visit(k, v);
@@ -365,10 +356,7 @@ export function remove_<K, V>(m: SortedMap<K, V>, key: K): SortedMap<K, V> {
 /**
  * @tsplus fluent fncts.SortedMap visitFull
  */
-export function visitFull<K, V, A>(
-  m: SortedMap<K, V>,
-  visit: (key: K, value: V) => Maybe<A>,
-): Maybe<A> {
+export function visitFull<K, V, A>(m: SortedMap<K, V>, visit: (key: K, value: V) => Maybe<A>): Maybe<A> {
   let current: RBNode<K, V>                = m.root;
   let stack: Stack<Node<K, V>> | undefined = undefined;
   let done = false;
@@ -394,11 +382,7 @@ export function visitFull<K, V, A>(
 /**
  * @tsplus fluent fncts.SortedMap visitLte
  */
-export function visitLte<K, V, A>(
-  m: SortedMap<K, V>,
-  max: K,
-  visit: (k: K, v: V) => Maybe<A>,
-): Maybe<A> {
+export function visitLte<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
   let current: RBNode<K, V>                = m.root;
   let stack: Stack<Node<K, V>> | undefined = undefined;
   let done  = false;
@@ -428,11 +412,7 @@ export function visitLte<K, V, A>(
 /**
  * @tsplus fluent fncts.SortedMap visitLt
  */
-export function visitLt<K, V, A>(
-  m: SortedMap<K, V>,
-  max: K,
-  visit: (k: K, v: V) => Maybe<A>,
-): Maybe<A> {
+export function visitLt<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
   let current: RBNode<K, V>                = m.root;
   let stack: Stack<Node<K, V>> | undefined = undefined;
   let done  = false;
@@ -462,11 +442,7 @@ export function visitLt<K, V, A>(
 /**
  * @tsplus fluent fncts.SortedMap visitGte
  */
-export function visitGte<K, V, A>(
-  m: SortedMap<K, V>,
-  min: K,
-  visit: (k: K, v: V) => Maybe<A>,
-): Maybe<A> {
+export function visitGte<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
   let current: RBNode<K, V>                = m.root;
   let stack: Stack<Node<K, V>> | undefined = undefined;
   let done  = false;
@@ -499,11 +475,7 @@ export function visitGte<K, V, A>(
 /**
  * @tsplus fluent fncts.SortedMap visitGt
  */
-export function visitGt<K, V, A>(
-  m: SortedMap<K, V>,
-  min: K,
-  visit: (k: K, v: V) => Maybe<A>,
-): Maybe<A> {
+export function visitGt<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
   let current: RBNode<K, V>                = m.root;
   let stack: Stack<Node<K, V>> | undefined = undefined;
   let done  = false;
@@ -536,12 +508,7 @@ export function visitGt<K, V, A>(
 /**
  * @tsplus fluent fncts.SortedMap visitBetween
  */
-export function visitBetween<K, V, A>(
-  m: SortedMap<K, V>,
-  min: K,
-  max: K,
-  visit: (k: K, v: V) => Maybe<A>,
-): Maybe<A> {
+export function visitBetween<K, V, A>(m: SortedMap<K, V>, min: K, max: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
   let current: RBNode<K, V>                = m.root;
   let stack: Stack<Node<K, V>> | undefined = undefined;
   let done  = false;

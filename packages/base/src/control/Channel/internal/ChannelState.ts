@@ -53,9 +53,7 @@ export class Read<R, E> {
 
 export type ChannelState<R, E> = Emit | Done | Effect<R, E> | Read<R, E>;
 
-export function effectOrNullIgnored<R, E>(
-  channelState: ChannelState<R, E> | null,
-): IO<R, never, void> | null {
+export function effectOrNullIgnored<R, E>(channelState: ChannelState<R, E> | null): IO<R, never, void> | null {
   if (channelState === null) {
     return null;
   }

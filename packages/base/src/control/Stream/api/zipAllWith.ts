@@ -11,9 +11,7 @@ export function zipAllWith_<R, E, A, R1, E1, B, C, D, F>(
   right: (b: B) => D,
   both: (a: A, b: B) => F,
 ): Stream<R & R1, E | E1, C | D | F> {
-  return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) =>
-    pull(s, l, r, left, right, both),
-  );
+  return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) => pull(s, l, r, left, right, both));
 }
 
 class DrainLeft {
@@ -67,8 +65,7 @@ function pull<R, E, A, R1, E1, B, C, D, F>(
             () =>
               maybeRightChunk.match(
                 () => IO.succeedNow(Exit.fail(Nothing())),
-                (rightChunk) =>
-                  IO.succeedNow(Exit.succeed(tuple(rightChunk.map(right), new DrainRight()))),
+                (rightChunk) => IO.succeedNow(Exit.succeed(tuple(rightChunk.map(right), new DrainRight()))),
               ),
             (leftChunk) =>
               maybeRightChunk.match(

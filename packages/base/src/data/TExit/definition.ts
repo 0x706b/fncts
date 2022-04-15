@@ -1,19 +1,19 @@
-import * as P from "../../prelude.js";
+import * as P from "../../typeclass.js";
 import { hasTypeId } from "../../util/predicates.js";
 
 /**
- * @tsplus type fncts.data.TExit
+ * @tsplus type fncts.TExit
  */
 export type TExit<E, A> = Fail<E> | Succeed<A> | Retry | Halt | Interrupt;
 
 /**
- * @tsplus type fncts.data.TExitOps
+ * @tsplus type fncts.TExitOps
  */
 export interface TExitOps {}
 
 export const TExit: TExitOps = {};
 
-export const TExitTypeId = Symbol.for("fncts.data.TExit");
+export const TExitTypeId = Symbol.for("fncts.TExit");
 export type TExitTypeId = typeof TExitTypeId;
 
 export const enum TExitTag {
@@ -24,13 +24,13 @@ export const enum TExitTag {
   Retry = "Retry",
 }
 
-export const FailTypeId = Symbol.for("fncts.data.TExit.Fail");
+export const FailTypeId = Symbol.for("fncts.TExit.Fail");
 export type FailTypeId = typeof FailTypeId;
 
-const _failHash = P.Hashable.hashString("fncts.data.TExit.Fail");
+const _failHash = P.Hashable.hashString("fncts.TExit.Fail");
 
 /**
- * @tsplus static fncts.data.TExitOps isTExit
+ * @tsplus static fncts.TExitOps isTExit
  */
 export function isTExit(u: unknown): u is TExit<unknown, unknown> {
   return hasTypeId(u, TExitTypeId);
@@ -51,13 +51,13 @@ export class Fail<E> {
 }
 
 /**
- * @tsplus fluent fncts.data.TExit isFail
+ * @tsplus fluent fncts.TExit isFail
  */
 export function isFail<E, A>(self: TExit<E, A>): self is Fail<E> {
   return self._tag === TExitTag.Fail;
 }
 
-const _succeedHash = P.Hashable.hashString("fncts.data.TExit.Succeed");
+const _succeedHash = P.Hashable.hashString("fncts.TExit.Succeed");
 
 export class Succeed<A> {
   readonly _typeId: TExitTypeId = TExitTypeId;
@@ -74,13 +74,13 @@ export class Succeed<A> {
 }
 
 /**
- * @tsplus fluent fncts.data.TExit isSucceed
+ * @tsplus fluent fncts.TExit isSucceed
  */
 export function isSucceed<E, A>(self: TExit<E, A>): self is Succeed<A> {
   return self._tag === TExitTag.Succeed;
 }
 
-const _haltHash = P.Hashable.hashString("fncts.data.TExit.Halt");
+const _haltHash = P.Hashable.hashString("fncts.TExit.Halt");
 
 export class Halt {
   readonly _typeId: TExitTypeId = TExitTypeId;
@@ -97,7 +97,7 @@ export class Halt {
 }
 
 /**
- * @tsplus fluent fncts.data.TExit isHalt
+ * @tsplus fluent fncts.TExit isHalt
  */
 export function isHalt<E, A>(self: TExit<E, A>): self is Halt {
   return self._tag === TExitTag.Halt;
@@ -115,20 +115,18 @@ export class Interrupt {
   }
 
   [Symbol.equatable](that: unknown): boolean {
-    return (
-      isTExit(that) && isInterrupt(that) && P.Equatable.strictEquals(this.fiberId, that.fiberId)
-    );
+    return isTExit(that) && isInterrupt(that) && P.Equatable.strictEquals(this.fiberId, that.fiberId);
   }
 }
 
 /**
- * @tsplus fluent fncts.data.TExit isInterrupt
+ * @tsplus fluent fncts.TExit isInterrupt
  */
 export function isInterrupt<E, A>(self: TExit<E, A>): self is Interrupt {
   return self._tag === TExitTag.Interrupt;
 }
 
-const _retryHash = P.Hashable.hashString("fncts.data.TExit.Retry");
+const _retryHash = P.Hashable.hashString("fncts.TExit.Retry");
 
 export class Retry {
   readonly _typeId: TExitTypeId = TExitTypeId;
@@ -142,7 +140,7 @@ export class Retry {
 }
 
 /**
- * @tsplus fluent fncts.data.TExit isRetry
+ * @tsplus fluent fncts.TExit isRetry
  */
 export function isRetry<E, A>(self: TExit<E, A>): self is Retry {
   return self._tag === TExitTag.Retry;

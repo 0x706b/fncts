@@ -1,6 +1,6 @@
 import type { Cause, Fail, Halt, Interrupt } from "../definition.js";
 
-import { showWithOptions } from "../../../prelude/Showable.js";
+import { showWithOptions } from "../../../typeclass/Showable.js";
 import { CauseTag, Unified } from "../definition.js";
 
 function unifyFail<E>(fail: Fail<E>): Unified {
@@ -60,7 +60,7 @@ function unifyLoop<E>(
 }
 
 /**
- * @tsplus getter fncts.data.Cause unified
+ * @tsplus getter fncts.Cause unified
  */
 export function unified<E>(self: Cause<E>): List<Unified> {
   return unifyLoop(Cons(self, Nil()), FiberId.none, false, Nil()).reverse;

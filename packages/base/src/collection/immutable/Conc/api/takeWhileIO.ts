@@ -3,10 +3,7 @@ import { concrete } from "@fncts/base/collection/immutable/Conc/definition";
 /**
  * @tsplus fluent fncts.Conc takeWhileIO
  */
-export function takeWhileIO_<A, R, E>(
-  as: Conc<A>,
-  p: (a: A) => IO<R, E, boolean>,
-): IO<R, E, Conc<A>> {
+export function takeWhileIO_<A, R, E>(as: Conc<A>, p: (a: A) => IO<R, E, boolean>): IO<R, E, Conc<A>> {
   return IO.defer(() => {
     concrete(as);
     let taking: IO<R, E, boolean> = IO.succeedNow(true);

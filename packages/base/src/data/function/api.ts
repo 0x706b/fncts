@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.data.Function compose
+ * @tsplus fluent fncts.Function compose
  */
 export function compose_<A extends ReadonlyArray<any>, B, C>(
   f: (...params: A) => B,
@@ -9,14 +9,14 @@ export function compose_<A extends ReadonlyArray<any>, B, C>(
 }
 
 /**
- * @tsplus static fncts.data.FunctionOps constVoid
+ * @tsplus static fncts.FunctionOps constVoid
  */
 export function constVoid(): void {
   return undefined;
 }
 
 /**
- * @tsplus static fncts.data.FunctionOps identity
+ * @tsplus static fncts.FunctionOps identity
  * @tsplus macro identity
  */
 export function identity<A>(a: A): A {
@@ -24,14 +24,14 @@ export function identity<A>(a: A): A {
 }
 
 /**
- * @tsplus static fncts.data.FunctionOps tuple
+ * @tsplus static fncts.FunctionOps tuple
  */
 export function tuple<A extends ReadonlyArray<unknown>>(...as: A): A {
   return as;
 }
 
 /**
- * @tsplus static fncts.data.FunctionOps unsafeCoerce
+ * @tsplus static fncts.FunctionOps unsafeCoerce
  * @tsplus macro identity
  */
 export function unsafeCoerce<A, B>(a: A): B {

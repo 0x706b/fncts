@@ -140,17 +140,7 @@ export function Ansi(fr: Fragment, ansiColor: string): Style {
 /**
  * @tsplus type fncts.test.data.StyleOps
  */
-export type Style =
-  | Primary
-  | Default
-  | Warning
-  | Error
-  | Info
-  | Detail
-  | Dimmed
-  | Bold
-  | Underlined
-  | Ansi;
+export type Style = Primary | Default | Warning | Error | Info | Detail | Dimmed | Bold | Underlined | Ansi;
 
 /**
  * @tsplus type fncts.test.data.StyleOps

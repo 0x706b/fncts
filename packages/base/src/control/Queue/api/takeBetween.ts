@@ -1,9 +1,6 @@
 import { concrete } from "@fncts/base/control/Queue/definition";
 
-function takeRemainderLoop<RA, RB, EA, EB, A, B>(
-  queue: PQueue<RA, RB, EA, EB, A, B>,
-  n: number,
-): IO<RB, EB, Conc<B>> {
+function takeRemainderLoop<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, n: number): IO<RB, EB, Conc<B>> {
   concrete(queue);
   if (n <= 0) {
     return IO.succeedNow(Conc.empty());

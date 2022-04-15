@@ -1,4 +1,4 @@
-import type * as P from "@fncts/base/prelude";
+import type * as P from "@fncts/base/typeclass";
 
 import { PTraversal } from "@fncts/base/optics/Traversal/definition";
 
@@ -26,12 +26,7 @@ export function fromTraversable<T extends HKT, C = HKT.None>(
   S1 = HKT.Low<T, "S">,
   R1 = HKT.Low<T, "R">,
   E1 = HKT.Low<T, "E">,
->() => PTraversal<
-  HKT.Kind<T, C, K, Q, W, X, I, S, R, E, A>,
-  HKT.Kind<T, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>,
-  A,
-  B
->;
+>() => PTraversal<HKT.Kind<T, C, K, Q, W, X, I, S, R, E, A>, HKT.Kind<T, C, K1, Q1, W1, X1, I1, S1, R1, E1, B>, A, B>;
 export function fromTraversable<T>(
   T: P.Traversable<HKT.F<T>>,
 ): <A, B>() => PTraversal<

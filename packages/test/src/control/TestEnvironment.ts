@@ -20,15 +20,12 @@ export type TestEnvironment = Has<Annotations> &
   Has<Console> &
   Has<TestConsole>;
 
-export const LiveTestEnvironment: Layer<
-  Has<Clock> & Has<Random> & Has<Console>,
-  never,
-  TestEnvironment
-> = Annotations.Live.and(Live.Default)
-  .and(Sized.Live(100))
-  .and(TestConfig.Live({ repeats: 100, retries: 100, samples: 200, shrinks: 1000 }))
-  .and(TestRandom.Deterministic)
-  .andTo(TestClock.Live)
-  .andTo(TestConsole.Live);
+export const LiveTestEnvironment: Layer<Has<Clock> & Has<Random> & Has<Console>, never, TestEnvironment> =
+  Annotations.Live.and(Live.Default)
+    .and(Sized.Live(100))
+    .and(TestConfig.Live({ repeats: 100, retries: 100, samples: 200, shrinks: 1000 }))
+    .and(TestRandom.Deterministic)
+    .andTo(TestClock.Live)
+    .andTo(TestConsole.Live);
 
 export const TestEnvironment = LiveIOEnv.to(LiveTestEnvironment);

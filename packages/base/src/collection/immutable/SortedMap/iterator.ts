@@ -1,5 +1,5 @@
 import type { RBNode } from "@fncts/base/collection/immutable/SortedMap/node";
-import type { Ord } from "@fncts/base/prelude";
+import type { Ord } from "@fncts/base/typeclass";
 
 import { fixDoubleBlack, swapNode } from "@fncts/base/collection/immutable/SortedMap/internal";
 import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/node";
@@ -41,21 +41,14 @@ export function backward<K, V>(self: SortedMap<K, V>): SortedMapIterable<K, V> {
 
 export class SortedMapIterator<K, V> implements Iterator<readonly [K, V]> {
   private count = 0;
-  constructor(
-    readonly m: SortedMap<K, V>,
-    readonly stack: Array<Node<K, V>>,
-    readonly direction: 0 | 1,
-  ) {}
+  constructor(readonly m: SortedMap<K, V>, readonly stack: Array<Node<K, V>>, readonly direction: 0 | 1) {}
 
   next(): IteratorResult<readonly [K, V]> {
     if (this.isEmpty) {
       return { done: true, value: this.count };
     }
     this.count++;
-    const value: readonly [K, V] = [
-      this.stack[this.stack.length - 1]!.key,
-      this.stack[this.stack.length - 1]!.value,
-    ];
+    const value: readonly [K, V] = [this.stack[this.stack.length - 1]!.key, this.stack[this.stack.length - 1]!.value];
     switch (this.direction) {
       case 0: {
         this.moveNext();

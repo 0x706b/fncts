@@ -1,17 +1,17 @@
 declare global {
   /**
-   * @tsplus type fncts.data.Function
+   * @tsplus type fncts.Function
    */
   export interface Function {}
 
   /**
-   * @tsplus type fncts.data.FunctionOps
+   * @tsplus type fncts.FunctionOps
    */
   export interface FunctionConstructor {}
 }
 
 /**
- * @tsplus type fncts.data.FunctionN
+ * @tsplus type fncts.FunctionN
  */
 export interface FunctionN<A extends ReadonlyArray<any>, B> {
   (...params: A): B;

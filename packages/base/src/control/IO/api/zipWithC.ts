@@ -31,10 +31,7 @@ function coordinateZipWithC<E, E2>() {
       (cw) =>
         loser.interruptAs(fiberId).chain((exit) =>
           exit.match(
-            (cl) =>
-              leftWinner
-                ? IO.failCauseNow(Cause.both(cw, cl))
-                : IO.failCauseNow(Cause.both(cl, cw)),
+            (cl) => (leftWinner ? IO.failCauseNow(Cause.both(cw, cl)) : IO.failCauseNow(Cause.both(cl, cw))),
             () => IO.failCauseNow(cw),
           ),
         ),

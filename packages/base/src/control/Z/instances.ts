@@ -1,6 +1,6 @@
 import type { ZF } from "./definition.js";
 
-import * as P from "../../prelude.js";
+import * as P from "../../typeclass.js";
 import { ap_, crossWith_, map_, succeedNow } from "./api.js";
 
 /**

@@ -12,21 +12,21 @@ export interface ConcurrentBounded {
 }
 
 /**
- * @tsplus static fncts.data.ExecutionStrategyOps sequential
+ * @tsplus static fncts.ExecutionStrategyOps sequential
  */
 export const sequential: Sequential = {
   _tag: "Sequential",
 };
 
 /**
- * @tsplus static fncts.data.ExecutionStrategyOps concurrent
+ * @tsplus static fncts.ExecutionStrategyOps concurrent
  */
 export const concurrent: Concurrent = {
   _tag: "Concurrent",
 };
 
 /**
- * @tsplus static fncts.data.ExecutionStrategyOps concurrentBounded
+ * @tsplus static fncts.ExecutionStrategyOps concurrentBounded
  */
 export function concurrentBounded(fiberBound: number): ConcurrentBounded {
   return {
@@ -36,19 +36,19 @@ export function concurrentBounded(fiberBound: number): ConcurrentBounded {
 }
 
 /**
- * @tsplus type fncts.data.ExecutionStrategy
+ * @tsplus type fncts.ExecutionStrategy
  */
 export type ExecutionStrategy = Sequential | Concurrent | ConcurrentBounded;
 
 /**
- * @tsplus type fncts.data.ExecutionStrategyOps
+ * @tsplus type fncts.ExecutionStrategyOps
  */
 export interface ExecutionStrategyOps {}
 
 export const ExecutionStrategy: ExecutionStrategyOps = {};
 
 /**
- * @tsplus fluent fncts.data.ExecutionStrategy match
+ * @tsplus fluent fncts.ExecutionStrategy match
  */
 export function match_<A, B, C>(
   strategy: ExecutionStrategy,
@@ -70,7 +70,7 @@ export function match_<A, B, C>(
 }
 
 /**
- * @tsplus pipeable fncts.data.ExecutionStrategy match
+ * @tsplus pipeable fncts.ExecutionStrategy match
  */
 export function match<A, B, C>(
   sequential: () => A,

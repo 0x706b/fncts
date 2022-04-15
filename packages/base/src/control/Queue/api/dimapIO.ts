@@ -49,11 +49,7 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
  *
  * @tsplus fluent fncts.control.Queue dimap
  */
-export function dimap_<RA, RB, EA, EB, A, B, C, D>(
-  self: PQueue<RA, RB, EA, EB, A, B>,
-  f: (c: C) => A,
-  g: (b: B) => D,
-) {
+export function dimap_<RA, RB, EA, EB, A, B, C, D>(self: PQueue<RA, RB, EA, EB, A, B>, f: (c: C) => A, g: (b: B) => D) {
   return self.dimapIO(
     (c: C) => IO.succeedNow(f(c)),
     (b) => IO.succeedNow(g(b)),

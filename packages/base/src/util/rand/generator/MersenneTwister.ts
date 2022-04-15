@@ -69,9 +69,8 @@ export class MersenneTwister implements RandomGenerator {
     this.mt[0] = seed >>> 0;
 
     for (this.mti = 1; this.mti < N; this.mti++) {
-      s = this.mt[this.mti - 1]! ^ (this.mt[this.mti - 1]! >>> 30);
-      this.mt[this.mti] =
-        ((((s & 0xffff0000) >>> 16) * 1812433253) << 16) + (s & 0x0000ffff) * 1812433253 + this.mti;
+      s                    = this.mt[this.mti - 1]! ^ (this.mt[this.mti - 1]! >>> 30);
+      this.mt[this.mti]    = ((((s & 0xffff0000) >>> 16) * 1812433253) << 16) + (s & 0x0000ffff) * 1812433253 + this.mti;
       this.mt[this.mti] >>>= 0;
     }
   }
@@ -88,10 +87,7 @@ export class MersenneTwister implements RandomGenerator {
       s = this.mt[i - 1]! ^ (this.mt[i - 1]! >>> 30);
 
       this.mt[i] =
-        (this.mt[i]! ^
-          (((((s & 0xffff0000) >>> 16) * 1664525) << 16) + (s & 0x0000ffff) * 1664525)) +
-        vector[j]! +
-        j;
+        (this.mt[i]! ^ (((((s & 0xffff0000) >>> 16) * 1664525) << 16) + (s & 0x0000ffff) * 1664525)) + vector[j]! + j;
       this.mt[i] >>>= 0;
       i++;
       j++;
@@ -107,9 +103,7 @@ export class MersenneTwister implements RandomGenerator {
     for (k = N - 1; k; k--) {
       s = this.mt[i - 1]! ^ (this.mt[i - 1]! >>> 30);
       this.mt[i] =
-        (this.mt[i]! ^
-          (((((s & 0xffff0000) >>> 16) * 1566083941) << 16) + (s & 0x0000ffff) * 1566083941)) -
-        i;
+        (this.mt[i]! ^ (((((s & 0xffff0000) >>> 16) * 1566083941) << 16) + (s & 0x0000ffff) * 1566083941)) - i;
       this.mt[i] >>>= 0;
       i++;
       if (i >= N) {

@@ -4,7 +4,7 @@ import { These } from "../../These.js";
 import { EitherTag, Right } from "../definition.js";
 
 /**
- * @tsplus fluent fncts.data.Either alignWith
+ * @tsplus fluent fncts.Either alignWith
  */
 export function alignWith_<E1, A, E2, B, C>(
   self: Either<E1, A>,

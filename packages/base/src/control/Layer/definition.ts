@@ -88,11 +88,7 @@ export class To<RIn, E, ROut, E1, ROut1> extends Layer<RIn, E | E1, ROut1> {
   }
 }
 
-export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<
-  RIn & RIn1,
-  E | E1,
-  ROut2
-> {
+export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn & RIn1, E | E1, ROut2> {
   readonly _tag = LayerTag.ZipWith;
   constructor(
     readonly self: Layer<RIn, E, ROut>,
@@ -103,11 +99,7 @@ export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<
   }
 }
 
-export class ZipWithC<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<
-  RIn & RIn1,
-  E | E1,
-  ROut2
-> {
+export class ZipWithC<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn & RIn1, E | E1, ROut2> {
   readonly _tag = LayerTag.ZipWithC;
   constructor(
     readonly self: Layer<RIn, E, ROut>,

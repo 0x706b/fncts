@@ -17,10 +17,7 @@ export interface Strategy<A> {
     isShutdown: AtomicBoolean,
   ) => UIO<boolean>;
 
-  readonly unsafeOnQueueEmptySpace: (
-    queue: MutableQueue<A>,
-    takers: MutableQueue<Future<never, A>>,
-  ) => void;
+  readonly unsafeOnQueueEmptySpace: (queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>) => void;
 
   readonly surplusSize: number;
 
@@ -104,11 +101,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     return IO.gen(function* (_) {
       const fiberId = yield* _(IO.fiberId);
       const putters = yield* _(IO.succeed(_unsafePollAll(self.putters)));
-      yield* _(
-        IO.foreachC(putters, ([, p, lastItem]) =>
-          lastItem ? p.interruptAs(fiberId).asUnit : IO.unit,
-        ),
-      );
+      yield* _(IO.foreachC(putters, ([, p, lastItem]) => (lastItem ? p.interruptAs(fiberId).asUnit : IO.unit)));
     });
   }
 

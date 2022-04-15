@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import type { MutableVector } from "@fncts/base/collection/immutable/Vector/definition";
-import type { Eq, Monoid, Ord, Ordering } from "@fncts/base/prelude";
+import type { Eq, Monoid, Ord, Ordering } from "@fncts/base/typeclass";
 
 import {
   affixPush,
@@ -142,14 +142,8 @@ export function concat_<A>(self: Vector<A>, that: Vector<A>): Vector<A> {
       newVector         = appendNodeToTree(newVector, self.suffix.slice(0, leftSuffixSize));
       newVector.length += leftSuffixSize;
     }
-    newVector     = appendNodeToTree(newVector, that.prefix.slice(0, getPrefixSize(that)).reverse());
-    const newNode = concatSubTree(
-      newVector.root!,
-      getDepth(newVector),
-      that.root,
-      getDepth(that),
-      true,
-    );
+    newVector      = appendNodeToTree(newVector, that.prefix.slice(0, getPrefixSize(that)).reverse());
+    const newNode  = concatSubTree(newVector.root!, getDepth(newVector), that.root, getDepth(that), true);
     const newDepth = getHeight(newNode);
     setSizes(newNode, newDepth);
     newVector.root    = newNode;
@@ -307,10 +301,7 @@ function everyCb<A>(value: A, state: any): boolean {
  * @complexity O(n)
  * @tsplus fluent fncts.Vector every
  */
-export function every_<A, B extends A>(
-  as: Vector<A>,
-  refinement: Refinement<A, B>,
-): as is Vector<B>;
+export function every_<A, B extends A>(as: Vector<A>, refinement: Refinement<A, B>): as is Vector<B>;
 export function every_<A>(as: Vector<A>, predicate: Predicate<A>): boolean;
 export function every_<A>(as: Vector<A>, predicate: Predicate<A>): boolean {
   return foldLeftCb<A, PredState>(everyCb, { predicate, result: true }, as).result;
@@ -380,11 +371,7 @@ function findIndexCb<A>(value: A, state: FindIndexState): boolean {
  * @tsplus fluent fncts.Vector findIndex
  */
 export function findIndex_<A>(as: Vector<A>, predicate: Predicate<A>): number {
-  const { found, index } = foldLeftCb<A, FindIndexState>(
-    findIndexCb,
-    { predicate, found: false, index: -1 },
-    as,
-  );
+  const { found, index } = foldLeftCb<A, FindIndexState>(findIndexCb, { predicate, found: false, index: -1 }, as);
   return found ? index : -1;
 }
 
@@ -408,11 +395,7 @@ export function findLast_<A>(as: Vector<A>, predicate: Predicate<A>): Maybe<A> {
  * @tsplus fluent fncts.Vector findLastIndex
  */
 export function findLastIndex_<A>(as: Vector<A>, predicate: Predicate<A>): number {
-  const { found, index } = foldRightCb<A, FindIndexState>(
-    findIndexCb,
-    { predicate, found: false, index: -0 },
-    as,
-  );
+  const { found, index } = foldRightCb<A, FindIndexState>(findIndexCb, { predicate, found: false, index: -0 }, as);
   return found ? index : -1;
 }
 
@@ -504,28 +487,17 @@ function foldWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolea
 /**
  * @tsplus fluent fncts.Vector foldLeftWhile
  */
-export function foldLeftWhile_<A, B>(
-  fa: Vector<A>,
-  b: B,
-  cont: Predicate<B>,
-  f: (i: number, b: B, a: A) => B,
-): B {
+export function foldLeftWhile_<A, B>(fa: Vector<A>, b: B, cont: Predicate<B>, f: (i: number, b: B, a: A) => B): B {
   if (!cont(b)) {
     return b;
   }
-  return foldLeftCb<A, FoldWhileState<A, B>>(foldWhileCb, { predicate: cont, f, result: b }, fa)
-    .result;
+  return foldLeftCb<A, FoldWhileState<A, B>>(foldWhileCb, { predicate: cont, f, result: b }, fa).result;
 }
 
 /**
  * @tsplus fluent fncts.Vector foldRightWhile
  */
-export function foldRightWhile_<A, B>(
-  fa: Vector<A>,
-  b: B,
-  cont: Predicate<B>,
-  f: (i: number, a: A, b: B) => B,
-): B {
+export function foldRightWhile_<A, B>(fa: Vector<A>, b: B, cont: Predicate<B>, f: (i: number, a: A, b: B) => B): B {
   return foldRightCb<A, FoldWhileState<A, B>>(
     foldWhileCb,
     { predicate: cont, result: b, f: (i, b, a) => f(i, a, b) },
@@ -694,8 +666,7 @@ export function insertAllAt_<A>(as: Vector<A>, index: number, elements: Vector<A
  * @tsplus fluent fncts.Vector intersperse
  */
 export function intersperse_<A>(as: Vector<A>, separator: A): Vector<A> {
-  return (as.foldLeft(Vector.emptyPushable(), (l2, a) => l2.push(a).push(separator)) as Vector<A>)
-    .pop;
+  return (as.foldLeft(Vector.emptyPushable(), (l2, a) => l2.push(a).push(separator)) as Vector<A>).pop;
 }
 
 /**
@@ -762,11 +733,7 @@ export function makeBy<A>(n: number, f: (index: number) => A): Vector<A> {
 /**
  * @tsplus fluent fncts.Vector mapAccum
  */
-export function mapAccum_<A, S, B>(
-  fa: Vector<A>,
-  s: S,
-  f: (s: S, a: A) => readonly [B, S],
-): readonly [Vector<B>, S] {
+export function mapAccum_<A, S, B>(fa: Vector<A>, s: S, f: (s: S, a: A) => readonly [B, S]): readonly [Vector<B>, S] {
   return fa.foldLeft([Vector.emptyPushable(), s], ([acc, s], a) => {
     const r = f(s, a);
     acc.push(r[0]);
@@ -940,9 +907,7 @@ export function replicate<A>(n: number, a: A): Vector<A> {
  * @tsplus fluent fncts.Vector scanLeft
  */
 export function scanLeft_<A, B>(as: Vector<A>, initial: B, f: (acc: B, value: A) => B): Vector<B> {
-  return as.foldLeft(emptyPushable<B>().push(initial), (l2, a) =>
-    l2.push(f((l2 as Vector<B>).unsafeLast!, a)),
-  );
+  return as.foldLeft(emptyPushable<B>().push(initial), (l2, a) => l2.push(f((l2 as Vector<B>).unsafeLast!, a)));
 }
 
 /**
@@ -1042,13 +1007,7 @@ export function slice_<A>(as: Vector<A>, from: number, to: number): Vector<A> {
       // if we're here `_to` can't lie in the tree, so we can set the
       // root
       zeroOffset();
-      newVector.root = sliceLeft(
-        newVector.root!,
-        getDepth(as),
-        _from - prefixSize,
-        as.offset,
-        true,
-      );
+      newVector.root   = sliceLeft(newVector.root!, getDepth(as), _from - prefixSize, as.offset, true);
       newVector.offset = newOffset;
       if (newVector.root === undefined) {
         bits = setDepth(0, bits);
@@ -1066,12 +1025,7 @@ export function slice_<A>(as: Vector<A>, from: number, to: number): Vector<A> {
       // _to allow the removed items _to be GC'd
       newVector.suffix = as.suffix.slice(0, suffixSize - (length - _to));
     } else {
-      newVector.root = sliceRight(
-        newVector.root!,
-        getDepth(as),
-        _to - prefixSize - 1,
-        newVector.offset,
-      );
+      newVector.root = sliceRight(newVector.root!, getDepth(as), _to - prefixSize - 1, newVector.offset);
       if (newVector.root === undefined) {
         bits             = setDepth(0, bits);
         newVector.offset = 0;
@@ -1312,11 +1266,7 @@ export function unsafeGet_<A>(l: Vector<A>, index: number): A | undefined {
   const { offset } = l;
   const depth      = getDepth(l);
   return l.root!.sizes === undefined
-    ? nodeNthDense(
-        l.root!,
-        depth,
-        offset === 0 ? index - prefixSize : handleOffset(depth, offset, index - prefixSize),
-      )
+    ? nodeNthDense(l.root!, depth, offset === 0 ? index - prefixSize : handleOffset(depth, offset, index - prefixSize))
     : nodeNth(l.root!, depth, offset, index - prefixSize);
 }
 

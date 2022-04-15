@@ -10,7 +10,7 @@ export const RuntimeConfigFlag = {
   EnableCurrentFiber: Symbol.for("fncta.data.RuntimeConfigFlag.EnableCurrentFiber"),
   LogRuntime: Symbol.for("fncta.data.RuntimeConfigFlag.LogRuntime"),
   SuperviseOperations: Symbol.for("fncta.data.RuntimeConfigFlag.SuperviseOperations"),
-  TrackRuntimeMetrics: Symbol.for("fncts.data.RuntimeConfigFlag.TrackRuntimeMetrics"),
+  TrackRuntimeMetrics: Symbol.for("fncts.RuntimeConfigFlag.TrackRuntimeMetrics"),
   EnableFiberRoots: Symbol.for("fncta.data.RuntimeConfigFlag.EnableFiberRoots"),
 } as const;
 
@@ -25,7 +25,7 @@ export class RuntimeConfig extends CaseClass<{
 }> {}
 
 /**
- * @tsplus companion fncts.data.RuntimeConfigFlags
+ * @tsplus companion fncts.RuntimeConfigFlags
  */
 export class RuntimeConfigFlags {
   constructor(readonly flags: HashSet<RuntimeConfigFlag>) {}
@@ -40,6 +40,6 @@ export class RuntimeConfigFlags {
 }
 
 /**
- * @tsplus static fncts.data.RuntimeConfigFlags empty
+ * @tsplus static fncts.RuntimeConfigFlags empty
  */
 export const empty = new RuntimeConfigFlags(HashSet.makeDefault());

@@ -31,7 +31,7 @@ function renderCause<E>(cause: Cause<E>): string {
 }
 
 /**
- * @tsplus getter fncts.data.Cause prettyPrint
+ * @tsplus getter fncts.Cause prettyPrint
  */
 export function prettyPrint<E>(self: Cause<E>): string {
   return renderCause(self);

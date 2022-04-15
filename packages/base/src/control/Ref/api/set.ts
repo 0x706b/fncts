@@ -9,10 +9,7 @@ import { concrete } from "../definition.js";
  * @tsplus fluent fncts.control.Ref set
  * @tsplus fluent fncts.control.Ref.Synchronized set
  */
-export function set_<RA, RB, EA, EB, A, B>(
-  self: PRef<RA, RB, EA, EB, A, B>,
-  a: A,
-): IO<RA & RB, EA | EB, void> {
+export function set_<RA, RB, EA, EB, A, B>(self: PRef<RA, RB, EA, EB, A, B>, a: A): IO<RA & RB, EA | EB, void> {
   concrete(self);
   return self.set(a);
 }

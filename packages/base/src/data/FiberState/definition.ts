@@ -3,12 +3,12 @@ import type { CancellerState } from "../CancellerState.js";
 import { FiberStatus } from "../FiberStatus.js";
 
 /**
- * @tsplus type fncts.data.FiberState
+ * @tsplus type fncts.FiberState
  */
 export type FiberState<E, A> = Executing<E, A> | Done<E, A>;
 
 /**
- * @tsplus type fncts.data.FiberStateOps
+ * @tsplus type fncts.FiberStateOps
  */
 export interface FiberStateOps {}
 

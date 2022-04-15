@@ -7,9 +7,7 @@ import { tuple } from "@fncts/base/data/function";
  * A `MemoMap` memoizes dependencies.
  */
 export class MemoMap {
-  constructor(
-    readonly ref: Ref.Synchronized<HashMap<PropertyKey, readonly [FIO<any, any>, Finalizer]>>,
-  ) {}
+  constructor(readonly ref: Ref.Synchronized<HashMap<PropertyKey, readonly [FIO<any, any>, Finalizer]>>) {}
 
   /**
    * Checks the memo map to see if a dependency exists. If it is, immediately
@@ -48,8 +46,7 @@ export class MemoMap {
               const tp = yield* _(
                 restore(layer.scope(innerScope).chain((f) => f(self))).result.chain((exit) =>
                   exit.match(
-                    (cause) =>
-                      future.failCause(cause) > innerScope.close(exit) > IO.failCauseNow(cause),
+                    (cause) => future.failCause(cause) > innerScope.close(exit) > IO.failCauseNow(cause),
                     (a) =>
                       IO.gen(function* (_) {
                         yield* _(
@@ -60,9 +57,7 @@ export class MemoMap {
                         yield* _(observers.update((n) => n + 1));
                         yield* _(
                           outerScope.addFinalizerExit(
-                            Finalizer.get((e) =>
-                              finalizerRef.get.chain((fin) => Finalizer.reverseGet(fin)(e)),
-                            ),
+                            Finalizer.get((e) => finalizerRef.get.chain((fin) => Finalizer.reverseGet(fin)(e))),
                           ),
                         );
                         yield* _(future.succeed(a));
@@ -82,9 +77,7 @@ export class MemoMap {
                 () => observers.update((n) => n + 1),
               ),
             ),
-            Finalizer.get((exit: Exit<any, any>) =>
-              finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(exit)),
-            ),
+            Finalizer.get((exit: Exit<any, any>) => finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(exit))),
           );
 
           return tuple(resource, layer.isFresh() ? map : map.set(layer[LayerHash], memoized));
@@ -103,9 +96,9 @@ export function isFresh<R, E, A>(self: Layer<R, E, A>): self is Fresh<R, E, A> {
 }
 
 export function makeMemoMap(): UIO<MemoMap> {
-  return Ref.Synchronized.make(
-    HashMap.makeDefault<PropertyKey, readonly [FIO<any, any>, Finalizer]>(),
-  ).chain((ref) => IO.succeedNow(new MemoMap(ref)));
+  return Ref.Synchronized.make(HashMap.makeDefault<PropertyKey, readonly [FIO<any, any>, Finalizer]>()).chain((ref) =>
+    IO.succeedNow(new MemoMap(ref)),
+  );
 }
 
 /**
@@ -164,17 +157,13 @@ export function scope<R, E, A>(
     case LayerTag.ZipWith: {
       return IO.succeed(
         () => (memoMap: MemoMap) =>
-          memoMap
-            .getOrElseMemoize(scope, layer.self)
-            .zipWith(memoMap.getOrElseMemoize(scope, layer.that), layer.f),
+          memoMap.getOrElseMemoize(scope, layer.self).zipWith(memoMap.getOrElseMemoize(scope, layer.that), layer.f),
       );
     }
     case LayerTag.ZipWithC: {
       return IO.succeed(
         () => (memoMap: MemoMap) =>
-          memoMap
-            .getOrElseMemoize(scope, layer.self)
-            .zipWithC(memoMap.getOrElseMemoize(scope, layer.that), layer.f),
+          memoMap.getOrElseMemoize(scope, layer.self).zipWithC(memoMap.getOrElseMemoize(scope, layer.that), layer.f),
       );
     }
   }

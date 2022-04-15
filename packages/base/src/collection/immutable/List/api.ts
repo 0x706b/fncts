@@ -12,7 +12,7 @@
  * for more information regarding copyright ownership
  */
 
-import type * as P from "@fncts/base/prelude";
+import type * as P from "@fncts/base/typeclass";
 
 import { _Nil } from "@fncts/base/collection/immutable/List/definition";
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
@@ -86,12 +86,7 @@ function noneIn<A>(l: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   }
 }
 
-function allIn<A>(
-  start: List<A>,
-  remaining: List<A>,
-  p: Predicate<A>,
-  isFlipped: boolean,
-): List<A> {
+function allIn<A>(start: List<A>, remaining: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   while (true) {
     if (remaining.isEmpty()) {
       return start;
@@ -106,12 +101,7 @@ function allIn<A>(
   }
 }
 
-function partialFill<A>(
-  origStart: List<A>,
-  firstMiss: List<A>,
-  p: Predicate<A>,
-  isFlipped: boolean,
-): List<A> {
+function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   const newHead   = new Cons(unsafeHead(origStart), _Nil);
   let toProcess   = origStart.unsafeTail as Cons<A>;
   let currentLast = newHead;

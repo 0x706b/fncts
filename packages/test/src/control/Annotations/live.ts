@@ -33,9 +33,7 @@ export class LiveAnnotations extends Annotations {
           (refs) =>
             IO.foreach(refs, (ref) => ref.get)
               .map((fibers) =>
-                fibers.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s1, s2) =>
-                  s1.union(s2),
-                ),
+                fibers.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s1, s2) => s1.union(s2)),
               )
               .map((s) => s.filter((f) => Equatable.strictEquals(f.id, descriptor.id))),
         ),
