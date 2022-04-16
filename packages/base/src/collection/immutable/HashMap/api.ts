@@ -26,8 +26,8 @@ export function isEmpty<K, V>(map: HashMap<K, V>): boolean {
  *
  * @tsplus static fncts.HashMapOps make
  */
-export function make<K, V>(K: P.Hash<K> & P.Eq<K>) {
-  return new HashMap<K, V>(false, 0, K, _EmptyNode, 0);
+export function make<K, V>(config: P.HashEq<K>): HashMap<K, V> {
+  return new HashMap<K, V>(false, 0, config, _EmptyNode, 0);
 }
 
 /**
@@ -35,7 +35,7 @@ export function make<K, V>(K: P.Hash<K> & P.Eq<K>) {
  *
  * @tsplus static fncts.HashMapOps makeDefault
  */
-export function makeDefault<K, V>() {
+export function makeDefault<K, V>(): HashMap<K, V> {
   return make<K, V>(P.HashEq.StructuralStrict);
 }
 
@@ -44,9 +44,9 @@ export function makeDefault<K, V>() {
  *
  * @tsplus fluent fncts.HashMapOps fromFoldable
  */
-export function fromFoldable<F extends HKT, C, K, A>(C: P.HashEq<K>, S: P.Semigroup<A>, F: P.Foldable<F, C>) {
+export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.Semigroup<A>, F: P.Foldable<F, C>) {
   return <K_, Q, W, X, I, S, R, E>(fka: HKT.Kind<F, C, K_, Q, W, X, I, S, R, E, readonly [K, A]>): HashMap<K, A> => {
-    return F.foldLeft_(fka, make(C), (b, [k, a]) => {
+    return F.foldLeft_(fka, make(config), (b, [k, a]) => {
       const oa = get_(b, k);
       if (oa.isJust()) {
         return set_(b, k, S.combine_(oa.value, a));
@@ -96,7 +96,7 @@ export function has_<K, V>(map: HashMap<K, V>, key: K): boolean {
 /**
  * Alter the value stored for `key` in `map` using function `f` using custom hash.
  *
- *  `f` is invoked with the current value for `k` if it exists,
+ * `f` is invoked with the current value for `k` if it exists,
  * or no arguments if no such value exists.
  *
  * `modify` will always either update or insert a value into the map.
@@ -113,7 +113,7 @@ export function modifyHash_<K, V>(map: HashMap<K, V>, key: K, hash: number, f: U
 /**
  * Alter the value stored for `key` in `map` using function `f` using internal hash function.
  *
- *  `f` is invoked with the current value for `k` if it exists,
+ * `f` is invoked with the current value for `k` if it exists,
  * or no arguments if no such value exists.
  *
  * `modify` will always either update or insert a value into the map.
@@ -135,7 +135,7 @@ export function set_<K, V>(map: HashMap<K, V>, key: K, value: V): HashMap<K, V> 
 }
 
 /**
- *  Remove the entry for `key` in `map` using internal hash.
+ * Remove the entry for `key` in `map` using internal hash.
  *
  * @tsplus fluent fncts.HashMap remove
  */
@@ -148,9 +148,9 @@ export function remove_<K, V>(map: HashMap<K, V>, key: K): HashMap<K, V> {
  *
  * @tsplus fluent fncts.HashMap removeMany
  */
-export function removeMany_<K, V>(map: HashMap<K, V>, ks: Iterable<K>): HashMap<K, V> {
+export function removeMany_<K, V>(map: HashMap<K, V>, keys: Iterable<K>): HashMap<K, V> {
   return mutate_(map, (m) => {
-    for (const k of ks) {
+    for (const k of keys) {
       m.remove(k);
     }
   });
@@ -161,7 +161,7 @@ export function removeMany_<K, V>(map: HashMap<K, V>, ks: Iterable<K>): HashMap<
  *
  * @tsplus getter fncts.HashMap beginMutation
  */
-export function beginMutation<K, V>(map: HashMap<K, V>) {
+export function beginMutation<K, V>(map: HashMap<K, V>): HashMap<K, V> {
   return new HashMap(true, map.edit + 1, map.config, map.root, map.size);
 }
 
@@ -170,7 +170,7 @@ export function beginMutation<K, V>(map: HashMap<K, V>) {
  *
  * @tsplus getter fncts.HashMap endMutation
  */
-export function endMutation<K, V>(map: HashMap<K, V>) {
+export function endMutation<K, V>(map: HashMap<K, V>): HashMap<K, V> {
   map.editable = false;
   return map;
 }
@@ -180,7 +180,7 @@ export function endMutation<K, V>(map: HashMap<K, V>) {
  *
  * @tsplus fluent fncts.HashMap mutate
  */
-export function mutate_<K, V>(map: HashMap<K, V>, f: (map: HashMap<K, V>) => void) {
+export function mutate_<K, V>(map: HashMap<K, V>, f: (map: HashMap<K, V>) => void): HashMap<K, V> {
   const transient = map.beginMutation;
   f(transient);
   return transient.endMutation;
@@ -197,6 +197,8 @@ export function keys<K, V>(map: HashMap<K, V>): IterableIterator<K> {
 
 /**
  * Get the set of keys
+ *
+ * @tsplus getter fncts.HashMap keySet
  */
 export function keySet<K, V>(self: HashMap<K, V>): HashSet<K> {
   return HashSet.make(self.config).mutate((set) => {
@@ -208,6 +210,8 @@ export function keySet<K, V>(self: HashMap<K, V>): HashSet<K> {
 
 /**
  * Get the set of values
+ *
+ * @tsplus getter fncts.HashMap keySetDefault
  */
 export function toSetDefault<K, V>(map: HashMap<K, V>): HashSet<V> {
   return HashSet.makeDefault<V>().mutate((set) => {
@@ -231,7 +235,7 @@ export function values<K, V>(map: HashMap<K, V>): IterableIterator<V> {
  *
  * @tsplus fluent fncts.HashMap update
  */
-export function update_<K, V>(map: HashMap<K, V>, key: K, f: (v: V) => V) {
+export function update_<K, V>(map: HashMap<K, V>, key: K, f: (v: V) => V): HashMap<K, V> {
   return map.modify(key, (v) => v.map(f));
 }
 
@@ -296,14 +300,21 @@ export function chain_<K, V, A>(ma: HashMap<K, V>, f: (v: V) => HashMap<K, A>): 
 }
 
 /**
- * Removes None values
+ * Removes values that are `Nothing`
+ *
+ * @tsplus getter fncts.HashMap compact
  */
-export function compact<K, A>(fa: HashMap<K, Maybe<A>>): HashMap<K, A> {
-  return filterMap_(fa, (a) => a);
+export function compact<K, A>(map: HashMap<K, Maybe<A>>): HashMap<K, A> {
+  return map.filterMap(Function.identity);
 }
 
-export function separate<K, A, B>(fa: HashMap<K, Either<A, B>>): readonly [HashMap<K, A>, HashMap<K, B>] {
-  return partitionMap_(fa, (a) => a);
+/**
+ * Removes `Either` values into two separate `HashMaps`
+ *
+ * @tsplus getter fncts.HashMap separate
+ */
+export function separate<K, A, B>(map: HashMap<K, Either<A, B>>): readonly [HashMap<K, A>, HashMap<K, B>] {
+  return map.partitionMap(Function.identity);
 }
 
 /**
@@ -311,11 +322,9 @@ export function separate<K, A, B>(fa: HashMap<K, Either<A, B>>): readonly [HashM
  *
  * @tsplus fluent fncts.HashMap filterMapWithIndex
  */
-export function filterMapWithIndex_<K, A, B>(fa: HashMap<K, A>, f: (k: K, a: A) => Maybe<B>): HashMap<K, B> {
-  const m = make<K, B>(fa.config);
-
-  return m.mutate((m) => {
-    for (const [k, a] of fa) {
+export function filterMapWithIndex_<K, A, B>(map: HashMap<K, A>, f: (k: K, a: A) => Maybe<B>): HashMap<K, B> {
+  return make<K, B>(map.config).mutate((m) => {
+    for (const [k, a] of map) {
       const o = f(k, a);
       if (o.isJust()) {
         m.set(k, o.value);
@@ -329,8 +338,8 @@ export function filterMapWithIndex_<K, A, B>(fa: HashMap<K, A>, f: (k: K, a: A) 
  *
  * @tsplus fluent fncts.HashMap filterMap
  */
-export function filterMap_<K, A, B>(fa: HashMap<K, A>, f: (a: A) => Maybe<B>): HashMap<K, B> {
-  return fa.filterMapWithIndex((_, a) => f(a));
+export function filterMap_<K, A, B>(map: HashMap<K, A>, f: (a: A) => Maybe<B>): HashMap<K, B> {
+  return map.filterMapWithIndex((_, a) => f(a));
 }
 
 /**
@@ -339,15 +348,13 @@ export function filterMap_<K, A, B>(fa: HashMap<K, A>, f: (a: A) => Maybe<B>): H
  * @tsplus fluent fncts.HashMap filterWithIndex
  */
 export function filterWithIndex_<K, A, B extends A>(
-  fa: HashMap<K, A>,
+  map: HashMap<K, A>,
   refinement: RefinementWithIndex<K, A, B>,
 ): HashMap<K, B>;
-export function filterWithIndex_<K, A>(fa: HashMap<K, A>, predicate: PredicateWithIndex<K, A>): HashMap<K, A>;
-export function filterWithIndex_<K, A>(fa: HashMap<K, A>, predicate: PredicateWithIndex<K, A>): HashMap<K, A> {
-  const m = make<K, A>(fa.config);
-
-  return m.mutate((m) => {
-    for (const [k, a] of fa) {
+export function filterWithIndex_<K, A>(map: HashMap<K, A>, predicate: PredicateWithIndex<K, A>): HashMap<K, A>;
+export function filterWithIndex_<K, A>(map: HashMap<K, A>, predicate: PredicateWithIndex<K, A>): HashMap<K, A> {
+  return make<K, A>(map.config).mutate((m) => {
+    for (const [k, a] of map) {
       if (predicate(k, a)) {
         m.set(k, a);
       }
@@ -360,23 +367,23 @@ export function filterWithIndex_<K, A>(fa: HashMap<K, A>, predicate: PredicateWi
  *
  * @tsplus fluent fncts.HashMap filter
  */
-export function filter_<K, A, B extends A>(fa: HashMap<K, A>, refinement: Refinement<A, B>): HashMap<K, B>;
-export function filter_<K, A>(fa: HashMap<K, A>, predicate: Predicate<A>): HashMap<K, A>;
-export function filter_<K, A>(fa: HashMap<K, A>, predicate: Predicate<A>): HashMap<K, A> {
-  return fa.filterWithIndex((_, a) => predicate(a));
+export function filter_<K, A, B extends A>(map: HashMap<K, A>, refinement: Refinement<A, B>): HashMap<K, B>;
+export function filter_<K, A>(map: HashMap<K, A>, predicate: Predicate<A>): HashMap<K, A>;
+export function filter_<K, A>(map: HashMap<K, A>, predicate: Predicate<A>): HashMap<K, A> {
+  return map.filterWithIndex((_, a) => predicate(a));
 }
 
 /**
  * @tsplus fluent fncts.HashMap partitionMapWithIndex
  */
 export function partitionMapWithIndex_<K, V, A, B>(
-  fa: HashMap<K, V>,
+  map: HashMap<K, V>,
   f: (i: K, a: V) => Either<A, B>,
 ): readonly [HashMap<K, A>, HashMap<K, B>] {
-  const left  = make<K, A>(fa.config).beginMutation;
-  const right = make<K, B>(fa.config).beginMutation;
+  const left  = make<K, A>(map.config).beginMutation;
+  const right = make<K, B>(map.config).beginMutation;
 
-  fa.forEachWithIndex((k, v) => {
+  map.forEachWithIndex((k, v) => {
     f(k, v).match(
       (a) => {
         left.set(k, a);
@@ -394,31 +401,31 @@ export function partitionMapWithIndex_<K, V, A, B>(
  * @tsplus fluent fncts.HashMap partitionMap
  */
 export function partitionMap_<K, V, A, B>(
-  fa: HashMap<K, V>,
+  map: HashMap<K, V>,
   f: (a: V) => Either<A, B>,
 ): readonly [HashMap<K, A>, HashMap<K, B>] {
-  return fa.partitionMapWithIndex((_, a) => f(a));
+  return map.partitionMapWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus fluent fncts.HashMap partitionWithIndex
  */
 export function partitionWithIndex_<K, V, B extends V>(
-  fa: HashMap<K, V>,
+  map: HashMap<K, V>,
   refinement: RefinementWithIndex<K, V, B>,
 ): readonly [HashMap<K, V>, HashMap<K, B>];
 export function partitionWithIndex_<K, V>(
-  fa: HashMap<K, V>,
+  map: HashMap<K, V>,
   predicate: PredicateWithIndex<K, V>,
 ): readonly [HashMap<K, V>, HashMap<K, V>];
 export function partitionWithIndex_<K, V>(
-  fa: HashMap<K, V>,
+  map: HashMap<K, V>,
   predicate: PredicateWithIndex<K, V>,
 ): readonly [HashMap<K, V>, HashMap<K, V>] {
-  const left  = make<K, V>(fa.config).beginMutation;
-  const right = make<K, V>(fa.config).beginMutation;
+  const left  = make<K, V>(map.config).beginMutation;
+  const right = make<K, V>(map.config).beginMutation;
 
-  fa.forEachWithIndex((k, v) => {
+  map.forEachWithIndex((k, v) => {
     if (predicate(k, v)) {
       right.set(k, v);
     } else {
@@ -433,12 +440,12 @@ export function partitionWithIndex_<K, V>(
  * @tsplus fluent fncts.HashMap partition
  */
 export function partition_<K, V, B extends V>(
-  fa: HashMap<K, V>,
+  map: HashMap<K, V>,
   refinement: Refinement<V, B>,
 ): readonly [HashMap<K, V>, HashMap<K, B>];
-export function partition_<K, V>(fa: HashMap<K, V>, predicate: Predicate<V>): readonly [HashMap<K, V>, HashMap<K, V>];
-export function partition_<K, V>(fa: HashMap<K, V>, predicate: Predicate<V>): readonly [HashMap<K, V>, HashMap<K, V>] {
-  return fa.partitionWithIndex((_, a) => predicate(a));
+export function partition_<K, V>(map: HashMap<K, V>, predicate: Predicate<V>): readonly [HashMap<K, V>, HashMap<K, V>];
+export function partition_<K, V>(map: HashMap<K, V>, predicate: Predicate<V>): readonly [HashMap<K, V>, HashMap<K, V>] {
+  return map.partitionWithIndex((_, a) => predicate(a));
 }
 
 /**
@@ -446,7 +453,7 @@ export function partition_<K, V>(fa: HashMap<K, V>, predicate: Predicate<V>): re
  *
  * @tsplus fluent fncts.HashMap foldLeftWithIndex
  */
-export function foldLeftWithIndex_<K, V, Z>(map: HashMap<K, V>, z: Z, f: (r: K, z: Z, v: V) => Z): Z {
+export function foldLeftWithIndex_<K, V, Z>(map: HashMap<K, V>, z: Z, f: (k: K, z: Z, v: V) => Z): Z {
   const root = map.root;
   if (root._tag === "LeafNode") return root.value.isJust() ? f(root.key, z, root.value.value) : z;
   if (root._tag === "EmptyNode") {
@@ -584,15 +591,15 @@ export const wilt: P.wilt<HashMapF> = (A) => {
 export const wiltSelf: P.wiltSelf<HashMapF> = (self) => (A) => (f) => self.wiltWithIndex(A)((_, a) => f(a));
 
 /**
- * @tsplus fluent fncts.HashMap concatWith
+ * @tsplus fluent fncts.HashMap unionWith
  */
-export function concatWith_<K, A>(
-  xs: HashMap<K, A>,
-  ys: Iterable<readonly [K, A]>,
+export function unionWith_<K, A>(
+  self: HashMap<K, A>,
+  that: Iterable<readonly [K, A]>,
   f: (x: A, y: A) => A,
 ): HashMap<K, A> {
-  return xs.mutate((m) => {
-    for (const [k, a] of ys) {
+  return self.mutate((m) => {
+    for (const [k, a] of that) {
       m.modify(k, (v) =>
         v.match(
           () => Just(a),
@@ -604,11 +611,11 @@ export function concatWith_<K, A>(
 }
 
 /**
- * @tsplus fluent fncts.HashMap concat
+ * @tsplus fluent fncts.HashMap union
  */
-export function concat_<K, A>(xs: HashMap<K, A>, ys: Iterable<readonly [K, A]>): HashMap<K, A> {
-  return xs.mutate((m) => {
-    for (const [k, a] of ys) {
+export function union_<K, A>(self: HashMap<K, A>, that: Iterable<readonly [K, A]>): HashMap<K, A> {
+  return self.mutate((m) => {
+    for (const [k, a] of that) {
       m.set(k, a);
     }
   });
@@ -617,8 +624,8 @@ export function concat_<K, A>(xs: HashMap<K, A>, ys: Iterable<readonly [K, A]>):
 /**
  * @tsplus fluent fncts.HashMap pop
  */
-export function pop_<K, A>(m: HashMap<K, A>, k: K): Maybe<readonly [A, HashMap<K, A>]> {
-  return m.get(k).map((a) => [a, m.remove(k)]);
+export function pop_<K, A>(map: HashMap<K, A>, k: K): Maybe<readonly [A, HashMap<K, A>]> {
+  return map.get(k).map((a) => [a, map.remove(k)]);
 }
 
 /*
