@@ -18,14 +18,14 @@ function traverseResultLoop<A>(whole: AssertionValue<A>, failureDetails: Failure
     const fragment = whole.result;
     const r0       = fragment.value;
     const result   = r0.isSuccess ? r0 : r0.invert;
-    return result.chain((fragment) =>
+    return result.flatMap((fragment) =>
       traverseResultLoop(fragment, new FailureDetails(Cons(whole, failureDetails.assertion), failureDetails.gen)),
     );
   }
 }
 
 export function traverseResult<A>(value: A, assertResult: AssertResult<A>, assertion: AssertionIO<A>): TestResult {
-  return assertResult.chain((fragment) =>
+  return assertResult.flatMap((fragment) =>
     traverseResultLoop(
       fragment,
       new FailureDetails(

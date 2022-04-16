@@ -31,6 +31,6 @@ export class TestRunner<R, E> {
     return this.executor
       .run(spec, ExecutionStrategy.concurrentBounded(10))
       .timedWith(Clock.currentTime)
-      .chain(([duration, results]) => this.reporter(duration, results).as(results));
+      .flatMap(([duration, results]) => this.reporter(duration, results).as(results));
   }
 }

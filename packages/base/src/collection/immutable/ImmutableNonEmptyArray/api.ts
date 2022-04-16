@@ -11,7 +11,7 @@ export function ap_<A, B>(
   self: ImmutableNonEmptyArray<(a: A) => B>,
   fa: ImmutableNonEmptyArray<A>,
 ): ImmutableNonEmptyArray<B> {
-  return self.chain((f) => fa.map((a) => f(a)));
+  return self.flatMap((f) => fa.map((a) => f(a)));
 }
 
 /**
@@ -66,19 +66,19 @@ export function alignWith_<A, B, C>(
 }
 
 /**
- * @tsplus fluent fncts.ImmutableNonEmptyArray chain
+ * @tsplus fluent fncts.ImmutableNonEmptyArray flatMap
  */
-export function chain_<A, B>(
+export function flatMap_<A, B>(
   self: ImmutableNonEmptyArray<A>,
   f: (a: A) => ImmutableNonEmptyArray<B>,
 ): ImmutableNonEmptyArray<B> {
-  return self.chainWithIndex((_, a) => f(a));
+  return self.flatMapWithIndex((_, a) => f(a));
 }
 
 /**
- * @tsplus fluent fncts.ImmutableNonEmptyArray chainWithIndex
+ * @tsplus fluent fncts.ImmutableNonEmptyArray flatMapWithIndex
  */
-export function chainWithIndex_<A, B>(
+export function flatMapWithIndex_<A, B>(
   self: ImmutableNonEmptyArray<A>,
   f: (i: number, a: A) => ImmutableNonEmptyArray<B>,
 ): ImmutableNonEmptyArray<B> {
@@ -164,7 +164,7 @@ export function crossWith_<A, B, C>(
   fb: ImmutableNonEmptyArray<B>,
   f: (a: A, b: B) => C,
 ): ImmutableNonEmptyArray<C> {
-  return self.chain((a) => fb.map((b) => f(a, b)));
+  return self.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**
@@ -196,7 +196,7 @@ export function elemSelf<A>(self: ImmutableNonEmptyArray<A>) {
  * @tsplus getter fncts.ImmutableNonEmptyArray flatten
  */
 export function flatten<A>(self: ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>>): ImmutableNonEmptyArray<A> {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 
 /**

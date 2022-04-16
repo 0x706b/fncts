@@ -24,7 +24,7 @@ function toPullInterpret<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 ): IO<Env, OutErr, Either<OutDone, OutElem>> {
   switch (channelState._tag) {
     case ChannelStateTag.Effect:
-      return channelState.effect.chain(() => toPullInterpret(exec.run(), exec));
+      return channelState.effect.flatMap(() => toPullInterpret(exec.run(), exec));
     case ChannelStateTag.Emit:
       return IO.succeed(Either.right(exec.getEmit()));
     case ChannelStateTag.Done: {

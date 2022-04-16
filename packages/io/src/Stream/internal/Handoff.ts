@@ -35,7 +35,7 @@ export type State<A> = Empty | Full<A>;
  */
 export function make<A>(): UIO<Handoff<A>> {
   return Future.make<never, void>()
-    .chain((p) => Ref.make<State<A>>(new Empty(p)))
+    .flatMap((p) => Ref.make<State<A>>(new Empty(p)))
     .map((refState) => new Handoff(refState));
 }
 
@@ -43,7 +43,7 @@ export function make<A>(): UIO<Handoff<A>> {
  * @tsplus fluent fncts.control.Stream.Handoff offer
  */
 export function offer<A>(handoff: Handoff<A>, a: A): UIO<void> {
-  return Future.make<never, void>().chain(
+  return Future.make<never, void>().flatMap(
     (p) =>
       handoff.ref.modify((s) => {
         switch (s._tag) {
@@ -60,7 +60,7 @@ export function offer<A>(handoff: Handoff<A>, a: A): UIO<void> {
  * @tsplus getter fncts.control.Stream.Handoff take
  */
 export function take<A>(handoff: Handoff<A>): UIO<A> {
-  return Future.make<never, void>().chain(
+  return Future.make<never, void>().flatMap(
     (p) =>
       handoff.ref.modify((s) => {
         switch (s._tag) {
@@ -77,7 +77,7 @@ export function take<A>(handoff: Handoff<A>): UIO<A> {
  * @tsplus getter fncts.control.Stream.Handoff poll
  */
 export function poll<A>(handoff: Handoff<A>): UIO<Maybe<A>> {
-  return Future.make<never, void>().chain(
+  return Future.make<never, void>().flatMap(
     (p) =>
       handoff.ref.modify((s) => {
         switch (s._tag) {

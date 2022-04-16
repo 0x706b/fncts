@@ -56,7 +56,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
       (c) =>
         this.get.matchIO(
           (e) => IO.failNow(ec(e)),
-          (b) => ca(c)(b).chain((a) => this.unsafeSet(a).mapError(ea)),
+          (b) => ca(c)(b).flatMap((a) => this.unsafeSet(a).mapError(ea)),
         ),
     );
   }
@@ -71,7 +71,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
     return new PSynchronizedInternal(
       this.semaphores,
       this.unsafeGet.matchIO((e) => IO.failNow(eb(e)), bd),
-      (c) => ca(c).chain((a) => this.unsafeSet(a).mapError(ea)),
+      (c) => ca(c).flatMap((a) => this.unsafeSet(a).mapError(ea)),
     );
   }
 

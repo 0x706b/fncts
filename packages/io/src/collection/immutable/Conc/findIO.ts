@@ -9,7 +9,7 @@ function findIOLoop_<R, E, A>(
 ): IO<R, E, Maybe<A>> {
   if (i < length) {
     const a = array[i]!;
-    return f(a).chain((b) => (b ? IO.succeedNow(Just(a)) : findIOLoop_(iterator, f, array, i + 1, length)));
+    return f(a).flatMap((b) => (b ? IO.succeedNow(Just(a)) : findIOLoop_(iterator, f, array, i + 1, length)));
   }
   let result;
   if (!(result = iterator.next()).done) {

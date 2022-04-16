@@ -43,5 +43,5 @@ export interface absolve<F extends HKT, FC = HKT.None> {
  */
 export function absolveF<F extends HKT.CovariantE, FC = HKT.None>(F: MonadExceptMin<F, FC>): absolve<F, FC>;
 export function absolveF<F>(F: MonadExceptMin<HKT.FCoE<F>>): absolve<HKT.FCoE<F>> {
-  return (fa) => F.chain_(fa, (r) => r.match(F.fail, F.pure));
+  return (fa) => F.flatMap_(fa, (r) => r.match(F.fail, F.pure));
 }

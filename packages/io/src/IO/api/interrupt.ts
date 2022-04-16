@@ -15,7 +15,7 @@ export function interruptAs(fiberId: FiberId, __tsplusTrace?: string): FIO<never
  *
  * @tsplus static fncts.control.IOOps interrupt
  */
-export const interrupt: IO<unknown, never, never> = IO.fiberId.chain(IO.interruptAs);
+export const interrupt: IO<unknown, never, never> = IO.fiberId.flatMap(IO.interruptAs);
 
 /**
  * Switches the interrupt status for this effect. If `true` is used, then the
@@ -133,8 +133,8 @@ export function onInterruptExtended_<R, E, A, R2, E2>(
  */
 export function disconnect<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return uninterruptibleMask(({ restore }) =>
-    IO.fiberId.chain((id) =>
-      restore(self).forkDaemon.chain((fiber) =>
+    IO.fiberId.flatMap((id) =>
+      restore(self).forkDaemon.flatMap((fiber) =>
         restore(fiber.join).onInterrupt(() => fiber.interruptAs(id).forkDaemon),
       ),
     ),

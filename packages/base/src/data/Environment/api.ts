@@ -36,7 +36,7 @@ export function make(): Environment<unknown> {
  * @tsplus fluent fncts.Environment union
  */
 export function union<R, R1>(self: Environment<R>, that: Environment<R1>): Environment<R & R1> {
-  return new Environment(self.cache.concat(that.cache));
+  return new Environment(self.cache.union(that.cache));
 }
 
 /**

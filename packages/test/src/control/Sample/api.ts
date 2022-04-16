@@ -8,15 +8,15 @@ import { add64, halve64, isEqual64, substract64 } from "../../util/math.js";
 import { Sample } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.control.Sample chain
+ * @tsplus fluent fncts.test.control.Sample flatMap
  */
-export function chain_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>): Sample<R & R1, B> {
+export function flatMap_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>): Sample<R & R1, B> {
   const sample = f(ma.value);
   return new Sample(
     sample.value,
     mergeStream(
       sample.shrink,
-      ma.shrink.map((maybeSample) => maybeSample.map((sample) => sample.chain(f))),
+      ma.shrink.map((maybeSample) => maybeSample.map((sample) => sample.flatMap(f))),
     ),
   );
 }
@@ -30,12 +30,12 @@ export function filter_<R, A>(ma: Sample<R, A>, f: Predicate<A>): Stream<R, neve
       Just(
         new Sample(
           ma.value,
-          ma.shrink.chain((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty)),
+          ma.shrink.flatMap((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty)),
         ),
       ),
     );
   } else {
-    return ma.shrink.chain((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty));
+    return ma.shrink.flatMap((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty));
   }
 }
 
@@ -85,7 +85,7 @@ export function shrinkSearch_<R, A>(ma: Sample<R, A>, p: Predicate<A>): Stream<R
             (v) => p(v.value),
           ),
         )
-        .chain((maybeSample) => maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty)),
+        .flatMap((maybeSample) => maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty)),
     );
   }
 }
@@ -112,7 +112,7 @@ export function zip<R, A, R1, B>(ma: Sample<R, A>, mb: Sample<R1, B>): Sample<R 
  * @tsplus fluent fncts.test.control.Sample zipWith
  */
 export function zipWith_<R, A, R1, B, C>(ma: Sample<R, A>, mb: Sample<R1, B>, f: (a: A, b: B) => C): Sample<R & R1, C> {
-  return ma.chain((a) => map_(mb, (b) => f(a, b)));
+  return ma.flatMap((a) => map_(mb, (b) => f(a, b)));
 }
 
 /**
@@ -220,13 +220,13 @@ function mergeStream<R, A, R1, B>(
   left: Stream<R, never, Maybe<A>>,
   right: Stream<R1, never, Maybe<B>>,
 ): Stream<R & R1, never, Maybe<A | B>> {
-  return chainStream(Stream.fromChunk(Conc(Just<Stream<R & R1, never, Maybe<A | B>>>(left), Just(right))), identity);
+  return flatMapStream(Stream.fromChunk(Conc(Just<Stream<R & R1, never, Maybe<A | B>>>(left), Just(right))), identity);
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps chainStream
+ * @tsplus static fncts.test.control.SampleOps flatMapStream
  */
-export function chainStream<R, A, R1, B>(
+export function flatMapStream<R, A, R1, B>(
   stream: Stream<R, never, Maybe<A>>,
   f: (a: A) => Stream<R1, never, Maybe<B>>,
 ): Stream<R & R1, never, Maybe<B>> {

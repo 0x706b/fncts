@@ -26,7 +26,7 @@ class Synch<A> extends ScopedRef<A> {
     super();
   }
 
-  close: UIO<void> = this.ref.get.chain(([scope, _]) => scope.close(Exit.unit));
+  close: UIO<void> = this.ref.get.flatMap(([scope, _]) => scope.close(Exit.unit));
 
   set<R, E>(acquire: IO<R & Has<Scope>, E, A>, __tsplusTrace?: string): IO<R, E, void> {
     return this.ref.modifyIO(([oldScope, a]) =>

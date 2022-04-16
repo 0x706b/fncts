@@ -192,7 +192,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
               const message = this.unsafeDrainMailbox();
               if (message !== null) {
                 const oldIO = current;
-                current     = concrete(message.chain(() => oldIO));
+                current     = concrete(message.flatMap(() => oldIO));
               } else if (opCount === maxOpCount) {
                 this.unsafeRunLater(current);
                 current = null;
@@ -324,7 +324,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                         if (this.unsafeShouldInterrupt) {
                           if (this.unsafeExitAsync(epoch)) {
                             this.unsafeSetInterrupting(true);
-                            current = concrete(r.left.chain(() => IO.failCauseNow(this.unsafeClearSuppressedCause())));
+                            current = concrete(r.left.flatMap(() => IO.failCauseNow(this.unsafeClearSuppressedCause())));
                           } else {
                             current = null;
                           }
@@ -720,7 +720,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
         this.state.status         = FiberStatus.running(true);
         this.state.interruptors   = new Set(oldState.interruptors).add(fiberId);
         this.state.asyncCanceller = CancellerState.empty;
-        this.unsafeRunLater(concrete(asyncCanceller.chain(() => interrupt)));
+        this.unsafeRunLater(concrete(asyncCanceller.flatMap(() => interrupt)));
       } else if (this.state._tag === "Executing") {
         const newCause = Cause.then(this.state.suppressed, interruptedCause);
         this.state.interruptors.add(fiberId);
@@ -742,7 +742,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
           const mailbox      = this.state.mailbox;
           this.state.mailbox = null;
           this.unsafeSetInterrupting(true);
-          return concrete(mailbox.chain(() => IO.fromExit(exit)));
+          return concrete(mailbox.flatMap(() => IO.fromExit(exit)));
         } else if (this.children.size === 0) {
           // We are truly "done" because all the children of this fiber have terminated,
           // and there are no more pending effects that we have to execute on the fiber.
@@ -774,11 +774,11 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
           let interruptChildren = IO.unit;
 
           this.children.forEach((child) => {
-            interruptChildren = interruptChildren.chain(() => child.interruptAs(this.fiberId));
+            interruptChildren = interruptChildren.flatMap(() => child.interruptAs(this.fiberId));
           });
           this.children.clear();
 
-          return concrete(interruptChildren.chain(() => IO.fromExit(exit)));
+          return concrete(interruptChildren.flatMap(() => IO.fromExit(exit)));
         }
       }
     }
@@ -995,7 +995,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
   private unsafeEvalOn(effect: UIO<any>, orElse: UIO<any>): UIO<void> {
     if (this.state._tag === "Executing") {
-      const newMailbox   = this.state.mailbox == null ? effect : this.state.mailbox.chain(() => effect);
+      const newMailbox   = this.state.mailbox == null ? effect : this.state.mailbox.flatMap(() => effect);
       this.state.mailbox = newMailbox;
       return IO.unit;
     } else {

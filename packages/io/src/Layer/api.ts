@@ -53,9 +53,9 @@ export function catchAll_<RIn, E, ROut, RIn1, E1, ROut1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Layer chain
+ * @tsplus fluent fncts.control.Layer flatMap
  */
-export function chain_<RIn, E, ROut, RIn1, E1, ROut1>(
+export function flatMap_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   f: (r: Environment<ROut>) => Layer<RIn1, E1, ROut1>,
 ): Layer<RIn & RIn1, E | E1, ROut1> {
@@ -114,7 +114,7 @@ export function flatten<RIn, E, RIn1, E1, ROut>(
   self: Layer<RIn, E, Has<Layer<RIn1, E1, ROut>>>,
   tag: Tag<Layer<RIn1, E1, ROut>>,
 ): Layer<RIn & RIn1, E | E1, ROut> {
-  return self.chain((environment) => environment.get(tag));
+  return self.flatMap((environment) => environment.get(tag));
 }
 
 /**
@@ -213,7 +213,7 @@ export function map_<RIn, E, ROut, ROut1>(
   self: Layer<RIn, E, ROut>,
   f: (r: Environment<ROut>) => Environment<ROut1>,
 ): Layer<RIn, E, ROut1> {
-  return self.chain((a) => Layer.succeedEnvironmentNow(f(a)));
+  return self.flatMap((a) => Layer.succeedEnvironmentNow(f(a)));
 }
 
 /**
@@ -264,7 +264,7 @@ export function retry_<RIn, E, ROut, S, RIn1>(
   schedule: Schedule.WithState<S, RIn1, E, any>,
 ): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
   const tag = Tag<{ readonly state: S }>();
-  return Layer.succeedNow({ state: schedule.initial }, tag).chain((environment) =>
+  return Layer.succeedNow({ state: schedule.initial }, tag).flatMap((environment) =>
     retryLoop(self, schedule, environment.get(tag).state, tag),
   );
 }
@@ -276,10 +276,10 @@ function retryUpdate<S, RIn, E, X>(
   tag: Tag<{ readonly state: S }>,
 ): Layer<RIn & Has<Clock>, E, Has<{ readonly state: S }>> {
   return Layer.fromIO(
-    Clock.currentTime.chain((now) =>
+    Clock.currentTime.flatMap((now) =>
       schedule
         .step(now, e, s)
-        .chain(([state, _, decision]) =>
+        .flatMap(([state, _, decision]) =>
           decision._tag === DecisionTag.Done
             ? IO.failNow(e)
             : Clock.sleep(decision.interval.startMilliseconds - now).as({ state }),
@@ -296,7 +296,7 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
   tag: Tag<{ readonly state: S }>,
 ): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
   return self.catchAll((e) =>
-    retryUpdate(schedule, e, s, tag).chain((env) => retryLoop(self, schedule, env.get(tag).state, tag).fresh),
+    retryUpdate(schedule, e, s, tag).flatMap((env) => retryLoop(self, schedule, env.get(tag).state, tag).fresh),
   );
 }
 

@@ -13,9 +13,9 @@ export function catchAll_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (e: E) => S
  * Feeds the value produced by this effect to the specified function,
  * and then runs the returned effect as well to produce its results.
  *
- * @tsplus fluent fncts.control.STM chain
+ * @tsplus fluent fncts.control.STM flatMap
  */
-export function chain_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (a: A) => STM<R1, E1, B>): STM<R1 & R, E | E1, B> {
+export function flatMap_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (a: A) => STM<R1, E1, B>): STM<R1 & R, E | E1, B> {
   return new OnSuccess<R1 & R, E | E1, A, B>(self, f);
 }
 
@@ -28,8 +28,8 @@ export function chain_<R, E, A, R1, E1, B>(self: STM<R, E, A>, f: (a: A) => STM<
  */
 export function ensuring_<R, E, A, R1, B>(self: STM<R, E, A>, finalizer: STM<R1, never, B>): STM<R & R1, E, A> {
   return self.matchSTM(
-    (e) => finalizer.chain(() => STM.failNow(e)),
-    (a) => finalizer.chain(() => STM.succeedNow(a)),
+    (e) => finalizer.flatMap(() => STM.failNow(e)),
+    (a) => finalizer.flatMap(() => STM.succeedNow(a)),
   );
 }
 
@@ -39,7 +39,7 @@ export function ensuring_<R, E, A, R1, B>(self: STM<R, E, A>, finalizer: STM<R1,
  * @tsplus fluent fncts.control.STM map
  */
 export function map_<R, E, A, B>(self: STM<R, E, A>, f: (a: A) => B): STM<R, E, B> {
-  return self.chain((a) => STM.succeedNow(f(a)));
+  return self.flatMap((a) => STM.succeedNow(f(a)));
 }
 
 /**
@@ -56,5 +56,5 @@ export function matchSTM_<R, E, A, R1, E1, B, R2, E2, C>(
   return self
     .map(Either.right)
     .catchAll((e) => g(e).map(Either.left))
-    .chain((ca) => ca.match(STM.succeedNow, f));
+    .flatMap((ca) => ca.match(STM.succeedNow, f));
 }

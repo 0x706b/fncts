@@ -75,9 +75,9 @@ export function builder<A>(): ConcBuilder<A> {
 }
 
 /**
- * @tsplus fluent fncts.Conc chain
+ * @tsplus fluent fncts.Conc flatMap
  */
-export function chain_<A, B>(ma: Conc<A>, f: (a: A) => Conc<B>): Conc<B> {
+export function flatMap_<A, B>(ma: Conc<A>, f: (a: A) => Conc<B>): Conc<B> {
   concrete(ma);
   const iterator = ma.arrayIterator();
   let result: IteratorResult<ArrayLike<A>>;
@@ -407,7 +407,7 @@ export function find_<A>(self: Conc<A>, f: (a: A) => boolean): Maybe<A> {
  * @tsplus getter fncts.Conc flatten
  */
 export function flatten<A>(self: Conc<Conc<A>>): Conc<A> {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 /**
  * Folds over the elements in this Conc from the left.

@@ -29,7 +29,7 @@ function coordinateZipWithC<E, E2>() {
   ) => {
     return winner.match(
       (cw) =>
-        loser.interruptAs(fiberId).chain((exit) =>
+        loser.interruptAs(fiberId).flatMap((exit) =>
           exit.match(
             (cl) => (leftWinner ? IO.failCauseNow(Cause.both(cw, cl)) : IO.failCauseNow(Cause.both(cl, cw))),
             () => IO.failCauseNow(cw),

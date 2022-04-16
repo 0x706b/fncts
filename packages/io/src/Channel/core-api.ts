@@ -69,7 +69,7 @@ export function map_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDo
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (out: OutDone) => OutDone2,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2> {
-  return self.chain((z) => Channel.succeedNow(f(z)));
+  return self.flatMap((z) => Channel.succeedNow(f(z)));
 }
 
 /**
@@ -78,9 +78,9 @@ export function map_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDo
  * The result is a channel that will first perform the functions of this channel, before
  * performing the functions of the created channel (including yielding its terminal value).
  *
- * @tsplus fluent fncts.control.Channel chain
+ * @tsplus fluent fncts.control.Channel flatMap
  */
-export function chain_<
+export function flatMap_<
   Env,
   InErr,
   InElem,
@@ -153,7 +153,7 @@ export function cross_<
   OutElem | OutElem1,
   readonly [OutDone, OutDone1]
 > {
-  return self.chain((z) => that.map((z2) => tuple(z, z2)));
+  return self.flatMap((z) => that.map((z2) => tuple(z, z2)));
 }
 
 /**
@@ -189,7 +189,7 @@ export function apFirst_<
   OutElem | OutElem1,
   OutDone
 > {
-  return self.chain((a) => that.map(() => a));
+  return self.flatMap((a) => that.map(() => a));
 }
 
 /**
@@ -225,5 +225,5 @@ export function apSecond_<
   OutElem1 | OutElem,
   OutDone1
 > {
-  return self.chain(() => that);
+  return self.flatMap(() => that);
 }

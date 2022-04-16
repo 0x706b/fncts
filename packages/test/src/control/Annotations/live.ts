@@ -27,7 +27,7 @@ export class LiveAnnotations extends Annotations {
   supervisedFibers = IO.descriptorWith((descriptor) =>
     this.fiberRef.get
       .map((m) => m.get(TestAnnotation.Fibers))
-      .chain((r) =>
+      .flatMap((r) =>
         r.match(
           () => IO.succeed(HashSet.makeDefault<Fiber.Runtime<any, any>>()),
           (refs) =>

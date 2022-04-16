@@ -4,7 +4,7 @@
  * @tsplus static fncts.control.FiberOps interruptAllAs
  */
 export function interruptAllAs_(fs: Iterable<Fiber<any, any>>, id: FiberId): UIO<void> {
-  return fs.foldLeft(IO.unit, (io, f) => io.chain(() => f.interruptAs(id).asUnit));
+  return fs.foldLeft(IO.unit, (io, f) => io.flatMap(() => f.interruptAs(id).asUnit));
 }
 
 /**
@@ -13,5 +13,5 @@ export function interruptAllAs_(fs: Iterable<Fiber<any, any>>, id: FiberId): UIO
  * @tsplus static fncts.control.FiberOps interruptAll
  */
 export function interruptAll(fs: Iterable<Fiber<any, any>>): UIO<void> {
-  return IO.fiberId.chain((id) => Fiber.interruptAllAs(fs, id));
+  return IO.fiberId.flatMap((id) => Fiber.interruptAllAs(fs, id));
 }

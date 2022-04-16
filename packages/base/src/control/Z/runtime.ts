@@ -148,7 +148,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
             unsafePushStackFrame(
               new MatchFrame(
                 (cause: Cause<any>) => {
-                  const m = Z.put(state).chain(() => currZ.onFailure(log, cause));
+                  const m = Z.put(state).flatMap(() => currZ.onFailure(log, cause));
                   log     = Conc.empty();
                   return m;
                 },
@@ -168,8 +168,8 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
           case ZTag.Provide: {
             unsafePushEnv(currZ.env);
             current = currZ.ma.match(
-              (e) => Z.succeedNow(unsafePopEnv()).chain(() => Z.failNow(e)),
-              (a) => Z.succeedNow(unsafePopEnv()).chain(() => Z.succeedNow(a)),
+              (e) => Z.succeedNow(unsafePopEnv()).flatMap(() => Z.failNow(e)),
+              (a) => Z.succeedNow(unsafePopEnv()).flatMap(() => Z.succeedNow(a)),
             );
             break;
           }

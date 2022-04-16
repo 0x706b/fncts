@@ -6,5 +6,5 @@
  * @tsplus getter fncts.control.Fiber interrupt
  */
 export function interrupt<E, A>(fiber: Fiber<E, A>): UIO<Exit<E, A>> {
-  return IO.fiberId.chain((id) => fiber.interruptAs(id));
+  return IO.fiberId.flatMap((id) => fiber.interruptAs(id));
 }

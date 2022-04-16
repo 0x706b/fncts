@@ -23,9 +23,9 @@ export const sequenceS = Apply.sequenceSF<MaybeF>({ map_, ap_, zipWith_ });
  * Applies `f` to the value contained in `Maybe` if it is `Just` and returns the result,
  * otherwise returns `Nothing`.
  *
- * @tsplus fluent fncts.Maybe chain
+ * @tsplus fluent fncts.Maybe flatMap
  */
-export function chain_<A, B>(self: Maybe<A>, f: (a: A) => Maybe<B>): Maybe<B> {
+export function flatMap_<A, B>(self: Maybe<A>, f: (a: A) => Maybe<B>): Maybe<B> {
   return self._tag === MaybeTag.Just ? f(self.value) : (self as Nothing);
 }
 
@@ -66,14 +66,14 @@ export function filter_<A, B>(self: Maybe<A>, p: Predicate<A>): Maybe<A> {
  * @tsplus fluent fncts.Maybe filter
  */
 export function filterMap_<A, B>(self: Maybe<A>, f: (a: A) => Maybe<B>): Maybe<B> {
-  return self.chain(f);
+  return self.flatMap(f);
 }
 
 /**
  * @tsplus getter fncts.Maybe flatten
  */
 export function flatten<A>(self: Maybe<Maybe<A>>): Maybe<A> {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 
 /**
@@ -153,7 +153,7 @@ export function map_<A, B>(self: Maybe<A>, f: (a: A) => B): Maybe<B> {
  * @tsplus fluent fncts.Maybe mapNullable
  */
 export function mapNullable_<A, B>(self: Maybe<A>, f: (a: A) => Nullable<B>): Maybe<NonNullable<B>> {
-  return self.chain(Maybe.fromNullableK(f));
+  return self.flatMap(Maybe.fromNullableK(f));
 }
 
 /**

@@ -72,10 +72,10 @@ export function acquireReleaseExitWith_<Env, InErr, InElem, InDone, OutErr, OutE
   use: (a: Acquired) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone>,
   release: (a: Acquired, exit: Exit<OutErr, OutDone>) => URIO<Env, any>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone> {
-  return Channel.fromIO(Ref.make<(exit: Exit<OutErr, OutDone>) => URIO<Env, any>>((_) => IO.unit)).chain((ref) =>
+  return Channel.fromIO(Ref.make<(exit: Exit<OutErr, OutDone>) => URIO<Env, any>>((_) => IO.unit)).flatMap((ref) =>
     Channel.fromIO(acquire.tap((a) => ref.set((exit) => release(a, exit))).uninterruptible)
-      .chain(use)
-      .ensuringWith((exit) => ref.get.chain((fin) => fin(exit))),
+      .flatMap(use)
+      .ensuringWith((exit) => ref.get.flatMap((fin) => fin(exit))),
   );
 }
 
@@ -493,7 +493,7 @@ function contramapInIOReader<Env1, InErr, InElem0, InElem, InDone>(
   f: (a: InElem0) => IO<Env1, InErr, InElem>,
 ): Channel<Env1, InErr, InElem0, InDone, InErr, InElem, InDone> {
   return Channel.readWith(
-    (inp) => Channel.fromIO(f(inp)).chain(Channel.writeNow).apSecond(contramapInIOReader(f)),
+    (inp) => Channel.fromIO(f(inp)).flatMap(Channel.writeNow).apSecond(contramapInIOReader(f)),
     Channel.failNow,
     Channel.endNow,
   );
@@ -581,7 +581,7 @@ export function drain<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 export function emitCollect<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, readonly [Conc<OutElem>, OutDone], void> {
-  return self.doneCollect.chain((t) => Channel.writeNow(t));
+  return self.doneCollect.flatMap((t) => Channel.writeNow(t));
 }
 
 /**
@@ -676,7 +676,7 @@ export function flatten<
   OutElem | OutElem1,
   OutDone2
 > {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 
 /**
@@ -719,7 +719,7 @@ export function fromOption<A>(option: Lazy<Maybe<A>>): Channel<unknown, unknown,
 export function fromQueue<Err, Elem, Done>(
   queue: Queue.Dequeue<Either<Exit<Err, Done>, Elem>>,
 ): Channel<unknown, unknown, unknown, unknown, Err, Elem, Done> {
-  return Channel.fromIO(queue.take).chain((_) =>
+  return Channel.fromIO(queue.take).flatMap((_) =>
     _.match(
       (_) => _.match(Channel.failCauseNow, Channel.endNow),
       (elem) => Channel.writeNow(elem).apSecond(Channel.fromQueue(queue)),
@@ -747,7 +747,7 @@ export function contramapEnvironment_<Env, InErr, InElem, InDone, OutErr, OutEle
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (env0: Environment<Env0>) => Environment<Env>,
 ): Channel<Env0, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  return Channel.ask<Env0>().chain((env0) => self.provideEnvironment(f(env0)));
+  return Channel.ask<Env0>().flatMap((env0) => self.provideEnvironment(f(env0)));
 }
 
 /**
@@ -791,7 +791,7 @@ export function scoped<R, E, A>(
   io: Lazy<IO<R & Has<Scope>, E, A>>,
 ): Channel<R, unknown, unknown, unknown, E, A, unknown> {
   return Channel.acquireReleaseOutExit(
-    Scope.make.chain((scope) =>
+    Scope.make.flatMap((scope) =>
       IO.uninterruptibleMask(({ restore }) =>
         restore(scope.extend(io)).matchCauseIO(
           (cause) => scope.close(Exit.failCause(cause)) > IO.failCauseNow(cause),
@@ -839,7 +839,7 @@ export function mapIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutEle
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (o: OutDone) => IO<Env1, OutErr1, OutDone1>,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone1> {
-  return self.chain((outDone) => Channel.fromIO(f(outDone)));
+  return self.flatMap((outDone) => Channel.fromIO(f(outDone)));
 }
 
 /**
@@ -864,7 +864,7 @@ const mapOutIOReader = <Env, Env1, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
   f: (o: OutElem) => IO<Env1, OutErr1, OutElem1>,
 ): Channel<Env & Env1, OutErr, OutElem, OutDone, OutErr | OutErr1, OutElem1, OutDone> =>
   Channel.readWith(
-    (out) => Channel.fromIO(f(out)).chain(Channel.writeNow).apSecond(mapOutIOReader(f)),
+    (out) => Channel.fromIO(f(out)).flatMap(Channel.writeNow).apSecond(mapOutIOReader(f)),
     Channel.failNow,
     Channel.endNow,
   );
@@ -1170,7 +1170,7 @@ export function readWith<
 export function repeated<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  return self.chain(() => self.repeated);
+  return self.flatMap(() => self.repeated);
 }
 
 /**

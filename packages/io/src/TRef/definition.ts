@@ -128,7 +128,7 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         new Derived((f) =>
           f(
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
-            (c) => ca(c).chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
+            (c) => ca(c).flatMap((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),
@@ -151,7 +151,7 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
             (c) => (s) =>
               getEither(s)
                 .match((e) => Either.left(ec(e)), ca(c))
-                .chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
+                .flatMap((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),
@@ -188,7 +188,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         new DerivedAll((f) =>
           f(
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
-            (c) => (s) => ca(c).chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
+            (c) => (s) => ca(c).flatMap((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),
@@ -211,7 +211,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
             (c) => (s) =>
               getEither(s)
                 .match((e) => Either.left(ec(e)), ca(c))
-                .chain((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
+                .flatMap((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),

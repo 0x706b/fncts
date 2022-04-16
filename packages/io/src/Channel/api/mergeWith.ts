@@ -193,7 +193,7 @@ export function mergeWith_<
           ),
         ),
       )
-        .chain(go)
+        .flatMap(go)
         .embedInput(input);
     }),
   );

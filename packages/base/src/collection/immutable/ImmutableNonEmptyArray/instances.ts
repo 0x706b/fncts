@@ -4,8 +4,8 @@ import {
   align_,
   alignWith_,
   ap_,
-  chain_,
   crossWith_,
+  flatMap_,
   foldLeft_,
   foldLeftWithIndex_,
   foldRight_,
@@ -69,7 +69,7 @@ export const Monad: P.Monad<ImmutableNonEmptyArrayF> = P.Monad({
   zipWith_: crossWith_,
   ap_,
   pure: make,
-  chain_,
+  flatMap_: flatMap_,
 });
 
 /**

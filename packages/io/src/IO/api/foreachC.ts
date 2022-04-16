@@ -70,10 +70,10 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(as: Iterable<A>, f: (a: A) =
               ),
             ).forkDaemon,
         ),
-      ).chain((fibers) =>
+      ).flatMap((fibers) =>
         restore(future.await).matchCauseIO(
           (cause) =>
-            foreachConcurrentUnbounded(fibers, (f) => f.interrupt).chain((exits) =>
+            foreachConcurrentUnbounded(fibers, (f) => f.interrupt).flatMap((exits) =>
               Exit.collectAllC(exits).match(
                 () => IO.failCauseNow(cause.stripFailures),
                 (exit) =>
@@ -91,23 +91,23 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(as: Iterable<A>, f: (a: A) =
 
 function foreachConcurrentUnbounded<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
   return IO.succeed<B[]>([])
-    .chain((array) =>
+    .flatMap((array) =>
       foreachConcurrentUnboundedDiscard(as.zipWithIndex, ([n, a]) =>
-        IO.defer(f(a)).chain((b) =>
+        IO.defer(f(a)).flatMap((b) =>
           IO.succeed(() => {
             array[n] = b;
           }),
         ),
-      ).chain(() => IO.succeed(array)),
+      ).flatMap(() => IO.succeed(array)),
     )
     .map(Conc.from);
 }
 
 function foreachConcurrentBoundedDiscardWorker<R, E, A>(queue: Queue<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
-  return queue.poll.chain((ma) =>
+  return queue.poll.flatMap((ma) =>
     ma.match(
       () => IO.unit,
-      (a) => f(a).chain(() => foreachConcurrentBoundedDiscardWorker(queue, f)),
+      (a) => f(a).flatMap(() => foreachConcurrentBoundedDiscardWorker(queue, f)),
     ),
   );
 }
@@ -142,7 +142,7 @@ function foreachConcurrentBoundedWorker<R, E, A, B>(
   array: Array<any>,
   f: (a: A) => IO<R, E, B>,
 ): IO<R, E, void> {
-  return queue.poll.chain((ma) =>
+  return queue.poll.flatMap((ma) =>
     ma.match(
       () => IO.unit,
       ([n, a]) =>
@@ -152,7 +152,7 @@ function foreachConcurrentBoundedWorker<R, E, A, B>(
               array[n] = b;
             }),
           )
-          .chain(() => foreachConcurrentBoundedWorker(queue, array, f)),
+          .flatMap(() => foreachConcurrentBoundedWorker(queue, array, f)),
     ),
   );
 }

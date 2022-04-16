@@ -14,7 +14,7 @@ export function conc<R, A>(
 ): Gen<R & Has<Random> & Has<Sized>, Conc<A>> {
   const minLength = constraints.minLength ?? 0;
   return constraints.maxLength
-    ? Gen.int({ min: minLength, max: constraints.maxLength }).chain((n) => self.concN(n))
+    ? Gen.int({ min: minLength, max: constraints.maxLength }).flatMap((n) => self.concN(n))
     : Gen.small((n) => self.concN(n), minLength);
 }
 

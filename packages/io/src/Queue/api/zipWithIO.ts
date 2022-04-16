@@ -17,7 +17,7 @@ export class ZipWithIO<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, R
     super();
   }
 
-  awaitShutdown: UIO<void> = this.fa.awaitShutdown.chain(() => this.fb.awaitShutdown);
+  awaitShutdown: UIO<void> = this.fa.awaitShutdown.flatMap(() => this.fb.awaitShutdown);
 
   capacity: number = Math.min(this.fa.capacity, this.fb.capacity);
 
@@ -35,17 +35,17 @@ export class ZipWithIO<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, R
 
   size: UIO<number> = this.fa.size.zipWithC(this.fb.size, (x, y) => Math.max(x, y));
 
-  take: IO<RB & RB1 & R3, E3 | EB | EB1, D> = this.fa.take.zipC(this.fb.take).chain(([b, c]) => this.f(b, c));
+  take: IO<RB & RB1 & R3, E3 | EB | EB1, D> = this.fa.take.zipC(this.fb.take).flatMap(([b, c]) => this.f(b, c));
 
   takeAll: IO<RB & RB1 & R3, E3 | EB | EB1, Conc<D>> = this.fa.takeAll
     .zipC(this.fb.takeAll)
-    .chain(([bs, cs]) => IO.foreach(bs.zip(cs), ([b, c]) => this.f(b, c)));
+    .flatMap(([bs, cs]) => IO.foreach(bs.zip(cs), ([b, c]) => this.f(b, c)));
 
   takeUpTo(max: number): IO<RB & RB1 & R3, E3 | EB | EB1, Conc<D>> {
     return this.fa
       .takeUpTo(max)
       .zipC(this.fb.takeUpTo(max))
-      .chain(([bs, cs]) => IO.foreach(bs.zip(cs), ([b, c]) => this.f(b, c)));
+      .flatMap(([bs, cs]) => IO.foreach(bs.zip(cs), ([b, c]) => this.f(b, c)));
   }
 }
 

@@ -162,7 +162,7 @@ export function filterTags_<R, E, T>(spec: PSpec<R, E, T>, f: (tag: string) => b
 export function filterByArgs<R, E>(spec: Spec<R, E>, args: TestArgs): Spec<R, E> {
   return spec
     .filterTags(args.tagSearchTerms.elem(String.Eq))
-    .chain((spec) =>
+    .flatMap((spec) =>
       spec.filterLabels((label) => args.testSearchTerms.findIndex((term) => term.includes(label)) === -1),
     )
     .getOrElse(() => spec);
@@ -190,15 +190,15 @@ export function foldScoped_<R, E, T, R1, E1, Z>(
   defExec: ExecutionStrategy,
 ): IO<R & R1 & Has<Scope>, E1, Z> {
   return matchTag_(spec.caseValue, {
-    Exec: ({ exec, spec }) => spec.foldScoped(f, exec).chain((z) => f(new ExecCase(exec, z))),
-    Labeled: ({ label, spec }) => spec.foldScoped(f, defExec).chain((z) => f(new LabeledCase(label, z))),
+    Exec: ({ exec, spec }) => spec.foldScoped(f, exec).flatMap((z) => f(new ExecCase(exec, z))),
+    Labeled: ({ label, spec }) => spec.foldScoped(f, defExec).flatMap((z) => f(new LabeledCase(label, z))),
     Scoped: ({ scoped }) =>
       scoped.matchCauseIO(
         (cause) => f(new ScopedCase(IO.haltNow(cause))),
-        (spec) => spec.foldScoped(f, defExec).chain((z) => f(new ScopedCase(IO.succeedNow(z)))),
+        (spec) => spec.foldScoped(f, defExec).flatMap((z) => f(new ScopedCase(IO.succeedNow(z)))),
       ),
     Multiple: ({ specs }) =>
-      IO.foreachExec(specs, defExec, (spec) => spec.foldScoped(f, defExec).scoped).chain((zs) =>
+      IO.foreachExec(specs, defExec, (spec) => spec.foldScoped(f, defExec).scoped).flatMap((zs) =>
         f(new MultipleCase(zs)),
       ),
     Test: f,
@@ -363,11 +363,11 @@ export function whenIO_<R, E, R1, E1>(
   return matchTag_(self.caseValue, {
     Exec: (c) => exec(c.spec.whenIO(b), c.exec),
     Labeled: ({ label, spec }) => Spec.labeled(spec.whenIO(b), label),
-    Scoped: (c) => Spec.scoped(b.chain((b) => (b ? c.scoped : IO.succeedNow(Spec.empty)))),
+    Scoped: (c) => Spec.scoped(b.flatMap((b) => (b ? c.scoped : IO.succeedNow(Spec.empty)))),
     Multiple: ({ specs }) => Spec.multiple(specs.map((_) => _.whenIO(b))),
     Test: (c) =>
       Spec.test(
-        b.chain((b) => IO.if(b, c.test, Annotations.annotate(TestAnnotation.Ignored, 1)).as(TestSuccess.Ignored)),
+        b.flatMap((b) => IO.if(b, c.test, Annotations.annotate(TestAnnotation.Ignored, 1)).as(TestSuccess.Ignored)),
         c.annotations,
       ),
   });

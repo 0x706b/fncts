@@ -369,7 +369,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
  * into a human-readable, formatted string
  */
 function showRaw(value: object, typedArray?: string): ShowComputation {
-  return Z.gets((context: ShowContext) => tuple(context, getInspectionInfo(context, value, typedArray))).chain(
+  return Z.gets((context: ShowContext) => tuple(context, getInspectionInfo(context, value, typedArray))).flatMap(
     ([context, info]) => {
       if (info._tag === "InspectionInfo" && context.recurseTimes > context.depth) {
         let constructorName = getPrefix(info.constructor, info.tag, "Object").slice(0, -1);
@@ -449,7 +449,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
             )
               .apSecond(output)
               .cross(baseWithRef)
-              .chain(([output, base]) =>
+              .flatMap(([output, base]) =>
                 Z.modify((context) => {
                   const res = reduceToSingleString(context, output, base, braces, extrasType, value);
 
@@ -575,7 +575,7 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
       if (context.showHidden) {
         return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
           .apSecond(
-            Z.succeedNow(output).chain((output) =>
+            Z.succeedNow(output).flatMap((output) =>
               Conc("BYTES_PER_ELEMENT", "length", "byteLength", "byteOffset", "buffer")
                 .traverse(Z.Applicative)((key) =>
                   _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`),
@@ -673,7 +673,7 @@ function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
     const remaining = valLen - len;
     chunk           = chunk.take(len);
     return tuple(remaining, chunk);
-  }).chain(([remaining, chunk]) => {
+  }).flatMap(([remaining, chunk]) => {
     let computation = Z.succeedNow(Conc.empty()) as ShowComputationChunk;
     for (let i = 0; i < chunk.length; i++) {
       if (!Object.prototype.hasOwnProperty.call(value, i)) {
@@ -695,7 +695,7 @@ function showChunk(value: Conc<unknown>): ShowComputationChunk {
     const remaining = valLen - len;
     const chunk     = value.take(len);
     return tuple(remaining, chunk);
-  }).chain(([remaining, chunk]) =>
+  }).flatMap(([remaining, chunk]) =>
     chunk
       .traverse(Z.Applicative)(_show)
       .map((chunk) => (remaining > 0 ? chunk.append(`... ${remaining} more item${pluralize(remaining)}`) : chunk)),
@@ -720,7 +720,7 @@ export function showProperty(
         const diff = context.compact !== true || (type !== OBJECT_TYPE && type !== PROTO_TYPE) ? 2 : 3;
         return Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel + diff }))
           .apSecond(_show(descriptor.value))
-          .chain((shown: string) =>
+          .flatMap((shown: string) =>
             Z.gets((_: ShowContext) =>
               diff === 3 && _.breakLength < getStringWidth(shown, _.colors)
                 ? tuple(descriptor, `\n${" ".repeat(_.indentationLevel)}`, shown)

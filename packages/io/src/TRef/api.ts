@@ -30,12 +30,12 @@ export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<unknown, EB, B>
     }
     case "Derived": {
       return self.use((getEither, _setEither, value, _atomic) =>
-        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
+        get(value).flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
       );
     }
     case "DerivedAll": {
       return self.use((getEither, _setEither, value, _atomic) =>
-        get(value).chain((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
+        get(value).flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
       );
     }
   }

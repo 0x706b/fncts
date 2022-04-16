@@ -106,7 +106,7 @@ function renderLoop<E>(
 
       const allAnnotations = ancestors.prepend(annotations);
 
-      const rest = Vector.from(specs).chain((spec) =>
+      const rest = Vector.from(specs).flatMap((spec) =>
         renderLoop(spec, depth + 1, ancestors.prepend(annotations), List.empty()),
       );
 
@@ -116,7 +116,7 @@ function renderLoop<E>(
           labels.reverse.join(" - "),
           status,
           depth,
-          List.from(renderedLabel.chain((r) => r.lines)),
+          List.from(renderedLabel.flatMap((r) => r.lines)),
         ).withAnnotations(allAnnotations),
       );
     }
@@ -193,8 +193,8 @@ function renderAssertionFailureDetails(failureDetails: Cons<AssertionValue<any>>
    */
   function loop(failureDetails: List<AssertionValue<any>>, rendered: Message): Message {
     const fragment = failureDetails.head;
-    const whole    = failureDetails.tail.chain((l) => l.head);
-    const details  = failureDetails.tail.chain((l) => l.tail);
+    const whole    = failureDetails.tail.flatMap((l) => l.head);
+    const details  = failureDetails.tail.flatMap((l) => l.tail);
     if (fragment.isJust() && whole.isJust() && details.isJust()) {
       return loop(Cons(whole.value, details.value), rendered + renderWhole(fragment.value, whole.value, offset));
     } else {
@@ -258,7 +258,7 @@ function renderRuntimeCause<E>(cause: Cause<E>, label: string, depth: number, in
   const failureDetails = List(renderFailureLabel(label, depth)).concat(
     List(renderCause(cause, depth))
       .filter(() => includeCause)
-      .chain((l) => l.lines),
+      .flatMap((l) => l.lines),
   );
   return rendered(Test, label, Failed, depth, List.from(failureDetails));
 }

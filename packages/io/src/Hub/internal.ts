@@ -107,7 +107,7 @@ export class BackPressure<A> extends Strategy<A> {
     as: Iterable<A>,
     isShutdown: AtomicBoolean,
   ): UIO<boolean> {
-    return IO.fiberId.chain((fiberId) =>
+    return IO.fiberId.flatMap((fiberId) =>
       IO.defer(() => {
         const future = Future.unsafeMake<never, boolean>(fiberId);
 
@@ -273,7 +273,7 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
 
   isShutdown: UIO<boolean> = IO.succeed(() => this.shutdownFlag.get);
 
-  shutdown: UIO<void> = IO.fiberId.chain((fiberId) =>
+  shutdown: UIO<void> = IO.fiberId.flatMap((fiberId) =>
     IO.defer(() => {
       this.shutdownFlag.set(true);
       return IO.foreachC(this.pollers.unsafeDequeueAll, (fiber) => fiber.interruptAs(fiberId))
@@ -294,7 +294,7 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
 
   offerAll = (_: Iterable<never>): IO<never, unknown, boolean> => IO.succeedNow(false);
 
-  take: IO<unknown, never, A> = IO.fiberId.chain((fiberId) =>
+  take: IO<unknown, never, A> = IO.fiberId.flatMap((fiberId) =>
     IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -413,7 +413,7 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
 
   isShutdown = IO.succeed(this.shutdownFlag.get);
 
-  shutdown = IO.fiberId.chain((fiberId) =>
+  shutdown = IO.fiberId.flatMap((fiberId) =>
     IO.defer(() => {
       this.shutdownFlag.set(true);
       return this.scope

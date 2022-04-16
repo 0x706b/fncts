@@ -39,7 +39,7 @@ export function withLive_<R, E, A, E1, B>(
   f: (_: IO<unknown, E, A>) => IO<IOEnv, E1, B>,
 ): IO<Erase<R, Has<Live>>, E | E1, B> {
   // @ts-expect-error
-  return IO.environment<R & Has<Live>>().chain((r) => Live.Live(f(io.provideEnvironment(r))));
+  return IO.environment<R & Has<Live>>().flatMap((r) => Live.Live(f(io.provideEnvironment(r))));
 }
 
 export function withLive<E, A, E1, B>(

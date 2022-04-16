@@ -6,7 +6,7 @@ export function provideLayer_<RIn, E, ROut, E1, A>(
   layer: Layer<RIn, E, ROut>,
 ): IO<RIn, E | E1, A> {
   return Scope.make.bracketExit(
-    (scope) => layer.build(scope).chain((r) => self.provideEnvironment(r)),
+    (scope) => layer.build(scope).flatMap((r) => self.provideEnvironment(r)),
     (scope, exit) => scope.close(exit),
   );
 }

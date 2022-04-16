@@ -18,9 +18,9 @@ import { _Nil } from "@fncts/base/collection/immutable/List/definition";
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
 
 /**
- * @tsplus fluent fncts.List chain
+ * @tsplus fluent fncts.List flatMap
  */
-export function chain_<A, B>(self: List<A>, f: (a: A) => List<B>): List<B> {
+export function flatMap_<A, B>(self: List<A>, f: (a: A) => List<B>): List<B> {
   let rest = self;
   let h: Cons<B> | undefined;
   let t: Cons<B> | undefined;

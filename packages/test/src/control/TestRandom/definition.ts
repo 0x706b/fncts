@@ -59,7 +59,7 @@ export class TestRandom implements Random {
   };
 
   private getOrElse = <A>(buffer: (_: Buffer) => readonly [Maybe<A>, Buffer], random: UIO<A>): UIO<A> => {
-    return this.bufferState.modify(buffer).chain((_) => _.match(() => random, IO.succeedNow));
+    return this.bufferState.modify(buffer).flatMap((_) => _.match(() => random, IO.succeedNow));
   };
 
   private leastSignificantBits = (x: number): number => {
@@ -91,7 +91,7 @@ export class TestRandom implements Random {
       if (i === length) {
         return acc.map((l) => l.reverse);
       } else if (n > 0) {
-        return rnd.chain((rnd) =>
+        return rnd.flatMap((rnd) =>
           loop(
             i + 1,
             IO.succeedNow(rnd >> 8),
@@ -113,7 +113,7 @@ export class TestRandom implements Random {
     } else if ((n & -n) === n) {
       return this.randomBits(31).map((_) => _ >> Math.clz32(n));
     } else {
-      const loop: UIO<number> = this.randomBits(31).chain((i) => {
+      const loop: UIO<number> = this.randomBits(31).flatMap((i) => {
         const value = i % n;
         if (i - value + (n - 1) < 0) return loop;
         else return IO.succeedNow(value);
@@ -122,13 +122,13 @@ export class TestRandom implements Random {
     }
   };
 
-  private randomLong: UIO<bigint> = this.randomBits(32).chain((i1) =>
-    this.randomBits(32).chain((i2) => IO.succeedNow(BigInt(i1 << 32) + BigInt(i2))),
+  private randomLong: UIO<bigint> = this.randomBits(32).flatMap((i1) =>
+    this.randomBits(32).flatMap((i2) => IO.succeedNow(BigInt(i1 << 32) + BigInt(i2))),
   );
 
   private randomInt = this.randomBits(32);
 
-  private randomDouble = this.randomBits(26).chain((i1) =>
+  private randomDouble = this.randomBits(26).flatMap((i1) =>
     this.randomBits(27).map((i2) => (i1 * (1 << 27) + i2) / (1 << 53)),
   );
 

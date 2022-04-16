@@ -80,9 +80,9 @@ export function append_<A>(as: Vector<A>, a: A): Vector<A> {
  * Maps a function over a Vector and concatenates all the resulting
  * Vectors together.
  *
- * @tsplus fluent fncts.Vector chain
+ * @tsplus fluent fncts.Vector flatMap
  */
-export function chain_<A, B>(ma: Vector<A>, f: (a: A) => Vector<B>): Vector<B> {
+export function flatMap_<A, B>(ma: Vector<A>, f: (a: A) => Vector<B>): Vector<B> {
   return ma.map(f).flatten;
 }
 

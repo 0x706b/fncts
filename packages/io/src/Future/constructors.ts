@@ -6,7 +6,7 @@ import { Pending } from "@fncts/io/Future/definition";
  * @tsplus static fncts.control.FutureOps make
  */
 export function make<E, A>(): IO<unknown, never, Future<E, A>> {
-  return IO.fiberId.chain((id) => Future.makeAs<E, A>(id));
+  return IO.fiberId.flatMap((id) => Future.makeAs<E, A>(id));
 }
 
 /**

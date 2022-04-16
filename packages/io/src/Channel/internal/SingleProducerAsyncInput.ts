@@ -57,7 +57,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
   constructor(readonly ref: Ref<State<Err, Elem, Done>>) {}
 
   emit(el: Elem): UIO<unknown> {
-    return Future.make<never, void>().chain(
+    return Future.make<never, void>().flatMap(
       (p) =>
         this.ref.modify((state) => {
           switch (state._stateTag) {
@@ -132,7 +132,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
   }
 
   takeWith<X>(onError: (cause: Cause<Err>) => X, onElement: (element: Elem) => X, onDone: (done: Done) => X): UIO<X> {
-    return Future.make<Err, Either<Done, Elem>>().chain(
+    return Future.make<Err, Either<Done, Elem>>().flatMap(
       (p) =>
         this.ref.modify((state) => {
           switch (state._stateTag) {
@@ -167,7 +167,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
     (d) => Exit.fail(Either.right(d)),
   );
 
-  close = IO.fiberId.chain((id) => this.error(Cause.interrupt(id)));
+  close = IO.fiberId.flatMap((id) => this.error(Cause.interrupt(id)));
 
   awaitRead: UIO<void> = this.ref.modify((s) =>
     s._stateTag === StateTag.Empty ? [s.notifyProducer.await, s] : [IO.unit, s],
@@ -181,6 +181,6 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
  */
 export function makeSingleProducerAsyncInput<Err, Elem, Done>(): UIO<SingleProducerAsyncInput<Err, Elem, Done>> {
   return Future.make<never, void>()
-    .chain((p) => Ref.make<State<Err, Elem, Done>>(new StateEmpty(p)))
+    .flatMap((p) => Ref.make<State<Err, Elem, Done>>(new StateEmpty(p)))
     .map((ref) => new SingleProducerAsyncInput(ref));
 }

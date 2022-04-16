@@ -9,9 +9,9 @@ export function and_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A
 }
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra chain
+ * @tsplus fluent fncts.data.FreeBooleanAlgebra flatMap
  */
-export function chain_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => FreeBooleanAlgebra<B>): FreeBooleanAlgebra<B> {
+export function flatMap_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => FreeBooleanAlgebra<B>): FreeBooleanAlgebra<B> {
   return self.fold({
     Value: f,
     And: (l, r) => l && r,

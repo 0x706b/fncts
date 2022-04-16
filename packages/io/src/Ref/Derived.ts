@@ -30,7 +30,7 @@ export class Derived<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, EB,
           f(
             value,
             (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
-            (c) => ca(c).chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
+            (c) => ca(c).flatMap((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
           ),
         ),
     );
@@ -55,14 +55,14 @@ export class Derived<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, EB,
                   (eb) => Either.left(ec(eb)),
                   (b) => ca(c)(b),
                 )
-                .chain((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
+                .flatMap((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
           ),
         ),
     );
   }
 
   get get(): FIO<EB, B> {
-    return this.use((value, getEither) => value.get.chain((s) => getEither(s).match(IO.failNow, IO.succeedNow)));
+    return this.use((value, getEither) => value.get.flatMap((s) => getEither(s).match(IO.failNow, IO.succeedNow)));
   }
 
   set(a: A): FIO<EA, void> {

@@ -12,7 +12,7 @@ export function array<R, A>(
 ): Gen<R & Has<Random> & Has<Sized>, ReadonlyArray<A>> {
   const minLength = constraints.minLength || 0;
   return constraints.maxLength
-    ? Gen.int({ min: minLength, max: constraints.maxLength }).chain((n) => g.arrayN(n))
+    ? Gen.int({ min: minLength, max: constraints.maxLength }).flatMap((n) => g.arrayN(n))
     : Gen.small((n) => g.arrayN(n), minLength);
 }
 

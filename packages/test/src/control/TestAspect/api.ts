@@ -37,7 +37,7 @@ export function after<R, E, A>(effect: IO<R, E, A>): TestAspect<R, E> {
       .zipWith(effect.catchAllCause((cause) => IO.fail(new RuntimeFailure(cause))).result, (ex0, ex1) =>
         ex0.apFirst(ex1),
       )
-      .chain(IO.fromExitNow),
+      .flatMap(IO.fromExitNow),
   );
 }
 

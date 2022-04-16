@@ -102,7 +102,7 @@ export class TestClock extends Clock {
 
   get supervizedFibers(): UIO<HashSet<Fiber.Runtime<any, any>>> {
     return IO.descriptorWith((descriptor) =>
-      this.annotations.get(TestAnnotation.Fibers).chain((_) =>
+      this.annotations.get(TestAnnotation.Fibers).flatMap((_) =>
         _.match(
           (_) => IO.succeed(HashSet.makeDefault()),
           (fibers) =>
@@ -115,9 +115,9 @@ export class TestClock extends Clock {
   }
 
   private get freeze(): IO<unknown, void, HashMap<FiberId, FiberStatus>> {
-    return this.supervizedFibers.chain((fibers) =>
+    return this.supervizedFibers.flatMap((fibers) =>
       IO.foldLeft(fibers, HashMap.makeDefault<FiberId, FiberStatus>(), (map, fiber) =>
-        fiber.status.chain((status) => {
+        fiber.status.flatMap((status) => {
           switch (status._tag) {
             case "Done": {
               return IO.succeed(map.set(fiber.id, status));
@@ -151,14 +151,14 @@ export class TestClock extends Clock {
         const end    = f(data.duration);
         const sorted = data.sleeps.sortWith(([x], [y]) => Number.Ord.compare_(x, y));
         return sorted.head
-          .chain(([duration, promise]) =>
+          .flatMap(([duration, promise]) =>
             duration <= end
               ? Just([Just([end, promise] as const), new Data(duration, sorted.unsafeTail)] as const)
               : Nothing(),
           )
           .getOrElse([Nothing(), new Data(end, data.sleeps)] as const);
       })
-    ).chain((_) =>
+    ).flatMap((_) =>
       _.match(
         () => IO.unit,
         ([end, promise]) => promise.succeed(undefined) > IO.yieldNow > this.run(() => end),
@@ -167,7 +167,7 @@ export class TestClock extends Clock {
   }
 
   private get suspended(): IO<unknown, void, HashMap<FiberId, FiberStatus>> {
-    return this.freeze.zip(this.delay > this.freeze).chain(([first, last]) => {
+    return this.freeze.zip(this.delay > this.freeze).flatMap(([first, last]) => {
       if (Equatable.strictEquals(first, last)) {
         return IO.succeedNow(first);
       } else {

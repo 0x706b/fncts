@@ -36,7 +36,7 @@ export function mergeAllWith_<
   return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
       IO.gen(function* (_) {
-        yield* _(IO.addFinalizer(getChildren.chain(Fiber.interruptAll)));
+        yield* _(IO.addFinalizer(getChildren.flatMap(Fiber.interruptAll)));
         const queue = yield* _(
           IO.acquireRelease(
             Queue.makeBounded<IO<Env, OutErr | OutErr1, Either<OutDone, OutElem>>>(bufferSize),
@@ -53,14 +53,14 @@ export function mergeAllWith_<
 
         const evaluatePull = (pull: IO<Env & Env1, OutErr | OutErr1, Either<OutDone, OutElem>>) =>
           pull
-            .chain((ea) =>
+            .flatMap((ea) =>
               ea.match(
                 (outDone) => IO.succeedNow(Just(outDone)),
                 (outElem) => queue.offer(IO.succeedNow(Either.right(outElem))).as(Nothing()),
               ),
             )
             .repeatUntil((m) => m.isJust())
-            .chain((md1) =>
+            .flatMap((md1) =>
               md1.match(
                 () => IO.unit,
                 (outDone) =>
@@ -76,18 +76,18 @@ export function mergeAllWith_<
         yield* _(
           pull
             .matchCauseIO(
-              (cause) => getChildren.chain(Fiber.interruptAll).apSecond(queue.offer(IO.failCauseNow(cause)).as(false)),
+              (cause) => getChildren.flatMap(Fiber.interruptAll).apSecond(queue.offer(IO.failCauseNow(cause)).as(false)),
               (doneOrChannel) =>
                 doneOrChannel.match(
                   (outDone) =>
                     errorSignal.await.raceWith(
                       permits.withPermits(n)(IO.unit),
                       (_, permitAcquisition) =>
-                        getChildren.chain(Fiber.interruptAll).apSecond(permitAcquisition.interrupt.as(false)),
+                        getChildren.flatMap(Fiber.interruptAll).apSecond(permitAcquisition.interrupt.as(false)),
                       (_, failureAwait) =>
                         failureAwait.interrupt.apSecond(
                           lastDone.get
-                            .chain((maybeDone) =>
+                            .flatMap((maybeDone) =>
                               maybeDone.match(
                                 () => queue.offer(IO.succeedNow(Either.left(outDone))),
                                 (lastDone) => queue.offer(IO.succeedNow(Either.left(f(lastDone, outDone)))),
@@ -101,7 +101,7 @@ export function mergeAllWith_<
                       case "BackPressure":
                         return IO.gen(function* (_) {
                           const latch   = yield* _(Future.make<never, void>());
-                          const raceIOs = channel.toPull.chain((io) => evaluatePull(io).race(errorSignal.await)).scoped;
+                          const raceIOs = channel.toPull.flatMap((io) => evaluatePull(io).race(errorSignal.await)).scoped;
                           yield* _(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
                           yield* _(latch.await);
                           return !(yield* _(errorSignal.isDone));
@@ -111,8 +111,8 @@ export function mergeAllWith_<
                           const canceler = yield* _(Future.make<never, void>());
                           const latch    = yield* _(Future.make<never, void>());
                           const size     = yield* _(cancelers.size);
-                          yield* _(cancelers.take.chain((f) => f.succeed(undefined)).when(size >= 0));
-                          const raceIOs = channel.toPull.chain((io) =>
+                          yield* _(cancelers.take.flatMap((f) => f.succeed(undefined)).when(size >= 0));
+                          const raceIOs = channel.toPull.flatMap((io) =>
                             evaluatePull(io).race(errorSignal.await).race(canceler.await),
                           ).scoped;
                           yield* _(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);

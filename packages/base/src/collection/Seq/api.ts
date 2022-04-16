@@ -7,7 +7,7 @@ import { tuple } from "@fncts/base/data/function";
  * @tsplus fluent fncts.Seq ap
  */
 export function ap_<A, B>(self: Seq<(a: A) => B>, fa: Seq<A>): Seq<B> {
-  return self.chain((f) => fa.map(f));
+  return self.flatMap((f) => fa.map(f));
 }
 
 /**
@@ -52,9 +52,9 @@ export function asSeq<A>(self: Seq<A>): Seq<A> {
 }
 
 /**
- * @tsplus fluent fncts.Seq chain
+ * @tsplus fluent fncts.Seq flatMap
  */
-export function chain_<A, B>(self: Seq<A>, f: (a: A) => Seq<B>): Seq<B> {
+export function flatMap_<A, B>(self: Seq<A>, f: (a: A) => Seq<B>): Seq<B> {
   return Seq.make<B>(() => {
     const ia = self[Symbol.iterator]();
     let ib: Iterator<B>;
@@ -155,7 +155,7 @@ export function corresponds_<A, B>(left: Seq<A>, right: Seq<B>, f: (a: A, b: B) 
  * @tsplus fluent fncts.Seq crossWith
  */
 export function crossWith_<A, B, C>(self: Seq<A>, fb: Seq<B>, f: (a: A, b: B) => C): Seq<C> {
-  return self.chain((a) => fb.map((b) => f(a, b)));
+  return self.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**

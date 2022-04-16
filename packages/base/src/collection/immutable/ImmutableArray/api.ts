@@ -53,7 +53,7 @@ export function alt_<A, B>(self: ImmutableArray<A>, that: Lazy<ImmutableArray<B>
  * @tsplus fluent fncts.ImmutableArray ap
  */
 export function ap_<A, B>(self: ImmutableArray<(a: A) => B>, fa: ImmutableArray<A>): ImmutableArray<B> {
-  return self.chain((f) => fa.map(f));
+  return self.flatMap((f) => fa.map(f));
 }
 
 /**
@@ -78,7 +78,7 @@ export function crossWith_<A, B, C>(
   fb: ImmutableArray<B>,
   f: (a: A, b: B) => C,
 ): ImmutableArray<C> {
-  return self.chain((a) => fb.map((b) => f(a, b)));
+  return self.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**
@@ -128,9 +128,9 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => ImmutableArray<Eit
 }
 
 /**
- * @tsplus fluent fncts.ImmutableArray chainWithIndex
+ * @tsplus fluent fncts.ImmutableArray flatMapWithIndex
  */
-export function chainWithIndex_<A, B>(
+export function flatMapWithIndex_<A, B>(
   self: ImmutableArray<A>,
   f: (i: number, a: A) => ImmutableArray<B>,
 ): ImmutableArray<B> {
@@ -158,17 +158,17 @@ export function chainWithIndex_<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.ImmutableArray chain
+ * @tsplus fluent fncts.ImmutableArray flatMap
  */
-export function chain_<A, B>(self: ImmutableArray<A>, f: (a: A) => ImmutableArray<B>): ImmutableArray<B> {
-  return self.chainWithIndex((_, a) => f(a));
+export function flatMap_<A, B>(self: ImmutableArray<A>, f: (a: A) => ImmutableArray<B>): ImmutableArray<B> {
+  return self.flatMapWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus getter fncts.ImmutableArray flatten
  */
 export function flatten<A>(self: ImmutableArray<ImmutableArray<A>>): ImmutableArray<A> {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 
 /**

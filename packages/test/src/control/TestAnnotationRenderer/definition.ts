@@ -32,7 +32,7 @@ export class CompositeRenderer {
   constructor(readonly renderers: Vector<TestAnnotationRenderer>) {}
 
   run(ancestors: List<TestAnnotationMap>, child: TestAnnotationMap): List<string> {
-    return this.renderers.toList.chain((renderer) => renderer.run(ancestors, child));
+    return this.renderers.toList.flatMap((renderer) => renderer.run(ancestors, child));
   }
 }
 

@@ -43,7 +43,7 @@ class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
   constructor(readonly ref: ScopedRef<Exit<Error, Resource>>, readonly acquire: IO<Has<Scope>, Error, Resource>) {
     super();
   }
-  get: FIO<Error, Resource> = this.ref.get.chain(IO.fromExitNow);
+  get: FIO<Error, Resource> = this.ref.get.flatMap(IO.fromExitNow);
   refresh: FIO<Error, void> = this.ref.set(this.acquire.map(Exit.succeed));
 }
 

@@ -56,7 +56,7 @@ export function andThenEither_<State, Env, In, Out, State1, Env1, In1, Out1>(
     [self.initial, that.initial, true],
     (now, inp, [s1, s2, onLeft]) => {
       if (onLeft) {
-        return self.step(now, inp, s1).chain(([lState, out, decision]) =>
+        return self.step(now, inp, s1).flatMap(([lState, out, decision]) =>
           decision.match(
             () =>
               that
@@ -102,7 +102,7 @@ export function checkIO_<State, Env, In, Out, Env1>(
   test: (inp: In, out: Out) => URIO<Env1, boolean>,
 ): Schedule.WithState<State, Env & Env1, In, Out> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) =>
+    self.step(now, inp, state).flatMap(([state, out, decision]) =>
       decision.match(
         () => IO.succeedNow([state, out, decision]),
         (interval) =>
@@ -120,7 +120,7 @@ export function compose_<S, R, I, O, S1, R1, O2>(
   that: Schedule.WithState<S1, R1, O, O2>,
 ): Schedule.WithState<readonly [S, S1], R & R1, I, O2> {
   return Schedule([self.initial, that.initial], (now, inp, state) =>
-    self.step(now, inp, state[0]).chain(([lState, out, decision]) =>
+    self.step(now, inp, state[0]).flatMap(([lState, out, decision]) =>
       decision.match(
         () => that.step(now, out, state[1]).map(([rState, out2]) => [[lState, rState], out2, Decision.Done]),
         (interval) =>
@@ -162,7 +162,7 @@ export function contramapIO_<S, R, I, O, R1, I2>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I2) => URIO<R1, I>,
 ): Schedule.WithState<S, R & R1, I2, O> {
-  return Schedule(self.initial, (now, inp2, state) => f(inp2).chain((inp) => self.step(now, inp, state)));
+  return Schedule(self.initial, (now, inp2, state) => f(inp2).flatMap((inp) => self.step(now, inp, state)));
 }
 
 /**
@@ -197,7 +197,7 @@ export function delayedIO_<S, R, I, O, R1>(
  */
 export function delays<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, number> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, _, decision]) =>
+    self.step(now, inp, state).flatMap(([state, _, decision]) =>
       decision.match(
         () => IO.succeedNow([state, 0, Decision.Done]),
         (interval) => {
@@ -272,7 +272,7 @@ export function ensuring_<S, R, I, O>(
   finalizer: UIO<any>,
 ): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) =>
+    self.step(now, inp, state).flatMap(([state, out, decision]) =>
       decision.match(
         () => finalizer.as([state, out, Decision.Done]),
         (interval) => IO.succeedNow([state, out, Decision.Continue(interval)]),
@@ -344,7 +344,7 @@ export function foldIO_<S, R, I, O, Z, R1>(
   f: (z: Z, out: O) => URIO<R1, Z>,
 ): Schedule.WithState<readonly [S, Z], R & R1, I, Z> {
   return Schedule([self.initial, z], (now, inp, [s, z]) =>
-    self.step(now, inp, s).chain(([s, out, decision]) =>
+    self.step(now, inp, s).flatMap(([s, out, decision]) =>
       decision.match(
         () => IO.succeedNow([[s, z], z, Decision.Done]),
         (interval) => f(z, out).map((z2) => [[s, z2], z, Decision.Continue(interval)]),
@@ -358,7 +358,7 @@ export function foldIO_<S, R, I, O, Z, R1>(
  */
 export function foreverSelf<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) =>
+    self.step(now, inp, state).flatMap(([state, out, decision]) =>
       decision.match(
         () => self.step(now, inp, self.initial),
         (interval) => IO.succeed([state, out, Decision.Continue(interval)]),
@@ -395,14 +395,14 @@ function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
   if (combined.isNonEmpty) {
     return IO.succeedNow([[lState, rState], [out, out2], Decision.Continue(combined)]);
   } else if (lInterval < rInterval) {
-    return self.step(lInterval.endMilliseconds, inp, lState).chain(([lState, out, decision]) =>
+    return self.step(lInterval.endMilliseconds, inp, lState).flatMap(([lState, out, decision]) =>
       decision.match(
         () => IO.succeedNow([[lState, rState], [out, out2], Decision.Done]),
         (lInterval) => intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
       ),
     );
   } else {
-    return that.step(rInterval.endMilliseconds, inp, rState).chain(([rState, out2, decision]) =>
+    return that.step(rInterval.endMilliseconds, inp, rState).flatMap(([rState, out2, decision]) =>
       decision.match(
         () => IO.succeedNow([[lState, rState], [out, out2], Decision.Done]),
         (rInterval) => intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
@@ -458,7 +458,7 @@ export function mapIO_<State, Env, In, Out, Env1, Out1>(
   f: (out: Out) => URIO<Env1, Out1>,
 ): Schedule.WithState<State, Env & Env1, In, Out1> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) => f(out).map((out1) => [state, out1, decision])),
+    self.step(now, inp, state).flatMap(([state, out, decision]) => f(out).map((out1) => [state, out1, decision])),
   );
 }
 
@@ -470,7 +470,7 @@ export function modifyDelayIO_<State, Env, In, Out, Env1>(
   f: (out: Out, duration: number) => URIO<Env1, number>,
 ): Schedule.WithState<State, Env & Env1, In, Out> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) =>
+    self.step(now, inp, state).flatMap(([state, out, decision]) =>
       decision.match(
         () => IO.succeedNow([state, out, decision]),
         (interval) => {
@@ -498,7 +498,7 @@ export function onDecision_<S, R, I, O, R1>(
   f: (state: S, out: O, decision: Decision) => URIO<R1, any>,
 ): Schedule.WithState<S, R & R1, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) => f(state, out, decision).as([state, out, decision])),
+    self.step(now, inp, state).flatMap(([state, out, decision]) => f(state, out, decision).as([state, out, decision])),
   );
 }
 
@@ -530,7 +530,7 @@ export function reconsiderIO_<S, R, I, O, R1, O1>(
   f: (state: S, out: O, decision: Decision) => URIO<R1, Either<O1, readonly [O1, Interval]>>,
 ): Schedule.WithState<S, R & R1, I, O1> {
   return Schedule(self.initial, (now, inp, state) =>
-    self.step(now, inp, state).chain(([state, out, decision]) =>
+    self.step(now, inp, state).flatMap(([state, out, decision]) =>
       decision.match(
         () =>
           f(state, out, decision).map((r) =>
@@ -632,7 +632,7 @@ export function resetWhen_<S, R, I, O>(
   return Schedule(self.initial, (now, inp, state) =>
     self
       .step(now, inp, state)
-      .chain(([state, out, decision]) =>
+      .flatMap(([state, out, decision]) =>
         f(out) ? self.step(now, inp, self.initial) : IO.succeedNow([state, out, decision]),
       ),
   );
@@ -650,7 +650,7 @@ export function run_<S, R, I, O>(
     if (xs.isEmpty()) {
       return IO.succeedNow(acc);
     } else {
-      return self.step(now, xs.head, state).chain(([state, out, decision]) =>
+      return self.step(now, xs.head, state).flatMap(([state, out, decision]) =>
         decision.match(
           () => IO.succeed(acc.append(out)),
           (interval) => loop(interval.startMilliseconds, xs.tail, state, acc.append(out)),

@@ -2,7 +2,7 @@
  * @tsplus static fncts.control.IOOps scoped
  */
 export function scoped<R, E, A>(io: Lazy<IO<R & Has<Scope>, E, A>>): IO<R, E, A> {
-  return Scope.make.chain((scope) => scope.use(io));
+  return Scope.make.flatMap((scope) => scope.use(io));
 }
 
 /**

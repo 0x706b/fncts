@@ -42,7 +42,7 @@ export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>): UIO<boo
  * @tsplus fluent fncts.control.Future fulfill
  */
 export function fulfill_<R, E, A>(future: Future<E, A>, io: IO<R, E, A>): IO<R, never, boolean> {
-  return IO.uninterruptibleMask(({ restore }) => restore(io).result.chain((exit) => future.done(exit)));
+  return IO.uninterruptibleMask(({ restore }) => restore(io).result.flatMap((exit) => future.done(exit)));
 }
 
 /**
@@ -95,7 +95,7 @@ export function halt_<E, A>(future: Future<E, A>, defect: unknown): UIO<boolean>
  * @tsplus getter fncts.control.Future interrupt
  */
 export function interrupt<E, A>(future: Future<E, A>): UIO<boolean> {
-  return IO.fiberId.chain((id) => future.fulfillWith(IO.interruptAs(id)));
+  return IO.fiberId.flatMap((id) => future.fulfillWith(IO.interruptAs(id)));
 }
 
 /**

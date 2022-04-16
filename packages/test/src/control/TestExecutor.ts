@@ -32,7 +32,7 @@ export function defaultTestExecutor<R>(
             IO.succeedNow([Either.right(success), annotations]),
           defExec,
         )
-        .scoped.chain(
+        .scoped.flatMap(
           (s) =>
             s.foldScoped(
               (spec: SpecCase<unknown, never, Annotated<Either<TestFailure<E>, TestSuccess>>, ExecutedSpec<E>>) =>

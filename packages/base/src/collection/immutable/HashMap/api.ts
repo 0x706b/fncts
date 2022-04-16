@@ -278,9 +278,9 @@ export function map_<K, V, A>(fa: HashMap<K, V>, f: (v: V) => A): HashMap<K, A> 
 /**
  * Chain over the map entries, the hash and equal of the 2 maps has to be the same
  *
- * @tsplus fluent fncts.HashMap chainWithIndex
+ * @tsplus fluent fncts.HashMap flatMapWithIndex
  */
-export function chainWithIndex_<K, V, A>(ma: HashMap<K, V>, f: (k: K, v: V) => HashMap<K, A>): HashMap<K, A> {
+export function flatMapWithIndex_<K, V, A>(ma: HashMap<K, V>, f: (k: K, v: V) => HashMap<K, A>): HashMap<K, A> {
   return ma.foldLeftWithIndex(make<K, A>(ma.config), (k, z, v) =>
     z.mutate((m) => {
       f(k, v).forEachWithIndex((k1, a1) => {
@@ -293,10 +293,10 @@ export function chainWithIndex_<K, V, A>(ma: HashMap<K, V>, f: (k: K, v: V) => H
 /**
  * Chain over the map entries, the hash and equal of the 2 maps has to be the same
  *
- * @tsplus fluent fncts.HashMap chain
+ * @tsplus fluent fncts.HashMap flatMap
  */
-export function chain_<K, V, A>(ma: HashMap<K, V>, f: (v: V) => HashMap<K, A>): HashMap<K, A> {
-  return ma.chainWithIndex((_, a) => f(a));
+export function flatMap_<K, V, A>(ma: HashMap<K, V>, f: (v: V) => HashMap<K, A>): HashMap<K, A> {
+  return ma.flatMapWithIndex((_, a) => f(a));
 }
 
 /**

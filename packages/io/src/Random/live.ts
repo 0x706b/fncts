@@ -15,9 +15,9 @@ export class LiveRandom implements Random {
   }
   nextDouble  = IO.succeed(() => this.prng.nextDouble());
   nextInt     = IO.succeed(() => this.prng.nextInt());
-  nextBoolean = this.nextDouble.chain((n) => IO.succeedNow(n > 0.5));
+  nextBoolean = this.nextDouble.flatMap((n) => IO.succeedNow(n > 0.5));
   nextRange(low: number, high: number): UIO<number> {
-    return this.nextDouble.chain((n) => IO.succeedNow((high - low) * n + low));
+    return this.nextDouble.flatMap((n) => IO.succeedNow((high - low) * n + low));
   }
   nextIntBetween(low: number, high: number): UIO<number> {
     return IO.succeed(this.prng.nextInt(low, high));

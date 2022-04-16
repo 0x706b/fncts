@@ -3,43 +3,43 @@ import type { FunctorMin } from "@fncts/base/typeclass/Functor";
 import { identity } from "@fncts/base/data/function";
 import { Functor } from "@fncts/base/typeclass/Functor";
 
-export interface Chain<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
-  readonly chain_: chain_<F, FC>;
-  readonly chain: chain<F, FC>;
+export interface FlatMap<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
+  readonly flatMap_: flatMap_<F, FC>;
+  readonly flatMap: flatMap<F, FC>;
   readonly flatten: flatten<F, FC>;
   readonly tap_: tap_<F, FC>;
   readonly tap: tap<F, FC>;
 }
 
 /**
- * @tsplus type fncts.ChainOps
+ * @tsplus type fncts.FlatMapOps
  */
-export interface ChainOps {}
+export interface FlatMapOps {}
 
-export const Chain: ChainOps = {};
+export const FlatMap: FlatMapOps = {};
 
 export type ChainMin<F extends HKT, FC = HKT.None> = {
-  readonly chain_: chain_<F, FC>;
+  readonly flatMap_: flatMap_<F, FC>;
 } & FunctorMin<F, FC>;
 
 /**
- * @tsplus static fncts.ChainOps __call
+ * @tsplus static fncts.FlatMapOps __call
  */
-export function mkChain<F extends HKT, FC = HKT.None>(F: ChainMin<F, FC>): Chain<F, FC>;
-export function mkChain<F>(F: ChainMin<HKT.F<F>>): Chain<HKT.F<F>> {
-  const tap_: tap_<HKT.F<F>>       = (ma, f) => F.chain_(ma, (a) => F.map_(f(a), () => a));
-  const flatten: flatten<HKT.F<F>> = (mma) => F.chain_(mma, identity);
-  return HKT.instance<Chain<HKT.F<F>>>({
+export function mkFlatMap<F extends HKT, FC = HKT.None>(F: ChainMin<F, FC>): FlatMap<F, FC>;
+export function mkFlatMap<F>(F: ChainMin<HKT.F<F>>): FlatMap<HKT.F<F>> {
+  const tap_: tap_<HKT.F<F>>       = (ma, f) => F.flatMap_(ma, (a) => F.map_(f(a), () => a));
+  const flatten: flatten<HKT.F<F>> = (mma) => F.flatMap_(mma, identity);
+  return HKT.instance<FlatMap<HKT.F<F>>>({
     ...Functor(F),
-    chain_: F.chain_,
-    chain: (f) => (ma) => F.chain_(ma, f),
+    flatMap_: F.flatMap_,
+    flatMap: (f) => (ma) => F.flatMap_(ma, f),
     flatten,
     tap_,
     tap: (f) => (ma) => tap_(ma, f),
   });
 }
 
-export interface chain_<F extends HKT, FC = HKT.None> {
+export interface flatMap_<F extends HKT, FC = HKT.None> {
   <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
     ma: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
     f: (
@@ -72,7 +72,7 @@ export interface chain_<F extends HKT, FC = HKT.None> {
   >;
 }
 
-export interface chain<F extends HKT, TC = HKT.None> {
+export interface flatMap<F extends HKT, TC = HKT.None> {
   <K2, Q2, W2, X2, I2, S2, R2, E2, B, A>(f: (a: A) => HKT.Kind<F, TC, K2, Q2, W2, X2, I2, S2, R2, E2, B>): <
     K1,
     Q1,

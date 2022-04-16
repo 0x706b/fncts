@@ -52,9 +52,9 @@ export function both<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
 /**
  * Composes computations in sequence, using the return value of one computation as input for the next
  *
- * @tsplus fluent fncts.Cause chain
+ * @tsplus fluent fncts.Cause flatMap
  */
-export function chain_<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Cause<D> {
+export function flatMap_<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Cause<D> {
   return Eval.run(chainEval(self, f));
 }
 
@@ -77,7 +77,7 @@ function containsEval<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): Eva
     }
     return yield* _(
       self.foldLeft(Eval.now(false), (computation, c) =>
-        Just(computation.chain((b) => (b ? Eval.now(b) : c.equalsEval(that)))),
+        Just(computation.flatMap((b) => (b ? Eval.now(b) : c.equalsEval(that)))),
       ),
     );
   });
@@ -252,7 +252,7 @@ export function find_<E, A>(self: Cause<E>, f: (cause: Cause<E>) => Maybe<A>): M
  * @tsplus getter fncts.Cause flatten
  */
 export function flatten<A>(self: Cause<Cause<A>>): Cause<A> {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 
 class FCEStackFrameDone {
@@ -735,7 +735,7 @@ export function keepDefects<E>(self: Cause<E>): Maybe<Cause<never>> {
  * @tsplus fluent fncts.Cause map
  */
 export function map_<A, B>(self: Cause<A>, f: (e: A) => B): Cause<B> {
-  return self.chain((e) => Cause.fail(f(e), Trace.none));
+  return self.flatMap((e) => Cause.fail(f(e), Trace.none));
 }
 
 /**

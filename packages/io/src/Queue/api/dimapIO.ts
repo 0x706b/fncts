@@ -23,23 +23,23 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
   isShutdown: UIO<boolean> = this.queue.isShutdown;
 
   offer(c: C): IO<RC & RA, EA | EC, boolean> {
-    return this.f(c).chain((a) => this.queue.offer(a));
+    return this.f(c).flatMap((a) => this.queue.offer(a));
   }
 
   offerAll(cs: Iterable<C>): IO<RC & RA, EC | EA, boolean> {
-    return IO.foreach(cs, this.f).chain((as) => this.queue.offerAll(as));
+    return IO.foreach(cs, this.f).flatMap((as) => this.queue.offerAll(as));
   }
 
   shutdown: UIO<void> = this.queue.shutdown;
 
   size: UIO<number> = this.queue.size;
 
-  take: IO<RD & RB, ED | EB, D> = this.queue.take.chain(this.g);
+  take: IO<RD & RB, ED | EB, D> = this.queue.take.flatMap(this.g);
 
-  takeAll: IO<RD & RB, ED | EB, Conc<D>> = this.queue.takeAll.chain((bs) => IO.foreach(bs, this.g));
+  takeAll: IO<RD & RB, ED | EB, Conc<D>> = this.queue.takeAll.flatMap((bs) => IO.foreach(bs, this.g));
 
   takeUpTo(n: number): IO<RD & RB, ED | EB, Conc<D>> {
-    return this.queue.takeUpTo(n).chain((bs) => IO.foreach(bs, this.g));
+    return this.queue.takeUpTo(n).flatMap((bs) => IO.foreach(bs, this.g));
   }
 }
 

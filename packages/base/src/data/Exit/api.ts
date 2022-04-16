@@ -5,7 +5,7 @@ import { ExitTag } from "./definition.js";
  * @tsplus fluent fncts.Exit ap
  */
 export function ap_<E, A, G, B>(fab: Exit<G, (a: A) => B>, fa: Exit<E, A>): Exit<E | G, B> {
-  return chain_(fab, (f) => map_(fa, (a) => f(a)));
+  return flatMap_(fab, (f) => map_(fa, (a) => f(a)));
 }
 
 /**
@@ -37,9 +37,9 @@ export function apSecondC_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E |
 }
 
 /**
- * @tsplus fluent fncts.Exit chain
+ * @tsplus fluent fncts.Exit flatMap
  */
-export function chain_<E, A, G, B>(ma: Exit<E, A>, f: (a: A) => Exit<G, B>): Exit<E | G, B> {
+export function flatMap_<E, A, G, B>(ma: Exit<E, A>, f: (a: A) => Exit<G, B>): Exit<E | G, B> {
   return ma.isFailure() ? ma : f(ma.value);
 }
 
@@ -72,7 +72,7 @@ export function collectAllC<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A
  * @tsplus getter fncts.Exit flatten
  */
 export function flatten<E, G, A>(mma: Exit<E, Exit<G, A>>): Exit<E | G, A> {
-  return chain_(mma, identity);
+  return flatMap_(mma, identity);
 }
 
 /**

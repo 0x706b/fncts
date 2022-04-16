@@ -158,7 +158,7 @@ export function modifyIO_<RA, RB, EA, EB, A, R1, E1, B>(
   __tsplusTrace?: string,
 ): IO<RA & RB & R1, EA | EB | E1, B> {
   concreteSynchronized(self);
-  return self.withPermit(self.unsafeGet.chain(f).chain(([b, a]) => self.unsafeSet(a).as(b)));
+  return self.withPermit(self.unsafeGet.flatMap(f).flatMap(([b, a]) => self.unsafeSet(a).as(b)));
 }
 
 /**

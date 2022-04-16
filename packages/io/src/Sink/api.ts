@@ -68,7 +68,7 @@ function foreachWhileLoop<R, Err, In>(
     return cont;
   }
   return Channel.fromIO(f(chunk.unsafeGet(idx)))
-    .chain((b) => (b ? foreachWhileLoop(f, chunk, idx + 1, len, cont) : Channel.writeNow(chunk.drop(idx))))
+    .flatMap((b) => (b ? foreachWhileLoop(f, chunk, idx + 1, len, cont) : Channel.writeNow(chunk.drop(idx))))
     .catchAll((e) => Channel.writeNow(chunk.drop(idx)).apSecond(Channel.failNow(e)));
 }
 

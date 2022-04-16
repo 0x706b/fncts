@@ -7,6 +7,6 @@
  */
 export function joinAll<E, A>(as: Iterable<Fiber<E, A>>): IO<unknown, E, Conc<A>> {
   return Fiber.awaitAll(as)
-    .chain(IO.fromExitNow)
+    .flatMap(IO.fromExitNow)
     .tap(() => IO.foreach(as, (f) => f.inheritRefs));
 }

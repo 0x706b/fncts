@@ -33,7 +33,7 @@ export function buildSummary<E>(executedSpec: ExecutedSpec<E>): Summary {
     ),
   );
   const failures = extractFailures(executedSpec);
-  const rendered = ConsoleRenderer.render(failures.chain(render), silent).join("\n");
+  const rendered = ConsoleRenderer.render(failures.flatMap(render), silent).join("\n");
 
   return new Summary(success, fail, ignore, rendered);
 }
@@ -57,7 +57,7 @@ function extractFailures<E>(executedSpec: ExecutedSpec<E>): Vector<ExecutedSpec<
       Labeled: ({ label, spec }) => spec.map((spec) => ExecutedSpec.labeled(spec, label)),
       Test: (c) => (c.test.isLeft() ? Vector.single(new ExecutedSpec(c)) : Vector.empty<ExecutedSpec<E>>()),
       Multiple: ({ specs }) => {
-        const newSpecs = specs.chain(Conc.from);
+        const newSpecs = specs.flatMap(Conc.from);
         if (newSpecs.isNonEmpty) {
           return Vector.single(ExecutedSpec.multiple(newSpecs));
         }

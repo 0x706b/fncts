@@ -12,7 +12,7 @@ export function zipWith_<E, A, E1, B, C>(
 ): Fiber.Synthetic<E | E1, C> {
   return {
     _tag: "SyntheticFiber",
-    await: self.await.chain(IO.fromExitNow).zipWithC(that.await.chain(IO.fromExitNow), f).result,
+    await: self.await.flatMap(IO.fromExitNow).zipWithC(that.await.flatMap(IO.fromExitNow), f).result,
     getRef: (ref) => self.getRef(ref).zipWith(that.getRef(ref), (a, b) => ref.join(a, b)),
     inheritRefs: self.inheritRefs.apSecond(that.inheritRefs),
     interruptAs: (id) =>

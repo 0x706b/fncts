@@ -79,7 +79,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
     this.shutdownFlag.set(true);
 
     return IO.foreachC(_unsafePollAll(this.takers), (fiber) => fiber.interruptAs(id))
-      .chain(() => this.strategy.shutdown)
+      .flatMap(() => this.strategy.shutdown)
       .whenIO(this.shutdownHook.succeed(undefined));
   });
 

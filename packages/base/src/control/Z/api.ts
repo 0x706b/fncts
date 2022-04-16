@@ -17,7 +17,7 @@ import {
  * @tsplus getter fncts.control.Z absolve
  */
 export function absolve<W, S1, S2, R, E, E1, A>(fa: Z<W, S1, S2, R, E, Either<E1, A>>): Z<W, S1, S2, R, E | E1, A> {
-  return fa.chain((ea) => ea.match(Z.failNow, Z.succeedNow));
+  return fa.flatMap((ea) => ea.match(Z.failNow, Z.succeedNow));
 }
 
 /**
@@ -87,9 +87,9 @@ export function catchJust_<W, S1, S2, R, E, A, S3, R1, E1, B>(
 }
 
 /**
- * @tsplus fluent fncts.control.Z chain
+ * @tsplus fluent fncts.control.Z flatMap
  */
-export function chain_<W, S1, S2, R, E, A, W1, S3, R1, E1, B>(
+export function flatMap_<W, S1, S2, R, E, A, W1, S3, R1, E1, B>(
   ma: Z<W, S1, S2, R, E, A>,
   f: (a: A) => Z<W1, S2, S3, R1, E1, B>,
 ): Z<W | W1, S1, S3, R1 & R, E1 | E, B> {
@@ -116,7 +116,7 @@ export function contramapState_<S0, W, S1, S2, R, E, A>(
   fa: Z<W, S1, S2, R, E, A>,
   f: (s: S0) => S1,
 ): Z<W, S0, S2, R, E, A> {
-  return Z.update(f).chain(() => fa);
+  return Z.update(f).flatMap(() => fa);
 }
 
 /**
@@ -137,7 +137,7 @@ export function crossWith_<W, S, R, E, A, R1, E1, B, C>(
   fb: Z<W, S, S, R1, E1, B>,
   f: (a: A, b: B) => C,
 ): Z<W, S, S, R & R1, E | E1, C> {
-  return fa.chain((a) => fb.map((b) => f(a, b)));
+  return fa.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**
@@ -230,7 +230,7 @@ export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Z<neve
 export function flatten<W, S1, S2, R, E, A, W1, S3, R1, E1>(
   mma: Z<W, S1, S2, R, E, Z<W1, S2, S3, R1, E1, A>>,
 ): Z<W | W1, S1, S3, R1 & R, E1 | E, A> {
-  return mma.chain(identity);
+  return mma.flatMap(identity);
 }
 
 /**
@@ -253,7 +253,7 @@ export function gets<S, A>(f: (s: S) => A): Z<never, S, S, unknown, never, A> {
  * @tsplus static fncts.control.ZOps getsZ
  */
 export function getsZ<S, W, R, E, A>(f: (s: S) => Z<W, S, S, R, E, A>): Z<W, S, S, R, E, A> {
-  return Z.get<S>().chain(f);
+  return Z.get<S>().flatMap(f);
 }
 
 /**
@@ -294,7 +294,7 @@ export function listens_<W, S1, S2, R, E, A, B>(
  * @tsplus fluent fncts.control.Z map
  */
 export function map_<W, S1, S2, R, E, A, B>(fa: Z<W, S1, S2, R, E, A>, f: (a: A) => B): Z<W, S1, S2, R, E, B> {
-  return fa.chain((a) => Z.succeedNow(f(a)));
+  return fa.flatMap((a) => Z.succeedNow(f(a)));
 }
 
 /**
@@ -422,7 +422,7 @@ export function modify<S1, S2, A>(f: (s: S1) => readonly [A, S2]): Z<never, S1, 
 export function modifyEither<S1, S2, E, A>(f: (s: S1) => Either<E, readonly [A, S2]>): Z<never, S1, S2, unknown, E, A> {
   return Z.get<S1>()
     .map(f)
-    .chain((r) => r.match(Z.failNow, ([a, s2]) => Z.succeedNow(a).mapState(() => s2)));
+    .flatMap((r) => r.match(Z.failNow, ([a, s2]) => Z.succeedNow(a).mapState(() => s2)));
 }
 
 /**
@@ -474,7 +474,7 @@ export function put<S>(s: S): Z<never, unknown, S, unknown, never, void> {
  * @tsplus fluent fncts.control.Z repeatN
  */
 export function repeatN_<W, S1, S2 extends S1, R, E, A>(ma: Z<W, S1, S2, R, E, A>, n: number): Z<W, S1, S2, R, E, A> {
-  return ma.chain((a) => (n <= 0 ? Z.succeedNow(a) : ma.repeatN(n - 1)));
+  return ma.flatMap((a) => (n <= 0 ? Z.succeedNow(a) : ma.repeatN(n - 1)));
 }
 
 /**
@@ -487,7 +487,7 @@ export function repeatUntil_<W, S1, S2 extends S1, R, E, A>(
   ma: Z<W, S1, S2, R, E, A>,
   p: Predicate<A>,
 ): Z<W, S1, S2, R, E, A> {
-  return ma.chain((a) => (p(a) ? Z.succeedNow(a) : ma.repeatUntil(p)));
+  return ma.flatMap((a) => (p(a) ? Z.succeedNow(a) : ma.repeatUntil(p)));
 }
 
 /**
@@ -517,7 +517,7 @@ export function tap_<W, S1, S2, R, E, A, W1, S3, R1, E1, B>(
   ma: Z<W, S1, S2, R, E, A>,
   f: (a: A) => Z<W1, S2, S3, R1, E1, B>,
 ): Z<W | W1, S1, S3, R1 & R, E1 | E, A> {
-  return ma.chain((a) => f(a).map(() => a));
+  return ma.flatMap((a) => f(a).map(() => a));
 }
 
 /**
@@ -543,7 +543,7 @@ export function transform_<W, S1, S2, R, E, A, S3, B>(
   ma: Z<W, S1, S2, R, E, A>,
   f: (s: S2, a: A) => readonly [B, S3],
 ): Z<W, S1, S3, R, E, B> {
-  return ma.chain((a) => Z.modify((s) => f(s, a)));
+  return ma.flatMap((a) => Z.modify((s) => f(s, a)));
 }
 
 /**
@@ -615,5 +615,5 @@ export function zipWith_<W, S1, S2, R, E, A, W1, S3, R1, E1, B, C>(
   fb: Z<W1, S2, S3, R1, E1, B>,
   f: (a: A, b: B) => C,
 ): Z<W | W1, S1, S3, R1 & R, E1 | E, C> {
-  return fa.chain((a) => fb.map((b) => f(a, b)));
+  return fa.flatMap((a) => fb.map((b) => f(a, b)));
 }

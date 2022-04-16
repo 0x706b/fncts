@@ -12,7 +12,7 @@ function runScopedInterpret<Env, InErr, InDone, OutErr, OutDone>(
   while (1) {
     switch (channelState._tag) {
       case ChannelStateTag.Effect: {
-        return channelState.effect.chain(() => runScopedInterpret(exec.run(), exec));
+        return channelState.effect.flatMap(() => runScopedInterpret(exec.run(), exec));
       }
       case ChannelStateTag.Emit: {
         // eslint-disable-next-line no-param-reassign
@@ -41,5 +41,5 @@ export function runScoped<Env, InErr, InDone, OutErr, OutDone>(
   return IO.acquireReleaseExit(
     IO.succeed(new ChannelExecutor(() => self, null, identity)),
     (exec, exit) => exec.close(exit) ?? IO.unit,
-  ).chain((exec) => IO.defer(runScopedInterpret(exec.run(), exec)));
+  ).flatMap((exec) => IO.defer(runScopedInterpret(exec.run(), exec)));
 }

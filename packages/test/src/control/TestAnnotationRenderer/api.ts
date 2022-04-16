@@ -27,21 +27,21 @@ export function combine_(self: TestAnnotationRenderer, that: TestAnnotationRende
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Ignored
  */
 export const ignored: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Ignored, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`ignored: ${n}`)))),
+  f(TestAnnotation.Ignored, (children) => children.head.flatMap((n) => (n === 0 ? Nothing() : Just(`ignored: ${n}`)))),
 );
 
 /**
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Repeated
  */
 export const repeated: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Repeated, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`repeated: ${n}`)))),
+  f(TestAnnotation.Repeated, (children) => children.head.flatMap((n) => (n === 0 ? Nothing() : Just(`repeated: ${n}`)))),
 );
 
 /**
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Retried
  */
 export const retried: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Repeated, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`retried: ${n}`)))),
+  f(TestAnnotation.Repeated, (children) => children.head.flatMap((n) => (n === 0 ? Nothing() : Just(`retried: ${n}`)))),
 );
 
 /**
@@ -49,7 +49,7 @@ export const retried: TestAnnotationRenderer = new LeafRenderer((f) =>
  */
 export const tagged: TestAnnotationRenderer = new LeafRenderer((f) =>
   f(TestAnnotation.Tagged, (children) =>
-    children.head.chain((child) =>
+    children.head.flatMap((child) =>
       child.size === 0 ? Nothing() : Just(`tagged: ${child.map((s) => s.surround('"')).join(", ")}`),
     ),
   ),
@@ -59,7 +59,7 @@ export const tagged: TestAnnotationRenderer = new LeafRenderer((f) =>
  * @tsplus static fncts.test.control.TestAnnotationRendererOps Timed
  */
 export const timed: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Timing, (children) => children.head.chain((n) => (n === 0 ? Nothing() : Just(`${n}ms`)))),
+  f(TestAnnotation.Timing, (children) => children.head.flatMap((n) => (n === 0 ? Nothing() : Just(`${n}ms`)))),
 );
 
 /**

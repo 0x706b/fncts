@@ -5,9 +5,9 @@ export function withChildren<R, E, A>(
   get: (_: UIO<Conc<Fiber.Runtime<any, any>>>) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return Supervisor.track.chain((supervisor) =>
+  return Supervisor.track.flatMap((supervisor) =>
     get(
-      supervisor.value.chain((children) => IO.descriptor.map((d) => children.filter((_) => _.id != d.id))),
+      supervisor.value.flatMap((children) => IO.descriptor.map((d) => children.filter((_) => _.id != d.id))),
     ).supervised(supervisor),
   );
 }

@@ -11,9 +11,9 @@ export function and_(self: Eval<boolean>, that: Eval<boolean>): Eval<boolean> {
 }
 
 /**
- * @tsplus fluent fncts.control.Eval chain
+ * @tsplus fluent fncts.control.Eval flatMap
  */
-export function chain_<A, B>(self: Eval<A>, f: (a: A) => Eval<B>): Eval<B> {
+export function flatMap_<A, B>(self: Eval<A>, f: (a: A) => Eval<B>): Eval<B> {
   return new Chain(self, f);
 }
 
@@ -21,21 +21,21 @@ export function chain_<A, B>(self: Eval<A>, f: (a: A) => Eval<B>): Eval<B> {
  * @tsplus getter fncts.control.Eval flatten
  */
 export function flatten<A>(self: Eval<Eval<A>>): Eval<A> {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 
 /**
  * @tsplus fluent fncts.control.Eval map
  */
 export function map_<A, B>(self: Eval<A>, f: (a: A) => B): Eval<B> {
-  return self.chain((a) => Eval.now(f(a)));
+  return self.flatMap((a) => Eval.now(f(a)));
 }
 
 /**
  * @tsplus fluent fncts.control.Eval zipWith
  */
 export function zipWith_<A, B, C>(self: Eval<A>, fb: Eval<B>, f: (a: A, b: B) => C): Eval<C> {
-  return self.chain((a) => fb.map((b) => f(a, b)));
+  return self.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**
@@ -69,7 +69,7 @@ function runGenEval<T extends GenEval<A>, A>(
   if (state.done) {
     return Eval.now(state.value);
   }
-  return state.value.computation.chain((a) => {
+  return state.value.computation.flatMap((a) => {
     const next = iterator.next(a);
     return runGenEval(next, iterator);
   });

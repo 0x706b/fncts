@@ -44,9 +44,9 @@ export function catchMap_<E, A, B>(self: Either<E, A>, f: (e: E) => B): Either<n
 }
 
 /**
- * @tsplus fluent fncts.Either chain
+ * @tsplus fluent fncts.Either flatMap
  */
-export function chain_<E1, A, E2, B>(self: Either<E1, A>, f: (a: A) => Either<E2, B>): Either<E1 | E2, B> {
+export function flatMap_<E1, A, E2, B>(self: Either<E1, A>, f: (a: A) => Either<E2, B>): Either<E1 | E2, B> {
   return self._tag === EitherTag.Left ? self : f(self.right);
 }
 

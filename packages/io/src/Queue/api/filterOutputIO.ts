@@ -23,19 +23,19 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
 
   size: UIO<number> = this.queue.size;
 
-  take: IO<RB & RB1, EB1 | EB, B> = this.queue.take.chain((b) =>
-    this.f(b).chain((p) => (p ? IO.succeedNow(b) : this.take)),
+  take: IO<RB & RB1, EB1 | EB, B> = this.queue.take.flatMap((b) =>
+    this.f(b).flatMap((p) => (p ? IO.succeedNow(b) : this.take)),
   );
 
-  takeAll: IO<RB & RB1, EB | EB1, Conc<B>> = this.queue.takeAll.chain((bs) => IO.filter(bs, this.f));
+  takeAll: IO<RB & RB1, EB | EB1, Conc<B>> = this.queue.takeAll.flatMap((bs) => IO.filter(bs, this.f));
 
   loop(max: number, acc: Conc<B>): IO<RB & RB1, EB | EB1, Conc<B>> {
-    return this.queue.takeUpTo(max).chain((bs) => {
+    return this.queue.takeUpTo(max).flatMap((bs) => {
       if (bs.isEmpty) {
         return IO.succeedNow(acc);
       }
 
-      return IO.filter(bs, this.f).chain((filtered) => {
+      return IO.filter(bs, this.f).flatMap((filtered) => {
         const length = filtered.length;
 
         if (length === max) {

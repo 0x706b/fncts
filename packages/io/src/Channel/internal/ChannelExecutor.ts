@@ -68,7 +68,7 @@ class PullFromUpstream<R> {
       },
     );
     if (finalizer) {
-      return finalizer.chain(IO.fromExitNow);
+      return finalizer.flatMap(IO.fromExitNow);
     } else {
       return null;
     }
@@ -109,7 +109,7 @@ class PullFromChild<R> {
       if (fin2 === null) {
         return fin1;
       } else {
-        return fin1.result.zipWith(fin2.result, (a, b) => a.apSecond(b)).chain(IO.fromExitNow);
+        return fin1.result.zipWith(fin2.result, (a, b) => a.apSecond(b)).flatMap(IO.fromExitNow);
       }
     }
   }
@@ -202,13 +202,13 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
           if (emitEffect === null) {
             return IO.defer(cont());
           } else {
-            return emitEffect.chain(() => cont());
+            return emitEffect.flatMap(() => cont());
           }
         } else {
           if (emitEffect === null) {
             return IO.defer(read());
           } else {
-            return emitEffect.chain(() => read());
+            return emitEffect.flatMap(() => read());
           }
         }
       }
@@ -218,13 +218,13 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
           if (doneEffect === null) {
             return IO.defer(cont());
           } else {
-            return doneEffect.chain(() => cont());
+            return doneEffect.flatMap(() => cont());
           }
         } else {
           if (doneEffect === null) {
             return IO.defer(read());
           } else {
-            return doneEffect.chain(() => read());
+            return doneEffect.flatMap(() => read());
           }
         }
       }
@@ -238,7 +238,7 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
               return doneEffect === null ? IO.unit : doneEffect;
             }),
           )
-          .chain(() => read());
+          .flatMap(() => read());
       }
       case State.ChannelStateTag.Read: {
         readStack = Stack.make(current, readStack);
@@ -315,7 +315,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                           );
                         }
                         case State.ChannelStateTag.Emit: {
-                          return currentChannel.input.emit(inputExecutor.getEmit()).chain(() => drainer);
+                          return currentChannel.input.emit(inputExecutor.getEmit()).flatMap(() => drainer);
                         }
                         case State.ChannelStateTag.Effect: {
                           return state.effect.matchCauseIO(
@@ -332,7 +332,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                     }),
                   );
                   result = new State.Effect(
-                    drainer.fork.chain((fiber) =>
+                    drainer.fork.flatMap((fiber) =>
                       IO.succeed(() => {
                         this.addFinalizer((exit) =>
                           fiber.interrupt.apSecond(
@@ -439,7 +439,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 const innerExecuteLastClose = (f: URIO<Env, any>) =>
                   IO.succeed(() => {
                     const prevLastClose     = this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
-                    this.closeLastSubstream = prevLastClose.chain(() => f);
+                    this.closeLastSubstream = prevLastClose.flatMap(() => f);
                   });
                 const exec             = new ChannelExecutor(() => currentChannel.value, this.providedEnv, innerExecuteLastClose);
                 exec.input             = this.input;
@@ -513,7 +513,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         }
       }
     };
-    const effect   = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).chain(IO.fromExitNow);
+    const effect   = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).flatMap(IO.fromExitNow);
     this.doneStack = Nil();
     this.storeInProgressFinalizer(effect);
     return effect;
@@ -580,7 +580,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         this.ifNotNull(closeSelf).result,
       )
         .map(([a, b, c]) => a.apSecond(b).apSecond(c))
-        .uninterruptible.chain(IO.fromExitNow);
+        .uninterruptible.flatMap(IO.fromExitNow);
     }
   }
 
@@ -597,7 +597,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
   ): ChannelState<Env, unknown> | null {
     this.addFinalizer(() =>
       IO.foreachDiscard(closeFns, (closeFn) =>
-        IO.succeed(closeFn(subexecDone)).chain((closeEffect) => {
+        IO.succeed(closeFn(subexecDone)).flatMap((closeEffect) => {
           if (closeEffect !== null) {
             return closeEffect;
           } else {
@@ -623,7 +623,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     }
     return IO.foreach(finalizers, (cont) => cont(exit).result)
       .map((results) => Exit.collectAll(results).getOrElse(Exit.unit as Exit<never, unknown>))
-      .chain(IO.fromExitNow);
+      .flatMap(IO.fromExitNow);
   }
 
   private runSubexecutor(): ChannelState<Env, unknown> | null {
@@ -1004,7 +1004,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 this.clearInProgressFinalizer();
               }),
             )
-            .uninterruptible.chain(() => IO.succeed(() => this.doneSucceed(z))),
+            .uninterruptible.flatMap(() => IO.succeed(() => this.doneSucceed(z))),
         );
       }
     }
@@ -1044,7 +1044,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 this.clearInProgressFinalizer();
               }),
             )
-            .uninterruptible.chain(() => IO.succeed(() => this.doneHalt(cause))),
+            .uninterruptible.flatMap(() => IO.succeed(() => this.doneHalt(cause))),
         );
       }
     }

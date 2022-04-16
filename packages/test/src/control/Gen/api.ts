@@ -34,7 +34,7 @@ export const anyInt: Gen<Has<Random>, number> = Gen.fromIOSample(Random.nextInt.
  * @tsplus static fncts.test.control.GenOps bounded
  */
 export function bounded<R, A>(min: number, max: number, f: (n: number) => Gen<R, A>): Gen<R & Has<Random>, A> {
-  return Gen.int({ min, max }).chain(f);
+  return Gen.int({ min, max }).flatMap(f);
 }
 
 /**
@@ -45,14 +45,14 @@ export function constant<A>(a: A): Gen<unknown, A> {
 }
 
 /**
- * @tsplus fluent fncts.test.control.Gen chain
+ * @tsplus fluent fncts.test.control.Gen flatMap
  */
-export function chain_<R, A, R1, B>(ma: Gen<R, A>, f: (a: A) => Gen<R1, B>): Gen<R & R1, B> {
+export function flatMap_<R, A, R1, B>(ma: Gen<R, A>, f: (a: A) => Gen<R1, B>): Gen<R & R1, B> {
   return new Gen(
-    Sample.chainStream(ma.sample, (sample) => {
+    Sample.flatMapStream(ma.sample, (sample) => {
       const values  = f(sample.value).sample;
-      const shrinks = new Gen(sample.shrink).chain((a) => f(a)).sample;
-      return values.map((maybeSample) => maybeSample.map((sample) => sample.chain((b) => new Sample(b, shrinks))));
+      const shrinks = new Gen(sample.shrink).flatMap((a) => f(a)).sample;
+      return values.map((maybeSample) => maybeSample.map((sample) => sample.flatMap((b) => new Sample(b, shrinks))));
     }),
   );
 }
@@ -75,7 +75,7 @@ export const empty: Gen<unknown, never> = new Gen(Stream.empty);
 export function filter_<R, A, B extends A>(fa: Gen<R, A>, p: Refinement<A, B>): Gen<R, B>;
 export function filter_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A>;
 export function filter_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A> {
-  return fa.chain((a) => (p(a) ? Gen.constant(a) : Gen.empty));
+  return fa.flatMap((a) => (p(a) ? Gen.constant(a) : Gen.empty));
 }
 
 /**
@@ -89,7 +89,7 @@ export function filterNot_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A> {
  * @tsplus getter fncts.test.control.Gen flatten
  */
 export function flatten<R, R1, A>(mma: Gen<R, Gen<R1, A>>): Gen<R & R1, A> {
-  return mma.chain(identity);
+  return mma.flatMap(identity);
 }
 
 /**
@@ -159,9 +159,9 @@ export const size: Gen<Has<Sized>, number> = Gen.fromIO(Sized.size);
  */
 export function medium<R, A>(f: (n: number) => Gen<R, A>, min = 0): Gen<R & Has<Random> & Has<Sized>, A> {
   return Gen.size
-    .chain((max) => Gen.exponential.map((n) => clamp(Math.round((n * max) / 10.0), min, max)))
+    .flatMap((max) => Gen.exponential.map((n) => clamp(Math.round((n * max) / 10.0), min, max)))
     .reshrink(Sample.shrinkIntegral(min))
-    .chain(f);
+    .flatMap(f);
 }
 
 /**
@@ -196,7 +196,7 @@ export function oneOf<A extends ReadonlyArray<Gen<any, any>>>(
   ...gens: A
 ): Gen<_R<A[number]> & Has<Random>, _A<A[number]>> {
   if (gens.isEmpty()) return Gen.empty;
-  else return Gen.int({ min: 0, max: gens.length - 1 }).chain((i) => gens[i]!);
+  else return Gen.int({ min: 0, max: gens.length - 1 }).flatMap((i) => gens[i]!);
 }
 
 /**
@@ -214,7 +214,7 @@ export function reshrink_<R, A, R1, B>(gen: Gen<R, A>, f: (a: A) => Sample<R1, B
  * @tsplus static fncts.test.control.GenOps sized
  */
 export function sized<R, A>(f: (size: number) => Gen<R, A>): Gen<R & Has<Sized>, A> {
-  return Gen.size.chain(f);
+  return Gen.size.flatMap(f);
 }
 
 /**
@@ -222,9 +222,9 @@ export function sized<R, A>(f: (size: number) => Gen<R, A>): Gen<R & Has<Sized>,
  */
 export function small<R, A>(f: (size: number) => Gen<R, A>, min = 0): Gen<R & Has<Sized> & Has<Random>, A> {
   return Gen.size
-    .chain((max) => Gen.exponential.map((n) => clamp(Math.round((n * max) / 25), min, max)))
+    .flatMap((max) => Gen.exponential.map((n) => clamp(Math.round((n * max) / 25), min, max)))
     .reshrink(Sample.shrinkIntegral(min))
-    .chain(f);
+    .flatMap(f);
 }
 
 /**
@@ -242,7 +242,7 @@ export function unfoldGen<S, R, A>(
  */
 export function unfoldGenN<S, R, A>(n: number, s: S, f: (s: S) => Gen<R, readonly [S, A]>): Gen<R, Conc<A>> {
   if (n <= 0) return Gen.constant(Conc());
-  else return f(s).chain(([s, a]) => Gen.unfoldGenN(n - 1, s, f).map((as) => as.append(a)));
+  else return f(s).flatMap(([s, a]) => Gen.unfoldGenN(n - 1, s, f).map((as) => as.append(a)));
 }
 
 /**
@@ -266,7 +266,7 @@ export function weighted<R, A>(...gens: ReadonlyArray<readonly [Gen<R, A>, numbe
     if ((acc + d) / sum > acc / sum) return tuple(map.insert((acc + d) / sum, gen), acc + d);
     else return tuple(map, acc);
   });
-  return Gen.uniform.chain((n) =>
+  return Gen.uniform.flatMap((n) =>
     map.getGte(n).getOrElse(() => {
       throw new NoSuchElementError("Gen.weighted");
     }),
@@ -277,5 +277,5 @@ export function weighted<R, A>(...gens: ReadonlyArray<readonly [Gen<R, A>, numbe
  * @tsplus fluent fncts.test.control.Gen zipWith
  */
 export function zipWith_<R, A, R1, B, C>(self: Gen<R, A>, that: Gen<R1, B>, f: (a: A, b: B) => C): Gen<R & R1, C> {
-  return self.chain((a) => that.map((b) => f(a, b)));
+  return self.flatMap((a) => that.map((b) => f(a, b)));
 }

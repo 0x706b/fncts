@@ -1,9 +1,9 @@
 import * as P from "../../typeclass.js";
 import {
   ap_,
-  chain_,
   filter_,
   filterMap_,
+  flatMap_,
   foldLeft_,
   foldRight_,
   map_,
@@ -36,7 +36,7 @@ export const Monad: P.Monad<MaybeF> = P.Monad({
   ap_,
   zipWith_,
   pure: just,
-  chain_,
+  flatMap_: flatMap_,
 });
 
 export const Foldable: P.Foldable<MaybeF> = P.Foldable({

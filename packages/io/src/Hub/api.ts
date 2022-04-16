@@ -65,8 +65,8 @@ class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
   shutdown      = this.source.shutdown;
   size          = this.source.size;
   subscribe     = this.source.subscribe.map((queue) => queue.mapIO(this.g));
-  publish       = (c: C) => this.f(c).chain((a) => this.source.publish(a));
-  publishAll    = (cs: Iterable<C>) => IO.foreach(cs, this.f).chain((as) => this.source.publishAll(as));
+  publish       = (c: C) => this.f(c).flatMap((a) => this.source.publish(a));
+  publishAll    = (cs: Iterable<C>) => IO.foreach(cs, this.f).flatMap((as) => this.source.publishAll(as));
 }
 
 /**
@@ -111,9 +111,9 @@ class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA & RA
   shutdown      = this.source.shutdown;
   size          = this.source.size;
   subscribe     = this.source.subscribe;
-  publish       = (a: A) => this.f(a).chain((b) => (b ? this.source.publish(a) : IO.succeedNow(false)));
+  publish       = (a: A) => this.f(a).flatMap((b) => (b ? this.source.publish(a) : IO.succeedNow(false)));
   publishAll    = (as: Iterable<A>) =>
-    IO.filter(as, this.f).chain((as) => (as.isNonEmpty ? this.source.publishAll(as) : IO.succeedNow(false)));
+    IO.filter(as, this.f).flatMap((as) => (as.isNonEmpty ? this.source.publishAll(as) : IO.succeedNow(false)));
 }
 
 /**
@@ -199,7 +199,7 @@ export function isShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B
  * @tsplus static fncts.control.HubOps makeBounded
  */
 export function makeBounded<A>(requestedCapacity: number): UIO<Hub<A>> {
-  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).chain((hub) =>
+  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) =>
     makeHubInternal(hub, new BackPressure()),
   );
 }
@@ -213,7 +213,7 @@ export function makeBounded<A>(requestedCapacity: number): UIO<Hub<A>> {
  * @tsplus static fncts.control.HubOps makeDropping
  */
 export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
-  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).chain((hub) => makeHubInternal(hub, new Dropping()));
+  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) => makeHubInternal(hub, new Dropping()));
 }
 
 /**
@@ -225,7 +225,7 @@ export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
  * @tsplus static fncts.control.HubOps makeSliding
  */
 export function makeSliding<A>(requestedCapacity: number): UIO<Hub<A>> {
-  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).chain((hub) => makeHubInternal(hub, new Sliding()));
+  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) => makeHubInternal(hub, new Sliding()));
 }
 
 /**
@@ -234,7 +234,7 @@ export function makeSliding<A>(requestedCapacity: number): UIO<Hub<A>> {
  * @tsplus static fncts.control.HubOps makeUnbounded
  */
 export function makeUnbounded<A>(): UIO<Hub<A>> {
-  return IO.succeed(HubInternal.makeUnbounded<A>()).chain((hub) => makeHubInternal(hub, new Dropping()));
+  return IO.succeed(HubInternal.makeUnbounded<A>()).flatMap((hub) => makeHubInternal(hub, new Dropping()));
 }
 
 /**

@@ -4,12 +4,12 @@ import {
   alignWith_,
   alt_,
   ap_,
-  chain_,
   crossWith_,
   filter_,
   filterMap_,
   filterMapWithIndex_,
   filterWithIndex_,
+  flatMap_,
   foldLeft_,
   foldLeftWithIndex_,
   foldRight_,
@@ -110,7 +110,7 @@ export const Monad = P.Monad<ImmutableArrayF>({
   ap_,
   zipWith_: crossWith_,
   pure: (a) => ImmutableArray(a),
-  chain_,
+  flatMap_: flatMap_,
 });
 
 export const Traversable = P.Traversable<ImmutableArrayF>({

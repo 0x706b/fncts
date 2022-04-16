@@ -44,7 +44,7 @@ export class MemoMap {
               const innerScope  = yield* _(Scope.make);
 
               const tp = yield* _(
-                restore(layer.scope(innerScope).chain((f) => f(self))).result.chain((exit) =>
+                restore(layer.scope(innerScope).flatMap((f) => f(self))).result.flatMap((exit) =>
                   exit.match(
                     (cause) => future.failCause(cause) > innerScope.close(exit) > IO.failCauseNow(cause),
                     (a) =>
@@ -57,7 +57,7 @@ export class MemoMap {
                         yield* _(observers.update((n) => n + 1));
                         yield* _(
                           outerScope.addFinalizerExit(
-                            Finalizer.get((e) => finalizerRef.get.chain((fin) => Finalizer.reverseGet(fin)(e))),
+                            Finalizer.get((e) => finalizerRef.get.flatMap((fin) => Finalizer.reverseGet(fin)(e))),
                           ),
                         );
                         yield* _(future.succeed(a));
@@ -77,7 +77,7 @@ export class MemoMap {
                 () => observers.update((n) => n + 1),
               ),
             ),
-            Finalizer.get((exit: Exit<any, any>) => finalizerRef.get.chain((f) => Finalizer.reverseGet(f)(exit))),
+            Finalizer.get((exit: Exit<any, any>) => finalizerRef.get.flatMap((f) => Finalizer.reverseGet(f)(exit))),
           );
 
           return tuple(resource, layer.isFresh() ? map : map.set(layer[LayerHash], memoized));
@@ -96,7 +96,7 @@ export function isFresh<R, E, A>(self: Layer<R, E, A>): self is Fresh<R, E, A> {
 }
 
 export function makeMemoMap(): UIO<MemoMap> {
-  return Ref.Synchronized.make(HashMap.makeDefault<PropertyKey, readonly [FIO<any, any>, Finalizer]>()).chain((ref) =>
+  return Ref.Synchronized.make(HashMap.makeDefault<PropertyKey, readonly [FIO<any, any>, Finalizer]>()).flatMap((ref) =>
     IO.succeedNow(new MemoMap(ref)),
   );
 }
@@ -151,7 +151,7 @@ export function scope<R, E, A>(
         () => (memoMap: MemoMap) =>
           memoMap
             .getOrElseMemoize(scope, layer.self)
-            .chain((r) => memoMap.getOrElseMemoize(scope, layer.that).provideEnvironment(r)),
+            .flatMap((r) => memoMap.getOrElseMemoize(scope, layer.that).provideEnvironment(r)),
       );
     }
     case LayerTag.ZipWith: {

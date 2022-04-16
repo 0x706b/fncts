@@ -14,7 +14,7 @@ export function releaseAll_(releaseMap: ReleaseMap, exit: Exit<any, any>, execSt
             Array.from(s.finalizers).reverse(),
             execStrategy,
             ([_, f]) => Finalizer.reverseGet(s.update(f))(exit).result,
-          ).chain((exits) =>
+          ).flatMap((exits) =>
             IO.fromExit(
               (execStrategy._tag === "Sequential" ? Exit.collectAll(exits) : Exit.collectAllC(exits)).getOrElse(
                 Exit.succeed(Conc.empty()),

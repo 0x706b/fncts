@@ -87,7 +87,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
     schedule.driver,
   );
 
-  return Stream.fromIO(deps).chain(([handoff, sinkEndReason, sinkLeftovers, scheduleDriver]) => {
+  return Stream.fromIO(deps).flatMap(([handoff, sinkEndReason, sinkLeftovers, scheduleDriver]) => {
     const handoffProducer: Channel<unknown, E | E1, Conc<A1>, unknown, never, never, any> = Channel.readWithCause(
       (_in: Conc<A1>) => Channel.fromIO(handoff.offer(HandoffSignal.Emit(_in))).apSecond(handoffProducer),
       (cause: Cause<E | E1>) => Channel.fromIO(handoff.offer(HandoffSignal.Halt(cause))),
@@ -95,7 +95,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
     );
 
     const handoffConsumer: Channel<unknown, unknown, unknown, unknown, E | E1, Conc<A1>, void> = Channel.unwrap(
-      sinkLeftovers.getAndSet(Conc.empty<A>()).chain((leftovers) => {
+      sinkLeftovers.getAndSet(Conc.empty<A>()).flatMap((leftovers) => {
         if (leftovers.isEmpty) {
           return IO.succeedNow(Channel.writeNow(leftovers).apSecond(handoffConsumer));
         } else {
@@ -124,7 +124,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
 
       return Channel.unwrapScoped(
         timeout.forkScoped.map((fiber) => {
-          return handoffConsumer.pipeToOrFail(sink.channel).doneCollect.chain(([leftovers, b]) => {
+          return handoffConsumer.pipeToOrFail(sink.channel).doneCollect.flatMap(([leftovers, b]) => {
             return Channel.fromIO(fiber.interrupt.apSecond(sinkLeftovers.set(leftovers.flatten))).apSecond(
               Channel.unwrap(
                 sinkEndReason.modify((reason) =>
@@ -142,7 +142,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
             );
           });
         }),
-      ).chain((_) =>
+      ).flatMap((_) =>
         _.match(
           () => Channel.unit,
           () => scheduledAggregator(_),
@@ -211,7 +211,7 @@ export function asyncInterrupt<R, E, A>(
       const eitherStream = yield* _(
         IO.succeed(() =>
           register((k, cb) => {
-            const effect = Take.fromPull(k).chain((a) => output.offer(a));
+            const effect = Take.fromPull(k).flatMap((a) => output.offer(a));
             return runtime.unsafeRunAsyncWith(effect, cb || constVoid);
           }),
         ),
@@ -220,7 +220,7 @@ export function asyncInterrupt<R, E, A>(
         (canceler) => {
           const loop: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.unwrap(
             output.take
-              .chain((take) => take.done)
+              .flatMap((take) => take.done)
               .match(
                 (maybeError) => maybeError.match(() => Channel.endNow(undefined), Channel.failNow),
                 (as) => Channel.writeNow(as).apSecond(loop),
@@ -281,14 +281,14 @@ export function asyncIO<R, E, A, R1 = R, E1 = E>(
         yield* _(
           register((k, cb) =>
             runtime.unsafeRunAsyncWith(
-              Take.fromPull(k).chain((a) => output.offer(a)),
+              Take.fromPull(k).flatMap((a) => output.offer(a)),
               cb || constVoid,
             ),
           ),
         );
         const loop: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.unwrap(
           output.take
-            .chain((take) => take.done)
+            .flatMap((take) => take.done)
             .matchCauseIO(
               (cause) =>
                 output.shutdown.as(
@@ -370,7 +370,7 @@ export function broadcastDynamic_<R, E, A>(
 ): IO<R & Has<Scope>, never, Stream<unknown, E, A>> {
   return stream
     .broadcastedQueuesDynamic(maximumLag)
-    .map((scoped) => Stream.scoped(scoped).chain(Stream.fromQueue).flattenTake);
+    .map((scoped) => Stream.scoped(scoped).flatMap(Stream.fromQueue).flattenTake);
 }
 
 /**
@@ -420,7 +420,7 @@ export function buffer_<R, E, A>(stream: Stream<R, E, A>, capacity: number): Str
   return new Stream(
     Channel.unwrapScoped(
       queue.map((queue) => {
-        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).chain(
+        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
           (exit: Exit<Maybe<E>, A>) =>
             exit.match(
               (cause) => cause.flipCauseMaybe.match(() => Channel.endNow(undefined), Channel.failCauseNow),
@@ -441,7 +441,7 @@ export function bufferChunks_<R, E, A>(stream: Stream<R, E, A>, capacity: number
   return new Stream(
     Channel.unwrapScoped(
       queue.map((queue) => {
-        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).chain(
+        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
           (take: Take<E, A>) =>
             take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
               Channel.writeNow(value).apSecond(process),
@@ -465,7 +465,7 @@ export function bufferUnbounded<R, E, A>(stream: Stream<R, E, A>): Stream<R, E, 
   return new Stream(
     Channel.unwrapScoped(
       queue.map((queue) => {
-        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).chain(
+        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
           (take) =>
             take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
               Channel.writeNow(value).apSecond(process),
@@ -510,7 +510,7 @@ function bufferSignalProducer<R, E, A>(
 function bufferSignalConsumer<R, E, A>(
   queue: Queue<readonly [Take<E, A>, Future<never, void>]>,
 ): Channel<R, unknown, unknown, unknown, E, Conc<A>, void> {
-  const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).chain(
+  const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
     ([take, promise]) =>
       Channel.fromIO(promise.succeed(undefined)).apSecond(
         take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
@@ -582,9 +582,9 @@ export function catchJustCause_<R, R1, E, E1, A, A1>(
  * Returns a stream made of the concatenation in strict order of all the streams
  * produced by passing each element of this stream to `f`
  *
- * @tsplus fluent fncts.control.Stream chain
+ * @tsplus fluent fncts.control.Stream flatMap
  */
-export function chain_<R, E, A, R1, E1, B>(
+export function flatMap_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
   f: (a: A) => Stream<R1, E1, B>,
 ): Stream<R & R1, E | E1, B> {
@@ -593,7 +593,7 @@ export function chain_<R, E, A, R1, E1, B>(
       as
         .map((a) => f(a).channel)
         .foldLeft(Channel.unit as Channel<R1, unknown, unknown, unknown, E1, Conc<B>, unknown>, (s, a) =>
-          s.chain(() => a),
+          s.flatMap(() => a),
         ),
     ),
   );
@@ -672,14 +672,14 @@ export function collectWhileIO_<R, E, A, R1, E1, B>(
     const pfJust = (a: A) =>
       pf(a).match(
         () => IO.succeedNow(false),
-        (effect) => effect.chain(emit).as(true),
+        (effect) => effect.flatMap(emit).as(true),
       );
 
     const loop = (chunk: Conc<A>): IO<R1, E1, boolean> => {
       if (chunk.isEmpty) {
         return IO.succeedNow(true);
       } else {
-        return pfJust(chunk.unsafeHead).chain((cont) => (cont ? loop(chunk.unsafeTail) : IO.succeedNow(false)));
+        return pfJust(chunk.unsafeHead).flatMap((cont) => (cont ? loop(chunk.unsafeTail) : IO.succeedNow(false)));
       }
     };
 
@@ -731,9 +731,9 @@ export function combine_<R, E, A, R1, E1, A1, S, R2, A2>(
         yield* _(that.channel.concatMap(Channel.writeChunk).pipeTo(combineProducer(right, latchR)).runScoped.fork);
         return tuple(left, right, latchL, latchR);
       }).map(([left, right, latchL, latchR]) => {
-        const pullLeft  = latchL.offer(undefined).apSecond(left.take).chain(IO.fromExitNow);
-        const pullRight = latchR.offer(undefined).apSecond(right.take).chain(IO.fromExitNow);
-        return Stream.unfoldIO(s, (s) => f(s, pullLeft, pullRight).chain((exit) => IO.fromExitNow(exit).optional))
+        const pullLeft  = latchL.offer(undefined).apSecond(left.take).flatMap(IO.fromExitNow);
+        const pullRight = latchR.offer(undefined).apSecond(right.take).flatMap(IO.fromExitNow);
+        return Stream.unfoldIO(s, (s) => f(s, pullLeft, pullRight).flatMap((exit) => IO.fromExitNow(exit).optional))
           .channel;
       }),
     ),
@@ -785,12 +785,12 @@ export function combineChunks_<R, E, A, R1, E1, A1, S, R2, A2>(
         const pullLeft = latchL
           .offer(undefined)
           .apSecond(left.take)
-          .chain((take) => take.done);
+          .flatMap((take) => take.done);
         const pullRight = latchR
           .offer(undefined)
           .apSecond(right.take)
-          .chain((take) => take.done);
-        return Stream.unfoldChunkIO(s, (s) => f(s, pullLeft, pullRight).chain((exit) => IO.fromExit(exit).optional))
+          .flatMap((take) => take.done);
+        return Stream.unfoldChunkIO(s, (s) => f(s, pullLeft, pullRight).flatMap((exit) => IO.fromExit(exit).optional))
           .channel;
       }),
     ),
@@ -821,7 +821,7 @@ export function cross_<R, E, A, R1, E1, B>(
   that: Stream<R1, E1, B>,
 ): Stream<R & R1, E | E1, readonly [A, B]> {
   return new Stream(
-    stream.channel.concatMap((as) => that.channel.mapOut((bs) => as.chain((a) => bs.map((b) => tuple(a, b))))),
+    stream.channel.concatMap((as) => that.channel.mapOut((bs) => as.flatMap((a) => bs.map((b) => tuple(a, b))))),
   );
 }
 
@@ -837,7 +837,7 @@ export function crossWith_<R, E, A, R1, E1, B, C>(
   fb: Stream<R1, E1, B>,
   f: (a: A, b: B) => C,
 ): Stream<R & R1, E | E1, C> {
-  return fa.chain((a) => fb.map((b) => f(a, b)));
+  return fa.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**
@@ -850,7 +850,7 @@ export function contramapEnvironment_<R, E, A, R0>(
   ra: Stream<R, E, A>,
   f: (r0: Environment<R0>) => Environment<R>,
 ): Stream<R0, E, A> {
-  return Stream.environment<R0>().chain((r0) => ra.provideEnvironment(f(r0)));
+  return Stream.environment<R0>().flatMap((r0) => ra.provideEnvironment(f(r0)));
 }
 
 /**
@@ -962,17 +962,17 @@ export function distributedWith_<R, E, A>(
   maximumLag: number,
   decide: (_: A) => UIO<(_: number) => boolean>,
 ): IO<R & Has<Scope>, never, Conc<Queue.Dequeue<Exit<Maybe<E>, A>>>> {
-  return Future.make<never, (a: A) => UIO<(_: symbol) => boolean>>().chain((p) =>
+  return Future.make<never, (a: A) => UIO<(_: symbol) => boolean>>().flatMap((p) =>
     self
       .distributedWithDynamic(
         maximumLag,
-        (a) => p.await.chain((f) => f(a)),
+        (a) => p.await.flatMap((f) => f(a)),
         () => IO.unit,
       )
-      .chain((next) =>
+      .flatMap((next) =>
         IO.sequenceIterable(
           Conc.range(0, n).map((id) => next.map(([key, queue]) => [[key, id], queue] as const)),
-        ).chain((entries) => {
+        ).flatMap((entries) => {
           const [mappings, queues] = entries.foldRight(
             [HashMap.makeDefault<symbol, number>(), Conc.empty<Queue.Dequeue<Exit<Maybe<E>, A>>>()] as const,
             ([mapping, queue], [mappings, queues]) => [mappings.set(mapping[0], mapping[1]), queues.append(queue)],
@@ -1013,14 +1013,14 @@ export function distributedWithDynamic_<R, E, A>(
           } else {
             return IO.succeedNow(b);
           }
-        }).chain((ids) => (ids.isNonEmpty ? queuesRef.update((map) => map.removeMany(ids)) : IO.unit)),
+        }).flatMap((ids) => (ids.isNonEmpty ? queuesRef.update((map) => map.removeMany(ids)) : IO.unit)),
       );
     });
 
   return IO.gen(function* (_) {
     const queuesRef = yield* _(
       IO.acquireRelease(Ref.make<HashMap<symbol, Queue<Exit<Maybe<E>, A>>>>(HashMap.makeDefault()), (ref) =>
-        ref.get.chain((qs) => IO.foreach(qs.values, (q) => q.shutdown)),
+        ref.get.flatMap((qs) => IO.foreach(qs.values, (q) => q.shutdown)),
       ),
     );
 
@@ -1049,7 +1049,7 @@ export function distributedWithDynamic_<R, E, A>(
                   return tuple(id, queue);
                 }),
               )
-              .chain(() =>
+              .flatMap(() =>
                 IO.gen(function* (_) {
                   const queues = yield* _(queuesRef.get.map((map) => map.values));
                   yield* _(
@@ -1220,7 +1220,7 @@ export function environmentWithIO<R0, R, E, A>(f: (r0: Environment<R0>) => IO<R,
  * @tsplus static fncts.control.StreamOps environmentWithStream
  */
 export function environmentWithStream<R0, R, E, A>(f: (r0: Environment<R0>) => Stream<R, E, A>): Stream<R0 & R, E, A> {
-  return Stream.environment<R0>().chain(f);
+  return Stream.environment<R0>().flatMap(f);
 }
 
 /**
@@ -1275,7 +1275,7 @@ export function filterIO_<R, E, A, R1, E1>(
   fa: Stream<R, E, A>,
   f: (a: A) => IO<R1, E1, boolean>,
 ): Stream<R & R1, E | E1, A> {
-  return fa.loopOnPartialChunksElements((a, emit) => f(a).chain((r) => (r ? emit(a) : IO.unit)));
+  return fa.loopOnPartialChunksElements((a, emit) => f(a).flatMap((r) => (r ? emit(a) : IO.unit)));
 }
 
 /**
@@ -1292,7 +1292,7 @@ export function filterMapIO_<R, E, A, R1, E1, B>(
   fa: Stream<R, E, A>,
   f: (a: A) => IO<R1, E1, Maybe<B>>,
 ): Stream<R & R1, E | E1, B> {
-  return fa.loopOnPartialChunksElements((a, emit) => f(a).chain((maybeB) => maybeB.match(() => IO.unit, emit)));
+  return fa.loopOnPartialChunksElements((a, emit) => f(a).flatMap((maybeB) => maybeB.match(() => IO.unit, emit)));
 }
 
 /**
@@ -1345,7 +1345,7 @@ export function findIO_<R, E, A, R1, E1>(
  * @tsplus getter fncts.control.Stream flatten
  */
 export function flatten<R, E, R1, E1, A>(self: Stream<R, E, Stream<R1, E1, A>>): Stream<R & R1, E | E1, A> {
-  return self.chain(identity);
+  return self.flatMap(identity);
 }
 
 /**
@@ -1521,7 +1521,7 @@ export function fromIterable<A>(iterable: Iterable<A>, maxChunkSize = DEFAULT_CH
  * @tsplus static fncts.control.StreamOps fromIterableSingle
  */
 export function fromIterableSingle<A>(iterable: Iterable<A>): Stream<unknown, never, A> {
-  return Stream.fromIO(IO.succeed(iterable[Symbol.iterator]())).chain((iterator) =>
+  return Stream.fromIO(IO.succeed(iterable[Symbol.iterator]())).flatMap((iterator) =>
     Stream.repeatIOMaybe(
       IO.defer(() => {
         const value = iterator.next();
@@ -1556,7 +1556,7 @@ export function fromQueue_<R, E, O>(
       .takeBetween(1, maxChunkSize)
       .map(Conc.from)
       .catchAllCause((c) =>
-        queue.isShutdown.chain((down) => {
+        queue.isShutdown.flatMap((down) => {
           if (down && c.interrupted) {
             return Pull.end;
           } else {
@@ -1707,14 +1707,14 @@ export function interleaveWith_<R, E, A, R1, E1, B, R2, E2>(
           Channel.readWithCause(
             (b: boolean) => {
               if (b && !leftDone) {
-                return Channel.fromIO(left.take).chain((take) =>
+                return Channel.fromIO(left.take).flatMap((take) =>
                   take.match(rightDone ? Channel.unit : process(true, rightDone), Channel.failCauseNow, (chunk) =>
                     Channel.writeNow(chunk).apSecond(process(leftDone, rightDone)),
                   ),
                 );
               }
               if (!b && !rightDone) {
-                return Channel.fromIO(right.take).chain((take) =>
+                return Channel.fromIO(right.take).flatMap((take) =>
                   take.match(leftDone ? Channel.unit : process(leftDone, true), Channel.failCauseNow, (chunk) =>
                     Channel.writeNow(chunk).apSecond(process(leftDone, rightDone)),
                   ),
@@ -1799,7 +1799,7 @@ export function loopOnChunks_<R, E, A, R1, E1, A1>(
   f: (a: Conc<A>) => Channel<R1, E | E1, Conc<A>, unknown, E | E1, Conc<A1>, boolean>,
 ): Stream<R & R1, E | E1, A1> {
   const loop: Channel<R1, E | E1, Conc<A>, unknown, E | E1, Conc<A1>, boolean> = Channel.readWithCause(
-    (chunk) => f(chunk).chain((cont) => (cont ? loop : Channel.endNow(false))),
+    (chunk) => f(chunk).flatMap((cont) => (cont ? loop : Channel.endNow(false))),
     Channel.failCauseNow,
     (_) => Channel.succeedNow(false),
   );
@@ -1900,7 +1900,7 @@ function mapAccumIOAccumulator<R, E, A, R1, E1, S, B>(
             IO.succeed(() => {
               outputChunk.append(b);
             });
-          return IO.foldLeft(inp, s, (s1, a) => f(s1, a).chain(([b, s2]) => emit(b).as(s2))).match(
+          return IO.foldLeft(inp, s, (s1, a) => f(s1, a).flatMap(([b, s2]) => emit(b).as(s2))).match(
             (e) => {
               const partialResult = outputChunk.result();
               return partialResult.isNonEmpty
@@ -1968,7 +1968,7 @@ export function mapConcat_<R, E, A, B>(stream: Stream<R, E, A>, f: (a: A) => Ite
  * @tsplus fluent fncts.control.Stream mapConcatChunk
  */
 export function mapConcatChunk_<R, E, A, B>(stream: Stream<R, E, A>, f: (a: A) => Conc<B>): Stream<R, E, B> {
-  return stream.mapChunks((c) => c.chain(f));
+  return stream.mapChunks((c) => c.flatMap(f));
 }
 
 /**
@@ -2024,7 +2024,7 @@ export function mapIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
   f: (a: A) => IO<R1, E1, B>,
 ): Stream<R & R1, E | E1, B> {
-  return stream.loopOnPartialChunksElements((a, emit) => f(a).chain(emit));
+  return stream.loopOnPartialChunksElements((a, emit) => f(a).flatMap(emit));
 }
 
 /**
@@ -2690,7 +2690,7 @@ export function throttleEnforceIO_<R, E, A, R1, E1>(
   burst = 0,
 ): Stream<R & R1 & Has<Clock>, E | E1, A> {
   return new Stream(
-    Channel.fromIO(Clock.currentTime).chain((current) =>
+    Channel.fromIO(Clock.currentTime).flatMap((current) =>
       sa.channel.pipeTo(throttleEnforceIOLoop(costFn, units, duration, burst, units, current)),
     ),
   );
@@ -2717,7 +2717,7 @@ export function toHub_<R, E, A>(stream: Stream<R, E, A>, capacity: number): IO<R
  */
 export function toPull<R, E, A>(stream: Stream<R, E, A>): IO<R & Has<Scope>, never, IO<R, Maybe<E>, Conc<A>>> {
   return stream.channel.toPull.map((io) =>
-    io.mapError(Maybe.just).chain((r) => r.match(() => IO.failNow(Nothing()), IO.succeedNow)),
+    io.mapError(Maybe.just).flatMap((r) => r.match(() => IO.failNow(Nothing()), IO.succeedNow)),
   );
 }
 
@@ -2799,7 +2799,7 @@ function unfoldChunkIOLoop<S, R, E, A>(
     f(s).map((m) =>
       m.match(
         () => Channel.unit,
-        ([as, s]) => Channel.writeNow(as).chain(() => unfoldChunkIOLoop(s, f)),
+        ([as, s]) => Channel.writeNow(as).flatMap(() => unfoldChunkIOLoop(s, f)),
       ),
     ),
   );
@@ -2829,7 +2829,7 @@ function unfoldChunkLoop<S, A>(
 ): Channel<unknown, unknown, unknown, unknown, never, Conc<A>, unknown> {
   return f(s).match(
     () => Channel.unit,
-    ([as, s]) => Channel.writeNow(as).chain(() => unfoldChunkLoop(s, f)),
+    ([as, s]) => Channel.writeNow(as).flatMap(() => unfoldChunkLoop(s, f)),
   );
 }
 
@@ -2884,7 +2884,7 @@ export function zipWithLatest_<R, E, A, R1, E1, B, C>(
   f: (a: A, b: B) => C,
 ): Stream<R & R1, E | E1, C> {
   function pullNonEmpty<R, E, A>(pull: IO<R, Maybe<E>, Conc<A>>): IO<R, Maybe<E>, Conc<A>> {
-    return pull.chain((chunk) => (chunk.isNonEmpty ? pullNonEmpty(pull) : IO.succeedNow(chunk)));
+    return pull.flatMap((chunk) => (chunk.isNonEmpty ? pullNonEmpty(pull) : IO.succeedNow(chunk)));
   }
   return Stream.fromPull(
     IO.gen(function* (_) {
@@ -2897,8 +2897,8 @@ export function zipWithLatest_<R, E, A, R1, E1, B, C>(
             (leftDone, rightFiber) => IO.fromExitNow(leftDone).zipWith(rightFiber.join, (l, r) => tuple(l, r, true)),
             (rightDone, leftFiber) => IO.fromExitNow(rightDone).zipWith(leftFiber.join, (r, l) => tuple(l, r, false)),
           ),
-        ).chain(([l, r, leftFirst]) =>
-          Stream.fromIO(Ref.make(tuple(l.unsafeGet(l.length - 1), r.unsafeGet(r.length - 1)))).chain((latest) =>
+        ).flatMap(([l, r, leftFirst]) =>
+          Stream.fromIO(Ref.make(tuple(l.unsafeGet(l.length - 1), r.unsafeGet(r.length - 1)))).flatMap((latest) =>
             Stream.fromChunk(
               leftFirst ? r.map((b) => f(l.unsafeGet(l.length - 1), b)) : l.map((a) => f(a, r.unsafeGet(r.length - 1))),
             ).concat(
@@ -2922,7 +2922,7 @@ export function zipWithLatest_<R, E, A, R1, E1, B, C>(
                       ),
                   ),
                 )
-                .chain(Stream.fromChunkNow),
+                .flatMap(Stream.fromChunkNow),
             ),
           ),
         ).toPull,

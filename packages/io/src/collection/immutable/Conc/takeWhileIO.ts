@@ -14,7 +14,7 @@ export function takeWhileIO_<A, R, E>(as: Conc<A>, p: (a: A) => IO<R, E, boolean
       const array = result.value;
       for (let i = 0; i < array.length; i++) {
         const j = i;
-        taking  = taking.chain((b) => {
+        taking  = taking.flatMap((b) => {
           const a = array[j]!;
           return (b ? p(a) : IO.succeedNow(false)).map((b1) => {
             if (b1) {

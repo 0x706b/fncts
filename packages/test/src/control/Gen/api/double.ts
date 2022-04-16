@@ -22,7 +22,7 @@ import { Gen } from "../definition.js";
 export function arrayInt64(min: ArrayInt64, max: ArrayInt64): Gen<Has<Random>, ArrayInt64> {
   return new Gen(
     Stream.fromIO(computeArrayInt64GenerateRange(min, max, undefined, undefined))
-      .chain(({ min, max }) => Stream.repeatIO(Random.nextArrayIntBetween(min, max)))
+      .flatMap(({ min, max }) => Stream.repeatIO(Random.nextArrayIntBetween(min, max)))
       .map((uncheckedValue) => {
         if (uncheckedValue.data.length === 1) {
           uncheckedValue.data.unshift(0);

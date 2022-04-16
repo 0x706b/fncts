@@ -28,7 +28,7 @@ export function emitChunk<A>(as: Conc<A>): UIO<Conc<A>> {
  * @tsplus static fncts.control.Stream.PullOps fromQueue
  */
 export function fromQueue<E, A>(d: Queue.Dequeue<Take<E, A>>): FIO<Maybe<E>, Conc<A>> {
-  return d.take.chain((take) => take.done);
+  return d.take.flatMap((take) => take.done);
 }
 
 /**

@@ -41,7 +41,7 @@ export function environmentWithIO<R0, R, E, A>(
   f: (r: Environment<R0>) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R & R0, E, A> {
-  return IO.environment<R0>().chain(f);
+  return IO.environment<R0>().flatMap(f);
 }
 
 /**
@@ -122,5 +122,5 @@ export function serviceWithIO<T, R, E, A>(
   tag: Tag<T>,
   __tsplusTrace?: string,
 ): IO<R & Has<T>, E, A> {
-  return IO.defer(FiberRef.currentEnvironment.get.chain((environment) => f(environment.unsafeGet(tag))));
+  return IO.defer(FiberRef.currentEnvironment.get.flatMap((environment) => f(environment.unsafeGet(tag))));
 }

@@ -69,19 +69,19 @@ export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
         left,
         right(),
         (winner, loser) =>
-          winner.await.chain((exit) => {
+          winner.await.flatMap((exit) => {
             switch (exit._tag) {
               case ExitTag.Success:
-                return winner.inheritRefs.chain(() => leftWins(exit, loser));
+                return winner.inheritRefs.flatMap(() => leftWins(exit, loser));
               case ExitTag.Failure:
                 return leftWins(exit, loser);
             }
           }),
         (winner, loser) =>
-          winner.await.chain((exit) => {
+          winner.await.flatMap((exit) => {
             switch (exit._tag) {
               case ExitTag.Success:
-                return winner.inheritRefs.chain(() => rightWins(exit, loser));
+                return winner.inheritRefs.flatMap(() => rightWins(exit, loser));
               case ExitTag.Failure:
                 return rightWins(exit, loser);
             }

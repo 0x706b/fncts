@@ -5,7 +5,7 @@ function takeRemainderLoop<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A
   if (n <= 0) {
     return IO.succeedNow(Conc.empty());
   } else {
-    return queue.take.chain((b) => takeRemainderLoop(queue, n - 1).map((out) => out.prepend(b)));
+    return queue.take.flatMap((b) => takeRemainderLoop(queue, n - 1).map((out) => out.prepend(b)));
   }
 }
 
@@ -25,7 +25,7 @@ export function takeBetween_<RA, RB, EA, EB, A, B>(
   if (max < min) {
     return IO.succeedNow(Conc.empty());
   } else {
-    return queue.takeUpTo(max).chain((bs) => {
+    return queue.takeUpTo(max).flatMap((bs) => {
       const remaining = min - bs.length;
 
       if (remaining === 1) {

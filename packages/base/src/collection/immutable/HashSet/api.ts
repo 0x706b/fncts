@@ -140,7 +140,7 @@ export function mapDefault<A, B>(self: HashSet<A>, f: (a: A) => B): HashSet<B> {
 /**
  * Map + Flatten
  */
-export function chain_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
+export function flatMap_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
   const r = make<B>(C);
   return (set, f) =>
     mutate_(r, (r) => {
@@ -156,10 +156,10 @@ export function chain_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => Ite
 }
 
 /**
- * @tsplus fluent fncts.HashSet chain
+ * @tsplus fluent fncts.HashSet flatMap
  */
-export function chainDefault<A, B>(self: HashSet<A>, f: (a: A) => Iterable<B>): HashSet<B> {
-  return chain_<B>(HashEq.StructuralStrict)(self, f);
+export function flatMapDefault<A, B>(self: HashSet<A>, f: (a: A) => Iterable<B>): HashSet<B> {
+  return flatMap_<B>(HashEq.StructuralStrict)(self, f);
 }
 
 /**

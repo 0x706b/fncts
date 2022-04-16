@@ -31,7 +31,7 @@ export abstract class Clock {
           );
         });
 
-      const last = ref.get.chain(([mOut, _]) =>
+      const last = ref.get.flatMap(([mOut, _]) =>
         mOut.match(() => IO.failNow(new NoSuchElementError("There is no value left")), IO.succeedNow),
       );
 
@@ -66,7 +66,7 @@ export abstract class Clock {
         const io       = io0();
         const schedule = schedule0();
 
-        return this.driver(schedule).chain((driver) => {
+        return this.driver(schedule).flatMap((driver) => {
           const loop = (a: A): IO<R & R1 & R2, E2, Either<C, B>> =>
             driver.next(a).matchIO(
               () => driver.last.orHalt.map(Either.right),
@@ -111,12 +111,12 @@ export abstract class Clock {
         const loop = (driver: Schedule.Driver<unknown, R1, E, O>): IO<R & R1 & R2, E2, Either<B, A>> =>
           io.map(Either.right).catchAll((e) =>
             driver.next(e).matchIO(
-              () => driver.last.orHalt.chain((out) => orElse(e, out).map(Either.left)),
+              () => driver.last.orHalt.flatMap((out) => orElse(e, out).map(Either.left)),
               () => loop(driver),
             ),
           );
 
-        return this.driver(schedule).chain(loop);
+        return this.driver(schedule).flatMap(loop);
       });
   }
 }
@@ -228,12 +228,12 @@ export function retryOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
       const loop = (driver: Schedule.Driver<unknown, R1, E, O>): IO<R & R1 & R2, E2, Either<B, A>> =>
         io.map(Either.right).catchAll((e) =>
           driver.next(e).matchIO(
-            () => driver.last.orHalt.chain((out) => orElse(e, out).map(Either.left)),
+            () => driver.last.orHalt.flatMap((out) => orElse(e, out).map(Either.left)),
             () => loop(driver),
           ),
         );
 
-      return IO.serviceWithIO((clock) => clock.driver(schedule).chain(loop), Clock.Tag);
+      return IO.serviceWithIO((clock) => clock.driver(schedule).flatMap(loop), Clock.Tag);
     });
 }
 
@@ -259,11 +259,11 @@ export function scheduleFrom<R, E, A extends A1, R1, A1, B>(
   return IO.defer(() => {
     const io       = io0();
     const schedule = schedule0();
-    return Clock.driver(schedule).chain((driver) => {
+    return Clock.driver(schedule).flatMap((driver) => {
       const loop = (a: A1): IO<R & R1, E, B> =>
         driver.next(a).matchIO(
           () => driver.last.orHalt,
-          () => io.chain(loop),
+          () => io.flatMap(loop),
         );
       return loop(a());
     });

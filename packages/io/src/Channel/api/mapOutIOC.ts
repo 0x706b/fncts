@@ -9,7 +9,7 @@ export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone,
   return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
       IO.gen(function* (_) {
-        yield* _(IO.addFinalizer(getChildren.chain(Fiber.interruptAll)));
+        yield* _(IO.addFinalizer(getChildren.flatMap(Fiber.interruptAll)));
         const queue = yield* _(
           IO.acquireRelease(
             Queue.makeBounded<IO<Env1, OutErr | OutErr1, Either<OutDone, OutElem1>>>(n),

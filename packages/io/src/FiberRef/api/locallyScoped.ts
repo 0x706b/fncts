@@ -9,14 +9,14 @@ export function locallyScoped_<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>, 
   return matchTag_(fiberRef, {
     Runtime: (ref: FiberRef.Runtime<A>) =>
       IO.acquireRelease(
-        ref.get.chain((old) => ref.set(a).as(old)),
+        ref.get.flatMap((old) => ref.set(a).as(old)),
         (a) => ref.set(a),
       ).asUnit,
     Derived: (ref) =>
       ref.use(
         (value, _, setEither) =>
           IO.acquireRelease(
-            value.get.chain((old) => setEither(a).match(IO.failNow, (s) => value.set(s).as(old))),
+            value.get.flatMap((old) => setEither(a).match(IO.failNow, (s) => value.set(s).as(old))),
             (s) => value.set(s),
           ).asUnit,
       ),
@@ -24,7 +24,7 @@ export function locallyScoped_<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>, 
       ref.use(
         (value, _, setEither) =>
           IO.acquireRelease(
-            value.get.chain((old) => setEither(a)(old).match(IO.failNow, (s) => value.set(s).as(old))),
+            value.get.flatMap((old) => setEither(a)(old).match(IO.failNow, (s) => value.set(s).as(old))),
             (s) => value.set(s),
           ).asUnit,
       ),
