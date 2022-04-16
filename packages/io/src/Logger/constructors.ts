@@ -1,5 +1,5 @@
 /**
- * @tsplus static fncts.control.LoggerOps defaultString
+ * @tsplus static fncts.io.LoggerOps defaultString
  */
 export const defaultString: Logger<string, string> = new Logger(
   (trace, fiberId, logLevel, message, cause, context, spans, annotations) => {
@@ -42,7 +42,7 @@ export const defaultString: Logger<string, string> = new Logger(
 );
 
 /**
- * @tsplus fncts.control.Logger none
+ * @tsplus fncts.io.Logger none
  */
 export const none: Logger<unknown, void> = new Logger(() => undefined);
 

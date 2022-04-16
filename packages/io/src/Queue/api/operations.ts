@@ -5,7 +5,7 @@ import { concrete } from "@fncts/io/Queue/definition";
  * The `IO` returned by this method will not resume until the queue has been shutdown.
  * If the queue is already shutdown, the `IO` will resume right away.
  *
- * @tsplus getter fncts.control.Queue awaitShutdown
+ * @tsplus getter fncts.io.Queue awaitShutdown
  */
 export function awaitShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): UIO<void> {
   concrete(queue);
@@ -15,7 +15,7 @@ export function awaitShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB
 /**
  * How many elements can hold in the queue
  *
- * @tsplus getter fncts.control.Queue capacity
+ * @tsplus getter fncts.io.Queue capacity
  */
 export function capacity<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): number {
   concrete(queue);
@@ -25,7 +25,7 @@ export function capacity<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, 
 /**
  * `true` if `shutdown` has been called.
  *
- * @tsplus getter fncts.control.Queue isShutdown
+ * @tsplus getter fncts.io.Queue isShutdown
  */
 export function isShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): UIO<boolean> {
   concrete(queue);
@@ -35,7 +35,7 @@ export function isShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A
 /**
  * Places one value in the queue.
  *
- * @tsplus fluent fncts.control.Queue offer
+ * @tsplus fluent fncts.io.Queue offer
  */
 export function offer_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, a: A): IO<RA, EA, boolean> {
   concrete(queue);
@@ -58,7 +58,7 @@ export function offer_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>
  * For Dropping Queue: uses `Dropping` Strategy,
  * It places the values in the queue but if there is no room it will not enqueue them and return false.
  *
- * @tsplus fluent fncts.control.Queue offerAll
+ * @tsplus fluent fncts.io.Queue offerAll
  */
 export function offerAll_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, as: Iterable<A>) {
   concrete(queue);
@@ -69,7 +69,7 @@ export function offerAll_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A,
  * Interrupts any fibers that are suspended on `offer` or `take`.
  * Future calls to `offer*` and `take*` will be interrupted immediately.
  *
- * @tsplus getter fncts.control.Queue shutdown
+ * @tsplus getter fncts.io.Queue shutdown
  */
 export function shutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
   concrete(queue);
@@ -81,7 +81,7 @@ export function shutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, 
  * in the queue. This may be negative if fibers are suspended waiting for
  * elements to be added to the queue.
  *
- * @tsplus getter fncts.control.Queue size
+ * @tsplus getter fncts.io.Queue size
  */
 export function size<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
   concrete(queue);
@@ -92,7 +92,7 @@ export function size<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) 
  * Removes the oldest value in the queue. If the queue is empty, this will
  * return a computation that resumes when an item has been added to the queue.
  *
- * @tsplus getter fncts.control.Queue take
+ * @tsplus getter fncts.io.Queue take
  */
 export function take<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
   concrete(queue);
@@ -103,7 +103,7 @@ export function take<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) 
  * Removes all the values in the queue and returns the list of the values. If the queue
  * is empty returns empty list.
  *
- * @tsplus getter fncts.control.Queue takeAll
+ * @tsplus getter fncts.io.Queue takeAll
  */
 export function takeAll<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
   concrete(queue);
@@ -113,7 +113,7 @@ export function takeAll<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B
 /**
  * Takes up to max number of values in the queue.
  *
- * @tsplus fluent fncts.control.Queue takeAllUpTo
+ * @tsplus fluent fncts.io.Queue takeAllUpTo
  */
 export function takeAllUpTo_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, n: number) {
   concrete(queue);

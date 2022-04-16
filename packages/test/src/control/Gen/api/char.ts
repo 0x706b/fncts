@@ -7,7 +7,7 @@ import { Gen } from "../definition.js";
 const gapSize = 0xdfff + 1 - 0xd800;
 
 /**
- * @tsplus static fncts.test.control.GenOps alphaNumericChar
+ * @tsplus static fncts.test.GenOps alphaNumericChar
  */
 export const alphaNumericChar: Gen<Has<Random>, string> = Gen.weighted(
   [Gen.char({ min: 48, max: 57 }), 10],
@@ -16,44 +16,44 @@ export const alphaNumericChar: Gen<Has<Random>, string> = Gen.weighted(
 );
 
 /**
- * @tsplus static fncts.test.control.GenOps asciiChar
+ * @tsplus static fncts.test.GenOps asciiChar
  */
 export const asciiChar: Gen<Has<Random>, string> = _char(0x00, 0x7f, indexToPrintableIndex);
 
 /**
- * @tsplus static fncts.test.control.GenOps base64Char
+ * @tsplus static fncts.test.GenOps base64Char
  */
 export const base64Char: Gen<Has<Random>, string> = _char(0, 63, base64ToCharCode);
 
 /**
- * @tsplus static fncts.test.control.GenOps char
+ * @tsplus static fncts.test.GenOps char
  */
 export function char(constraints: Required<NumberConstraints>): Gen<Has<Random>, string> {
   return _char(constraints.min, constraints.max, identity);
 }
 
 /**
- * @tsplus static fncts.test.control.GenOps char16
+ * @tsplus static fncts.test.GenOps char16
  */
 export const char16: Gen<Has<Random>, string> = _char(0x0000, 0xffff, indexToPrintableIndex);
 
 /**
- * @tsplus static fncts.test.control.GenOps fullUnicodeChar
+ * @tsplus static fncts.test.GenOps fullUnicodeChar
  */
 export const fullUnicodeChar: Gen<Has<Random>, string> = _char(0x0000, 0x10ffff - gapSize, unicodeToCharCode);
 
 /**
- * @tsplus static fncts.test.control.GenOps hexChar
+ * @tsplus static fncts.test.GenOps hexChar
  */
 export const hexChar: Gen<Has<Random>, string> = _char(0, 15, hexToCharCode);
 
 /**
- * @tsplus static fncts.test.control.GenOps printableChar
+ * @tsplus static fncts.test.GenOps printableChar
  */
 export const printableChar: Gen<Has<Random>, string> = char({ min: 0x20, max: 0x7e });
 
 /**
- * @tsplus static fncts.test.control.GenOps unicodeChar
+ * @tsplus static fncts.test.GenOps unicodeChar
  */
 export const unicodeChar: Gen<Has<Random>, string> = _char(0x0000, 0xffff - gapSize, unicodeToCharCode);
 

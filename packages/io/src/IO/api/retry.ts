@@ -1,5 +1,5 @@
 /**
- * @tsplus getter fncts.control.IO retry
+ * @tsplus getter fncts.io.IO retry
  */
 export function retry<R, E, A>(self: IO<R, E, A>) {
   return <R1, O>(schedule0: Lazy<Schedule<R1, E, O>>, __tsplusTrace?: string): IO<Has<Clock> & R & R1, E, A> =>
@@ -7,7 +7,7 @@ export function retry<R, E, A>(self: IO<R, E, A>) {
 }
 
 /**
- * @tsplus getter fncts.control.IO retryOrElse
+ * @tsplus getter fncts.io.IO retryOrElse
  */
 export function retryOrElse<R, E, A>(self: IO<R, E, A>) {
   return <R1, O, R2, E2>(
@@ -18,7 +18,7 @@ export function retryOrElse<R, E, A>(self: IO<R, E, A>) {
 }
 
 /**
- * @tsplus getter fncts.control.IO retryOrElseEither
+ * @tsplus getter fncts.io.IO retryOrElseEither
  */
 export function retryOrElseEither_<R, E, A>(self: IO<R, E, A>) {
   return <R1, O, R2, E2, B>(

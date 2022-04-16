@@ -1,5 +1,5 @@
 /**
- * @tsplus getter fncts.control.IO repeat
+ * @tsplus getter fncts.io.IO repeat
  */
 export function repeat_<R, E, A>(self: IO<R, E, A>) {
   return <R1, B>(schedule0: Lazy<Schedule<R1, A, B>>, __tsplusTrace?: string): IO<Has<Clock> & R & R1, E, B> =>
@@ -7,7 +7,7 @@ export function repeat_<R, E, A>(self: IO<R, E, A>) {
 }
 
 /**
- * @tsplus getter fncts.control.IO repeatOrElse
+ * @tsplus getter fncts.io.IO repeatOrElse
  */
 export function repeatOrElse_<R, E, A>(self: IO<R, E, A>) {
   return <R1, B, R2, E2>(
@@ -18,7 +18,7 @@ export function repeatOrElse_<R, E, A>(self: IO<R, E, A>) {
 }
 
 /**
- * @tsplus getter fncts.control.IO repeatOrElseEither
+ * @tsplus getter fncts.io.IO repeatOrElseEither
  */
 export function repeatOrElseEither_<R, E, A>(self: IO<R, E, A>) {
   return <R1, B, R2, E2, C>(

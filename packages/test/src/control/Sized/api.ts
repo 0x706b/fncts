@@ -1,12 +1,12 @@
 import { Sized } from "./definition.js";
 
 /**
- * @tsplus static fncts.test.control.SizedOps size
+ * @tsplus static fncts.test.SizedOps size
  */
 export const size: URIO<Has<Sized>, number> = IO.serviceWithIO((sized) => sized.size, Sized.Tag);
 
 /**
- * @tsplus static fncts.test.control.SizedOps withSize
+ * @tsplus static fncts.test.SizedOps withSize
  */
 export function withSize(size: number) {
   return <R, E, A>(io: IO<R, E, A>): IO<R & Has<Sized>, E, A> =>

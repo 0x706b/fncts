@@ -53,7 +53,7 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
 }
 
 /**
- * @tsplus fluent fncts.control.Queue filterOutputIO
+ * @tsplus fluent fncts.io.Queue filterOutputIO
  */
 export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
@@ -64,7 +64,7 @@ export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Queue filterOutput
+ * @tsplus fluent fncts.io.Queue filterOutput
  */
 export function filterOutput_<RA, RB, EA, EB, A, B>(
   queue: PQueue<RA, RB, EA, EB, A, B>,

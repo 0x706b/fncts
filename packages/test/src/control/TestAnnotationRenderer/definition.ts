@@ -37,12 +37,12 @@ export class CompositeRenderer {
 }
 
 /**
- * @tsplus type fncts.test.control.TestAnnotationRenderer
+ * @tsplus type fncts.test.TestAnnotationRenderer
  */
 export type TestAnnotationRenderer = LeafRenderer | CompositeRenderer;
 
 /**
- * @tsplus type fncts.test.control.TestAnnotationRendererOps
+ * @tsplus type fncts.test.TestAnnotationRendererOps
  */
 export interface TestAnnotationRendererOps {}
 

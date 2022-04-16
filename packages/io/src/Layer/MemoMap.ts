@@ -88,7 +88,7 @@ export class MemoMap {
 }
 
 /**
- * @tsplus fluent fncts.control.Layer isFresh
+ * @tsplus fluent fncts.io.Layer isFresh
  */
 export function isFresh<R, E, A>(self: Layer<R, E, A>): self is Fresh<R, E, A> {
   self.concrete();
@@ -102,14 +102,14 @@ export function makeMemoMap(): UIO<MemoMap> {
 }
 
 /**
- * @tsplus getter fncts.control.Layer build
+ * @tsplus getter fncts.io.Layer build
  */
 export function build<R, E, A>(self: Layer<R, E, A>): IO<R & Has<Scope>, E, Environment<A>> {
   return IO.serviceWithIO((scope: Scope) => self.build(scope), Scope.Tag);
 }
 
 /**
- * @tsplus fluent fncts.control.Layer build
+ * @tsplus fluent fncts.io.Layer build
  */
 export function build_<R, E, A>(self: Layer<R, E, A>, scope: Scope): IO<R, E, Environment<A>> {
   return IO.gen(function* (_) {
@@ -120,7 +120,7 @@ export function build_<R, E, A>(self: Layer<R, E, A>, scope: Scope): IO<R, E, En
 }
 
 /**
- * @tsplus fluent fncts.control.Layer scope
+ * @tsplus fluent fncts.io.Layer scope
  */
 export function scope<R, E, A>(
   layer: Layer<R, E, A>,

@@ -33,7 +33,7 @@ function runScopedInterpret<Env, InErr, InDone, OutErr, OutDone>(
 /**
  * Runs a channel until the end is received
  *
- * @tsplus getter fncts.control.Channel runScoped
+ * @tsplus getter fncts.io.Channel runScoped
  */
 export function runScoped<Env, InErr, InDone, OutErr, OutDone>(
   self: Channel<Env, InErr, unknown, InDone, OutErr, never, OutDone>,

@@ -19,7 +19,7 @@ interface ReleaseMapN extends HKT {
 }
 
 /**
- * @tsplus type fncts.control.Scope.ReleaseMap
+ * @tsplus type fncts.io.Scope.ReleaseMap
  */
 export interface ReleaseMap
   extends Newtype<
@@ -30,7 +30,7 @@ export interface ReleaseMap
   > {}
 
 /**
- * @tsplus type fncts.control.Scope.ReleaseMapOps
+ * @tsplus type fncts.io.Scope.ReleaseMapOps
  */
 export interface ReleaseMapOps extends Newtype.Iso<ReleaseMapN> {}
 

@@ -11,7 +11,7 @@ function maybeDisconnect<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
  * WARNING: The raced effect will safely interrupt the "loser", but will not
  * resume until the loser has been cleanly terminated.
  *
- * @tsplus fluent fncts.control.IO race
+ * @tsplus fluent fncts.io.IO race
  */
 export function race_<R, E, A, R1, E1, A1>(io: IO<R, E, A>, that: IO<R1, E1, A1>): IO<R & R1, E | E1, A | A1> {
   return IO.descriptorWith((descriptor) =>

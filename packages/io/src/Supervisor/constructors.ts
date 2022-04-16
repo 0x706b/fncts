@@ -3,7 +3,7 @@ import type { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { ConstSupervisor } from "./definition.js";
 
 /**
- * @tsplus static fncts.control.SupervisorOps unsafeTrack
+ * @tsplus static fncts.io.SupervisorOps unsafeTrack
  */
 export function unsafeTrack(): Supervisor<Conc<Fiber.Runtime<any, any>>> {
   const set = new Set<Fiber.Runtime<any, any>>();
@@ -24,7 +24,7 @@ export function unsafeTrack(): Supervisor<Conc<Fiber.Runtime<any, any>>> {
 }
 
 /**
- * @tsplus static fncts.control.SupervisorOps fibersIn
+ * @tsplus static fncts.io.SupervisorOps fibersIn
  */
 export function fibersIn(
   ref: AtomicReference<HashSet<Fiber.Runtime<any, any>>>,
@@ -48,18 +48,18 @@ export function fibersIn(
 }
 
 /**
- * @tsplus static fncts.control.SupervisorOps fromIO
+ * @tsplus static fncts.io.SupervisorOps fromIO
  */
 export function fromIO<A>(ma: UIO<A>): Supervisor<A> {
   return new ConstSupervisor(ma);
 }
 
 /**
- * @tsplus static fncts.control.SupervisorOps none
+ * @tsplus static fncts.io.SupervisorOps none
  */
 export const none = new ConstSupervisor(IO.unit);
 
 /**
- * @tsplus static fncts.control.SupervisorOps track
+ * @tsplus static fncts.io.SupervisorOps track
  */
 export const track: UIO<Supervisor<Conc<Fiber.Runtime<any, any>>>> = IO.succeed(unsafeTrack());

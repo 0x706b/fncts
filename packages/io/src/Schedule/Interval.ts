@@ -1,39 +1,39 @@
 /**
- * @tsplus type fncts.control.Schedule.Interval
- * @tsplus companion fncts.control.Schedule.IntervalOps
+ * @tsplus type fncts.io.Schedule.Interval
+ * @tsplus companion fncts.io.Schedule.IntervalOps
  */
 export class Interval {
   constructor(readonly startMilliseconds: number, readonly endMilliseconds: number) {}
 }
 
 /**
- * @tsplus static fncts.control.Schedule.IntervalOps after
+ * @tsplus static fncts.io.Schedule.IntervalOps after
  */
 export function after(start: number): Interval {
   return Interval(start, Number.MAX_SAFE_INTEGER);
 }
 
 /**
- * @tsplus static fncts.control.Schedule.IntervalOps before
+ * @tsplus static fncts.io.Schedule.IntervalOps before
  */
 export function before(end: number): Interval {
   return Interval(Number.MIN_SAFE_INTEGER, end);
 }
 
 /**
- * @tsplus static fncts.control.Schedule.IntervalOps empty
+ * @tsplus static fncts.io.Schedule.IntervalOps empty
  */
 export const empty: Interval = new Interval(Number.MIN_SAFE_INTEGER, Number.MIN_SAFE_INTEGER);
 
 /**
- * @tsplus getter fncts.control.Schedule.Interval isEmpty
+ * @tsplus getter fncts.io.Schedule.Interval isEmpty
  */
 export function isEmpty(self: Interval): boolean {
   return self.startMilliseconds >= self.endMilliseconds;
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule.Interval intersect
+ * @tsplus fluent fncts.io.Schedule.Interval intersect
  */
 export function intersect_(self: Interval, that: Interval): Interval {
   const start = Math.max(self.startMilliseconds, that.startMilliseconds);
@@ -42,15 +42,15 @@ export function intersect_(self: Interval, that: Interval): Interval {
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule.Interval lt
- * @tsplus operator fncts.control.Schedule.Interval <
+ * @tsplus fluent fncts.io.Schedule.Interval lt
+ * @tsplus operator fncts.io.Schedule.Interval <
  */
 export function lt_(self: Interval, that: Interval): boolean {
   return self.min(that) === self;
 }
 
 /**
- * @tsplus static fncts.control.Schedule.IntervalOps __call
+ * @tsplus static fncts.io.Schedule.IntervalOps __call
  */
 export function makeInterval(start: number, end: number): Interval {
   if (start <= end) return Interval(start, end);
@@ -58,7 +58,7 @@ export function makeInterval(start: number, end: number): Interval {
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule.Interval max
+ * @tsplus fluent fncts.io.Schedule.Interval max
  */
 export function max_(self: Interval, that: Interval): Interval {
   const m = self.min(that);
@@ -67,7 +67,7 @@ export function max_(self: Interval, that: Interval): Interval {
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule.Interval min
+ * @tsplus fluent fncts.io.Schedule.Interval min
  */
 export function min_(self: Interval, that: Interval): Interval {
   if (self.endMilliseconds <= that.startMilliseconds) return self;
@@ -79,21 +79,21 @@ export function min_(self: Interval, that: Interval): Interval {
 }
 
 /**
- * @tsplus getter fncts.control.Schedule.Interval isNonEmpty
+ * @tsplus getter fncts.io.Schedule.Interval isNonEmpty
  */
 export function isNonEmpty(self: Interval): boolean {
   return !self.isEmpty;
 }
 
 /**
- * @tsplus getter fncts.control.Schedule.Interval size
+ * @tsplus getter fncts.io.Schedule.Interval size
  */
 export function size(self: Interval): number {
   return self.endMilliseconds - self.startMilliseconds;
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule.Interval union
+ * @tsplus fluent fncts.io.Schedule.Interval union
  */
 export function union_(self: Interval, that: Interval): Maybe<Interval> {
   const istart = Math.max(self.startMilliseconds, that.startMilliseconds);

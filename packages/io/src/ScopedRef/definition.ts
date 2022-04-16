@@ -2,8 +2,8 @@ export const ScopedRefTypeId = Symbol.for("fncts.base.control.ScopedRef");
 export type ScopedRefTypeId = typeof ScopedRefTypeId;
 
 /**
- * @tsplus type fncts.control.ScopedRef
- * @tsplus companion fncts.control.ScopedRefOps
+ * @tsplus type fncts.io.ScopedRef
+ * @tsplus companion fncts.io.ScopedRefOps
  */
 export abstract class ScopedRef<A> {
   readonly _typeId: ScopedRefTypeId = ScopedRefTypeId;

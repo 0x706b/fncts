@@ -2,12 +2,12 @@ import type { Atomic } from "../../TRef.js";
 
 import { Versioned } from "./Versioned.js";
 
-export const EntryTypeId = Symbol.for("fncts.data.Entry");
+export const EntryTypeId = Symbol.for("fncts.io.Entry");
 export type EntryTypeId = typeof EntryTypeId;
 
 /**
- * @tsplus type fncts.control.Entry
- * @tsplus companion fncts.control.EntryOps
+ * @tsplus type fncts.io.Entry
+ * @tsplus companion fncts.io.EntryOps
  */
 export class Entry {
   readonly _typeId: EntryTypeId = EntryTypeId;
@@ -16,7 +16,7 @@ export class Entry {
 }
 
 /**
- * @tsplus static fncts.control.EntryOps make
+ * @tsplus static fncts.io.EntryOps make
  */
 export function make<A0>(tref0: Atomic<A0>, isNew0: boolean): Entry {
   const versioned = tref0.versioned;
@@ -24,7 +24,7 @@ export function make<A0>(tref0: Atomic<A0>, isNew0: boolean): Entry {
   return new Entry((f) => f(ops));
 }
 
-export const ConcreteEntryTypeId = Symbol.for("fncts.data.ConcreteEntry");
+export const ConcreteEntryTypeId = Symbol.for("fncts.io.ConcreteEntry");
 export type ConcreteEntryTypeId = typeof ConcreteEntryTypeId;
 
 export class ConcreteEntry<S> {

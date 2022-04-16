@@ -58,7 +58,7 @@ export class ZipWithIO<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, R
  * For example, a dropping queue and a bounded queue composed together may apply `f`
  * to different elements.
  *
- * @tsplus fluent fncts.control.Queue zipWithIO
+ * @tsplus fluent fncts.io.Queue zipWithIO
  */
 export function zipWithIO_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, R3, E3, D, A>(
   fa: PQueue<RA, RB, EA, EB, A, B>,
@@ -73,7 +73,7 @@ export function zipWithIO_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, 
 /**
  * Like `zipWithM`, but uses a pure function.
  *
- * @tsplus fluent fncts.control.Queue zipWith
+ * @tsplus fluent fncts.io.Queue zipWith
  */
 export function zipWith_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, D, A>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
@@ -86,7 +86,7 @@ export function zipWith_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B,
 /**
  * Like `zipWith`, but tuples the elements instead of applying a function.
  *
- * @tsplus fluent fncts.control.Queue zip
+ * @tsplus fluent fncts.io.Queue zip
  */
 export function zip_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, A>(
   queue: PQueue<RA, RB, EA, EB, A, B>,

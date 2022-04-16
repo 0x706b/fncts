@@ -3,7 +3,7 @@ import { Pending } from "@fncts/io/Future/definition";
 /**
  * Makes a new future to be completed by the fiber creating the future.
  *
- * @tsplus static fncts.control.FutureOps make
+ * @tsplus static fncts.io.FutureOps make
  */
 export function make<E, A>(): IO<unknown, never, Future<E, A>> {
   return IO.fiberId.flatMap((id) => Future.makeAs<E, A>(id));
@@ -12,7 +12,7 @@ export function make<E, A>(): IO<unknown, never, Future<E, A>> {
 /**
  * Makes a new future to be completed by the fiber with the specified id.
  *
- * @tsplus static fncts.control.FutureOps makeAs
+ * @tsplus static fncts.io.FutureOps makeAs
  */
 export function makeAs<E, A>(fiberId: FiberId) {
   return IO.succeed(unsafeMake<E, A>(fiberId));
@@ -21,7 +21,7 @@ export function makeAs<E, A>(fiberId: FiberId) {
 /**
  * Makes a new future to be completed by the fiber with the specified id.
  *
- * @tsplus static fncts.control.FutureOps unsafeMake
+ * @tsplus static fncts.io.FutureOps unsafeMake
  */
 export function unsafeMake<E, A>(fiberId: FiberId) {
   return new Future<E, A>(new Pending(List.empty()), fiberId);

@@ -10,8 +10,8 @@ import { RenderParam } from "../../data/RenderParam.js";
 import { Assertion } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.control.Assertion and
- * @tsplus operator fncts.test.control.Assertion &&
+ * @tsplus fluent fncts.test.Assertion and
+ * @tsplus operator fncts.test.Assertion &&
  */
 export function and_<A>(self: Assertion<A>, that: Assertion<A>): Assertion<A> {
   return new Assertion(
@@ -21,12 +21,12 @@ export function and_<A>(self: Assertion<A>, that: Assertion<A>): Assertion<A> {
 }
 
 /**
- * @tsplus static fncts.test.control.AssertionOps anything
+ * @tsplus static fncts.test.AssertionOps anything
  */
 export const anything: Assertion<any> = Assertion.make("anything", [], () => true);
 
 /**
- * @tsplus static fncts.test.control.AssertionOps approximatelyEquals
+ * @tsplus static fncts.test.AssertionOps approximatelyEquals
  */
 export function approximatelyEquals(reference: number, tolerance: number): Assertion<number> {
   return Assertion.make("approximatelyEquals", [RenderParam(reference), RenderParam(tolerance)], (actual) => {
@@ -37,7 +37,7 @@ export function approximatelyEquals(reference: number, tolerance: number): Asser
 }
 
 /**
- * @tsplus static fncts.test.control.AssertionOps make
+ * @tsplus static fncts.test.AssertionOps make
  */
 export function assertion<A>(
   name: string,
@@ -60,7 +60,7 @@ export function assertion<A>(
 }
 
 /**
- * @tsplus static fncts.test.control.AssertionOps direct
+ * @tsplus static fncts.test.AssertionOps direct
  */
 export function assertionDirect<A>(
   name: string,
@@ -71,7 +71,7 @@ export function assertionDirect<A>(
 }
 
 /**
- * @tsplus static fncts.test.control.AssertionOps rec
+ * @tsplus static fncts.test.AssertionOps rec
  */
 export function assertionRec<A, B>(
   name: string,
@@ -195,22 +195,22 @@ export function isRight<A>(assertion: Assertion<A>): Assertion<Either<any, A>> {
 export const isTrue: Assertion<boolean> = Assertion.make("isTrue", [], identity);
 
 /**
- * @tsplus fluent fncts.test.control.Assertion label
+ * @tsplus fluent fncts.test.Assertion label
  */
 export function label_<A>(self: Assertion<A>, label: string): Assertion<A> {
   return new Assertion(Render.infix(RenderParam(self), ":", RenderParam(label)), self.run);
 }
 
 /**
- * @tsplus getter fncts.test.control.Assertion invert
+ * @tsplus getter fncts.test.Assertion invert
  */
 export function not<A>(assertion: Assertion<A>): Assertion<A> {
   return Assertion.direct("not", [RenderParam(assertion)], (actual) => assertion.run(actual).invert);
 }
 
 /**
- * @tsplus fluent fncts.test.control.Assertion or
- * @tsplus operator fncts.test.control.Assertion ||
+ * @tsplus fluent fncts.test.Assertion or
+ * @tsplus operator fncts.test.Assertion ||
  */
 export function or_<A>(self: Assertion<A>, that: Assertion<A>): Assertion<A> {
   return new Assertion(
@@ -229,7 +229,7 @@ export function succeeds<A>(assertion: Assertion<A>): Assertion<Exit<any, A>> {
 }
 
 /**
- * @tsplus fluent fncts.test.control.Assertion test
+ * @tsplus fluent fncts.test.Assertion test
  */
 export function test_<A>(self: Assertion<A>, actual: A): boolean {
   return self.run(actual).isSuccess;

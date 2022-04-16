@@ -3,7 +3,7 @@ import { SetInterrupt } from "../definition.js";
 /**
  * Returns an effect that is interrupted as if by the specified fiber.
  *
- * @tsplus static fncts.control.IOOps interruptAs
+ * @tsplus static fncts.io.IOOps interruptAs
  */
 export function interruptAs(fiberId: FiberId, __tsplusTrace?: string): FIO<never, never> {
   return IO.failCauseNow(Cause.interrupt(fiberId));
@@ -13,7 +13,7 @@ export function interruptAs(fiberId: FiberId, __tsplusTrace?: string): FIO<never
  * Returns an effect that is interrupted as if by the fiber calling this
  * method.
  *
- * @tsplus static fncts.control.IOOps interrupt
+ * @tsplus static fncts.io.IOOps interrupt
  */
 export const interrupt: IO<unknown, never, never> = IO.fiberId.flatMap(IO.interruptAs);
 
@@ -23,7 +23,7 @@ export const interrupt: IO<unknown, never, never> = IO.fiberId.flatMap(IO.interr
  * the effect becomes uninterruptible. These changes are compositional, so
  * they only affect regions of the effect.
  *
- * @tsplus fluent fncts.control.IO setInterruptStatus
+ * @tsplus fluent fncts.io.IO setInterruptStatus
  */
 export function setInterruptStatus_<R, E, A>(
   self: IO<R, E, A>,
@@ -44,8 +44,8 @@ export function setInterruptStatus_<R, E, A>(
  * interrupted in unexpected places. Do not use this operator unless you know
  * exactly what you are doing. Instead, you should use `uninterruptibleMask`.
  *
- * @tsplus getter fncts.control.IO interruptible
- * @tsplus static fncts.control.IOOps interruptible
+ * @tsplus getter fncts.io.IO interruptible
+ * @tsplus static fncts.io.IOOps interruptible
  */
 export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return self.setInterruptStatus(InterruptStatus.interruptible);
@@ -59,8 +59,8 @@ export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string
  * Uninterruptible effects may recover from all failure causes (including
  * interruption of an inner effect that has been made interruptible).
  *
- * @tsplus getter fncts.control.IO uninterruptible
- * @tsplus static fncts.control.IOOps uninterruptible
+ * @tsplus getter fncts.io.IO uninterruptible
+ * @tsplus static fncts.io.IOOps uninterruptible
  */
 export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return self.setInterruptStatus(InterruptStatus.uninterruptible);
@@ -71,7 +71,7 @@ export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: stri
  * can be used to restore the inherited interruptibility from whatever region
  * the effect is composed into.
  *
- * @tsplus static fncts.control.IOOps uninterruptibleMask
+ * @tsplus static fncts.io.IOOps uninterruptibleMask
  */
 export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore) => IO<R, E, A>): IO<R, E, A> {
   return IO.checkInterruptible((flag) => f(new InterruptStatusRestore(flag)).uninterruptible);
@@ -81,7 +81,7 @@ export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore
  * Calls the specified function, and runs the effect it returns, if this
  * effect is interrupted.
  *
- * @tsplus fluent fncts.control.IO onInterrupt
+ * @tsplus fluent fncts.io.IO onInterrupt
  */
 export function onInterrupt_<R, E, A, R1>(
   ma: IO<R, E, A>,
@@ -99,7 +99,7 @@ export function onInterrupt_<R, E, A, R1>(
  * Calls the specified function, and runs the effect it returns, if this
  * effect is interrupted (allows for expanding error).
  *
- * @tsplus fluent fncts.control.IO onInterruptExtended
+ * @tsplus fluent fncts.io.IO onInterruptExtended
  */
 export function onInterruptExtended_<R, E, A, R2, E2>(
   self: IO<R, E, A>,
@@ -129,7 +129,7 @@ export function onInterruptExtended_<R, E, A, R2, E2>(
  *
  * See timeout and race for other applications.
  *
- * @tsplus getter fncts.control.IO disconnect
+ * @tsplus getter fncts.io.IO disconnect
  */
 export function disconnect<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return uninterruptibleMask(({ restore }) =>

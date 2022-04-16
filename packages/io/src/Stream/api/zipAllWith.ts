@@ -3,7 +3,7 @@ import { tuple } from "@fncts/base/data/function";
 import { zipChunks } from "../internal/util.js";
 
 /**
- * @tsplus fluent fncts.control.Stream zipAllWith
+ * @tsplus fluent fncts.io.Stream zipAllWith
  */
 export function zipAllWith_<R, E, A, R1, E1, B, C, D, F>(
   self: Stream<R, E, A>,

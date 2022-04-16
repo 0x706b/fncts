@@ -1,6 +1,6 @@
 import type { Journal } from "./Journal.js";
 
-export const TryCommitTypeId = Symbol.for("fncts.data.TryCommit");
+export const TryCommitTypeId = Symbol.for("fncts.io.TryCommit");
 export type TryCommitTypeId = typeof TryCommitTypeId;
 
 export type TryCommit<E, A> = Done<E, A> | Suspend;

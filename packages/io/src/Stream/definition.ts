@@ -20,8 +20,8 @@ export type StreamTypeId = typeof StreamTypeId;
  * adjustments for the multiple-valued nature of `Stream`). These aspects allow
  * for rich and expressive composition of streams.
  *
- * @tsplus type fncts.control.Stream
- * @tsplus companion fncts.control.StreamOps
+ * @tsplus type fncts.io.Stream
+ * @tsplus companion fncts.io.StreamOps
  */
 export class Stream<R, E, A> {
   readonly [StreamTypeId]: StreamTypeId = StreamTypeId;
@@ -33,7 +33,7 @@ export class Stream<R, E, A> {
 }
 
 /**
- * @tsplus unify fncts.control.Stream
+ * @tsplus unify fncts.io.Stream
  */
 export function unifyStream<X extends Stream<any, any, any>>(_: X): Stream<_R<X>, _E<X>, _A<X>> {
   return _;

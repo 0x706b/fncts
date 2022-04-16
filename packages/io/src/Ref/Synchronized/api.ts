@@ -10,7 +10,7 @@ import { concreteSynchronized } from "./definition.js";
  * succeeds with the result of the partial function if it is defined or else
  * fails with `None`.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized collectIO
+ * @tsplus fluent fncts.io.Ref.Synchronized collectIO
  */
 export function collectIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, B>,
@@ -31,7 +31,7 @@ export function collectIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
  * Transforms the `set` value of the `SRef` with the specified effectual
  * function.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized contramapIO
+ * @tsplus fluent fncts.io.Ref.Synchronized contramapIO
  */
 export function contramapIO_<RA, RB, EA, EB, B, A, RC, EC, C>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, B>,
@@ -44,7 +44,7 @@ export function contramapIO_<RA, RB, EA, EB, B, A, RC, EC, C>(
  * Transforms both the `set` and `get` values of the `Synchronized` with the
  * specified effectual functions.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized dimapIO
+ * @tsplus fluent fncts.io.Ref.Synchronized dimapIO
  */
 export function dimapIO_<RA, RB, EA, EB, B, RC, EC, A, RD, ED, C = A, D = B>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, B>,
@@ -64,7 +64,7 @@ export function dimapIO_<RA, RB, EA, EB, B, RC, EC, A, RD, ED, C = A, D = B>(
  * predicate, returning a `SRef` with a `set` value that succeeds if the
  * predicate is satisfied or else fails with `None`.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized filterInputIO
+ * @tsplus fluent fncts.io.Ref.Synchronized filterInputIO
  */
 export function filterInputIO_<RA, RB, EA, EB, B, A, RC, EC, A1 extends A = A>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, B>,
@@ -83,7 +83,7 @@ export function filterInputIO_<RA, RB, EA, EB, B, A, RC, EC, A1 extends A = A>(
  * returning a `SRef` with a `get` value that succeeds if the predicate is
  * satisfied or else fails with `None`.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized filterOutputIO
+ * @tsplus fluent fncts.io.Ref.Synchronized filterOutputIO
  */
 export function filterOutputIO_<RA, RB, EA, EB, A, B, RC, EC>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, B>,
@@ -121,7 +121,7 @@ export function getAndUpdateJustIO_<RA, RB, EA, EB, R1, E1, A>(
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Synchronized matchIO
+ * @tsplus fluent fncts.io.Ref.Synchronized matchIO
  */
 export function matchIO_<RA, RB, EA, EB, A, B, RC, RD, EC, ED, C, D>(
   self: PRef.Synchronized<RA, RB, EA, EB, A, B>,
@@ -135,7 +135,7 @@ export function matchIO_<RA, RB, EA, EB, A, B, RC, RD, EC, ED, C, D>(
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Synchronized matchAllIO
+ * @tsplus fluent fncts.io.Ref.Synchronized matchAllIO
  */
 export function matchAllIO_<RA, RB, EA, EB, A, B, RC, RD, EC, ED, C, D>(
   self: PRef.Synchronized<RA, RB, EA, EB, A, B>,
@@ -150,7 +150,7 @@ export function matchAllIO_<RA, RB, EA, EB, A, B, RC, RD, EC, ED, C, D>(
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Synchronized modifyIO
+ * @tsplus fluent fncts.io.Ref.Synchronized modifyIO
  */
 export function modifyIO_<RA, RB, EA, EB, A, R1, E1, B>(
   self: PRef.Synchronized<RA, RB, EA, EB, A, A>,
@@ -167,7 +167,7 @@ export function modifyIO_<RA, RB, EA, EB, A, R1, E1, B>(
  * otherwise it returns a default value.
  * This is a more powerful version of `updateJust`.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized modifyJustIO
+ * @tsplus fluent fncts.io.Ref.Synchronized modifyJustIO
  */
 export function modifyJustIO_<RA, RB, EA, EB, R1, E1, A, B>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, A>,
@@ -180,7 +180,7 @@ export function modifyJustIO_<RA, RB, EA, EB, R1, E1, A, B>(
 /**
  * Atomically modifies the `SRef` with the specified function.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized updateAndGetIO
+ * @tsplus fluent fncts.io.Ref.Synchronized updateAndGetIO
  */
 export function updateAndGetIO_<RA, RB, EA, EB, R1, E1, A>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, A>,
@@ -192,7 +192,7 @@ export function updateAndGetIO_<RA, RB, EA, EB, R1, E1, A>(
 /**
  * Atomically modifies the `Synchronized` with the specified function.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized updateIO
+ * @tsplus fluent fncts.io.Ref.Synchronized updateIO
  */
 export function updateIO_<RA, RB, EA, EB, R1, E1, A>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, A>,
@@ -204,7 +204,7 @@ export function updateIO_<RA, RB, EA, EB, R1, E1, A>(
 /**
  * Atomically modifies the `SRef` with the specified function.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized updateJustAndGetIO
+ * @tsplus fluent fncts.io.Ref.Synchronized updateJustAndGetIO
  */
 export function updateJustAndGetIO_<RA, RB, EA, EB, R1, E1, A>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, A>,
@@ -220,7 +220,7 @@ export function updateJustAndGetIO_<RA, RB, EA, EB, R1, E1, A>(
 /**
  * Atomically modifies the `SRef` with the specified function.
  *
- * @tsplus fluent fncts.control.Ref.Synchronized updateJustIO
+ * @tsplus fluent fncts.io.Ref.Synchronized updateJustIO
  */
 export function updateJustIO_<RA, RB, EA, EB, R1, E1, A>(
   ref: PRef.Synchronized<RA, RB, EA, EB, A, A>,

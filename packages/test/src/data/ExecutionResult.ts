@@ -56,7 +56,7 @@ export const Other: ResultType = {
 export type ResultType = Test | Suite | Other;
 
 /**
- * @tsplus type fncts.test.control.ExecutionResult
+ * @tsplus type fncts.test.ExecutionResult
  */
 export class ExecutionResult {
   constructor(
@@ -84,7 +84,7 @@ export function rendered(
 }
 
 /**
- * @tsplus operator fncts.test.control.ExecutionResult &&
+ * @tsplus operator fncts.test.ExecutionResult &&
  */
 export function and_(self: ExecutionResult, that: ExecutionResult): ExecutionResult {
   if (self.status._tag === "Ignored") {
@@ -113,7 +113,7 @@ export function and_(self: ExecutionResult, that: ExecutionResult): ExecutionRes
 }
 
 /**
- * @tsplus operator fncts.test.control.ExecutionResult ||
+ * @tsplus operator fncts.test.ExecutionResult ||
  */
 export function or_(self: ExecutionResult, that: ExecutionResult): ExecutionResult {
   if (self.status._tag === "Ignored") {
@@ -142,7 +142,7 @@ export function or_(self: ExecutionResult, that: ExecutionResult): ExecutionResu
 }
 
 /**
- * @tsplus getter fncts.test.control.ExecutionResult invert
+ * @tsplus getter fncts.test.ExecutionResult invert
  */
 export function invert(self: ExecutionResult): ExecutionResult {
   return matchTag_(self.status, {

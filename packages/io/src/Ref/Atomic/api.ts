@@ -1,7 +1,7 @@
 import type { Atomic } from "./Atomic.js";
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic getAndSet
+ * @tsplus fluent fncts.io.Ref.Atomic getAndSet
  */
 export function getAndSet<A>(self: Atomic<A>, a: A): UIO<A> {
   return IO.succeed(() => {
@@ -12,7 +12,7 @@ export function getAndSet<A>(self: Atomic<A>, a: A): UIO<A> {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic getAndUpdate
+ * @tsplus fluent fncts.io.Ref.Atomic getAndUpdate
  */
 export function getAndUpdate<A>(self: Atomic<A>, f: (a: A) => A) {
   return IO.succeed(() => {
@@ -23,7 +23,7 @@ export function getAndUpdate<A>(self: Atomic<A>, f: (a: A) => A) {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic getAndUpdateJust
+ * @tsplus fluent fncts.io.Ref.Atomic getAndUpdateJust
  */
 export function getAndUpdateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
   return IO.succeed(() => {
@@ -37,7 +37,7 @@ export function getAndUpdateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic modify
+ * @tsplus fluent fncts.io.Ref.Atomic modify
  */
 export function modify<A, B>(self: Atomic<A>, f: (a: A) => readonly [B, A]) {
   return IO.succeed(() => {
@@ -49,7 +49,7 @@ export function modify<A, B>(self: Atomic<A>, f: (a: A) => readonly [B, A]) {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic modifyJust
+ * @tsplus fluent fncts.io.Ref.Atomic modifyJust
  */
 export function modifyJust<A, B>(self: Atomic<A>, def: B, f: (a: A) => Maybe<readonly [B, A]>) {
   return IO.succeed(() => {
@@ -66,7 +66,7 @@ export function modifyJust<A, B>(self: Atomic<A>, def: B, f: (a: A) => Maybe<rea
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic update
+ * @tsplus fluent fncts.io.Ref.Atomic update
  */
 export function update<A>(self: Atomic<A>, f: (a: A) => A) {
   return IO.succeed(() => {
@@ -75,7 +75,7 @@ export function update<A>(self: Atomic<A>, f: (a: A) => A) {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic updateAndGet
+ * @tsplus fluent fncts.io.Ref.Atomic updateAndGet
  */
 export function updateAndGet<A>(self: Atomic<A>, f: (a: A) => A) {
   return IO.succeed(() => {
@@ -85,7 +85,7 @@ export function updateAndGet<A>(self: Atomic<A>, f: (a: A) => A) {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic updateJust
+ * @tsplus fluent fncts.io.Ref.Atomic updateJust
  */
 export function updateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
   return IO.succeed(() => {
@@ -98,7 +98,7 @@ export function updateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic updateJustAndGet
+ * @tsplus fluent fncts.io.Ref.Atomic updateJustAndGet
  */
 export function updateJustAndGet<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
   return IO.succeed(() => {
@@ -113,7 +113,7 @@ export function updateJustAndGet<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
 }
 
 /**
- * @tsplus fluent fncts.control.Ref.Atomic unsafeUpdate
+ * @tsplus fluent fncts.io.Ref.Atomic unsafeUpdate
  */
 export function unsafeUpdate<A>(self: Atomic<A>, f: (a: A) => A) {
   return self.unsafeSet(f(self.unsafeGet));

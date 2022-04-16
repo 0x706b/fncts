@@ -3,7 +3,7 @@ import type { Spreadable } from "@fncts/base/types";
 import { State } from "../../State.js";
 
 /**
- * @tsplus static fncts.control.IOOps stateful
+ * @tsplus static fncts.io.IOOps stateful
  */
 export function stateful<S, R, E, A>(
   s: S,

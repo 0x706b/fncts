@@ -3,7 +3,7 @@ import type { Versioned } from "../STM/internal/Versioned.js";
 import type { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import type { TxnId } from "@fncts/io/TxnId";
 
-export const TRefTypeId = Symbol.for("fncts.control.TRef");
+export const TRefTypeId = Symbol.for("fncts.io.TRef");
 export type TRefTypeId = typeof TRefTypeId;
 
 /**
@@ -21,7 +21,7 @@ export type TRefTypeId = typeof TRefTypeId;
  * NOTE: While `TRef` provides the transactional equivalent of a mutable reference,
  * the value inside the `TRef` should be immutable.
  *
- * @tsplus type fncts.control.TRef
+ * @tsplus type fncts.io.TRef
  */
 export interface TRef<EA, EB, A, B> {
   readonly _typeId: TRefTypeId;
@@ -32,7 +32,7 @@ export interface TRef<EA, EB, A, B> {
 }
 
 /**
- * @tsplus type fncts.control.TRefOps
+ * @tsplus type fncts.io.TRefOps
  */
 export interface TRefOps {}
 
@@ -62,12 +62,12 @@ export abstract class TRefInternal<EA, EB, A, B> implements TRef<EA, EB, A, B> {
 }
 
 /**
- * @tsplus type fncts.control.TRef
+ * @tsplus type fncts.io.TRef
  */
 export interface UTRef<A> extends TRef<never, never, A, A> {}
 
 /**
- * @tsplus type fncts.control.TRef
+ * @tsplus type fncts.io.TRef
  */
 export interface ETRef<E, A> extends TRef<E, E, A, A> {}
 

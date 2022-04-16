@@ -1,5 +1,5 @@
 /**
- * @tsplus static fncts.control.IOOps addFinalizerExit
+ * @tsplus static fncts.io.IOOps addFinalizerExit
  */
 export function addFinalizerExit<R>(
   finalizer: (exit: Exit<any, any>) => URIO<R, any>,

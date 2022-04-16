@@ -9,7 +9,7 @@ import { SingleProducerAsyncInput } from "@fncts/io/Channel/internal/SingleProdu
  * the behavior of the returned channel on left or right early termination is decided by the
  * specified `leftDone` and `rightDone` merge decisions.
  *
- * @tsplus fluent fncts.control.Channel mergeWith
+ * @tsplus fluent fncts.io.Channel mergeWith
  */
 export function mergeWith_<
   Env,

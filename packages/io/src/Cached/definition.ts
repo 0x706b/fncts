@@ -6,8 +6,8 @@ import { CachedTypeId } from "@fncts/io/Cached/internal";
  * A Cached is a possibly resourceful value that is loaded into memory, and
  * which can be refreshed either manually or automatically
  *
- * @tsplus type fncts.control.Cached
- * @tsplus companion fncts.control.CachedOps
+ * @tsplus type fncts.io.Cached
+ * @tsplus companion fncts.io.CachedOps
  */
 export class Cached<Error, Resource> {
   readonly _E!: () => Error;

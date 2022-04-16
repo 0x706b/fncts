@@ -5,7 +5,7 @@
  * type `EA`. The dequeueing operations may utilize an environment of type `RB` and may fail
  * with errors of type `EB`.
  *
- * @tsplus type fncts.control.Queue
+ * @tsplus type fncts.io.Queue
  */
 export interface PQueue<RA, RB, EA, EB, A, B> {
   readonly _RA: (_: RA) => void;
@@ -17,7 +17,7 @@ export interface PQueue<RA, RB, EA, EB, A, B> {
 }
 
 /**
- * @tsplus type fncts.control.QueueOps
+ * @tsplus type fncts.io.QueueOps
  */
 export interface QueueOps {}
 
@@ -113,7 +113,7 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, 
  * A `Queue<A>` is a lightweight, asynchronous queue into which
  * values of type `A` can be enqueued and dequeued.
  *
- * @tsplus type fncts.control.Queue
+ * @tsplus type fncts.io.Queue
  */
 export interface Queue<A> extends PQueue<unknown, unknown, never, never, A, A> {}
 
@@ -121,14 +121,14 @@ export declare namespace Queue {
   /**
    * A queue that can only be dequeued.
    *
-   * @tsplus type fncts.control.Queue
+   * @tsplus type fncts.io.Queue
    */
   export interface Dequeue<A> extends PQueue<never, unknown, unknown, never, never, A> {}
 
   /**
    * A queue that can only be enqueued.
    *
-   * @tsplus type fncts.control.Queue
+   * @tsplus type fncts.io.Queue
    */
   export interface Enqueue<A> extends PQueue<unknown, never, never, unknown, A, any> {}
 }

@@ -41,13 +41,13 @@ const warning =
   "manually advance the time.";
 
 /**
- * @tsplus static fncts.test.control.TestClockOps Tag
+ * @tsplus static fncts.test.TestClockOps Tag
  */
 export const TestClockTag = Tag<TestClock>();
 
 /**
- * @tsplus type fncts.test.control.TestClock
- * @tsplus companion fncts.test.control.TestClockOps
+ * @tsplus type fncts.test.TestClock
+ * @tsplus companion fncts.test.TestClockOps
  */
 export class TestClock extends Clock {
   constructor(

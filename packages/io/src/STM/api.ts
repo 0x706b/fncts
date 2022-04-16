@@ -10,7 +10,7 @@ import { TryCommitTag } from "./internal/TryCommit.js";
 /**
  * Maps the success value of this effect to the specified constant value.
  *
- * @tsplus fluent fncts.control.STM as
+ * @tsplus fluent fncts.io.STM as
  */
 export function as_<R, E, A, B>(stm: STM<R, E, A>, b: Lazy<B>): STM<R, E, B> {
   return stm.map(() => b());
@@ -19,7 +19,7 @@ export function as_<R, E, A, B>(stm: STM<R, E, A>, b: Lazy<B>): STM<R, E, B> {
 /**
  * Maps the success value of this effect to an optional value.
  *
- * @tsplus getter fncts.control.STM asJust
+ * @tsplus getter fncts.io.STM asJust
  */
 export function asJust<R, E, A>(stm: STM<R, E, A>): STM<R, E, Maybe<A>> {
   return stm.map(Maybe.just);
@@ -28,7 +28,7 @@ export function asJust<R, E, A>(stm: STM<R, E, A>): STM<R, E, Maybe<A>> {
 /**
  * Maps the error value of this effect to an optional value.
  *
- * @tsplus getter fncts.control.STM asJustError
+ * @tsplus getter fncts.io.STM asJustError
  */
 export function asJustError<R, E, A>(stm: STM<R, E, A>): STM<R, Maybe<E>, A> {
   return stm.mapError(Maybe.just);
@@ -38,7 +38,7 @@ export function asJustError<R, E, A>(stm: STM<R, E, A>): STM<R, Maybe<E>, A> {
  * Submerges the error case of an `Either` into the `STM`. The inverse
  * operation of `STM.either`.
  *
- * @tsplus getter fncts.control.STM absolve
+ * @tsplus getter fncts.io.STM absolve
  */
 export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>): STM<R, E | E1, A> {
   return z.flatMap(STM.fromEitherNow);
@@ -47,7 +47,7 @@ export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>): STM<R, E | E1
 /**
  * Retrieves the environment inside an stm.
  *
- * @tsplus static fncts.control.STMOps environment
+ * @tsplus static fncts.io.STMOps environment
  */
 export function environment<R>(): STM<R, never, R> {
   return new Effect((_, __, r: R) => r);
@@ -56,7 +56,7 @@ export function environment<R>(): STM<R, never, R> {
 /**
  * Accesses the environment of the transaction.
  *
- * @tsplus static fncts.control.STMOps environmentWith
+ * @tsplus static fncts.io.STMOps environmentWith
  */
 export function environmentWith<R, A>(f: (r: R) => A): STM<R, never, A> {
   return STM.environment<R>().map(f);
@@ -65,15 +65,15 @@ export function environmentWith<R, A>(f: (r: R) => A): STM<R, never, A> {
 /**
  * Accesses the environment of the transaction to perform a transaction.
  *
- * @tsplus static fncts.control.STMOps environmentWithSTM
+ * @tsplus static fncts.io.STMOps environmentWithSTM
  */
 export function environmentWithSTM<R0, R, E, A>(f: (r: R0) => STM<R, E, A>) {
   return STM.environment<R0>().flatMap(f);
 }
 
 /**
- * @tsplus static fncts.control.STMOps atomically
- * @tsplus getter fncts.control.STM commit
+ * @tsplus static fncts.io.STMOps atomically
+ * @tsplus getter fncts.io.STM commit
  */
 export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
   return IO.environmentWithIO((r: Environment<R>) =>
@@ -121,7 +121,7 @@ export function bimap_<R, E, A, E1, B>(stm: STM<R, E, A>, g: (e: E) => E1, f: (a
 /**
  * Recovers from specified error.
  *
- * @tsplus fluent fncts.control.STM catch
+ * @tsplus fluent fncts.io.STM catch
  */
 export function catch_<N extends keyof E, K extends E[N] & string, E, R, A, R1, E1, A1>(
   stm: STM<R, E, A>,
@@ -140,7 +140,7 @@ export function catch_<N extends keyof E, K extends E[N] & string, E, R, A, R1, 
 /**
  * Recovers from some or all of the error cases.
  *
- * @tsplus fluent fncts.control.STM catchJust
+ * @tsplus fluent fncts.io.STM catchJust
  */
 export function catchJust_<R, E, A, R1, E1, B>(
   stm: STM<R, E, A>,
@@ -152,7 +152,7 @@ export function catchJust_<R, E, A, R1, E1, B>(
 /**
  * Recovers from specified error.
  *
- * @tsplus fluent fncts.control.STM catchTag
+ * @tsplus fluent fncts.io.STM catchTag
  */
 export function catchTag_<K extends E["_tag"] & string, E extends { _tag: string }, R, A, R1, E1, A1>(
   stm: STM<R, E, A>,
@@ -171,7 +171,7 @@ export function catchTag_<K extends E["_tag"] & string, E extends { _tag: string
  * Creates a composite effect that represents this effect followed by another
  * one that may depend on the error produced by this one.
  *
- * @tsplus fluent fncts.control.STM flatMapError
+ * @tsplus fluent fncts.io.STM flatMapError
  */
 export function chainError_<R, E, A, R2, E2>(stm: STM<R, E, A>, f: (e: E) => STM<R2, never, E2>): STM<R2 & R, E2, A> {
   return stm.swapWith((effect) => effect.flatMap(f));
@@ -180,7 +180,7 @@ export function chainError_<R, E, A, R2, E2>(stm: STM<R, E, A>, f: (e: E) => STM
 /**
  * Checks the condition, and if it's true, returns unit, otherwise, retries.
  *
- * @tsplus static fncts.control.STMOps check
+ * @tsplus static fncts.io.STMOps check
  */
 export function check(predicate: () => boolean): STM<unknown, never, void> {
   return STM.defer(() => (predicate() ? STM.unit : STM.retry));
@@ -198,7 +198,7 @@ export function commitEither<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
  * Fail with `e` if the supplied `PartialFunction` does not match, otherwise
  * succeed with the returned value.
  *
- * @tsplus fluent fncts.control.STM continueOrFail
+ * @tsplus fluent fncts.io.STM continueOrFail
  */
 export function continueOrFail_<R, E, E1, A, A2>(
   fa: STM<R, E, A>,
@@ -212,7 +212,7 @@ export function continueOrFail_<R, E, E1, A, A2>(
  * Fail with `e` if the supplied `PartialFunction` does not match, otherwise
  * continue with the returned value.
  *
- * @tsplus fluent fncts.control.STM continueOrFailSTM
+ * @tsplus fluent fncts.io.STM continueOrFailSTM
  */
 export function continueOrFailSTM_<R, E, E1, A, R2, E2, A2>(
   fa: STM<R, E, A>,
@@ -226,7 +226,7 @@ export function continueOrFailSTM_<R, E, E1, A, R2, E2, A2>(
  * Fail with `e` if the supplied `PartialFunction` does not match, otherwise
  * succeed with the returned value.
  *
- * @tsplus fluent fncts.control.STM continueOrRetry
+ * @tsplus fluent fncts.io.STM continueOrRetry
  */
 export function continueOrRetry_<R, E, A, A2>(fa: STM<R, E, A>, pf: (a: A) => Maybe<A2>): STM<R, E, A2> {
   return fa.continueOrRetrySTM((a) => pf(a).map(STM.succeedNow));
@@ -236,7 +236,7 @@ export function continueOrRetry_<R, E, A, A2>(fa: STM<R, E, A>, pf: (a: A) => Ma
  * Simultaneously filters and flatMaps the value produced by this effect.
  * Continues on the effect returned from pf.
  *
- * @tsplus fluent fncts.control.STM continueOrRetrySTM
+ * @tsplus fluent fncts.io.STM continueOrRetrySTM
  */
 export function continueOrRetrySTM_<R, E, A, R2, E2, A2>(
   fa: STM<R, E, A>,
@@ -248,7 +248,7 @@ export function continueOrRetrySTM_<R, E, A, R2, E2, A2>(
 /**
  * Suspends creation of the specified transaction lazily.
  *
- * @tsplus static fncts.control.STMOps defer
+ * @tsplus static fncts.io.STMOps defer
  */
 export function defer<R, E, A>(make: Lazy<STM<R, E, A>>): STM<R, E, A> {
   return STM.succeed(make).flatten;
@@ -257,7 +257,7 @@ export function defer<R, E, A>(make: Lazy<STM<R, E, A>>): STM<R, E, A> {
 /**
  * Converts the failure channel into an `Either`.
  *
- * @tsplus getter fncts.control.STM either
+ * @tsplus getter fncts.io.STM either
  */
 export function either<R, E, A>(stm: STM<R, E, A>): STM<R, never, Either<E, A>> {
   return stm.match(Either.left, Either.right);
@@ -266,7 +266,7 @@ export function either<R, E, A>(stm: STM<R, E, A>): STM<R, never, Either<E, A>> 
 /**
  * Returns an effect that ignores errors and runs repeatedly until it eventually succeeds.
  *
- * @tsplus getter fncts.control.STM eventually
+ * @tsplus getter fncts.io.STM eventually
  */
 export function eventually<R, E, A>(stm: STM<R, E, A>): STM<R, never, A> {
   return stm.matchSTM(() => stm.eventually, STM.succeedNow);
@@ -275,7 +275,7 @@ export function eventually<R, E, A>(stm: STM<R, E, A>): STM<R, never, A> {
 /**
  * Simultaneously filters and maps the value produced by this effect.
  *
- * @tsplus fluent fncts.control.STM filterMap
+ * @tsplus fluent fncts.io.STM filterMap
  */
 export function filterMap_<R, E, A, B>(stm: STM<R, E, A>, f: (a: A) => Maybe<B>): STM<R, E, B> {
   return stm.filterMapSTM((a) => f(a).map(STM.succeedNow));
@@ -285,7 +285,7 @@ export function filterMap_<R, E, A, B>(stm: STM<R, E, A>, f: (a: A) => Maybe<B>)
  * Simultaneously filters and chains the value produced by this effect.
  * Continues on the effect returned from f.
  *
- * @tsplus fluent fncts.control.STM filterMapSTM
+ * @tsplus fluent fncts.io.STM filterMapSTM
  */
 export function filterMapSTM_<R, E, A, R1, E1, B>(
   self: STM<R, E, A>,
@@ -297,7 +297,7 @@ export function filterMapSTM_<R, E, A, R1, E1, B>(
 /**
  * Applies `or` if the predicate fails.
  *
- * @tsplus fluent fncts.control.STM filterOrElse
+ * @tsplus fluent fncts.io.STM filterOrElse
  */
 export function filterOrElse_<R, E, A, B extends A, R2, E2, A2>(
   fa: STM<R, E, A>,
@@ -320,7 +320,7 @@ export function filterOrElse_<R, E, A, R2, E2, A2>(
 /**
  * Fails with `failWith` if the predicate fails.
  *
- * @tsplus fluent fncts.control.STM filterOrFail
+ * @tsplus fluent fncts.io.STM filterOrFail
  */
 export function filterOrFail_<R, E, E1, A, B extends A>(
   fa: STM<R, E, A>,
@@ -339,7 +339,7 @@ export function filterOrFail_<R, E, E1, A>(fa: STM<R, E, A>, p: Predicate<A>, fa
 /**
  * Halts with specified `unknown` if the predicate fails.
  *
- * @tsplus fluent fncts.control.STM filterOrHalt
+ * @tsplus fluent fncts.io.STM filterOrHalt
  */
 export function filterOrHalt_<R, E, A, B extends A>(
   fa: STM<R, E, A>,
@@ -354,7 +354,7 @@ export function filterOrHalt_<R, E, A>(fa: STM<R, E, A>, p: Predicate<A>, haltWi
 /**
  * Flattens out a nested `STM` effect.
  *
- * @tsplus getter fncts.control.STM flatten
+ * @tsplus getter fncts.io.STM flatten
  */
 export function flatten<R, E, R1, E1, B>(stm: STM<R, E, STM<R1, E1, B>>): STM<R1 & R, E | E1, B> {
   return stm.flatMap(identity);
@@ -363,7 +363,7 @@ export function flatten<R, E, R1, E1, B>(stm: STM<R, E, STM<R1, E1, B>>): STM<R1
 /**
  * Unwraps the optional error, defaulting to the provided value.
  *
- * @tsplus fluent fncts.control.STM flattenErrorOption
+ * @tsplus fluent fncts.io.STM flattenErrorOption
  */
 export function flattenErrorOption_<R, E, A, E2>(stm: STM<R, Maybe<E>, A>, def: Lazy<E2>): STM<R, E | E2, A> {
   return stm.mapError((me) => me.getOrElse(def));
@@ -373,7 +373,7 @@ export function flattenErrorOption_<R, E, A, E2>(stm: STM<R, Maybe<E>, A>, def: 
  * Applies the function `f` to each element of the `Iterable<A>` and
  * returns a transactional effect that produces a new `ReadonlyArray<B>`.
  *
- * @tsplus static fncts.control.STMOps foreach
+ * @tsplus static fncts.io.STMOps foreach
  */
 export function foreach_<A, R, E, B>(it: Iterable<A>, f: (a: A) => STM<R, E, B>): STM<R, E, readonly B[]> {
   return STM.defer(() => {
@@ -393,7 +393,7 @@ export function foreach_<A, R, E, B>(it: Iterable<A>, f: (a: A) => STM<R, E, B>)
 /**
  * Lifts an `Either` into a `STM`.
  *
- * @tsplus static fncts.control.STMOps fromEither
+ * @tsplus static fncts.io.STMOps fromEither
  */
 export function fromEither<E, A>(e: Lazy<Either<E, A>>): STM<unknown, E, A> {
   return STM.defer(e().match(STM.failNow, STM.succeedNow));
@@ -402,7 +402,7 @@ export function fromEither<E, A>(e: Lazy<Either<E, A>>): STM<unknown, E, A> {
 /**
  * Lifts an `Either` into a `STM`.
  *
- * @tsplus static fncts.control.STMOps fromEitherNow
+ * @tsplus static fncts.io.STMOps fromEitherNow
  */
 export function fromEitherNow<E, A>(e: Either<E, A>): STM<unknown, E, A> {
   return e.match(STM.failNow, STM.succeedNow);
@@ -422,7 +422,7 @@ export function get<R, E, A>(stm: STM<R, E, Maybe<A>>): STM<R, Maybe<E>, A> {
  * Provides the transaction its required environment, which eliminates
  * its dependency on `R`.
  *
- * @tsplus fluent fncts.control.STM provideEnvironment
+ * @tsplus fluent fncts.io.STM provideEnvironment
  */
 export function provideEnvironment_<R, E, A>(stm: STM<R, E, A>, r: R): STM<unknown, E, A> {
   return stm.contramapEnvironment(() => r);
@@ -432,7 +432,7 @@ export function provideEnvironment_<R, E, A>(stm: STM<R, E, A>, r: R): STM<unkno
  * Provides some of the environment required to run this effect,
  * leaving the remainder `R0`.
  *
- * @tsplus fluent fncts.control.STM contramapEnvironment
+ * @tsplus fluent fncts.io.STM contramapEnvironment
  */
 export function contramapEnvironment_<R, E, A, R0>(self: STM<R, E, A>, f: (r: R0) => R): STM<R0, E, A> {
   return new ContramapEnvironment(self, f);
@@ -441,7 +441,7 @@ export function contramapEnvironment_<R, E, A, R0>(self: STM<R, E, A>, f: (r: R0
 /**
  * Halts the fiber running the effect.
  *
- * @tsplus static fncts.control.STMOps halt
+ * @tsplus static fncts.io.STMOps halt
  */
 export function halt(u: Lazy<unknown>): STM<unknown, never, never> {
   return new Effect(() => {
@@ -452,7 +452,7 @@ export function halt(u: Lazy<unknown>): STM<unknown, never, never> {
 /**
  * Halts the fiber running the effect.
  *
- * @tsplus static fncts.control.STMOps haltNow
+ * @tsplus static fncts.io.STMOps haltNow
  */
 export function haltNow(u: unknown): STM<unknown, never, never> {
   return new Effect(() => {
@@ -464,7 +464,7 @@ export function haltNow(u: unknown): STM<unknown, never, never> {
  * Returns a successful effect with the head of the list if the list is
  * non-empty or fails with the error `None` if the list is empty.
  *
- * @tsplus getter fncts.control.STM head
+ * @tsplus getter fncts.io.STM head
  */
 export function head<R, E, A>(stm: STM<R, E, Iterable<A>>): STM<R, Maybe<E>, A> {
   return stm.matchSTM(
@@ -480,14 +480,14 @@ export function head<R, E, A>(stm: STM<R, E, Iterable<A>>): STM<R, Maybe<E>, A> 
 /**
  * Interrupts the fiber running the effect.
  *
- * @tsplus static fncts.control.STMOps interrupt
+ * @tsplus static fncts.io.STMOps interrupt
  */
 export const interrupt: STM<unknown, never, never> = STM.fiberId.flatMap((id) => STM.interruptAs(id));
 
 /**
  * Returns whether this effect is a failure.
  *
- * @tsplus getter fncts.control.STM isFailure
+ * @tsplus getter fncts.io.STM isFailure
  */
 export function isFailure<R, E, A>(stm: STM<R, E, A>) {
   return stm.match(
@@ -499,7 +499,7 @@ export function isFailure<R, E, A>(stm: STM<R, E, A>) {
 /**
  * Returns whether this effect is a success.
  *
- * @tsplus getter fncts.control.STM isSuccess
+ * @tsplus getter fncts.io.STM isSuccess
  */
 export function isSuccess<R, E, A>(stm: STM<R, E, A>) {
   return stm.match(
@@ -511,7 +511,7 @@ export function isSuccess<R, E, A>(stm: STM<R, E, A>) {
 /**
  * Depending on provided environment returns either this one or the other effect.
  *
- * @tsplus fluent fncts.control.STM join
+ * @tsplus fluent fncts.io.STM join
  */
 export function join_<R, E, A, R1, E1, A1>(
   stm: STM<R, E, A>,
@@ -529,7 +529,7 @@ export function join_<R, E, A, R1, E1, A1>(
 /**
  * Depending on provided environment returns either this one or the other effect.
  *
- * @tsplus fluent fncts.control.STM joinEither
+ * @tsplus fluent fncts.io.STM joinEither
  */
 export function joinEither_<R, E, A, R1, E1, A1>(
   stm: STM<R, E, A>,
@@ -547,7 +547,7 @@ export function joinEither_<R, E, A, R1, E1, A1>(
 /**
  * Returns a successful effect if the value is `Left`, or fails with the error `None`.
  *
- * @tsplus getter fncts.control.STM left
+ * @tsplus getter fncts.io.STM left
  */
 export function left<R, E, B, C>(stm: STM<R, E, Either<B, C>>): STM<R, Maybe<E>, B> {
   return stm.matchSTM(
@@ -559,7 +559,7 @@ export function left<R, E, B, C>(stm: STM<R, E, Either<B, C>>): STM<R, Maybe<E>,
 /**
  * Returns a successful effect if the value is `Left`, or fails with the error e.
  *
- * @tsplus fluent fncts.control.STM leftOrFail
+ * @tsplus fluent fncts.io.STM leftOrFail
  */
 export function leftOrFail_<R, E, B, C, E1>(stm: STM<R, E, Either<B, C>>, orFail: (c: C) => E1): STM<R, E | E1, B> {
   return stm.flatMap((bc) => bc.match(STM.succeedNow, (c) => STM.fail(orFail(c))));
@@ -568,7 +568,7 @@ export function leftOrFail_<R, E, B, C, E1>(stm: STM<R, E, Either<B, C>>, orFail
 /**
  * Maps from one error type to another.
  *
- * @tsplus fluent fncts.control.STM mapError
+ * @tsplus fluent fncts.io.STM mapError
  */
 export function mapError_<R, E, A, E1>(stm: STM<R, E, A>, f: (a: E) => E1): STM<R, E1, A> {
   return stm.matchSTM((e) => STM.failNow(f(e)), STM.succeedNow);
@@ -578,7 +578,7 @@ export function mapError_<R, E, A, E1>(stm: STM<R, E, A>, f: (a: E) => E1): STM<
  * Folds over the `STM` effect, handling both failure and success, but not
  * retry.
  *
- * @tsplus fluent fncts.control.STM match
+ * @tsplus fluent fncts.io.STM match
  */
 export function match_<R, E, A, B, C>(stm: STM<R, E, A>, g: (e: E) => C, f: (a: A) => B): STM<R, never, B | C> {
   return stm.matchSTM(
@@ -599,7 +599,7 @@ export function match_<R, E, A, B, C>(stm: STM<R, E, A>, g: (e: E) => C, f: (a: 
  * - Use `retryUntil` instead if you don't need to maintain transaction state for repeats.
  * - Ensure repeating the STM effect will eventually satisfy the predicate.
  *
- * @tsplus fluent fncts.control.STM repeatUntil
+ * @tsplus fluent fncts.io.STM repeatUntil
  */
 export function repeatUntil_<R, E, A>(stm: STM<R, E, A>, f: (a: A) => boolean): STM<R, E, A> {
   return stm.flatMap((a) => (f(a) ? STM.succeedNow(a) : stm.repeatUntil(f)));
@@ -617,7 +617,7 @@ export function repeatUntil_<R, E, A>(stm: STM<R, E, A>, f: (a: A) => boolean): 
  * - Use `retryWhile` instead if you don't need to maintain transaction state for repeats.
  * - Ensure repeating the STM effect will eventually not satisfy the predicate.
  *
- * @tsplus fluent fncts.control.STM repeatWhile
+ * @tsplus fluent fncts.io.STM repeatWhile
  */
 export function repeatWhile_<R, E, A>(stm: STM<R, E, A>, f: (a: A) => boolean): STM<R, E, A> {
   return stm.flatMap((a) => (f(a) ? stm.repeatWhile(f) : STM.succeedNow(a)));
@@ -627,7 +627,7 @@ export function repeatWhile_<R, E, A>(stm: STM<R, E, A>, f: (a: A) => boolean): 
  * Returns an effect that swaps the error/success cases. This allows you to
  * use all methods on the error channel, possibly before flipping back.
  *
- * @tsplus getter fncts.control.STM swap
+ * @tsplus getter fncts.io.STM swap
  */
 export function swap<R, E, A>(stm: STM<R, E, A>): STM<R, A, E> {
   return stm.matchSTM(STM.succeedNow, STM.failNow);
@@ -636,7 +636,7 @@ export function swap<R, E, A>(stm: STM<R, E, A>): STM<R, A, E> {
 /**
  * Swaps the error/value parameters, applies the function `f` and flips the parameters back
  *
- * @tsplus fluent fncts.control.STM swapWith
+ * @tsplus fluent fncts.io.STM swapWith
  */
 export function swapWith_<R, E, A, R2, E2, A2>(
   stm: STM<R, E, A>,
@@ -648,7 +648,7 @@ export function swapWith_<R, E, A, R2, E2, A2>(
 /**
  * "Peeks" at the success of transactional effect.
  *
- * @tsplus fluent fncts.control.STM tap
+ * @tsplus fluent fncts.io.STM tap
  */
 export function tap_<R, E, A, R1, E1, B>(stm: STM<R, E, A>, f: (a: A) => STM<R1, E1, B>): STM<R1 & R, E | E1, A> {
   return stm.flatMap((a) => f(a).as(a));
@@ -657,7 +657,7 @@ export function tap_<R, E, A, R1, E1, B>(stm: STM<R, E, A>, f: (a: A) => STM<R1,
 /**
  * Returns an effect with the value on the left part.
  *
- * @tsplus static fncts.control.STMOps toLeft
+ * @tsplus static fncts.io.STMOps toLeft
  */
 export function toLeft<A>(a: Lazy<A>): STM<unknown, never, Either<A, never>> {
   return STM.succeed(a).flatMap((a) => STM.succeedNow(Either.left(a)));
@@ -666,7 +666,7 @@ export function toLeft<A>(a: Lazy<A>): STM<unknown, never, Either<A, never>> {
 /**
  * Returns an `STM` effect that succeeds with `Unit`.
  *
- * @tsplus static fncts.control.STMOps unit
+ * @tsplus static fncts.io.STMOps unit
  */
 export const unit = STM.succeedNow<void>(undefined);
 
@@ -674,7 +674,7 @@ export const unit = STM.succeedNow<void>(undefined);
  * Sequentially zips this value with the specified one, combining the values
  * using the specified combiner function.
  *
- * @tsplus fluent fncts.control.STM zipWith
+ * @tsplus fluent fncts.io.STM zipWith
  */
 export function zipWith_<R, E, A, R1, E1, B, C>(
   self: STM<R, E, A>,

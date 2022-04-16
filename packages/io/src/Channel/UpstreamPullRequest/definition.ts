@@ -9,12 +9,12 @@ export class NoUpstream {
 }
 
 /**
- * @tsplus type fncts.control.Channel.UpstreamPullRequest
+ * @tsplus type fncts.io.Channel.UpstreamPullRequest
  */
 export type UpstreamPullRequest<A> = Pulled<A> | NoUpstream;
 
 /**
- * @tsplus type fncts.control.Channel.UpstreamPullRequestOps
+ * @tsplus type fncts.io.Channel.UpstreamPullRequestOps
  */
 export interface UpstreamPullRequestOps {}
 

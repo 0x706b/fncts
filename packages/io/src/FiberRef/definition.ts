@@ -1,7 +1,7 @@
 import { FiberRefDelete, FiberRefLocally, FiberRefModify, FiberRefWith } from "@fncts/io/IO/definition";
 
 /**
- * @tsplus type fncts.control.FiberRef
+ * @tsplus type fncts.io.FiberRef
  */
 export interface PFiberRef<EA, EB, A, B> {
   readonly _EA: () => EA;
@@ -58,7 +58,7 @@ export interface PFiberRef<EA, EB, A, B> {
 }
 
 /**
- * @tsplus type fncts.control.FiberRefOps
+ * @tsplus type fncts.io.FiberRefOps
  */
 export interface FiberRefOps {}
 
@@ -71,7 +71,7 @@ export declare namespace FiberRef {
 export type FiberRef<A> = PFiberRef<never, never, A, A>;
 
 /**
- * @tsplus type fncts.control.FiberRef
+ * @tsplus type fncts.io.FiberRef
  */
 export class RuntimeFiberRef<A> implements PFiberRef<never, never, A, A> {
   readonly _EA!: () => never;

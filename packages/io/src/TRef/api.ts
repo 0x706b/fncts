@@ -17,7 +17,7 @@ function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal): Entry {
 /**
  * Retrieves the value of the `TRef`.
  *
- * @tsplus getter fncts.control.TRef get
+ * @tsplus getter fncts.io.TRef get
  */
 export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<unknown, EB, B> {
   concrete(self);
@@ -45,7 +45,7 @@ export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<unknown, EB, B>
  * Updates the value of the variable, returning a function of the specified
  * value.
  *
- * @tsplus fluent fncts.control.TRef modify
+ * @tsplus fluent fncts.io.TRef modify
  */
 export function modify_<E, A, B>(self: TRef<E, E, A, A>, f: (a: A) => readonly [B, A]): STM<unknown, E, B> {
   concrete(self);
@@ -97,7 +97,7 @@ export function modify_<E, A, B>(self: TRef<E, E, A, A>, f: (a: A) => readonly [
 /**
  * Sets the value of the `TRef`.
  *
- * @tsplus fluent fncts.control.TRef set
+ * @tsplus fluent fncts.io.TRef set
  */
 export function set_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, a: A): STM<unknown, EA, void> {
   concrete(self);
@@ -129,7 +129,7 @@ export function set_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, a: A): STM<unknown,
 /**
  * Unsafely retrieves the value of the `TRef`.
  *
- * @tsplus fluent fncts.control.TRef unsafeGet
+ * @tsplus fluent fncts.io.TRef unsafeGet
  */
 export function unsafeGet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Journal): A {
   concrete(self);
@@ -147,7 +147,7 @@ export function unsafeGet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Jour
  * Updates the value of the variable, returning a function of the specified
  * value.
  *
- * @tsplus fluent fncts.control.TRef modifyJust
+ * @tsplus fluent fncts.io.TRef modifyJust
  */
 export function modifyJust_<E, A, B>(
   self: TRef<E, E, A, A>,
@@ -160,7 +160,7 @@ export function modifyJust_<E, A, B>(
 /**
  * Sets the value of the `TRef` and returns the old value.
  *
- * @tsplus fluent fncts.control.TRef getAndSet
+ * @tsplus fluent fncts.io.TRef getAndSet
  */
 export function getAndSet_<E, A>(self: TRef<E, E, A, A>, a: A): STM<unknown, E, A> {
   concrete(self);
@@ -182,7 +182,7 @@ export function getAndSet_<E, A>(self: TRef<E, E, A, A>, a: A): STM<unknown, E, 
 /**
  * Updates the value of the variable and returns the old value.
  *
- * @tsplus fluent fncts.control.TRef getAndUpdate
+ * @tsplus fluent fncts.io.TRef getAndUpdate
  */
 export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unknown, E, A> {
   concrete(self);
@@ -205,7 +205,7 @@ export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
  * Updates some values of the variable but leaves others alone, returning the
  * old value.
  *
- * @tsplus fluent fncts.control.TRef getAndUpdateJust
+ * @tsplus fluent fncts.io.TRef getAndUpdateJust
  */
 export function getAndUpdateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, A> {
   concrete(self);
@@ -235,7 +235,7 @@ export function getAndUpdateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => May
 /**
  * Updates the value of the variable.
  *
- * @tsplus fluent fncts.control.TRef update
+ * @tsplus fluent fncts.io.TRef update
  */
 export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unknown, E, void> {
   concrete(self);
@@ -255,7 +255,7 @@ export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unkno
 /**
  * Updates some values of the variable but leaves others alone.
  *
- * @tsplus fluent fncts.control.TRef updateJust
+ * @tsplus fluent fncts.io.TRef updateJust
  */
 export function updateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, void> {
   return self.update((a) => f(a).getOrElse(a));
@@ -264,7 +264,7 @@ export function updateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>)
 /**
  * Updates the value of the variable and returns the new value.
  *
- * @tsplus fluent fncts.control.TRef updateAndGet
+ * @tsplus fluent fncts.io.TRef updateAndGet
  */
 export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<unknown, E, A> {
   concrete(self);
@@ -290,14 +290,14 @@ export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
 /**
  * Updates some values of the variable but leaves others alone.
  *
- * @tsplus fluent fncts.control.TRef updateJustAndGet
+ * @tsplus fluent fncts.io.TRef updateJustAndGet
  */
 export function updateJustAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<unknown, E, A> {
   return self.updateAndGet((a) => f(a).getOrElse(a));
 }
 
 /**
- * @tsplus fluent fncts.control.TRef unsafeSet
+ * @tsplus fluent fncts.io.TRef unsafeSet
  */
 export function unsafeSet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Journal, a: A): void {
   concrete(self);

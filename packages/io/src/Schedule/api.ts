@@ -2,7 +2,7 @@ import { Decision, DecisionTag } from "./Decision.js";
 import { Interval } from "./Interval.js";
 
 /**
- * @tsplus static fncts.control.ScheduleOps __call
+ * @tsplus static fncts.io.ScheduleOps __call
  */
 export function make<State, Env, In, Out>(
   initial: State,
@@ -16,7 +16,7 @@ export function make<State, Env, In, Out>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule addDelay
+ * @tsplus fluent fncts.io.Schedule addDelay
  */
 export function addDelay_<State, Env, In, Out>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -26,7 +26,7 @@ export function addDelay_<State, Env, In, Out>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule addDelayIO
+ * @tsplus fluent fncts.io.Schedule addDelayIO
  */
 export function addDelayIO_<State, Env, In, Out, Env1>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -36,7 +36,7 @@ export function addDelayIO_<State, Env, In, Out, Env1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule andThen
+ * @tsplus fluent fncts.io.Schedule andThen
  */
 export function andThen<State, Env, In, Out, State1, Env1, In1, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -46,7 +46,7 @@ export function andThen<State, Env, In, Out, State1, Env1, In1, Out1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule andThenEither
+ * @tsplus fluent fncts.io.Schedule andThenEither
  */
 export function andThenEither_<State, Env, In, Out, State1, Env1, In1, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -75,7 +75,7 @@ export function andThenEither_<State, Env, In, Out, State1, Env1, In1, Out1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule as
+ * @tsplus fluent fncts.io.Schedule as
  */
 export function as_<State, Env, In, Out, Out2>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -85,7 +85,7 @@ export function as_<State, Env, In, Out, Out2>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule check
+ * @tsplus fluent fncts.io.Schedule check
  */
 export function check_<State, Env, In, Out>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -95,7 +95,7 @@ export function check_<State, Env, In, Out>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule checkIO
+ * @tsplus fluent fncts.io.Schedule checkIO
  */
 export function checkIO_<State, Env, In, Out, Env1>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -113,7 +113,7 @@ export function checkIO_<State, Env, In, Out, Env1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule compose_
+ * @tsplus fluent fncts.io.Schedule compose_
  */
 export function compose_<S, R, I, O, S1, R1, O2>(
   self: Schedule.WithState<S, R, I, O>,
@@ -136,7 +136,7 @@ export function compose_<S, R, I, O, S1, R1, O2>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule contramap
+ * @tsplus fluent fncts.io.Schedule contramap
  */
 export function contramap_<S, R, I, O, I2>(
   self: Schedule.WithState<S, R, I, O>,
@@ -146,7 +146,7 @@ export function contramap_<S, R, I, O, I2>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule contramapEnvironment
+ * @tsplus fluent fncts.io.Schedule contramapEnvironment
  */
 export function contramapEnvironment_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -156,7 +156,7 @@ export function contramapEnvironment_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule contramapIO
+ * @tsplus fluent fncts.io.Schedule contramapIO
  */
 export function contramapIO_<S, R, I, O, R1, I2>(
   self: Schedule.WithState<S, R, I, O>,
@@ -166,14 +166,14 @@ export function contramapIO_<S, R, I, O, R1, I2>(
 }
 
 /**
- * @tsplus static fncts.control.ScheduleOps delayed
+ * @tsplus static fncts.io.ScheduleOps delayed
  */
 export function delayed<S, R, I>(schedule: Schedule.WithState<S, R, I, number>): Schedule.WithState<S, R, I, number> {
   return schedule.addDelay((x) => x);
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule delayed
+ * @tsplus fluent fncts.io.Schedule delayed
  */
 export function delayedSelf_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -183,7 +183,7 @@ export function delayedSelf_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule delayedIO
+ * @tsplus fluent fncts.io.Schedule delayedIO
  */
 export function delayedIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -193,7 +193,7 @@ export function delayedIO_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus getter fncts.control.Schedule delays
+ * @tsplus getter fncts.io.Schedule delays
  */
 export function delays<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, number> {
   return Schedule(self.initial, (now, inp, state) =>
@@ -210,7 +210,7 @@ export function delays<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedu
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule dimap
+ * @tsplus fluent fncts.io.Schedule dimap
  */
 export function dimap_<S, R, I, O, I2, O2>(
   self: Schedule.WithState<S, R, I, O>,
@@ -221,7 +221,7 @@ export function dimap_<S, R, I, O, I2, O2>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule dimapIO
+ * @tsplus fluent fncts.io.Schedule dimapIO
  */
 export function dimapIO_<S, R, I, O, R1, I2, R2, O2>(
   self: Schedule.WithState<S, R, I, O>,
@@ -232,7 +232,7 @@ export function dimapIO_<S, R, I, O, R1, I2, R2, O2>(
 }
 
 /**
- * @tsplus static fncts.control.ScheduleOps duration
+ * @tsplus static fncts.io.ScheduleOps duration
  */
 export function duration(duration: number): Schedule.WithState<boolean, unknown, unknown, number> {
   return Schedule<boolean, unknown, unknown, number>(true, (now, _, state) =>
@@ -248,7 +248,7 @@ export function duration(duration: number): Schedule.WithState<boolean, unknown,
 }
 
 /**
- * @tsplus static fncts.control.ScheduleOps elapsed
+ * @tsplus static fncts.io.ScheduleOps elapsed
  */
 export const elapsed: Schedule.WithState<Maybe<number>, unknown, unknown, number> = Schedule(
   Nothing(),
@@ -265,7 +265,7 @@ export const elapsed: Schedule.WithState<Maybe<number>, unknown, unknown, number
 );
 
 /**
- * @tsplus fluent fncts.control.Schedule ensuring
+ * @tsplus fluent fncts.io.Schedule ensuring
  */
 export function ensuring_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -282,7 +282,7 @@ export function ensuring_<S, R, I, O>(
 }
 
 /**
- * @tsplus static fncts.control.ScheduleOps exponential
+ * @tsplus static fncts.io.ScheduleOps exponential
  */
 export function exponential(base: number, factor = 2): Schedule.WithState<number, unknown, unknown, number> {
   return Schedule.delayed(Schedule.forever.map((i) => base * Math.pow(factor, i)));
@@ -300,7 +300,7 @@ export function exponential(base: number, factor = 2): Schedule.WithState<number
  * |---------action--------||action|-----|action|-----------|
  * ```
  *
- * @tsplus static fncts.control.ScheduleOps fixed
+ * @tsplus static fncts.io.ScheduleOps fixed
  */
 export function fixed(
   interval: number,
@@ -325,7 +325,7 @@ export function fixed(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule fold
+ * @tsplus fluent fncts.io.Schedule fold
  */
 export function fold_<S, R, I, O, Z>(
   self: Schedule.WithState<S, R, I, O>,
@@ -336,7 +336,7 @@ export function fold_<S, R, I, O, Z>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule foldIO
+ * @tsplus fluent fncts.io.Schedule foldIO
  */
 export function foldIO_<S, R, I, O, Z, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -354,7 +354,7 @@ export function foldIO_<S, R, I, O, Z, R1>(
 }
 
 /**
- * @tsplus getter fncts.control.Schedule forever
+ * @tsplus getter fncts.io.Schedule forever
  */
 export function foreverSelf<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
@@ -368,12 +368,12 @@ export function foreverSelf<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): S
 }
 
 /**
- * @tsplus static fncts.control.ScheduleOps forever
+ * @tsplus static fncts.io.ScheduleOps forever
  */
 export const forever = Schedule.unfold(0, (n) => n + 1);
 
 /**
- * @tsplus static fncts.control.ScheduleOps identity
+ * @tsplus static fncts.io.ScheduleOps identity
  */
 export function identity<A>(): Schedule.WithState<void, unknown, A, A> {
   return Schedule(undefined, (now, inp, state) => IO.succeed([state, inp, Decision.Continue(Interval.after(now))]));
@@ -412,7 +412,7 @@ function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule intersectWith
+ * @tsplus fluent fncts.io.Schedule intersectWith
  */
 export function intersectWith_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -434,14 +434,14 @@ export function intersectWith_<S, R, I, O, S1, R1, I1, O1>(
 }
 
 /**
- * @tsplus static fncts.control.Schedule linear
+ * @tsplus static fncts.io.Schedule linear
  */
 export function linear(base: number): Schedule.WithState<number, unknown, unknown, number> {
   return Schedule.delayed(Schedule.forever.map((i) => base * (i + 1)));
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule map
+ * @tsplus fluent fncts.io.Schedule map
  */
 export function map_<State, Env, In, Out, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -451,7 +451,7 @@ export function map_<State, Env, In, Out, Out1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule mapIO
+ * @tsplus fluent fncts.io.Schedule mapIO
  */
 export function mapIO_<State, Env, In, Out, Env1, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -463,7 +463,7 @@ export function mapIO_<State, Env, In, Out, Env1, Out1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule modifyDelayIO
+ * @tsplus fluent fncts.io.Schedule modifyDelayIO
  */
 export function modifyDelayIO_<State, Env, In, Out, Env1>(
   self: Schedule.WithState<State, Env, In, Out>,
@@ -491,7 +491,7 @@ export function modifyDelayIO_<State, Env, In, Out, Env1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule onDecision
+ * @tsplus fluent fncts.io.Schedule onDecision
  */
 export function onDecision_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -503,7 +503,7 @@ export function onDecision_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule provideEnvironment
+ * @tsplus fluent fncts.io.Schedule provideEnvironment
  */
 export function provideEnvironment_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -513,7 +513,7 @@ export function provideEnvironment_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule reconsider
+ * @tsplus fluent fncts.io.Schedule reconsider
  */
 export function reconsider_<S, R, I, O, O2>(
   self: Schedule.WithState<S, R, I, O>,
@@ -523,7 +523,7 @@ export function reconsider_<S, R, I, O, O2>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule reconsiderIO
+ * @tsplus fluent fncts.io.Schedule reconsiderIO
  */
 export function reconsiderIO_<S, R, I, O, R1, O1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -552,56 +552,56 @@ export function reconsiderIO_<S, R, I, O, R1, O1>(
 }
 
 /**
- * @tsplus static fncts.control.Schedule recurs
+ * @tsplus static fncts.io.Schedule recurs
  */
 export function recurs(n: number): Schedule.WithState<number, unknown, unknown, number> {
   return Schedule.forever.whileOutput((_) => _ < n);
 }
 
 /**
- * @tsplus static fncts.control.Schedule recurWhile
+ * @tsplus static fncts.io.Schedule recurWhile
  */
 export function recurWhile<A>(f: (a: A) => boolean): Schedule.WithState<void, unknown, A, A> {
   return identity<A>().whileInput(f);
 }
 
 /**
- * @tsplus static fncts.control.Schedule recurWhileIO
+ * @tsplus static fncts.io.Schedule recurWhileIO
  */
 export function recurWhileIO<R, A>(f: (a: A) => URIO<R, boolean>): Schedule.WithState<void, R, A, A> {
   return identity<A>().whileInputIO(f);
 }
 
 /**
- * @tsplus static fncts.control.Schedule recurWhileEquals
+ * @tsplus static fncts.io.Schedule recurWhileEquals
  */
 export function recurWhileEquals<A>(value: Lazy<A>): Schedule.WithState<void, unknown, A, A> {
   return identity<A>().whileInput((a) => Equatable.strictEquals(a, value()));
 }
 
 /**
- * @tsplus static fncts.control.Schedule recurUntil
+ * @tsplus static fncts.io.Schedule recurUntil
  */
 export function recurUntil<A>(f: (a: A) => boolean): Schedule.WithState<void, unknown, A, A> {
   return identity<A>().untilInput(f);
 }
 
 /**
- * @tsplus static fncts.control.Schedule recurUntilIO
+ * @tsplus static fncts.io.Schedule recurUntilIO
  */
 export function recurUntilIO<R, A>(f: (a: A) => URIO<R, boolean>): Schedule.WithState<void, R, A, A> {
   return identity<A>().untilInputIO(f);
 }
 
 /**
- * @tsplus static fncts.control.Schedule recurUntilEquals
+ * @tsplus static fncts.io.Schedule recurUntilEquals
  */
 export function recurUntilEquals<A>(value: Lazy<A>): Schedule.WithState<void, unknown, A, A> {
   return identity<A>().untilInput((a) => Equatable.strictEquals(a, value()));
 }
 
 /**
- * @tsplus getter fncts.control.Schedule repetitions
+ * @tsplus getter fncts.io.Schedule repetitions
  */
 export function repetitions<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -610,7 +610,7 @@ export function repetitions<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule resetAfter
+ * @tsplus fluent fncts.io.Schedule resetAfter
  */
 export function resetAfter_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -623,7 +623,7 @@ export function resetAfter_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule resetWhen
+ * @tsplus fluent fncts.io.Schedule resetWhen
  */
 export function resetWhen_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -639,7 +639,7 @@ export function resetWhen_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule run
+ * @tsplus fluent fncts.io.Schedule run
  */
 export function run_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -662,21 +662,21 @@ export function run_<S, R, I, O>(
 }
 
 /**
- * @tsplus static fncts.control.Schedule spaced
+ * @tsplus static fncts.io.Schedule spaced
  */
 export function spaced(duration: number): Schedule.WithState<number, unknown, unknown, number> {
   return Schedule.forever.addDelay(() => duration);
 }
 
 /**
- * @tsplus static fncts.control.Schedule succeed
+ * @tsplus static fncts.io.Schedule succeed
  */
 export function succeed<A>(a: Lazy<A>): Schedule.WithState<number, unknown, unknown, A> {
   return Schedule.forever.as(a);
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule tapInput
+ * @tsplus fluent fncts.io.Schedule tapInput
  */
 export function tapInput_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -686,7 +686,7 @@ export function tapInput_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule tapOutput
+ * @tsplus fluent fncts.io.Schedule tapOutput
  */
 export function tapOutput_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -696,7 +696,7 @@ export function tapOutput_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule unionWith
+ * @tsplus fluent fncts.io.Schedule unionWith
  */
 export function unionWith_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -728,7 +728,7 @@ export function unionWith_<S, R, I, O, S1, R1, I1, O1>(
 }
 
 /**
- * @tsplus static fncts.control.ScheduleOps unfold
+ * @tsplus static fncts.io.ScheduleOps unfold
  */
 export function unfold<A>(a: Lazy<A>, f: (a: A) => A): Schedule.WithState<A, unknown, unknown, A> {
   return Schedule<A, unknown, unknown, A>(a(), (now, inp, state) =>
@@ -737,7 +737,7 @@ export function unfold<A>(a: Lazy<A>, f: (a: A) => A): Schedule.WithState<A, unk
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule untilInput
+ * @tsplus fluent fncts.io.Schedule untilInput
  */
 export function untilInput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -747,7 +747,7 @@ export function untilInput_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule untilInputIO
+ * @tsplus fluent fncts.io.Schedule untilInputIO
  */
 export function untilInputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -757,7 +757,7 @@ export function untilInputIO_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule untilOutput
+ * @tsplus fluent fncts.io.Schedule untilOutput
  */
 export function untilOutput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -767,7 +767,7 @@ export function untilOutput_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule untilOutputIO
+ * @tsplus fluent fncts.io.Schedule untilOutputIO
  */
 export function untilOutputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -777,14 +777,14 @@ export function untilOutputIO_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus static fncts.control.Schedule upTo
+ * @tsplus static fncts.io.Schedule upTo
  */
 export function upTo(duration: number): Schedule.WithState<Maybe<number>, unknown, unknown, number> {
   return Schedule.elapsed.whileOutput((n) => n < duration);
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule whileInput
+ * @tsplus fluent fncts.io.Schedule whileInput
  */
 export function whileInput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -794,7 +794,7 @@ export function whileInput_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule whileInputIO
+ * @tsplus fluent fncts.io.Schedule whileInputIO
  */
 export function whileInputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -804,7 +804,7 @@ export function whileInputIO_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule whileOutput
+ * @tsplus fluent fncts.io.Schedule whileOutput
  */
 export function whileOutput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
@@ -814,7 +814,7 @@ export function whileOutput_<S, R, I, O>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule whileOutputIO
+ * @tsplus fluent fncts.io.Schedule whileOutputIO
  */
 export function whileOutputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -824,7 +824,7 @@ export function whileOutputIO_<S, R, I, O, R1>(
 }
 
 /**
- * @tsplus static fncts.control.Schedule windowed
+ * @tsplus static fncts.io.Schedule windowed
  */
 export function windowed(
   interval: number,
@@ -844,7 +844,7 @@ export function windowed(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule zip
+ * @tsplus fluent fncts.io.Schedule zip
  */
 export function zip_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -854,7 +854,7 @@ export function zip_<S, R, I, O, S1, R1, I1, O1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule zipLeft
+ * @tsplus fluent fncts.io.Schedule zipLeft
  */
 export function zipLeft_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -864,7 +864,7 @@ export function zipLeft_<S, R, I, O, S1, R1, I1, O1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule zipRight
+ * @tsplus fluent fncts.io.Schedule zipRight
  */
 export function zipRight_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
@@ -874,7 +874,7 @@ export function zipRight_<S, R, I, O, S1, R1, I1, O1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule zipWith
+ * @tsplus fluent fncts.io.Schedule zipWith
  */
 export function zipWith_<S, R, I, O, S1, R1, I1, O2, O3>(
   self: Schedule.WithState<S, R, I, O>,

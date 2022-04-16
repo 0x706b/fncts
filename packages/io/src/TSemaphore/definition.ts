@@ -3,7 +3,7 @@ interface TSemaphoreN extends HKT {
 }
 
 /**
- * @tsplus type fncts.control.TSemaphore
+ * @tsplus type fncts.io.TSemaphore
  */
 export interface TSemaphore
   extends Newtype<
@@ -14,7 +14,7 @@ export interface TSemaphore
   > {}
 
 /**
- * @tsplus type fncts.control.TSemaphoreOps
+ * @tsplus type fncts.io.TSemaphoreOps
  */
 export interface TSemaphoreOps extends NewtypeIso<TSemaphoreN> {}
 

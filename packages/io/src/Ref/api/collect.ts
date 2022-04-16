@@ -7,8 +7,8 @@ import { identity } from "@fncts/base/data/function";
  * function, returning a `Ref` with a `get` value that succeeds with the
  * result of the partial function if it is defined or else fails with `None`.
  *
- * @tsplus fluent fncts.control.Ref collect
- * @tsplus fluent fncts.control.Ref.Synchronized collect
+ * @tsplus fluent fncts.io.Ref collect
+ * @tsplus fluent fncts.io.Ref.Synchronized collect
  */
 export function collect_<RA, RB, EA, EB, A, B, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,

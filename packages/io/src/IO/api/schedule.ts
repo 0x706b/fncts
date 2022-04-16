@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.IO schedule
+ * @tsplus fluent fncts.io.IO schedule
  */
 export function schedule_<R, E, A, R1, B>(
   self: IO<R, E, A>,

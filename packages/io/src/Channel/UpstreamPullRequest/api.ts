@@ -4,7 +4,7 @@ import { NoUpstream } from "@fncts/io/Channel/UpstreamPullRequest";
 import { Pulled } from "@fncts/io/Channel/UpstreamPullRequest";
 
 /**
- * @tsplus fluent fncts.control.Channel.UpstreamPullRequest match
+ * @tsplus fluent fncts.io.Channel.UpstreamPullRequest match
  */
 export function match_<A, B, C>(
   upr: UpstreamPullRequest<A>,
@@ -22,14 +22,14 @@ export function match_<A, B, C>(
 }
 
 /**
- * @tsplus static fncts.control.Channel.UpstreamPullRequestOps Pulled
+ * @tsplus static fncts.io.Channel.UpstreamPullRequestOps Pulled
  */
 export function pulled<A>(value: A): UpstreamPullRequest<A> {
   return new Pulled(value);
 }
 
 /**
- * @tsplus static fncts.control.Channel.UpstreamPullRequestOps NoUpstream
+ * @tsplus static fncts.io.Channel.UpstreamPullRequestOps NoUpstream
  */
 export function noUpstream<A = never>(activeDownstreamCount: number): UpstreamPullRequest<A> {
   return new NoUpstream(activeDownstreamCount);

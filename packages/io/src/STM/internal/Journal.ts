@@ -12,12 +12,12 @@ import { CommitState } from "./CommitState.js";
 import { Done, Suspend } from "./TryCommit.js";
 
 /**
- * @tsplus type fncts.control.Journal
+ * @tsplus type fncts.io.Journal
  */
 export type Journal = Map<Atomic<any>, Entry>;
 
 /**
- * @tsplus type fncts.control.JournalOps
+ * @tsplus type fncts.io.JournalOps
  */
 export interface JournalOps {}
 
@@ -28,7 +28,7 @@ export type Todo = () => unknown;
 /**
  * Creates a function that can reset the journal.
  *
- * @tsplus fluent fncts.control.Journal prepareReset
+ * @tsplus fluent fncts.io.Journal prepareReset
  */
 export function prepareResetJournal(journal: Journal): () => unknown {
   const saved: Journal = new Map();
@@ -49,7 +49,7 @@ export function prepareResetJournal(journal: Journal): () => unknown {
 /**
  * Commits the journal.
  *
- * @tsplus fluent fncts.control.Journal commit
+ * @tsplus fluent fncts.io.Journal commit
  */
 export function commitJournal(journal: Journal) {
   for (const entry of journal.values()) {
@@ -72,7 +72,7 @@ type JournalAnalysis = Invalid | ReadOnly | ReadWrite;
  * journal is read only will only be accurate if the journal is valid, due
  * to short-circuiting that occurs on an invalid journal.
  *
- * @tsplus fluent fncts.control.Journal analyze
+ * @tsplus fluent fncts.io.Journal analyze
  */
 export function analyzeJournal(journal: Journal): JournalAnalysis {
   let result: JournalAnalysis = ReadOnly;
@@ -86,7 +86,7 @@ export function analyzeJournal(journal: Journal): JournalAnalysis {
 }
 
 /**
- * @tsplus static fncts.control.JournalOps emptyTodoMap
+ * @tsplus static fncts.io.JournalOps emptyTodoMap
  */
 export const emptyTodoMap = HashMap.makeDefault<TxnId, Todo>();
 
@@ -94,7 +94,7 @@ export const emptyTodoMap = HashMap.makeDefault<TxnId, Todo>();
  * Atomically collects and clears all the todos from any `TRef` that
  * participated in the transaction.
  *
- * @tsplus getter fncts.control.Journal collectTodos
+ * @tsplus getter fncts.io.Journal collectTodos
  */
 export function collectTodos(journal: Journal): Map<TxnId, Todo> {
   const allTodos: Map<TxnId, Todo> = new Map();
@@ -114,7 +114,7 @@ export function collectTodos(journal: Journal): Map<TxnId, Todo> {
 /**
  * Executes the todos in the current thread, sequentially.
  *
- * @tsplus fluent fncts.control.Journal execTodos
+ * @tsplus fluent fncts.io.Journal execTodos
  */
 export function execTodos(todos: Map<TxnId, Todo>) {
   for (const todo of todos.values()) {
@@ -125,7 +125,7 @@ export function execTodos(todos: Map<TxnId, Todo>) {
 /**
  * Runs all the todos.
  *
- * @tsplus fluent fncts.control.Journal completeTodos
+ * @tsplus fluent fncts.io.Journal completeTodos
  */
 export function completeTodos<E, A>(journal: Journal, exit: Exit<E, A>): Done<E, A> {
   const todos = collectTodos(journal);
@@ -139,7 +139,7 @@ export function completeTodos<E, A>(journal: Journal, exit: Exit<E, A>): Done<E,
  * For the given transaction id, adds the specified todo effect to all
  * `TRef` values.
  *
- * @tsplus fluent fncts.control.Journal addTodo
+ * @tsplus fluent fncts.io.Journal addTodo
  */
 export function addTodo(journal: Journal, txnId: TxnId, todoEffect: Todo): boolean {
   let added = false;
@@ -318,7 +318,7 @@ export function tryCommitAsync<R, E, A>(
 /**
  * Determines if the journal is valid.
  *
- * @tsplus getter fncts.control.Journal isValid
+ * @tsplus getter fncts.io.Journal isValid
  */
 export function isValid(journal: Journal) {
   let valid = true;
@@ -334,7 +334,7 @@ export function isValid(journal: Journal) {
 /**
  * Determines if the journal is invalid.
  *
- * @tsplus getter fncts.control.Journal isInvalid
+ * @tsplus getter fncts.io.Journal isInvalid
  */
 export function isInvalid(journal: Journal) {
   return !journal.isValid;

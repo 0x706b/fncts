@@ -49,7 +49,7 @@ export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends Q
 /**
  * Like `filterInput`, but uses an effectful function to filter the elements.
  *
- * @tsplus fluent fncts.control.Queue filterInputIO
+ * @tsplus fluent fncts.io.Queue filterInputIO
  */
 export function filterInputIO_<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
@@ -63,7 +63,7 @@ export function filterInputIO_<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>(
  * Applies a filter to elements enqueued into this queue. Elements that do not
  * pass the filter will be immediately dropped.
  *
- * @tsplus fluent fncts.control.Queue filterInput
+ * @tsplus fluent fncts.io.Queue filterInput
  */
 export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
   queue: PQueue<RA, RB, EA, EB, A, B>,

@@ -5,7 +5,7 @@ interface TFutureN extends HKT {
 }
 
 /**
- * @tsplus type fncts.control.TFuture
+ * @tsplus type fncts.io.TFuture
  */
 export interface TFuture<E, A>
   extends Newtype<
@@ -16,7 +16,7 @@ export interface TFuture<E, A>
   > {}
 
 /**
- * @tsplus type fncts.control.TFutureOps
+ * @tsplus type fncts.io.TFutureOps
  */
 export interface TFutureOps extends NewtypeIso<TFutureN> {}
 

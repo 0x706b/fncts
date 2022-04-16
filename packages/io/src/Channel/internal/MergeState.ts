@@ -20,7 +20,7 @@ export class RightDone<Env, Err, Err1, Err2, Elem, Done, Done1, Done2> {
 }
 
 /**
- * @tsplus type fncts.control.Channel.MergeState
+ * @tsplus type fncts.io.Channel.MergeState
  */
 export type MergeState<Env, Err, Err1, Err2, Elem, Done, Done1, Done2> =
   | BothRunning<Env, Err, Err1, Err2, Elem, Done, Done1, Done2>
@@ -28,14 +28,14 @@ export type MergeState<Env, Err, Err1, Err2, Elem, Done, Done1, Done2> =
   | RightDone<Env, Err, Err1, Err2, Elem, Done, Done1, Done2>;
 
 /**
- * @tsplus type fncts.control.Channel.MergeStateOps
+ * @tsplus type fncts.io.Channel.MergeStateOps
  */
 export interface MergeStateOps {}
 
 export const MergeState: MergeStateOps = {};
 
 /**
- * @tsplus static fncts.control.Channel.MergeStateOps BothRunning
+ * @tsplus static fncts.io.Channel.MergeStateOps BothRunning
  */
 export function bothRunning<Env, Err, Err1, Err2, Elem, Done, Done1, Done2>(
   left: Fiber<Err, Either<Done, Elem>>,
@@ -45,7 +45,7 @@ export function bothRunning<Env, Err, Err1, Err2, Elem, Done, Done1, Done2>(
 }
 
 /**
- * @tsplus static fncts.control.Channel.MergeStateOps LeftDone
+ * @tsplus static fncts.io.Channel.MergeStateOps LeftDone
  */
 export function leftDone<Env, Err, Err1, Err2, Elem, Done, Done1, Done2>(
   f: (_: Exit<Err1, Done1>) => IO<Env, Err2, Done2>,
@@ -54,7 +54,7 @@ export function leftDone<Env, Err, Err1, Err2, Elem, Done, Done1, Done2>(
 }
 
 /**
- * @tsplus static fncts.control.Channel.MergeStateOps RightDone
+ * @tsplus static fncts.io.Channel.MergeStateOps RightDone
  */
 export function rightDone<Env, Err, Err1, Err2, Elem, Done, Done1, Done2>(
   f: (_: Exit<Err, Done>) => IO<Env, Err2, Done2>,

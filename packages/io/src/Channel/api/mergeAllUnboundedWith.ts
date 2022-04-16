@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.Channel mergeAllUnboundedWith
+ * @tsplus fluent fncts.io.Channel mergeAllUnboundedWith
  */
 export function mergeAllUnboundedWith_<
   Env,

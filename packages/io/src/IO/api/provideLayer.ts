@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.IO provideLayer
+ * @tsplus fluent fncts.io.IO provideLayer
  */
 export function provideLayer_<RIn, E, ROut, E1, A>(
   self: IO<ROut, E1, A>,

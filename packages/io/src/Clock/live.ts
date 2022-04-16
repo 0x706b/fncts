@@ -16,6 +16,6 @@ class LiveClock extends Clock {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps Live
+ * @tsplus static fncts.io.ClockOps Live
  */
 export const live: Clock = new LiveClock();

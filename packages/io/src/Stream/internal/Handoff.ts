@@ -3,16 +3,16 @@ import type { SinkEndReason } from "./SinkEndReason.js";
 import { tuple } from "@fncts/base/data/function";
 
 /**
- * @tsplus type fncts.control.Stream.Handoff
- * @tsplus companion fncts.control.Stream.HandoffOps
+ * @tsplus type fncts.io.Stream.Handoff
+ * @tsplus companion fncts.io.Stream.HandoffOps
  */
 export class Handoff<A> {
   constructor(readonly ref: Ref<State<A>>) {}
 }
 
-export const StateTypeId = Symbol.for("fncts.control.Stream.Handoff.State");
+export const StateTypeId = Symbol.for("fncts.io.Stream.Handoff.State");
 
-export const EmptyTypeId = Symbol.for("fncts.control.Stream.Handoff.State.Empty");
+export const EmptyTypeId = Symbol.for("fncts.io.Stream.Handoff.State.Empty");
 export class Empty {
   readonly _typeId: typeof StateTypeId = StateTypeId;
   readonly _tag: typeof EmptyTypeId    = EmptyTypeId;
@@ -20,7 +20,7 @@ export class Empty {
   constructor(readonly notifyConsumer: Future<never, void>) {}
 }
 
-export const FullTypeId = Symbol.for("fncts.control.Stream.Handoff.State.Full");
+export const FullTypeId = Symbol.for("fncts.io.Stream.Handoff.State.Full");
 export class Full<A> {
   readonly _typeId: typeof StateTypeId = StateTypeId;
   readonly _tag: typeof FullTypeId     = FullTypeId;
@@ -31,7 +31,7 @@ export class Full<A> {
 export type State<A> = Empty | Full<A>;
 
 /**
- * @tsplus static fncts.control.Stream.HandoffOps __call
+ * @tsplus static fncts.io.Stream.HandoffOps __call
  */
 export function make<A>(): UIO<Handoff<A>> {
   return Future.make<never, void>()
@@ -40,7 +40,7 @@ export function make<A>(): UIO<Handoff<A>> {
 }
 
 /**
- * @tsplus fluent fncts.control.Stream.Handoff offer
+ * @tsplus fluent fncts.io.Stream.Handoff offer
  */
 export function offer<A>(handoff: Handoff<A>, a: A): UIO<void> {
   return Future.make<never, void>().flatMap(
@@ -57,7 +57,7 @@ export function offer<A>(handoff: Handoff<A>, a: A): UIO<void> {
 }
 
 /**
- * @tsplus getter fncts.control.Stream.Handoff take
+ * @tsplus getter fncts.io.Stream.Handoff take
  */
 export function take<A>(handoff: Handoff<A>): UIO<A> {
   return Future.make<never, void>().flatMap(
@@ -74,7 +74,7 @@ export function take<A>(handoff: Handoff<A>): UIO<A> {
 }
 
 /**
- * @tsplus getter fncts.control.Stream.Handoff poll
+ * @tsplus getter fncts.io.Stream.Handoff poll
  */
 export function poll<A>(handoff: Handoff<A>): UIO<Maybe<A>> {
   return Future.make<never, void>().flatMap(
@@ -90,9 +90,9 @@ export function poll<A>(handoff: Handoff<A>): UIO<Maybe<A>> {
   );
 }
 
-export const HandoffSignalTypeId = Symbol.for("fncts.control.Stream.HandoffSignal");
+export const HandoffSignalTypeId = Symbol.for("fncts.io.Stream.HandoffSignal");
 
-export const EmitTypeId = Symbol.for("fncts.control.Stream.HandoffSignal.Emit");
+export const EmitTypeId = Symbol.for("fncts.io.Stream.HandoffSignal.Emit");
 export type EmitTypeId = typeof EmitTypeId;
 export class Emit<A> {
   readonly _typeId: typeof HandoffSignalTypeId = HandoffSignalTypeId;
@@ -101,7 +101,7 @@ export class Emit<A> {
   constructor(readonly els: Conc<A>) {}
 }
 
-export const HaltTypeId = Symbol.for("fncts.control.Stream.HandoffSignal.Halt");
+export const HaltTypeId = Symbol.for("fncts.io.Stream.HandoffSignal.Halt");
 export type HaltTypeId = typeof HaltTypeId;
 export class Halt<E> {
   readonly _typeId: typeof HandoffSignalTypeId = HandoffSignalTypeId;
@@ -110,7 +110,7 @@ export class Halt<E> {
   constructor(readonly error: Cause<E>) {}
 }
 
-export const EndTypeId = Symbol("fncts.control.Stream.HandoffSignal.End");
+export const EndTypeId = Symbol("fncts.io.Stream.HandoffSignal.End");
 export type EndTypeId = typeof EndTypeId;
 export class End<C> {
   readonly _typeId: typeof HandoffSignalTypeId = HandoffSignalTypeId;
@@ -120,40 +120,40 @@ export class End<C> {
 }
 
 /**
- * @tsplus type fncts.control.Stream.HandoffSignal
+ * @tsplus type fncts.io.Stream.HandoffSignal
  */
 export type HandoffSignal<C, E, A> = Emit<A> | Halt<E> | End<C>;
 
 /**
- * @tsplus type fncts.control.Stream.HandoffSignalOps
+ * @tsplus type fncts.io.Stream.HandoffSignalOps
  */
 export interface HandoffSignalOps {}
 
 export const HandoffSignal: HandoffSignalOps = {};
 
 /**
- * @tsplus static fncts.control.Stream.HandoffSignalOps Emit
+ * @tsplus static fncts.io.Stream.HandoffSignalOps Emit
  */
 export function emit<A>(els: Conc<A>): HandoffSignal<never, never, A> {
   return new Emit(els);
 }
 
 /**
- * @tsplus static fncts.control.Stream.HandoffSignalOps Halt
+ * @tsplus static fncts.io.Stream.HandoffSignalOps Halt
  */
 export function halt<E>(error: Cause<E>): HandoffSignal<never, E, never> {
   return new Halt(error);
 }
 
 /**
- * @tsplus static fncts.control.Stream.HandoffSignalOps End
+ * @tsplus static fncts.io.Stream.HandoffSignalOps End
  */
 export function end<C>(reason: SinkEndReason<C>): HandoffSignal<C, never, never> {
   return new End(reason);
 }
 
 /**
- * @tsplus fluent fncts.control.Stream.HandoffSignal match
+ * @tsplus fluent fncts.io.Stream.HandoffSignal match
  */
 export function matchSignal_<C, E, A, B, D, F>(
   signal: HandoffSignal<C, E, A>,

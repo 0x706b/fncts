@@ -3,14 +3,14 @@ import { assert } from "@fncts/base/util/assert";
 import { Effect, RetryException } from "../STM/definition.js";
 
 /**
- * @tsplus getter fncts.control.TSemaphore acquire
+ * @tsplus getter fncts.io.TSemaphore acquire
  */
 export function acquire(self: TSemaphore): USTM<void> {
   return self.acquireN(1);
 }
 
 /**
- * @tsplus fluent fncts.control.TSemaphore acquireN
+ * @tsplus fluent fncts.io.TSemaphore acquireN
  */
 export function acquireN_(self: TSemaphore, n: number): USTM<void> {
   return new Effect((journal) => {
@@ -24,21 +24,21 @@ export function acquireN_(self: TSemaphore, n: number): USTM<void> {
 }
 
 /**
- * @tsplus getter fncts.control.TSemaphore available
+ * @tsplus getter fncts.io.TSemaphore available
  */
 export function available(self: TSemaphore): USTM<number> {
   return TSemaphore.reverseGet(self).get;
 }
 
 /**
- * @tsplus getter fncts.control.TSemaphore release
+ * @tsplus getter fncts.io.TSemaphore release
  */
 export function release(self: TSemaphore): USTM<void> {
   return self.releaseN(1);
 }
 
 /**
- * @tsplus fluent fncts.control.TSemaphore releaseN
+ * @tsplus fluent fncts.io.TSemaphore releaseN
  */
 export function releaseN_(self: TSemaphore, n: number): USTM<void> {
   return new Effect((journal) => {
@@ -50,7 +50,7 @@ export function releaseN_(self: TSemaphore, n: number): USTM<void> {
 }
 
 /**
- * @tsplus getter fncts.control.TSemaphore withPermits
+ * @tsplus getter fncts.io.TSemaphore withPermits
  */
 export function withPermitsSelf(self: TSemaphore) {
   return (n: number) =>
@@ -61,7 +61,7 @@ export function withPermitsSelf(self: TSemaphore) {
 }
 
 /**
- * @tsplus getter fncts.control.TSemaphore withPermit
+ * @tsplus getter fncts.io.TSemaphore withPermit
  */
 export function withPermitSelf(self: TSemaphore) {
   return <R, E, A>(io: IO<R, E, A>) => self.withPermits(1)(io);

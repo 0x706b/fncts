@@ -1,5 +1,5 @@
 /**
- * @tsplus static fncts.control.ScopedRefOps fromAcquire
+ * @tsplus static fncts.io.ScopedRefOps fromAcquire
  */
 export function fromAcquire<R, E, A>(
   acquire: IO<R, E, A>,

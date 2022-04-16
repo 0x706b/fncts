@@ -5,8 +5,8 @@ import type { FiberStatus } from "@fncts/io/FiberStatus";
 /**
  * A record containing information about a `Fiber`.
  *
- * @tsplus type fncts.control.FiberDescriptor
- * @tsplus companion fncts.control.FiberDescriptorOps
+ * @tsplus type fncts.io.FiberDescriptor
+ * @tsplus companion fncts.io.FiberDescriptorOps
  */
 export class FiberDescriptor {
   constructor(

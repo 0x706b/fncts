@@ -15,25 +15,25 @@ export class Ignored {
 }
 
 /**
- * @tsplus type fncts.data.TestSuccess
+ * @tsplus type fncts.test.TestSuccess
  */
 export type TestSuccess = Succeeded | Ignored;
 
 /**
- * @tsplus type fncts.data.TestSuccessOps
+ * @tsplus type fncts.test.TestSuccessOps
  */
 export interface TestSuccessOps {}
 
 export const TestSuccess: TestSuccessOps = {};
 
 /**
- * @tsplus static fncts.data.TestSuccessOps Succeeded
+ * @tsplus static fncts.test.TestSuccessOps Succeeded
  */
 export function succeeded(result: FreeBooleanAlgebra<void>): TestSuccess {
   return new Succeeded(result);
 }
 
 /**
- * @tsplus static fncts.data.TestSuccessOps Ignored
+ * @tsplus static fncts.test.TestSuccessOps Ignored
  */
 export const ignored = new Ignored();

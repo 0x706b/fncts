@@ -6,12 +6,12 @@ import { hasTypeId } from "@fncts/base/util/predicates";
 
 export type AssertResultIO<A> = FreeBooleanAlgebraIO<unknown, never, AssertionValue<A>>;
 
-export const AssertionIOTypeId = Symbol.for("fncts.test.control.AssertionIO");
+export const AssertionIOTypeId = Symbol.for("fncts.test.AssertionIO");
 export type AssertionIOTypeId = typeof AssertionIOTypeId;
 
 /**
- * @tsplus type fncts.test.control.AssertionIO
- * @tsplus companion fncts.test.control.AssertionIOOps
+ * @tsplus type fncts.test.AssertionIO
+ * @tsplus companion fncts.test.AssertionIOOps
  */
 export class AssertionIO<A> {
   readonly _typeId: AssertionIOTypeId = AssertionIOTypeId;

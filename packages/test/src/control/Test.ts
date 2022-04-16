@@ -10,14 +10,14 @@ import { TestSuccess } from "../data/TestSuccess.js";
 export type Test<R, E> = IO<R, TestFailure<E>, TestSuccess>;
 
 /**
- * @tsplus type fncts.test.control.TestOps
+ * @tsplus type fncts.test.TestOps
  */
 export interface TestOps {}
 
 export const Test: TestOps = {};
 
 /**
- * @tsplus static fncts.test.control.TestOps fromAssertion
+ * @tsplus static fncts.test.TestOps fromAssertion
  */
 export function fromAssertion<R, E>(assertion: Lazy<IO<R, E, TestResult>>): Test<R, E> {
   return IO.defer(assertion).matchCauseIO(

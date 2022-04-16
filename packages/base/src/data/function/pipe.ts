@@ -1,7 +1,6 @@
 /**
  * @tsplus macro pipe
  * @tsplus fluent fncts.global via
- * @tsplus fluent fncts.control.IO __call
  */
 export function pipe<A>(a: A): A;
 export function pipe<A, B>(a: A, ab: (a: A) => B): B;

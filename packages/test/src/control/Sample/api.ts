@@ -8,7 +8,7 @@ import { add64, halve64, isEqual64, substract64 } from "../../util/math.js";
 import { Sample } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.control.Sample flatMap
+ * @tsplus fluent fncts.test.Sample flatMap
  */
 export function flatMap_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>): Sample<R & R1, B> {
   const sample = f(ma.value);
@@ -22,7 +22,7 @@ export function flatMap_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, 
 }
 
 /**
- * @tsplus fluent fncts.test.control.Sample filter
+ * @tsplus fluent fncts.test.Sample filter
  */
 export function filter_<R, A>(ma: Sample<R, A>, f: Predicate<A>): Stream<R, never, Maybe<Sample<R, A>>> {
   if (f(ma.value)) {
@@ -40,7 +40,7 @@ export function filter_<R, A>(ma: Sample<R, A>, f: Predicate<A>): Stream<R, neve
 }
 
 /**
- * @tsplus fluent fncts.test.control.Sample foreach
+ * @tsplus fluent fncts.test.Sample foreach
  */
 export function foreach_<R, A, R1, B>(
   ma: Sample<R, A>,
@@ -61,7 +61,7 @@ export function foreach_<R, A, R1, B>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.Sample map
+ * @tsplus fluent fncts.test.Sample map
  */
 export function map_<R, A, B>(ma: Sample<R, A>, f: (a: A) => B): Sample<R, B> {
   return new Sample(
@@ -71,7 +71,7 @@ export function map_<R, A, B>(ma: Sample<R, A>, f: (a: A) => B): Sample<R, B> {
 }
 
 /**
- * @tsplus fluent fncts.test.control.Sample shrinkSearch
+ * @tsplus fluent fncts.test.Sample shrinkSearch
  */
 export function shrinkSearch_<R, A>(ma: Sample<R, A>, p: Predicate<A>): Stream<R, never, A> {
   if (!p(ma.value)) {
@@ -91,7 +91,7 @@ export function shrinkSearch_<R, A>(ma: Sample<R, A>, p: Predicate<A>): Stream<R
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps unfold
+ * @tsplus static fncts.test.SampleOps unfold
  */
 export function unfold<R, A, S>(s: S, f: (s: S) => readonly [A, Stream<R, never, S>]): Sample<R, A> {
   const [value, shrink] = f(s);
@@ -102,28 +102,28 @@ export function unfold<R, A, S>(s: S, f: (s: S) => readonly [A, Stream<R, never,
 }
 
 /**
- * @tsplus fluent fncts.test.control.Sample zip
+ * @tsplus fluent fncts.test.Sample zip
  */
 export function zip<R, A, R1, B>(ma: Sample<R, A>, mb: Sample<R1, B>): Sample<R & R1, readonly [A, B]> {
   return ma.zipWith(mb, tuple);
 }
 
 /**
- * @tsplus fluent fncts.test.control.Sample zipWith
+ * @tsplus fluent fncts.test.Sample zipWith
  */
 export function zipWith_<R, A, R1, B, C>(ma: Sample<R, A>, mb: Sample<R1, B>, f: (a: A, b: B) => C): Sample<R & R1, C> {
   return ma.flatMap((a) => map_(mb, (b) => f(a, b)));
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps noShrink
+ * @tsplus static fncts.test.SampleOps noShrink
  */
 export function noShrink<A>(a: A): Sample<unknown, A> {
   return new Sample(a, Stream.empty);
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps shrinkFractional
+ * @tsplus static fncts.test.SampleOps shrinkFractional
  */
 export function shrinkFractional(smallest: number): (a: number) => Sample<unknown, number> {
   return (a) =>
@@ -153,7 +153,7 @@ function bigIntAbs(x: bigint): bigint {
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps shrinkBigInt
+ * @tsplus static fncts.test.SampleOps shrinkBigInt
  */
 export function shrinkBigInt(smallest: bigint): (a: bigint) => Sample<unknown, bigint> {
   return (a) =>
@@ -175,7 +175,7 @@ export function shrinkBigInt(smallest: bigint): (a: bigint) => Sample<unknown, b
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps shrinkIntegral
+ * @tsplus static fncts.test.SampleOps shrinkIntegral
  */
 export function shrinkIntegral(smallest: number): (a: number) => Sample<unknown, number> {
   return (a) =>
@@ -197,7 +197,7 @@ export function shrinkIntegral(smallest: number): (a: number) => Sample<unknown,
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps shrinkArrayInt64
+ * @tsplus static fncts.test.SampleOps shrinkArrayInt64
  */
 export function shrinkArrayInt64(target: ArrayInt64): (value: ArrayInt64) => Sample<unknown, ArrayInt64> {
   return (value) =>
@@ -224,7 +224,7 @@ function mergeStream<R, A, R1, B>(
 }
 
 /**
- * @tsplus static fncts.test.control.SampleOps flatMapStream
+ * @tsplus static fncts.test.SampleOps flatMapStream
  */
 export function flatMapStream<R, A, R1, B>(
   stream: Stream<R, never, Maybe<A>>,

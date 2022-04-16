@@ -9,7 +9,7 @@ function collectLoop<Err, A>(state: Conc<A>): Channel<unknown, Err, Conc<A>, unk
 /**
  * A sink that collects all of its inputs into a chunk.
  *
- * @tsplus static fncts.control.SinkOps collectAll
+ * @tsplus static fncts.io.SinkOps collectAll
  */
 export function collectAll<Err, A>(): Sink<unknown, Err, A, never, Conc<A>> {
   return new Sink(collectLoop<Err, A>(Conc.empty()));
@@ -24,12 +24,12 @@ const drainLoop: Channel<unknown, never, Conc<unknown>, unknown, never, Conc<nev
 /**
  * A sink that ignores all of its inputs.
  *
- * @tsplus static fncts.control.SinkOps drain
+ * @tsplus static fncts.io.SinkOps drain
  */
 export const drain: Sink<unknown, never, unknown, never, void> = new Sink(drainLoop);
 
 /**
- * @tsplus static fncts.control.SinkOps dropWhile
+ * @tsplus static fncts.io.SinkOps dropWhile
  */
 export function dropWhile<Err, In>(predicate: Predicate<In>): Sink<unknown, never, In, In, any> {
   const loop: Channel<unknown, never, Conc<In>, any, never, Conc<In>, any> = Channel.readWith(
@@ -51,7 +51,7 @@ export function dropWhile<Err, In>(predicate: Predicate<In>): Sink<unknown, neve
 /**
  * A sink that executes the provided effectful function for every element fed to it.
  *
- * @tsplus static fncts.control.SinkOps foreach
+ * @tsplus static fncts.io.SinkOps foreach
  */
 export function foreach<R, Err, In>(f: (inp: In) => IO<R, Err, any>): Sink<R, Err, In, In, void> {
   return Sink.foreachWhile((inp) => f(inp).as(true));
@@ -76,7 +76,7 @@ function foreachWhileLoop<R, Err, In>(
  * A sink that executes the provided effectful function for every element fed to it
  * until `f` evaluates to `false`.
  *
- * @tsplus static fncts.control.SinkOps foreachWhile
+ * @tsplus static fncts.io.SinkOps foreachWhile
  */
 export function foreachWhile<R, Err, In>(f: (_: In) => IO<R, Err, boolean>): Sink<R, Err, In, In, void> {
   const process: Channel<R, Err, Conc<In>, unknown, Err, Conc<In>, void> = Channel.readWithCause(

@@ -1,7 +1,7 @@
 /**
  * Effectfully maps over the value the fiber computes.
  *
- * @tsplus fluent fncts.control.Fiber mapIO
+ * @tsplus fluent fncts.io.Fiber mapIO
  */
 export function mapIO_<E, E1, A, B>(fiber: Fiber<E, A>, f: (a: A) => FIO<E1, B>): Fiber<E | E1, B> {
   return {
@@ -22,7 +22,7 @@ export function mapIO_<E, E1, A, B>(fiber: Fiber<E, A>, f: (a: A) => FIO<E1, B>)
 /**
  * Maps over the value the fiber computes.
  *
- * @tsplus fluent fncts.control.Fiber map
+ * @tsplus fluent fncts.io.Fiber map
  */
 export function map_<E, A, B>(fa: Fiber<E, A>, f: (a: A) => B): Fiber<E, B> {
   return fa.mapIO((a) => IO.succeedNow(f(a)));

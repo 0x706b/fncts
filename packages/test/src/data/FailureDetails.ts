@@ -4,7 +4,7 @@ import type { FreeBooleanAlgebra } from "./FreeBooleanAlgebra.js";
 import type { GenFailureDetails } from "./GenFailureDetails.js";
 
 /**
- * @tsplus type fncts.data.FreeBooleanAlgebra
+ * @tsplus type fncts.test.FreeBooleanAlgebra
  */
 export type TestResult = FreeBooleanAlgebra<FailureDetailsResult>;
 

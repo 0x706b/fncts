@@ -54,7 +54,7 @@ export class Runtime<R> {
 }
 
 /**
- * @tsplus static fncts.control.IOOps runtime
+ * @tsplus static fncts.io.IOOps runtime
  */
 export function runtime<R>(__tsplusTrace?: string): URIO<R, Runtime<R>> {
   return IO.environmentWithIO((environment: Environment<R>) =>
@@ -80,21 +80,21 @@ export const LiveIOEnv = Layer.succeed(Clock.Live, Clock.Tag)
   .and(Layer.succeed(Console.Live, Console.Tag));
 
 /**
- * @tsplus fluent fncts.control.IO unsafeRunAsync
+ * @tsplus fluent fncts.io.IO unsafeRunAsync
  */
 export const unsafeRunAsync = defaultRuntime.unsafeRunAsync;
 
 /**
- * @tsplus fluent fncts.control.IO unsafeRunAsyncWith
+ * @tsplus fluent fncts.io.IO unsafeRunAsyncWith
  */
 export const unsafeRunAsyncWith = defaultRuntime.unsafeRunAsyncWith;
 
 /**
- * @tsplus fluent fncts.control.IO unsafeRunPromiseExit
+ * @tsplus fluent fncts.io.IO unsafeRunPromiseExit
  */
 export const unsafeRunPromiseExit = defaultRuntime.unsafeRunPromiseExit;
 
 /**
- * @tsplus fluent fncts.control.IO unsafeRunWith
+ * @tsplus fluent fncts.io.IO unsafeRunWith
  */
 export const unsafeRunWith = defaultRuntime.unsafeRunWith;

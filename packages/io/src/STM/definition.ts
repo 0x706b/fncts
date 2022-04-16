@@ -13,12 +13,12 @@ export const enum STMTag {
   ContramapEnvironment = "ContramapEnvironment",
 }
 
-export const STMTypeId = Symbol.for("fncts.control.STM");
+export const STMTypeId = Symbol.for("fncts.io.STM");
 export type STMTypeId = typeof STMTypeId;
 
 /**
- * @tsplus type fncts.control.STM
- * @tsplus companion fncts.control.STMOps
+ * @tsplus type fncts.io.STM
+ * @tsplus companion fncts.io.STMOps
  */
 export abstract class STM<R, E, A> {
   readonly _typeId: STMTypeId = STMTypeId;
@@ -28,14 +28,14 @@ export abstract class STM<R, E, A> {
 }
 
 /**
- * @tsplus unify fncts.control.STM
+ * @tsplus unify fncts.io.STM
  */
 export function unifySTM<X extends STM<any, any, any>>(self: X): STM<_R<X>, _E<X>, _A<X>> {
   return self;
 }
 
 /**
- * @tsplus type fncts.control.STM
+ * @tsplus type fncts.io.STM
  */
 export interface USTM<A> extends STM<unknown, never, A> {}
 
@@ -119,7 +119,7 @@ export function isFailException(u: unknown): u is FailException<unknown> {
   return hasTypeId(u, FailExceptionTypeId);
 }
 
-export const HaltExceptionTypeId = Symbol.for("fncts.control.STM.HaltException");
+export const HaltExceptionTypeId = Symbol.for("fncts.io.STM.HaltException");
 export type HaltExceptionTypeId = typeof HaltExceptionTypeId;
 
 export class HaltException<E> {
@@ -131,7 +131,7 @@ export function isHaltException(u: unknown): u is HaltException<unknown> {
   return hasTypeId(u, HaltExceptionTypeId);
 }
 
-export const InterruptExceptionTypeId = Symbol.for("fncts.control.STM.InterruptException");
+export const InterruptExceptionTypeId = Symbol.for("fncts.io.STM.InterruptException");
 export type InterruptExceptionTypeId = typeof InterruptExceptionTypeId;
 
 export class InterruptException {
@@ -143,7 +143,7 @@ export function isInterruptException(u: unknown): u is InterruptException {
   return hasTypeId(u, InterruptExceptionTypeId);
 }
 
-export const RetryExceptionTypeId = Symbol.for("fncts.control.STM.RetryException");
+export const RetryExceptionTypeId = Symbol.for("fncts.io.STM.RetryException");
 export type RetryExceptionTypeId = typeof RetryExceptionTypeId;
 
 export class RetryException {

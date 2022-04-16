@@ -1,7 +1,7 @@
 import { PSynchronizedInternal } from "./definition.js";
 
 /**
- * @tsplus static fncts.control.Ref.SynchronizedOps make
+ * @tsplus static fncts.io.Ref.SynchronizedOps make
  */
 export function makeSynchronized<A>(a: Lazy<A>): UIO<Ref.Synchronized<A>> {
   return IO.gen(function* (_) {

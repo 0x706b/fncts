@@ -5,7 +5,7 @@ import { ContinuationK, Done, Fail, Fold } from "./definition.js";
 /**
  * Halt a channel with the specified cause
  *
- * @tsplus static fncts.control.ChannelOps failCause
+ * @tsplus static fncts.io.ChannelOps failCause
  */
 export function failCause<E>(result: Lazy<Cause<E>>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return new Fail(result);
@@ -14,7 +14,7 @@ export function failCause<E>(result: Lazy<Cause<E>>): Channel<unknown, unknown, 
 /**
  * Halt a channel with the specified cause
  *
- * @tsplus static fncts.control.ChannelOps failCauseNow
+ * @tsplus static fncts.io.ChannelOps failCauseNow
  */
 export function failCauseNow<E>(result: Cause<E>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return Channel.failCause(result);
@@ -23,7 +23,7 @@ export function failCauseNow<E>(result: Cause<E>): Channel<unknown, unknown, unk
 /**
  * End a channel with the specified result
  *
- * @tsplus static fncts.control.ChannelOps end
+ * @tsplus static fncts.io.ChannelOps end
  */
 export function end<OutDone>(
   result: Lazy<OutDone>,
@@ -34,7 +34,7 @@ export function end<OutDone>(
 /**
  * End a channel with the specified result
  *
- * @tsplus static fncts.control.ChannelOps endNow
+ * @tsplus static fncts.io.ChannelOps endNow
  */
 export function endNow<OutDone>(result: OutDone): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
   return Channel.end(result);
@@ -43,7 +43,7 @@ export function endNow<OutDone>(result: OutDone): Channel<unknown, unknown, unkn
 /**
  * End a channel with the specified result
  *
- * @tsplus static fncts.control.ChannelOps succeed
+ * @tsplus static fncts.io.ChannelOps succeed
  */
 export function succeed<Z>(z: Lazy<Z>): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
   return Channel.end(z);
@@ -52,7 +52,7 @@ export function succeed<Z>(z: Lazy<Z>): Channel<unknown, unknown, unknown, unkno
 /**
  * End a channel with the specified result
  *
- * @tsplus static fncts.control.ChannelOps succeedNow
+ * @tsplus static fncts.io.ChannelOps succeedNow
  */
 export function succeedNow<Z>(z: Z): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
   return Channel.end(z);
@@ -63,7 +63,7 @@ export function succeedNow<Z>(z: Z): Channel<unknown, unknown, unknown, unknown,
  * returned channel is created by applying the specified function to the terminal value of this
  * channel.
  *
- * @tsplus fluent fncts.control.Channel map
+ * @tsplus fluent fncts.io.Channel map
  */
 export function map_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDone2>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -78,7 +78,7 @@ export function map_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDo
  * The result is a channel that will first perform the functions of this channel, before
  * performing the functions of the created channel (including yielding its terminal value).
  *
- * @tsplus fluent fncts.control.Channel flatMap
+ * @tsplus fluent fncts.io.Channel flatMap
  */
 export function flatMap_<
   Env,
@@ -124,7 +124,7 @@ export function flatMap_<
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with a tuple of the terminal values of both channels.
  *
- * @tsplus fluent fncts.control.Channel cross
+ * @tsplus fluent fncts.io.Channel cross
  */
 export function cross_<
   Env,
@@ -160,7 +160,7 @@ export function cross_<
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with the terminal value of this channel.
  *
- * @tsplus fluent fncts.control.Channel apFirst
+ * @tsplus fluent fncts.io.Channel apFirst
  */
 export function apFirst_<
   Env,
@@ -196,7 +196,7 @@ export function apFirst_<
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with the terminal value of the other channel.
  *
- * @tsplus fluent fncts.control.Channel apSecond
+ * @tsplus fluent fncts.io.Channel apSecond
  */
 export function apSecond_<
   Env,

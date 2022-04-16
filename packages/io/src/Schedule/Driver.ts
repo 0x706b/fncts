@@ -1,6 +1,6 @@
 /**
- * @tsplus type fncts.control.Schedule.Driver
- * @tsplus companion fncts.control.Schedule.DriverOps
+ * @tsplus type fncts.io.Schedule.Driver
+ * @tsplus companion fncts.io.Schedule.DriverOps
  */
 export class Driver<State, Env, In, Out> {
   constructor(
@@ -12,7 +12,7 @@ export class Driver<State, Env, In, Out> {
 }
 
 /**
- * @tsplus static fncts.control.Schedule.DriverOps __call
+ * @tsplus static fncts.io.Schedule.DriverOps __call
  */
 export function makeDriver<State, Env, In, Out>(
   next: (inp: In, __tsplusTrace?: string) => IO<Env, Nothing, Out>,

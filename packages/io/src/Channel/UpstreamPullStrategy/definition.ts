@@ -4,7 +4,7 @@ export interface PullAfterNext<A> {
 }
 
 /**
- * @tsplus static fncts.control.Channel.UpstreamPullStrategyOps PullAfterNext
+ * @tsplus static fncts.io.Channel.UpstreamPullStrategyOps PullAfterNext
  */
 export function PullAfterNext<A>(emitSeparator: Maybe<A>): UpstreamPullStrategy<A> {
   return {
@@ -19,7 +19,7 @@ export interface PullAfterAllEnqueued<A> {
 }
 
 /**
- * @tsplus static fncts.control.Channel.UpstreamPullStrategyOps PullAfterAllEnqueued
+ * @tsplus static fncts.io.Channel.UpstreamPullStrategyOps PullAfterAllEnqueued
  */
 export function PullAfterAllEnqueued<A>(emitSeparator: Maybe<A>): UpstreamPullStrategy<A> {
   return {
@@ -31,7 +31,7 @@ export function PullAfterAllEnqueued<A>(emitSeparator: Maybe<A>): UpstreamPullSt
 export type UpstreamPullStrategy<A> = PullAfterNext<A> | PullAfterAllEnqueued<A>;
 
 /**
- * @tsplus type fncts.control.Channel.UpstreamPullStrategyOps
+ * @tsplus type fncts.io.Channel.UpstreamPullStrategyOps
  */
 export interface UpstreamPullStrategyOps {}
 

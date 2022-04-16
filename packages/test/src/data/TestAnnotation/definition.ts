@@ -1,11 +1,11 @@
 import { hasTypeId } from "@fncts/base/util/predicates";
 
-export const TestAnnotationTypeId = Symbol.for("fncts.data.TestAnnotation");
+export const TestAnnotationTypeId = Symbol.for("fncts.test.TestAnnotation");
 export type TestAnnotationTypeId = typeof TestAnnotationTypeId;
 
 /**
- * @tsplus type fncts.data.TestAnnotation
- * @tsplus companion fncts.data.TestAnnotationOps
+ * @tsplus type fncts.test.TestAnnotation
+ * @tsplus companion fncts.test.TestAnnotationOps
  */
 export class TestAnnotation<V> implements Hashable, Equatable {
   readonly _typeId: TestAnnotationTypeId = TestAnnotationTypeId;

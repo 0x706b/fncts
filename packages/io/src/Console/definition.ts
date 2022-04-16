@@ -1,6 +1,6 @@
 /**
- * @tsplus type fncts.control.Console
- * @tsplus companion fncts.control.ConsoleOps
+ * @tsplus type fncts.io.Console
+ * @tsplus companion fncts.io.ConsoleOps
  */
 export abstract class Console {
   abstract show(...data: unknown[]): UIO<void>;
@@ -9,6 +9,6 @@ export abstract class Console {
 }
 
 /**
- * @tsplus static fncts.control.ConsoleOps Tag
+ * @tsplus static fncts.io.ConsoleOps Tag
  */
 export const ConsoleTag = Tag<Console>();

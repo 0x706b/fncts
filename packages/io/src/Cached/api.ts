@@ -2,7 +2,7 @@ import { concrete } from "@fncts/io/Cached/definition";
 import { CachedInternal } from "@fncts/io/Cached/internal";
 
 /**
- * @tsplus static fncts.control.CachedOps auto
+ * @tsplus static fncts.io.CachedOps auto
  */
 export function auto<R, Error, Resource>(
   acquire: IO<R, Error, Resource>,
@@ -19,7 +19,7 @@ export function auto<R, Error, Resource>(
 }
 
 /**
- * @tsplus getter fncts.control.Cached get
+ * @tsplus getter fncts.io.Cached get
  */
 export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, Resource> {
   concrete(self);
@@ -27,7 +27,7 @@ export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTra
 }
 
 /**
- * @tsplus static fncts.control.CachedOps manual
+ * @tsplus static fncts.io.CachedOps manual
  */
 export function manual<R, Error, Resource>(
   acquire: IO<R, Error, Resource>,
@@ -48,7 +48,7 @@ class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
 }
 
 /**
- * @tsplus getter fncts.control.Cached refresh
+ * @tsplus getter fncts.io.Cached refresh
  */
 export function refresh_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, void> {
   concrete(self);

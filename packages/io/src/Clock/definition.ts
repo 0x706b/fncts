@@ -1,8 +1,8 @@
 import { Driver } from "@fncts/io/Schedule/Driver";
 
 /**
- * @tsplus type fncts.control.Clock
- * @tsplus companion fncts.control.ClockOps
+ * @tsplus type fncts.io.Clock
+ * @tsplus companion fncts.io.ClockOps
  */
 export abstract class Clock {
   abstract readonly currentTime: UIO<number>;
@@ -122,18 +122,18 @@ export abstract class Clock {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps Tag
+ * @tsplus static fncts.io.ClockOps Tag
  */
 export const ClockTag = Tag<Clock>();
 
 /**
- * @tsplus static fncts.control.ClockOps currentTime
+ * @tsplus static fncts.io.ClockOps currentTime
  */
 export const currentTime = IO.serviceWithIO((clock) => clock.currentTime, Clock.Tag);
 
 /**
- * @tsplus static fncts.control.ClockOps driver
- * @tsplus getter fncts.control.Schedule driver
+ * @tsplus static fncts.io.ClockOps driver
+ * @tsplus getter fncts.io.Schedule driver
  */
 export function driver<State, Env, In, Out>(
   schedule: Schedule.WithState<State, Env, In, Out>,
@@ -142,14 +142,14 @@ export function driver<State, Env, In, Out>(
 }
 
 /**
- * @tsplus static fncts.control.ClockOps sleep
+ * @tsplus static fncts.io.ClockOps sleep
  */
 export function sleep(duration: number, __tsplusTrace?: string): URIO<Has<Clock>, void> {
   return IO.serviceWithIO((clock) => clock.sleep(duration), Clock.Tag);
 }
 
 /**
- * @tsplus static fncts.control.ClockOps repeat
+ * @tsplus static fncts.io.ClockOps repeat
  */
 export function repeat<R, E, A>(io0: Lazy<IO<R, E, A>>) {
   return <R1, B>(schedule0: Lazy<Schedule<R1, A, B>>, __tsplusTrace?: string): IO<Has<Clock> & R & R1, E, B> =>
@@ -157,7 +157,7 @@ export function repeat<R, E, A>(io0: Lazy<IO<R, E, A>>) {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps repeatOrElse
+ * @tsplus static fncts.io.ClockOps repeatOrElse
  */
 export function repeatOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
   return <R1, B, R2, E2>(
@@ -175,7 +175,7 @@ export function repeatOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps repeatOrElseEither
+ * @tsplus static fncts.io.ClockOps repeatOrElseEither
  */
 export function repeatOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
   return <R1, B, R2, E2, C>(
@@ -187,7 +187,7 @@ export function repeatOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps retry
+ * @tsplus static fncts.io.ClockOps retry
  */
 export function retry<R, E, A>(io0: Lazy<IO<R, E, A>>) {
   return <R1, O>(schedule0: Lazy<Schedule<R1, E, O>>, __tsplusTrace?: string): IO<Has<Clock> & R & R1, E, A> =>
@@ -195,7 +195,7 @@ export function retry<R, E, A>(io0: Lazy<IO<R, E, A>>) {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps retryOrElse
+ * @tsplus static fncts.io.ClockOps retryOrElse
  */
 export function retryOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
   return <R1, O, R2, E2>(
@@ -213,7 +213,7 @@ export function retryOrElse<R, E, A>(io0: Lazy<IO<R, E, A>>) {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps retryOrElseEither
+ * @tsplus static fncts.io.ClockOps retryOrElseEither
  */
 export function retryOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
   return <R1, O, R2, E2, B>(
@@ -238,7 +238,7 @@ export function retryOrElseEither<R, E, A>(io0: Lazy<IO<R, E, A>>) {
 }
 
 /**
- * @tsplus static fncts.control.ClockOps schedule
+ * @tsplus static fncts.io.ClockOps schedule
  */
 export function schedule<R, E, A, R1, B>(
   io: Lazy<IO<R, E, A>>,
@@ -249,7 +249,7 @@ export function schedule<R, E, A, R1, B>(
 }
 
 /**
- * @tsplus static fncts.control.ClockOps scheduleFrom
+ * @tsplus static fncts.io.ClockOps scheduleFrom
  */
 export function scheduleFrom<R, E, A extends A1, R1, A1, B>(
   io0: Lazy<IO<R, E, A>>,

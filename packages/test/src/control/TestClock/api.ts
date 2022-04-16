@@ -3,7 +3,7 @@ import { Live } from "@fncts/test/control/Live";
 import { Data, Start, TestClock } from "@fncts/test/control/TestClock/definition";
 
 /**
- * @tsplus static fncts.test.control.TestClockOps make
+ * @tsplus static fncts.test.TestClockOps make
  */
 export function make(data: Data): Layer<Has<Live> & Has<Annotations>, never, Has<Clock> & Has<TestClock>> {
   return Layer.scopedEnvironment(
@@ -21,14 +21,14 @@ export function make(data: Data): Layer<Has<Live> & Has<Annotations>, never, Has
 }
 
 /**
- * @tsplus static fncts.test.control.TestClockOps Live
+ * @tsplus static fncts.test.TestClockOps Live
  */
 export const live: Layer<Has<Live> & Has<Annotations>, never, Has<Clock> & Has<TestClock>> = TestClock.make(
   new Data(0, Nil()),
 );
 
 /**
- * @tsplus static fncts.test.control.TestClockOps adjust
+ * @tsplus static fncts.test.TestClockOps adjust
  */
 export function adjust(duration: number): IO<Has<TestClock>, never, void> {
   return IO.serviceWithIO((service: TestClock) => service.adjust(duration), TestClock.Tag);

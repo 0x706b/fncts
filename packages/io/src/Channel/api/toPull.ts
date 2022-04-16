@@ -7,7 +7,7 @@ import { ChannelStateTag } from "@fncts/io/Channel/internal/ChannelState";
 /**
  * Interpret a channel to a managed Pull
  *
- * @tsplus getter fncts.control.Channel toPull
+ * @tsplus getter fncts.io.Channel toPull
  */
 export function toPull<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,

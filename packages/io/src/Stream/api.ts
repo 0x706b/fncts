@@ -18,7 +18,7 @@ import { Take } from "./internal/Take.js";
 /**
  * Submerges the error case of an `Either` into the `Stream`.
  *
- * @tsplus getter fncts.control.Stream absolve
+ * @tsplus getter fncts.io.Stream absolve
  */
 export function absolve<R, E, E2, A>(self: Stream<R, E, Either<E2, A>>): Stream<R, E | E2, A> {
   return self.mapIO((either) => IO.fromEither(either));
@@ -36,7 +36,7 @@ export function absolve<R, E, E2, A>(self: Stream<R, E, Either<E2, A>>): Stream<
  * Any sink can be used here, but see `Sink.foldWeightedM` and `Sink.foldUntilM` for
  * sinks that cover the common usecases.
  *
- * @tsplus fluent fncts.control.Stream aggregateAsync
+ * @tsplus fluent fncts.io.Stream aggregateAsync
  */
 export function aggregateAsync_<R, E, A extends A1, R1, E1, A1, B>(
   stream: Stream<R, E, A>,
@@ -48,7 +48,7 @@ export function aggregateAsync_<R, E, A extends A1, R1, E1, A1, B>(
 /**
  * Like `aggregateAsyncWithinEither`, but only returns the `Right` results.
  *
- * @tsplus fluent fncts.control.Stream aggregateAsyncWithin
+ * @tsplus fluent fncts.io.Stream aggregateAsyncWithin
  */
 export function aggregateAsyncWithin_<R, E, A extends A1, R1, E1, A1, B, R2, C>(
   stream: Stream<R, E, A>,
@@ -70,7 +70,7 @@ export function aggregateAsyncWithin_<R, E, A extends A1, R1, E1, A1, B, R2, C>(
  * Aggregated elements will be fed into the schedule to determine the delays between
  * pulls.
  *
- * @tsplus fluent fncts.control.Stream aggregateAsyncWithinEither
+ * @tsplus fluent fncts.io.Stream aggregateAsyncWithinEither
  */
 export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R2, C>(
   stream: Stream<R, E, A>,
@@ -161,7 +161,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
  * but keeps only elements from this stream.
  * The `that` stream would be run multiple times, for every element in the `this` stream.
  *
- * @tsplus fluent fncts.control.Stream apFirst
+ * @tsplus fluent fncts.io.Stream apFirst
  */
 export function apFirst_<R, R1, E, E1, A, A1>(
   stream: Stream<R, E, A>,
@@ -175,7 +175,7 @@ export function apFirst_<R, R1, E, E1, A, A1>(
  * but keeps only elements from the other stream.
  * The `that` stream would be run multiple times, for every element in the `this` stream.
  *
- * @tsplus fluent fncts.control.Stream apSecond
+ * @tsplus fluent fncts.io.Stream apSecond
  */
 export function apSecond_<R, R1, E, E1, A, A1>(
   stream: Stream<R, E, A>,
@@ -187,14 +187,14 @@ export function apSecond_<R, R1, E, E1, A, A1>(
 /**
  * Maps the success values of this stream to the specified constant value.
  *
- * @tsplus fluent fncts.control.Stream as
+ * @tsplus fluent fncts.io.Stream as
  */
 export function as_<R, E, A, B>(stream: Stream<R, E, A>, b: Lazy<B>): Stream<R, E, B> {
   return stream.map(() => b());
 }
 
 /**
- * @tsplus static fncts.control.StreamOps asyncInterrupt
+ * @tsplus static fncts.io.StreamOps asyncInterrupt
  */
 export function asyncInterrupt<R, E, A>(
   register: (
@@ -240,7 +240,7 @@ export function asyncInterrupt<R, E, A>(
  * The optionality of the error type `E` can be used to signal the end of the stream,
  * by setting it to `None`.
  *
- * @tsplus static fncts.control.StreamOps asyncMaybe
+ * @tsplus static fncts.io.StreamOps asyncMaybe
  */
 export function asyncMaybe<R, E, A>(
   register: (
@@ -252,7 +252,7 @@ export function asyncMaybe<R, E, A>(
 }
 
 /**
- * @tsplus static fncts.control.StreamOps async
+ * @tsplus static fncts.io.StreamOps async
  */
 export function async<R, E, A>(
   register: (resolve: (next: IO<R, Maybe<E>, Conc<A>>, offerCb?: (e: Exit<never, boolean>) => void) => void) => void,
@@ -265,7 +265,7 @@ export function async<R, E, A>(
 }
 
 /**
- * @tsplus static fncts.control.StreamOps asyncIO
+ * @tsplus static fncts.io.StreamOps asyncIO
  */
 export function asyncIO<R, E, A, R1 = R, E1 = E>(
   register: (
@@ -318,7 +318,7 @@ export function bimap_<R, E, E1, A, A1>(stream: Stream<R, E, A>, f: (e: E) => E1
  * Creates a stream from a single value that will get cleaned up after the
  * stream is consumed
  *
- * @tsplus static fncts.control.StreamOps acquireRelease
+ * @tsplus static fncts.io.StreamOps acquireRelease
  */
 export function acquireRelease_<R, E, A, R1>(
   acquire: IO<R, E, A>,
@@ -331,7 +331,7 @@ export function acquireRelease_<R, E, A, R1>(
  * Creates a stream from a single value that will get cleaned up after the
  * stream is consumed
  *
- * @tsplus static fncts.control.StreamOps acquireReleaseExit
+ * @tsplus static fncts.io.StreamOps acquireReleaseExit
  */
 export function acquireReleaseExit_<R, E, A, R1>(
   acquire: IO<R, E, A>,
@@ -345,7 +345,7 @@ export function acquireReleaseExit_<R, E, A, R1>(
  * The driver stream will only ever advance of the `maximumLag` chunks before the
  * slowest downstream stream.
  *
- * @tsplus fluent fncts.control.Stream broadcast
+ * @tsplus fluent fncts.io.Stream broadcast
  */
 export function broadcast_<R, E, A>(
   stream: Stream<R, E, A>,
@@ -362,7 +362,7 @@ export function broadcast_<R, E, A>(
  * The driver stream will only ever advance of the `maximumLag` chunks before the
  * slowest downstream stream.
  *
- * @tsplus fluent fncts.control.Stream broadcastDynamic
+ * @tsplus fluent fncts.io.Stream broadcastDynamic
  */
 export function broadcastDynamic_<R, E, A>(
   stream: Stream<R, E, A>,
@@ -379,7 +379,7 @@ export function broadcastDynamic_<R, E, A>(
  *
  * Queues can unsubscribe from upstream by shutting down.
  *
- * @tsplus fluent fncts.control.Stream broadcastedQueues
+ * @tsplus fluent fncts.io.Stream broadcastedQueues
  */
 export function broadcastedQueues_<R, E, A>(
   stream: Stream<R, E, A>,
@@ -400,7 +400,7 @@ export function broadcastedQueues_<R, E, A>(
  *
  * Queues can unsubscribe from upstream by shutting down.
  *
- * @tsplus fluent fncts.control.Stream broadcastedQueuesDynamic
+ * @tsplus fluent fncts.io.Stream broadcastedQueuesDynamic
  */
 export function broadcastedQueuesDynamic_<R, E, A>(
   stream: Stream<R, E, A>,
@@ -413,7 +413,7 @@ export function broadcastedQueuesDynamic_<R, E, A>(
  * Allows a faster producer to progress independently of a slower consumer by buffering
  * up to `capacity` elements in a queue.
  *
- * @tsplus fluent fncts.control.Stream buffer
+ * @tsplus fluent fncts.io.Stream buffer
  */
 export function buffer_<R, E, A>(stream: Stream<R, E, A>, capacity: number): Stream<R, E, A> {
   const queue = toQueueOfElements_(stream, capacity);
@@ -434,7 +434,7 @@ export function buffer_<R, E, A>(stream: Stream<R, E, A>, capacity: number): Str
 }
 
 /**
- * @tsplus fluent fncts.control.Stream bufferChunks
+ * @tsplus fluent fncts.io.Stream bufferChunks
  */
 export function bufferChunks_<R, E, A>(stream: Stream<R, E, A>, capacity: number): Stream<R, E, A> {
   const queue = stream.toQueue(capacity);
@@ -457,7 +457,7 @@ export function bufferChunks_<R, E, A>(stream: Stream<R, E, A>, capacity: number
  * Allows a faster producer to progress independently of a slower consumer by buffering
  * elements into an unbounded queue.
  *
- * @tsplus getter fncts.control.Stream bufferUnbounded
+ * @tsplus getter fncts.io.Stream bufferUnbounded
  */
 export function bufferUnbounded<R, E, A>(stream: Stream<R, E, A>): Stream<R, E, A> {
   const queue = stream.toQueueUnbounded;
@@ -525,7 +525,7 @@ function bufferSignalConsumer<R, E, A>(
  * Switches over to the stream produced by the provided function in case this one
  * fails with a typed error.
  *
- * @tsplus fluent fncts.control.Stream catchAll
+ * @tsplus fluent fncts.io.Stream catchAll
  */
 export function catchAll_<R, R1, E, E1, A, A1>(
   stream: Stream<R, E, A>,
@@ -539,7 +539,7 @@ export function catchAll_<R, R1, E, E1, A, A1>(
  * fails. Allows recovery from all causes of failure, including interruption if the
  * stream is uninterruptible.
  *
- * @tsplus fluent fncts.control.Stream catchAllCause
+ * @tsplus fluent fncts.io.Stream catchAllCause
  */
 export function catchAllCause_<R, R1, E, E1, A, A1>(
   stream: Stream<R, E, A>,
@@ -555,7 +555,7 @@ export function catchAllCause_<R, R1, E, E1, A, A1>(
  * Switches over to the stream produced by the provided function in case this one
  * fails with some typed error.
  *
- * @tsplus fluent fncts.control.Stream catchJust
+ * @tsplus fluent fncts.io.Stream catchJust
  */
 export function catchJust_<R, R1, E, E1, A, A1>(
   stream: Stream<R, E, A>,
@@ -569,7 +569,7 @@ export function catchJust_<R, R1, E, E1, A, A1>(
  * fails with some errors. Allows recovery from all causes of failure, including interruption if the
  * stream is uninterruptible.
  *
- * @tsplus fluent fncts.control.Stream catchJustCause
+ * @tsplus fluent fncts.io.Stream catchJustCause
  */
 export function catchJustCause_<R, R1, E, E1, A, A1>(
   stream: Stream<R, E, A>,
@@ -582,7 +582,7 @@ export function catchJustCause_<R, R1, E, E1, A, A1>(
  * Returns a stream made of the concatenation in strict order of all the streams
  * produced by passing each element of this stream to `f`
  *
- * @tsplus fluent fncts.control.Stream flatMap
+ * @tsplus fluent fncts.io.Stream flatMap
  */
 export function flatMap_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -602,7 +602,7 @@ export function flatMap_<R, E, A, R1, E1, B>(
 /**
  * Exposes the underlying chunks of the stream as a stream of chunks of elements
  *
- * @tsplus getter fncts.control.Stream chunks
+ * @tsplus getter fncts.io.Stream chunks
  */
 export function chunks<R, E, A>(stream: Stream<R, E, A>): Stream<R, E, Conc<A>> {
   return stream.mapChunks(Conc.single);
@@ -632,7 +632,7 @@ function changesWithWriter<R, E, A>(
  * previous element emitted, using the specified function to determine
  * whether two elements are equal.
  *
- * @tsplus fluent fncts.control.Stream changesWith
+ * @tsplus fluent fncts.io.Stream changesWith
  */
 export function changesWith_<R, E, A>(stream: Stream<R, E, A>, f: (x: A, y: A) => boolean): Stream<R, E, A> {
   return new Stream(stream.channel.pipeTo(changesWithWriter<R, E, A>(f, Nothing())));
@@ -641,7 +641,7 @@ export function changesWith_<R, E, A>(stream: Stream<R, E, A>, f: (x: A, y: A) =
 /**
  * Transforms all elements of the stream for as long as the specified partial function is defined.
  *
- * @tsplus fluent fncts.control.Stream collectWhile
+ * @tsplus fluent fncts.io.Stream collectWhile
  */
 export function collectWhile_<R, E, A, A1>(stream: Stream<R, E, A>, pf: (a: A) => Maybe<A1>): Stream<R, E, A1> {
   const loop: Channel<R, E, Conc<A>, unknown, E, Conc<A1>, any> = Channel.readWith(
@@ -708,7 +708,7 @@ function combineProducer<Err, Elem>(
  *
  * Where possible, prefer `Stream#combineChunks` for a more efficient implementation.
  *
- * @tsplus fluent fncts.control.Stream combine
+ * @tsplus fluent fncts.io.Stream combine
  */
 export function combine_<R, E, A, R1, E1, A1, S, R2, A2>(
   stream: Stream<R, E, A>,
@@ -759,7 +759,7 @@ function combineChunksProducer<Err, Elem>(
  * it to the destination stream. `f` can maintain some internal state to control
  * the combining process, with the initial state being specified by `s`.
  *
- * @tsplus fluent fncts.control.Stream combineChunks
+ * @tsplus fluent fncts.io.Stream combineChunks
  */
 export function combineChunks_<R, E, A, R1, E1, A1, S, R2, A2>(
   stream: Stream<R, E, A>,
@@ -801,7 +801,7 @@ export function combineChunks_<R, E, A, R1, E1, A1, S, R2, A2>(
  * Concatenates the specified stream with this stream, resulting in a stream
  * that emits the elements from this stream and then the elements from the specified stream.
  *
- * @tsplus fluent fncts.control.Stream concat
+ * @tsplus fluent fncts.io.Stream concat
  */
 export function concat_<R, R1, E, E1, A, A1>(
   stream: Stream<R, E, A>,
@@ -814,7 +814,7 @@ export function concat_<R, R1, E, E1, A, A1>(
  * Composes this stream with the specified stream to create a cartesian product of elements.
  * The `that` stream would be run multiple times, for every element in the `this` stream.
  *
- * @tsplus fluent fncts.control.Stream cross
+ * @tsplus fluent fncts.io.Stream cross
  */
 export function cross_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -830,7 +830,7 @@ export function cross_<R, E, A, R1, E1, B>(
  * with a specified function.
  * The `fb` stream would be run multiple times, for every element in the `fa` stream.
  *
- * @tsplus fluent fncts.control.Stream crossWith
+ * @tsplus fluent fncts.io.Stream crossWith
  */
 export function crossWith_<R, E, A, R1, E1, B, C>(
   fa: Stream<R, E, A>,
@@ -844,7 +844,7 @@ export function crossWith_<R, E, A, R1, E1, B, C>(
  * Provides some of the environment required to run this effect,
  * leaving the remainder `R0`.
  *
- * @tsplus fluent fncts.control.Stream contramapEnvironment
+ * @tsplus fluent fncts.io.Stream contramapEnvironment
  */
 export function contramapEnvironment_<R, E, A, R0>(
   ra: Stream<R, E, A>,
@@ -854,7 +854,7 @@ export function contramapEnvironment_<R, E, A, R0>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream debounce
+ * @tsplus fluent fncts.io.Stream debounce
  */
 export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: number): Stream<R & Has<Clock>, E, A> {
   return Stream.unwrap(
@@ -940,7 +940,7 @@ function defaultIfEmptyWriter<R, E, A, R1, E1, B>(
 /**
  * Switches to the provided stream in case this one is empty.
  *
- * @tsplus fluent fncts.control.Stream defaultIfEmpty
+ * @tsplus fluent fncts.io.Stream defaultIfEmpty
  */
 export function defaultIfEmpty_<R, E, A, R1, E1, B>(
   fa: Stream<R, E, A>,
@@ -954,7 +954,7 @@ export function defaultIfEmpty_<R, E, A, R1, E1, B>(
  * queues should receive which elements. The decide function will receive the indices of the queues
  * in the resulting list.
  *
- * @tsplus fluent fncts.control.Stream distributedWith
+ * @tsplus fluent fncts.io.Stream distributedWith
  */
 export function distributedWith_<R, E, A>(
   self: Stream<R, E, A>,
@@ -991,7 +991,7 @@ export function distributedWith_<R, E, A>(
  * Downstream users can also shutdown queues manually. In this case the driver will
  * continue but no longer backpressure on them.
  *
- * @tsplus fluent fncts.control.Stream distributedWithDynamic
+ * @tsplus fluent fncts.io.Stream distributedWithDynamic
  */
 export function distributedWithDynamic_<R, E, A>(
   self: Stream<R, E, A>,
@@ -1083,7 +1083,7 @@ export function distributedWithDynamic_<R, E, A>(
  * Converts this stream to a stream that executes its effects but emits no
  * elements. Useful for sequencing effects using streams.
  *
- * @tsplus getter fncts.control.Stream drain
+ * @tsplus getter fncts.io.Stream drain
  */
 export function drain<R, E, A>(fa: Stream<R, E, A>): Stream<R, E, void> {
   return new Stream(fa.channel.drain);
@@ -1105,7 +1105,7 @@ function dropLoop<R, E, A>(r: number): Channel<R, E, Conc<A>, unknown, E, Conc<A
 /**
  * Drops the specified number of elements from this stream.
  *
- * @tsplus fluent fncts.control.Stream drop
+ * @tsplus fluent fncts.io.Stream drop
  */
 export function drop_<R, E, A>(stream: Stream<R, E, A>, n: number): Stream<R, E, A> {
   return new Stream(stream.channel.pipeTo(dropLoop(n)));
@@ -1115,7 +1115,7 @@ export function drop_<R, E, A>(stream: Stream<R, E, A>, n: number): Stream<R, E,
  * Drops all elements of the stream for as long as the specified predicate
  * evaluates to `true`.
  *
- * @tsplus fluent fncts.control.Stream dropWhile
+ * @tsplus fluent fncts.io.Stream dropWhile
  */
 export function dropWhile_<R, E, A>(stream: Stream<R, E, A>, p: Predicate<A>): Stream<R, E, A> {
   return stream.pipeThrough(Sink.dropWhile(p));
@@ -1125,7 +1125,7 @@ export function dropWhile_<R, E, A>(stream: Stream<R, E, A>, p: Predicate<A>): S
  * Drops all elements of the stream until the specified predicate evaluates
  * to `true`.
  *
- * @tsplus fluent fncts.control.Stream dropUntil
+ * @tsplus fluent fncts.io.Stream dropUntil
  */
 export function dropUntil_<R, E, A>(stream: Stream<R, E, A>, p: Predicate<A>): Stream<R, E, A> {
   return stream.dropWhile(p.invert).drop(1);
@@ -1138,14 +1138,14 @@ export function dropUntil_<R, E, A>(stream: Stream<R, E, A>, p: Predicate<A>): S
  *
  * @note the stream will end as soon as the first error occurs.
  *
- * @tsplus getter fncts.control.Stream either
+ * @tsplus getter fncts.io.Stream either
  */
 export function either<R, E, A>(stream: Stream<R, E, A>): Stream<R, never, Either<E, A>> {
   return stream.map(Either.right).catchAll((e) => Stream.succeedNow(Either.left(e)));
 }
 
 /**
- * @tsplus static fncts.control.StreamOps empty
+ * @tsplus static fncts.io.StreamOps empty
  */
 export const empty: Stream<unknown, never, never> = Stream.fromChunkNow(Conc.empty<never>());
 
@@ -1176,21 +1176,21 @@ function endWhenWriter<E, A, E1>(
  *
  * If the IO completes with a failure, the stream will emit that failure.
  *
- * @tsplus fluent fncts.control.Stream endWhen
+ * @tsplus fluent fncts.io.Stream endWhen
  */
 export function endWhen_<R, E, A, R1, E1>(stream: Stream<R, E, A>, io: IO<R1, E1, any>): Stream<R & R1, E | E1, A> {
   return new Stream(Channel.unwrapScoped(io.forkScoped.map((fiber) => stream.channel.pipeTo(endWhenWriter(fiber)))));
 }
 
 /**
- * @tsplus fluent fncts.control.Stream ensuring
+ * @tsplus fluent fncts.io.Stream ensuring
  */
 export function ensuring_<R, E, A, R1>(self: Stream<R, E, A>, finalizer: IO<R1, never, any>): Stream<R & R1, E, A> {
   return new Stream(self.channel.ensuring(finalizer));
 }
 
 /**
- * @tsplus static fncts.control.StreamOps environment
+ * @tsplus static fncts.io.StreamOps environment
  */
 export function environment<R>(): Stream<R, never, Environment<R>> {
   return Stream.fromIO(IO.environment<R>());
@@ -1199,7 +1199,7 @@ export function environment<R>(): Stream<R, never, Environment<R>> {
 /**
  * Accesses the environment of the stream.
  *
- * @tsplus static fncts.control.StreamOps environmentWith
+ * @tsplus static fncts.io.StreamOps environmentWith
  */
 export function environmentWith<R, A>(f: (r: Environment<R>) => A): Stream<R, never, A> {
   return Stream.environment<R>().map(f);
@@ -1208,7 +1208,7 @@ export function environmentWith<R, A>(f: (r: Environment<R>) => A): Stream<R, ne
 /**
  * Accesses the environment of the stream in the context of an effect.
  *
- * @tsplus static fncts.control.StreamOps environmentWithIO
+ * @tsplus static fncts.io.StreamOps environmentWithIO
  */
 export function environmentWithIO<R0, R, E, A>(f: (r0: Environment<R0>) => IO<R, E, A>): Stream<R0 & R, E, A> {
   return Stream.environment<R0>().mapIO(f);
@@ -1217,7 +1217,7 @@ export function environmentWithIO<R0, R, E, A>(f: (r0: Environment<R0>) => IO<R,
 /**
  * Accesses the environment of the stream in the context of a stream.
  *
- * @tsplus static fncts.control.StreamOps environmentWithStream
+ * @tsplus static fncts.io.StreamOps environmentWithStream
  */
 export function environmentWithStream<R0, R, E, A>(f: (r0: Environment<R0>) => Stream<R, E, A>): Stream<R0 & R, E, A> {
   return Stream.environment<R0>().flatMap(f);
@@ -1226,7 +1226,7 @@ export function environmentWithStream<R0, R, E, A>(f: (r0: Environment<R0>) => S
 /**
  * Halt a stream with the specified error
  *
- * @tsplus static fncts.control.StreamOps failNow
+ * @tsplus static fncts.io.StreamOps failNow
  */
 export function failNow<E>(error: E): Stream<unknown, E, never> {
   return new Stream(Channel.failNow(error));
@@ -1235,7 +1235,7 @@ export function failNow<E>(error: E): Stream<unknown, E, never> {
 /**
  * Halt a stream with the specified error
  *
- * @tsplus static fncts.control.StreamOps fail
+ * @tsplus static fncts.io.StreamOps fail
  */
 export function fail<E>(error: Lazy<E>): Stream<unknown, E, never> {
   return new Stream(Channel.fail(error));
@@ -1244,7 +1244,7 @@ export function fail<E>(error: Lazy<E>): Stream<unknown, E, never> {
 /**
  * The stream that always halts with `cause`.
  *
- * @tsplus static fncts.control.StreamOps failCauseNow
+ * @tsplus static fncts.io.StreamOps failCauseNow
  */
 export function failCauseNow<E>(cause: Cause<E>): Stream<unknown, E, never> {
   return Stream.fromIO(IO.failCauseNow(cause));
@@ -1253,14 +1253,14 @@ export function failCauseNow<E>(cause: Cause<E>): Stream<unknown, E, never> {
 /**
  * The stream that always halts with `cause`.
  *
- * @tsplus static fncts.control.StreamOps failCause
+ * @tsplus static fncts.io.StreamOps failCause
  */
 export function failCause<E>(cause: Lazy<Cause<E>>): Stream<unknown, E, never> {
   return Stream.fromIO(IO.failCause(cause));
 }
 
 /**
- * @tsplus fluent fncts.control.Stream filter
+ * @tsplus fluent fncts.io.Stream filter
  */
 export function filter_<R, E, A, B extends A>(fa: Stream<R, E, A>, refinement: Refinement<A, B>): Stream<R, E, B>;
 export function filter_<R, E, A>(fa: Stream<R, E, A>, predicate: Predicate<A>): Stream<R, E, A>;
@@ -1269,7 +1269,7 @@ export function filter_<R, E, A>(fa: Stream<R, E, A>, predicate: Predicate<A>): 
 }
 
 /**
- * @tsplus fluent fncts.control.Stream filterIO
+ * @tsplus fluent fncts.io.Stream filterIO
  */
 export function filterIO_<R, E, A, R1, E1>(
   fa: Stream<R, E, A>,
@@ -1279,14 +1279,14 @@ export function filterIO_<R, E, A, R1, E1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream filterMap
+ * @tsplus fluent fncts.io.Stream filterMap
  */
 export function filterMap_<R, E, A, B>(fa: Stream<R, E, A>, f: (a: A) => Maybe<B>): Stream<R, E, B> {
   return fa.mapChunks((chunk) => chunk.filterMap(f));
 }
 
 /**
- * @tsplus fluent fncts.control.Stream filterMapIO
+ * @tsplus fluent fncts.io.Stream filterMapIO
  */
 export function filterMapIO_<R, E, A, R1, E1, B>(
   fa: Stream<R, E, A>,
@@ -1298,7 +1298,7 @@ export function filterMapIO_<R, E, A, R1, E1, B>(
 /**
  * Finds the first element emitted by this stream that satisfies the provided predicate.
  *
- * @tsplus fluent fncts.control.Stream find
+ * @tsplus fluent fncts.io.Stream find
  */
 export function find_<R, E, A>(stream: Stream<R, E, A>, p: Predicate<A>): Stream<R, E, A> {
   const loop: Channel<R, E, Conc<A>, unknown, E, Conc<A>, unknown> = Channel.readWith(
@@ -1316,7 +1316,7 @@ export function find_<R, E, A>(stream: Stream<R, E, A>, p: Predicate<A>): Stream
 /**
  * Finds the first element emitted by this stream that satisfies the provided effectful predicate.
  *
- * @tsplus fluent fncts.control.Stream findIO
+ * @tsplus fluent fncts.io.Stream findIO
  */
 export function findIO_<R, E, A, R1, E1>(
   stream: Stream<R, E, A>,
@@ -1342,7 +1342,7 @@ export function findIO_<R, E, A, R1, E1>(
  * Flattens this stream-of-streams into a stream made of the concatenation in
  * strict order of all the streams.
  *
- * @tsplus getter fncts.control.Stream flatten
+ * @tsplus getter fncts.io.Stream flatten
  */
 export function flatten<R, E, R1, E1, A>(self: Stream<R, E, Stream<R1, E1, A>>): Stream<R & R1, E | E1, A> {
   return self.flatMap(identity);
@@ -1353,7 +1353,7 @@ export function flatten<R, E, R1, E1, A>(self: Stream<R, E, Stream<R1, E1, A>>):
  *
  * For `Exit<E, A>` values that do not signal end-of-stream, prefer:
  *
- * @tsplus getter fncts.control.Stream flattenExitOption
+ * @tsplus getter fncts.io.Stream flattenExitOption
  */
 export function flattenExitOption<R, E, E1, A>(stream: Stream<R, E, Exit<Maybe<E1>, A>>): Stream<R, E | E1, A> {
   const processChunk = (
@@ -1385,7 +1385,7 @@ export function flattenExitOption<R, E, E1, A>(stream: Stream<R, E, Exit<Maybe<E
 /**
  * Unwraps `Exit` values and flatten chunks that also signify end-of-stream by failing with `None`.
  *
- * @tsplus getter fncts.control.Stream flattenTake
+ * @tsplus getter fncts.io.Stream flattenTake
  */
 export function flattenTake<R, E, E1, A>(stream: Stream<R, E, Take<E1, A>>): Stream<R, E | E1, A> {
   return stream.map((take) => take.exit).flattenExitOption.flattenChunks;
@@ -1395,7 +1395,7 @@ export function flattenTake<R, E, E1, A>(stream: Stream<R, E, Take<E1, A>>): Str
  * Submerges the chunks carried by this stream into the stream's structure, while
  * still preserving them.
  *
- * @tsplus getter fncts.control.Stream flattenChunks
+ * @tsplus getter fncts.io.Stream flattenChunks
  */
 export function flattenChunks<R, E, A>(stream: Stream<R, E, Conc<A>>): Stream<R, E, A> {
   return new Stream(stream.channel.mapOut((c) => c.flatten));
@@ -1404,7 +1404,7 @@ export function flattenChunks<R, E, A>(stream: Stream<R, E, Conc<A>>): Stream<R,
 /**
  * Repeats this stream forever.
  *
- * @tsplus getter fncts.control.Stream forever
+ * @tsplus getter fncts.io.Stream forever
  */
 export function forever<R, E, A>(stream: Stream<R, E, A>): Stream<R, E, A> {
   return new Stream(stream.channel.repeated);
@@ -1413,7 +1413,7 @@ export function forever<R, E, A>(stream: Stream<R, E, A>): Stream<R, E, A> {
 /**
  * Creates a stream from a `Chunk` of values
  *
- * @tsplus static fncts.control.StreamOps fromChunkNow
+ * @tsplus static fncts.io.StreamOps fromChunkNow
  */
 export function fromChunkNow<O>(c: Conc<O>): Stream<unknown, never, O> {
   return new Stream(Channel.defer(() => (c.isEmpty ? Channel.unit : Channel.writeNow(c))));
@@ -1422,7 +1422,7 @@ export function fromChunkNow<O>(c: Conc<O>): Stream<unknown, never, O> {
 /**
  * Creates a stream from a `Chunk` of values
  *
- * @tsplus static fncts.control.StreamOps fromChunk
+ * @tsplus static fncts.io.StreamOps fromChunk
  */
 export function fromChunk<O>(c: Lazy<Conc<O>>): Stream<unknown, never, O> {
   return new Stream(Channel.unwrap(IO.succeedNow(Channel.write(c))));
@@ -1431,7 +1431,7 @@ export function fromChunk<O>(c: Lazy<Conc<O>>): Stream<unknown, never, O> {
 /**
  * Creates a single-valued stream from a managed resource
  *
- * @tsplus static fncts.control.StreamOps scoped
+ * @tsplus static fncts.io.StreamOps scoped
  */
 export function scoped<R, E, A>(stream: IO<R & Has<Scope>, E, A>): Stream<R, E, A> {
   return new Stream(Channel.scoped(stream.map(Conc.single)));
@@ -1440,7 +1440,7 @@ export function scoped<R, E, A>(stream: IO<R & Has<Scope>, E, A>): Stream<R, E, 
 /**
  * Creates a stream from an effect producing a value of type `A`
  *
- * @tsplus static fncts.control.StreamOps fromIO
+ * @tsplus static fncts.io.StreamOps fromIO
  */
 export function fromIO<R, E, A>(fa: IO<R, E, A>): Stream<R, E, A> {
   return Stream.fromIOMaybe(fa.mapError(Maybe.just));
@@ -1449,7 +1449,7 @@ export function fromIO<R, E, A>(fa: IO<R, E, A>): Stream<R, E, A> {
 /**
  * Creates a stream from an effect producing a value of type `A` or an empty Stream
  *
- * @tsplus static fncts.control.StreamOps fromIOMaybe
+ * @tsplus static fncts.io.StreamOps fromIOMaybe
  */
 export function fromIOMaybe<R, E, A>(fa: IO<R, Maybe<E>, A>): Stream<R, E, A> {
   return new Stream(
@@ -1479,14 +1479,14 @@ function fromAsyncIterableLoop<A>(
 }
 
 /**
- * @tsplus static fncts.control.StreamOps fromAsyncIterable
+ * @tsplus static fncts.io.StreamOps fromAsyncIterable
  */
 export function fromAsyncIterable<A>(iterable: AsyncIterable<A>): Stream<unknown, never, A> {
   return new Stream(fromAsyncIterableLoop(iterable[Symbol.asyncIterator]()));
 }
 
 /**
- * @tsplus static fncts.control.StreamOps fromIterable
+ * @tsplus static fncts.io.StreamOps fromIterable
  */
 export function fromIterable<A>(iterable: Iterable<A>, maxChunkSize = DEFAULT_CHUNK_SIZE): Stream<unknown, never, A> {
   return Stream.unwrap(
@@ -1518,7 +1518,7 @@ export function fromIterable<A>(iterable: Iterable<A>, maxChunkSize = DEFAULT_CH
 }
 
 /**
- * @tsplus static fncts.control.StreamOps fromIterableSingle
+ * @tsplus static fncts.io.StreamOps fromIterableSingle
  */
 export function fromIterableSingle<A>(iterable: Iterable<A>): Stream<unknown, never, A> {
   return Stream.fromIO(IO.succeed(iterable[Symbol.iterator]())).flatMap((iterator) =>
@@ -1536,7 +1536,7 @@ export function fromIterableSingle<A>(iterable: Iterable<A>): Stream<unknown, ne
 }
 
 /**
- * @tsplus static fncts.control.StreamOps fromPull
+ * @tsplus static fncts.io.StreamOps fromPull
  */
 export function fromPull<R, E, A>(scopedPull: IO<R & Has<Scope>, never, IO<R, Maybe<E>, Conc<A>>>): Stream<R, E, A> {
   return Stream.unwrapScoped(scopedPull.map((pull) => Stream.repeatIOChunkMaybe(pull)));
@@ -1545,7 +1545,7 @@ export function fromPull<R, E, A>(scopedPull: IO<R & Has<Scope>, never, IO<R, Ma
 /**
  * Creates a stream from a `Queue` of values
  *
- * @tsplus static fncts.control.StreamOps fromQueue
+ * @tsplus static fncts.io.StreamOps fromQueue
  */
 export function fromQueue_<R, E, O>(
   queue: PQueue<never, R, unknown, E, never, O>,
@@ -1568,7 +1568,7 @@ export function fromQueue_<R, E, O>(
 }
 
 /**
- * @tsplus static fncts.control.StreamOps fromQueueWithShutdown
+ * @tsplus static fncts.io.StreamOps fromQueueWithShutdown
  */
 export function fromQueueWithShutdown<R, E, A>(
   queue: PQueue<never, R, unknown, E, never, A>,
@@ -1580,7 +1580,7 @@ export function fromQueueWithShutdown<R, E, A>(
 /**
  * Halt a stream with the specified exception
  *
- * @tsplus static fncts.control.StreamOps haltNow
+ * @tsplus static fncts.io.StreamOps haltNow
  */
 export function haltNow(u: unknown): Stream<unknown, never, never> {
   return new Stream(Channel.halt(u));
@@ -1589,7 +1589,7 @@ export function haltNow(u: unknown): Stream<unknown, never, never> {
 /**
  * Halt a stream with the specified exception
  *
- * @tsplus static fncts.control.StreamOps halt
+ * @tsplus static fncts.io.StreamOps halt
  */
 export function halt(u: Lazy<unknown>): Stream<unknown, never, never> {
   return new Stream(Channel.halt(u));
@@ -1623,7 +1623,7 @@ function haltWhenWriter<R, E, A, R1, E1>(
  *
  * If the IO completes with a failure, the stream will emit that failure.
  *
- * @tsplus fluent fncts.control.Stream haltWhen
+ * @tsplus fluent fncts.io.Stream haltWhen
  */
 export function haltWhen_<R, E, A, R1, E1>(fa: Stream<R, E, A>, io: IO<R1, E1, any>): Stream<R & R1, E | E1, A> {
   return new Stream(Channel.unwrapScoped(io.forkScoped.map((fiber) => fa.channel.pipeTo(haltWhenWriter(fiber)))));
@@ -1652,14 +1652,14 @@ function haltWhenFutureWriter<R, E, A, E1>(
  *
  * If the promise completes with a failure, the stream will emit that failure.
  *
- * @tsplus fluent fncts.control.Stream haltWhen
+ * @tsplus fluent fncts.io.Stream haltWhen
  */
 export function haltWhenFuture_<R, E, A, E1>(fa: Stream<R, E, A>, future: Future<E1, any>): Stream<R, E | E1, A> {
   return new Stream(fa.channel.pipeTo(haltWhenFutureWriter(future)));
 }
 
 /**
- * @tsplus fluent fncts.control.Stream interleave
+ * @tsplus fluent fncts.io.Stream interleave
  */
 export function interleave_<R, E, A, R1, E1, B>(
   sa: Stream<R, E, A>,
@@ -1684,7 +1684,7 @@ function interleaveWithProducer<R, E, A>(handoff: Handoff<Take<E, A>>): Channel<
  * `b`. If either this stream or the specified stream are exhausted further
  * requests for values from that stream will be ignored.
  *
- * @tsplus fluent fncts.control.Stream interleaveWith
+ * @tsplus fluent fncts.io.Stream interleaveWith
  */
 export function interleaveWith_<R, E, A, R1, E1, B, R2, E2>(
   sa: Stream<R, E, A>,
@@ -1770,7 +1770,7 @@ export function intersperse_<R, E, A, A1>(stream: Stream<R, E, A>, middle: A1): 
  * If the IO completes with a failure before the stream completes, the returned stream
  * will emit that failure.
  *
- * @tsplus fluent fncts.control.Stream interruptWhen
+ * @tsplus fluent fncts.io.Stream interruptWhen
  */
 export function interruptWhen_<R, E, A, R1, E1>(
   stream: Stream<R, E, A>,
@@ -1780,7 +1780,7 @@ export function interruptWhen_<R, E, A, R1, E1>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream interruptWhen
+ * @tsplus fluent fncts.io.Stream interruptWhen
  */
 export function interruptWhenFuture_<R, E, A, E1>(
   fa: Stream<R, E, A>,
@@ -1792,7 +1792,7 @@ export function interruptWhenFuture_<R, E, A, E1>(
 /**
  * Loops over the stream chunks concatenating the result of f
  *
- * @tsplus fluent fncts.control.Stream loopOnChunks
+ * @tsplus fluent fncts.io.Stream loopOnChunks
  */
 export function loopOnChunks_<R, E, A, R1, E1, A1>(
   stream: Stream<R, E, A>,
@@ -1809,7 +1809,7 @@ export function loopOnChunks_<R, E, A, R1, E1, A1>(
 /**
  * Loops on chunks emitting partially
  *
- * @tsplus fluent fncts.control.Stream loopOnPartialChunks
+ * @tsplus fluent fncts.io.Stream loopOnPartialChunks
  */
 export function loopOnPartialChunks_<R, E, A, R1, E1, A1>(
   stream: Stream<R, E, A>,
@@ -1842,7 +1842,7 @@ export function loopOnPartialChunks_<R, E, A, R1, E1, A1>(
 /**
  * Loops on chunks elements emitting partially
  *
- * @tsplus fluent fncts.control.Stream loopOnPartialChunksElements
+ * @tsplus fluent fncts.io.Stream loopOnPartialChunksElements
  */
 export function loopOnPartialChunksElements_<R, E, A, R1, E1, A1>(
   stream: Stream<R, E, A>,
@@ -1854,7 +1854,7 @@ export function loopOnPartialChunksElements_<R, E, A, R1, E1, A1>(
 /**
  * Transforms the elements of this stream using the supplied function.
  *
- * @tsplus fluent fncts.control.Stream map
+ * @tsplus fluent fncts.io.Stream map
  */
 export function map_<R, E, A, B>(stream: Stream<R, E, A>, f: (o: A) => B): Stream<R, E, B> {
   return new Stream(stream.channel.mapOut((as) => as.map(f)));
@@ -1877,7 +1877,7 @@ function mapAccumAccumulator<S, E = never, A = never, B = never>(
 /**
  * Statefully maps over the elements of this stream to produce new elements.
  *
- * @tsplus fluent fncts.control.Stream mapAccum
+ * @tsplus fluent fncts.io.Stream mapAccum
  */
 export function mapAccum_<R, E, A, S, B>(
   stream: Stream<R, E, A>,
@@ -1920,7 +1920,7 @@ function mapAccumIOAccumulator<R, E, A, R1, E1, S, B>(
  * Statefully and effectfully maps over the elements of this stream to produce
  * new elements.
  *
- * @tsplus fluent fncts.control.Stream mapAccumIO
+ * @tsplus fluent fncts.io.Stream mapAccumIO
  */
 export function mapAccumIO_<R, E, A, R1, E1, S, B>(
   stream: Stream<R, E, A>,
@@ -1933,7 +1933,7 @@ export function mapAccumIO_<R, E, A, R1, E1, S, B>(
 /**
  * Transforms the chunks emitted by this stream.
  *
- * @tsplus fluent fncts.control.Stream mapChunks
+ * @tsplus fluent fncts.io.Stream mapChunks
  */
 export function mapChunks_<R, E, A, A1>(stream: Stream<R, E, A>, f: (chunk: Conc<A>) => Conc<A1>): Stream<R, E, A1> {
   return new Stream(stream.channel.mapOut(f));
@@ -1942,7 +1942,7 @@ export function mapChunks_<R, E, A, A1>(stream: Stream<R, E, A>, f: (chunk: Conc
 /**
  * Effectfully transforms the chunks emitted by this stream.
  *
- * @tsplus fluent fncts.control.Stream mapChunksIO
+ * @tsplus fluent fncts.io.Stream mapChunksIO
  */
 export function mapChunksIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -1955,7 +1955,7 @@ export function mapChunksIO_<R, E, A, R1, E1, B>(
  * Maps each element to an iterable, and flattens the iterables into the
  * output of this stream.
  *
- * @tsplus fluent fncts.control.Stream mapConcat
+ * @tsplus fluent fncts.io.Stream mapConcat
  */
 export function mapConcat_<R, E, A, B>(stream: Stream<R, E, A>, f: (a: A) => Iterable<B>): Stream<R, E, B> {
   return stream.mapConcatChunk((a) => Conc.from(f(a)));
@@ -1965,7 +1965,7 @@ export function mapConcat_<R, E, A, B>(stream: Stream<R, E, A>, f: (a: A) => Ite
  * Maps each element to a chunk, and flattens the chunks into the output of
  * this stream.
  *
- * @tsplus fluent fncts.control.Stream mapConcatChunk
+ * @tsplus fluent fncts.io.Stream mapConcatChunk
  */
 export function mapConcatChunk_<R, E, A, B>(stream: Stream<R, E, A>, f: (a: A) => Conc<B>): Stream<R, E, B> {
   return stream.mapChunks((c) => c.flatMap(f));
@@ -1975,7 +1975,7 @@ export function mapConcatChunk_<R, E, A, B>(stream: Stream<R, E, A>, f: (a: A) =
  * Effectfully maps each element to a chunk, and flattens the chunks into
  * the output of this stream.
  *
- * @tsplus fluent fncts.control.Stream mapConcatChunkIO
+ * @tsplus fluent fncts.io.Stream mapConcatChunkIO
  */
 export function mapConcatChunkIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -1988,7 +1988,7 @@ export function mapConcatChunkIO_<R, E, A, R1, E1, B>(
  * Effectfully maps each element to an iterable, and flattens the iterables into
  * the output of this stream.
  *
- * @tsplus fluent fncts.control.Stream mapConcatIO
+ * @tsplus fluent fncts.io.Stream mapConcatIO
  */
 export function mapConcatIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -2000,7 +2000,7 @@ export function mapConcatIO_<R, E, A, R1, E1, B>(
 /**
  * Transforms the errors emitted by this stream using `f`.
  *
- * @tsplus fluent fncts.control.Stream mapError
+ * @tsplus fluent fncts.io.Stream mapError
  */
 export function mapError_<R, E, E1, A>(stream: Stream<R, E, A>, f: (e: E) => E1): Stream<R, E1, A> {
   return new Stream(stream.channel.mapError(f));
@@ -2009,7 +2009,7 @@ export function mapError_<R, E, E1, A>(stream: Stream<R, E, A>, f: (e: E) => E1)
 /**
  * Transforms the full causes of failures emitted by this stream.
  *
- * @tsplus fluent fncts.control.Stream mapErrorCause
+ * @tsplus fluent fncts.io.Stream mapErrorCause
  */
 export function mapErrorCause_<R, E, A, E1>(fa: Stream<R, E, A>, f: (e: Cause<E>) => Cause<E1>): Stream<R, E1, A> {
   return new Stream(fa.channel.mapErrorCause(f));
@@ -2018,7 +2018,7 @@ export function mapErrorCause_<R, E, A, E1>(fa: Stream<R, E, A>, f: (e: Cause<E>
 /**
  * Maps over elements of the stream with the specified effectful function.
  *
- * @tsplus fluent fncts.control.Stream mapIO
+ * @tsplus fluent fncts.io.Stream mapIO
  */
 export function mapIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -2034,7 +2034,7 @@ export function mapIO_<R, E, A, R1, E1, B>(
  *
  * @note This combinator destroys the chunking structure. It's recommended to use chunkN afterwards.
  *
- * @tsplus fluent fncts.control.Stream mapIOC
+ * @tsplus fluent fncts.io.Stream mapIOC
  */
 export function mapIOC_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -2050,7 +2050,7 @@ export function mapIOC_<R, E, A, R1, E1, B>(
  * concurrently. Up to `bufferSize` elements of the produced streams may be
  * buffered in memory by this operator.
  *
- * @tsplus fluent fncts.control.Stream mergeMap
+ * @tsplus fluent fncts.io.Stream mergeMap
  */
 export function mergeMap_<R, E, A, R1, E1, B>(
   ma: Stream<R, E, A>,
@@ -2066,7 +2066,7 @@ export function mergeMap_<R, E, A, R1, E1, B>(
  * executing up to `n` invocations of `f` concurrently. The element order
  * is not enforced by this combinator, and elements may be reordered.
  *
- * @tsplus fluent fncts.control.Stream mergeMapIO
+ * @tsplus fluent fncts.io.Stream mergeMapIO
  */
 export function mergeMapIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
@@ -2078,7 +2078,7 @@ export function mergeMapIO_<R, E, A, R1, E1, B>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream mergeEither
+ * @tsplus fluent fncts.io.Stream mergeEither
  */
 export function mergeEither_<R, E, A, R1, E1, B>(
   fa: Stream<R, E, A>,
@@ -2097,7 +2097,7 @@ export function mergeWithHandler<R, E>(
 export type TerminationStrategy = "Left" | "Right" | "Both" | "Either";
 
 /**
- * @tsplus fluent fncts.control.Stream mergeWith
+ * @tsplus fluent fncts.io.Stream mergeWith
  */
 export function mergeWith_<R, E, A, R1, E1, A1, B, C>(
   sa: Stream<R, E, A>,
@@ -2122,7 +2122,7 @@ export function mergeWith_<R, E, A, R1, E1, A1, B, C>(
  *
  * Note: Unlike `IO.onError`, there is no guarantee that the provided effect will not be interrupted.
  *
- * @tsplus fluent fncts.control.Stream onError
+ * @tsplus fluent fncts.io.Stream onError
  */
 export function onError_<R, E, A, R1>(
   stream: Stream<R, E, A>,
@@ -2136,7 +2136,7 @@ export function onError_<R, E, A, R1>(
  *
  * See also Stream#catchAll
  *
- * @tsplus fluent fncts.control.Stream orElse
+ * @tsplus fluent fncts.io.Stream orElse
  */
 export function orElse_<R, E, A, R1, E1, A1>(
   stream: Stream<R, E, A>,
@@ -2150,7 +2150,7 @@ export function orElse_<R, E, A, R1, E1, A1>(
  *
  * See also ZStream#catchAll
  *
- * @tsplus fluent fncts.control.Stream orElseEither
+ * @tsplus fluent fncts.io.Stream orElseEither
  */
 export function orElseEither_<R, E, A, R1, E1, A1>(
   stream: Stream<R, E, A>,
@@ -2164,7 +2164,7 @@ export function orElseEither_<R, E, A, R1, E1, A1>(
  *
  * See also Stream#catchAll
  *
- * @tsplus fluent fncts.control.Stream orElseFail
+ * @tsplus fluent fncts.io.Stream orElseFail
  */
 export function orElseFail_<R, E, A, E1>(stream: Stream<R, E, A>, e: Lazy<E1>): Stream<R, E1, A> {
   return stream.orElse(Stream.failNow(e()));
@@ -2190,14 +2190,14 @@ export function orElseOptional_<R, E, A, R1, E1, A1>(
 /**
  * Succeeds with the specified value if this one fails with a typed error.
  *
- * @tsplus fluent fncts.control.Stream orElseSucceed
+ * @tsplus fluent fncts.io.Stream orElseSucceed
  */
 export function orElseSucceed_<R, E, A, A1>(stream: Stream<R, E, A>, a: Lazy<A1>): Stream<R, never, A | A1> {
   return stream.orElse(Stream.succeedNow(a()));
 }
 
 /**
- * @tsplus fluent fncts.control.Stream pipeThrough
+ * @tsplus fluent fncts.io.Stream pipeThrough
  */
 export function pipeThrough_<R, E, A, R1, E1, L, Z>(
   ma: Stream<R, E, A>,
@@ -2210,14 +2210,14 @@ export function pipeThrough_<R, E, A, R1, E1, L, Z>(
  * Provides the stream with its required environment, which eliminates
  * its dependency on `R`.
  *
- * @tsplus fluent fncts.control.Stream provideEnvironment
+ * @tsplus fluent fncts.io.Stream provideEnvironment
  */
 export function provideEnvironment_<R, E, A>(ra: Stream<R, E, A>, r: Environment<R>): Stream<unknown, E, A> {
   return new Stream(ra.channel.provideEnvironment(r));
 }
 
 /**
- * @tsplus fluent fncts.control.Stream provideLayer
+ * @tsplus fluent fncts.io.Stream provideLayer
  */
 export function provideLayer_<RIn, E, ROut, E1, A>(
   self: Stream<ROut, E, A>,
@@ -2228,7 +2228,7 @@ export function provideLayer_<RIn, E, ROut, E1, A>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream provideSomeLayer
+ * @tsplus fluent fncts.io.Stream provideSomeLayer
  */
 export function provideSomeLayer_<R, E, A, RIn, E1, ROut>(
   self: Stream<R, E, A>,
@@ -2312,7 +2312,7 @@ function rechunkProcess<E, In>(
  * `n` elements each.
  * The last chunk might contain less than `n` elements
  *
- * @tsplus fluent fncts.control.Stream rechunk
+ * @tsplus fluent fncts.io.Stream rechunk
  */
 export function rechunk_<R, E, A>(stream: Stream<R, E, A>, n: number): Stream<R, E, A> {
   return new Stream(stream.channel.pipeTo(rechunkProcess(new Rechunker(n), n)));
@@ -2321,7 +2321,7 @@ export function rechunk_<R, E, A>(stream: Stream<R, E, A>, n: number): Stream<R,
 /**
  * Repeats the provided value infinitely.
  *
- * @tsplus static fncts.control.StreamOps repeatValue
+ * @tsplus static fncts.io.StreamOps repeatValue
  */
 export function repeatValue<A>(a: A): Stream<unknown, never, A> {
   return new Stream(Channel.writeNow(Conc.single(a)).repeated);
@@ -2330,7 +2330,7 @@ export function repeatValue<A>(a: A): Stream<unknown, never, A> {
 /**
  * Creates a stream from an effect producing a value of type `A` which repeats forever.
  *
- * @tsplus static fncts.control.StreamOps repeatIO
+ * @tsplus static fncts.io.StreamOps repeatIO
  */
 export function repeatIO<R, E, A>(fa: IO<R, E, A>): Stream<R, E, A> {
   return Stream.repeatIOMaybe(fa.mapError(Maybe.just));
@@ -2339,7 +2339,7 @@ export function repeatIO<R, E, A>(fa: IO<R, E, A>): Stream<R, E, A> {
 /**
  * Creates a stream from an effect producing values of type `A` until it fails with None.
  *
- * @tsplus static fncts.control.StreamOps repeatIOMaybe
+ * @tsplus static fncts.io.StreamOps repeatIOMaybe
  */
 export function repeatIOMaybe<R, E, A>(fa: IO<R, Maybe<E>, A>): Stream<R, E, A> {
   return repeatIOChunkMaybe(fa.map(Conc.single));
@@ -2348,7 +2348,7 @@ export function repeatIOMaybe<R, E, A>(fa: IO<R, Maybe<E>, A>): Stream<R, E, A> 
 /**
  * Creates a stream from an effect producing chunks of `A` values which repeats forever.
  *
- * @tsplus static fncts.control.StreamOps repeatIOChunk
+ * @tsplus static fncts.io.StreamOps repeatIOChunk
  */
 export function repeatIOChunk<R, E, A>(fa: IO<R, E, Conc<A>>): Stream<R, E, A> {
   return repeatIOChunkMaybe(fa.mapError(Maybe.just));
@@ -2357,7 +2357,7 @@ export function repeatIOChunk<R, E, A>(fa: IO<R, E, Conc<A>>): Stream<R, E, A> {
 /**
  * Creates a stream from an effect producing chunks of `A` values until it fails with None.
  *
- * @tsplus static fncts.control.StreamOps repeatIOChunkMaybe
+ * @tsplus static fncts.io.StreamOps repeatIOChunkMaybe
  */
 export function repeatIOChunkMaybe<R, E, A>(fa: IO<R, Maybe<E>, Conc<A>>): Stream<R, E, A> {
   return Stream.unfoldChunkIO(undefined, (_) =>
@@ -2370,7 +2370,7 @@ export function repeatIOChunkMaybe<R, E, A>(fa: IO<R, Maybe<E>, Conc<A>>): Strea
 /**
  * Runs the sink on the stream to produce either the sink's result or an error.
  *
- * @tsplus fluent fncts.control.Stream run
+ * @tsplus fluent fncts.io.Stream run
  */
 export function run_<R, E, A, R2, E2, Z>(
   stream: Stream<R, E, A>,
@@ -2382,7 +2382,7 @@ export function run_<R, E, A, R2, E2, Z>(
 /**
  * Runs the stream and collects all of its elements to a chunk.
  *
- * @tsplus getter fncts.control.Stream runCollect
+ * @tsplus getter fncts.io.Stream runCollect
  */
 export function runCollect<R, E, A>(stream: Stream<R, E, A>): IO<R, E, Conc<A>> {
   return stream.run(Sink.collectAll());
@@ -2391,14 +2391,14 @@ export function runCollect<R, E, A>(stream: Stream<R, E, A>): IO<R, E, Conc<A>> 
 /**
  * Runs the stream and collects ignore its elements.
  *
- * @tsplus getter fncts.control.Stream runDrain
+ * @tsplus getter fncts.io.Stream runDrain
  */
 export function runDrain<R, E, A>(stream: Stream<R, E, A>): IO<R, E, void> {
   return stream.run(Sink.drain);
 }
 
 /**
- * @tsplus fluent fncts.control.Stream runForeachScoped
+ * @tsplus fluent fncts.io.Stream runForeachScoped
  */
 export function runForeachScoped_<R, E, A, R2, E2>(
   self: Stream<R, E, A>,
@@ -2411,7 +2411,7 @@ export function runForeachScoped_<R, E, A, R2, E2>(
  * Like `into`, but provides the result as a `Managed` to allow for scope
  * composition.
  *
- * @tsplus fluent fncts.control.Stream runIntoElementsScoped
+ * @tsplus fluent fncts.io.Stream runIntoElementsScoped
  */
 export function runIntoElementsScoped_<R, E, A, R1, E1>(
   stream: Stream<R, E, A>,
@@ -2435,7 +2435,7 @@ export function runIntoElementsScoped_<R, E, A, R1, E1>(
  * Like `Stream#into`, but provides the result as a `Managed` to allow for scope
  * composition.
  *
- * @tsplus fluent fncts.control.Stream runIntoQueueScoped
+ * @tsplus fluent fncts.io.Stream runIntoQueueScoped
  */
 export function runIntoQueueScoped_<R, R1, E extends E1, E1, A>(
   stream: Stream<R, E, A>,
@@ -2454,7 +2454,7 @@ export function runIntoQueueScoped_<R, R1, E extends E1, E1, A>(
  * Like `Stream#runIntoHub`, but provides the result as a `Managed` to allow for scope
  * composition.
  *
- * @tsplus fluent fncts.control.Stream runIntoHubScoped
+ * @tsplus fluent fncts.io.Stream runIntoHubScoped
  */
 export function runIntoHubScoped_<R, R1, E extends E1, E1, A>(
   stream: Stream<R, E, A>,
@@ -2466,7 +2466,7 @@ export function runIntoHubScoped_<R, R1, E extends E1, E1, A>(
 /**
  * Runs the sink on the stream to produce either the sink's result or an error.
  *
- * @tsplus fluent fncts.control.Stream runScoped
+ * @tsplus fluent fncts.io.Stream runScoped
  */
 export function runScoped_<R, E, A, R2, E2, Z>(
   stream: Stream<R, E, A>,
@@ -2479,7 +2479,7 @@ export function runScoped_<R, E, A, R2, E2, Z>(
  * Statefully maps over the elements of this stream to produce all intermediate results
  * of type `B` given an initial B.
  *
- * @tsplus fluent fncts.control.Stream scan
+ * @tsplus fluent fncts.io.Stream scan
  */
 export function scan_<R, E, A, B>(sa: Stream<R, E, A>, b: B, f: (b: B, a: A) => B): Stream<R, E, B> {
   return sa.scanIO(b, (b, a) => IO.succeedNow(f(b, a)));
@@ -2489,7 +2489,7 @@ export function scan_<R, E, A, B>(sa: Stream<R, E, A>, b: B, f: (b: B, a: A) => 
  * Statefully and effectfully maps over the elements of this stream to produce all
  * intermediate results of type `B` given an initial B.
  *
- * @tsplus fluent fncts.control.Stream scanIO
+ * @tsplus fluent fncts.io.Stream scanIO
  */
 export function scanIO_<R, E, A, R1, E1, B>(
   sa: Stream<R, E, A>,
@@ -2503,7 +2503,7 @@ export function scanIO_<R, E, A, R1, E1, B>(
  * Statefully maps over the elements of this stream to produce all
  * intermediate results.
  *
- * @tsplus fluent fncts.control.Stream scanReduce
+ * @tsplus fluent fncts.io.Stream scanReduce
  */
 export function scanReduce_<R, E, A extends B, B>(fa: Stream<R, E, A>, f: (b: B, a: A) => B): Stream<R, E, B> {
   return fa.scanReduceIO((b, a) => IO.succeedNow(f(b, a)));
@@ -2513,7 +2513,7 @@ export function scanReduce_<R, E, A extends B, B>(fa: Stream<R, E, A>, f: (b: B,
  * Statefully and effectfully maps over the elements of this stream to produce
  * all intermediate results.
  *
- * @tsplus fluent fncts.control.Stream scanReduceIO
+ * @tsplus fluent fncts.io.Stream scanReduceIO
  */
 export function scanReduceIO_<R, E, A extends B, R1, E1, B>(
   fa: Stream<R, E, A>,
@@ -2530,7 +2530,7 @@ export function scanReduceIO_<R, E, A extends B, R1, E1, B>(
 /**
  * Creates a single-valued pure stream
  *
- * @tsplus static fncts.control.StreamOps succeedNow
+ * @tsplus static fncts.io.StreamOps succeedNow
  */
 export function succeedNow<O>(o: O): Stream<unknown, never, O> {
   return fromChunkNow(Conc.single(o));
@@ -2539,7 +2539,7 @@ export function succeedNow<O>(o: O): Stream<unknown, never, O> {
 /**
  * Creates a single-valued pure stream
  *
- * @tsplus static fncts.control.StreamOps succeed
+ * @tsplus static fncts.io.StreamOps succeed
  */
 export function succeed<A>(a: Lazy<A>): Stream<unknown, never, A> {
   return fromChunk(Conc.single(a()));
@@ -2564,7 +2564,7 @@ function takeLoop<E, A>(n: number): Channel<unknown, E, Conc<A>, unknown, E, Con
 /**
  * Takes the specified number of elements from this stream.
  *
- * @tsplus fluent fncts.control.Stream take
+ * @tsplus fluent fncts.io.Stream take
  */
 export function take_<R, E, A>(stream: Stream<R, E, A>, n: number): Stream<R, E, A> {
   if (n <= 0) {
@@ -2577,7 +2577,7 @@ export function take_<R, E, A>(stream: Stream<R, E, A>, n: number): Stream<R, E,
 }
 
 /**
- * @tsplus fluent fncts.control.Stream takeUntilIO
+ * @tsplus fluent fncts.io.Stream takeUntilIO
  */
 export function takeUntilIO_<R, E, A, R1, E1>(
   ma: Stream<R, E, A>,
@@ -2610,14 +2610,14 @@ function takeUntilLoop<R, E, A>(p: Predicate<A>): Channel<R, E, Conc<A>, unknown
  * Takes all elements of the stream until the specified predicate evaluates
  * to `true`.
  *
- * @tsplus fluent fncts.control.Stream takeUntil
+ * @tsplus fluent fncts.io.Stream takeUntil
  */
 export function takeUntil_<R, E, A>(fa: Stream<R, E, A>, p: Predicate<A>): Stream<R, E, A> {
   return new Stream(fa.channel.pipeTo(takeUntilLoop(p)));
 }
 
 /**
- * @tsplus fluent fncts.control.Stream tap
+ * @tsplus fluent fncts.io.Stream tap
  */
 export function tap_<R, E, A, R1, E1>(ma: Stream<R, E, A>, f: (a: A) => IO<R1, E1, any>): Stream<R & R1, E | E1, A> {
   return ma.mapIO((a) => f(a).as(a));
@@ -2629,7 +2629,7 @@ export function tap_<R, E, A, R1, E1>(ma: Stream<R, E, A>, f: (a: A) => IO<R1, E
  * tokens up to a `units + burst` threshold. Chunks that do not meet the bandwidth constraints are dropped.
  * The weight of each chunk is determined by the `costFn` function.
  *
- * @tsplus fluent fncts.control.Stream throttleEnforce
+ * @tsplus fluent fncts.io.Stream throttleEnforce
  */
 export function throttleEnforce_<R, E, A>(
   sa: Stream<R, E, A>,
@@ -2680,7 +2680,7 @@ function throttleEnforceIOLoop<E, A, R1, E1>(
  * tokens up to a `units + burst` threshold. Chunks that do not meet the bandwidth constraints are dropped.
  * The weight of each chunk is determined by the `costFn` effectful function.
  *
- * @tsplus fluent fncts.control.Stream throttleEnforceIO
+ * @tsplus fluent fncts.io.Stream throttleEnforceIO
  */
 export function throttleEnforceIO_<R, E, A, R1, E1>(
   sa: Stream<R, E, A>,
@@ -2700,7 +2700,7 @@ export function throttleEnforceIO_<R, E, A, R1, E1>(
  * Converts the stream to a managed hub of chunks. After the managed hub is used,
  * the hub will never again produce values and should be discarded.
  *
- * @tsplus fluent fncts.control.Stream toHub
+ * @tsplus fluent fncts.io.Stream toHub
  */
 export function toHub_<R, E, A>(stream: Stream<R, E, A>, capacity: number): IO<R & Has<Scope>, never, Hub<Take<E, A>>> {
   return IO.gen(function* (_) {
@@ -2713,7 +2713,7 @@ export function toHub_<R, E, A>(stream: Stream<R, E, A>, capacity: number): IO<R
 /**
  * Interpret the stream as a managed pull
  *
- * @tsplus getter fncts.control.Stream toPull
+ * @tsplus getter fncts.io.Stream toPull
  */
 export function toPull<R, E, A>(stream: Stream<R, E, A>): IO<R & Has<Scope>, never, IO<R, Maybe<E>, Conc<A>>> {
   return stream.channel.toPull.map((io) =>
@@ -2725,7 +2725,7 @@ export function toPull<R, E, A>(stream: Stream<R, E, A>): IO<R & Has<Scope>, nev
  * Converts the stream to a managed queue of chunks. After the managed queue is used,
  * the queue will never again produce values and should be discarded.
  *
- * @tsplus fluent fncts.control.Stream toQueue
+ * @tsplus fluent fncts.io.Stream toQueue
  */
 export function toQueue_<R, E, A>(stream: Stream<R, E, A>, capacity = 2): IO<R & Has<Scope>, never, Queue<Take<E, A>>> {
   return IO.gen(function* (_) {
@@ -2736,7 +2736,7 @@ export function toQueue_<R, E, A>(stream: Stream<R, E, A>, capacity = 2): IO<R &
 }
 
 /**
- * @tsplus fluent fncts.control.Stream toQueueDropping
+ * @tsplus fluent fncts.io.Stream toQueueDropping
  */
 export function toQueueDropping_<R, E, A>(
   stream: Stream<R, E, A>,
@@ -2750,7 +2750,7 @@ export function toQueueDropping_<R, E, A>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream toQueueOfElements
+ * @tsplus fluent fncts.io.Stream toQueueOfElements
  */
 export function toQueueOfElements_<R, E, A>(
   stream: Stream<R, E, A>,
@@ -2764,7 +2764,7 @@ export function toQueueOfElements_<R, E, A>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream toQueueSliding
+ * @tsplus fluent fncts.io.Stream toQueueSliding
  */
 export function toQueueSliding_<R, E, A>(
   stream: Stream<R, E, A>,
@@ -2781,7 +2781,7 @@ export function toQueueSliding_<R, E, A>(
  * Converts the stream into an unbounded managed queue. After the managed queue
  * is used, the queue will never again produce values and should be discarded.
  *
- * @tsplus getter fncts.control.Stream toQueueUnbounded
+ * @tsplus getter fncts.io.Stream toQueueUnbounded
  */
 export function toQueueUnbounded<R, E, A>(stream: Stream<R, E, A>): IO<R & Has<Scope>, never, Queue<Take<E, A>>> {
   return IO.gen(function* (_) {
@@ -2808,7 +2808,7 @@ function unfoldChunkIOLoop<S, R, E, A>(
 /**
  * Creates a stream by effectfully peeling off the "layers" of a value of type `S`
  *
- * @tsplus static fncts.control.StreamOps unfoldChunkIO
+ * @tsplus static fncts.io.StreamOps unfoldChunkIO
  */
 export function unfoldChunkIO<R, E, A, S>(s: S, f: (s: S) => IO<R, E, Maybe<readonly [Conc<A>, S]>>): Stream<R, E, A> {
   return new Stream(unfoldChunkIOLoop(s, f));
@@ -2817,7 +2817,7 @@ export function unfoldChunkIO<R, E, A, S>(s: S, f: (s: S) => IO<R, E, Maybe<read
 /**
  * Creates a stream by effectfully peeling off the "layers" of a value of type `S`
  *
- * @tsplus static fncts.control.StreamOps unfoldIO
+ * @tsplus static fncts.io.StreamOps unfoldIO
  */
 export function unfoldIO<S, R, E, A>(s: S, f: (s: S) => IO<R, E, Maybe<readonly [A, S]>>): Stream<R, E, A> {
   return unfoldChunkIO(s, (_) => f(_).map((m) => m.map(([a, s]) => tuple(Conc.single(a), s))));
@@ -2834,14 +2834,14 @@ function unfoldChunkLoop<S, A>(
 }
 
 /**
- * @tsplus static fncts.control.StreamOps unfoldChunk
+ * @tsplus static fncts.io.StreamOps unfoldChunk
  */
 export function unfoldChunk<S, A>(s: S, f: (s: S) => Maybe<readonly [Conc<A>, S]>): Stream<unknown, never, A> {
   return new Stream(Channel.defer(unfoldChunkLoop(s, f)));
 }
 
 /**
- * @tsplus static fncts.control.StreamOps unfold
+ * @tsplus static fncts.io.StreamOps unfold
  */
 export function unfold<S, A>(s: S, f: (s: S) => Maybe<readonly [A, S]>): Stream<unknown, never, A> {
   return Stream.unfoldChunk(s, (s) => f(s).map(([a, s]) => tuple(Conc.single(a), s)));
@@ -2850,7 +2850,7 @@ export function unfold<S, A>(s: S, f: (s: S) => Maybe<readonly [A, S]>): Stream<
 /**
  * Creates a stream produced from an IO
  *
- * @tsplus static fncts.control.StreamOps unwrap
+ * @tsplus static fncts.io.StreamOps unwrap
  */
 export function unwrap<R, E, R1, E1, A>(stream: IO<R, E, Stream<R1, E1, A>>): Stream<R & R1, E | E1, A> {
   return Stream.fromIO(stream).flatten;
@@ -2859,7 +2859,7 @@ export function unwrap<R, E, R1, E1, A>(stream: IO<R, E, Stream<R1, E1, A>>): St
 /**
  * Creates a stream produced from a managed
  *
- * @tsplus static fncts.control.StreamOps unwrapScoped
+ * @tsplus static fncts.io.StreamOps unwrapScoped
  */
 export function unwrapScoped<R0, E0, R, E, A>(
   stream: IO<R0 & Has<Scope>, E0, Stream<R, E, A>>,
@@ -2876,7 +2876,7 @@ export function unwrapScoped<R0, E0, R, E, A>(
  * that emitted elements that are not the last value in chunks will never be
  * used for zipping.
  *
- * @tsplus fluent fncts.control.Stream zipWithLatest
+ * @tsplus fluent fncts.io.Stream zipWithLatest
  */
 export function zipWithLatest_<R, E, A, R1, E1, B, C>(
   fa: Stream<R, E, A>,

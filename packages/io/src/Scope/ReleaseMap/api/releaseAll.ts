@@ -1,7 +1,7 @@
 import { Exited, ReleaseMap } from "../definition.js";
 
 /**
- * @tsplus fluent fncts.control.Scope.ReleaseMap releaseAll
+ * @tsplus fluent fncts.io.Scope.ReleaseMap releaseAll
  */
 export function releaseAll_(releaseMap: ReleaseMap, exit: Exit<any, any>, execStrategy: ExecutionStrategy): UIO<any> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {

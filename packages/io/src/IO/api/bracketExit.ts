@@ -5,7 +5,7 @@
  * succeeds. If `use` fails, then after release, the returned IO will fail
  * with the same error.
  *
- * @tsplus fluent fncts.control.IO bracketExit
+ * @tsplus fluent fncts.io.IO bracketExit
  */
 export function bracketExit_<R, E, A, E1, R1, A1, R2, E2>(
   acquire: IO<R, E, A>,

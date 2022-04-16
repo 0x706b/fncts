@@ -11,7 +11,7 @@ import { Atomic } from "./definition.js";
 /**
  * Makes a new `TRef` that is initialized to the specified value.
  *
- * @tsplus static fncts.control.TRefOps makeNow
+ * @tsplus static fncts.io.TRefOps makeNow
  */
 export function makeNow<A>(a: A): STM<unknown, never, UTRef<A>> {
   return new Effect((journal) => {
@@ -27,7 +27,7 @@ export function makeNow<A>(a: A): STM<unknown, never, UTRef<A>> {
 /**
  * Makes a new `TRef` that is initialized to the specified value.
  *
- * @tsplus static fncts.control.TRefOps make
+ * @tsplus static fncts.io.TRefOps make
  */
 export function make<A>(a: Lazy<A>): STM<unknown, never, UTRef<A>> {
   return new Effect((journal) => {
@@ -43,7 +43,7 @@ export function make<A>(a: Lazy<A>): STM<unknown, never, UTRef<A>> {
 /**
  * Unsafely makes a new `TRef` that is initialized to the specified value.
  *
- * @tsplus static fncts.control.TRefOps unsafeMake
+ * @tsplus static fncts.io.TRefOps unsafeMake
  */
 export function unsafeMake<A>(a: A): UTRef<A> {
   const value     = a;
@@ -55,7 +55,7 @@ export function unsafeMake<A>(a: A): UTRef<A> {
 /**
  * Makes a new `TRef` that is initialized to the specified value.
  *
- * @tsplus static fncts.control.TRefOps makeCommit
+ * @tsplus static fncts.io.TRefOps makeCommit
  */
 export function makeCommit<A>(a: Lazy<A>): UIO<UTRef<A>> {
   return make(a).commit;

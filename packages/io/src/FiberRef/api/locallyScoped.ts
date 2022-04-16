@@ -2,7 +2,7 @@ import { matchTag_ } from "@fncts/base/util/pattern";
 import { concrete } from "@fncts/io/FiberRef/definition";
 
 /**
- * @tsplus fluent fncts.control.FiberRef locallyScoped
+ * @tsplus fluent fncts.io.FiberRef locallyScoped
  */
 export function locallyScoped_<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>, a: A): IO<Has<Scope>, EA, void> {
   concrete(fiberRef);

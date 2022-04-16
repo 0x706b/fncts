@@ -3,7 +3,7 @@ export interface Continue {
 }
 
 /**
- * @tsplus static fncts.control.Channel.ChildExecutorDecisionOps Continue
+ * @tsplus static fncts.io.Channel.ChildExecutorDecisionOps Continue
  */
 export const Continue: ChildExecutorDecision = {
   _tag: "Continue",
@@ -15,7 +15,7 @@ export interface Close {
 }
 
 /**
- * @tsplus static fncts.control.Channel.ChildExecutorDecisionOps Close
+ * @tsplus static fncts.io.Channel.ChildExecutorDecisionOps Close
  */
 export function Close(value: any): ChildExecutorDecision {
   return {
@@ -29,19 +29,19 @@ export interface Yield {
 }
 
 /**
- * @tsplus static fncts.control.Channel.ChildExecutorDecisionOps Yield
+ * @tsplus static fncts.io.Channel.ChildExecutorDecisionOps Yield
  */
 export const Yield: ChildExecutorDecision = {
   _tag: "Yield",
 };
 
 /**
- * @tsplus type fncts.control.Channel.ChildExecutorDecision
+ * @tsplus type fncts.io.Channel.ChildExecutorDecision
  */
 export type ChildExecutorDecision = Continue | Close | Yield;
 
 /**
- * @tsplus type fncts.control.Channel.ChildExecutorDecisionOps
+ * @tsplus type fncts.io.Channel.ChildExecutorDecisionOps
  */
 export interface ChildExecutorDecisionOps {}
 

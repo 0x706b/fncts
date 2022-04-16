@@ -2,7 +2,7 @@
  * Forks the workflow in the specified scope. The fiber will be interrupted
  * when the scope is closed.
  *
- * @tsplus fluent fncts.control.IO forkIn
+ * @tsplus fluent fncts.io.IO forkIn
  */
 export function forkIn_<R, E, A>(
   self: IO<R, E, A>,

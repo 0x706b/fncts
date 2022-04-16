@@ -28,8 +28,8 @@ import type { Driver as Driver_ } from "./Driver.js";
  * and the companion object for `Schedule` contains all common types of
  * schedules, both for performing retrying, as well as performing repetition.
  *
- * @tsplus type fncts.control.Schedule
- * @tsplus companion fncts.control.ScheduleOps
+ * @tsplus type fncts.io.Schedule
+ * @tsplus companion fncts.io.ScheduleOps
  */
 export abstract class Schedule<Env, In, Out> {
   readonly _Env!: (_: Env) => void;
@@ -48,7 +48,7 @@ export abstract class Schedule<Env, In, Out> {
 
 export declare namespace Schedule {
   /**
-   * @tsplus type fncts.control.Schedule
+   * @tsplus type fncts.io.Schedule
    */
   export interface WithState<State, Env, In, Out> extends Schedule<Env, In, Out> {
     readonly _State: State;

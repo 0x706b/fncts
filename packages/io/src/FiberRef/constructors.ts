@@ -4,7 +4,7 @@ import { identity } from "@fncts/base/data/function";
 import { RuntimeFiberRef } from "@fncts/io/FiberRef/definition";
 
 /**
- * @tsplus static fncts.control.FiberRefOps unsafeMake
+ * @tsplus static fncts.io.FiberRefOps unsafeMake
  */
 export function unsafeMake<A>(
   initial: A,
@@ -15,7 +15,7 @@ export function unsafeMake<A>(
 }
 
 /**
- * @tsplus static fncts.control.FiberRefOps make
+ * @tsplus static fncts.io.FiberRefOps make
  */
 export function make<A>(
   initial: A,
@@ -29,31 +29,31 @@ export function make<A>(
 }
 
 /**
- * @tsplus static fncts.control.FiberRefOps forkScopeOverride
+ * @tsplus static fncts.io.FiberRefOps forkScopeOverride
  */
 export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing());
 
 /**
- * @tsplus static fncts.control.FiberRefOps currentEnvironment
+ * @tsplus static fncts.io.FiberRefOps currentEnvironment
  */
 export const currentEnvironment = FiberRef.unsafeMake<Environment<unknown>>(Environment.empty, identity, (a, _) => a);
 
 /**
- * @tsplus static fncts.control.FiberRefOps fiberName
+ * @tsplus static fncts.io.FiberRefOps fiberName
  */
 export const fiberName = FiberRef.unsafeMake<Maybe<string>>(Nothing());
 
 /**
- * @tsplus static fncts.control.FiberRefOps currentLogLevel
+ * @tsplus static fncts.io.FiberRefOps currentLogLevel
  */
 export const currentLogLevel = FiberRef.unsafeMake<LogLevel>(LogLevel.Info);
 
 /**
- * @tsplus static fncts.control.FiberRefOps currentLogSpan
+ * @tsplus static fncts.io.FiberRefOps currentLogSpan
  */
 export const currentLogSpan = FiberRef.unsafeMake<List<LogSpan>>(Nil());
 
 /**
- * @tsplus static fncts.control.FiberRefOps currentLogAnnotations
+ * @tsplus static fncts.io.FiberRefOps currentLogAnnotations
  */
 export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>>(HashMap.makeDefault());

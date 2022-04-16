@@ -53,12 +53,12 @@ export interface SyntheticFiber<E, A> extends CommonFiber<E, A> {
 }
 
 /**
- * @tsplus type fncts.control.Fiber
+ * @tsplus type fncts.io.Fiber
  */
 export type Fiber<E, A> = RuntimeFiber<E, A> | SyntheticFiber<E, A>;
 
 /**
- * @tsplus type fncts.control.FiberOps
+ * @tsplus type fncts.io.FiberOps
  */
 export interface FiberOps {}
 

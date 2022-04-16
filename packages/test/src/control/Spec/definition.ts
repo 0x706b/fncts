@@ -4,8 +4,8 @@ import type { TestSuccess } from "../../data/TestSuccess.js";
 import type { _A, _E, _R } from "@fncts/base/types.js";
 
 /**
- * @tsplus type fncts.test.control.PSpec
- * @tsplus companion fncts.test.control.PSpecOps
+ * @tsplus type fncts.test.PSpec
+ * @tsplus companion fncts.test.PSpecOps
  */
 export class PSpec<R, E, T> {
   readonly _R!: (_: R) => void;
@@ -16,14 +16,14 @@ export class PSpec<R, E, T> {
 }
 
 /**
- * @tsplus type fncts.test.control.PSpecOps
+ * @tsplus type fncts.test.PSpecOps
  */
 export interface SpecOps {}
 
 export const Spec: SpecOps = {};
 
 /**
- * @tsplus type fncts.test.control.PSpec
+ * @tsplus type fncts.test.PSpec
  */
 export type Spec<R, E> = PSpec<R, TestFailure<E>, TestSuccess>;
 
@@ -36,7 +36,7 @@ export const enum SpecCaseTag {
 }
 
 /**
- * @tsplus companion fncts.test.control.PSpec.ExecCaseOps
+ * @tsplus companion fncts.test.PSpec.ExecCaseOps
  */
 export class ExecCase<Spec> {
   readonly _tag = SpecCaseTag.Exec;
@@ -44,7 +44,7 @@ export class ExecCase<Spec> {
 }
 
 /**
- * @tsplus companion fncts.test.control.PSpec.LabeledCaseOps
+ * @tsplus companion fncts.test.PSpec.LabeledCaseOps
  */
 export class LabeledCase<Spec> {
   readonly _tag = SpecCaseTag.Labeled;
@@ -52,7 +52,7 @@ export class LabeledCase<Spec> {
 }
 
 /**
- * @tsplus companion fncts.test.control.PSpec.ScopedCaseOps
+ * @tsplus companion fncts.test.PSpec.ScopedCaseOps
  */
 export class ScopedCase<R, E, Spec> {
   readonly _tag = SpecCaseTag.Scoped;
@@ -60,7 +60,7 @@ export class ScopedCase<R, E, Spec> {
 }
 
 /**
- * @tsplus companion fncts.test.control.PSpec.MultipleCaseOps
+ * @tsplus companion fncts.test.PSpec.MultipleCaseOps
  */
 export class MultipleCase<Spec> {
   readonly _tag = SpecCaseTag.Multiple;
@@ -68,7 +68,7 @@ export class MultipleCase<Spec> {
 }
 
 /**
- * @tsplus companion fncts.test.control.PSpec.TestCaseOps
+ * @tsplus companion fncts.test.PSpec.TestCaseOps
  */
 export class TestCase<R, E, T> {
   readonly _R!: (_: R) => void;
@@ -79,7 +79,7 @@ export class TestCase<R, E, T> {
 }
 
 /**
- * @tsplus type fncts.test.control.SpecCase
+ * @tsplus type fncts.test.SpecCase
  */
 export type SpecCase<R, E, T, A> =
   | ExecCase<A>
@@ -89,14 +89,14 @@ export type SpecCase<R, E, T, A> =
   | TestCase<R, E, T>;
 
 /**
- * @tsplus fluent fncts.test.control.SpecCase isMultiple
+ * @tsplus fluent fncts.test.SpecCase isMultiple
  */
 export function isMultiple<R, E, T, A>(self: SpecCase<R, E, T, A>): self is MultipleCase<A> {
   return self._tag === SpecCaseTag.Multiple;
 }
 
 /**
- * @tsplus unify fncts.test.control.PSpec
+ * @tsplus unify fncts.test.PSpec
  */
 export function unifyPSpec<X extends PSpec<any, any, any>>(_: X): PSpec<_R<X>, _E<X>, _A<X>> {
   return _;

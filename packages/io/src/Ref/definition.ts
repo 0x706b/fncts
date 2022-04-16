@@ -3,11 +3,11 @@ import type { Derived } from "./Derived.js";
 import type { DerivedAll } from "./DerivedAll.js";
 import type * as Synchro from "./Synchronized/definition.js";
 
-export const RefTypeId = Symbol.for("fncts.control.Ref");
+export const RefTypeId = Symbol.for("fncts.io.Ref");
 export type RefTypeId = typeof RefTypeId;
 
 /**
- * @tsplus type fncts.control.Ref
+ * @tsplus type fncts.io.Ref
  */
 export interface PRef<RA, RB, EA, EB, A, B> {
   readonly _U: RefTypeId;
@@ -36,7 +36,7 @@ export declare namespace Ref {
 }
 
 /**
- * @tsplus type fncts.control.RefOps
+ * @tsplus type fncts.io.RefOps
  */
 export interface RefOps {}
 

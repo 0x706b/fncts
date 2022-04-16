@@ -5,7 +5,7 @@ export const enum SinkEndReasonTag {
   UpstreamEnd = "UpstreamEnd",
 }
 
-export const SinkEndReasonTypeId = Symbol.for("fncts.control.Stream.SinkEndReason");
+export const SinkEndReasonTypeId = Symbol.for("fncts.io.Stream.SinkEndReason");
 
 export class SinkEnd {
   readonly _typeId: typeof SinkEndReasonTypeId = SinkEndReasonTypeId;
@@ -30,12 +30,12 @@ export class UpstreamEnd {
 }
 
 /**
- * @tsplus type fncts.control.Stream.SinkEndReason
+ * @tsplus type fncts.io.Stream.SinkEndReason
  */
 export type SinkEndReason<C> = SinkEnd | ScheduleTimeout | ScheduleEnd<C> | UpstreamEnd;
 
 /**
- * @tsplus fluent fncts.control.Stream.SinkEndReason match
+ * @tsplus fluent fncts.io.Stream.SinkEndReason match
  */
 export function matchSinkEndReason_<A, B, C, D, E>(
   self: SinkEndReason<A>,

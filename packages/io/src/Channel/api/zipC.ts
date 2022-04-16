@@ -1,7 +1,7 @@
 import { MergeDecision } from "@fncts/io/Channel/internal/MergeDecision";
 
 /**
- * @tsplus fluent fncts.control.Channel zipC
+ * @tsplus fluent fncts.io.Channel zipC
  */
 export function zipC_<
   Env,
@@ -38,7 +38,7 @@ export function zipC_<
 }
 
 /**
- * @tsplus fluent fncts.control.Channel zipFirstC
+ * @tsplus fluent fncts.io.Channel zipFirstC
  */
 export function zipFirstC_<
   Env,
@@ -71,7 +71,7 @@ export function zipFirstC_<
 }
 
 /**
- * @tsplus fluent fncts.control.Channel zipSecondC
+ * @tsplus fluent fncts.io.Channel zipSecondC
  */
 export function zipSecondC_<
   Env,

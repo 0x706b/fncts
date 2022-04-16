@@ -7,8 +7,8 @@ import { concrete } from "../definition.js";
  * the state in transforming the `set` value. This is a more powerful version
  * of `match` but requires unifying the error types.
  *
- * @tsplus fluent fncts.control.Ref matchAll
- * @tsplus fluent fncts.control.Ref.Synchronized matchAll
+ * @tsplus fluent fncts.io.Ref matchAll
+ * @tsplus fluent fncts.io.Ref.Synchronized matchAll
  */
 export function matchAll_<RA, RB, EA, EB, A, B, EC, ED, C, D>(
   ref: PRef<RA, RB, EA, EB, A, B>,

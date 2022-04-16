@@ -14,7 +14,7 @@ import { QueueInternal } from "@fncts/io/Queue";
 /**
  * Waits for the hub to be shut down.
  *
- * @tsplus getter fncts.control.Hub awaitShutdown
+ * @tsplus getter fncts.io.Hub awaitShutdown
  */
 export function awaitShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<void> {
   concrete(self);
@@ -24,7 +24,7 @@ export function awaitShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A
 /**
  * The maximum capacity of the hub.
  *
- * @tsplus getter fncts.control.Hub capacity
+ * @tsplus getter fncts.io.Hub capacity
  */
 export function capacity<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): number {
   concrete(self);
@@ -35,7 +35,7 @@ export function capacity<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>)
  * Transforms messages published to the hub using the specified effectual
  * function.
  *
- * @tsplus fluent fncts.control.Hub contramapIO
+ * @tsplus fluent fncts.io.Hub contramapIO
  */
 export function contramapIO_<RA, RB, RC, EA, EB, EC, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
@@ -73,7 +73,7 @@ class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
  * Transforms messages published to and taken from the hub using the
  * specified functions.
  *
- * @tsplus fluent fncts.control.Hub dimap
+ * @tsplus fluent fncts.io.Hub dimap
  */
 export function dimap_<RA, RB, EA, EB, A, B, C, D>(
   self: PHub<RA, RB, EA, EB, A, B>,
@@ -90,7 +90,7 @@ export function dimap_<RA, RB, EA, EB, A, B, C, D>(
  * Transforms messages published to and taken from the hub using the
  * specified effectual functions.
  *
- * @tsplus fluent fncts.control.Hub dimapIO
+ * @tsplus fluent fncts.io.Hub dimapIO
  */
 export function dimapIO_<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D>(
   source: PHub<RA, RB, EA, EB, A, B>,
@@ -120,7 +120,7 @@ class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA & RA
  * Filters messages published to the hub using the specified effectual
  * function.
  *
- * @tsplus fluent fncts.control.Hub filterInputIO
+ * @tsplus fluent fncts.io.Hub filterInputIO
  */
 export function filterInputIO_<RA, RA1, RB, EA, EA1, EB, A, B>(
   source: PHub<RA, RB, EA, EB, A, B>,
@@ -133,7 +133,7 @@ export function filterInputIO_<RA, RA1, RB, EA, EA1, EB, A, B>(
 /**
  * Filters messages published to the hub using the specified function.
  *
- * @tsplus fluent fncts.control.Hub filterInput
+ * @tsplus fluent fncts.io.Hub filterInput
  */
 export function filterInput_<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, f: (a: A) => boolean) {
   return self.filterInputIO((a) => IO.succeedNow(f(a)));
@@ -157,7 +157,7 @@ class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB
  * Filters messages taken from the hub using the specified effectual
  * function.
  *
- * @tsplus fluent fncts.control.Hub filterOutputIO
+ * @tsplus fluent fncts.io.Hub filterOutputIO
  */
 export function filterOutputIO_<RA, RB, RB1, EA, EB, EB1, A, B>(
   source: PHub<RA, RB, EA, EB, A, B>,
@@ -170,7 +170,7 @@ export function filterOutputIO_<RA, RB, RB1, EA, EB, EB1, A, B>(
 /**
  * Filters messages taken from the hub using the specified function.
  *
- * @tsplus fluent fncts.control.Hub filterOutput
+ * @tsplus fluent fncts.io.Hub filterOutput
  */
 export function filterOutput_<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
@@ -182,7 +182,7 @@ export function filterOutput_<RA, RB, EA, EB, A, B>(
 /**
  * Checks whether the hub is shut down.
  *
- * @tsplus getter fncts.control.Hub isShutdown
+ * @tsplus getter fncts.io.Hub isShutdown
  */
 export function isShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<boolean> {
   concrete(self);
@@ -196,7 +196,7 @@ export function isShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B
  *
  * For best performance use capacities that are powers of two.
  *
- * @tsplus static fncts.control.HubOps makeBounded
+ * @tsplus static fncts.io.HubOps makeBounded
  */
 export function makeBounded<A>(requestedCapacity: number): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) =>
@@ -210,7 +210,7 @@ export function makeBounded<A>(requestedCapacity: number): UIO<Hub<A>> {
  *
  * For best performance use capacities that are powers of two.
  *
- * @tsplus static fncts.control.HubOps makeDropping
+ * @tsplus static fncts.io.HubOps makeDropping
  */
 export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) => makeHubInternal(hub, new Dropping()));
@@ -222,7 +222,7 @@ export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
  *
  * For best performance use capacities that are powers of two.
  *
- * @tsplus static fncts.control.HubOps makeSliding
+ * @tsplus static fncts.io.HubOps makeSliding
  */
 export function makeSliding<A>(requestedCapacity: number): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) => makeHubInternal(hub, new Sliding()));
@@ -231,7 +231,7 @@ export function makeSliding<A>(requestedCapacity: number): UIO<Hub<A>> {
 /**
  * Creates an unbounded hub.
  *
- * @tsplus static fncts.control.HubOps makeUnbounded
+ * @tsplus static fncts.io.HubOps makeUnbounded
  */
 export function makeUnbounded<A>(): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeUnbounded<A>()).flatMap((hub) => makeHubInternal(hub, new Dropping()));
@@ -240,7 +240,7 @@ export function makeUnbounded<A>(): UIO<Hub<A>> {
 /**
  * Transforms messages taken from the hub using the specified function.
  *
- * @tsplus fluent fncts.control.Hub map
+ * @tsplus fluent fncts.io.Hub map
  */
 export function map_<RA, RB, EA, EB, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
@@ -253,7 +253,7 @@ export function map_<RA, RB, EA, EB, A, B, C>(
  * Transforms messages taken from the hub using the specified effectual
  * function.
  *
- * @tsplus fluent fncts.control.Hub mapIO
+ * @tsplus fluent fncts.io.Hub mapIO
  */
 export function mapIO_<RA, RB, RC, EA, EB, EC, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
@@ -282,7 +282,7 @@ class ToQueue<RA, RB, EA, EB, A, B> extends QueueInternal<RA, never, EA, unknown
  * Publishes a message to the hub, returning whether the message was
  * published to the hub.
  *
- * @tsplus fluent fncts.control.Hub publish
+ * @tsplus fluent fncts.io.Hub publish
  */
 export function publish_<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, a: A): IO<RA, EA, boolean> {
   concrete(self);
@@ -293,7 +293,7 @@ export function publish_<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>,
  * Publishes all of the specified messages to the hub, returning whether
  * they were published to the hub.
  *
- * @tsplus fluent fncts.control.Hub publishAll
+ * @tsplus fluent fncts.io.Hub publishAll
  */
 export function publishAll_<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
@@ -306,7 +306,7 @@ export function publishAll_<RA, RB, EA, EB, A, B>(
 /**
  * Shuts down the hub.
  *
- * @tsplus getter fncts.control.Hub shutdown
+ * @tsplus getter fncts.io.Hub shutdown
  */
 export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<void> {
   concrete(self);
@@ -318,7 +318,7 @@ export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>)
  * can be evaluated multiple times within the scope of the managed to take a
  * message from the hub each time.
  *
- * @tsplus getter fncts.control.Hub subscribe
+ * @tsplus getter fncts.io.Hub subscribe
  */
 export function subscribe<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
@@ -330,7 +330,7 @@ export function subscribe<RA, RB, EA, EB, A, B>(
 /**
  * The current number of messages in the hub.
  *
- * @tsplus getter fncts.control.Hub size
+ * @tsplus getter fncts.io.Hub size
  */
 export function size<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<number> {
   concrete(self);
@@ -340,7 +340,7 @@ export function size<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UI
 /**
  * Views the hub as a queue that can only be written to.
  *
- * @tsplus getter fncts.control.Hub toQueue
+ * @tsplus getter fncts.io.Hub toQueue
  */
 export function toQueue<RA, RB, EA, EB, A, B>(source: PHub<RA, RB, EA, EB, A, B>): Hub.Enqueue<RA, EA, A> {
   concrete(source);
@@ -354,7 +354,7 @@ export function toQueue<RA, RB, EA, EB, A, B>(source: PHub<RA, RB, EA, EB, A, B>
  *
  * For best performance use capacities that are powers of two.
  *
- * @tsplus static fncts.control.HubOps unsafeMakeBounded
+ * @tsplus static fncts.io.HubOps unsafeMakeBounded
  */
 export function unsafeMakeBounded<A>(requestedCapacity: number): Hub<A> {
   const scope = Scope.unsafeMake();
@@ -375,7 +375,7 @@ export function unsafeMakeBounded<A>(requestedCapacity: number): Hub<A> {
  *
  * For best performance use capacities that are powers of two.
  *
- * @tsplus static fncts.control.HubOps unsafeMakeDropping
+ * @tsplus static fncts.io.HubOps unsafeMakeDropping
  */
 export function unsafeMakeDropping<A>(requestedCapacity: number): Hub<A> {
   const scope = Scope.unsafeMake();
@@ -396,7 +396,7 @@ export function unsafeMakeDropping<A>(requestedCapacity: number): Hub<A> {
  *
  * For best performance use capacities that are powers of two.
  *
- * @tsplus static fncts.control.HubOps unsafeMakeSliding
+ * @tsplus static fncts.io.HubOps unsafeMakeSliding
  */
 export function unsafeMakeSliding<A>(requestedCapacity: number): Hub<A> {
   const scope = Scope.unsafeMake();
@@ -414,7 +414,7 @@ export function unsafeMakeSliding<A>(requestedCapacity: number): Hub<A> {
 /**
  * Creates an unbounded hub.
  *
- * @tsplus static fncts.control.HubOps unsafeMakeUnbounded
+ * @tsplus static fncts.io.HubOps unsafeMakeUnbounded
  */
 export function unsafeMakeUnbounded<A>(): Hub<A> {
   const scope = Scope.unsafeMake();

@@ -1,5 +1,5 @@
 /**
- * @tsplus getter fncts.control.IO forkScoped
+ * @tsplus getter fncts.io.IO forkScoped
  */
 export function forkScoped<R, E, A>(
   self: IO<R, E, A>,

@@ -3,7 +3,7 @@ interface FinalizerN extends HKT {
 }
 
 /**
- * @tsplus type fncts.control.Managed.Finalizer
+ * @tsplus type fncts.io.Managed.Finalizer
  */
 export interface Finalizer
   extends Newtype<
@@ -14,13 +14,13 @@ export interface Finalizer
   > {}
 
 /**
- * @tsplus type fncts.control.Managed.FinalizerOps
+ * @tsplus type fncts.io.Managed.FinalizerOps
  */
 export interface FinalizerOps extends Newtype.Iso<FinalizerN> {}
 
 export const Finalizer: FinalizerOps = Newtype<FinalizerN>();
 
 /**
- * @tsplus static fncts.control.Managed.FinalizerOps noop
+ * @tsplus static fncts.io.Managed.FinalizerOps noop
  */
 export const noop: Finalizer = Finalizer.get(() => IO.unit);

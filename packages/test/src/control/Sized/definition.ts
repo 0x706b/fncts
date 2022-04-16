@@ -1,6 +1,6 @@
 /**
- * @tsplus type fncts.test.control.Sized
- * @tsplus companion fncts.test.control.SizedOps
+ * @tsplus type fncts.test.Sized
+ * @tsplus companion fncts.test.SizedOps
  */
 export abstract class Sized {
   abstract readonly size: UIO<number>;
@@ -8,6 +8,6 @@ export abstract class Sized {
 }
 
 /**
- * @tsplus static fncts.test.control.SizedOps Tag
+ * @tsplus static fncts.test.SizedOps Tag
  */
 export const SizedTag = Tag<Sized>();

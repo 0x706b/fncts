@@ -1,5 +1,5 @@
 /**
- * @tsplus static fncts.control.IOOps addFinalizer
+ * @tsplus static fncts.io.IOOps addFinalizer
  */
 export function addFinalizer<R>(
   finalizer: Lazy<URIO<R, any>>,

@@ -4,8 +4,8 @@ import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 export type Annotated<A> = readonly [A, TestAnnotationMap];
 
 /**
- * @tsplus type fncts.test.control.Annotations
- * @tsplus companion fncts.test.control.AnnotationsOps
+ * @tsplus type fncts.test.Annotations
+ * @tsplus companion fncts.test.AnnotationsOps
  */
 export abstract class Annotations {
   abstract annotate<V>(key: TestAnnotation<V>, value: V): UIO<void>;
@@ -15,6 +15,6 @@ export abstract class Annotations {
 }
 
 /**
- * @tsplus static fncts.test.control.AnnotationsOps Tag
+ * @tsplus static fncts.test.AnnotationsOps Tag
  */
 export const AnnotationsTag = Tag<Annotations>();

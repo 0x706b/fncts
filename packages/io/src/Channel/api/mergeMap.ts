@@ -1,7 +1,7 @@
 import type { MergeStrategy } from "@fncts/io/Channel/api/mergeAllWith";
 
 /**
- * @tsplus fluent fncts.control.Channel mergeMap
+ * @tsplus fluent fncts.io.Channel mergeMap
  */
 export function mergeMap_<
   Env,

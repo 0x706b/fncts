@@ -7,7 +7,7 @@ export const enum ChannelStateTag {
   Read = "Read",
 }
 
-export const ChannelStateTypeId = Symbol.for("fncts.control.Channel.ChannelState");
+export const ChannelStateTypeId = Symbol.for("fncts.io.Channel.ChannelState");
 export type ChannelStateTypeId = typeof ChannelStateTypeId;
 
 export class Emit {

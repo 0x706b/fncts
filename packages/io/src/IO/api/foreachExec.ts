@@ -4,7 +4,7 @@
  *
  * For a sequential version of this method, see `foreach`.
  *
- * @tsplus static fncts.control.IOOps foreachExec
+ * @tsplus static fncts.io.IOOps foreachExec
  */
 export function foreachExec_<R, E, A, B>(
   as: Iterable<A>,

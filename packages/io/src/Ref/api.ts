@@ -16,8 +16,8 @@ export * from "./api/set.js";
 /**
  * Returns a read only view of the `Ref`.
  *
- * @tsplus getter fncts.control.Ref readOnly
- * @tsplus getter fncts.control.Ref.Synchronized readOnly
+ * @tsplus getter fncts.io.Ref readOnly
+ * @tsplus getter fncts.io.Ref.Synchronized readOnly
  */
 export function readOnly<RA, RB, EA, EB, A, B>(ref: PRef<RA, RB, EA, EB, A, B>): PRef<RA, RB, EA, EB, never, B> {
   return ref;
@@ -26,8 +26,8 @@ export function readOnly<RA, RB, EA, EB, A, B>(ref: PRef<RA, RB, EA, EB, A, B>):
 /**
  * Returns a write only view of the `Ref`.
  *
- * @tsplus getter fncts.control.Ref writeOnly
- * @tsplus getter fncts.control.Ref.Synchronized writeOnly
+ * @tsplus getter fncts.io.Ref writeOnly
+ * @tsplus getter fncts.io.Ref.Synchronized writeOnly
  */
 export function writeOnly<RA, RB, EA, EB, A, B>(ref: PRef<RA, RB, EA, EB, A, B>): PRef<RA, RB, EA, void, A, never> {
   return ref.match(

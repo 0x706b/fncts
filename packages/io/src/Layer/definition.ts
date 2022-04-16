@@ -1,9 +1,9 @@
-export const LayerHash = Symbol.for("fncts.control.Layer.Hash");
+export const LayerHash = Symbol.for("fncts.io.Layer.Hash");
 export type LayerHash = typeof LayerHash;
 
 /**
- * @tsplus type fncts.control.Layer
- * @tsplus companion fncts.control.LayerOps
+ * @tsplus type fncts.io.Layer
+ * @tsplus companion fncts.io.LayerOps
  */
 export abstract class Layer<RIn, E, ROut> {
   readonly _R!: (_: RIn) => void;
@@ -28,7 +28,7 @@ export type Concrete =
   | ZipWithC<any, any, any, any, any, any, any>;
 
 /**
- * @tsplus fluent fncts.control.Layer concrete
+ * @tsplus fluent fncts.io.Layer concrete
  */
 export function concrete(self: Layer<any, any, any>): asserts self is Concrete {
   //

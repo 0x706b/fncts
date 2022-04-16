@@ -9,8 +9,8 @@ import { concrete } from "../definition.js";
  * combinators implemented in terms of `match` will be more ergonomic but this
  * method is extremely useful for implementing new combinators.
  *
- * @tsplus fluent fncts.control.Ref match
- * @tsplus fluent fncts.control.Ref.Synchronized match
+ * @tsplus fluent fncts.io.Ref match
+ * @tsplus fluent fncts.io.Ref.Synchronized match
  */
 export function match_<RA, RB, EA, EB, A, B, EC, ED, C, D>(
   ref: PRef<RA, RB, EA, EB, A, B>,

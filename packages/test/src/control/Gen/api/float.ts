@@ -4,7 +4,7 @@ import { indexToFloat, MAX_VALUE_32, safeFloatToIndex } from "../../../util/math
 import { Gen } from "../definition.js";
 
 /**
- * @tsplus static fncts.test.control.GenOps float
+ * @tsplus static fncts.test.GenOps float
  */
 export function float(constraints: NumberConstraints & FloatConstraints = {}): Gen<Has<Random>, number> {
   const {

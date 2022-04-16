@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.Channel mapOutIOC
+ * @tsplus fluent fncts.io.Channel mapOutIOC
  */
 export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,

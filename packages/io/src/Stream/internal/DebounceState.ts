@@ -27,38 +27,38 @@ export class Current<E, A> {
 }
 
 /**
- * @tsplus type fncts.control.Stream.DebounceState
+ * @tsplus type fncts.io.Stream.DebounceState
  */
 export type DebounceState<E, A> = NotStarted | Previous<A> | Current<E, A>;
 
 /**
- * @tsplus type fncts.control.Stream.DebounceStateOps
+ * @tsplus type fncts.io.Stream.DebounceStateOps
  */
 export interface DebounceStateOps {}
 
 export const DebounceState: DebounceStateOps = {};
 
 /**
- * @tsplus static fncts.control.Stream.DebounceStateOps NotStarted
+ * @tsplus static fncts.io.Stream.DebounceStateOps NotStarted
  */
 export const notStarted: DebounceState<never, never> = new NotStarted();
 
 /**
- * @tsplus static fncts.control.Stream.DebounceStateOps Previous
+ * @tsplus static fncts.io.Stream.DebounceStateOps Previous
  */
 export function previous<A>(fiber: Fiber<never, Conc<A>>): DebounceState<never, A> {
   return new Previous(fiber);
 }
 
 /**
- * @tsplus static fncts.control.Stream.DebounceStateOps Current
+ * @tsplus static fncts.io.Stream.DebounceStateOps Current
  */
 export function current<E, A>(fiber: Fiber<E, HandoffSignal<void, E, A>>): DebounceState<E, A> {
   return new Current(fiber);
 }
 
 /**
- * @tsplus fluent fncts.control.Stream.DebounceState match
+ * @tsplus fluent fncts.io.Stream.DebounceState match
  */
 export function match_<E, A, B, C, D>(
   ds: DebounceState<E, A>,

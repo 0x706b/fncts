@@ -15,7 +15,7 @@ import { Spec } from "./definition.js";
 import { ExecCase, LabeledCase, MultipleCase, PSpec, ScopedCase, TestCase } from "./definition.js";
 
 /**
- * @tsplus getter fncts.test.control.PSpec annotated
+ * @tsplus getter fncts.test.PSpec annotated
  */
 export function annotated<R, E, T>(spec: PSpec<R, E, T>): PSpec<R & Has<Annotations>, Annotated<E>, Annotated<T>> {
   return spec.transform(
@@ -30,7 +30,7 @@ export function annotated<R, E, T>(spec: PSpec<R, E, T>): PSpec<R & Has<Annotati
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec combine
+ * @tsplus fluent fncts.test.PSpec combine
  */
 export function combine_<R, E, T, R1, E1, T1>(
   self: PSpec<R, E, T>,
@@ -49,7 +49,7 @@ export function combine_<R, E, T, R1, E1, T1>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec contramapEnvironment
+ * @tsplus fluent fncts.test.PSpec contramapEnvironment
  */
 export function contramapEnvironment_<R, E, T, R0>(
   self: PSpec<R, E, T>,
@@ -72,7 +72,7 @@ export function contramapEnvironment_<R, E, T, R0>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec countTests
+ * @tsplus fluent fncts.test.PSpec countTests
  */
 export function countTests_<R, E, T>(spec: PSpec<R, E, T>, f: (t: T) => boolean): IO<R & Has<Scope>, E, number> {
   return spec.fold(
@@ -87,20 +87,20 @@ export function countTests_<R, E, T>(spec: PSpec<R, E, T>, f: (t: T) => boolean)
 }
 
 /**
- * @tsplus static fncts.test.control.PSpecOps empty
+ * @tsplus static fncts.test.PSpecOps empty
  */
 export const empty: PSpec<unknown, never, never> = multipleCase(Conc.empty());
 
 /**
- * @tsplus static fncts.test.control.PSpecOps exec
- * @tsplus static fncts.test.control.PSpec.ExecCaseOps __call
+ * @tsplus static fncts.test.PSpecOps exec
+ * @tsplus static fncts.test.PSpec.ExecCaseOps __call
  */
 export function exec<R, E, T>(spec: PSpec<R, E, T>, exec: ExecutionStrategy): PSpec<R, E, T> {
   return new PSpec(new ExecCase(exec, spec));
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec execute
+ * @tsplus fluent fncts.test.PSpec execute
  */
 export function execute<R, E, T>(
   self: PSpec<R, E, T>,
@@ -112,7 +112,7 @@ export function execute<R, E, T>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec filterAnnotations
+ * @tsplus fluent fncts.test.PSpec filterAnnotations
  */
 export function filterAnnotations_<R, E, T, V>(
   spec: PSpec<R, E, T>,
@@ -133,7 +133,7 @@ export function filterAnnotations_<R, E, T, V>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec filterLabels
+ * @tsplus fluent fncts.test.PSpec filterLabels
  */
 export function filterLabels_<R, E, T>(spec: PSpec<R, E, T>, f: (label: string) => boolean): Maybe<PSpec<R, E, T>> {
   return matchTag_(spec.caseValue, {
@@ -150,14 +150,14 @@ export function filterLabels_<R, E, T>(spec: PSpec<R, E, T>, f: (label: string) 
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec filterTags
+ * @tsplus fluent fncts.test.PSpec filterTags
  */
 export function filterTags_<R, E, T>(spec: PSpec<R, E, T>, f: (tag: string) => boolean): Maybe<PSpec<R, E, T>> {
   return spec.filterAnnotations(TestAnnotation.Tagged, (v) => v.exists(f));
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec filterByArgs
+ * @tsplus fluent fncts.test.PSpec filterByArgs
  */
 export function filterByArgs<R, E>(spec: Spec<R, E>, args: TestArgs): Spec<R, E> {
   return spec
@@ -169,7 +169,7 @@ export function filterByArgs<R, E>(spec: Spec<R, E>, args: TestArgs): Spec<R, E>
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec fold
+ * @tsplus fluent fncts.test.PSpec fold
  */
 export function fold_<R, E, T, Z>(spec: PSpec<R, E, T>, f: (_: SpecCase<R, E, T, Z>) => Z): Z {
   return matchTag_(spec.caseValue, {
@@ -182,7 +182,7 @@ export function fold_<R, E, T, Z>(spec: PSpec<R, E, T>, f: (_: SpecCase<R, E, T,
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec foldScoped
+ * @tsplus fluent fncts.test.PSpec foldScoped
  */
 export function foldScoped_<R, E, T, R1, E1, Z>(
   spec: PSpec<R, E, T>,
@@ -206,7 +206,7 @@ export function foldScoped_<R, E, T, R1, E1, Z>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec foreachExec
+ * @tsplus fluent fncts.test.PSpec foreachExec
  */
 export function foreachExec_<R, E, T, R1, E1, A, R2, E2, B>(
   spec: PSpec<R, E, T>,
@@ -235,25 +235,25 @@ export function foreachExec_<R, E, T, R1, E1, A, R2, E2, B>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec labeled
- * @tsplus static fncts.test.control.PSpecOps labeled
- * @tsplus static fncts.test.control.PSpec.LabeledCaseOps __call
+ * @tsplus fluent fncts.test.PSpec labeled
+ * @tsplus static fncts.test.PSpecOps labeled
+ * @tsplus static fncts.test.PSpec.LabeledCaseOps __call
  */
 export function labeledCase<R, E, T>(spec: PSpec<R, E, T>, label: string): PSpec<R, E, T> {
   return new PSpec(new LabeledCase(label, spec));
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec scoped
- * @tsplus static fncts.test.control.PSpecOps scoped
- * @tsplus static fncts.test.control.PSpec.ScopedCaseOps __call
+ * @tsplus fluent fncts.test.PSpec scoped
+ * @tsplus static fncts.test.PSpecOps scoped
+ * @tsplus static fncts.test.PSpec.ScopedCaseOps __call
  */
 export function scoped<R, E, T>(managed: IO<R & Has<Scope>, E, PSpec<R, E, T>>): PSpec<R, E, T> {
   return new PSpec(new ScopedCase(managed));
 }
 
 /**
- * @tsplus fluent fncts.test.control.SpecCase mapError
+ * @tsplus fluent fncts.test.SpecCase mapError
  */
 export function mapError<R, E, T, E1>(self: PSpec<R, E, T>, f: (e: E) => E1): PSpec<R, E1, T> {
   return self.transform(
@@ -268,7 +268,7 @@ export function mapError<R, E, T, E1>(self: PSpec<R, E, T>, f: (e: E) => E1): PS
 }
 
 /**
- * @tsplus fluent fncts.test.control.SpecCase map
+ * @tsplus fluent fncts.test.SpecCase map
  */
 export function mapSpecCase_<R, E, T, A, B>(fa: SpecCase<R, E, T, A>, f: (a: A) => B): SpecCase<R, E, T, B> {
   return matchTag_(fa, {
@@ -281,23 +281,23 @@ export function mapSpecCase_<R, E, T, A, B>(fa: SpecCase<R, E, T, A>, f: (a: A) 
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec multiple
- * @tsplus static fncts.test.control.PSpecOps multiple
- * @tsplus static fncts.test.control.PSpec.MultipleCaseOps __call
+ * @tsplus fluent fncts.test.PSpec multiple
+ * @tsplus static fncts.test.PSpecOps multiple
+ * @tsplus static fncts.test.PSpec.MultipleCaseOps __call
  */
 export function multipleCase<R, E, T>(specs: Conc<PSpec<R, E, T>>): PSpec<R, E, T> {
   return new PSpec(new MultipleCase(specs));
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec provideEnvironment
+ * @tsplus fluent fncts.test.PSpec provideEnvironment
  */
 export function provideEnvironment_<R, E, T>(self: PSpec<R, E, T>, r: Environment<R>): PSpec<unknown, E, T> {
   return self.contramapEnvironment(() => r);
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec provideLayer
+ * @tsplus fluent fncts.test.PSpec provideLayer
  */
 export function provideLayer_<RIn, E, ROut extends Spreadable, R, E1, T>(
   self: PSpec<ROut, E1, T>,
@@ -315,16 +315,16 @@ export function provideLayer_<RIn, E, ROut extends Spreadable, R, E1, T>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec test
- * @tsplus static fncts.test.control.PSpecOps test
- * @tsplus static fncts.test.control.PSpec.TestCaseOps __call
+ * @tsplus fluent fncts.test.PSpec test
+ * @tsplus static fncts.test.PSpecOps test
+ * @tsplus static fncts.test.PSpec.TestCaseOps __call
  */
 export function testCase<R, E, T>(test: IO<R, E, T>, annotations: TestAnnotationMap): PSpec<R, E, T> {
   return new PSpec(new TestCase(test, annotations));
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec transform
+ * @tsplus fluent fncts.test.PSpec transform
  */
 export function transform_<R, E, T, R1, E1, T1>(
   spec: PSpec<R, E, T>,
@@ -340,7 +340,7 @@ export function transform_<R, E, T, R1, E1, T1>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec annotate
+ * @tsplus fluent fncts.test.PSpec annotate
  */
 export function annotate_<R, E, T, V>(self: PSpec<R, E, T>, key: TestAnnotation<V>, value: V): PSpec<R, E, T> {
   return self.transform(
@@ -354,7 +354,7 @@ export function annotate_<R, E, T, V>(self: PSpec<R, E, T>, key: TestAnnotation<
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec whenIO
+ * @tsplus fluent fncts.test.PSpec whenIO
  */
 export function whenIO_<R, E, R1, E1>(
   self: PSpec<R, E, TestSuccess>,
@@ -374,7 +374,7 @@ export function whenIO_<R, E, R1, E1>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.PSpec when
+ * @tsplus fluent fncts.test.PSpec when
  */
 export function when_<R, E>(
   self: PSpec<R, E, TestSuccess>,

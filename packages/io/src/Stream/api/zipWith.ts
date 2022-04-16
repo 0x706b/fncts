@@ -1,7 +1,7 @@
 import { zipChunks } from "../internal/util.js";
 
 /**
- * @tsplus fluent fncts.control.Stream zipWith
+ * @tsplus fluent fncts.io.Stream zipWith
  */
 export function zipWith_<R, E, A, R1, E1, B, C>(
   self: Stream<R, E, A>,

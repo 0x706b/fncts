@@ -5,7 +5,7 @@ import { Derived } from "../Derived.js";
 import { DerivedAll } from "../DerivedAll.js";
 
 /**
- * @tsplus type fncts.control.Ref.Atomic
+ * @tsplus type fncts.io.Ref.Atomic
  */
 export class Atomic<A> extends RefInternal<unknown, unknown, never, never, A, A> {
   readonly _tag = "Atomic";

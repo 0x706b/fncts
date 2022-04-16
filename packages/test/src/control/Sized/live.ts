@@ -1,7 +1,7 @@
 import { Sized } from "./definition.js";
 
 /**
- * @tsplus static fncts.test.control.SizedOps Live
+ * @tsplus static fncts.test.SizedOps Live
  */
 export function Live(size: number): Layer<unknown, never, Has<Sized>> {
   return Layer.fromIO(

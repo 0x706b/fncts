@@ -1,5 +1,5 @@
 /**
- * @tsplus getter fncts.control.IO memoize
+ * @tsplus getter fncts.io.IO memoize
  */
 export function memoize<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): UIO<IO<R, E, A>> {
   return IO.gen(function* (_) {

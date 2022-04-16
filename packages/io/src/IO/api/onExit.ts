@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.IO onExit
+ * @tsplus fluent fncts.io.IO onExit
  */
 export function onExit_<R, E, A, R1, E1>(
   self: IO<R, E, A>,

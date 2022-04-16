@@ -2,7 +2,7 @@
  * A fully-featured, but much slower version of `evalOn`, which is useful
  * when environment and error are required.
  *
- * @tsplus fluent fncts.control.Fiber evalOnIO
+ * @tsplus fluent fncts.io.Fiber evalOnIO
  */
 export function evalOnIO_<E, A, R1, E1, B, R2, E2, C>(
   fiber: Fiber<E, A>,

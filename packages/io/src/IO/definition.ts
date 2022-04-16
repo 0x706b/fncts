@@ -1,12 +1,12 @@
 import type { Trace as Trace_ } from "@fncts/base/data/Trace";
 import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
 
-export const IOTypeId = Symbol.for("fncts.control.IO");
+export const IOTypeId = Symbol.for("fncts.io.IO");
 export type IOTypeId = typeof IOTypeId;
 
 /**
- * @tsplus type fncts.control.IO
- * @tsplus companion fncts.control.IOOps
+ * @tsplus type fncts.io.IO
+ * @tsplus companion fncts.io.IOOps
  */
 export abstract class IO<R, E, A> {
   readonly _typeId: IOTypeId = IOTypeId;
@@ -16,17 +16,17 @@ export abstract class IO<R, E, A> {
 }
 
 /**
- * @tsplus type fncts.control.IOAspects
+ * @tsplus type fncts.io.IOAspects
  */
 export interface IOAspects {}
 
 /**
- * @tsplus static fncts.control.IOOps $
+ * @tsplus static fncts.io.IOOps $
  */
 export const IOAspects: IOAspects = {};
 
 /**
- * @tsplus unify fncts.control.IO
+ * @tsplus unify fncts.io.IO
  */
 export function unifyIO<X extends IO<any, any, any>>(
   self: X,
@@ -417,7 +417,7 @@ export function concrete(_: IO<any, any, any>): Instruction {
 
 export type Canceler<R> = URIO<R, void>;
 
-export const IOErrorTypeId = Symbol.for("fncts.control.IO.IOError");
+export const IOErrorTypeId = Symbol.for("fncts.io.IO.IOError");
 export type IOErrorTypeId = typeof IOErrorTypeId;
 
 export class IOError<E, A> {

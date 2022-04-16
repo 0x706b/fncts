@@ -15,31 +15,31 @@ export class Done {
 }
 
 /**
- * @tsplus type fncts.control.Schedule.Decision
+ * @tsplus type fncts.io.Schedule.Decision
  */
 export type Decision = Continue | Done;
 
 /**
- * @tsplus type fncts.control.Schedule.DecisionOps
+ * @tsplus type fncts.io.Schedule.DecisionOps
  */
 export interface DecisionOps {}
 
 export const Decision: DecisionOps = {};
 
 /**
- * @tsplus static fncts.control.Schedule.DecisionOps Done
+ * @tsplus static fncts.io.Schedule.DecisionOps Done
  */
 export const done: Decision = new Done();
 
 /**
- * @tsplus static fncts.control.Schedule.DecisionOps Continue
+ * @tsplus static fncts.io.Schedule.DecisionOps Continue
  */
 export function continue_(interval: Interval): Decision {
   return new Continue(interval);
 }
 
 /**
- * @tsplus fluent fncts.control.Schedule.Decision match
+ * @tsplus fluent fncts.io.Schedule.Decision match
  */
 export function match_<A, B>(self: Decision, onDone: () => A, onContinue: (interval: Interval) => B): A | B {
   switch (self._tag) {

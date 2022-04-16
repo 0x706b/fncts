@@ -3,7 +3,7 @@ import { identity, tuple } from "@fncts/base/data/function";
 import { concrete } from "@fncts/io/FiberRef/definition";
 
 /**
- * @tsplus fluent fncts.control.FiberRef modify
+ * @tsplus fluent fncts.io.FiberRef modify
  */
 export function modify_<EA, EB, A, B>(self: PFiberRef<EA, EB, A, A>, f: (a: A) => readonly [B, A]): FIO<EA | EB, B> {
   concrete(self);
@@ -45,42 +45,42 @@ export function modify_<EA, EB, A, B>(self: PFiberRef<EA, EB, A, A>, f: (a: A) =
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef update
+ * @tsplus fluent fncts.io.FiberRef update
  */
 export function update_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, f: (a: A) => A): FIO<EA | EB, void> {
   return fiberRef.modify((a) => [undefined, f(a)]);
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef set
+ * @tsplus fluent fncts.io.FiberRef set
  */
 export function set_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, a: A): FIO<EA, void> {
   return fiberRef.set(a);
 }
 
 /**
- * @tsplus getter fncts.control.FiberRef get
+ * @tsplus getter fncts.io.FiberRef get
  */
 export function get<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>): FIO<EB, B> {
   return fiberRef.get;
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef getAndSet
+ * @tsplus fluent fncts.io.FiberRef getAndSet
  */
 export function getAndSet_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, a: A): FIO<EA | EB, A> {
   return fiberRef.modify((v) => [v, a]);
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef getAndUpdate
+ * @tsplus fluent fncts.io.FiberRef getAndUpdate
  */
 export function getAndUpdate_<EA, EB, A>(fiberRef: PFiberRef<EA, EB, A, A>, f: (a: A) => A): FIO<EA | EB, A> {
   return fiberRef.modify((a) => [a, f(a)]);
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef getAndUpdateJust
+ * @tsplus fluent fncts.io.FiberRef getAndUpdateJust
  */
 export function getAndUpdateJust_<EA, EB, A>(
   fiberRef: PFiberRef<EA, EB, A, A>,
@@ -94,7 +94,7 @@ export function getAndUpdateJust_<EA, EB, A>(
  *
  * Guarantees that fiber data is properly restored via `bracket`.
  *
- * @tsplus fluent fncts.control.FiberRef locally
+ * @tsplus fluent fncts.io.FiberRef locally
  */
 export function locally_<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>, value: A) {
   return <R1, E1, C>(use: IO<R1, E1, C>): IO<R1, EA | E1, C> => {
@@ -107,14 +107,14 @@ export function locally_<EA, EB, A, B>(fiberRef: PFiberRef<EA, EB, A, B>, value:
  *
  * Guarantees that fiber data is properly restored via `bracket`.
  *
- * @tsplus fluent fncts.control.FiberRef locallyWith
+ * @tsplus fluent fncts.io.FiberRef locallyWith
  */
 export function locallyWith_<EA, EB, A>(self: PFiberRef<EA, EB, A, A>, f: (a: A) => A) {
   return <R1, E1, C>(use: IO<R1, E1, C>): IO<R1, EA | EB | E1, C> => self.getWith((a) => self.locally(f(a))(use));
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef getWith
+ * @tsplus fluent fncts.io.FiberRef getWith
  */
 export function getWith_<EA, EB, A, B, R, E, C>(
   fiberRef: PFiberRef<EA, EB, A, B>,
@@ -130,7 +130,7 @@ export function getWith_<EA, EB, A, B, R, E, C>(
  */
 
 /**
- * @tsplus fluent fncts.control.FiberRef match
+ * @tsplus fluent fncts.io.FiberRef match
  */
 export function match_<EA, EB, A, B, EC, ED, C, D>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -143,7 +143,7 @@ export function match_<EA, EB, A, B, EC, ED, C, D>(
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef matchAll
+ * @tsplus fluent fncts.io.FiberRef matchAll
  */
 export function matchAll_<EA, EB, A, B, EC, ED, C, D>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -163,7 +163,7 @@ export function matchAll_<EA, EB, A, B, EC, ED, C, D>(
  */
 
 /**
- * @tsplus fluent fncts.control.FiberRef dimapEither
+ * @tsplus fluent fncts.io.FiberRef dimapEither
  */
 export function dimapEither_<EA, EB, A, B, EC, ED, C, D>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -179,7 +179,7 @@ export function dimapEither_<EA, EB, A, B, EC, ED, C, D>(
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef dimap
+ * @tsplus fluent fncts.io.FiberRef dimap
  */
 export function dimap_<EA, EB, A, B, C, D>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -193,7 +193,7 @@ export function dimap_<EA, EB, A, B, C, D>(
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef dimapError
+ * @tsplus fluent fncts.io.FiberRef dimapError
  */
 export function dimapError_<EA, EB, A, B, EC, ED>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -210,7 +210,7 @@ export function dimapError_<EA, EB, A, B, EC, ED>(
  */
 
 /**
- * @tsplus fluent fncts.control.FiberRef contramapEither
+ * @tsplus fluent fncts.io.FiberRef contramapEither
  */
 export function contramapEither_<EA, EB, A, B, EC, C>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -220,7 +220,7 @@ export function contramapEither_<EA, EB, A, B, EC, C>(
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef contramap
+ * @tsplus fluent fncts.io.FiberRef contramap
  */
 export function contramap_<EA, EB, A, B, C>(ref: PFiberRef<EA, EB, A, B>, f: (inp: C) => A): PFiberRef<EA, EB, C, B> {
   return ref.contramapEither((c) => Either.right(f(c)));
@@ -233,7 +233,7 @@ export function contramap_<EA, EB, A, B, C>(ref: PFiberRef<EA, EB, A, B>, f: (in
  */
 
 /**
- * @tsplus fluent fncts.control.FiberRef filterMap
+ * @tsplus fluent fncts.io.FiberRef filterMap
  */
 export function filterMap_<EA, EB, A, B, C>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -243,7 +243,7 @@ export function filterMap_<EA, EB, A, B, C>(
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef filterInput
+ * @tsplus fluent fncts.io.FiberRef filterInput
  */
 export function filterInput_<EA, EB, A, B>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -253,7 +253,7 @@ export function filterInput_<EA, EB, A, B>(
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef filterOutput
+ * @tsplus fluent fncts.io.FiberRef filterOutput
  */
 export function filterOutput_<EA, EB, A, B>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -269,7 +269,7 @@ export function filterOutput_<EA, EB, A, B>(
  */
 
 /**
- * @tsplus fluent fncts.control.FiberRef mapEither
+ * @tsplus fluent fncts.io.FiberRef mapEither
  */
 export function mapEither_<EA, EB, A, B, EC, C>(
   ref: PFiberRef<EA, EB, A, B>,
@@ -279,7 +279,7 @@ export function mapEither_<EA, EB, A, B, EC, C>(
 }
 
 /**
- * @tsplus fluent fncts.control.FiberRef map
+ * @tsplus fluent fncts.io.FiberRef map
  */
 export function map_<EA, EB, A, B, C>(ref: PFiberRef<EA, EB, A, B>, f: (out: B) => C): PFiberRef<EA, EB, A, C> {
   return ref.mapEither((b) => Either.right(f(b)));

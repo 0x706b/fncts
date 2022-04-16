@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.Supervisor zip
+ * @tsplus fluent fncts.io.Supervisor zip
  */
 export function zip_<A, B>(fa: Supervisor<A>, fb: Supervisor<B>): Supervisor<readonly [A, B]> {
   return new (class extends Supervisor<readonly [A, B]> {

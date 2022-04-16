@@ -47,7 +47,7 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
  * Transforms elements enqueued into and dequeued from this queue with the
  * specified effectual functions.
  *
- * @tsplus fluent fncts.control.Queue dimap
+ * @tsplus fluent fncts.io.Queue dimap
  */
 export function dimap_<RA, RB, EA, EB, A, B, C, D>(self: PQueue<RA, RB, EA, EB, A, B>, f: (c: C) => A, g: (b: B) => D) {
   return self.dimapIO(
@@ -60,7 +60,7 @@ export function dimap_<RA, RB, EA, EB, A, B, C, D>(self: PQueue<RA, RB, EA, EB, 
  * Transforms elements enqueued into and dequeued from this queue with the
  * specified effectual functions.
  *
- * @tsplus fluent fncts.control.Queue dimapIO
+ * @tsplus fluent fncts.io.Queue dimapIO
  */
 export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
@@ -74,7 +74,7 @@ export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
 /**
  * Transforms elements enqueued into this queue with an effectful function.
  *
- * @tsplus fluent fncts.control.Queue contramapIO
+ * @tsplus fluent fncts.io.Queue contramapIO
  */
 export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
@@ -86,7 +86,7 @@ export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
 /**
  * Transforms elements enqueued into this queue with an effectful function.
  *
- * @tsplus fluent fncts.control.Queue contramap
+ * @tsplus fluent fncts.io.Queue contramap
  */
 export function contramap_<RA, RB, EA, EB, A, B, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
@@ -98,7 +98,7 @@ export function contramap_<RA, RB, EA, EB, A, B, C>(
 /**
  * Transforms elements dequeued from this queue with an effectful function.
  *
- * @tsplus fluent fncts.control.Queue mapIO
+ * @tsplus fluent fncts.io.Queue mapIO
  */
 export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
@@ -110,7 +110,7 @@ export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
 /**
  * Transforms elements dequeued from this queue with a function.
  *
- * @tsplus fluent fncts.control.Queue map
+ * @tsplus fluent fncts.io.Queue map
  */
 export function map_<RA, RB, EA, EB, A, B, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,

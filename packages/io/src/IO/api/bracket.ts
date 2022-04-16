@@ -18,7 +18,7 @@
  * if the `use` IO succeeds. If this fail-fast behavior is not desired,
  * errors produced by the `release` IO can be caught and ignored.
  *
- * @tsplus fluent fncts.control.IO bracket
+ * @tsplus fluent fncts.io.IO bracket
  */
 export function bracket_<R, E, A, R1, E1, A1, R2, E2, A2>(
   acquire: IO<R, E, A>,

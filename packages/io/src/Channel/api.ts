@@ -28,7 +28,7 @@ import { UpstreamPullStrategy } from "@fncts/io/Channel/UpstreamPullStrategy";
  *
  * This method produces the same result as mapping this channel to the specified constant value.
  *
- * @tsplus fluent fncts.control.Channel as
+ * @tsplus fluent fncts.io.Channel as
  */
 export function as_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDone2>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -38,14 +38,14 @@ export function as_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDon
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps ask
+ * @tsplus static fncts.io.ChannelOps ask
  */
 export function ask<Env>(): Channel<Env, unknown, unknown, unknown, never, never, Environment<Env>> {
   return Channel.fromIO(IO.environment<Env>());
 }
 
 /**
- * @tsplus getter fncts.control.Channel asUnit
+ * @tsplus getter fncts.io.Channel asUnit
  */
 export function asUnit<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -54,7 +54,7 @@ export function asUnit<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps acquireReleaseWith
+ * @tsplus static fncts.io.ChannelOps acquireReleaseWith
  */
 export function acquireReleaseWith_<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone, Acquired>(
   acquire: IO<Env, OutErr, Acquired>,
@@ -65,7 +65,7 @@ export function acquireReleaseWith_<Env, InErr, InElem, InDone, OutErr, OutElem1
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps acquireReleaseExitWith
+ * @tsplus static fncts.io.ChannelOps acquireReleaseExitWith
  */
 export function acquireReleaseExitWith_<Env, InErr, InElem, InDone, OutErr, OutElem1, OutDone, Acquired>(
   acquire: IO<Env, OutErr, Acquired>,
@@ -82,7 +82,7 @@ export function acquireReleaseExitWith_<Env, InErr, InElem, InDone, OutErr, OutE
 /**
  * Construct a resource Channel with Acquire / Release
  *
- * @tsplus static fncts.control.ChannelOps acquireReleaseOut
+ * @tsplus static fncts.io.ChannelOps acquireReleaseOut
  */
 export function acquireReleaseOut_<Env, OutErr, Acquired, Z>(
   acquire: IO<Env, OutErr, Acquired>,
@@ -94,7 +94,7 @@ export function acquireReleaseOut_<Env, OutErr, Acquired, Z>(
 /**
  * Construct a resource Channel with Acquire / Release
  *
- * @tsplus static fncts.control.ChannelOps acquireReleaseOutExit
+ * @tsplus static fncts.io.ChannelOps acquireReleaseOutExit
  */
 export function acquireReleaseOutExit_<R, R2, E, Z>(
   self: IO<R, E, Z>,
@@ -108,7 +108,7 @@ export function acquireReleaseOutExit_<R, R2, E, Z>(
  * passthrough its input as output. However, when the buffer is non-empty, the value inside
  * the buffer will be passed along as output.
  *
- * @tsplus static fncts.control.ChannelOps buffer
+ * @tsplus static fncts.io.ChannelOps buffer
  */
 export function buffer<InElem, InErr, InDone>(
   empty: InElem,
@@ -134,7 +134,7 @@ export function buffer<InElem, InErr, InDone>(
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps bufferChunk
+ * @tsplus static fncts.io.ChannelOps bufferChunk
  */
 export function bufferChunk<InElem, InErr, InDone>(
   ref: Ref<Conc<InElem>>,
@@ -147,7 +147,7 @@ export function bufferChunk<InElem, InErr, InDone>(
  * typed error, then the returned channel will switch over to using the fallback channel returned
  * by the specified error handler.
  *
- * @tsplus fluent fncts.control.Channel catchAll
+ * @tsplus fluent fncts.io.Channel catchAll
  */
 export function catchAll_<
   Env,
@@ -189,7 +189,7 @@ export function catchAll_<
  * typed error, then the returned channel will switch over to using the fallback channel returned
  * by the specified error handler.
  *
- * @tsplus fluent fncts.control.Channel catchAllCause
+ * @tsplus fluent fncts.io.Channel catchAllCause
  */
 export function catchAllCause_<
   Env,
@@ -232,7 +232,7 @@ export function catchAllCause_<
 }
 
 /**
- * @tsplus getter fncts.control.Channel concatAll
+ * @tsplus getter fncts.io.Channel concatAll
  */
 export function concatAll<Env, InErr, InElem, InDone, OutErr, OutElem>(
   channels: Channel<Env, InErr, InElem, InDone, OutErr, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, any>, any>,
@@ -250,7 +250,7 @@ export function concatAll<Env, InErr, InElem, InDone, OutErr, OutElem>(
  * is used to merge the terminal values of all channels into the single terminal value of the
  * returned channel.
  *
- * @tsplus fluent fncts.control.Channel concatMapWith
+ * @tsplus fluent fncts.io.Channel concatMapWith
  */
 export function concatMapWith_<
   Env,
@@ -302,7 +302,7 @@ export function concatMapWith_<
  * is used to merge the terminal values of all channels into the single terminal value of the
  * returned channel.
  *
- * @tsplus fluent fncts.control.Channel concatMapWithCustom
+ * @tsplus fluent fncts.io.Channel concatMapWithCustom
  */
 export function concatMapWithCustom_<
   Env,
@@ -345,7 +345,7 @@ export function concatMapWithCustom_<
 /**
  * Concat sequentially a channel of channels
  *
- * @tsplus fluent fncts.control.Channel concatAllWith
+ * @tsplus fluent fncts.io.Channel concatAllWith
  */
 export function concatAllWith_<
   Env,
@@ -401,7 +401,7 @@ export function concatAllWith_<
  * new channels in response. These new channels are sequentially concatenated together, and all
  * their outputs appear as outputs of the newly returned channel.
  *
- * @tsplus fluent fncts.control.Channel concatMap
+ * @tsplus fluent fncts.io.Channel concatMap
  */
 export function concatMap_<
   Env,
@@ -440,7 +440,7 @@ function contramapReader<InErr, InElem, InDone0, InDone>(
 }
 
 /**
- * @tsplus fluent fncts.control.Channel contramap
+ * @tsplus fluent fncts.io.Channel contramap
  */
 export function contramap_<Env, InErr, InElem, InDone0, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -460,7 +460,7 @@ function contramapInReader<InErr, InElem0, InElem, InDone>(
 }
 
 /**
- * @tsplus fluent fncts.control.Channel contramapIn
+ * @tsplus fluent fncts.io.Channel contramapIn
  */
 export function contramapIn_<Env, InErr, InElem0, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -480,7 +480,7 @@ function contramapIOReader<Env1, InErr, InElem, InDone0, InDone>(
 }
 
 /**
- * @tsplus fluent fncts.control.Channel contramapIO
+ * @tsplus fluent fncts.io.Channel contramapIO
  */
 export function contramapIO_<Env, Env1, InErr, InElem, InDone0, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -500,7 +500,7 @@ function contramapInIOReader<Env1, InErr, InElem0, InElem, InDone>(
 }
 
 /**
- * @tsplus fluent fncts.control.Channel contramapInIO
+ * @tsplus fluent fncts.io.Channel contramapInIO
  */
 export function contramapInIO_<Env, Env1, InErr, InElem0, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -510,7 +510,7 @@ export function contramapInIO_<Env, Env1, InErr, InElem0, InElem, InDone, OutErr
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps defer
+ * @tsplus static fncts.io.ChannelOps defer
  */
 export function defer<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   effect: Lazy<Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
@@ -541,7 +541,7 @@ function doneCollectReader<Env, OutErr, OutElem, OutDone>(
  * memory chunk, it is not safe to call this method on channels that output a large or unbounded
  * number of values.
  *
- * @tsplus getter fncts.control.Channel doneCollect
+ * @tsplus getter fncts.io.Channel doneCollect
  */
 export function doneCollect<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -559,7 +559,7 @@ export function doneCollect<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
  * Returns a new channel which reads all the elements from upstream's output channel
  * and ignores them, then terminates with the upstream result value.
  *
- * @tsplus getter fncts.control.Channel drain
+ * @tsplus getter fncts.io.Channel drain
  */
 export function drain<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -576,7 +576,7 @@ export function drain<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
  * Returns a new channel that collects the output and terminal value of this channel, which it
  * then writes as output of the returned channel.
  *
- * @tsplus getter fncts.control.Channel emitCollect
+ * @tsplus getter fncts.io.Channel emitCollect
  */
 export function emitCollect<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -585,7 +585,7 @@ export function emitCollect<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
 }
 
 /**
- * @tsplus fluent fncts.control.Channel ensuring
+ * @tsplus fluent fncts.io.Channel ensuring
  */
 export function ensuring_<Env, Env1, InErr, InElem, InDone, OutErr, OutElem, OutDone, Z>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -598,7 +598,7 @@ export function ensuring_<Env, Env1, InErr, InElem, InDone, OutErr, OutElem, Out
  * Returns a new channel with an attached finalizer. The finalizer is guaranteed to be executed
  * so long as the channel begins execution (and regardless of whether or not it completes).
  *
- * @tsplus fluent fncts.control.Channel ensuringWith
+ * @tsplus fluent fncts.io.Channel ensuringWith
  */
 export function ensuringWith_<Env, Env2, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -610,7 +610,7 @@ export function ensuringWith_<Env, Env2, InErr, InElem, InDone, OutErr, OutElem,
 /**
  * Embed inputs from continuos pulling of a producer
  *
- * @tsplus fluent fncts.control.Channel embedInput
+ * @tsplus fluent fncts.io.Channel embedInput
  */
 export function embedInput_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, unknown, unknown, unknown, OutErr, OutElem, OutDone>,
@@ -622,7 +622,7 @@ export function embedInput_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
 /**
  * Halt a channel with the specified error
  *
- * @tsplus static fncts.control.ChannelOps fail
+ * @tsplus static fncts.io.ChannelOps fail
  */
 export function fail<E>(error: Lazy<E>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return new Fail(() => Cause.fail(error()));
@@ -631,7 +631,7 @@ export function fail<E>(error: Lazy<E>): Channel<unknown, unknown, unknown, unkn
 /**
  * Halt a channel with the specified error
  *
- * @tsplus static fncts.control.ChannelOps failNow
+ * @tsplus static fncts.io.ChannelOps failNow
  */
 export function failNow<E>(error: E): Channel<unknown, unknown, unknown, unknown, E, never, never> {
   return new Fail(() => Cause.fail(error));
@@ -641,7 +641,7 @@ export function failNow<E>(error: E): Channel<unknown, unknown, unknown, unknown
  * Returns a new channel, which flattens the terminal value of this channel. This function may
  * only be called if the terminal value of this channel is another channel of compatible types.
  *
- * @tsplus getter fncts.control.Channel flatten
+ * @tsplus getter fncts.io.Channel flatten
  */
 export function flatten<
   Env,
@@ -680,14 +680,14 @@ export function flatten<
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps fromEither
+ * @tsplus static fncts.io.ChannelOps fromEither
  */
 export function fromEither<E, A>(either: Lazy<Either<E, A>>): Channel<unknown, unknown, unknown, unknown, E, never, A> {
   return Channel.defer(either().match(Channel.failNow, Channel.succeedNow));
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps fromInput
+ * @tsplus static fncts.io.ChannelOps fromInput
  */
 export function fromInput<Err, Elem, Done>(
   input: AsyncInputConsumer<Err, Elem, Done>,
@@ -700,21 +700,21 @@ export function fromInput<Err, Elem, Done>(
 /**
  * Use an effect to end a channel
  *
- * @tsplus static fncts.control.ChannelOps fromIO
+ * @tsplus static fncts.io.ChannelOps fromIO
  */
 export function fromIO<R, E, A>(io: IO<R, E, A>): Channel<R, unknown, unknown, unknown, E, never, A> {
   return new FromIO(io);
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps fromOption
+ * @tsplus static fncts.io.ChannelOps fromOption
  */
 export function fromOption<A>(option: Lazy<Maybe<A>>): Channel<unknown, unknown, unknown, unknown, Nothing, never, A> {
   return Channel.defer(option().match(() => Channel.failNow(Nothing() as Nothing), Channel.succeedNow));
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps fromQueue
+ * @tsplus static fncts.io.ChannelOps fromQueue
  */
 export function fromQueue<Err, Elem, Done>(
   queue: Queue.Dequeue<Either<Exit<Err, Done>, Elem>>,
@@ -731,7 +731,7 @@ export function fromQueue<Err, Elem, Done>(
  * Provides the channel with its required environment, which eliminates
  * its dependency on `Env`.
  *
- * @tsplus fluent fncts.control.Channel provideEnvironment
+ * @tsplus fluent fncts.io.Channel provideEnvironment
  */
 export function provideEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -741,7 +741,7 @@ export function provideEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem,
 }
 
 /**
- * @tsplus fluent fncts.control.Channel contramapEnvironment
+ * @tsplus fluent fncts.io.Channel contramapEnvironment
  */
 export function contramapEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env0>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -753,7 +753,7 @@ export function contramapEnvironment_<Env, InErr, InElem, InDone, OutErr, OutEle
 /**
  * Halt a channel with the specified exception
  *
- * @tsplus static fncts.control.ChannelOps haltNow
+ * @tsplus static fncts.io.ChannelOps haltNow
  */
 export function haltNow(defect: unknown): Channel<unknown, unknown, unknown, unknown, never, never, never> {
   return new Fail(() => Cause.halt(defect));
@@ -762,21 +762,21 @@ export function haltNow(defect: unknown): Channel<unknown, unknown, unknown, unk
 /**
  * Halt a channel with the specified exception
  *
- * @tsplus static fncts.control.ChannelOps halt
+ * @tsplus static fncts.io.ChannelOps halt
  */
 export function halt(defect: Lazy<unknown>): Channel<unknown, unknown, unknown, unknown, never, never, never> {
   return new Fail(() => Cause.halt(defect()));
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps id
+ * @tsplus static fncts.io.ChannelOps id
  */
 export function id<Err, Elem, Done>(): Channel<unknown, Err, Elem, Done, Err, Elem, Done> {
   return Channel.readWith((_in) => write(_in).apSecond(id<Err, Elem, Done>()), Channel.failNow, Channel.endNow);
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps interrupt
+ * @tsplus static fncts.io.ChannelOps interrupt
  */
 export function interrupt(fiberId: FiberId): Channel<unknown, unknown, unknown, unknown, never, never, never> {
   return Channel.failCauseNow(Cause.interrupt(fiberId));
@@ -785,7 +785,7 @@ export function interrupt(fiberId: FiberId): Channel<unknown, unknown, unknown, 
 /**
  * Use a managed to emit an output element
  *
- * @tsplus static fncts.control.ChannelOps scoped
+ * @tsplus static fncts.io.ChannelOps scoped
  */
 export function scoped<R, E, A>(
   io: Lazy<IO<R & Has<Scope>, E, A>>,
@@ -807,7 +807,7 @@ export function scoped<R, E, A>(
  * Returns a new channel, which is the same as this one, except the failure value of the returned
  * channel is created by applying the specified function to the failure value of this channel.
  *
- * @tsplus fluent fncts.control.Channel mapError
+ * @tsplus fluent fncts.io.Channel mapError
  */
 export function mapError_<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -819,7 +819,7 @@ export function mapError_<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, 
 /**
  * A more powerful version of `mapError` which also surfaces the `Cause` of the channel failure
  *
- * @tsplus fluent fncts.control.Channel mapErrorCause
+ * @tsplus fluent fncts.io.Channel mapErrorCause
  */
 export function mapErrorCause_<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -833,7 +833,7 @@ export function mapErrorCause_<Env, InErr, InElem, InDone, OutErr, OutErr2, OutE
  * returned channel is created by applying the specified effectful function to the terminal value
  * of this channel.
  *
- * @tsplus fluent fncts.control.Channel mapIO
+ * @tsplus fluent fncts.io.Channel mapIO
  */
 export function mapIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -845,7 +845,7 @@ export function mapIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutEle
 /**
  * Maps the output of this channel using f
  *
- * @tsplus fluent fncts.control.Channel mapOut
+ * @tsplus fluent fncts.io.Channel mapOut
  */
 export function mapOut_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutElem2>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -870,7 +870,7 @@ const mapOutIOReader = <Env, Env1, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
   );
 
 /**
- * @tsplus fluent fncts.control.Channel mapOutIO
+ * @tsplus fluent fncts.io.Channel mapOutIO
  */
 export function mapOutIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -882,7 +882,7 @@ export function mapOutIO_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, Out
 /**
  * Fold the channel exposing success and full error cause
  *
- * @tsplus fluent fncts.control.Channel matchCauseChannel
+ * @tsplus fluent fncts.io.Channel matchCauseChannel
  */
 export function matchCauseChannel_<
   Env,
@@ -951,7 +951,7 @@ export const never: Channel<unknown, unknown, unknown, unknown, never, never, ne
  * Returns a new channel that will perform the operations of this one, until failure, and then
  * it will switch over to the operations of the specified fallback channel.
  *
- * @tsplus fluent fncts.control.Channel orElse
+ * @tsplus fluent fncts.io.Channel orElse
  */
 export function orElse_<
   Env,
@@ -984,7 +984,7 @@ export function orElse_<
 }
 
 /**
- * @tsplus fluent fncts.control.Channel orHalt
+ * @tsplus fluent fncts.io.Channel orHalt
  */
 export function orHalt_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, E>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -994,7 +994,7 @@ export function orHalt_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, E>
 }
 
 /**
- * @tsplus fluent fncts.control.Channel orHaltWith
+ * @tsplus fluent fncts.io.Channel orHaltWith
  */
 export function orHaltWith_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, E>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -1006,7 +1006,7 @@ export function orHaltWith_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
 /**
  * Pipe the output of a channel into the input of another
  *
- * @tsplus fluent fncts.control.Channel pipeTo
+ * @tsplus fluent fncts.io.Channel pipeTo
  */
 export function pipeTo_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1, OutDone1>(
   left: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -1029,7 +1029,7 @@ function isChannelFailure<E>(u: unknown): u is ChannelFailure<E> {
 }
 
 /**
- * @tsplus fluent fncts.control.Channel pipeToOrFail
+ * @tsplus fluent fncts.io.Channel pipeToOrFail
  */
 export function pipeToOrFail_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1, OutDone1>(
   left: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -1046,14 +1046,14 @@ export function pipeToOrFail_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDo
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps read
+ * @tsplus static fncts.io.ChannelOps read
  */
 export function read<In>(): Channel<unknown, unknown, In, unknown, Nothing, never, In> {
   return Channel.readOrFail(Nothing() as Nothing);
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps readOrFail
+ * @tsplus static fncts.io.ChannelOps readOrFail
  */
 export function readOrFail<In, E>(e: E): Channel<unknown, unknown, In, unknown, E, never, In> {
   return new Read<unknown, unknown, In, unknown, never, E, never, never, In>(
@@ -1068,7 +1068,7 @@ export function readOrFail<In, E>(e: E): Channel<unknown, unknown, In, unknown, 
 /**
  * Reads an input and continue exposing both full error cause and completion
  *
- * @tsplus static fncts.control.ChannelOps readWithCause
+ * @tsplus static fncts.io.ChannelOps readWithCause
  */
 export function readWithCause<
   Env,
@@ -1128,7 +1128,7 @@ export function readWithCause<
 /**
  * Reads an input and continue exposing both error and completion
  *
- * @tsplus static fncts.control.ChannelOps readWith
+ * @tsplus static fncts.io.ChannelOps readWith
  */
 export function readWith<
   Env,
@@ -1165,7 +1165,7 @@ export function readWith<
 /**
  * Repeats this channel forever
  *
- * @tsplus getter fncts.control.Channel repeated
+ * @tsplus getter fncts.io.Channel repeated
  */
 export function repeated<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -1174,7 +1174,7 @@ export function repeated<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 }
 
 /**
- * @tsplus static fncts.control.Channel toQueue
+ * @tsplus static fncts.io.Channel toQueue
  */
 export function toQueue<Err, Done, Elem>(
   queue: Queue.Enqueue<Either<Exit<Err, Done>, Elem>>,
@@ -1189,14 +1189,14 @@ export function toQueue<Err, Done, Elem>(
 /**
  * Writes an output to the channel
  *
- * @tsplus static fncts.control.ChannelOps write
+ * @tsplus static fncts.io.ChannelOps write
  */
 export function write<OutElem>(out: Lazy<OutElem>): Channel<unknown, unknown, unknown, unknown, never, OutElem, void> {
   return new Emit(out);
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps writeAll
+ * @tsplus static fncts.io.ChannelOps writeAll
  */
 export function writeAll<Out>(outs: ReadonlyArray<Out>): Channel<unknown, unknown, unknown, unknown, never, Out, void> {
   return Channel.writeChunk(Conc.from(outs));
@@ -1212,7 +1212,7 @@ function writeChunkWriter<Out>(
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps writeChunk
+ * @tsplus static fncts.io.ChannelOps writeChunk
  */
 export function writeChunk<Out>(outs: Conc<Out>): Channel<unknown, unknown, unknown, unknown, never, Out, void> {
   return writeChunkWriter(outs, 0, outs.length);
@@ -1221,21 +1221,21 @@ export function writeChunk<Out>(outs: Conc<Out>): Channel<unknown, unknown, unkn
 /**
  * Writes an output to the channel
  *
- * @tsplus static fncts.control.ChannelOps writeNow
+ * @tsplus static fncts.io.ChannelOps writeNow
  */
 export function writeNow<OutElem>(out: OutElem): Channel<unknown, unknown, unknown, unknown, never, OutElem, void> {
   return new Emit(() => out);
 }
 
 /**
- * @tsplus static fncts.control.ChannelOps unit
+ * @tsplus static fncts.io.ChannelOps unit
  */
 export const unit: Channel<unknown, unknown, unknown, unknown, never, never, void> = Channel.endNow(undefined);
 
 /**
  * Makes a channel from an effect that returns a channel in case of success
  *
- * @tsplus static fncts.control.ChannelOps unwrap
+ * @tsplus static fncts.io.ChannelOps unwrap
  */
 export function unwrap<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: IO<R, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
@@ -1246,7 +1246,7 @@ export function unwrap<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 /**
  * Makes a channel from a managed that returns a channel in case of success
  *
- * @tsplus static fncts.control.ChannelOps unwrapScoped
+ * @tsplus static fncts.io.ChannelOps unwrapScoped
  */
 export function unwrapScoped<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: IO<R & Has<Scope>, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,

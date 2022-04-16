@@ -1,7 +1,7 @@
 import type { ChildExecutorDecision } from "@fncts/io/Channel/ChildExecutorDecision/definition";
 
 /**
- * @tsplus fluent fncts.control.Channel.ChildExecutorDecision match
+ * @tsplus fluent fncts.io.Channel.ChildExecutorDecision match
  */
 export function match_<A, B, C>(
   d: ChildExecutorDecision,

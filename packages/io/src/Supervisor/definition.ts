@@ -1,6 +1,6 @@
 /**
- * @tsplus type fncts.control.Supervisor
- * @tsplus companion fncts.control.SupervisorOps
+ * @tsplus type fncts.io.Supervisor
+ * @tsplus companion fncts.io.SupervisorOps
  */
 export abstract class Supervisor<A> {
   abstract readonly value: UIO<A>;

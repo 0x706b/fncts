@@ -78,7 +78,7 @@ function handleSuccess<A1, A2, A3>(
 }
 
 /**
- * @tsplus fluent fncts.control.Stream zipWithChunks
+ * @tsplus fluent fncts.io.Stream zipWithChunks
  */
 export function zipWithChunks_<R, E, A, R1, E1, B, C>(
   self: Stream<R, E, A>,

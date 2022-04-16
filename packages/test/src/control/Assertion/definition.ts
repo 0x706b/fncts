@@ -5,13 +5,13 @@ import type { Render } from "../../data/Render.js";
 import { AssertionIO } from "../AssertionIO.js";
 
 /**
- * @tsplus type fncts.data.FreeBooleanAlgebra
+ * @tsplus type fncts.test.FreeBooleanAlgebra
  */
 export type AssertResult<A> = FreeBooleanAlgebra<AssertionValue<A>>;
 
 /**
- * @tsplus type fncts.test.control.Assertion
- * @tsplus companion fncts.test.control.AssertionOps
+ * @tsplus type fncts.test.Assertion
+ * @tsplus companion fncts.test.AssertionOps
  */
 export class Assertion<A> extends AssertionIO<A> {
   constructor(readonly render: Render, readonly run: (actual: A) => AssertResult<A>) {

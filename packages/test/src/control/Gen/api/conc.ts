@@ -6,7 +6,7 @@ import { Eq, Equatable } from "@fncts/base/typeclass";
 import { Gen } from "../definition.js";
 
 /**
- * @tsplus fluent fncts.test.control.Gen conc
+ * @tsplus fluent fncts.test.Gen conc
  */
 export function conc<R, A>(
   self: Gen<R, A>,
@@ -19,7 +19,7 @@ export function conc<R, A>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.Gen concN
+ * @tsplus fluent fncts.test.Gen concN
  */
 export function concN_<R, A>(g: Gen<R, A>, n: number): Gen<R, Conc<A>> {
   return Conc.replicate(n, g).foldLeft(Gen.constant(Conc.empty()) as Gen<R, Conc<A>>, (gen, a) =>
@@ -28,7 +28,7 @@ export function concN_<R, A>(g: Gen<R, A>, n: number): Gen<R, Conc<A>> {
 }
 
 /**
- * @tsplus fluent fncts.test.control.Gen uniqueConc
+ * @tsplus fluent fncts.test.Gen uniqueConc
  */
 export function uniqueConc_<R, A>(
   self: Gen<R, A>,
@@ -42,7 +42,7 @@ export function uniqueConc_<R, A>(
 }
 
 /**
- * @tsplus getter fncts.test.control.Gen uniqueConcN
+ * @tsplus getter fncts.test.Gen uniqueConcN
  */
 export function uniqueConcN_<R, A>(self: Gen<R, A>) {
   return (E: Eq<A>) =>

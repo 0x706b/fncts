@@ -6,7 +6,7 @@ import { Done, FutureStateTag, Pending } from "@fncts/io/Future/definition";
  * Exits the future with the specified exit, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.control.Future done
+ * @tsplus fluent fncts.io.Future done
  */
 export function done_<E, A>(future: Future<E, A>, exit: Exit<E, A>): UIO<boolean> {
   return future.fulfillWith(IO.fromExitNow(exit));
@@ -16,7 +16,7 @@ export function done_<E, A>(future: Future<E, A>, exit: Exit<E, A>): UIO<boolean
  * Fails the future with the specified error, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.control.Future fail
+ * @tsplus fluent fncts.io.Future fail
  */
 export function fail_<E, A>(future: Future<E, A>, e: E): UIO<boolean> {
   return future.fulfillWith(IO.failNow(e));
@@ -26,7 +26,7 @@ export function fail_<E, A>(future: Future<E, A>, e: E): UIO<boolean> {
  * Halts the future with the specified cause, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.control.Future failCause
+ * @tsplus fluent fncts.io.Future failCause
  */
 export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>): UIO<boolean> {
   return future.fulfillWith(IO.failCauseNow(cause));
@@ -39,7 +39,7 @@ export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>): UIO<boo
  * Note that `Future.completeWith` will be much faster, so consider using
  * that if you do not need to memoize the result of the specified effect.
  *
- * @tsplus fluent fncts.control.Future fulfill
+ * @tsplus fluent fncts.io.Future fulfill
  */
 export function fulfill_<R, E, A>(future: Future<E, A>, io: IO<R, E, A>): IO<R, never, boolean> {
   return IO.uninterruptibleMask(({ restore }) => restore(io).result.flatMap((exit) => future.done(exit)));
@@ -58,7 +58,7 @@ export function fulfill_<R, E, A>(future: Future<E, A>, io: IO<R, E, A>): IO<R, 
  * completes the future with the result of an IO see
  * `Future.complete`.
  *
- * @tsplus fluent fncts.control.Future fulfillWith
+ * @tsplus fluent fncts.io.Future fulfillWith
  */
 export function fulfillWith_<E, A>(future: Future<E, A>, io: FIO<E, A>): UIO<boolean> {
   return IO.succeed(() => {
@@ -82,7 +82,7 @@ export function fulfillWith_<E, A>(future: Future<E, A>, io: FIO<E, A>): UIO<boo
  * Kills the future with the specified error, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.control.Future halt
+ * @tsplus fluent fncts.io.Future halt
  */
 export function halt_<E, A>(future: Future<E, A>, defect: unknown): UIO<boolean> {
   return future.fulfillWith(IO.haltNow(defect));
@@ -92,7 +92,7 @@ export function halt_<E, A>(future: Future<E, A>, defect: unknown): UIO<boolean>
  * Completes the future with interruption. This will interrupt all fibers
  * waiting on the value of the future as by the fiber calling this method.
  *
- * @tsplus getter fncts.control.Future interrupt
+ * @tsplus getter fncts.io.Future interrupt
  */
 export function interrupt<E, A>(future: Future<E, A>): UIO<boolean> {
   return IO.fiberId.flatMap((id) => future.fulfillWith(IO.interruptAs(id)));
@@ -102,7 +102,7 @@ export function interrupt<E, A>(future: Future<E, A>): UIO<boolean> {
  * Completes the future with interruption. This will interrupt all fibers
  * waiting on the value of the future as by the specified fiber.
  *
- * @tsplus fluent fncts.control.Future interruptAs
+ * @tsplus fluent fncts.io.Future interruptAs
  */
 export function interruptAs_<E, A>(future: Future<E, A>, id: FiberId): UIO<boolean> {
   return future.fulfillWith(IO.interruptAs(id));
@@ -112,7 +112,7 @@ export function interruptAs_<E, A>(future: Future<E, A>, id: FiberId): UIO<boole
  * Checks for completion of this Future. Produces true if this future has
  * already been completed with a value or an error and false otherwise.
  *
- * @tsplus getter fncts.control.Future isDone
+ * @tsplus getter fncts.io.Future isDone
  */
 export function isDone<E, A>(future: Future<E, A>): UIO<boolean> {
   return IO.succeed(future.state._tag === FutureStateTag.Done);
@@ -122,7 +122,7 @@ export function isDone<E, A>(future: Future<E, A>): UIO<boolean> {
  * Checks for completion of this Future. Returns the result effect if this
  * future has already been completed or a `None` otherwise.
  *
- * @tsplus getter fncts.control.Future poll
+ * @tsplus getter fncts.io.Future poll
  */
 export function poll<E, A>(future: Future<E, A>): UIO<Maybe<FIO<E, A>>> {
   return IO.succeed(() => {
@@ -140,7 +140,7 @@ export function poll<E, A>(future: Future<E, A>): UIO<Maybe<FIO<E, A>>> {
 /**
  * Completes the future with the specified value.
  *
- * @tsplus fluent fncts.control.Future succeed
+ * @tsplus fluent fncts.io.Future succeed
  */
 export function succeed_<A, E>(future: Future<E, A>, a: A) {
   return future.fulfillWith(IO.succeedNow(a));
@@ -150,7 +150,7 @@ export function succeed_<A, E>(future: Future<E, A>, a: A) {
  * Retrieves the value of the future, suspending the fiber running the action
  * until the result is available.
  *
- * @tsplus fluent fncts.control.Future unsafeDone
+ * @tsplus fluent fncts.io.Future unsafeDone
  */
 export function unsafeDone_<E, A>(future: Future<E, A>, io: FIO<E, A>) {
   if (future.state._tag === FutureStateTag.Pending) {
@@ -163,7 +163,7 @@ export function unsafeDone_<E, A>(future: Future<E, A>, io: FIO<E, A>) {
 }
 
 /**
- * @tsplus fluent fncts.control.Future unsafeSucceed
+ * @tsplus fluent fncts.io.Future unsafeSucceed
  */
 export function unsafeSucceed_<A>(future: Future<never, A>, a: A): void {
   future.unsafeDone(IO.succeedNow(a));
@@ -173,7 +173,7 @@ export function unsafeSucceed_<A>(future: Future<never, A>, a: A): void {
  * Retrieves the value of the future, suspending the fiber running the action
  * until the result is available.
  *
- * @tsplus getter fncts.control.Future await
+ * @tsplus getter fncts.io.Future await
  */
 export function wait<E, A>(future: Future<E, A>): IO<unknown, E, A> {
   return IO.asyncInterrupt<unknown, E, A>((k) => {

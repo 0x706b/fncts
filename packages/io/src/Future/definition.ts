@@ -1,6 +1,6 @@
 /**
- * @tsplus type fncts.control.Future
- * @tsplus companion fncts.control.FutureOps
+ * @tsplus type fncts.io.Future
+ * @tsplus companion fncts.io.FutureOps
  */
 export class Future<E, A> {
   constructor(public state: State<E, A>, readonly blockingOn: FiberId) {}

@@ -48,7 +48,7 @@ export function unsafeCurrentFiber(): Maybe<FiberContext<any, any>> {
   return Maybe.fromNullable(currentFiber.get);
 }
 
-export const FiberContextTypeId = Symbol.for("fncts.control.FiberContext");
+export const FiberContextTypeId = Symbol.for("fncts.io.FiberContext");
 export type FiberContextTypeId = typeof FiberContextTypeId;
 
 export function isFiberContext(u: unknown): u is FiberContext<unknown, unknown> {
@@ -58,7 +58,7 @@ export function isFiberContext(u: unknown): u is FiberContext<unknown, unknown> 
 /**
  * `FiberContext` provides all of the context and facilities required to run a `IO`
  *
- * @tsplus type fncts.control.Fiber
+ * @tsplus type fncts.io.Fiber
  */
 export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equatable {
   readonly _tag = "RuntimeFiber";

@@ -1,5 +1,5 @@
 /**
- * @tsplus static fncts.control.FiberOps done
+ * @tsplus static fncts.io.FiberOps done
  */
 export function done<E, A>(exit: Exit<E, A>): Fiber.Synthetic<E, A> {
   return {
@@ -13,28 +13,28 @@ export function done<E, A>(exit: Exit<E, A>): Fiber.Synthetic<E, A> {
 }
 
 /**
- * @tsplus static fncts.control.FiberOps fail
+ * @tsplus static fncts.io.FiberOps fail
  */
 export function fail<E>(e: E): Fiber.Synthetic<E, never> {
   return done(Exit.fail(e));
 }
 
 /**
- * @tsplus static fncts.control.FiberOps failCause
+ * @tsplus static fncts.io.FiberOps failCause
  */
 export function failCause<E>(cause: Cause<E>): Fiber.Synthetic<E, never> {
   return done(Exit.failCause(cause));
 }
 
 /**
- * @tsplus static fncts.control.FiberOps interruptAs
+ * @tsplus static fncts.io.FiberOps interruptAs
  */
 export function interruptAs(id: FiberId): Fiber.Synthetic<never, never> {
   return done(Exit.interrupt(id));
 }
 
 /**
- * @tsplus static fncts.control.FiberOps succeed
+ * @tsplus static fncts.io.FiberOps succeed
  */
 export function succeed<A>(a: A): Fiber.Synthetic<never, A> {
   return done(Exit.succeed(a));

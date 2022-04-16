@@ -3,13 +3,13 @@ import type { ArrayInt } from "@fncts/base/util/rand";
 import { IllegalArgumentError } from "@fncts/base/data/exceptions";
 
 /**
- * @tsplus static fncts.test.control.TestRandomOps Tag
+ * @tsplus static fncts.test.TestRandomOps Tag
  */
 export const TestRandomTag = Tag<TestRandom>();
 
 /**
- * @tsplus type fncts.test.control.TestRandom
- * @tsplus companion fncts.test.control.TestRandomOps
+ * @tsplus type fncts.test.TestRandom
+ * @tsplus companion fncts.test.TestRandomOps
  */
 export class TestRandom implements Random {
   constructor(readonly randomState: Ref<Data>, readonly bufferState: Ref<Buffer>) {}

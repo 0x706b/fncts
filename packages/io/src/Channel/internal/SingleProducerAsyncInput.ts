@@ -49,7 +49,7 @@ export type State<Err, Elem, Done> = StateEmpty | StateEmit<Err, Elem, Done> | S
  * - Trying to publish another emit/error/done after an error/done have already been published
  *   results in an interruption.
  *
- * @tsplus companion fncts.control.Channel.SingleProducerAsyncInputOps
+ * @tsplus companion fncts.io.Channel.SingleProducerAsyncInputOps
  */
 export class SingleProducerAsyncInput<Err, Elem, Done>
   implements AsyncInputProducer<Err, Elem, Done>, AsyncInputConsumer<Err, Elem, Done>
@@ -177,7 +177,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
 /**
  * Creates a SingleProducerAsyncInput
  *
- * @tsplus static fncts.control.Channel.SingleProducerAsyncInputOps __call
+ * @tsplus static fncts.io.Channel.SingleProducerAsyncInputOps __call
  */
 export function makeSingleProducerAsyncInput<Err, Elem, Done>(): UIO<SingleProducerAsyncInput<Err, Elem, Done>> {
   return Future.make<never, void>()

@@ -13,6 +13,6 @@ export class LiveConsole extends Console {
 }
 
 /**
- * @tsplus static fncts.control.ConsoleOps Live
+ * @tsplus static fncts.io.ConsoleOps Live
  */
 export const live: Console = new LiveConsole();

@@ -4,7 +4,7 @@ import type { EqConstraint, LengthConstraints } from "../constraints.js";
 import { Gen } from "../definition.js";
 
 /**
- * @tsplus fluent fncts.test.control.Gen array
+ * @tsplus fluent fncts.test.Gen array
  */
 export function array<R, A>(
   g: Gen<R, A>,
@@ -17,14 +17,14 @@ export function array<R, A>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.Gen arrayN
+ * @tsplus fluent fncts.test.Gen arrayN
  */
 export function arrayN_<R, A>(self: Gen<R, A>, n: number): Gen<R, ReadonlyArray<A>> {
   return self.concN(n).map((conc) => conc.toArray);
 }
 
 /**
- * @tsplus fluent fncts.test.control.Gen uniqueArray
+ * @tsplus fluent fncts.test.Gen uniqueArray
  */
 export function uniqueArray_<R, A>(
   gen: Gen<R, A>,

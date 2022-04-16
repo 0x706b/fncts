@@ -4,8 +4,8 @@
  * of type `OutErr`, emits outputs of type `L` and ends with a value
  * of type `Z`.
  *
- * @tsplus type fncts.control.Sink
- * @tsplus companion fncts.control.SinkOps
+ * @tsplus type fncts.io.Sink
+ * @tsplus companion fncts.io.SinkOps
  */
 export class Sink<R, E, In, L, Z> {
   constructor(readonly channel: Channel<R, never, Conc<In>, unknown, E, Conc<L>, Z>) {}

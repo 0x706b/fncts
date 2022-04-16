@@ -26,12 +26,12 @@ export class Not<A> {
 }
 
 /**
- * @tsplus type fncts.data.FreeBooleanAlgebra
+ * @tsplus type fncts.test.FreeBooleanAlgebra
  */
 export type FreeBooleanAlgebra<A> = Value<A> | And<A> | Or<A> | Not<A>;
 
 /**
- * @tsplus type fncts.data.FreeBooleanAlgebraOps
+ * @tsplus type fncts.test.FreeBooleanAlgebraOps
  */
 export interface FreeBooleanAlgebraOps {}
 

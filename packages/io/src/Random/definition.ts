@@ -1,13 +1,13 @@
 import type { ArrayInt } from "@fncts/base/util/rand";
 
 /**
- * @tsplus static fncts.control.RandomOps Tag
+ * @tsplus static fncts.io.RandomOps Tag
  */
 export const RandomTag = Tag<Random>();
 
 /**
- * @tsplus type fncts.control.Random
- * @tsplus companion fncts.control.RandomOps
+ * @tsplus type fncts.io.Random
+ * @tsplus companion fncts.io.RandomOps
  */
 export abstract class Random {
   abstract readonly nextDouble: UIO<number>;

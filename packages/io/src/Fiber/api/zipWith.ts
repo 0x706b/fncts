@@ -3,7 +3,7 @@
  * the specified combiner function. Both joins and interruptions are performed
  * in sequential order from left to right.
  *
- * @tsplus fluent fncts.control.Fiber zipWith
+ * @tsplus fluent fncts.io.Fiber zipWith
  */
 export function zipWith_<E, A, E1, B, C>(
   self: Fiber<E, A>,

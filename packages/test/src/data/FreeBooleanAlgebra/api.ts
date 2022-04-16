@@ -1,15 +1,15 @@
 import { And, FreeBooleanAlgebra, FreeBooleanAlgebraTag, Not, Or, Value } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra and
- * @tsplus operator fncts.data.FreeBooleanAlgebra &&
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra and
+ * @tsplus operator fncts.test.FreeBooleanAlgebra &&
  */
 export function and_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return new And(left, right);
 }
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra flatMap
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra flatMap
  */
 export function flatMap_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => FreeBooleanAlgebra<B>): FreeBooleanAlgebra<B> {
   return self.fold({
@@ -21,14 +21,14 @@ export function flatMap_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => FreeBoo
 }
 
 /**
- * @tsplus static fncts.data.FreeBooleanAlgebraOps failure
+ * @tsplus static fncts.test.FreeBooleanAlgebraOps failure
  */
 export function failure<A>(a: A): FreeBooleanAlgebra<A> {
   return FreeBooleanAlgebra.success(a).invert;
 }
 
 /**
- * @tsplus getter fncts.data.FreeBooleanAlgebra failures
+ * @tsplus getter fncts.test.FreeBooleanAlgebra failures
  */
 export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgebra<A>> {
   return self
@@ -56,7 +56,7 @@ export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgeb
 }
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra foldEval
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra foldEval
  */
 export function foldEval_<A, B>(
   self: FreeBooleanAlgebra<A>,
@@ -82,7 +82,7 @@ export function foldEval_<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra fold
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra fold
  */
 export function fold_<A, B>(
   self: FreeBooleanAlgebra<A>,
@@ -97,28 +97,28 @@ export function fold_<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra iff
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra iff
  */
 export function iff_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return left.implies(right) && right.implies(left);
 }
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra implies
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra implies
  */
 export function implies_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return left.invert || right;
 }
 
 /**
- * @tsplus getter fncts.data.FreeBooleanAlgebra isFailure
+ * @tsplus getter fncts.test.FreeBooleanAlgebra isFailure
  */
 export function isFailure<A>(self: FreeBooleanAlgebra<A>): boolean {
   return !self.isSuccess;
 }
 
 /**
- * @tsplus getter fncts.data.FreeBooleanAlgebra isSuccess
+ * @tsplus getter fncts.test.FreeBooleanAlgebra isSuccess
  */
 export function isSuccess<A>(self: FreeBooleanAlgebra<A>): boolean {
   return self.fold({
@@ -130,22 +130,22 @@ export function isSuccess<A>(self: FreeBooleanAlgebra<A>): boolean {
 }
 
 /**
- * @tsplus getter fncts.data.FreeBooleanAlgebra invert
+ * @tsplus getter fncts.test.FreeBooleanAlgebra invert
  */
 export function not<A>(self: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return new Not(self);
 }
 
 /**
- * @tsplus fluent fncts.data.FreeBooleanAlgebra or
- * @tsplus operator fncts.data.FreeBooleanAlgebra ||
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra or
+ * @tsplus operator fncts.test.FreeBooleanAlgebra ||
  */
 export function or_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
   return new Or(left, right);
 }
 
 /**
- * @tsplus static fncts.data.FreeBooleanAlgebraOps success
+ * @tsplus static fncts.test.FreeBooleanAlgebraOps success
  */
 export function success<A>(a: A): FreeBooleanAlgebra<A> {
   return new Value(a);

@@ -9,14 +9,14 @@ import { ExecutedSpec } from "@fncts/test/data/ExecutedSpec";
 import { Summary } from "@fncts/test/data/Summary";
 
 /**
- * @tsplus type fncts.test.control.SummaryBuilder
+ * @tsplus type fncts.test.SummaryBuilder
  */
 export interface SummaryBuilderOps {}
 
 export const SummaryBuilder: SummaryBuilderOps = {};
 
 /**
- * @tsplus static fncts.test.control.SummaryBuilder buildSummary
+ * @tsplus static fncts.test.SummaryBuilder buildSummary
  */
 export function buildSummary<E>(executedSpec: ExecutedSpec<E>): Summary {
   const success = countTestResults(executedSpec, (_) =>

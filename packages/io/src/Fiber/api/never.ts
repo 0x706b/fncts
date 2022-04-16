@@ -1,7 +1,7 @@
 /**
  * A fiber that never fails or succeeds
  *
- * @tsplus static fncts.control.FiberOps never
+ * @tsplus static fncts.io.FiberOps never
  */
 export const never: Fiber<never, never> = {
   _tag: "SyntheticFiber",

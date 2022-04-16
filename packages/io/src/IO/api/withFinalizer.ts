@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.IO withFinalizer
+ * @tsplus fluent fncts.io.IO withFinalizer
  */
 export function withFinalizer_<R, E, A, R1>(
   self: IO<R, E, A>,

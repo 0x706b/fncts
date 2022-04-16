@@ -1,5 +1,5 @@
 /**
- * @tsplus getter fncts.control.IO concurrentFinalizers
+ * @tsplus getter fncts.io.IO concurrentFinalizers
  */
 export function concurrentFinalizers<R, E, A>(io: IO<R, E, A>): IO<R & Has<Scope>, E, A> {
   return IO.gen(function* (_) {

@@ -1,5 +1,5 @@
 /**
- * @tsplus static fncts.control.IOOps acquireReleaseInterruptibleExit
+ * @tsplus static fncts.io.IOOps acquireReleaseInterruptibleExit
  */
 export function acquireReleaseInterruptibleExit<R, E, A, R1>(
   acquire: Lazy<IO<R, E, A>>,

@@ -7,8 +7,8 @@ import { identity } from "@fncts/base/data/function";
  * returning a `Ref` with a `set` value that succeeds if the predicate is
  * satisfied or else fails with `None`.
  *
- * @tsplus fluent fncts.control.Ref filterInput
- * @tsplus fluent fncts.control.Ref.Synchronized filterInput
+ * @tsplus fluent fncts.io.Ref filterInput
+ * @tsplus fluent fncts.io.Ref.Synchronized filterInput
  */
 export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
   ref: PRef<RA, RB, EA, EB, A, B>,
@@ -22,8 +22,8 @@ export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
  * returning a `Ref` with a `get` value that succeeds if the predicate is
  * satisfied or else fails with `None`.
  *
- * @tsplus fluent fncts.control.Ref filterOutput
- * @tsplus fluent fncts.control.Ref.Synchronized filterOutput
+ * @tsplus fluent fncts.io.Ref filterOutput
+ * @tsplus fluent fncts.io.Ref.Synchronized filterOutput
  */
 export function filterOutput_<RA, RB, EA, EB, A, B>(
   ref: PRef<RA, RB, EA, EB, A, B>,

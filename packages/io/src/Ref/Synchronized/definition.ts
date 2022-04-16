@@ -3,22 +3,22 @@ import type { PRef } from "../definition.js";
 import { RefInternal } from "../definition.js";
 
 /**
- * @tsplus type fncts.control.Ref.Synchronized
+ * @tsplus type fncts.io.Ref.Synchronized
  */
 export interface PSynchronized<RA, RB, EA, EB, A, B> extends PRef<RA, RB, EA, EB, A, B> {}
 
 /**
- * @tsplus type fncts.control.Ref.SynchronizedOps
+ * @tsplus type fncts.io.Ref.SynchronizedOps
  */
 export interface PSynchronizedOps {}
 
 /**
- * @tsplus static fncts.control.RefOps Synchronized
+ * @tsplus static fncts.io.RefOps Synchronized
  */
 export const Synchronized: PSynchronizedOps = {};
 
 /**
- * @tsplus type fncts.control.Ref.Synchronized
+ * @tsplus type fncts.io.Ref.Synchronized
  */
 export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA, RB, EA, EB, A, B> {
   readonly _tag = "Synchronized";

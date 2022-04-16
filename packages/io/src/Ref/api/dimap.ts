@@ -3,8 +3,8 @@ import type { PRef } from "../definition.js";
 /**
  * Transforms the `set` value of the `Ref` with the specified function.
  *
- * @tsplus fluent fncts.control.Ref contramap
- * @tsplus fluent fncts.control.Ref.Synchronized contramap
+ * @tsplus fluent fncts.io.Ref contramap
+ * @tsplus fluent fncts.io.Ref.Synchronized contramap
  */
 export function contramap_<RA, RB, EA, EB, B, A, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
@@ -17,8 +17,8 @@ export function contramap_<RA, RB, EA, EB, B, A, C>(
  * Transforms the `set` value of the `Ref` with the specified fallible
  * function.
  *
- * @tsplus fluent fncts.control.Ref contramapEither
- * @tsplus fluent fncts.control.Ref.Synchronized contramapEither
+ * @tsplus fluent fncts.io.Ref contramapEither
+ * @tsplus fluent fncts.io.Ref.Synchronized contramapEither
  */
 export function contramapEither_<RA, RB, EA, EB, A, B, EC, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
@@ -31,8 +31,8 @@ export function contramapEither_<RA, RB, EA, EB, A, B, EC, C>(
  * Transforms both the `set` and `get` values of the `Ref` with the
  * specified functions.
  *
- * @tsplus fluent fncts.control.Ref dimap
- * @tsplus fluent fncts.control.Ref.Synchronized dimap
+ * @tsplus fluent fncts.io.Ref dimap
+ * @tsplus fluent fncts.io.Ref.Synchronized dimap
  */
 export function dimap_<RA, RB, EA, EB, A, B, C, D>(
   ref: PRef<RA, RB, EA, EB, A, B>,
@@ -49,8 +49,8 @@ export function dimap_<RA, RB, EA, EB, A, B, C, D>(
  * Transforms both the `set` and `get` values of the `Ref` with the
  * specified fallible functions.
  *
- * @tsplus fluent fncts.control.Ref dimapEither
- * @tsplus fluent fncts.control.Ref.Synchronized dimapEither
+ * @tsplus fluent fncts.io.Ref dimapEither
+ * @tsplus fluent fncts.io.Ref.Synchronized dimapEither
  */
 export function dimapEither_<RA, RB, EA, EB, A, B, C, EC, D, ED>(
   ref: PRef<RA, RB, EA, EB, A, B>,
@@ -69,8 +69,8 @@ export function dimapEither_<RA, RB, EA, EB, A, B, C, EC, D, ED>(
  * Transforms both the `set` and `get` errors of the `Ref` with the
  * specified functions.
  *
- * @tsplus fluent fncts.control.Ref dimapError
- * @tsplus fluent fncts.control.Ref.Synchronized dimapError
+ * @tsplus fluent fncts.io.Ref dimapError
+ * @tsplus fluent fncts.io.Ref.Synchronized dimapError
  */
 export function dimapError_<RA, RB, EA, EB, A, B, EC, ED>(
   ref: PRef<RA, RB, EA, EB, A, B>,
@@ -84,8 +84,8 @@ export function dimapError_<RA, RB, EA, EB, A, B, EC, ED>(
  * Transforms the `get` value of the `Ref` with the specified fallible
  * function.
  *
- * @tsplus fluent fncts.control.Ref mapEither
- * @tsplus fluent fncts.control.Ref.Synchronized mapEither
+ * @tsplus fluent fncts.io.Ref mapEither
+ * @tsplus fluent fncts.io.Ref.Synchronized mapEither
  */
 export function mapEither_<RA, RB, EA, EB, A, B, EC, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
@@ -97,8 +97,8 @@ export function mapEither_<RA, RB, EA, EB, A, B, EC, C>(
 /**
  * Transforms the `get` value of the `Ref` with the specified function.
  *
- * @tsplus fluent fncts.control.Ref map
- * @tsplus fluent fncts.control.Ref.Synchronized map
+ * @tsplus fluent fncts.io.Ref map
+ * @tsplus fluent fncts.io.Ref.Synchronized map
  */
 export function map_<RA, RB, EA, EB, A, B, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,

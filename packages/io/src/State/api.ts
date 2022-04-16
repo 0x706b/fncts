@@ -4,7 +4,7 @@ import { concrete } from "./definition.js";
 import { StateInternal } from "./internal.js";
 
 /**
- * @tsplus getter fncts.control.State get
+ * @tsplus getter fncts.io.State get
  */
 export function get_<S>(self: State<S>, __tsplusTrace?: string): UIO<S> {
   concrete(self);
@@ -12,7 +12,7 @@ export function get_<S>(self: State<S>, __tsplusTrace?: string): UIO<S> {
 }
 
 /**
- * @tsplus static fncts.control.StateOps initial
+ * @tsplus static fncts.io.StateOps initial
  */
 export function initial<S>(s: S, tag: Tag<State<S>>): Layer<unknown, never, Has<State<S>>> {
   return Layer.scoped(
@@ -33,7 +33,7 @@ export function initial<S>(s: S, tag: Tag<State<S>>): Layer<unknown, never, Has<
 }
 
 /**
- * @tsplus fluent fncts.control.State set
+ * @tsplus fluent fncts.io.State set
  */
 export function set_<S>(self: State<S>, value: S, __tsplusTrace?: string): UIO<void> {
   concrete(self);
@@ -41,7 +41,7 @@ export function set_<S>(self: State<S>, value: S, __tsplusTrace?: string): UIO<v
 }
 
 /**
- * @tsplus fluent fncts.control.State update
+ * @tsplus fluent fncts.io.State update
  */
 export function update_<S>(self: State<S>, f: (s: S) => S, __tsplusTrace?: string): UIO<void> {
   concrete(self);

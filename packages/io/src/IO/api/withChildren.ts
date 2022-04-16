@@ -1,5 +1,5 @@
 /**
- * @tsplus static fncts.control.IOOps withChildren
+ * @tsplus static fncts.io.IOOps withChildren
  */
 export function withChildren<R, E, A>(
   get: (_: UIO<Conc<Fiber.Runtime<any, any>>>) => IO<R, E, A>,

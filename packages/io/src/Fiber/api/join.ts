@@ -5,7 +5,7 @@
  * "inner interruption" of this fiber, unlike interruption triggered by another
  * fiber, "inner interruption" can be caught and recovered.
  *
- * @tsplus getter fncts.control.Fiber join
+ * @tsplus getter fncts.io.Fiber join
  */
 export function join<E, A>(fiber: Fiber<E, A>): FIO<E, A> {
   return fiber.await.flatMap(IO.fromExitNow).tap(() => fiber.inheritRefs);

@@ -7,7 +7,7 @@ import { MergeDecision } from "@fncts/io/Channel/internal/MergeDecision";
  * value. On the other hand, if the underlying channel finishes first, then the returned channel
  * will yield the success value of the underlying channel as its terminal value.
  *
- * @tsplus fluent fncts.control.Channel interruptWhen
+ * @tsplus fluent fncts.io.Channel interruptWhen
  */
 export function interruptWhen_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -27,7 +27,7 @@ export function interruptWhen_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1
  * underlying channel finishes first, then the returned channel will yield the value of the
  * underlying channel.
  *
- * @tsplus fluent fncts.control.Channel interruptWhen
+ * @tsplus fluent fncts.io.Channel interruptWhen
  */
 export function interruptWhenFuture_<Env, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,

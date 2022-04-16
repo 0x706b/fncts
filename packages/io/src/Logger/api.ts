@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.Logger filterLogLevel
+ * @tsplus fluent fncts.io.Logger filterLogLevel
  */
 export function filterLogLevel_<Message, Output>(
   self: Logger<Message, Output>,
@@ -15,7 +15,7 @@ export function filterLogLevel_<Message, Output>(
 }
 
 /**
- * @tsplus fluent fncts.control.Logger map
+ * @tsplus fluent fncts.io.Logger map
  */
 export function map_<Message, Output, B>(self: Logger<Message, Output>, f: (_: Output) => B): Logger<Message, B> {
   return new Logger((trace, fiberId, logLevel, message, cause, context, spans, annotations) =>

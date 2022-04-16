@@ -3,8 +3,8 @@ import type { FreeBooleanAlgebraIO } from "./definition.js";
 import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
 
 /**
- * @tsplus fluent fncts.test.control.FreeBooleanAlgebraIO and
- * @tsplus operator fncts.test.control.FreeBooleanAlgebraIO &&
+ * @tsplus fluent fncts.test.FreeBooleanAlgebraIO and
+ * @tsplus operator fncts.test.FreeBooleanAlgebraIO &&
  */
 export function and_<R, E, A extends A1, R1, E1, A1>(
   self: FreeBooleanAlgebraIO<R, E, A>,
@@ -14,8 +14,8 @@ export function and_<R, E, A extends A1, R1, E1, A1>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.FreeBooleanAlgebraIO or
- * @tsplus operator fncts.test.control.FreeBooleanAlgebraIO ||
+ * @tsplus fluent fncts.test.FreeBooleanAlgebraIO or
+ * @tsplus operator fncts.test.FreeBooleanAlgebraIO ||
  */
 export function or_<R, E, A extends A1, R1, E1, A1>(
   self: FreeBooleanAlgebraIO<R, E, A>,
@@ -25,42 +25,42 @@ export function or_<R, E, A extends A1, R1, E1, A1>(
 }
 
 /**
- * @tsplus fluent fncts.test.control.FreeBooleanAlgebraIO invert
+ * @tsplus fluent fncts.test.FreeBooleanAlgebraIO invert
  */
 export function not<R, E, A>(self: FreeBooleanAlgebraIO<R, E, A>): FreeBooleanAlgebraIO<R, E, A> {
   return self.map((a) => a.invert);
 }
 
 /**
- * @tsplus getter fncts.test.control.FreeBooleanAlgebraIO isSuccess
+ * @tsplus getter fncts.test.FreeBooleanAlgebraIO isSuccess
  */
 export function isSuccess<R, E, A>(self: FreeBooleanAlgebraIO<R, E, A>): IO<R, E, boolean> {
   return self.map((a) => a.isSuccess);
 }
 
 /**
- * @tsplus getter fncts.test.control.FreeBooleanAlgebraIO isFailure
+ * @tsplus getter fncts.test.FreeBooleanAlgebraIO isFailure
  */
 export function isFailure<R, E, A>(self: FreeBooleanAlgebraIO<R, E, A>): IO<R, E, boolean> {
   return self.map((a) => a.isFailure);
 }
 
 /**
- * @tsplus static fncts.test.control.FreeBooleanAlgebraIOOps success
+ * @tsplus static fncts.test.FreeBooleanAlgebraIOOps success
  */
 export function success<A>(a: A): FreeBooleanAlgebraIO<unknown, never, A> {
   return IO.succeedNow(FreeBooleanAlgebra.success(a));
 }
 
 /**
- * @tsplus static fncts.test.control.FreeBooleanAlgebraIOOps failure
+ * @tsplus static fncts.test.FreeBooleanAlgebraIOOps failure
  */
 export function failure<A>(a: A): FreeBooleanAlgebraIO<unknown, never, A> {
   return IO.succeedNow(FreeBooleanAlgebra.failure(a));
 }
 
 /**
- * @tsplus static fncts.test.control.FreeBooleanAlgebraIOOps fromIO
+ * @tsplus static fncts.test.FreeBooleanAlgebraIOOps fromIO
  */
 export function fromIO<R, E, A>(io: IO<R, E, A>): FreeBooleanAlgebraIO<R, E, A> {
   return io.map(FreeBooleanAlgebra.success);

@@ -17,7 +17,7 @@ import { Sample } from "../../Sample.js";
 import { Gen } from "../definition.js";
 
 /**
- * @tsplus static fncts.test.control.GenOps arrayInt64
+ * @tsplus static fncts.test.GenOps arrayInt64
  */
 export function arrayInt64(min: ArrayInt64, max: ArrayInt64): Gen<Has<Random>, ArrayInt64> {
   return new Gen(
@@ -33,7 +33,7 @@ export function arrayInt64(min: ArrayInt64, max: ArrayInt64): Gen<Has<Random>, A
 }
 
 /**
- * @tsplus static fncts.test.control.GenOps double
+ * @tsplus static fncts.test.GenOps double
  */
 export function double(constraints: NumberConstraints & FloatConstraints = {}): Gen<Has<Random>, number> {
   const {

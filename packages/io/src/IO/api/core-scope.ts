@@ -4,7 +4,7 @@ import { FiberScope } from "../../FiberScope.js";
 import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";
 
 /**
- * @tsplus getter fncts.control.IO daemonChildren
+ * @tsplus getter fncts.io.IO daemonChildren
  */
 export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.defer(new OverrideForkScope(self, Just(FiberScope.global), __tsplusTrace));
@@ -13,14 +13,14 @@ export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: strin
 /**
  * Retrieves the scope that will be used to supervise forked effects.
  *
- * @tsplus static fncts.control.IOOps forkScope
+ * @tsplus static fncts.io.IOOps forkScope
  */
 export const forkScope: UIO<FiberScope> = new GetForkScope(IO.succeedNow);
 
 /**
  * Retrieves the scope that will be used to supervise forked effects.
  *
- * @tsplus static fncts.control.IOOps forkScopeWith
+ * @tsplus static fncts.io.IOOps forkScopeWith
  */
 export function forkScopeWith<R, E, A>(f: (_: FiberScope) => IO<R, E, A>, __tsplusTrace?: string) {
   return new GetForkScope(f, __tsplusTrace);
@@ -38,7 +38,7 @@ export class ForkScopeRestore {
  * scope, passing a function that allows restoring the fork scope to
  * what it was originally.
  *
- * @tsplus static fncts.control.IOOps forkScopeMask
+ * @tsplus static fncts.io.IOOps forkScopeMask
  */
 export function forkScopeMask_<R, E, A>(
   newScope: FiberScope,
@@ -54,7 +54,7 @@ export function forkScopeMask_<R, E, A>(
  * Returns an effect that races this effect with the specified effect, calling
  * the specified finisher as soon as one result or the other has been computed.
  *
- * @tsplus fluent fncts.control.IO raceWith
+ * @tsplus fluent fncts.io.IO raceWith
  */
 export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
   left: IO<R, E, A>,
@@ -100,7 +100,7 @@ export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;
  * This can be used to "graft" deep grandchildren onto a higher-level
  * scope, effectively extending their lifespans into the parent scope.
  *
- * @tsplus static fncts.control.IOOps transplant
+ * @tsplus static fncts.io.IOOps transplant
  */
 export function transplant<R, E, A>(f: (_: Grafter) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return forkScopeWith((scope) => f((e) => new OverrideForkScope(e, Just(scope))));
@@ -111,7 +111,7 @@ export function transplant<R, E, A>(f: (_: Grafter) => IO<R, E, A>, __tsplusTrac
  * new fiber is attached to the global scope, when the fiber executing the
  * returned effect terminates, the forked fiber will continue running.
  *
- * @tsplus getter fncts.control.IO forkDaemon
+ * @tsplus getter fncts.io.IO forkDaemon
  */
 export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, Fiber.Runtime<E, A>> {
   return new Fork(ma, Just(FiberScope.global), __tsplusTrace);
@@ -121,7 +121,7 @@ export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): UR
  * Returns a new effect that will utilize the specified scope to supervise
  * any fibers forked within the original effect.
  *
- * @tsplus fluent fncts.control.IO overrideForkScope
+ * @tsplus fluent fncts.io.IO overrideForkScope
  */
 export function overrideForkScope_<R, E, A>(ma: IO<R, E, A>, scope: FiberScope, __tsplusTrace?: string): IO<R, E, A> {
   return new OverrideForkScope(ma, Just(scope), __tsplusTrace);
@@ -131,7 +131,7 @@ export function overrideForkScope_<R, E, A>(ma: IO<R, E, A>, scope: FiberScope, 
  * Returns a new effect that will utilize the default scope (fiber scope) to
  * supervise any fibers forked within the original effect.
  *
- * @tsplus getter fncts.control.IO defaultForkScope
+ * @tsplus getter fncts.io.IO defaultForkScope
  */
 export function defaultForkScope<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new OverrideForkScope(ma, Nothing(), __tsplusTrace);

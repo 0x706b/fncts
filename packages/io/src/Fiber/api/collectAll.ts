@@ -2,7 +2,7 @@
  * Collects all fibers into a single fiber producing an in-order list of the
  * results.
  *
- * @tsplus static fncts.control.FiberOps sequenceIterable
+ * @tsplus static fncts.io.FiberOps sequenceIterable
  */
 export function sequenceIterable<E, A>(fibers: Iterable<Fiber<E, A>>): Fiber.Synthetic<E, Conc<A>> {
   return {

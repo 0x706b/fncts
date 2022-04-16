@@ -5,8 +5,8 @@ import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
  * be retrieved using IO.descriptor, and when forking fibers, you can
  * specify a custom scope to fork them on by using the IO#forkIn.
  *
- * @tsplus type fncts.control.FiberScope
- * @tsplus companion fncts.control.FiberScopeOps
+ * @tsplus type fncts.io.FiberScope
+ * @tsplus companion fncts.io.FiberScopeOps
  */
 export abstract class FiberScope {
   abstract fiberId: FiberId;

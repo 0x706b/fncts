@@ -3,7 +3,7 @@ import { identity } from "@fncts/base/data/function";
 export type MergeStrategy = "BackPressure" | "BufferSliding";
 
 /**
- * @tsplus fluent fncts.control.Channel mergeAllWith
+ * @tsplus fluent fncts.io.Channel mergeAllWith
  */
 export function mergeAllWith_<
   Env,

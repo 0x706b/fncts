@@ -1,20 +1,20 @@
 import { Console } from "@fncts/io/Console";
 
 /**
- * @tsplus type fncts.test.control.TestLogger
- * @tsplus companion fncts.test.control.TestLoggerOps
+ * @tsplus type fncts.test.TestLogger
+ * @tsplus companion fncts.test.TestLoggerOps
  */
 export abstract class TestLogger {
   abstract logLine(line: string): UIO<void>;
 }
 
 /**
- * @tsplus static fncts.test.control.TestLoggerOps Tag
+ * @tsplus static fncts.test.TestLoggerOps Tag
  */
 export const TestLoggerTag = Tag<TestLogger>();
 
 /**
- * @tsplus static fncts.test.control.TestLoggerOps fromConsole
+ * @tsplus static fncts.test.TestLoggerOps fromConsole
  */
 export const fromConsole: Layer<Has<Console>, never, Has<TestLogger>> = Layer.fromIO(
   IO.serviceWithIO(
@@ -32,7 +32,7 @@ export const fromConsole: Layer<Has<Console>, never, Has<TestLogger>> = Layer.fr
 );
 
 /**
- * @tsplus static fncts.test.control.TestLoggerOps logLine
+ * @tsplus static fncts.test.TestLoggerOps logLine
  */
 export function logLine(line: string): URIO<Has<TestLogger>, void> {
   return IO.serviceWithIO((testLogger) => testLogger.logLine(line), TestLogger.Tag);

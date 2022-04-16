@@ -2,14 +2,14 @@ import type { Console } from "@fncts/io/Console";
 import type { Erase } from "@fncts/typelevel/Intersection";
 
 /**
- * @tsplus static fncts.test.control.LiveOps Tag
+ * @tsplus static fncts.test.LiveOps Tag
  */
 export const LiveTag = Tag<Live>();
 
 type IOEnv = Has<Clock> & Has<Random> & Has<Console>;
 
 /**
- * @tsplus companion fncts.test.control.LiveOps
+ * @tsplus companion fncts.test.LiveOps
  */
 export abstract class Live {
   abstract provide<E, A>(io: IO<IOEnv, E, A>): IO<unknown, E, A>;
@@ -32,7 +32,7 @@ export abstract class Live {
 }
 
 /**
- * @tsplus static fncts.test.control.LiveOps withLive
+ * @tsplus static fncts.test.LiveOps withLive
  */
 export function withLive_<R, E, A, E1, B>(
   io: IO<R, E, A>,

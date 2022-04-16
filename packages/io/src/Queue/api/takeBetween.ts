@@ -14,7 +14,7 @@ function takeRemainderLoop<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A
  * is less than min items available, it'll block until the items are
  * collected.
  *
- * @tsplus fluent fncts.control.Queue takeBetween
+ * @tsplus fluent fncts.io.Queue takeBetween
  */
 export function takeBetween_<RA, RB, EA, EB, A, B>(
   queue: PQueue<RA, RB, EA, EB, A, B>,

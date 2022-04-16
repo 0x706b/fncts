@@ -1,5 +1,5 @@
 /**
- * @tsplus fluent fncts.control.IO zipWithC
+ * @tsplus fluent fncts.io.IO zipWithC
  */
 export function zipWithC_<R, E, A, R1, E1, B, C>(
   self: IO<R, E, A>,

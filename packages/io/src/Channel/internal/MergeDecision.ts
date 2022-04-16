@@ -3,12 +3,12 @@ export const enum MergeDecisionTag {
   Await = "Await",
 }
 
-export const MergeDecisionTypeId = Symbol.for("fncts.control.Channel.MergeDecision");
+export const MergeDecisionTypeId = Symbol.for("fncts.io.Channel.MergeDecision");
 export type MergeDecisionTypeId = typeof MergeDecisionTypeId;
 
 /**
- * @tsplus type fncts.control.Channel.MergeDecision
- * @tsplus companion fncts.control.Channel.MergeDecisionOps
+ * @tsplus type fncts.io.Channel.MergeDecision
+ * @tsplus companion fncts.io.Channel.MergeDecisionOps
  */
 export abstract class MergeDecision<R, E0, Z0, E, Z> {
   readonly _typeId: MergeDecisionTypeId = MergeDecisionTypeId;
@@ -20,7 +20,7 @@ export abstract class MergeDecision<R, E0, Z0, E, Z> {
 }
 
 /**
- * @tsplus fluent fncts.control.Channel.MergeDecision concrete
+ * @tsplus fluent fncts.io.Channel.MergeDecision concrete
  * @tsplus macro remove
  */
 export function concrete<R, E0, Z0, E, Z>(
@@ -44,21 +44,21 @@ export class Await<R, E0, Z0, E, Z> extends MergeDecision<R, E0, Z0, E, Z> {
 }
 
 /**
- * @tsplus static fncts.control.Channel.MergeDecisionOps Done
+ * @tsplus static fncts.io.Channel.MergeDecisionOps Done
  */
 export function done<R, E, Z>(io: IO<R, E, Z>): MergeDecision<R, unknown, unknown, E, Z> {
   return new Done(io);
 }
 
 /**
- * @tsplus static fncts.control.Channel.MergeDecisionOps Await
+ * @tsplus static fncts.io.Channel.MergeDecisionOps Await
  */
 export function wait<R, E0, Z0, E, Z>(f: (exit: Exit<E0, Z0>) => IO<R, E, Z>): MergeDecision<R, E0, Z0, E, Z> {
   return new Await(f);
 }
 
 /**
- * @tsplus static fncts.control.Channel.MergeDecisionOps AwaitConst
+ * @tsplus static fncts.io.Channel.MergeDecisionOps AwaitConst
  */
 export function awaitConst<R, E, Z>(io: IO<R, E, Z>): MergeDecision<R, unknown, unknown, E, Z> {
   return new Await(() => io);

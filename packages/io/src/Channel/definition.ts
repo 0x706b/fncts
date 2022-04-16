@@ -22,8 +22,8 @@ export const enum ChannelTag {
 }
 
 /**
- * @tsplus type fncts.control.Channel
- * @tsplus companion fncts.control.ChannelOps
+ * @tsplus type fncts.io.Channel
+ * @tsplus companion fncts.io.ChannelOps
  */
 export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
   readonly _Env!: (_: Env) => void;
@@ -36,7 +36,7 @@ export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDo
 }
 
 /**
- * @tsplus unify fncts.control.Channel
+ * @tsplus unify fncts.io.Channel
  */
 export function unifyChannel<X extends Channel<any, any, any, any, any, any, any>>(
   _: X,

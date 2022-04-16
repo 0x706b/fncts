@@ -1,8 +1,8 @@
 import type { LogSpan } from "@fncts/io/LogSpan";
 
 /**
- * @tsplus type fncts.control.Logger
- * @tsplus companion fncts.control.LoggerOps
+ * @tsplus type fncts.io.Logger
+ * @tsplus companion fncts.io.LoggerOps
  */
 export class Logger<Message, Output> {
   readonly _Message!: (_: Message) => void;

@@ -2,8 +2,8 @@ export const ScopeTypeId = Symbol.for("fncts.base.control.Scope");
 export type ScopeTypeId = typeof ScopeTypeId;
 
 /**
- * @tsplus type fncts.control.Scope
- * @tsplus companion fncts.control.ScopeOps
+ * @tsplus type fncts.io.Scope
+ * @tsplus companion fncts.io.ScopeOps
  */
 export abstract class Scope {
   readonly _typeId: ScopeTypeId = ScopeTypeId;
@@ -12,8 +12,8 @@ export abstract class Scope {
 }
 
 /**
- * @tsplus type fncts.control.Scope.Closeable
- * @tsplus companion fncts.control.Scope.CloseableOps
+ * @tsplus type fncts.io.Scope.Closeable
+ * @tsplus companion fncts.io.Scope.CloseableOps
  */
 export abstract class Closeable extends Scope {
   abstract close(exit: Lazy<Exit<any, any>>): UIO<void>;
@@ -26,6 +26,6 @@ export declare namespace Scope {
 }
 
 /**
- * @tsplus static fncts.control.ScopeOps Tag
+ * @tsplus static fncts.io.ScopeOps Tag
  */
 export const ScopeTag = Tag<Scope>();

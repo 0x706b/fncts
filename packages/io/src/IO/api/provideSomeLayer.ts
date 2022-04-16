@@ -2,7 +2,7 @@ import type { Spreadable } from "@fncts/base/types";
 import type { Erase } from "@fncts/typelevel/Intersection";
 
 /**
- * @tsplus fluent fncts.control.IO provideSomeLayer
+ * @tsplus fluent fncts.io.IO provideSomeLayer
  */
 export function provideSomeLayer_<R, E, A, RIn, E1, ROut>(
   self: IO<R, E, A>,
@@ -14,7 +14,7 @@ export function provideSomeLayer_<R, E, A, RIn, E1, ROut>(
 }
 
 /**
- * @tsplus static fncts.control.IOAspects provideSomeLayer
+ * @tsplus static fncts.io.IOAspects provideSomeLayer
  */
 export function provideSomeLayer<RIn, E1, ROut>(layer: Layer<RIn, E1, ROut>, __tsplusTrace?: string) {
   return <R, E, A>(self: IO<R & ROut, E, A>): IO<R & RIn, E | E1, A> =>

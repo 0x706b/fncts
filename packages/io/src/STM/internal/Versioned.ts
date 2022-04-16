@@ -1,4 +1,4 @@
-export const VersionedTypeId = Symbol.for("fncts.data.Versioned");
+export const VersionedTypeId = Symbol.for("fncts.io.Versioned");
 export type VersionedTypeId = typeof VersionedTypeId;
 
 export class Versioned<A> {

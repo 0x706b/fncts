@@ -3,7 +3,7 @@
  * interruption will happen in a separate daemon fiber, and the returned
  * effect will always resume immediately without waiting.
  *
- * @tsplus getter fncts.control.Fiber interruptFork
+ * @tsplus getter fncts.io.Fiber interruptFork
  */
 export function interruptFork<E, A>(fiber: Fiber<E, A>): UIO<void> {
   return fiber.interrupt.forkDaemon.asUnit;

@@ -42,7 +42,7 @@ export class LiveAnnotations extends Annotations {
 }
 
 /**
- * @tsplus static fncts.test.control.AnnotationsOps Live
+ * @tsplus static fncts.test.AnnotationsOps Live
  */
 export const live = Layer.fromIO(
   FiberRef.make(TestAnnotationMap.empty).map((fiberRef) => new LiveAnnotations(fiberRef)),

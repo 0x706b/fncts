@@ -1,4 +1,4 @@
-export const HubTypeId = Symbol.for("fncts.control.Hub");
+export const HubTypeId = Symbol.for("fncts.io.Hub");
 export type HubTypeId = typeof HubTypeId;
 
 /**
@@ -9,7 +9,7 @@ export type HubTypeId = typeof HubTypeId;
  * messages can require an environment of type `RB` and fail with an error of
  * type `EB`.
  *
- * @tsplus type fncts.control.Hub
+ * @tsplus type fncts.io.Hub
  */
 export interface PHub<RA, RB, EA, EB, A, B> {
   readonly _typeId: HubTypeId;
@@ -22,12 +22,12 @@ export interface PHub<RA, RB, EA, EB, A, B> {
 }
 
 /**
- * @tsplus type fncts.control.Hub
+ * @tsplus type fncts.io.Hub
  */
 export interface Hub<A> extends PHub<unknown, unknown, never, never, A, A> {}
 
 /**
- * @tsplus type fncts.control.HubOps
+ * @tsplus type fncts.io.HubOps
  */
 export interface HubOps {}
 

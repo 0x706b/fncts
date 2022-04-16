@@ -3,8 +3,8 @@ import type { StateInternal } from "./internal.js";
 import { StateTypeId } from "./internal.js";
 
 /**
- * @tsplus type fncts.control.State
- * @tsplus companion fncts.control.StateOps
+ * @tsplus type fncts.io.State
+ * @tsplus companion fncts.io.StateOps
  */
 export abstract class State<S> {
   readonly _A!: () => S;
