@@ -43,13 +43,15 @@ export function compose<In, Out, Out2>(self: Patch<In, Out>, that: Patch<Out, Ou
   return new Compose(self, that);
 }
 
+const OrdEnvironmentMap = Number.Ord.contramap((_: readonly [Tag<unknown>, readonly [unknown, number]]) => _[1][1]);
+
 /**
  * @tsplus static fncts.Environment.PatchOps diff
  */
 export function diff<In, Out>(oldValue: Environment<In>, newValue: Environment<Out>): Patch<In, Out> {
-  const sorted                   = newValue.cache.asList.sort(Number.Ord.contramap(([tag]) => tag.id));
+  const sorted                   = newValue.map.asList.sort(OrdEnvironmentMap);
   const [missingServices, patch] = sorted.foldLeft(
-    [oldValue.cache, Patch.empty() as Patch<any, any>],
+    [oldValue.map, Patch.empty() as Patch<any, any>],
     ([map, patch], [tag, newService]) =>
       map.get(tag).match(
         () => [map.remove(tag), patch.compose(new AddService(newService, tag))],

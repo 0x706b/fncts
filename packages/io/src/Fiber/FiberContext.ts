@@ -525,9 +525,14 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   private unsafeSetRef<A>(ref: FiberRef<A>, value: A): void {
     const oldState = this.fiberRefLocals.get;
     const oldStack = oldState.get(ref).getOrElse(List.empty<readonly [FiberId.Runtime, unknown]>());
-    const newStack = oldStack.isEmpty()
-      ? Cons([this.fiberId, value] as const)
-      : Cons([this.fiberId, value] as const, oldStack.tail);
+    let newStack: Cons<readonly [FiberId.Runtime, unknown]>;
+    if (oldStack.isEmpty()) {
+      newStack = Cons([this.fiberId, value]);
+    } else if (oldStack.head[0] == this.fiberId) {
+      newStack = Cons([this.fiberId, value], oldStack.tail);
+    } else {
+      newStack = Cons([this.fiberId, value], oldStack);
+    }
     const newState = oldState.set(ref, newStack);
     this.fiberRefLocals.set(newState);
   }
@@ -881,9 +886,15 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   ): FiberContext<any, any> {
     const childId = FiberId.newFiberId();
 
-    const childFiberRefLocals = this.fiberRefLocals.get.mapWithIndex((fiberRef, stack) =>
-      Cons([childId, fiberRef.patch(fiberRef.fork)(stack.head[1])], stack),
-    );
+    const childFiberRefLocals = this.fiberRefLocals.get.mapWithIndex((fiberRef, stack) => {
+      const oldValue = stack.head[1];
+      const newValue = fiberRef.patch(fiberRef.fork)(oldValue);
+      if (oldValue === newValue) {
+        return stack;
+      } else {
+        return Cons([childId, newValue], stack);
+      }
+    });
 
     const parentScope: FiberScope = forkScope
       .orElse(this.unsafeGetRef(FiberRef.forkScopeOverride))

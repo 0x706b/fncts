@@ -148,7 +148,7 @@ import { Newtype, NewtypeIso } from "@fncts/base/data/Newtype";
 /**
  * @tsplus global
  */
-import {} from "@fncts/base/data/number/definition";
+import {} from "@fncts/base/data/number";
 /**
  * @tsplus global
  */
