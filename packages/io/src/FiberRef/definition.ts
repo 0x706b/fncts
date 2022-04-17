@@ -40,7 +40,6 @@ export class FiberRefInternal<Value, Patch> extends FiberRef<Value> implements H
   get [Symbol.hashable]() {
     let hash = Hashable.hashString("FiberRef");
     hash    ^= Hashable.hashNumber(this.id);
-    hash    ^= Hashable.hash(this._initial);
     return hash;
   }
 
