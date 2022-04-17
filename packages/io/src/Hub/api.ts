@@ -213,7 +213,9 @@ export function makeBounded<A>(requestedCapacity: number): UIO<Hub<A>> {
  * @tsplus static fncts.io.HubOps makeDropping
  */
 export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
-  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) => makeHubInternal(hub, new Dropping()));
+  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) =>
+    makeHubInternal(hub, new Dropping()),
+  );
 }
 
 /**
@@ -225,7 +227,9 @@ export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
  * @tsplus static fncts.io.HubOps makeSliding
  */
 export function makeSliding<A>(requestedCapacity: number): UIO<Hub<A>> {
-  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) => makeHubInternal(hub, new Sliding()));
+  return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) =>
+    makeHubInternal(hub, new Sliding()),
+  );
 }
 
 /**

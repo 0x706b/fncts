@@ -66,6 +66,10 @@ import { Eval } from "@fncts/base/control/Eval";
 /**
  * @tsplus global
  */
+import { LazyValue } from "@fncts/base/control/LazyValue";
+/**
+ * @tsplus global
+ */
 import { Z } from "@fncts/base/control/Z/definition";
 /**
  * @tsplus global
@@ -228,7 +232,11 @@ import { FiberDescriptor } from "@fncts/io/FiberDescriptor";
 /**
  * @tsplus global
  */
-import { FiberRef, PFiberRef } from "@fncts/io/FiberRef/definition";
+import { FiberRef } from "@fncts/io/FiberRef/definition";
+/**
+ * @tsplus global
+ */
+import { FiberRefs } from "@fncts/io/FiberRefs";
 /**
  * @tsplus global
  */
@@ -256,11 +264,11 @@ import { FIO, IO, UIO, URIO } from "@fncts/io/IO/definition";
 /**
  * @tsplus global
  */
-import { Layer } from "@fncts/io/Layer";
+import {IOEnv} from "@fncts/io/IOEnv";
 /**
  * @tsplus global
  */
-import { LazyValue } from "@fncts/io/LazyValue";
+import { Layer } from "@fncts/io/Layer";
 /**
  * @tsplus global
  */

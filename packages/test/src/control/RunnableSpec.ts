@@ -9,7 +9,7 @@ import { TestLogger } from "@fncts/test/control/TestLogger";
 
 export abstract class RunnableSpec<R, E> extends AbstractRunnableSpec<R, E> {
   readonly _tag = "RunnableSpec";
-  run(spec: Spec<R, E>): URIO<Has<TestLogger> & Has<Clock>, number> {
+  run(spec: Spec<R, E>): URIO<Has<TestLogger>, number> {
     const self = this;
     return IO.gen(function* (_) {
       const results     = yield* _(self.runSpec(spec));

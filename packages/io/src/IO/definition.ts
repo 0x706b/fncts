@@ -61,11 +61,11 @@ export const enum IOTag {
   GetInterrupt = "GetInterrupt",
   GetDescriptor = "GetDescriptor",
   Supervise = "Supervise",
-  FiberRefGetAll = "FiberRefGetAll",
   FiberRefModify = "FiberRefModify",
   FiberRefLocally = "FiberRefLocally",
   FiberRefDelete = "FiberRefDelete",
   FiberRefWith = "FiberRefWith",
+  FiberRefModifyAll = "FiberRefModifyAll",
   GetForkScope = "GetForkScope",
   OverrideForkScope = "OverrideForkScope",
   Trace = "Trace",
@@ -274,21 +274,10 @@ export class Supervise<R, E, A> extends IO<R, E, A> {
 /**
  * @internal
  */
-export class FiberRefGetAll<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.FiberRefGetAll;
-
-  constructor(readonly make: (refs: Map<FiberRef.Runtime<unknown>, any>) => IO<R, E, A>, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
 export class FiberRefModify<A, B> extends IO<unknown, never, B> {
   readonly _tag = IOTag.FiberRefModify;
 
-  constructor(readonly fiberRef: FiberRef.Runtime<A>, readonly f: (a: A) => readonly [B, A], readonly trace?: string) {
+  constructor(readonly fiberRef: FiberRef<unknown>, readonly f: (a: A) => readonly [B, A], readonly trace?: string) {
     super();
   }
 }
@@ -297,7 +286,7 @@ export class FiberRefLocally<V, R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.FiberRefLocally;
   constructor(
     readonly localValue: V,
-    readonly fiberRef: FiberRef.Runtime<V>,
+    readonly fiberRef: FiberRef<V>,
     readonly io: IO<R, E, A>,
     readonly trace?: string,
   ) {
@@ -307,14 +296,24 @@ export class FiberRefLocally<V, R, E, A> extends IO<R, E, A> {
 
 export class FiberRefDelete extends IO<unknown, never, void> {
   readonly _tag = IOTag.FiberRefDelete;
-  constructor(readonly fiberRef: FiberRef.Runtime<any>, readonly trace?: string) {
+  constructor(readonly fiberRef: FiberRef<unknown>, readonly trace?: string) {
     super();
   }
 }
 
-export class FiberRefWith<R, E, A, B> extends IO<R, E, B> {
+export class FiberRefWith<A, P, R, E, B> extends IO<R, E, B> {
   readonly _tag = IOTag.FiberRefWith;
-  constructor(readonly fiberRef: FiberRef.Runtime<A>, readonly f: (a: A) => IO<R, E, B>, readonly trace?: string) {
+  constructor(readonly fiberRef: FiberRef<A>, readonly f: (a: A) => IO<R, E, B>, readonly trace?: string) {
+    super();
+  }
+}
+
+export class FiberRefModifyAll<A> extends IO<unknown, never, A> {
+  readonly _tag = IOTag.FiberRefModifyAll;
+  constructor(
+    readonly f: (fiberId: FiberId.Runtime, fiberRefs: FiberRefs) => readonly [A, FiberRefs],
+    readonly trace?: string,
+  ) {
     super();
   }
 }
@@ -363,7 +362,7 @@ export class Logged extends IO<unknown, never, void> {
     readonly cause: Cause<any>,
     readonly overrideLogLevel: Maybe<LogLevel>,
     readonly trace?: string,
-    readonly overrideRef1: FiberRef.Runtime<unknown> | null = null,
+    readonly overrideRef1: FiberRef<unknown> | null = null,
     readonly overrideValue1: unknown | null = null,
   ) {
     super();
@@ -392,11 +391,11 @@ export type Instruction =
   | Yield
   | Defer<any, any, any>
   | DeferWith<any, any, any>
-  | FiberRefGetAll<any, any, any>
   | FiberRefModify<any, any>
   | FiberRefLocally<any, any, any, any>
   | FiberRefDelete
-  | FiberRefWith<any, any, any, any>
+  | FiberRefWith<any, any, any, any, any>
+  | FiberRefModifyAll<any>
   | Race<any, any, any, any, any, any, any, any, any, any, any, any>
   | Supervise<any, any, any>
   | GetForkScope<any, any, any>

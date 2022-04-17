@@ -14,20 +14,18 @@ import { ConsoleRenderer } from "@fncts/test/control/TestRenderer/ConsoleRendere
 
 export class TestRunner<R, E> {
   readonly reporter: TestReporter<E>;
-  readonly bootstrap: Layer<unknown, never, Has<TestLogger> & Has<Clock>>;
+  readonly bootstrap: Layer<unknown, never, Has<TestLogger>>;
   constructor(
     readonly executor: TestExecutor<R>,
     readonly runtimeConfig: RuntimeConfig = defaultRuntimeConfig,
     reporter?: TestReporter<E>,
-    bootstrap?: Layer<unknown, never, Has<TestLogger> & Has<Clock>>,
+    bootstrap?: Layer<unknown, never, Has<TestLogger>>,
   ) {
-    this.reporter = reporter ?? DefaultTestReporter.report(ConsoleRenderer.render, TestAnnotationRenderer.Default);
-    this.bootstrap =
-      bootstrap ??
-      Layer.succeed(Console.Live, Console.Tag).to(TestLogger.fromConsole).and(Layer.succeed(Clock.Live, Clock.Tag));
+    this.reporter  = reporter ?? DefaultTestReporter.report(ConsoleRenderer.render, TestAnnotationRenderer.Default);
+    this.bootstrap = bootstrap ?? TestLogger.fromConsole;
   }
 
-  run(spec: Spec<R & Has<Annotations>, E>): URIO<Has<TestLogger> & Has<Clock>, ExecutedSpec<E>> {
+  run(spec: Spec<R & Has<Annotations>, E>): URIO<Has<TestLogger>, ExecutedSpec<E>> {
     return this.executor
       .run(spec, ExecutionStrategy.concurrentBounded(10))
       .timedWith(Clock.currentTime)

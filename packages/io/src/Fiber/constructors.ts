@@ -5,7 +5,6 @@ export function done<E, A>(exit: Exit<E, A>): Fiber.Synthetic<E, A> {
   return {
     _tag: "SyntheticFiber",
     await: IO.succeed(exit),
-    getRef: (ref) => IO.succeed(ref.initial),
     inheritRefs: IO.unit,
     interruptAs: () => IO.succeed(exit),
     poll: IO.succeed(Just(exit)),

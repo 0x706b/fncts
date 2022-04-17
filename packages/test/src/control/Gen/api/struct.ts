@@ -13,7 +13,7 @@ export function struct<P extends Record<string, Gen<any, any>>>(
 
 export function partial<P extends Record<string, Gen<any, any>>>(
   properties: P,
-): Gen<Has<Random> & _R<P[keyof P]>, Partial<{ readonly [K in keyof P]: _A<P[K]> }>> {
+): Gen<unknown & _R<P[keyof P]>, Partial<{ readonly [K in keyof P]: _A<P[K]> }>> {
   const entries = Object.entries(properties);
   return entries.foldLeft(Gen.constant({}) as Gen<any, any>, (b, [k, gen]) =>
     Gen.unwrap(Random.nextBoolean.ifIO(IO.succeed(b.zipWith(gen, (r, a) => ({ ...r, [k]: a }))), IO.succeed(b))),

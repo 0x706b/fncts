@@ -1,7 +1,9 @@
+import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { Stack } from "@fncts/base/internal/Stack";
 import { Console } from "@fncts/io/Console";
 import { FiberContext } from "@fncts/io/Fiber";
 import { concrete } from "@fncts/io/IO/definition";
+import { IOEnv } from "@fncts/io/IOEnv/definition";
 
 export class Runtime<R> {
   constructor(readonly environment: Environment<R>, readonly runtimeConfig: RuntimeConfig) {}
@@ -21,7 +23,12 @@ export class Runtime<R> {
       fiberId,
       this.runtimeConfig,
       Stack.make(InterruptStatus.interruptible.toBoolean),
-      new Map([[FiberRef.currentEnvironment, this.environment]]),
+      new AtomicReference(
+        HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
+          [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
+          [IOEnv.services, Cons([fiberId, IOEnv.environment])],
+        ),
+      ),
       children,
     );
 
@@ -70,14 +77,7 @@ export const defaultRuntimeConfig = new RuntimeConfig({
   logger: Logger.defaultString.map((s) => console.log(s)).filterLogLevel((level) => level >= LogLevel.Info),
 });
 
-export const defaultRuntime = new Runtime(
-  Environment.empty.add(Clock.Live, Clock.Tag).add(Random.Live, Random.Tag).add(Console.Live, Console.Tag),
-  defaultRuntimeConfig,
-);
-
-export const LiveIOEnv = Layer.succeed(Clock.Live, Clock.Tag)
-  .and(Layer.succeed(Random.Live, Random.Tag))
-  .and(Layer.succeed(Console.Live, Console.Tag));
+export const defaultRuntime = new Runtime(Environment.empty, defaultRuntimeConfig);
 
 /**
  * @tsplus fluent fncts.io.IO unsafeRunAsync

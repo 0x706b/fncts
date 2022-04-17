@@ -9,11 +9,11 @@ export abstract class AbstractRunnableSpec<R, E> {
   abstract runner: TestRunner<R, E>;
   abstract spec: Spec<R, E>;
 
-  get _run(): URIO<Has<TestLogger> & Has<Clock>, ExecutedSpec<E>> {
+  get _run(): URIO<Has<TestLogger>, ExecutedSpec<E>> {
     return this.runSpec(this.spec);
   }
 
-  runSpec(spec: Spec<R, E>): URIO<Has<TestLogger> & Has<Clock>, ExecutedSpec<E>> {
+  runSpec(spec: Spec<R, E>): URIO<Has<TestLogger>, ExecutedSpec<E>> {
     return this.runner.run(this.aspects.foldLeft(spec, (b, a) => a(b)));
   }
 

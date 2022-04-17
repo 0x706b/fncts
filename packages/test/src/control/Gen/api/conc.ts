@@ -8,10 +8,7 @@ import { Gen } from "../definition.js";
 /**
  * @tsplus fluent fncts.test.Gen conc
  */
-export function conc<R, A>(
-  self: Gen<R, A>,
-  constraints: LengthConstraints = {},
-): Gen<R & Has<Random> & Has<Sized>, Conc<A>> {
+export function conc<R, A>(self: Gen<R, A>, constraints: LengthConstraints = {}): Gen<R & Has<Sized>, Conc<A>> {
   const minLength = constraints.minLength ?? 0;
   return constraints.maxLength
     ? Gen.int({ min: minLength, max: constraints.maxLength }).flatMap((n) => self.concN(n))
@@ -33,7 +30,7 @@ export function concN_<R, A>(g: Gen<R, A>, n: number): Gen<R, Conc<A>> {
 export function uniqueConc_<R, A>(
   self: Gen<R, A>,
   constraints: LengthConstraints & EqConstraint<A> = {},
-): Gen<Has<Random> & Has<Sized> & R, Conc<A>> {
+): Gen<Has<Sized> & R, Conc<A>> {
   const minLength = constraints.minLength ?? 0;
   const eq        = constraints.eq ?? Eq({ equals_: Equatable.strictEquals });
   return constraints.maxLength

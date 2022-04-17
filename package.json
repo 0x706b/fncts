@@ -14,7 +14,8 @@
     "build": "tsc -b --verbose",
     "format": "ultra -r format",
     "clean": "ultra -r clean",
-    "postinstall": "tsplus-install"
+    "postinstall": "tsplus-install",
+    "circular": "madge --ts-config ./tsconfig.madge.json --circular --warning packages/*/build/esm"
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",

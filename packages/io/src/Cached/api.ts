@@ -8,7 +8,7 @@ export function auto<R, Error, Resource>(
   acquire: IO<R, Error, Resource>,
   policy: Schedule<any, any, any>,
   __tsplusTrace?: string,
-): IO<R & Has<Clock> & Has<Scope>, never, Cached<Error, Resource>> {
+): IO<R & Has<Scope>, never, Cached<Error, Resource>> {
   return IO.gen(function* (_) {
     const manual = yield* _(Cached.manual(acquire));
     yield* _(

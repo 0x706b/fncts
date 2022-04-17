@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@fncts/base/*": [
+        "./packages/base/build/esm/*"
+      ],
+      "@fncts/io/*": [
+        "./packages/io/build/esm/*"
+      ],
+      "@fncts/test/*": [
+        "./packages/test/build/esm/*"
+      ]
+    }
+  },
+  "include": [
+    "./packages/base/build/esm/**/*.js",
+    "./packages/io/build/esm/**/*.js",
+    "./packages/test/build/esm/**/*.js"
+  ]
+}

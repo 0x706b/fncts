@@ -21,12 +21,12 @@ const _hashRuntime = Hashable.hashString("fncts.FiberId.Runtime");
 export class Runtime implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "Runtime";
-  constructor(readonly seqNumber: number, readonly startTime: number) {}
+  constructor(readonly id: number, readonly startTime: number) {}
   get [Symbol.hashable]() {
-    return Hashable.combineHash(_hashRuntime, Hashable.hashNumber(this.seqNumber));
+    return Hashable.combineHash(_hashRuntime, Hashable.hashNumber(this.id));
   }
   [Symbol.equatable](that: unknown): boolean {
-    return isFiberId(that) && isRuntime(that) && this.seqNumber === that.seqNumber && this.startTime === that.startTime;
+    return isFiberId(that) && isRuntime(that) && this.id === that.id && this.startTime === that.startTime;
   }
 }
 
@@ -55,6 +55,12 @@ export type FiberId = None | Runtime | Composite;
 export interface FiberIdOps {}
 
 export const FiberId: FiberIdOps = {};
+
+type RuntimeFiberId = Runtime;
+
+export declare namespace FiberId {
+  type Runtime = RuntimeFiberId;
+}
 
 /**
  * @tsplus static fncts.FiberIdOps isFiberId

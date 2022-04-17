@@ -14,7 +14,7 @@ export class Logger<Message, Output> {
       logLevel: LogLevel,
       message: () => Message,
       cause: Cause<any>,
-      context: Map<FiberRef.Runtime<any>, any>,
+      context: HashMap<FiberRef<unknown>, unknown>,
       spans: List<LogSpan>,
       annotations: HashMap<string, string>,
     ) => Output,

@@ -1,7 +1,43 @@
 import type { LogSpan } from "@fncts/io/LogSpan";
 
 import { identity } from "@fncts/base/data/function";
-import { RuntimeFiberRef } from "@fncts/io/FiberRef/definition";
+import { Patch } from "@fncts/base/data/Patch";
+import { FiberRefInternal } from "@fncts/io/FiberRef/definition";
+
+function makeWith<Value, Patch>(
+  ref: Lazy<FiberRef.WithPatch<Value, Patch>>,
+): IO<Has<Scope>, never, FiberRef.WithPatch<Value, Patch>> {
+  return IO.acquireRelease(
+    IO.succeed(ref).tap((ref) => ref.update(identity)),
+    (ref) => ref.remove,
+  );
+}
+
+/**
+ * @tsplus static fncts.io.FiberRefOps unsafeMakePatch
+ */
+export function unsafeMakePatch<Value, Patch>(
+  initial: Value,
+  diff: (oldValue: Value, newValue: Value) => Patch,
+  combine: (first: Patch, second: Patch) => Patch,
+  patch: (patch: Patch) => (oldValue: Value) => Value,
+  fork: Patch,
+): FiberRef.WithPatch<Value, Patch> {
+  return new FiberRefInternal(initial, diff, combine, patch, fork);
+}
+
+/**
+ * @tsplus static fncts.io.FiberRefOps unsafeMakeEnvironment
+ */
+export function unsafeMakeEnvironment<A>(initial: Environment<A>): FiberRef.WithPatch<Environment<A>, Patch<A, A>> {
+  return FiberRef.unsafeMakePatch(
+    initial,
+    Patch.diff,
+    (first, second) => first.compose(second),
+    (patch) => (value) => patch(value),
+    Patch.empty(),
+  );
+}
 
 /**
  * @tsplus static fncts.io.FiberRefOps unsafeMake
@@ -10,8 +46,14 @@ export function unsafeMake<A>(
   initial: A,
   fork: (a: A) => A = identity,
   join: (a0: A, a1: A) => A = (_, a) => a,
-): FiberRef.Runtime<A> {
-  return new RuntimeFiberRef(initial, fork, join);
+): FiberRef.WithPatch<A, (_: A) => A> {
+  return FiberRef.unsafeMakePatch(
+    initial,
+    (_, newValue) => () => newValue,
+    (first, second) => (value) => second(first(value)),
+    (patch) => (value) => join(value, patch(value)),
+    fork,
+  );
 }
 
 /**
@@ -21,11 +63,8 @@ export function make<A>(
   initial: A,
   fork: (a: A) => A = identity,
   join: (a: A, a1: A) => A = (_, a) => a,
-): UIO<FiberRef.Runtime<A>> {
-  return IO.defer(() => {
-    const ref = unsafeMake(initial, fork, join);
-    return ref.update(identity).as(ref);
-  });
+): IO<Has<Scope>, never, FiberRef<A>> {
+  return makeWith(unsafeMake(initial, fork, join));
 }
 
 /**
@@ -36,7 +75,7 @@ export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing(
 /**
  * @tsplus static fncts.io.FiberRefOps currentEnvironment
  */
-export const currentEnvironment = FiberRef.unsafeMake<Environment<unknown>>(Environment.empty, identity, (a, _) => a);
+export const currentEnvironment = FiberRef.unsafeMakeEnvironment<unknown>(Environment.empty);
 
 /**
  * @tsplus static fncts.io.FiberRefOps fiberName

@@ -14,7 +14,7 @@ import { Gen } from "./definition.js";
 /**
  * @tsplus static fncts.test.GenOps anyBigInt
  */
-export const anyBigInt: Gen<Has<Random>, bigint> = fromIOSample(
+export const anyBigInt: Gen<unknown, bigint> = fromIOSample(
   Random.nextBigIntBetween(BigInt(-1) << BigInt(255), (BigInt(1) << BigInt(255)) - BigInt(1)).map(
     Sample.shrinkBigInt(BigInt(0)),
   ),
@@ -23,17 +23,17 @@ export const anyBigInt: Gen<Has<Random>, bigint> = fromIOSample(
 /**
  * @tsplus static fncts.test.GenOps anyDouble
  */
-export const anyDouble: Gen<Has<Random>, number> = Gen.fromIOSample(Random.nextDouble.map(Sample.shrinkFractional(0)));
+export const anyDouble: Gen<unknown, number> = Gen.fromIOSample(Random.nextDouble.map(Sample.shrinkFractional(0)));
 
 /**
  * @tsplus static fncts.test.GenOps anyInt
  */
-export const anyInt: Gen<Has<Random>, number> = Gen.fromIOSample(Random.nextInt.map(Sample.shrinkIntegral(0)));
+export const anyInt: Gen<unknown, number> = Gen.fromIOSample(Random.nextInt.map(Sample.shrinkIntegral(0)));
 
 /**
  * @tsplus static fncts.test.GenOps bounded
  */
-export function bounded<R, A>(min: number, max: number, f: (n: number) => Gen<R, A>): Gen<R & Has<Random>, A> {
+export function bounded<R, A>(min: number, max: number, f: (n: number) => Gen<R, A>): Gen<R, A> {
   return Gen.int({ min, max }).flatMap(f);
 }
 
@@ -109,7 +109,7 @@ export function fromIOSample<R, A>(effect: IO<R, never, Sample<R, A>>): Gen<R, A
 /**
  * @tsplus static fncts.test.GenOps int
  */
-export function int(constraints: NumberConstraints = {}): Gen<Has<Random>, number> {
+export function int(constraints: NumberConstraints = {}): Gen<unknown, number> {
   return Gen.fromIOSample(
     IO.defer(() => {
       const min = constraints.min ?? -0x80000000;
@@ -147,7 +147,7 @@ export function mapIO_<R, A, R1, B>(self: Gen<R, A>, f: (a: A) => IO<R1, never, 
 /**
  * @tsplus static fncts.test.GenOps exponential
  */
-export const exponential: Gen<Has<Random>, number> = Gen.uniform.map((n) => -Math.log(1 - n));
+export const exponential: Gen<unknown, number> = Gen.uniform.map((n) => -Math.log(1 - n));
 
 /**
  * @tsplus static fncts.test.GenOps size
@@ -157,7 +157,7 @@ export const size: Gen<Has<Sized>, number> = Gen.fromIO(Sized.size);
 /**
  * @tsplus static fncts.test.GenOps medium
  */
-export function medium<R, A>(f: (n: number) => Gen<R, A>, min = 0): Gen<R & Has<Random> & Has<Sized>, A> {
+export function medium<R, A>(f: (n: number) => Gen<R, A>, min = 0): Gen<R & Has<Sized>, A> {
   return Gen.size
     .flatMap((max) => Gen.exponential.map((n) => clamp(Math.round((n * max) / 10.0), min, max)))
     .reshrink(Sample.shrinkIntegral(min))
@@ -185,16 +185,14 @@ export function memo<R, A>(builder: (maxDepth: number) => Gen<R, A>): (maxDepth?
 /**
  * @tsplus static fncts.test.GenOps nat
  */
-export function nat(max = 0x7fffffff): Gen<Has<Random>, number> {
+export function nat(max = 0x7fffffff): Gen<unknown, number> {
   return Gen.int({ min: 0, max: clamp(max, 0, max) });
 }
 
 /**
  * @tsplus static fncts.test.GenOps oneOf
  */
-export function oneOf<A extends ReadonlyArray<Gen<any, any>>>(
-  ...gens: A
-): Gen<_R<A[number]> & Has<Random>, _A<A[number]>> {
+export function oneOf<A extends ReadonlyArray<Gen<any, any>>>(...gens: A): Gen<_R<A[number]>, _A<A[number]>> {
   if (gens.isEmpty()) return Gen.empty;
   else return Gen.int({ min: 0, max: gens.length - 1 }).flatMap((i) => gens[i]!);
 }
@@ -220,7 +218,7 @@ export function sized<R, A>(f: (size: number) => Gen<R, A>): Gen<R & Has<Sized>,
 /**
  * @tsplus static fncts.test.GenOps small
  */
-export function small<R, A>(f: (size: number) => Gen<R, A>, min = 0): Gen<R & Has<Sized> & Has<Random>, A> {
+export function small<R, A>(f: (size: number) => Gen<R, A>, min = 0): Gen<R & Has<Sized>, A> {
   return Gen.size
     .flatMap((max) => Gen.exponential.map((n) => clamp(Math.round((n * max) / 25), min, max)))
     .reshrink(Sample.shrinkIntegral(min))
@@ -230,10 +228,7 @@ export function small<R, A>(f: (size: number) => Gen<R, A>, min = 0): Gen<R & Ha
 /**
  * @tsplus static fncts.test.GenOps unfoldGen
  */
-export function unfoldGen<S, R, A>(
-  s: S,
-  f: (s: S) => Gen<R, readonly [S, A]>,
-): Gen<R & Has<Random> & Has<Sized>, Conc<A>> {
+export function unfoldGen<S, R, A>(s: S, f: (s: S) => Gen<R, readonly [S, A]>): Gen<R & Has<Sized>, Conc<A>> {
   return Gen.small((n) => Gen.unfoldGenN(n, s, f));
 }
 
@@ -248,7 +243,7 @@ export function unfoldGenN<S, R, A>(n: number, s: S, f: (s: S) => Gen<R, readonl
 /**
  * @tsplus static fncts.test.GenOps uniform
  */
-export const uniform: Gen<Has<Random>, number> = Gen.fromIOSample(Random.nextDouble.map(Sample.shrinkFractional(0.0)));
+export const uniform: Gen<unknown, number> = Gen.fromIOSample(Random.nextDouble.map(Sample.shrinkFractional(0.0)));
 
 /**
  * @tsplus static fncts.test.GenOps unwrap
@@ -260,7 +255,7 @@ export function unwrap<R, R1, A>(effect: URIO<R, Gen<R1, A>>): Gen<R & R1, A> {
 /**
  * @tsplus static fncts.test.GenOps weighted
  */
-export function weighted<R, A>(...gens: ReadonlyArray<readonly [Gen<R, A>, number]>): Gen<R & Has<Random>, A> {
+export function weighted<R, A>(...gens: ReadonlyArray<readonly [Gen<R, A>, number]>): Gen<R, A> {
   const sum   = gens.map(([, weight]) => weight).foldLeft(0, (b, a) => b + a);
   const [map] = gens.foldLeft(tuple(SortedMap.make<number, Gen<R, A>>(Number.Ord), 0), ([map, acc], [gen, d]) => {
     if ((acc + d) / sum > acc / sum) return tuple(map.insert((acc + d) / sum, gen), acc + d);

@@ -1,32 +1,31 @@
-import type { Console } from "@fncts/io/Console";
 import type { Erase } from "@fncts/typelevel/Intersection";
+
+import { IOEnv } from "@fncts/io/IOEnv";
 
 /**
  * @tsplus static fncts.test.LiveOps Tag
  */
 export const LiveTag = Tag<Live>();
 
-type IOEnv = Has<Clock> & Has<Random> & Has<Console>;
-
 /**
  * @tsplus companion fncts.test.LiveOps
  */
 export abstract class Live {
-  abstract provide<E, A>(io: IO<IOEnv, E, A>): IO<unknown, E, A>;
+  abstract provide<R, E, A>(io: IO<R, E, A>): IO<R, E, A>;
 
   static Default: Layer<IOEnv, never, Has<Live>> = Layer.fromIO(
     IO.environmentWith(
       (env) =>
         new (class extends Live {
-          provide<E, A>(io: IO<IOEnv, E, A>): IO<unknown, E, A> {
-            return io.provideEnvironment(env);
+          provide<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
+            return IOEnv.services.locallyWith((_) => _.union(env))(io);
           }
         })(),
     ),
     LiveTag,
   );
 
-  static Live<E, A>(io: IO<IOEnv, E, A>): IO<Has<Live>, E, A> {
+  static Live<R extends Has<Live>, E, A>(io: IO<R, E, A>): IO<R & Has<Live>, E, A> {
     return IO.serviceWithIO((live) => live.provide(io), LiveTag);
   }
 }
@@ -42,8 +41,7 @@ export function withLive_<R, E, A, E1, B>(
   return IO.environment<R & Has<Live>>().flatMap((r) => Live.Live(f(io.provideEnvironment(r))));
 }
 
-export function withLive<E, A, E1, B>(
-  f: (_: IO<unknown, E, A>) => IO<IOEnv, E1, B>,
-): <R>(io: IO<R, E, A>) => IO<Erase<R, Has<Live>>, E | E1, B> {
-  return (io) => withLive_(io, f);
+export function withLive<R extends Has<Live>, E, A>(io: IO<R, E, A>) {
+  return <E1, B>(f: (_: IO<R, E, A>) => IO<R, E1, B>): IO<R & Has<Live>, E1, B> =>
+    IOEnv.services.getWith((services) => Live.Live(f(IOEnv.services.locally(services)(io))));
 }

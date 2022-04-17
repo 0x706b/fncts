@@ -76,7 +76,8 @@ export function mergeAllWith_<
         yield* _(
           pull
             .matchCauseIO(
-              (cause) => getChildren.flatMap(Fiber.interruptAll).apSecond(queue.offer(IO.failCauseNow(cause)).as(false)),
+              (cause) =>
+                getChildren.flatMap(Fiber.interruptAll).apSecond(queue.offer(IO.failCauseNow(cause)).as(false)),
               (doneOrChannel) =>
                 doneOrChannel.match(
                   (outDone) =>
@@ -101,7 +102,9 @@ export function mergeAllWith_<
                       case "BackPressure":
                         return IO.gen(function* (_) {
                           const latch   = yield* _(Future.make<never, void>());
-                          const raceIOs = channel.toPull.flatMap((io) => evaluatePull(io).race(errorSignal.await)).scoped;
+                          const raceIOs = channel.toPull.flatMap((io) =>
+                            evaluatePull(io).race(errorSignal.await),
+                          ).scoped;
                           yield* _(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
                           yield* _(latch.await);
                           return !(yield* _(errorSignal.isDone));

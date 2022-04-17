@@ -3,7 +3,7 @@ import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import { Annotations } from "./definition.js";
 
 export class LiveAnnotations extends Annotations {
-  constructor(private fiberRef: FiberRef.Runtime<TestAnnotationMap>) {
+  constructor(private fiberRef: FiberRef<TestAnnotationMap>) {
     super();
   }
 
@@ -44,7 +44,7 @@ export class LiveAnnotations extends Annotations {
 /**
  * @tsplus static fncts.test.AnnotationsOps Live
  */
-export const live = Layer.fromIO(
+export const live = Layer.scoped(
   FiberRef.make(TestAnnotationMap.empty).map((fiberRef) => new LiveAnnotations(fiberRef)),
   Annotations.Tag,
 );

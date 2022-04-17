@@ -11,6 +11,7 @@ import {
   DeferWith,
   Ensuring,
   Fail,
+  FiberRefModifyAll,
   Fork,
   GetDescriptor,
   GetInterrupt,
@@ -1995,6 +1996,19 @@ export function unrefineWith_<R, E, A, E1, E2>(
  */
 export function unsandbox<R, E, A>(ma: IO<R, Cause<E>, A>): IO<R, E, A> {
   return ma.mapErrorCause((cause) => cause.flatten);
+}
+
+/**
+ * Updates the `FiberRef` values for the fiber running this effect using the
+ * specified function
+ *
+ * @tsplus static fncts.io.IOOps updateFiberRefs
+ */
+export function updateFiberRefs(
+  f: (fiberId: FiberId.Runtime, fiberRefs: FiberRefs) => FiberRefs,
+  __tsplusTrace?: string,
+): UIO<void> {
+  return new FiberRefModifyAll((fiberId, fiberRefs) => [undefined, f(fiberId, fiberRefs)], __tsplusTrace);
 }
 
 /**

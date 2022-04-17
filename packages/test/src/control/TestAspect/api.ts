@@ -69,14 +69,12 @@ export function beforeAll<R0, E0>(effect: IO<R0, E0, any>): TestAspect<R0, E0> {
 
 export const eventually = perTest((test) => test.eventually);
 
-export function repeat<R0>(
-  schedule: Schedule<R0, TestSuccess, any>,
-): TestAspect<R0 & Has<Annotations> & Has<Clock>, never> {
-  return perTest<R0 & Has<Annotations> & Has<Clock>, never>(
+export function repeat<R0>(schedule: Schedule<R0, TestSuccess, any>): TestAspect<R0 & Has<Annotations>, never> {
+  return perTest<R0 & Has<Annotations>, never>(
     <R1, E1>(
       test: IO<R1, TestFailure<E1>, TestSuccess>,
-    ): IO<R0 & R1 & Has<Annotations> & Has<Clock>, TestFailure<E1>, TestSuccess> =>
-      IO.environmentWithIO((r: Environment<R0 & R1 & Has<Annotations> & Has<Clock>>) =>
+    ): IO<R0 & R1 & Has<Annotations>, TestFailure<E1>, TestSuccess> =>
+      IO.environmentWithIO((r: Environment<R0 & R1 & Has<Annotations>>) =>
         test
           .provideEnvironment(r)
           .repeat(

@@ -31,9 +31,9 @@ export function ids(self: FiberId): HashSet<number> {
     case "None":
       return HashSet.makeDefault();
     case "Runtime":
-      return HashSet.fromDefault(self.seqNumber);
+      return HashSet.fromDefault(self.id);
     case "Composite":
-      return self.fiberIds.map((id) => id.seqNumber);
+      return self.fiberIds.map((id) => id.id);
   }
 }
 

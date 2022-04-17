@@ -1,7 +1,7 @@
 /**
  * The number of fibers used for concurrent operators.
  */
-export const Concurrency: FiberRef.Runtime<Maybe<number>> = FiberRef.unsafeMake(Nothing());
+export const Concurrency: FiberRef<Maybe<number>> = FiberRef.unsafeMake(Nothing());
 
 /**
  * Retrieves the maximum number of fibers for concurrent operators or `Nothing` if

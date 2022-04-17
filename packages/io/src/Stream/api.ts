@@ -41,7 +41,7 @@ export function absolve<R, E, E2, A>(self: Stream<R, E, Either<E2, A>>): Stream<
 export function aggregateAsync_<R, E, A extends A1, R1, E1, A1, B>(
   stream: Stream<R, E, A>,
   sink: Sink<R1, E1, A1, A1, B>,
-): Stream<R & R1 & Has<Clock>, E | E1, B> {
+): Stream<R & R1, E | E1, B> {
   return stream.aggregateAsyncWithin(sink, Schedule.forever);
 }
 
@@ -54,7 +54,7 @@ export function aggregateAsyncWithin_<R, E, A extends A1, R1, E1, A1, B, R2, C>(
   stream: Stream<R, E, A>,
   sink: Sink<R1, E1, A1, A1, B>,
   schedule: Schedule<R2, Maybe<B>, C>,
-): Stream<R & R1 & R2 & Has<Clock>, E | E1, B> {
+): Stream<R & R1 & R2, E | E1, B> {
   return stream.aggregateAsyncWithinEither(sink, schedule).filterMap((cb) => cb.match(() => Nothing(), Maybe.just));
 }
 
@@ -76,7 +76,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
   stream: Stream<R, E, A>,
   sink: Sink<R1, E1, A1, A1, B>,
   schedule: Schedule<R2, Maybe<B>, C>,
-): Stream<R & R1 & R2 & Has<Clock>, E | E1, Either<C, B>> {
+): Stream<R & R1 & R2, E | E1, Either<C, B>> {
   type LocalHandoffSignal = HandoffSignal<C, E | E1, A1>;
   type LocalSinkEndReason = SinkEndReason<C>;
 
@@ -112,7 +112,7 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
 
     const scheduledAggregator = (
       lastB: Maybe<B>,
-    ): Channel<R1 & R2 & Has<Clock>, unknown, unknown, unknown, E | E1, Conc<Either<C, B>>, any> => {
+    ): Channel<R1 & R2, unknown, unknown, unknown, E | E1, Conc<Either<C, B>>, any> => {
       const timeout = scheduleDriver.next(lastB).matchCauseIO(
         (_) =>
           _.failureOrCause.match(
@@ -420,12 +420,13 @@ export function buffer_<R, E, A>(stream: Stream<R, E, A>, capacity: number): Str
   return new Stream(
     Channel.unwrapScoped(
       queue.map((queue) => {
-        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
-          (exit: Exit<Maybe<E>, A>) =>
-            exit.match(
-              (cause) => cause.flipCauseMaybe.match(() => Channel.endNow(undefined), Channel.failCauseNow),
-              (value) => Channel.writeNow(Conc.single(value)).apSecond(process),
-            ),
+        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(
+          queue.take,
+        ).flatMap((exit: Exit<Maybe<E>, A>) =>
+          exit.match(
+            (cause) => cause.flipCauseMaybe.match(() => Channel.endNow(undefined), Channel.failCauseNow),
+            (value) => Channel.writeNow(Conc.single(value)).apSecond(process),
+          ),
         );
         return process;
       }),
@@ -441,11 +442,12 @@ export function bufferChunks_<R, E, A>(stream: Stream<R, E, A>, capacity: number
   return new Stream(
     Channel.unwrapScoped(
       queue.map((queue) => {
-        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
-          (take: Take<E, A>) =>
-            take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
-              Channel.writeNow(value).apSecond(process),
-            ),
+        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(
+          queue.take,
+        ).flatMap((take: Take<E, A>) =>
+          take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
+            Channel.writeNow(value).apSecond(process),
+          ),
         );
         return process;
       }),
@@ -465,11 +467,12 @@ export function bufferUnbounded<R, E, A>(stream: Stream<R, E, A>): Stream<R, E, 
   return new Stream(
     Channel.unwrapScoped(
       queue.map((queue) => {
-        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
-          (take) =>
-            take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
-              Channel.writeNow(value).apSecond(process),
-            ),
+        const process: Channel<unknown, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(
+          queue.take,
+        ).flatMap((take) =>
+          take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
+            Channel.writeNow(value).apSecond(process),
+          ),
         );
 
         return process;
@@ -856,7 +859,7 @@ export function contramapEnvironment_<R, E, A, R0>(
 /**
  * @tsplus fluent fncts.io.Stream debounce
  */
-export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: number): Stream<R & Has<Clock>, E, A> {
+export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: number): Stream<R, E, A> {
   return Stream.unwrap(
     IO.transplant((grafter) =>
       IO.gen(function* (_) {
@@ -864,7 +867,7 @@ export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: number): S
         function enqueue(last: Conc<A>) {
           return grafter(Clock.sleep(duration).as(last).fork).map((f) => consumer(DebounceState.Previous(f)));
         }
-        const producer: Channel<R & Has<Clock>, E, Conc<A>, unknown, E, never, unknown> = Channel.readWithCause(
+        const producer: Channel<R, E, Conc<A>, unknown, E, never, unknown> = Channel.readWithCause(
           (inp: Conc<A>) =>
             inp.last.match(
               () => producer,
@@ -873,9 +876,7 @@ export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: number): S
           (cause: Cause<E>) => Channel.fromIO(handoff.offer(HandoffSignal.Halt(cause))),
           () => Channel.fromIO(handoff.offer(HandoffSignal.End(new UpstreamEnd()))),
         );
-        function consumer(
-          state: DebounceState<E, A>,
-        ): Channel<R & Has<Clock>, unknown, unknown, unknown, E, Conc<A>, unknown> {
+        function consumer(state: DebounceState<E, A>): Channel<R, unknown, unknown, unknown, E, Conc<A>, unknown> {
           return Channel.unwrap(
             state.match({
               NotStarted: () =>
@@ -2637,7 +2638,7 @@ export function throttleEnforce_<R, E, A>(
   units: number,
   duration: number,
   burst = 0,
-): Stream<R & Has<Clock>, E, A> {
+): Stream<R, E, A> {
   return sa.throttleEnforceIO((chunk) => IO.succeedNow(costFn(chunk)), units, duration, burst);
 }
 
@@ -2648,7 +2649,7 @@ function throttleEnforceIOLoop<E, A, R1, E1>(
   burst: number,
   tokens: number,
   timestamp: number,
-): Channel<R1 & Has<Clock>, E | E1, Conc<A>, unknown, E | E1, Conc<A>, void> {
+): Channel<R1, E | E1, Conc<A>, unknown, E | E1, Conc<A>, void> {
   return Channel.readWith(
     (inp: Conc<A>) =>
       Channel.unwrap(
@@ -2688,7 +2689,7 @@ export function throttleEnforceIO_<R, E, A, R1, E1>(
   units: number,
   duration: number,
   burst = 0,
-): Stream<R & R1 & Has<Clock>, E | E1, A> {
+): Stream<R & R1, E | E1, A> {
   return new Stream(
     Channel.fromIO(Clock.currentTime).flatMap((current) =>
       sa.channel.pipeTo(throttleEnforceIOLoop(costFn, units, duration, burst, units, current)),

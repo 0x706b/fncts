@@ -30,6 +30,7 @@ export function empty<A>(): List<A> {
 
 /**
  * @tsplus static fncts.ListOps from
+ * @tsplus getter fncts.Seq asList
  */
 export function from<A>(prefix: Iterable<A>): List<A> {
   const iter = prefix[Symbol.iterator]();

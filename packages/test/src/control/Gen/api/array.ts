@@ -6,10 +6,7 @@ import { Gen } from "../definition.js";
 /**
  * @tsplus fluent fncts.test.Gen array
  */
-export function array<R, A>(
-  g: Gen<R, A>,
-  constraints: LengthConstraints = {},
-): Gen<R & Has<Random> & Has<Sized>, ReadonlyArray<A>> {
+export function array<R, A>(g: Gen<R, A>, constraints: LengthConstraints = {}): Gen<R & Has<Sized>, ReadonlyArray<A>> {
   const minLength = constraints.minLength || 0;
   return constraints.maxLength
     ? Gen.int({ min: minLength, max: constraints.maxLength }).flatMap((n) => g.arrayN(n))
@@ -29,6 +26,6 @@ export function arrayN_<R, A>(self: Gen<R, A>, n: number): Gen<R, ReadonlyArray<
 export function uniqueArray_<R, A>(
   gen: Gen<R, A>,
   constraints: LengthConstraints & EqConstraint<A> = {},
-): Gen<Has<Random> & Has<Sized> & R, ReadonlyArray<A>> {
+): Gen<Has<Sized> & R, ReadonlyArray<A>> {
   return gen.uniqueConc(constraints).map((conc) => conc.toArray);
 }

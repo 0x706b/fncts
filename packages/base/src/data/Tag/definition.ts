@@ -1,5 +1,3 @@
-import type { Has } from "@fncts/base/typeclass";
-
 import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
 
 export const TagTypeId = Symbol.for("fncts.Tag");
@@ -17,7 +15,7 @@ export class Tag<T> implements Hashable, Equatable {
   readonly _T!: (_: never) => T;
   readonly _typeId: TagTypeId = TagTypeId;
   private static counter      = new AtomicNumber(0);
-  private readonly id         = Tag.counter.getAndIncrement();
+  readonly id                 = Tag.counter.getAndIncrement();
 
   get [Symbol.hashable](): number {
     return Hashable.combineHash(_tagHash, Hashable.hashNumber(this.id));

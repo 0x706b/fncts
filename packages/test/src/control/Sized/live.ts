@@ -4,7 +4,7 @@ import { Sized } from "./definition.js";
  * @tsplus static fncts.test.SizedOps Live
  */
 export function Live(size: number): Layer<unknown, never, Has<Sized>> {
-  return Layer.fromIO(
+  return Layer.scoped(
     FiberRef.make(size).map(
       (ref) =>
         new (class extends Sized {

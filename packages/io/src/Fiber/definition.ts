@@ -7,11 +7,6 @@ export interface CommonFiber<E, A> {
    */
   readonly await: UIO<Exit<E, A>>;
   /**
-   * Gets the value of the fiber ref for this fiber, or the initial value of
-   * the fiber ref, if the fiber is not storing the ref.
-   */
-  readonly getRef: <A>(fiberRef: FiberRef.Runtime<A>) => UIO<A>;
-  /**
    * Inherits values from all {@link FiberRef} instances into current fiber.
    * This will resume immediately.
    */

@@ -7,7 +7,6 @@
 export function sequenceIterable<E, A>(fibers: Iterable<Fiber<E, A>>): Fiber.Synthetic<E, Conc<A>> {
   return {
     _tag: "SyntheticFiber",
-    getRef: (ref) => IO.foldLeft(fibers, ref.initial, (a, fiber) => fiber.getRef(ref).map((a2) => ref.join(a, a2))),
     inheritRefs: IO.foreachDiscard(fibers, (f) => f.inheritRefs),
     interruptAs: (fiberId) =>
       IO.foreach(fibers, (f) => f.interruptAs(fiberId)).map((exits) =>

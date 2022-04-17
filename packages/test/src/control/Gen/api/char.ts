@@ -9,7 +9,7 @@ const gapSize = 0xdfff + 1 - 0xd800;
 /**
  * @tsplus static fncts.test.GenOps alphaNumericChar
  */
-export const alphaNumericChar: Gen<Has<Random>, string> = Gen.weighted(
+export const alphaNumericChar: Gen<unknown, string> = Gen.weighted(
   [Gen.char({ min: 48, max: 57 }), 10],
   [Gen.char({ min: 65, max: 90 }), 26],
   [Gen.char({ min: 97, max: 122 }), 26],
@@ -18,46 +18,46 @@ export const alphaNumericChar: Gen<Has<Random>, string> = Gen.weighted(
 /**
  * @tsplus static fncts.test.GenOps asciiChar
  */
-export const asciiChar: Gen<Has<Random>, string> = _char(0x00, 0x7f, indexToPrintableIndex);
+export const asciiChar: Gen<unknown, string> = _char(0x00, 0x7f, indexToPrintableIndex);
 
 /**
  * @tsplus static fncts.test.GenOps base64Char
  */
-export const base64Char: Gen<Has<Random>, string> = _char(0, 63, base64ToCharCode);
+export const base64Char: Gen<unknown, string> = _char(0, 63, base64ToCharCode);
 
 /**
  * @tsplus static fncts.test.GenOps char
  */
-export function char(constraints: Required<NumberConstraints>): Gen<Has<Random>, string> {
+export function char(constraints: Required<NumberConstraints>): Gen<unknown, string> {
   return _char(constraints.min, constraints.max, identity);
 }
 
 /**
  * @tsplus static fncts.test.GenOps char16
  */
-export const char16: Gen<Has<Random>, string> = _char(0x0000, 0xffff, indexToPrintableIndex);
+export const char16: Gen<unknown, string> = _char(0x0000, 0xffff, indexToPrintableIndex);
 
 /**
  * @tsplus static fncts.test.GenOps fullUnicodeChar
  */
-export const fullUnicodeChar: Gen<Has<Random>, string> = _char(0x0000, 0x10ffff - gapSize, unicodeToCharCode);
+export const fullUnicodeChar: Gen<unknown, string> = _char(0x0000, 0x10ffff - gapSize, unicodeToCharCode);
 
 /**
  * @tsplus static fncts.test.GenOps hexChar
  */
-export const hexChar: Gen<Has<Random>, string> = _char(0, 15, hexToCharCode);
+export const hexChar: Gen<unknown, string> = _char(0, 15, hexToCharCode);
 
 /**
  * @tsplus static fncts.test.GenOps printableChar
  */
-export const printableChar: Gen<Has<Random>, string> = char({ min: 0x20, max: 0x7e });
+export const printableChar: Gen<unknown, string> = char({ min: 0x20, max: 0x7e });
 
 /**
  * @tsplus static fncts.test.GenOps unicodeChar
  */
-export const unicodeChar: Gen<Has<Random>, string> = _char(0x0000, 0xffff - gapSize, unicodeToCharCode);
+export const unicodeChar: Gen<unknown, string> = _char(0x0000, 0xffff - gapSize, unicodeToCharCode);
 
-function _char(min: number, max: number, mapToCode: (v: number) => number): Gen<Has<Random>, string> {
+function _char(min: number, max: number, mapToCode: (v: number) => number): Gen<unknown, string> {
   return Gen.int({ min, max }).map((n) => String.fromCharCode(mapToCode(n)));
 }
 

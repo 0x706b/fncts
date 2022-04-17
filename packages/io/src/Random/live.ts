@@ -29,3 +29,8 @@ export class LiveRandom implements Random {
     return IO.succeed(this.prng.nextArrayInt(low, high));
   }
 }
+
+/**
+ * @tsplus static fncts.io.RandomOps Live
+ */
+export const live: Random = new LiveRandom((Math.random() * 4294967296) >>> 0);

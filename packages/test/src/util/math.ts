@@ -478,7 +478,7 @@ export function computeArrayInt64GenerateRange(
   max: ArrayInt64,
   biasFactor: number | undefined,
   biasedRanges: { min: ArrayInt64; max: ArrayInt64 }[] | undefined,
-): URIO<Has<Random>, { min: ArrayInt64; max: ArrayInt64 }> {
+): URIO<unknown, { min: ArrayInt64; max: ArrayInt64 }> {
   return IO.gen(function* (_) {
     if (biasFactor === undefined || (yield* _(Random.nextIntBetween(1, biasFactor))) !== 1) {
       return { min, max };

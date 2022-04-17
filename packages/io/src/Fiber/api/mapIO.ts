@@ -7,7 +7,6 @@ export function mapIO_<E, E1, A, B>(fiber: Fiber<E, A>, f: (a: A) => FIO<E1, B>)
   return {
     _tag: "SyntheticFiber",
     await: fiber.await.flatMap((exit) => exit.foreachIO(f)),
-    getRef: (ref) => fiber.getRef(ref),
     inheritRefs: fiber.inheritRefs,
     interruptAs: (id) => fiber.interruptAs(id).flatMap((exit) => exit.foreachIO(f)),
     poll: fiber.poll.flatMap((mexit) =>

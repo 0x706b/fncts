@@ -1,6 +1,6 @@
 import type { Console } from "@fncts/io/Console";
 
-import { LiveIOEnv } from "@fncts/io/IO";
+import { IOEnv } from "@fncts/io/IOEnv";
 import { Annotations } from "@fncts/test/control/Annotations";
 import { Live } from "@fncts/test/control/Live";
 import { Sized } from "@fncts/test/control/Sized";
@@ -20,12 +20,11 @@ export type TestEnvironment = Has<Annotations> &
   Has<Console> &
   Has<TestConsole>;
 
-export const LiveTestEnvironment: Layer<Has<Clock> & Has<Random> & Has<Console>, never, TestEnvironment> =
-  Annotations.Live.and(Live.Default)
-    .and(Sized.Live(100))
-    .and(TestConfig.Live({ repeats: 100, retries: 100, samples: 200, shrinks: 1000 }))
-    .and(TestRandom.Deterministic)
-    .andTo(TestClock.Live)
-    .andTo(TestConsole.Live);
+export const LiveTestEnvironment: Layer<IOEnv, never, TestEnvironment> = Annotations.Live.and(Live.Default)
+  .and(Sized.Live(100))
+  .and(TestConfig.Live({ repeats: 100, retries: 100, samples: 200, shrinks: 1000 }))
+  .and(TestRandom.Deterministic)
+  .andTo(TestClock.Live)
+  .andTo(TestConsole.Live);
 
-export const TestEnvironment = LiveIOEnv.to(LiveTestEnvironment);
+export const TestEnvironment = IOEnv.Live.to(LiveTestEnvironment);

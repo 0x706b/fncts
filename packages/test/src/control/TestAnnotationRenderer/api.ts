@@ -34,7 +34,9 @@ export const ignored: TestAnnotationRenderer = new LeafRenderer((f) =>
  * @tsplus static fncts.test.TestAnnotationRendererOps Repeated
  */
 export const repeated: TestAnnotationRenderer = new LeafRenderer((f) =>
-  f(TestAnnotation.Repeated, (children) => children.head.flatMap((n) => (n === 0 ? Nothing() : Just(`repeated: ${n}`)))),
+  f(TestAnnotation.Repeated, (children) =>
+    children.head.flatMap((n) => (n === 0 ? Nothing() : Just(`repeated: ${n}`))),
+  ),
 );
 
 /**

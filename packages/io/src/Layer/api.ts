@@ -262,7 +262,7 @@ export function passthrough<RIn extends Spreadable, E, ROut extends Spreadable>(
 export function retry_<RIn, E, ROut, S, RIn1>(
   self: Layer<RIn, E, ROut>,
   schedule: Schedule.WithState<S, RIn1, E, any>,
-): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
+): Layer<RIn & RIn1, E, ROut> {
   const tag = Tag<{ readonly state: S }>();
   return Layer.succeedNow({ state: schedule.initial }, tag).flatMap((environment) =>
     retryLoop(self, schedule, environment.get(tag).state, tag),
@@ -274,7 +274,7 @@ function retryUpdate<S, RIn, E, X>(
   e: E,
   s: S,
   tag: Tag<{ readonly state: S }>,
-): Layer<RIn & Has<Clock>, E, Has<{ readonly state: S }>> {
+): Layer<RIn, E, Has<{ readonly state: S }>> {
   return Layer.fromIO(
     Clock.currentTime.flatMap((now) =>
       schedule
@@ -294,7 +294,7 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
   schedule: Schedule.WithState<S, RIn1, E, X>,
   s: S,
   tag: Tag<{ readonly state: S }>,
-): Layer<RIn & RIn1 & Has<Clock>, E, ROut> {
+): Layer<RIn & RIn1, E, ROut> {
   return self.catchAll((e) =>
     retryUpdate(schedule, e, s, tag).flatMap((env) => retryLoop(self, schedule, env.get(tag).state, tag).fresh),
   );
