@@ -14,6 +14,7 @@ import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
  * Additionally, interrupts all effects on any failure.
  *
  * @tsplus static fncts.io.IOOps foreachDiscardC
+ * @tsplus fluent fncts.Seq traverseIODiscardC
  */
 export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
   return IO.concurrencyWith((conc) =>
@@ -31,6 +32,7 @@ export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E,
  * For a sequential version of this method, see `IO.foreach`.
  *
  * @tsplus static fncts.io.IOOps foreachC
+ * @tsplus fluent fncts.Seq traverseIOC
  */
 export function foreachC_<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
   return IO.concurrencyWith((conc) =>
@@ -127,12 +129,10 @@ function foreachConcurrentBoundedDiscard<R, E, A>(
       return IO.unit;
     }
 
-    return IO.gen(function* (_) {
-      const queue = yield* _(Queue.makeBounded<A>(size));
-      yield* _(queue.offerAll(as));
-      yield* _(
-        foreachConcurrentUnboundedDiscard(foreachConcurrentBoundedDiscardWorker(queue, f).replicate(n), identity),
-      );
+    return Do((Δ) => {
+      const queue = Δ(Queue.makeBounded<A>(size));
+      Δ(queue.offerAll(as));
+      Δ(foreachConcurrentUnboundedDiscard(foreachConcurrentBoundedDiscardWorker(queue, f).replicate(n), identity));
     });
   });
 }
@@ -167,13 +167,11 @@ function foreachConcurrentBounded<R, E, A, B>(as: Iterable<A>, n: number, f: (a:
     if (size === 0) {
       return IO.succeed(Conc.empty());
     }
-    return IO.gen(function* (_) {
-      const array = yield* _(IO.succeed(new Array<B>(size)));
-      const queue = yield* _(Queue.makeBounded<readonly [number, A]>(size));
-      yield* _(queue.offerAll(as.zipWithIndex));
-      yield* _(
-        foreachConcurrentUnboundedDiscard(foreachConcurrentBoundedWorker(queue, array, f).replicate(n), identity),
-      );
+    return Do((Δ) => {
+      const array = Δ(IO.succeed(new Array<B>(size)));
+      const queue = Δ(Queue.makeBounded<readonly [number, A]>(size));
+      Δ(queue.offerAll(as.zipWithIndex));
+      Δ(foreachConcurrentUnboundedDiscard(foreachConcurrentBoundedWorker(queue, array, f).replicate(n), identity));
       return Conc.from(array);
     });
   });

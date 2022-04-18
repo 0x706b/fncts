@@ -8,18 +8,18 @@ export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone,
 ): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone> {
   return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
-      IO.gen(function* (_) {
-        yield* _(IO.addFinalizer(getChildren.flatMap(Fiber.interruptAll)));
-        const queue = yield* _(
+      Do((Δ) => {
+        Δ(IO.addFinalizer(getChildren.flatMap(Fiber.interruptAll)));
+        const queue = Δ(
           IO.acquireRelease(
             Queue.makeBounded<IO<Env1, OutErr | OutErr1, Either<OutDone, OutElem1>>>(n),
             (queue) => queue.shutdown,
           ),
         );
-        const errorSignal = yield* _(Future.make<OutErr1, never>());
-        const permits     = yield* _(TSemaphore.make(n).commit);
-        const pull        = yield* _(self.toPull);
-        yield* _(
+        const errorSignal = Δ(Future.make<OutErr1, never>());
+        const permits     = Δ(TSemaphore.make(n).commit);
+        const pull        = Δ(self.toPull);
+        Δ(
           pull.matchCauseIO(
             (cause) => queue.offer(IO.failCauseNow(cause)),
             (r) =>
@@ -29,11 +29,11 @@ export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone,
                     .withPermits(n)(IO.unit)
                     .interruptible.apSecond(queue.offer(IO.succeedNow(Either.left(outDone)))).asUnit,
                 (outElem) =>
-                  IO.gen(function* (_) {
-                    const p     = yield* _(Future.make<OutErr1, OutElem1>());
-                    const latch = yield* _(Future.make<never, void>());
-                    yield* _(queue.offer(p.await.map(Either.right)));
-                    yield* _(
+                  Do((Δ) => {
+                    const p     = Δ(Future.make<OutErr1, OutElem1>());
+                    const latch = Δ(Future.make<never, void>());
+                    Δ(queue.offer(p.await.map(Either.right)));
+                    Δ(
                       permits.withPermit(
                         latch.succeed(undefined).apSecond(
                           errorSignal.await
@@ -43,7 +43,7 @@ export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone,
                         ),
                       ),
                     );
-                    yield* _(latch.await);
+                    Δ(latch.await);
                   }),
               ),
           ).forever.uninterruptible.fork,

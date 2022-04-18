@@ -47,11 +47,11 @@ export function mergeWith_<
   OutDone2 | OutDone3
 > {
   return Channel.unwrapScoped(
-    IO.gen(function* (_) {
-      const input       = yield* _(SingleProducerAsyncInput<InErr & InErr1, InElem & InElem1, InDone & InDone1>());
+    Do((_) => {
+      const input       = _(SingleProducerAsyncInput<InErr & InErr1, InElem & InElem1, InDone & InDone1>());
       const queueReader = Channel.fromInput(input);
-      const pullL       = yield* _(queueReader.pipeTo(self).toPull);
-      const pullR       = yield* _(queueReader.pipeTo(that).toPull);
+      const pullL       = _(queueReader.pipeTo(self).toPull);
+      const pullR       = _(queueReader.pipeTo(that).toPull);
       type LocalMergeState = MergeState<
         Env & Env1 & Env2 & Env3,
         OutErr,

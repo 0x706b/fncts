@@ -197,6 +197,7 @@ export function apFirst_<
  * channel. The returned channel terminates with the terminal value of the other channel.
  *
  * @tsplus fluent fncts.io.Channel apSecond
+ * @tsplus operator fncts.io.Channel >
  */
 export function apSecond_<
   Env,

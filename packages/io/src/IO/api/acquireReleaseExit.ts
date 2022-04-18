@@ -1,5 +1,6 @@
 /**
  * @tsplus static fncts.io.IOOps acquireReleaseExit
+ * @tsplus fluent fncts.io.IO acquireReleaseExit
  */
 export function acquireReleaseExit<R, E, A, R1>(
   acquire: Lazy<IO<R, E, A>>,

@@ -35,21 +35,19 @@ export function mergeAllWith_<
 ): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem, OutDone> {
   return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
-      IO.gen(function* (_) {
-        yield* _(IO.addFinalizer(getChildren.flatMap(Fiber.interruptAll)));
-        const queue = yield* _(
+      Do((Δ) => {
+        Δ(IO.addFinalizer(getChildren.flatMap(Fiber.interruptAll)));
+        const queue = Δ(
           IO.acquireRelease(
             Queue.makeBounded<IO<Env, OutErr | OutErr1, Either<OutDone, OutElem>>>(bufferSize),
             (queue) => queue.shutdown,
           ),
         );
-        const cancelers = yield* _(
-          IO.acquireRelease(Queue.makeUnbounded<Future<never, void>>(), (queue) => queue.shutdown),
-        );
-        const lastDone    = yield* _(Ref.make<Maybe<OutDone>>(Nothing()));
-        const errorSignal = yield* _(Future.make<never, void>());
-        const permits     = yield* _(TSemaphore.make(n).commit);
-        const pull        = yield* _(channels.toPull);
+        const cancelers   = Δ(IO.acquireRelease(Queue.makeUnbounded<Future<never, void>>(), (queue) => queue.shutdown));
+        const lastDone    = Δ(Ref.make<Maybe<OutDone>>(Nothing()));
+        const errorSignal = Δ(Future.make<never, void>());
+        const permits     = Δ(TSemaphore.make(n).commit);
+        const pull        = Δ(channels.toPull);
 
         const evaluatePull = (pull: IO<Env & Env1, OutErr | OutErr1, Either<OutDone, OutElem>>) =>
           pull
@@ -73,7 +71,7 @@ export function mergeAllWith_<
               ),
             );
 
-        yield* _(
+        Δ(
           pull
             .matchCauseIO(
               (cause) =>
@@ -100,27 +98,27 @@ export function mergeAllWith_<
                   (channel) => {
                     switch (mergeStrategy) {
                       case "BackPressure":
-                        return IO.gen(function* (_) {
-                          const latch   = yield* _(Future.make<never, void>());
+                        return Do((Δ) => {
+                          const latch   = Δ(Future.make<never, void>());
                           const raceIOs = channel.toPull.flatMap((io) =>
                             evaluatePull(io).race(errorSignal.await),
                           ).scoped;
-                          yield* _(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
-                          yield* _(latch.await);
-                          return !(yield* _(errorSignal.isDone));
+                          Δ(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
+                          Δ(latch.await);
+                          return Δ(errorSignal.isDone.map((b) => !b));
                         });
                       case "BufferSliding":
-                        return IO.gen(function* (_) {
-                          const canceler = yield* _(Future.make<never, void>());
-                          const latch    = yield* _(Future.make<never, void>());
-                          const size     = yield* _(cancelers.size);
-                          yield* _(cancelers.take.flatMap((f) => f.succeed(undefined)).when(size >= 0));
+                        return Do((Δ) => {
+                          const canceler = Δ(Future.make<never, void>());
+                          const latch    = Δ(Future.make<never, void>());
+                          const size     = Δ(cancelers.size);
+                          Δ(cancelers.take.flatMap((f) => f.succeed(undefined)).when(size >= 0));
                           const raceIOs = channel.toPull.flatMap((io) =>
                             evaluatePull(io).race(errorSignal.await).race(canceler.await),
                           ).scoped;
-                          yield* _(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
-                          yield* _(latch.await);
-                          return !(yield* _(errorSignal.isDone));
+                          Δ(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
+                          Δ(latch.await);
+                          return Δ(errorSignal.isDone.map((b) => !b));
                         });
                     }
                   },

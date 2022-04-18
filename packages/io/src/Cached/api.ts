@@ -9,11 +9,9 @@ export function auto<R, Error, Resource>(
   policy: Schedule<any, any, any>,
   __tsplusTrace?: string,
 ): IO<R & Has<Scope>, never, Cached<Error, Resource>> {
-  return IO.gen(function* (_) {
-    const manual = yield* _(Cached.manual(acquire));
-    yield* _(
-      IO.acquireRelease(IO.interruptible(manual.refresh.schedule(policy)).forkDaemon, (fiber) => fiber.interrupt),
-    );
+  return Do((Δ) => {
+    const manual = Δ(Cached.manual(acquire));
+    Δ(IO.acquireRelease(IO.interruptible(manual.refresh.schedule(policy)).forkDaemon, (fiber) => fiber.interrupt));
     return manual;
   });
 }
@@ -32,9 +30,9 @@ export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTra
 export function manual<R, Error, Resource>(
   acquire: IO<R, Error, Resource>,
 ): IO<R & Has<Scope>, never, Cached<Error, Resource>> {
-  return IO.gen(function* (_) {
-    const env = yield* _(IO.environment<R>());
-    const ref = yield* _(ScopedRef.fromAcquire(acquire.result));
+  return Do((Δ) => {
+    const env = Δ(IO.environment<R>());
+    const ref = Δ(ScopedRef.fromAcquire(acquire.result));
     return new Manual(ref, acquire.provideEnvironment(env));
   });
 }
