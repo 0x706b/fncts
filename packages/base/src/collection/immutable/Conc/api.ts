@@ -668,11 +668,12 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
 
   let index = 0;
 
-  let stack: Stack<Frame<A, B>> = Stack.make(new DoneFrame());
+  const stack = Stack<Frame<A, B>>();
+  stack.push(new DoneFrame());
 
   let result: Conc<B> = Conc.empty();
 
-  recursion: while (stack) {
+  recursion: while (stack.hasNext) {
     // eslint-disable-next-line no-constant-condition
     pushing: while (true) {
       concrete<A>(current);
@@ -691,17 +692,17 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
           break pushing;
         }
         case ConcTag.Concat: {
-          stack   = Stack.make(new ConcatLeftFrame(current, index), stack);
+          stack.push(new ConcatLeftFrame(current, index));
           current = current.left;
           continue pushing;
         }
         case ConcTag.AppendN: {
-          stack   = Stack.make(new AppendFrame(current.buffer as ArrayLike<A>, current.bufferUsed, index), stack);
+          stack.push(new AppendFrame(current.buffer as ArrayLike<A>, current.bufferUsed, index));
           current = current.start;
           continue pushing;
         }
         case ConcTag.PrependN: {
-          stack = Stack.make(
+          stack.push(
             new PrependFrame(
               mapArrayLikeReverse(
                 current.buffer as ArrayLike<A>,
@@ -711,7 +712,6 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
               ),
               current.end,
             ),
-            stack,
           );
           index += current.bufferUsed;
           break pushing;
@@ -729,15 +729,14 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
     }
     // eslint-disable-next-line no-constant-condition
     popping: while (true) {
-      const top = stack.value;
-      stack     = stack.previous!;
+      const top = stack.pop()!;
       switch (top._tag) {
         case "Done": {
           return result;
         }
         case "ConcatLeft": {
           current = top.conc.right;
-          stack   = Stack.make(new ConcatRightFrame(result), stack);
+          stack.push(new ConcatRightFrame(result));
           continue recursion;
         }
         case "ConcatRight": {
@@ -750,7 +749,7 @@ export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): C
         }
         case "Prepend": {
           current = top.end;
-          stack   = Stack.make(new ConcatRightFrame(top.pre), stack);
+          stack.push(new ConcatRightFrame(top.pre));
           continue recursion;
         }
       }

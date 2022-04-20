@@ -27,45 +27,25 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
   ma: Z<W, S1, S2, unknown, E, A>,
   s: S1,
 ): readonly [Conc<W>, Exit<E, readonly [S2, A]>] {
-  let stack: Stack<Frame> | undefined = undefined;
-  let s0          = s as any;
-  let result: any = null;
-  let environment = undefined as Stack<any> | undefined;
-  let failed      = false;
-  let current     = ma as Z<any, any, any, any, any, any> | undefined;
-  let log         = Conc.empty<W>();
-
-  function unsafePopStackFrame() {
-    const current = stack?.value;
-    stack         = stack?.previous;
-    return current;
-  }
-
-  function unsafePushStackFrame(cont: Frame) {
-    stack = Stack.make(cont, stack);
-  }
-
-  function unsafePopEnv() {
-    const current = environment?.value;
-    environment   = environment?.previous;
-    return current;
-  }
-
-  function unsafePushEnv(env: any) {
-    environment = Stack.make(env, environment);
-  }
+  const stack: Stack<Frame> = Stack();
+  let s0                    = s as any;
+  let result: any           = null;
+  const environment         = Stack<unknown>();
+  let failed                = false;
+  let current               = ma as Z<any, any, any, any, any, any> | undefined;
+  let log                   = Conc.empty<W>();
 
   function unsafeUnwindStack() {
     let unwinding = true;
     while (unwinding) {
-      const next = unsafePopStackFrame();
+      const next = stack.pop();
 
       if (next == null) {
         unwinding = false;
       } else {
         if (next._zTag === "MatchFrame") {
           unwinding = false;
-          unsafePushStackFrame(new ApplyFrame(next.failure));
+          stack.push(new ApplyFrame(next.failure));
         }
       }
     }
@@ -100,7 +80,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
               }
               default: {
                 current = nested;
-                unsafePushStackFrame(new ApplyFrame(continuation));
+                stack.push(new ApplyFrame(continuation));
                 break;
               }
             }
@@ -108,7 +88,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
           }
           case ZTag.Succeed: {
             result                = currZ.effect();
-            const nextInstruction = unsafePopStackFrame();
+            const nextInstruction = stack.pop();
             if (nextInstruction) {
               current = nextInstruction.apply(result);
             } else {
@@ -122,7 +102,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
           }
           case ZTag.SucceedNow: {
             result          = currZ.value;
-            const nextInstr = unsafePopStackFrame();
+            const nextInstr = stack.pop();
             if (nextInstr) {
               current = nextInstr.apply(result);
             } else {
@@ -132,7 +112,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
           }
           case ZTag.Fail: {
             unsafeUnwindStack();
-            const nextInst = unsafePopStackFrame();
+            const nextInst = stack.pop();
             if (nextInst) {
               current = nextInst.apply(currZ.cause);
             } else {
@@ -145,7 +125,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
           case ZTag.Match: {
             current     = currZ.z;
             const state = s0;
-            unsafePushStackFrame(
+            stack.push(
               new MatchFrame(
                 (cause: Cause<any>) => {
                   const m = Z.put(state).flatMap(() => currZ.onFailure(log, cause));
@@ -162,14 +142,14 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
             break;
           }
           case ZTag.Environment: {
-            current = currZ.asks(environment?.value || {});
+            current = currZ.asks(environment.peek() ?? {});
             break;
           }
           case ZTag.Provide: {
-            unsafePushEnv(currZ.env);
+            environment.push(currZ.env);
             current = currZ.ma.match(
-              (e) => Z.succeedNow(unsafePopEnv()).flatMap(() => Z.failNow(e)),
-              (a) => Z.succeedNow(unsafePopEnv()).flatMap(() => Z.succeedNow(a)),
+              (e) => Z.succeedNow(environment.pop()).flatMap(() => Z.failNow(e)),
+              (a) => Z.succeedNow(environment.pop()).flatMap(() => Z.succeedNow(a)),
             );
             break;
           }
@@ -177,7 +157,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
             const updated  = currZ.run(s0);
             s0             = updated[1];
             result         = updated[0];
-            const nextInst = unsafePopStackFrame();
+            const nextInst = stack.pop();
             if (nextInst) {
               current = nextInst.apply(result);
             } else {
@@ -187,7 +167,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
           }
           case ZTag.Tell: {
             log            = currZ.log;
-            const nextInst = unsafePopStackFrame();
+            const nextInst = stack.pop();
             if (nextInst) {
               current = nextInst.apply(result);
             } else {
@@ -197,7 +177,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
           }
           case ZTag.MapLog: {
             current = currZ.ma;
-            unsafePushStackFrame(
+            stack.push(
               new MatchFrame(
                 (cause: Cause<any>) => {
                   log = currZ.modifyLog(log);

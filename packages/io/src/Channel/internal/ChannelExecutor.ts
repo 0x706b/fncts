@@ -187,10 +187,9 @@ class Emit<R> {
  * -------------------------------------------------------------------------------------------------
  */
 export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, A>): IO<R, E, A> {
-  let readStack: Stack<State.Read<any, any>> | undefined = Stack.make(r);
+  const readStack: Stack<State.Read<any, any>> = Stack.single(r);
   const read = (): IO<R, E, A> => {
-    const current = readStack!.value;
-    readStack     = readStack!.previous;
+    const current = readStack.pop()!;
     if (current.upstream === null) {
       return IO.defer(cont);
     }
@@ -229,7 +228,7 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
         }
       }
       case State.ChannelStateTag.Effect: {
-        readStack = Stack.make(current, readStack);
+        readStack.push(current);
         return current
           .onEffect(state.io as IO<unknown, never, void>)
           .catchAllCause((cause) =>
@@ -241,8 +240,8 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
           .flatMap(() => read());
       }
       case State.ChannelStateTag.Read: {
-        readStack = Stack.make(current, readStack);
-        readStack = Stack.make(state, readStack);
+        readStack.push(current);
+        readStack.push(state);
         return IO.defer(read());
       }
     }

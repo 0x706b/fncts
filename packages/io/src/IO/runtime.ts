@@ -22,7 +22,7 @@ export class Runtime<R> {
     const context = new FiberContext<E, A>(
       fiberId,
       this.runtimeConfig,
-      Stack.make(InterruptStatus.interruptible.toBoolean),
+      Stack.single(InterruptStatus.interruptible.toBoolean),
       new AtomicReference(
         HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
           [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],

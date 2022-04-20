@@ -297,11 +297,12 @@ type FCEStackFrame<E, A> =
  * @tsplus getter fncts.Cause flipCauseEither
  */
 export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E>, A> {
-  let stack: Stack<FCEStackFrame<E, A>> = Stack.make(new FCEStackFrameDone());
+  const stack: Stack<FCEStackFrame<E, A>> = Stack();
+  stack.push(new FCEStackFrameDone());
   let result: Either<Cause<E>, A> | undefined;
   let c = self;
 
-  recursion: while (stack) {
+  recursion: while (stack.hasNext) {
     // eslint-disable-next-line no-constant-condition
     pushing: while (true) {
       switch (c._tag) {
@@ -321,28 +322,26 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
           );
           break pushing;
         case CauseTag.Then:
-          stack = Stack.make(new FCEStackFrameThenLeft(c), stack);
-          c     = c.left;
+          stack.push(new FCEStackFrameThenLeft(c));
+          c = c.left;
           continue pushing;
         case CauseTag.Both:
-          stack = Stack.make(new FCEStackFrameBothLeft(c), stack);
-          c     = c.left;
+          stack.push(new FCEStackFrameBothLeft(c));
+          c = c.left;
           continue pushing;
       }
     }
 
     // eslint-disable-next-line no-constant-condition
     popping: while (true) {
-      const top = stack.value;
-
-      stack = stack.previous!;
+      const top = stack.pop()!;
 
       switch (top._tag) {
         case "FCEStackFrameDone":
           return result;
         case "FCEStackFrameThenLeft":
-          c     = top.cause.right;
-          stack = Stack.make(new FCEStackFrameThenRight(top.cause, result), stack);
+          c = top.cause.right;
+          stack.push(new FCEStackFrameThenRight(top.cause, result));
           continue recursion;
         case "FCEStackFrameThenRight": {
           const l = top.leftResult;
@@ -362,8 +361,8 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
           continue popping;
         }
         case "FCEStackFrameBothLeft":
-          c     = top.cause.right;
-          stack = Stack.make(new FCEStackFrameBothRight(top.cause, result), stack);
+          c = top.cause.right;
+          stack.push(new FCEStackFrameBothRight(top.cause, result));
           continue recursion;
         case "FCEStackFrameBothRight": {
           const l = top.leftResult;
@@ -431,11 +430,12 @@ type FCOStackFrame<E> =
  * @tsplus getter fncts.Cause flipCauseMaybe
  */
 export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
-  let stack: Stack<FCOStackFrame<E>> = Stack.make(new FCOStackFrameDone());
+  const stack: Stack<FCOStackFrame<E>> = Stack();
+  stack.push(new FCOStackFrameDone());
   let result: Maybe<Cause<E>> | undefined;
   let c = self;
 
-  recursion: while (stack) {
+  recursion: while (stack.hasNext) {
     // eslint-disable-next-line no-constant-condition
     pushing: while (true) {
       switch (c._tag) {
@@ -455,28 +455,26 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
           );
           break pushing;
         case CauseTag.Then:
-          stack = Stack.make(new FCOStackFrameThenLeft(c), stack);
-          c     = c.left;
+          stack.push(new FCOStackFrameThenLeft(c));
+          c = c.left;
           continue pushing;
         case CauseTag.Both:
-          stack = Stack.make(new FCOStackFrameBothLeft(c), stack);
-          c     = c.left;
+          stack.push(new FCOStackFrameBothLeft(c));
+          c = c.left;
           continue pushing;
       }
     }
 
     // eslint-disable-next-line no-constant-condition
     popping: while (true) {
-      const top = stack.value;
-
-      stack = stack.previous!;
+      const top = stack.pop()!;
 
       switch (top._tag) {
         case "FCOStackFrameDone":
           return result;
         case "FCOStackFrameThenLeft":
-          c     = top.cause.right;
-          stack = Stack.make(new FCOStackFrameThenRight(top.cause, result), stack);
+          c = top.cause.right;
+          stack.push(new FCOStackFrameThenRight(top.cause, result));
           continue recursion;
         case "FCOStackFrameThenRight": {
           const l = top.leftResult;
@@ -498,8 +496,8 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
           continue popping;
         }
         case "FCOStackFrameBothLeft":
-          c     = top.cause.right;
-          stack = Stack.make(new FCOStackFrameBothRight(top.cause, result), stack);
+          c = top.cause.right;
+          stack.push(new FCOStackFrameBothRight(top.cause, result));
           continue recursion;
         case "FCOStackFrameBothRight": {
           const l = top.leftResult;

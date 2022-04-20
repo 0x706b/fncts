@@ -10,8 +10,8 @@ export function isEmpty<E>(cause: Cause<E>): boolean {
   if (cause._tag === CauseTag.Empty) {
     return true;
   }
-  let causes: Stack<Cause<E>> | undefined = undefined;
-  let current: Cause<E> | undefined       = cause;
+  const causes: Stack<Cause<E>>     = Stack();
+  let current: Cause<E> | undefined = cause;
   while (current) {
     switch (current._tag) {
       case CauseTag.Halt: {
@@ -24,12 +24,12 @@ export function isEmpty<E>(cause: Cause<E>): boolean {
         return false;
       }
       case CauseTag.Then: {
-        causes  = Stack.make(current.right, causes);
+        causes.push(current.right);
         current = current.left;
         break;
       }
       case CauseTag.Both: {
-        causes  = Stack.make(current.right, causes);
+        causes.push(current.right);
         current = current.left;
         break;
       }
@@ -38,8 +38,7 @@ export function isEmpty<E>(cause: Cause<E>): boolean {
       }
     }
     if (!current && causes) {
-      current = causes.value;
-      causes  = causes.previous;
+      current = causes.pop();
     }
   }
 

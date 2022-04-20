@@ -357,21 +357,21 @@ export function remove_<K, V>(m: SortedMap<K, V>, key: K): SortedMap<K, V> {
  * @tsplus fluent fncts.SortedMap visitFull
  */
 export function visitFull<K, V, A>(m: SortedMap<K, V>, visit: (key: K, value: V) => Maybe<A>): Maybe<A> {
-  let current: RBNode<K, V>                = m.root;
-  let stack: Stack<Node<K, V>> | undefined = undefined;
+  let current: RBNode<K, V>      = m.root;
+  const stack: Stack<Node<K, V>> = Stack();
   let done = false;
 
   while (!done) {
     if (current) {
-      stack   = Stack.make(current, stack);
+      stack.push(current);
       current = current.left;
-    } else if (stack) {
-      const v = visit(stack.value.key, stack.value.value);
+    } else if (stack.hasNext) {
+      const value = stack.pop()!;
+      const v     = visit(value.key, value.value);
       if (v.isJust()) {
         return v;
       }
-      current = stack.value.right;
-      stack   = stack.previous;
+      current = value.right;
     } else {
       done = true;
     }
@@ -383,25 +383,25 @@ export function visitFull<K, V, A>(m: SortedMap<K, V>, visit: (key: K, value: V)
  * @tsplus fluent fncts.SortedMap visitLte
  */
 export function visitLte<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
-  let current: RBNode<K, V>                = m.root;
-  let stack: Stack<Node<K, V>> | undefined = undefined;
+  let current: RBNode<K, V>      = m.root;
+  const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
   const cmp = m.ord.compare_;
 
   while (!done) {
     if (current) {
-      stack   = Stack.make(current, stack);
+      stack.push(current);
       current = current.left;
-    } else if (stack) {
-      if (cmp(stack.value.key, max) > 0) {
+    } else if (stack.hasNext) {
+      const next = stack.pop()!;
+      if (cmp(next.key, max) > 0) {
         break;
       }
-      const v = visit(stack.value.key, stack.value.value);
+      const v = visit(next.key, next.value);
       if (v.isJust()) {
         return v;
       }
-      current = stack.value.right;
-      stack   = stack.previous;
+      current = next.right;
     } else {
       done = true;
     }
@@ -413,25 +413,25 @@ export function visitLte<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V
  * @tsplus fluent fncts.SortedMap visitLt
  */
 export function visitLt<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
-  let current: RBNode<K, V>                = m.root;
-  let stack: Stack<Node<K, V>> | undefined = undefined;
+  let current: RBNode<K, V>      = m.root;
+  const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
   const cmp = m.ord.compare_;
 
   while (!done) {
     if (current) {
-      stack   = Stack.make(current, stack);
+      stack.push(current);
       current = current.left;
-    } else if (stack) {
-      if (cmp(stack.value.key, max) >= 0) {
+    } else if (stack.hasNext) {
+      const next = stack.pop()!;
+      if (cmp(next.key, max) >= 0) {
         break;
       }
-      const v = visit(stack.value.key, stack.value.value);
+      const v = visit(next.key, next.value);
       if (v.isJust()) {
         return v;
       }
-      current = stack.value.right;
-      stack   = stack.previous;
+      current = next.right;
     } else {
       done = true;
     }
@@ -443,28 +443,28 @@ export function visitLt<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V)
  * @tsplus fluent fncts.SortedMap visitGte
  */
 export function visitGte<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
-  let current: RBNode<K, V>                = m.root;
-  let stack: Stack<Node<K, V>> | undefined = undefined;
+  let current: RBNode<K, V>      = m.root;
+  const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
   const cmp = m.ord.compare_;
 
   while (!done) {
     if (current) {
-      stack = Stack.make(current, stack);
+      stack.push(current);
       if (cmp(current.key, min) >= 0) {
         current = current.left;
       } else {
         current = null;
       }
-    } else if (stack) {
-      if (cmp(stack.value.key, min) >= 0) {
-        const v = visit(stack.value.key, stack.value.value);
+    } else if (stack.hasNext) {
+      const next = stack.pop()!;
+      if (cmp(next.key, min) >= 0) {
+        const v = visit(next.key, next.value);
         if (v.isJust()) {
           return v;
         }
       }
-      current = stack.value.right;
-      stack   = stack.previous;
+      current = next.right;
     } else {
       done = true;
     }
@@ -476,28 +476,28 @@ export function visitGte<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V
  * @tsplus fluent fncts.SortedMap visitGt
  */
 export function visitGt<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
-  let current: RBNode<K, V>                = m.root;
-  let stack: Stack<Node<K, V>> | undefined = undefined;
+  let current: RBNode<K, V>      = m.root;
+  const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
   const cmp = m.ord.compare_;
 
   while (!done) {
     if (current) {
-      stack = Stack.make(current, stack);
+      stack.push(current);
       if (cmp(current.key, min) > 0) {
         current = current.left;
       } else {
         current = null;
       }
-    } else if (stack) {
-      if (cmp(stack.value.key, min) > 0) {
-        const v = visit(stack.value.key, stack.value.value);
+    } else if (stack.hasNext) {
+      const next = stack.pop()!;
+      if (cmp(next.key, min) > 0) {
+        const v = visit(next.key, next.value);
         if (v.isJust()) {
           return v;
         }
       }
-      current = stack.value.right;
-      stack   = stack.previous;
+      current = next.right;
     } else {
       done = true;
     }
@@ -509,29 +509,29 @@ export function visitGt<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V)
  * @tsplus fluent fncts.SortedMap visitBetween
  */
 export function visitBetween<K, V, A>(m: SortedMap<K, V>, min: K, max: K, visit: (k: K, v: V) => Maybe<A>): Maybe<A> {
-  let current: RBNode<K, V>                = m.root;
-  let stack: Stack<Node<K, V>> | undefined = undefined;
+  let current: RBNode<K, V>      = m.root;
+  const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
   const cmp = m.ord.compare_;
 
   while (!done) {
     if (current) {
-      stack = Stack.make(current, stack);
+      stack.push(current);
       if (cmp(current.key, min) > 0) {
         current = current.left;
       } else {
         current = null;
       }
-    } else if (stack) {
-      if (cmp(stack.value.key, max) >= 0) {
+    } else if (stack.hasNext) {
+      const next = stack.pop()!;
+      if (cmp(next.key, max) >= 0) {
         break;
       }
-      const v = visit(stack.value.key, stack.value.value);
+      const v = visit(next.key, next.value);
       if (v.isJust()) {
         return v;
       }
-      current = stack.value.right;
-      stack   = stack.previous;
+      current = next.right;
     } else {
       done = true;
     }

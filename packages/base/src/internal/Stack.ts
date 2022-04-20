@@ -1,21 +1,52 @@
 /**
  * @tsplus type fncts.Stack
+ * @tsplus companion fncts.StackOps
  */
-export interface Stack<A> {
+export class Stack<A> {
+  constructor(private node?: Node<A>) {}
+
+  clone(): Stack<A> {
+    return new Stack(this.node);
+  }
+
+  get hasNext(): boolean {
+    return !!this.node;
+  }
+
+  peek(): A | undefined {
+    if (this.node) {
+      return this.node.value;
+    }
+  }
+
+  pop(): A | undefined {
+    if (this.node) {
+      const value = this.node.value;
+      this.node   = this.node.previous;
+      return value;
+    }
+  }
+
+  push(value: A): void {
+    this.node = { value, previous: this.node };
+  }
+}
+
+interface Node<A> {
   readonly value: A;
-  readonly previous?: Stack<A>;
+  readonly previous?: Node<A>;
 }
 
 /**
- * @tsplus type fncts.StackOps
+ * @tsplus static fncts.StackOps __call
  */
-export interface StackOps {}
-
-export const Stack: StackOps = {};
+export function mkStack<A>(): Stack<A> {
+  return new Stack();
+}
 
 /**
- * @tsplus static fncts.StackOps make
+ * @tsplus static fncts.StackOps single
  */
-export function mkStack<A>(value: A, previous?: Stack<A>): Stack<A> {
-  return { value, previous };
+export function single<A>(value: A): Stack<A> {
+  return new Stack({ value });
 }

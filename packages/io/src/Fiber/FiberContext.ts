@@ -75,14 +75,14 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   private state = FiberState.initial<E, A>();
 
   private asyncEpoch         = 0 | 0;
-  private stack              = undefined as Stack<Frame> | undefined;
+  private stack              = Stack<Frame>();
   nextIO: Instruction | null = null;
   private currentSupervisor: Supervisor<any>;
 
   constructor(
     protected readonly fiberId: FiberId.Runtime,
     private runtimeConfig: RuntimeConfig,
-    private interruptStatus: Stack<boolean> | undefined,
+    private interruptStatus: Stack<boolean>,
     private fiberRefLocals: FiberRefLocals,
     private readonly children: Set<FiberContext<unknown, unknown>>,
     private readonly location?: string,
@@ -223,7 +223,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                         break;
                       }
                       default: {
-                        this.unsafePushStackFrame(new TracedCont(current.f, current.trace));
+                        this.stack.push(new TracedCont(current.f, current.trace));
                         current = concrete(current.io);
                         break;
                       }
@@ -269,7 +269,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                       ? strippedCause
                       : Cause.then(strippedCause, suppressed);
 
-                    if (this.unsafeIsStackEmpty) {
+                    if (!this.stack.hasNext) {
                       // Error not caught, stack is empty:
                       this.unsafeSetInterrupting(true);
 
@@ -284,14 +284,14 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     break;
                   }
                   case IOTag.Match: {
-                    this.unsafePushStackFrame(current);
+                    this.stack.push(current);
                     current = concrete(current.io);
                     break;
                   }
                   case IOTag.SetInterrupt: {
                     const boolFlag = current.flag.toBoolean;
                     if (this.unsafeIsInterruptible !== boolFlag) {
-                      this.unsafePushInterruptStatus(current.flag.toBoolean);
+                      this.interruptStatus.push(current.flag.toBoolean);
                       this.unsafeRestoreInterruptStatus();
                     }
                     current = concrete(current.io);
@@ -554,18 +554,18 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
   private interruptExit = new InterruptExit((v: any) => {
     if (this.unsafeIsInterruptible) {
-      this.unsafePopInterruptStatus();
+      this.interruptStatus.pop();
       return IO.succeedNow(v);
     } else {
       return IO.succeed(() => {
-        this.unsafePopInterruptStatus();
+        this.interruptStatus.pop();
         return v;
       });
     }
   });
 
   private unsafeAddFinalizer(finalizer: UIO<any>): void {
-    this.unsafePushStackFrame(
+    this.stack.push(
       new Finalizer(finalizer, (v) => {
         this.unsafeDisableInterruption();
         this.unsafeRestoreInterruptStatus();
@@ -575,7 +575,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   }
 
   private get unsafeIsInterruptible() {
-    return this.interruptStatus ? this.interruptStatus.value : true;
+    return this.interruptStatus.hasNext ? this.interruptStatus.peek()! : true;
   }
 
   private get unsafeIsInterrupted() {
@@ -590,36 +590,12 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     return this.unsafeIsInterrupted && this.unsafeIsInterruptible && !this.unsafeIsInterrupting;
   }
 
-  private get unsafeIsStackEmpty() {
-    return !this.stack;
-  }
-
-  private unsafePushStackFrame(k: Frame) {
-    this.stack = Stack.make(k, this.stack);
-  }
-
-  private unsafePopStackFrame() {
-    const current = this.stack?.value;
-    this.stack    = this.stack?.previous;
-    return current;
-  }
-
   private unsafeDisableInterruption(): void {
-    this.unsafePushInterruptStatus(false);
+    this.interruptStatus.push(false);
   }
 
   private unsafeRestoreInterruptStatus(): void {
-    this.unsafePushStackFrame(this.interruptExit);
-  }
-
-  private unsafePushInterruptStatus(flag: boolean) {
-    this.interruptStatus = Stack.make(flag, this.interruptStatus);
-  }
-
-  private unsafePopInterruptStatus() {
-    const current        = this.interruptStatus?.value;
-    this.interruptStatus = this.interruptStatus?.previous;
-    return current;
+    this.stack.push(this.interruptExit);
   }
 
   private unsafeAddSuppressedCause(cause: Cause<never>): void {
@@ -639,28 +615,28 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     let discardedFolds = false;
 
     // Unwind the stack, looking for an error handler:
-    while (unwinding && !this.unsafeIsStackEmpty) {
+    while (unwinding && this.stack.hasNext) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const frame = this.unsafePopStackFrame()!;
+      const frame = this.stack.pop()!;
 
       switch (frame._tag) {
         case "InterruptExit": {
-          this.unsafePopInterruptStatus();
+          this.interruptStatus.pop();
           break;
         }
         case "Finalizer": {
           this.unsafeDisableInterruption();
-          this.unsafePushStackFrame(
+          this.stack.push(
             new TracedCont(
               (cause) =>
                 frame.finalizer.matchCauseIO(
                   (finalizerCause) => {
-                    this.unsafePopInterruptStatus();
+                    this.interruptStatus.pop();
                     this.unsafeAddSuppressedCause(finalizerCause);
                     return IO.failCauseNow(cause);
                   },
                   () => {
-                    this.unsafePopInterruptStatus();
+                    this.interruptStatus.pop();
                     return IO.failCauseNow(cause);
                   },
                 ),
@@ -673,7 +649,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
         case IOTag.Match: {
           if (!this.unsafeShouldInterrupt) {
             // Push error handler back onto the stack and halt iteration:
-            this.unsafePushStackFrame(new HandlerFrame(frame.onFailure, frame.trace));
+            this.stack.push(new HandlerFrame(frame.onFailure, frame.trace));
             unwinding = false;
           } else {
             discardedFolds = true;
@@ -699,8 +675,8 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   }
 
   private unsafeNextEffect(value: any): Instruction | null {
-    if (!this.unsafeIsStackEmpty) {
-      const k = this.unsafePopStackFrame()!;
+    if (this.stack.hasNext) {
+      const k = this.stack.pop()!;
       return concrete(k.apply(value));
     } else {
       return this.unsafeTryDone(Exit.succeed(value));
@@ -905,7 +881,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     const childContext = new FiberContext<any, any>(
       childId,
       this.runtimeConfig,
-      Stack.make(this.unsafeIsInterruptible),
+      Stack.single(this.unsafeIsInterruptible),
       new AtomicReference(childFiberRefLocals),
       grandChildren,
       trace,
@@ -1004,10 +980,9 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
     prefix.forEach((element) => builder.append(TraceElement.parse(element)));
 
-    let stack = this.stack;
-    while (stack != null) {
-      builder.append(TraceElement.parse(stack.value.trace));
-      stack = stack.previous;
+    const stack = this.stack.clone();
+    while (stack.hasNext) {
+      builder.append(TraceElement.parse(stack.pop()!.trace));
     }
 
     return new Trace(this.fiberId, builder.result());

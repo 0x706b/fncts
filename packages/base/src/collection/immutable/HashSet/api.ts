@@ -273,10 +273,10 @@ export function foldLeft_<A, B>(fa: HashSet<A>, b: B, f: (b: B, v: A) => B): B {
   const root = fa._root;
   if (root._tag === "LeafNode") return f(b, root.value);
   if (root._tag === "EmptyNode") return b;
-  let toVisit: Stack<Array<Node<A>>> | undefined = Stack.make(root.children);
-  while (toVisit) {
-    const children = toVisit.value;
-    toVisit        = toVisit.previous;
+  const toVisit: Stack<Array<Node<A>>> = Stack();
+  toVisit.push(root.children);
+  while (toVisit.hasNext) {
+    const children = toVisit.pop()!;
     for (let i = 0, len = children.length; i < len; ) {
       const child = children[i++];
       if (child && !isEmptyNode(child)) {
@@ -284,7 +284,7 @@ export function foldLeft_<A, B>(fa: HashSet<A>, b: B, f: (b: B, v: A) => B): B {
           // eslint-disable-next-line no-param-reassign
           b = f(b, child.value);
         } else {
-          toVisit = Stack.make(child.children, toVisit);
+          toVisit.push(child.children);
         }
       }
     }

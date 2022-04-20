@@ -6,9 +6,9 @@ import { Stack } from "@fncts/base/internal/Stack";
  * @tsplus static fncts.control.EvalOps run
  */
 export function run<A>(computation: Eval<A>): A {
-  let frames: Stack<(a: any) => Eval<any>> | undefined = undefined;
-  let out = undefined;
-  let cur = computation;
+  const frames = Stack<(a: any) => Eval<any>>();
+  let out      = undefined;
+  let cur      = computation;
   while (cur !== null) {
     concrete(cur);
     switch (cur._tag) {
@@ -19,8 +19,8 @@ export function run<A>(computation: Eval<A>): A {
             cur = cur.f(cur.self.value);
             break;
           default:
-            frames = Stack.make(cur.f, frames);
-            cur    = cur.self;
+            frames.push(cur.f);
+            cur = cur.self;
             break;
         }
         break;
@@ -29,9 +29,8 @@ export function run<A>(computation: Eval<A>): A {
         break;
       case EvalTag.Value:
         out = cur.value;
-        if (frames) {
-          cur    = frames.value(out);
-          frames = frames.previous;
+        if (frames.hasNext) {
+          cur = frames.pop()!(out);
         } else {
           cur = null!;
         }

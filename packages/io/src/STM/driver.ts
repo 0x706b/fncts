@@ -13,18 +13,18 @@ type Cont =
   | OnSuccess<unknown, unknown, unknown, unknown>;
 
 export class STMDriver<R, E, A> {
-  private contStack: Stack<Cont> | undefined;
+  private contStack: Stack<Cont>;
   private envStack: Stack<unknown>;
 
   constructor(readonly self: STM<R, E, A>, readonly journal: Journal, readonly fiberId: FiberId, r0: Environment<R>) {
-    this.envStack = Stack.make(r0);
+    this.contStack = Stack();
+    this.envStack  = Stack.single(r0);
   }
 
   private unwindStack(error: unknown, isRetry: boolean): Erased | undefined {
     let result: Erased | undefined = undefined;
-    while (this.contStack && !result) {
-      const cont     = this.contStack.value;
-      this.contStack = this.contStack.previous;
+    while (this.contStack.hasNext && !result) {
+      const cont = this.contStack.pop()!;
       if (cont._tag === STMTag.OnFailure) {
         if (!isRetry) {
           result = cont.onFailure(error);
@@ -49,59 +49,56 @@ export class STMDriver<R, E, A> {
       switch (k._tag) {
         case STMTag.Succeed: {
           const a = k.a();
-          if (!this.contStack) {
+          if (!this.contStack.hasNext) {
             exit = TExit.succeed(a);
           } else {
-            const cont     = this.contStack.value;
-            this.contStack = this.contStack.previous;
-            curr           = cont.apply(a);
+            const cont = this.contStack.pop()!;
+            curr       = cont.apply(a);
           }
           break;
         }
         case STMTag.SucceedNow: {
           const a = k.a;
-          if (!this.contStack) {
+          if (!this.contStack.hasNext) {
             exit = TExit.succeed(a);
           } else {
-            const cont     = this.contStack.value;
-            this.contStack = this.contStack.previous;
-            curr           = cont.apply(a);
+            const cont = this.contStack.pop()!;
+            curr       = cont.apply(a);
           }
           break;
         }
         case STMTag.ContramapEnvironment: {
-          this.envStack = Stack.make(k.f(this.envStack.value), this.envStack);
-          curr          = k.stm.ensuring(
+          this.envStack.push(k.f(this.envStack.peek()));
+          curr = k.stm.ensuring(
             STM.succeed(() => {
-              this.envStack = this.envStack.previous!;
+              this.envStack.pop();
             }),
           );
           break;
         }
         case STMTag.OnRetry: {
-          this.contStack = Stack.make(k, this.contStack);
-          curr           = k.stm;
+          this.contStack.push(k);
+          curr = k.stm;
           break;
         }
         case STMTag.OnFailure: {
-          this.contStack = Stack.make(k, this.contStack);
-          curr           = k.stm;
+          this.contStack.push(k);
+          curr = k.stm;
           break;
         }
         case STMTag.OnSuccess: {
-          this.contStack = Stack.make(k, this.contStack);
-          curr           = k.stm;
+          this.contStack.push(k);
+          curr = k.stm;
           break;
         }
         case STMTag.Effect: {
           try {
-            const a = k.f(this.journal, this.fiberId, this.envStack.value);
-            if (!this.contStack) {
+            const a = k.f(this.journal, this.fiberId, this.envStack.peek());
+            if (!this.contStack.hasNext) {
               exit = TExit.succeed(a);
             } else {
-              const cont     = this.contStack.value;
-              this.contStack = this.contStack.previous;
-              curr           = cont.apply(a);
+              const cont = this.contStack.pop()!;
+              curr       = cont.apply(a);
             }
           } catch (e) {
             if (isFailException(e)) {
