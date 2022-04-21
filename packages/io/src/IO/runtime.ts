@@ -1,6 +1,5 @@
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { Stack } from "@fncts/base/internal/Stack";
-import { Console } from "@fncts/io/Console";
 import { FiberContext } from "@fncts/io/Fiber";
 import { concrete } from "@fncts/io/IO/definition";
 import { IOEnv } from "@fncts/io/IOEnv/definition";
@@ -13,7 +12,7 @@ export class Runtime<R> {
     k: (exit: Exit<E, A>) => any,
     __tsplusTrace?: string,
   ): ((fiberId: FiberId) => (f: (exit: Exit<E, A>) => any) => void) => {
-    const fiberId = FiberId.newFiberId();
+    const fiberId = FiberId.unsafeMake(TraceElement.parse(__tsplusTrace));
 
     const children = new Set<FiberContext<any, any>>();
 

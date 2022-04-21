@@ -21,9 +21,12 @@ const _hashRuntime = Hashable.hashString("fncts.FiberId.Runtime");
 export class Runtime implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "Runtime";
-  constructor(readonly id: number, readonly startTime: number) {}
+  constructor(readonly id: number, readonly startTime: number, readonly location: TraceElement) {}
   get [Symbol.hashable]() {
-    return Hashable.combineHash(_hashRuntime, Hashable.hashNumber(this.id));
+    return Hashable.combineHash(
+      Hashable.combineHash(_hashRuntime, Hashable.hashNumber(this.id)),
+      Hashable.hash(this.location),
+    );
   }
   [Symbol.equatable](that: unknown): boolean {
     return isFiberId(that) && isRuntime(that) && this.id === that.id && this.startTime === that.startTime;

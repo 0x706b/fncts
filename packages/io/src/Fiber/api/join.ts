@@ -8,5 +8,6 @@
  * @tsplus getter fncts.io.Fiber join
  */
 export function join<E, A>(fiber: Fiber<E, A>): FIO<E, A> {
+  fiber.concrete();
   return fiber.await.flatMap(IO.fromExitNow).tap(() => fiber.inheritRefs);
 }

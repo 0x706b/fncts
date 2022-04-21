@@ -9,10 +9,13 @@ export const none = new None();
 const _fiberCounter = new AtomicNumber(0);
 
 /**
- * @tsplus static fncts.FiberIdOps newFiberId
+ * @tsplus static fncts.FiberIdOps unsafeMake
  */
-export function newFiberId(): Runtime {
-  return new Runtime(_fiberCounter.getAndIncrement(), new Date().getTime());
+export function unsafeMake(location: TraceElement): Runtime {
+  return new Runtime(_fiberCounter.getAndIncrement(), new Date().getTime(), location);
 }
 
-export const synthetic = new Runtime(-1, -1);
+/**
+ * @tsplus static fncts.FiberIdOps synthetic
+ */
+export const synthetic = new Runtime(-1, -1, TraceElement.NoLocation);

@@ -1,21 +1,24 @@
+import { SyntheticFiber } from "@fncts/io/Fiber/definition";
+
 /**
  * Effectfully maps over the value the fiber computes.
  *
  * @tsplus fluent fncts.io.Fiber mapIO
  */
 export function mapIO_<E, E1, A, B>(fiber: Fiber<E, A>, f: (a: A) => FIO<E1, B>): Fiber<E | E1, B> {
-  return {
-    _tag: "SyntheticFiber",
-    await: fiber.await.flatMap((exit) => exit.foreachIO(f)),
-    inheritRefs: fiber.inheritRefs,
-    interruptAs: (id) => fiber.interruptAs(id).flatMap((exit) => exit.foreachIO(f)),
-    poll: fiber.poll.flatMap((mexit) =>
-      mexit.match(
+  return new SyntheticFiber(
+    fiber.id,
+    fiber.await.flatMap((_) => _.foreachIO(f)),
+    fiber.children,
+    fiber.inheritRefs,
+    fiber.poll.flatMap((_) =>
+      _.match(
         () => IO.succeedNow(Nothing()),
-        (a) => a.foreachIO(f).map(Maybe.just),
+        (_) => _.foreachIO(f).map((exit) => Just(exit)),
       ),
     ),
-  };
+    (id) => fiber.interruptAs(id).flatMap((_) => _.foreachIO(f)),
+  );
 }
 
 /**

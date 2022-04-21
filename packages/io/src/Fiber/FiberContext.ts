@@ -1,9 +1,11 @@
 import type { Instruction, Match, Race } from "@fncts/io/IO/definition";
 
 import { ExitTag } from "@fncts/base/data/Exit";
+import { TraceElement } from "@fncts/base/data/TraceElement";
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { Stack } from "@fncts/base/internal/Stack";
 import { CancellerState } from "@fncts/io/CancellerState";
+import { FiberTypeId, isFiber } from "@fncts/io/Fiber/definition";
 import { FiberState } from "@fncts/io/FiberState";
 import { FiberStatus, FiberStatusTag } from "@fncts/io/FiberStatus";
 import { defaultScheduler } from "@fncts/io/internal/Scheduler";
@@ -48,32 +50,26 @@ export function unsafeCurrentFiber(): Maybe<FiberContext<any, any>> {
   return Maybe.fromNullable(currentFiber.get);
 }
 
-export const FiberContextTypeId = Symbol.for("fncts.io.FiberContext");
-export type FiberContextTypeId = typeof FiberContextTypeId;
-
-export function isFiberContext(u: unknown): u is FiberContext<unknown, unknown> {
-  return hasTypeId(u, FiberContextTypeId);
-}
-
 /**
  * `FiberContext` provides all of the context and facilities required to run a `IO`
  *
  * @tsplus type fncts.io.Fiber
  */
 export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equatable {
-  readonly _tag = "RuntimeFiber";
-  readonly _typeId: FiberContextTypeId = FiberContextTypeId;
+  readonly _typeId: FiberTypeId = FiberTypeId;
+  readonly _tag                 = "RuntimeFiber";
+  readonly _E!: () => E;
+  readonly _A!: () => A;
 
   get [Symbol.hashable](): number {
-    return Hashable.hashString(this.fiberId.threadName);
+    return Hashable.hashString(this.id.threadName);
   }
 
   [Symbol.equatable](that: unknown) {
-    return isFiberContext(that) && this.fiberId == that.fiberId;
+    return isFiber(that) && this.id == that.id;
   }
 
-  private state = FiberState.initial<E, A>();
-
+  private state              = FiberState.initial<E, A>();
   private asyncEpoch         = 0 | 0;
   private stack              = Stack<Frame>();
   nextIO: Instruction | null = null;
@@ -84,8 +80,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     private runtimeConfig: RuntimeConfig,
     private interruptStatus: Stack<boolean>,
     private fiberRefLocals: FiberRefLocals,
-    private readonly children: Set<FiberContext<unknown, unknown>>,
-    private readonly location?: string,
+    private readonly _children: Set<FiberContext<unknown, unknown>>,
   ) {
     this.currentSupervisor = this.runtimeConfig.supervisor;
   }
@@ -117,6 +112,34 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     if (exit != null) {
       k(exit);
     }
+  }
+
+  get children(): UIO<Conc<Fiber.Runtime<any, any>>> {
+    return this.evalOnIO(
+      IO.succeed(() => {
+        const concBuilder = new ConcBuilder<Fiber.Runtime<any, any>>(Conc.empty());
+
+        for (const child of this._children) {
+          concBuilder.append(child);
+        }
+
+        return concBuilder.result();
+      }),
+      IO.succeed(Conc.empty()),
+    );
+  }
+
+  evalOnIO<R1, E1, B, R2, E2, C>(
+    effect: IO<R1, E1, B>,
+    orElse: IO<R2, E2, C>,
+    __tsplusTrace?: string,
+  ): IO<R1 & R2, E1 | E2, B | C> {
+    return Do((Δ) => {
+      const r = Δ(IO.environment<R1 & R2>());
+      const p = Δ(Future.make<E1 | E2, B | C>());
+      Δ(this.evalOn(effect.provideEnvironment(r).fulfill(p), orElse.provideEnvironment(r).fulfill(p)));
+      return Δ(p.await);
+    });
   }
 
   get await(): UIO<Exit<E, A>> {
@@ -153,6 +176,10 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
   evalOn(effect: UIO<any>, orElse: UIO<any>): UIO<void> {
     return IO.defer(() => this.unsafeEvalOn(effect, orElse));
+  }
+
+  get location() {
+    return this.fiberId.location;
   }
 
   /**
@@ -734,7 +761,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
           this.state.mailbox = null;
           this.unsafeSetInterrupting(true);
           return concrete(mailbox.flatMap(() => IO.fromExit(exit)));
-        } else if (this.children.size === 0) {
+        } else if (this._children.size === 0) {
           // We are truly "done" because all the children of this fiber have terminated,
           // and there are no more pending effects that we have to execute on the fiber.
           const interruptorsCause = this.state.interruptorsCause;
@@ -764,10 +791,10 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
           let interruptChildren = IO.unit;
 
-          this.children.forEach((child) => {
+          this._children.forEach((child) => {
             interruptChildren = interruptChildren.flatMap(() => child.interruptAs(this.fiberId));
           });
-          this.children.clear();
+          this._children.clear();
 
           return concrete(interruptChildren.flatMap(() => IO.fromExit(exit)));
         }
@@ -860,7 +887,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     forkScope: Maybe<FiberScope> = Nothing(),
     trace?: string,
   ): FiberContext<any, any> {
-    const childId = FiberId.newFiberId();
+    const childId = FiberId.unsafeMake(TraceElement.parse(trace));
 
     const childFiberRefLocals = this.fiberRefLocals.get.mapWithIndex((fiberRef, stack) => {
       const oldValue = stack.head[1];
@@ -884,7 +911,6 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       Stack.single(this.unsafeIsInterruptible),
       new AtomicReference(childFiberRefLocals),
       grandChildren,
-      trace,
     );
 
     if (this.currentSupervisor !== Supervisor.none) {
@@ -1011,7 +1037,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   unsafeAddChild(child: FiberContext<unknown, unknown>): void {
     this.unsafeEvalOn(
       IO.succeed(() => {
-        this.children.add(child);
+        this._children.add(child);
       }),
       IO.unit,
     );
