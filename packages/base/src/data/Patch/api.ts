@@ -52,11 +52,11 @@ export function diff<In, Out>(oldValue: Environment<In>, newValue: Environment<O
   const sorted                   = newValue.map.asList.sort(OrdEnvironmentMap);
   const [missingServices, patch] = sorted.foldLeft(
     [oldValue.map, Patch.empty() as Patch<any, any>],
-    ([map, patch], [tag, newService]) =>
+    ([map, patch], [tag, [newService, newIndex]]) =>
       map.get(tag).match(
         () => [map.remove(tag), patch.compose(new AddService(newService, tag))],
-        (oldService) => {
-          if (oldService === newService) {
+        ([oldService, oldIndex]) => {
+          if (oldService === newService && oldIndex === newIndex) {
             return [map.remove(tag), patch];
           } else {
             return [map.remove(tag), patch.compose(new UpdateService((_: any) => newService, tag))];
