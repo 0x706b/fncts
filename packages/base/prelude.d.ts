@@ -185,6 +185,10 @@ import { TraceElement } from "@fncts/base/data/TraceElement/definition";
 /**
  * @tsplus global
  */
+import { Stack } from "@fncts/base/internal/Stack";
+/**
+ * @tsplus global
+ */
 import { Equatable } from "@fncts/base/typeclass/Equatable";
 /**
  * @tsplus global

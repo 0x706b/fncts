@@ -49,9 +49,9 @@ const OrdEnvironmentMap = Number.Ord.contramap((_: readonly [Tag<unknown>, reado
  * @tsplus static fncts.Environment.PatchOps diff
  */
 export function diff<In, Out>(oldValue: Environment<In>, newValue: Environment<Out>): Patch<In, Out> {
-  const sorted                   = newValue.map.asList.sort(OrdEnvironmentMap);
+  const sorted                   = newValue.map.toArray.sort(OrdEnvironmentMap.compare_);
   const [missingServices, patch] = sorted.foldLeft(
-    [oldValue.map, Patch.empty() as Patch<any, any>],
+    [oldValue.map.beginMutation, Patch.empty() as Patch<any, any>],
     ([map, patch], [tag, [newService, newIndex]]) =>
       map.get(tag).match(
         () => [map.remove(tag), patch.compose(new AddService(newService, tag))],

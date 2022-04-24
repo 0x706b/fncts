@@ -18,7 +18,7 @@ import * as P from "@fncts/base/typeclass";
  * @tsplus getter fncts.HashMap isEmpty
  */
 export function isEmpty<K, V>(map: HashMap<K, V>): boolean {
-  return map && !!isEmptyNode(map.root);
+  return map && isEmptyNode(map.root);
 }
 
 /**
@@ -58,11 +58,11 @@ export function makeDefault<K, V>(): HashMap<K, V> {
 export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.Semigroup<A>, F: P.Foldable<F, C>) {
   return <K_, Q, W, X, I, S, R, E>(fka: HKT.Kind<F, C, K_, Q, W, X, I, S, R, E, readonly [K, A]>): HashMap<K, A> => {
     return F.foldLeft_(fka, makeWith(config), (b, [k, a]) => {
-      const oa = get_(b, k);
+      const oa = b.get(k);
       if (oa.isJust()) {
-        return set_(b, k, S.combine_(oa.value, a));
+        return b.set(k, S.combine_(oa.value, a));
       } else {
-        return set_(b, k, a);
+        return b.set(k, a);
       }
     });
   };
@@ -230,6 +230,34 @@ export function toSetDefault<K, V>(map: HashMap<K, V>): HashSet<V> {
       set.add(v);
     });
   });
+}
+
+/**
+ * Get the set of values
+ *
+ * @tsplus getter fncts.HashMap toList
+ */
+export function toList<K, V>(map: HashMap<K, V>): List<readonly [K, V]> {
+  const buffer = new ListBuffer<readonly [K, V]>();
+  map.forEachWithIndex((k, v) => {
+    buffer.append([k, v]);
+  });
+  return buffer.toList;
+}
+
+/**
+ * Get the set of values
+ *
+ * @tsplus getter fncts.HashMap toArray
+ */
+export function toArray<K, V>(map: HashMap<K, V>): Array<readonly [K, V]> {
+  const buffer: Array<readonly [K, V]> = Array(map.size);
+  let i = 0;
+  map.forEachWithIndex((k, v) => {
+    buffer[i] = [k, v];
+    i++;
+  });
+  return buffer;
 }
 
 /**
@@ -472,6 +500,7 @@ export function foldLeftWithIndex_<K, V, Z>(map: HashMap<K, V>, z: Z, f: (k: K, 
   }
   const toVisit = [root.children];
   let children;
+  let acc       = z;
   while ((children = toVisit.pop())) {
     for (let i = 0, len = children.length; i < len; ) {
       const child = children[i++];
@@ -479,7 +508,7 @@ export function foldLeftWithIndex_<K, V, Z>(map: HashMap<K, V>, z: Z, f: (k: K, 
         if (child._tag === "LeafNode") {
           if (child.value.isJust()) {
             // eslint-disable-next-line no-param-reassign
-            z = f(child.key, z, child.value.value);
+            acc = f(child.key, acc, child.value.value);
           }
         } else {
           toVisit.push(child.children);
@@ -487,7 +516,7 @@ export function foldLeftWithIndex_<K, V, Z>(map: HashMap<K, V>, z: Z, f: (k: K, 
       }
     }
   }
-  return z;
+  return acc;
 }
 
 /**
