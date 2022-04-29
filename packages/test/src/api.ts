@@ -43,14 +43,14 @@ export function traverseResult<A>(value: A, assertResult: AssertResult<A>, asser
 }
 
 /**
- * @tsplus fluent global assert
+ * @tsplus fluent global assert 1
  */
 export function assert_<A>(value: A, assertion: Assertion<A>): TestResult {
   return traverseResult(value, assertion.run(value), assertion);
 }
 
 /**
- * @tsplus fluent fncts.control.IO assert
+ * @tsplus fluent global assert 0
  */
 export function assertIO_<R, E, A>(io: IO<R, E, A>, assertion: AssertionIO<A>): IO<R, E, TestResult> {
   return IO.gen(function* (_) {

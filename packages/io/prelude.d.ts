@@ -248,7 +248,7 @@ import { FiberScope } from "@fncts/io/FiberScope/definition";
 /**
  * @tsplus global
  */
-import { Future } from "@fncts/io/Future/definition";
+import { Future } from "@fncts/io/Future";
 /**
  * @tsplus global
  */

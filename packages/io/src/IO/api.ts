@@ -104,6 +104,7 @@ export function asyncInterrupt<R, E, A>(
 
 /**
  * @tsplus fluent fncts.io.IO apFirst
+ * @tsplus operator fncts.io.IO <
  */
 export function apFirst_<R, E, A, R1, E1, B>(
   self: IO<R, E, A>,

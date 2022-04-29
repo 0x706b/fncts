@@ -13,7 +13,8 @@
     "./test/**/*"
   ],
   "files": [
-    "./prelude.d.ts"
+    "./prelude.d.ts",
+    "./prelude.test.d.ts"
   ],
   "references": [
     {
