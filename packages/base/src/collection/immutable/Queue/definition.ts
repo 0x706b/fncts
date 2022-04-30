@@ -18,7 +18,7 @@ import { _Nil } from "@fncts/base/collection/immutable/List.js";
  * @tsplus type fncts.ImmutableQueue
  * @tsplus companion fncts.ImmutableQueueOps
  */
-export class Queue<A> implements Seq<A> {
+export class Queue<A> implements Iterable<A> {
   constructor(
     /* @internal */
     public _in: List<A>,

@@ -1,20 +1,20 @@
 import type * as P from "@fncts/base/typeclass";
 
-import { Seq } from "@fncts/base/collection/Seq/definition";
+import { Iterable } from "@fncts/base/collection/Iterable/definition";
 import { tuple } from "@fncts/base/data/function";
 
 /**
- * @tsplus fluent fncts.Seq ap
+ * @tsplus fluent fncts.Iterable ap
  */
-export function ap_<A, B>(self: Seq<(a: A) => B>, fa: Seq<A>): Seq<B> {
+export function ap_<A, B>(self: Iterable<(a: A) => B>, fa: Iterable<A>): Iterable<B> {
   return self.flatMap((f) => fa.map(f));
 }
 
 /**
- * @tsplus fluent fncts.Seq append
+ * @tsplus fluent fncts.Iterable append
  */
-export function append_<A, B>(self: Seq<A>, b: B): Seq<A | B> {
-  return Seq.make<A | B>(() => {
+export function append_<A, B>(self: Iterable<A>, b: B): Iterable<A | B> {
+  return Iterable.make<A | B>(() => {
     let done = false;
     const ia = self[Symbol.iterator]();
     let va: IteratorResult<A>;
@@ -45,17 +45,17 @@ export function append_<A, B>(self: Seq<A>, b: B): Seq<A | B> {
 }
 
 /**
- * @tsplus getter fncts.Seq asSeq
+ * @tsplus getter fncts.Iterable asIterable
  */
-export function asSeq<A>(self: Seq<A>): Seq<A> {
+export function asIterable<A>(self: Iterable<A>): Iterable<A> {
   return self;
 }
 
 /**
- * @tsplus fluent fncts.Seq flatMap
+ * @tsplus fluent fncts.Iterable flatMap
  */
-export function flatMap_<A, B>(self: Seq<A>, f: (a: A) => Seq<B>): Seq<B> {
-  return Seq.make<B>(() => {
+export function flatMap_<A, B>(self: Iterable<A>, f: (a: A) => Iterable<B>): Iterable<B> {
+  return Iterable.make<B>(() => {
     const ia = self[Symbol.iterator]();
     let ib: Iterator<B>;
     let va: IteratorResult<A>;
@@ -105,10 +105,10 @@ export function flatMap_<A, B>(self: Seq<A>, f: (a: A) => Seq<B>): Seq<B> {
 }
 
 /**
- * @tsplus fluent fncts.Seq concat
+ * @tsplus fluent fncts.Iterable concat
  */
-export function concat_<A>(self: Seq<A>, ib: Seq<A>): Seq<A> {
-  return Seq.make(() => {
+export function concat_<A>(self: Iterable<A>, ib: Iterable<A>): Iterable<A> {
+  return Iterable.make(() => {
     const iterA = self[Symbol.iterator]();
     let doneA   = false;
     let iterB: Iterator<A>;
@@ -130,9 +130,9 @@ export function concat_<A>(self: Seq<A>, ib: Seq<A>): Seq<A> {
 }
 
 /**
- * @tsplus fluent fncts.Seq corresponds
+ * @tsplus fluent fncts.Iterable corresponds
  */
-export function corresponds_<A, B>(left: Seq<A>, right: Seq<B>, f: (a: A, b: B) => boolean): boolean {
+export function corresponds_<A, B>(left: Iterable<A>, right: Iterable<B>, f: (a: A, b: B) => boolean): boolean {
   const leftIterator  = left[Symbol.iterator]();
   const rightIterator = right[Symbol.iterator]();
   // eslint-disable-next-line no-constant-condition
@@ -152,27 +152,27 @@ export function corresponds_<A, B>(left: Seq<A>, right: Seq<B>, f: (a: A, b: B) 
 }
 
 /**
- * @tsplus fluent fncts.Seq crossWith
+ * @tsplus fluent fncts.Iterable crossWith
  */
-export function crossWith_<A, B, C>(self: Seq<A>, fb: Seq<B>, f: (a: A, b: B) => C): Seq<C> {
+export function crossWith_<A, B, C>(self: Iterable<A>, fb: Iterable<B>, f: (a: A, b: B) => C): Iterable<C> {
   return self.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**
- * @tsplus fluent fncts.Seq every
+ * @tsplus fluent fncts.Iterable every
  */
-export function every_<A, B extends A>(self: Seq<A>, p: Refinement<A, B>): boolean;
-export function every_<A>(self: Seq<A>, p: Predicate<A>): boolean;
-export function every_<A>(self: Seq<A>, p: Predicate<A>): boolean {
+export function every_<A, B extends A>(self: Iterable<A>, p: Refinement<A, B>): boolean;
+export function every_<A>(self: Iterable<A>, p: Predicate<A>): boolean;
+export function every_<A>(self: Iterable<A>, p: Predicate<A>): boolean {
   return self.everyWithIndex((_, a) => p(a));
 }
 
 /**
- * @tsplus fluent fncts.Seq everyWithIndex
+ * @tsplus fluent fncts.Iterable everyWithIndex
  */
-export function everyWithIndex_<A, B extends A>(self: Seq<A>, p: RefinementWithIndex<number, A, B>): boolean;
-export function everyWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, A>): boolean;
-export function everyWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, A>): boolean {
+export function everyWithIndex_<A, B extends A>(self: Iterable<A>, p: RefinementWithIndex<number, A, B>): boolean;
+export function everyWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): boolean;
+export function everyWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): boolean {
   const iterator = self[Symbol.iterator]();
   let i          = 0;
   let next: IteratorResult<A>;
@@ -189,26 +189,26 @@ export function everyWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, A
 }
 
 /**
- * @tsplus fluent fncts.Seq filter
+ * @tsplus fluent fncts.Iterable filter
  */
-export function filter_<A, B extends A>(self: Seq<A>, p: Refinement<A, B>): Seq<B>;
-export function filter_<A>(self: Seq<A>, p: Predicate<A>): Seq<A>;
-export function filter_<A>(self: Seq<A>, p: Predicate<A>): Seq<A> {
+export function filter_<A, B extends A>(self: Iterable<A>, p: Refinement<A, B>): Iterable<B>;
+export function filter_<A>(self: Iterable<A>, p: Predicate<A>): Iterable<A>;
+export function filter_<A>(self: Iterable<A>, p: Predicate<A>): Iterable<A> {
   return self.filterWithIndex((_, a) => p(a));
 }
 
 /**
- * @tsplus fluent fncts.Seq filterMap
+ * @tsplus fluent fncts.Iterable filterMap
  */
-export function filterMap_<A, B>(self: Seq<A>, f: (a: A) => Maybe<B>): Seq<B> {
+export function filterMap_<A, B>(self: Iterable<A>, f: (a: A) => Maybe<B>): Iterable<B> {
   return self.filterMapWithIndex((_, a) => f(a));
 }
 
 /**
- * @tsplus fluent fncts.Seq filterMapWithIndex
+ * @tsplus fluent fncts.Iterable filterMapWithIndex
  */
-export function filterMapWithIndex_<A, B>(self: Seq<A>, f: (i: number, a: A) => Maybe<B>): Seq<B> {
-  return Seq.make<B>(() => {
+export function filterMapWithIndex_<A, B>(self: Iterable<A>, f: (i: number, a: A) => Maybe<B>): Iterable<B> {
+  return Iterable.make<B>(() => {
     let i    = 0;
     const ia = self[Symbol.iterator]();
     let va: IteratorResult<A>;
@@ -244,12 +244,12 @@ export function filterMapWithIndex_<A, B>(self: Seq<A>, f: (i: number, a: A) => 
 }
 
 /**
- * @tsplus fluent fncts.Seq filterWithIndex
+ * @tsplus fluent fncts.Iterable filterWithIndex
  */
-export function filterWithIndex_<A, B extends A>(self: Seq<A>, p: RefinementWithIndex<number, A, B>): Seq<B>;
-export function filterWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, A>): Seq<A>;
-export function filterWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, A>): Seq<A> {
-  return Seq.make<A>(() => {
+export function filterWithIndex_<A, B extends A>(self: Iterable<A>, p: RefinementWithIndex<number, A, B>): Iterable<B>;
+export function filterWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): Iterable<A>;
+export function filterWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): Iterable<A> {
+  return Iterable.make<A>(() => {
     let done = false;
     let i    = 0;
     const ia = self[Symbol.iterator]();
@@ -280,11 +280,11 @@ export function filterWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, 
 }
 
 /**
- * @tsplus fluent fncts.Seq find
+ * @tsplus fluent fncts.Iterable find
  */
-export function find_<A, B extends A>(ia: Seq<A>, refinement: Refinement<A, B>): Maybe<B>;
-export function find_<A>(ia: Seq<A>, predicate: Predicate<A>): Maybe<A>;
-export function find_<A>(ia: Seq<A>, predicate: Predicate<A>): Maybe<A> {
+export function find_<A, B extends A>(ia: Iterable<A>, refinement: Refinement<A, B>): Maybe<B>;
+export function find_<A>(ia: Iterable<A>, predicate: Predicate<A>): Maybe<A>;
+export function find_<A>(ia: Iterable<A>, predicate: Predicate<A>): Maybe<A> {
   for (const value of ia) {
     if (predicate(value)) {
       return Just(value);
@@ -294,9 +294,9 @@ export function find_<A>(ia: Seq<A>, predicate: Predicate<A>): Maybe<A> {
 }
 
 /**
- * @tsplus fluent fncts.Seq foldLeftWithIndex
+ * @tsplus fluent fncts.Iterable foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(fa: Seq<A>, b: B, f: (i: number, b: B, a: A) => B): B {
+export function foldLeftWithIndex_<A, B>(fa: Iterable<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   let res = b;
   let i   = -1;
   for (const value of fa) {
@@ -307,9 +307,9 @@ export function foldLeftWithIndex_<A, B>(fa: Seq<A>, b: B, f: (i: number, b: B, 
 }
 
 /**
- * @tsplus fluent fncts.Seq foldLeft
+ * @tsplus fluent fncts.Iterable foldLeft
  */
-export function foldLeft_<A, B>(self: Seq<A>, b: B, f: (b: B, a: A) => B): B {
+export function foldLeft_<A, B>(self: Iterable<A>, b: B, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
 }
 
@@ -317,13 +317,13 @@ export function foldLeft_<A, B>(self: Seq<A>, b: B, f: (b: B, a: A) => B): B {
  * @constrained
  */
 export function foldMap_<M>(M: P.Monoid<M>) {
-  return <A>(self: Seq<A>, f: (a: A) => M): M => self.foldMapWithIndex(M)((_, a) => f(a));
+  return <A>(self: Iterable<A>, f: (a: A) => M): M => self.foldMapWithIndex(M)((_, a) => f(a));
 }
 
 /**
- * @tsplus getter fncts.Seq foldMap
+ * @tsplus getter fncts.Iterable foldMap
  */
-export function foldMapSelf<A>(self: Seq<A>) {
+export function foldMapSelf<A>(self: Iterable<A>) {
   return <M>(M: P.Monoid<M>) =>
     (f: (a: A) => M): M =>
       self.foldMapWithIndex(M)((_, a) => f(a));
@@ -333,7 +333,7 @@ export function foldMapSelf<A>(self: Seq<A>) {
  * @constrained
  */
 export function foldMapWithIndex_<M>(M: P.Monoid<M>) {
-  return <A>(self: Seq<A>, f: (i: number, a: A) => M): M => {
+  return <A>(self: Iterable<A>, f: (i: number, a: A) => M): M => {
     let res = M.nat;
     let n   = -1;
     for (const value of self) {
@@ -345,19 +345,19 @@ export function foldMapWithIndex_<M>(M: P.Monoid<M>) {
 }
 
 /**
- * @tsplus getter fncts.Seq foldMapWithIndex
+ * @tsplus getter fncts.Iterable foldMapWithIndex
  */
-export function foldMapWithIndexSelf<A>(self: Seq<A>) {
+export function foldMapWithIndexSelf<A>(self: Iterable<A>) {
   return <M>(M: P.Monoid<M>) =>
     (f: (i: number, a: A) => M): M =>
       foldMapWithIndex_(M)(self, f);
 }
 
 /**
- * @tsplus fluent fncts.Seq foldRightWithIndex
+ * @tsplus fluent fncts.Iterable foldRightWithIndex
  */
 export function foldRightWithIndex_<A, B>(
-  self: Seq<A>,
+  self: Iterable<A>,
   b: Eval<B>,
   f: (i: number, a: A, b: Eval<B>) => Eval<B>,
 ): Eval<B> {
@@ -375,24 +375,24 @@ export function foldRightWithIndex_<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.Seq foldRight
+ * @tsplus fluent fncts.Iterable foldRight
  */
-export function foldRight_<A, B>(self: Seq<A>, b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>): Eval<B> {
+export function foldRight_<A, B>(self: Iterable<A>, b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>): Eval<B> {
   return self.foldRightWithIndex(b, (_, a, b) => f(a, b));
 }
 
 /**
- * @tsplus fluent fncts.Seq map
+ * @tsplus fluent fncts.Iterable map
  */
-export function map_<A, B>(self: Seq<A>, f: (a: A) => B): Seq<B> {
+export function map_<A, B>(self: Iterable<A>, f: (a: A) => B): Iterable<B> {
   return self.mapWithIndex((_, a) => f(a));
 }
 
 /**
- * @tsplus fluent fncts.Seq mapWithIndex
+ * @tsplus fluent fncts.Iterable mapWithIndex
  */
-export function mapWithIndex_<A, B>(self: Seq<A>, f: (i: number, a: A) => B): Seq<B> {
-  return Seq.make<B>(() => {
+export function mapWithIndex_<A, B>(self: Iterable<A>, f: (i: number, a: A) => B): Iterable<B> {
+  return Iterable.make<B>(() => {
     const ia = self[Symbol.iterator]();
     let i    = 0;
     let done = false;
@@ -438,7 +438,7 @@ function handlePartitionMap<A, B, C>(
 }
 
 function partitionMapWithIndexIterator<A, B, C>(
-  fa: Seq<A>,
+  fa: Iterable<A>,
   f: (i: number, a: A) => Either<B, C>,
   h: "Left" | "Right",
 ): Iterator<B | C> {
@@ -476,22 +476,22 @@ function partitionMapWithIndexIterator<A, B, C>(
 }
 
 /**
- * @tsplus fluent fncts.Seq partitionMap
+ * @tsplus fluent fncts.Iterable partitionMap
  */
-export function partitionMap_<A, B, C>(self: Seq<A>, f: (a: A) => Either<B, C>): readonly [Seq<B>, Seq<C>] {
+export function partitionMap_<A, B, C>(self: Iterable<A>, f: (a: A) => Either<B, C>): readonly [Iterable<B>, Iterable<C>] {
   return self.partitionMapWithIndex((_, a) => f(a));
 }
 
 /**
- * @tsplus fluent fncts.Seq partitionMapWithIndex
+ * @tsplus fluent fncts.Iterable partitionMapWithIndex
  */
 export function partitionMapWithIndex_<A, B, C>(
-  fa: Seq<A>,
+  fa: Iterable<A>,
   f: (i: number, a: A) => Either<B, C>,
-): readonly [Seq<B>, Seq<C>] {
+): readonly [Iterable<B>, Iterable<C>] {
   return tuple(
-    Seq.make(() => partitionMapWithIndexIterator(fa, f, "Left")) as Seq<B>,
-    Seq.make(() => partitionMapWithIndexIterator(fa, f, "Right")) as Seq<C>,
+    Iterable.make(() => partitionMapWithIndexIterator(fa, f, "Left")) as Iterable<B>,
+    Iterable.make(() => partitionMapWithIndexIterator(fa, f, "Right")) as Iterable<C>,
   );
 }
 
@@ -504,7 +504,7 @@ function handlePartition<A>(
   return h === predicate(i, a) ? { emit: true, value: a } : { emit: false };
 }
 
-function partitionWithIndexIterator<A>(fa: Seq<A>, predicate: PredicateWithIndex<number, A>, h: boolean): Iterator<A> {
+function partitionWithIndexIterator<A>(fa: Iterable<A>, predicate: PredicateWithIndex<number, A>, h: boolean): Iterator<A> {
   const ia = fa[Symbol.iterator]();
   let i    = 0;
   let done = false;
@@ -539,33 +539,33 @@ function partitionWithIndexIterator<A>(fa: Seq<A>, predicate: PredicateWithIndex
 }
 
 /**
- * @tsplus fluent fncts.Seq partition
+ * @tsplus fluent fncts.Iterable partition
  */
-export function partition_<A, B extends A>(self: Seq<A>, p: Refinement<A, B>): readonly [Seq<A>, Seq<B>];
-export function partition_<A>(self: Seq<A>, p: Predicate<A>): readonly [Seq<A>, Seq<A>];
-export function partition_<A>(self: Seq<A>, p: Predicate<A>): readonly [Seq<A>, Seq<A>] {
+export function partition_<A, B extends A>(self: Iterable<A>, p: Refinement<A, B>): readonly [Iterable<A>, Iterable<B>];
+export function partition_<A>(self: Iterable<A>, p: Predicate<A>): readonly [Iterable<A>, Iterable<A>];
+export function partition_<A>(self: Iterable<A>, p: Predicate<A>): readonly [Iterable<A>, Iterable<A>] {
   return self.partitionWithIndex((_, a) => p(a));
 }
 
 /**
- * @tsplus fluent fncts.Seq partitionWithIndex
+ * @tsplus fluent fncts.Iterable partitionWithIndex
  */
 export function partitionWithIndex_<A, B extends A>(
-  self: Seq<A>,
+  self: Iterable<A>,
   p: RefinementWithIndex<number, A, B>,
-): readonly [Seq<A>, Seq<B>];
-export function partitionWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, A>): readonly [Seq<A>, Seq<A>];
-export function partitionWithIndex_<A>(self: Seq<A>, p: PredicateWithIndex<number, A>): readonly [Seq<A>, Seq<A>] {
+): readonly [Iterable<A>, Iterable<B>];
+export function partitionWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): readonly [Iterable<A>, Iterable<A>];
+export function partitionWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): readonly [Iterable<A>, Iterable<A>] {
   return tuple(
-    Seq.make(() => partitionWithIndexIterator(self, p, false)),
-    Seq.make(() => partitionWithIndexIterator(self, p, true)),
+    Iterable.make(() => partitionWithIndexIterator(self, p, false)),
+    Iterable.make(() => partitionWithIndexIterator(self, p, true)),
   );
 }
 
 /**
- * @tsplus getter fncts.Seq size
+ * @tsplus getter fncts.Iterable size
  */
-export function size<A>(self: Seq<A>): number {
+export function size<A>(self: Iterable<A>): number {
   let len = 0;
   for (const _ of self) {
     len += 1;
@@ -574,10 +574,10 @@ export function size<A>(self: Seq<A>): number {
 }
 
 /**
- * @tsplus fluent fncts.Seq take
+ * @tsplus fluent fncts.Iterable take
  */
-export function take<A>(self: Seq<A>, n: number): Seq<A> {
-  return Seq.make<A>(() => {
+export function take<A>(self: Iterable<A>, n: number): Iterable<A> {
+  return Iterable.make<A>(() => {
     let done       = false;
     const i        = 0;
     let value: IteratorResult<A>;
@@ -607,10 +607,10 @@ export function take<A>(self: Seq<A>, n: number): Seq<A> {
 }
 
 /**
- * @tsplus fluent fncts.Seq zipWith
+ * @tsplus fluent fncts.Iterable zipWith
  */
-export function zipWith_<A, B, C>(self: Seq<A>, fb: Seq<B>, f: (a: A, b: B) => C): Seq<C> {
-  return Seq.make<C>(() => {
+export function zipWith_<A, B, C>(self: Iterable<A>, fb: Iterable<B>, f: (a: A, b: B) => C): Iterable<C> {
+  return Iterable.make<C>(() => {
     let done = false;
     const ia = self[Symbol.iterator]();
     const ib = fb[Symbol.iterator]();
@@ -648,10 +648,10 @@ export function zipWith_<A, B, C>(self: Seq<A>, fb: Seq<B>, f: (a: A, b: B) => C
 }
 
 /**
- * @tsplus getter fncts.Seq zipWithIndex
+ * @tsplus getter fncts.Iterable zipWithIndex
  */
-export function zipWithIndex<A>(self: Seq<A>): Seq<readonly [number, A]> {
-  return Seq.make<readonly [number, A]>(() => {
+export function zipWithIndex<A>(self: Iterable<A>): Iterable<readonly [number, A]> {
+  return Iterable.make<readonly [number, A]>(() => {
     let n          = 0;
     let done       = false;
     const iterator = self[Symbol.iterator]();

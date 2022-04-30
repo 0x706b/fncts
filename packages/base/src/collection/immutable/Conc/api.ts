@@ -857,10 +857,10 @@ export function prepend_<A, B>(self: Conc<A>, a: B): Conc<A | B> {
 /**
  * @tsplus getter fncts.Conc reverse
  */
-export function reverse<A>(self: Conc<A>): Seq<A> {
+export function reverse<A>(self: Conc<A>): Iterable<A> {
   concrete(self);
   const arr = self.arrayLike();
-  return Seq.make<A>(() => {
+  return Iterable.make<A>(() => {
     let i = arr.length - 1;
     return {
       next: () => {

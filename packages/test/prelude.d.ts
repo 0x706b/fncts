@@ -46,7 +46,7 @@ import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
 /**
  * @tsplus global
  */
-import {} from "@fncts/base/collection/Seq";
+import {} from "@fncts/base/collection/Iterable";
 /**
  * @tsplus global
  */

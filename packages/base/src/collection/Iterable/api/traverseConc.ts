@@ -1,7 +1,7 @@
 import type * as P from "@fncts/base/typeclass";
 
 /**
- * @tsplus getter fncts.Seq traverseToConcWithIndex
+ * @tsplus getter fncts.Iterable traverseToConcWithIndex
  */
 export function traverseToConcWithIndex_<A>(
   ta: Iterable<A>,
@@ -29,7 +29,7 @@ export function traverseToConcWithIndex_<A>(ta: Iterable<A>) {
 }
 
 /**
- * @tsplus getter fncts.Seq traverseToConc
+ * @tsplus getter fncts.Iterable traverseToConc
  */
 export function traverseToConc_<A>(ta: Iterable<A>) {
   return <G extends HKT, GC>(G: P.Applicative<G, GC>) =>

@@ -4,6 +4,6 @@
  *
  * @tsplus static fncts.io.IOOps forkAll
  */
-export function forkAll<R, E, A>(as: Seq<IO<R, E, A>>, __tsplusTrace?: string): URIO<R, Fiber<E, Conc<A>>> {
+export function forkAll<R, E, A>(as: Iterable<IO<R, E, A>>, __tsplusTrace?: string): URIO<R, Fiber<E, Conc<A>>> {
   return IO.foreach(as, (io) => io.fork).map(Fiber.sequenceIterable);
 }

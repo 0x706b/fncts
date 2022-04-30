@@ -1,4 +1,4 @@
-import { Seq } from "../../Seq/definition.js";
+import { Iterable } from "../../Iterable/definition.js";
 
 export interface ConcF extends HKT {
   readonly type: Conc<this["A"]>;
@@ -28,7 +28,7 @@ export const enum ConcTag {
  * @tsplus type fncts.Conc
  * @tsplus companion fncts.ConcOps
  */
-export abstract class Conc<A> implements Seq<A>, Hashable, Equatable {
+export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
   readonly _typeId: ConcTypeId = ConcTypeId;
   readonly _A!: () => A;
   abstract readonly length: number;
@@ -276,16 +276,16 @@ export class Concat<A> extends ConcImplementation<A> {
     this.right.copyToArray(n + this.left.length, dest);
   }
   [Symbol.iterator](): Iterator<A> {
-    return this.left.asSeq.concat(this.right)[Symbol.iterator]();
+    return this.left.asIterable.concat(this.right)[Symbol.iterator]();
   }
   arrayIterator(): Iterator<ArrayLike<A>> {
-    return Seq.make(() => this.left.arrayIterator())
-      .concat(Seq.make(() => this.right.arrayIterator()))
+    return Iterable.make(() => this.left.arrayIterator())
+      .concat(Iterable.make(() => this.right.arrayIterator()))
       [Symbol.iterator]();
   }
   reverseArrayIterator(): Iterator<ArrayLike<A>> {
-    return Seq.make(() => this.right.reverseArrayIterator())
-      .concat(Seq.make(() => this.left.reverseArrayIterator()))
+    return Iterable.make(() => this.right.reverseArrayIterator())
+      .concat(Iterable.make(() => this.left.reverseArrayIterator()))
       [Symbol.iterator]();
   }
 }
@@ -309,7 +309,7 @@ class AppendN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.start.asSeq.concat(this.buffer).take(this.bufferUsed)[Symbol.iterator]() as Iterator<A>;
+    return this.start.asIterable.concat(this.buffer).take(this.bufferUsed)[Symbol.iterator]() as Iterator<A>;
   }
 
   append<A1>(a: A1): ConcImplementation<A | A1> {
@@ -387,7 +387,7 @@ class PrependN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.buffer.asSeq.take(this.bufferUsed).concat(this.end)[Symbol.iterator]() as Iterator<A>;
+    return this.buffer.asIterable.take(this.bufferUsed).concat(this.end)[Symbol.iterator]() as Iterator<A>;
   }
 
   prepend<A1>(a: A1): ConcImplementation<A | A1> {
@@ -547,11 +547,11 @@ export class Singleton<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator]() {
-    return Seq.single(this.value)[Symbol.iterator]();
+    return Iterable.single(this.value)[Symbol.iterator]();
   }
 
   arrayIterator() {
-    return Seq.single([this.value])[Symbol.iterator]();
+    return Iterable.single([this.value])[Symbol.iterator]();
   }
 
   reverseArrayIterator = this.arrayIterator;
@@ -631,7 +631,7 @@ export class Chunk<A> extends ConcImplementation<A> {
   }
 
   arrayIterator() {
-    return Seq.single(this._array)[Symbol.iterator]();
+    return Iterable.single(this._array)[Symbol.iterator]();
   }
 
   reverseArrayIterator = this.arrayIterator;
@@ -673,7 +673,7 @@ export class ByteChunk<A> extends ConcImplementation<A> {
   }
 
   arrayIterator(): Iterator<Array<A>> {
-    return unsafeCoerce(Seq.single(this._array)[Symbol.iterator]());
+    return unsafeCoerce(Iterable.single(this._array)[Symbol.iterator]());
   }
 
   reverseArrayIterator(): Iterator<Array<A>> {

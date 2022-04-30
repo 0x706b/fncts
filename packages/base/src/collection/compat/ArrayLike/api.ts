@@ -1,11 +1,11 @@
 /**
- * @tsplus getter fncts.ArrayLike asSeq
+ * @tsplus getter fncts.ArrayLike asIterable
  */
-export function asSeq<A>(self: ArrayLike<A>): Seq<A> {
+export function asIterable<A>(self: ArrayLike<A>): Iterable<A> {
   if (Array.isArray(self)) {
     return self;
   }
-  return Seq.make<A>(() => {
+  return Iterable.make<A>(() => {
     let done = false;
     let i    = 0;
     return {

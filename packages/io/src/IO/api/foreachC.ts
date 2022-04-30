@@ -14,7 +14,7 @@ import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
  * Additionally, interrupts all effects on any failure.
  *
  * @tsplus static fncts.io.IOOps foreachDiscardC
- * @tsplus fluent fncts.Seq traverseIODiscardC
+ * @tsplus fluent fncts.Iterable traverseIODiscardC
  */
 export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
   return IO.concurrencyWith((conc) =>
@@ -32,7 +32,7 @@ export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E,
  * For a sequential version of this method, see `IO.foreach`.
  *
  * @tsplus static fncts.io.IOOps foreachC
- * @tsplus fluent fncts.Seq traverseIOC
+ * @tsplus fluent fncts.Iterable traverseIOC
  */
 export function foreachC_<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
   return IO.concurrencyWith((conc) =>

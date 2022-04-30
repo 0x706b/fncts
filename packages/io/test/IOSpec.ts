@@ -65,7 +65,7 @@ class IOSpec extends DefaultRunnableSpec {
         "does not kill fiber when forked on the parent scope",
         Do((Δ) => {
           const ref    = Δ(Ref.make(0));
-          const fibers = Δ(IO.foreachC(Seq.range(1, 100), () => ref.update((n) => n + 1).fork));
+          const fibers = Δ(IO.foreachC(Iterable.range(1, 100), () => ref.update((n) => n + 1).fork));
           Δ(IO.foreach(fibers, (f) => f.await));
           const value = Δ(ref.get);
           return value.assert(strictEqualTo(100));
