@@ -48,11 +48,11 @@ export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
     return new HashSetIterator(this, identity);
   }
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.hashIterator(this[Symbol.iterator]());
+  get [Symbol.hash](): number {
+    return Hashable.iterator(this[Symbol.iterator]());
   }
 
-  [Symbol.equatable](other: unknown): boolean {
+  [Symbol.equals](other: unknown): boolean {
     return (
       other instanceof HashSet &&
       this._size === other._size &&

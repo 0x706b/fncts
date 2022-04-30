@@ -24,7 +24,7 @@ export function isCaseClass(u: unknown): u is CaseConstructor {
   return hasTypeId(u, CaseClassTypeId);
 }
 
-const hash0 = Hashable.hashString("fncts.CaseClass");
+const hash0 = Hashable.string("fncts.CaseClass");
 
 // @ts-expect-error
 export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, any>>
@@ -42,15 +42,15 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
     return this[keysSymbol];
   }
 
-  get [Symbol.hashable](): number {
+  get [Symbol.hash](): number {
     let h = hash0;
     for (const k of this[keysSymbol]) {
-      h = Hashable.combineHash(h, Hashable.hash((this as T)[k]!));
+      h = Hashable.combine(h, Hashable.unknown((this as T)[k]!));
     }
     return h;
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     if (this === that) {
       return true;
     }

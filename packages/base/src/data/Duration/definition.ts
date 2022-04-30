@@ -11,12 +11,12 @@ export class Duration implements Equatable, Hashable {
   readonly _typeId: DurationTypeId = DurationTypeId;
   constructor(readonly milliseconds: number) {}
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isDuration(that) && this.milliseconds === that.milliseconds;
   }
 
-  get [Symbol.hashable]() {
-    return Hashable.hashNumber(this.milliseconds);
+  get [Symbol.hash]() {
+    return Hashable.number(this.milliseconds);
   }
 }
 

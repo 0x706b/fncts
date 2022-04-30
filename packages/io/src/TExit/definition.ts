@@ -27,7 +27,7 @@ export const enum TExitTag {
 export const FailTypeId = Symbol.for("fncts.TExit.Fail");
 export type FailTypeId = typeof FailTypeId;
 
-const _failHash = P.Hashable.hashString("fncts.TExit.Fail");
+const _failHash = Hashable.string("fncts.TExit.Fail");
 
 /**
  * @tsplus static fncts.TExitOps isTExit
@@ -41,12 +41,12 @@ export class Fail<E> {
   readonly _tag                 = TExitTag.Fail;
   constructor(readonly value: E) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(_failHash, P.Hashable.hash(this.value));
+  get [Symbol.hash](): number {
+    return Hashable.combine(_failHash, Hashable.unknown(this.value));
   }
 
-  [Symbol.equatable](that: unknown): boolean {
-    return isTExit(that) && isFail(that) && P.Equatable.strictEquals(this.value, that.value);
+  [Symbol.equals](that: unknown): boolean {
+    return isTExit(that) && isFail(that) && Equatable.strictEquals(this.value, that.value);
   }
 }
 
@@ -57,18 +57,18 @@ export function isFail<E, A>(self: TExit<E, A>): self is Fail<E> {
   return self._tag === TExitTag.Fail;
 }
 
-const _succeedHash = P.Hashable.hashString("fncts.TExit.Succeed");
+const _succeedHash = P.Hashable.string("fncts.TExit.Succeed");
 
 export class Succeed<A> {
   readonly _typeId: TExitTypeId = TExitTypeId;
   readonly _tag                 = TExitTag.Succeed;
   constructor(readonly value: A) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(_succeedHash, P.Hashable.hash(this.value));
+  get [Symbol.hash](): number {
+    return P.Hashable.combine(_succeedHash, Hashable.unknown(this.value));
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isSucceed(that) && P.Equatable.strictEquals(this.value, that.value);
   }
 }
@@ -80,18 +80,18 @@ export function isSucceed<E, A>(self: TExit<E, A>): self is Succeed<A> {
   return self._tag === TExitTag.Succeed;
 }
 
-const _haltHash = P.Hashable.hashString("fncts.TExit.Halt");
+const _haltHash = Hashable.string("fncts.TExit.Halt");
 
 export class Halt {
   readonly _typeId: TExitTypeId = TExitTypeId;
   readonly _tag                 = TExitTag.Halt;
   constructor(readonly value: unknown) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(_haltHash, P.Hashable.hash(this.value));
+  get [Symbol.hash](): number {
+    return Hashable.combine(_haltHash, Hashable.unknown(this.value));
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isHalt(that) && P.Equatable.strictEquals(this.value, that.value);
   }
 }
@@ -103,18 +103,18 @@ export function isHalt<E, A>(self: TExit<E, A>): self is Halt {
   return self._tag === TExitTag.Halt;
 }
 
-const _interruptHash = P.Hashable.hashString("fncts.dete.TExit.Interrupt");
+const _interruptHash = Hashable.string("fncts.dete.TExit.Interrupt");
 
 export class Interrupt {
   readonly _typeId = TExitTypeId;
   readonly _tag    = TExitTag.Interrupt;
   constructor(readonly fiberId: FiberId) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(_interruptHash, P.Hashable.hash(this.fiberId));
+  get [Symbol.hash](): number {
+    return Hashable.combine(_interruptHash, Hashable.unknown(this.fiberId));
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isInterrupt(that) && P.Equatable.strictEquals(this.fiberId, that.fiberId);
   }
 }
@@ -126,15 +126,15 @@ export function isInterrupt<E, A>(self: TExit<E, A>): self is Interrupt {
   return self._tag === TExitTag.Interrupt;
 }
 
-const _retryHash = P.Hashable.hashString("fncts.TExit.Retry");
+const _retryHash = Hashable.string("fncts.TExit.Retry");
 
 export class Retry {
   readonly _typeId: TExitTypeId = TExitTypeId;
   readonly _tag                 = TExitTag.Retry;
-  get [Symbol.hashable](): number {
+  get [Symbol.hash](): number {
     return _retryHash;
   }
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isRetry(that);
   }
 }

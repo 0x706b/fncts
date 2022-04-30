@@ -61,11 +61,11 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   readonly _E!: () => E;
   readonly _A!: () => A;
 
-  get [Symbol.hashable](): number {
-    return Hashable.hashString(this.id.threadName);
+  get [Symbol.hash](): number {
+    return Hashable.string(this.id.threadName);
   }
 
-  [Symbol.equatable](that: unknown) {
+  [Symbol.equals](that: unknown) {
     return isFiber(that) && this.id == that.id;
   }
 

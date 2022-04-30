@@ -37,13 +37,13 @@ export class FiberRefInternal<Value, Patch> extends FiberRef<Value> implements H
     super();
   }
 
-  get [Symbol.hashable]() {
-    let hash = Hashable.hashString("FiberRef");
-    hash    ^= Hashable.hashNumber(this.id);
+  get [Symbol.hash]() {
+    let hash = Hashable.string("FiberRef");
+    hash    ^= Hashable.number(this.id);
     return hash;
   }
 
-  [Symbol.equatable](that: unknown) {
+  [Symbol.equals](that: unknown) {
     return isFiberRef(that) && (concrete(that), this.id === that.id);
   }
 }

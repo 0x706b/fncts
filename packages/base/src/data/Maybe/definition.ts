@@ -8,8 +8,8 @@ export const enum MaybeTag {
 export const MaybeTypeId = Symbol.for("fncts.Maybe");
 export type MaybeTypdId = typeof MaybeTypeId;
 
-const _justHash    = Hashable.hashString("fncts.Just");
-const _nothingHash = Hashable.hashString("fncts.Nothing");
+const _justHash    = Hashable.string("fncts.Just");
+const _nothingHash = Hashable.string("fncts.Nothing");
 
 /**
  * @tsplus type fncts.Just
@@ -19,11 +19,11 @@ export class Just<A> {
   readonly _typeId: MaybeTypdId = MaybeTypeId;
   readonly _tag                 = MaybeTag.Just;
   constructor(readonly value: A) {}
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isMaybe(that) && that.isJust() && Equatable.strictEquals(this.value, that.value);
   }
-  get [Symbol.hashable]() {
-    return Hashable.combineHash(_justHash, Hashable.hash(this.value));
+  get [Symbol.hash]() {
+    return Hashable.combine(_justHash, Hashable.unknown(this.value));
   }
 }
 
@@ -34,10 +34,10 @@ export class Just<A> {
 export class Nothing {
   readonly _typeId: MaybeTypdId = MaybeTypeId;
   readonly _tag                 = MaybeTag.Nothing;
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isMaybe(that) && that.isNothing();
   }
-  get [Symbol.hashable]() {
+  get [Symbol.hash]() {
     return _nothingHash;
   }
 }

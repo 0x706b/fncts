@@ -21,6 +21,9 @@ export const enum ExitTag {
   Failure = "Failure",
 }
 
+const _failureHash = Hashable.string("fncts.Exit.Failure")
+const _successHash = Hashable.string("fncts.Exit.Success")
+
 /**
  * @tsplus type fncts.Exit.Failure
  * @tsplus companion fncts.Exit.FailureOps
@@ -33,10 +36,10 @@ export class Failure<E> {
   readonly _tag                = ExitTag.Failure;
   constructor(readonly cause: Cause<E>) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.hash(this.cause);
+  get [Symbol.hash](): number {
+    return Hashable.combine(_failureHash, Hashable.unknown(this.cause));
   }
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isExit(that) && isFailure(that) && P.Equatable.strictEquals(this.cause, that.cause);
   }
 }
@@ -53,10 +56,10 @@ export class Success<A> implements P.Hashable, P.Equatable {
   readonly _tag                = ExitTag.Success;
   constructor(readonly value: A) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.hash(this.value);
+  get [Symbol.hash](): number {
+    return Hashable.combine(_successHash, Hashable.unknown(this.value));
   }
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isExit(that) && isSuccess(that) && P.Equatable.strictEquals(this.value, that.value);
   }
 }

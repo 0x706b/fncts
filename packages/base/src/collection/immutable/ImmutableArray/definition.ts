@@ -9,7 +9,7 @@ export class ImmutableArray<A> implements Equatable, Hashable, Iterable<A> {
   readonly _typeId: ImmutableArrayTypeId = ImmutableArrayTypeId;
   constructor(readonly _array: ReadonlyArray<A>) {}
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return (
       isImmutableArray(that) &&
       this._array.length === that._array.length &&
@@ -17,8 +17,8 @@ export class ImmutableArray<A> implements Equatable, Hashable, Iterable<A> {
     );
   }
 
-  get [Symbol.hashable]() {
-    return Hashable.hashArray(this._array);
+  get [Symbol.hash]() {
+    return Hashable.array(this._array);
   }
 
   [Symbol.iterator]() {

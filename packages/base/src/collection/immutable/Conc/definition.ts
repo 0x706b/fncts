@@ -34,11 +34,11 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
   abstract readonly length: number;
   abstract [Symbol.iterator](): Iterator<A>;
 
-  get [Symbol.hashable](): number {
-    return Hashable.hashIterator(this[Symbol.iterator]());
+  get [Symbol.hash](): number {
+    return Hashable.iterator(this[Symbol.iterator]());
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return Conc.isConc(that) && (this as Conc<A>).corresponds(that, Equatable.strictEquals);
   }
 }

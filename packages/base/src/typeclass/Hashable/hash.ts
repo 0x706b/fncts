@@ -5,17 +5,13 @@ import { isArray, isDefined, isIterable, isPlain } from "@fncts/base/util/predic
 const CACHE  = new WeakMap<any, number>();
 const RANDOM = new PCGRandom((Math.random() * 4294967296) >>> 0);
 
-export function randomInt(): number {
-  return RANDOM.integer(0x7fffffff);
-}
-
 let _current = 0;
 
 /**
- * @tsplus static fncts.HashableOps hashString
+ * @tsplus static fncts.HashableOps string
  */
 export function hashString(str: string) {
-  return opt(_hashString(str));
+  return optimize(_hashString(str));
 }
 
 function _hashString(str: string) {
@@ -26,10 +22,10 @@ function _hashString(str: string) {
 }
 
 /**
- * @tsplus static fncts.HashableOps hashNumber
+ * @tsplus static fncts.HashableOps number
  */
 export function hashNumber(n: number): number {
-  return opt(_hashNumber(n));
+  return optimize(_hashNumber(n));
 }
 
 function _hashNumber(n: number): number {
@@ -42,17 +38,17 @@ function _hashNumber(n: number): number {
 }
 
 /**
- * @tsplus static fncts.HashableOps hashObject
+ * @tsplus static fncts.HashableOps object
  */
 export function hashObject(value: object): number {
-  return opt(_hashObject(value));
+  return optimize(_hashObject(value));
 }
 
 function _hashObject(value: object): number {
   let h = CACHE.get(value);
   if (isDefined(h)) return h;
   if (isHashable(value)) {
-    h = value[Symbol.hashable];
+    h = value[Symbol.hash];
   } else if (isArray(value)) {
     h = _hashArray(value);
   } else if (isIterable(value)) {
@@ -67,10 +63,10 @@ function _hashObject(value: object): number {
 }
 
 /**
- * @tsplus static fncts.HashableOps hashPlainObject
+ * @tsplus static fncts.HashableOps plainObject
  */
 export function hashPlainObject(o: any) {
-  return opt(_hashPlainObject(o));
+  return optimize(_hashPlainObject(o));
 }
 
 function _hashPlainObject(o: any): number {
@@ -86,10 +82,10 @@ function _hashPlainObject(o: any): number {
 }
 
 /**
- * @tsplus static fncts.HashableOps hashMiscRef
+ * @tsplus static fncts.HashableOps miscRef
  */
 export function hashMiscRef(o: any) {
-  return opt(_hashMiscRef(o));
+  return optimize(_hashMiscRef(o));
 }
 
 function _hashMiscRef(o: any): number {
@@ -101,10 +97,10 @@ function _hashMiscRef(o: any): number {
 }
 
 /**
- * @tsplus static fncts.HashableOps hashArray
+ * @tsplus static fncts.HashableOps array
  */
 export function hashArray(arr: Array<any> | ReadonlyArray<any>): number {
-  return opt(_hashArray(arr));
+  return optimize(_hashArray(arr));
 }
 
 function _hashArray(arr: Array<any> | ReadonlyArray<any>): number {
@@ -116,26 +112,26 @@ function _hashArray(arr: Array<any> | ReadonlyArray<any>): number {
 }
 
 /**
- * @tsplus static fncts.HashableOps hashIterator
+ * @tsplus static fncts.HashableOps iterator
  */
 export function hashIterator(it: Iterator<any>): number {
-  return opt(_hashIterator(it));
+  return optimize(_hashIterator(it));
 }
 
 function _hashIterator(it: Iterator<any>): number {
   let res: IteratorResult<any>;
   let h = 6151;
   while (!(res = it.next()).done) {
-    h = _combineHash(h, hash(res.value));
+    h = _combineHash(h, hashUnknown(res.value));
   }
   return h;
 }
 
 /**
- * @tsplus static fncts.HashableOps hash
+ * @tsplus static fncts.HashableOps unknown
  */
-export function hash(value: unknown): number {
-  return opt(_hash(value));
+export function hashUnknown(value: unknown): number {
+  return optimize(_hash(value));
 }
 
 function isZero(value: unknown): boolean {
@@ -161,7 +157,7 @@ function _hash(arg: any): number {
     case "boolean":
       return x === true ? 1 : 0;
     case "symbol":
-      return _hashString(String(x));
+      return _hashUniqueSymbol(x);
     case "bigint":
       return _hashString(x.toString(10));
     case "undefined": {
@@ -171,16 +167,42 @@ function _hash(arg: any): number {
 }
 
 /**
- * @tsplus static fncts.HashableOps combineHash
+ * @tsplus static fncts.HashableOps combine
  */
 export function combineHash(x: number, y: number): number {
-  return opt(_combineHash(x, y));
+  return optimize(_combineHash(x, y));
 }
 
-export function _combineHash(x: number, y: number): number {
+function _combineHash(x: number, y: number): number {
   return (x * 53) ^ y;
 }
 
-export function opt(n: number): number {
+/**
+ * @tsplus static fncts.HashableOps symbol
+ */
+export function hashUniqueSymbol(sym: symbol): number {
+  return optimize(_hashUniqueSymbol(sym));
+}
+
+const SYMBOL_CACHE = new Map<symbol, number>();
+
+function _hashUniqueSymbol(sym: symbol): number {
+  let h = SYMBOL_CACHE.get(sym);
+  if (isDefined(h)) {
+    return h;
+  }
+  h = randomInt();
+  SYMBOL_CACHE.set(sym, h);
+  return h;
+}
+
+/**
+ * @tsplus static fncts.HashableOps optimize
+ */
+export function optimize(n: number): number {
   return (n & 0xbfffffff) | ((n >>> 1) & 0x40000000);
+}
+
+function randomInt(): number {
+  return RANDOM.integer(0x7fffffff);
 }

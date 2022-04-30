@@ -3,47 +3,47 @@ import { hasTypeId } from "../../util/predicates.js";
 export const FiberIdTypeId = Symbol.for("fncts.FiberId");
 export type FiberIdTypeId = typeof FiberIdTypeId;
 
-const _hashNone = Hashable.hashString("fncts.FiberId.None");
+const _hashNone = Hashable.string("fncts.FiberId.None");
 
 export class None implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "None";
-  [Symbol.equatable](that: unknown) {
+  [Symbol.equals](that: unknown) {
     return isFiberId(that) && isNone(that);
   }
-  get [Symbol.hashable]() {
+  get [Symbol.hash]() {
     return _hashNone;
   }
 }
 
-const _hashRuntime = Hashable.hashString("fncts.FiberId.Runtime");
+const _hashRuntime = Hashable.string("fncts.FiberId.Runtime");
 
 export class Runtime implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "Runtime";
   constructor(readonly id: number, readonly startTime: number, readonly location: TraceElement) {}
-  get [Symbol.hashable]() {
-    return Hashable.combineHash(
-      Hashable.combineHash(_hashRuntime, Hashable.hashNumber(this.id)),
-      Hashable.hash(this.location),
+  get [Symbol.hash]() {
+    return Hashable.combine(
+      Hashable.combine(_hashRuntime, Hashable.number(this.id)),
+      Hashable.unknown(this.location),
     );
   }
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isFiberId(that) && isRuntime(that) && this.id === that.id && this.startTime === that.startTime;
   }
 }
 
-const _hashComposite = Hashable.hashString("fncts.FiberId.Composite");
+const _hashComposite = Hashable.string("fncts.FiberId.Composite");
 
 export class Composite implements Hashable, Equatable {
   readonly _typeId: FiberIdTypeId = FiberIdTypeId;
   readonly _tag                   = "Composite";
   constructor(readonly fiberIds: HashSet<Runtime>) {}
-  [Symbol.equatable](that: unknown) {
+  [Symbol.equals](that: unknown) {
     return isFiberId(that) && isComposite(that) && this.fiberIds == that.fiberIds;
   }
-  get [Symbol.hashable]() {
-    return Hashable.combineHash(_hashComposite, Hashable.hash(this.fiberIds));
+  get [Symbol.hash]() {
+    return Hashable.combine(_hashComposite, Hashable.unknown(this.fiberIds));
   }
 }
 

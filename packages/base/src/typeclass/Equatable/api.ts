@@ -11,9 +11,9 @@ import {
 export const deepEquals = createComparator(
   createCircularEqualCreator((eq) => (a, b, meta) => {
     if (isEquatable(a)) {
-      return a[Symbol.equatable](b);
+      return a[Symbol.equals](b);
     } else if (isEquatable(b)) {
-      return b[Symbol.equatable](a);
+      return b[Symbol.equals](a);
     } else {
       return eq(a, b, meta);
     }
@@ -26,9 +26,9 @@ export const deepEquals = createComparator(
  */
 export function strictEquals<A>(a: A, b: unknown): boolean {
   if (isEquatable(a)) {
-    return a[Symbol.equatable](b);
+    return a[Symbol.equals](b);
   } else if (isEquatable(b)) {
-    return b[Symbol.equatable](a);
+    return b[Symbol.equals](a);
   }
   return sameValueZeroEqual(a, b);
 }

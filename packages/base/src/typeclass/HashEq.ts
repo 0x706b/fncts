@@ -31,7 +31,7 @@ export function mkHashEq<A>(F: HashEqMin<A>): HashEq<A> {
  * @tsplus static fncts.HashEqOps StructuralStrict
  */
 export const StructuralStrict = HashEq({
-  hash: Hashable.hash,
+  hash: Hashable.unknown,
   equals_: Equatable.strictEquals,
 });
 
@@ -39,6 +39,6 @@ export const StructuralStrict = HashEq({
  * @tsplus static fncts.HashEqOps StructuralDeep
  */
 export const StructuralDeep = HashEq({
-  hash: Hashable.hash,
+  hash: Hashable.unknown,
   equals_: Equatable.deepEquals,
 });

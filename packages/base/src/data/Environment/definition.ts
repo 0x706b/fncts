@@ -18,11 +18,11 @@ export class Environment<R> implements Hashable, Equatable {
     public cache: HashMap<Tag<unknown>, unknown> = HashMap.makeDefault(),
   ) {}
 
-  get [Symbol.hashable](): number {
-    return Hashable.hash(this.cache);
+  get [Symbol.hash](): number {
+    return Hashable.unknown(this.cache);
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isEnvironment(that) ? this.map == that.map : false;
   }
 }

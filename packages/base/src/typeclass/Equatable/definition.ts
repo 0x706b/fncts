@@ -1,19 +1,17 @@
-export const equatable = Symbol.for("fncts.equatable");
-
 /**
- * @tsplus static fncts.builtin.SymbolOps equatable
+ * @tsplus static fncts.builtin.SymbolOps equals
  */
-export const _equatable: typeof equatable = equatable;
+export const equalsSymbol: unique symbol = Symbol.for("fncts.Equatable");
 
 /**
  * @tsplus type fncts.Equatable
  */
 export interface Equatable {
-  [equatable](that: unknown): boolean;
+  [equalsSymbol](that: unknown): boolean;
 }
 
 export function isEquatable(u: unknown): u is Equatable {
-  return isObject(u) && Symbol.equatable in u;
+  return isObject(u) && Symbol.equals in u;
 }
 
 /**

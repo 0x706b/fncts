@@ -3,7 +3,7 @@ import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
 export const TagTypeId = Symbol.for("fncts.Tag");
 export type TagTypeId = typeof TagTypeId;
 
-const _tagHash = Hashable.hashString("fncts.Tag");
+const _tagHash = Hashable.string("fncts.Tag");
 
 /**
  * Tag Encodes capabilities of reading and writing a service T into a generic environment
@@ -17,11 +17,11 @@ export class Tag<T> implements Hashable, Equatable {
   private static counter      = new AtomicNumber(0);
   readonly id                 = Tag.counter.getAndIncrement();
 
-  get [Symbol.hashable](): number {
-    return Hashable.combineHash(_tagHash, Hashable.hashNumber(this.id));
+  get [Symbol.hash](): number {
+    return Hashable.combine(_tagHash, Hashable.number(this.id));
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isTag(that) && this.id === that.id;
   }
 }

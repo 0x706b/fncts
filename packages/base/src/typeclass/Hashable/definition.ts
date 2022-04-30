@@ -1,16 +1,17 @@
-export const hashable = Symbol.for("fncts.Hashable");
+/**
+ * @tsplus static fncts.builtin.SymbolOps hash
+ */
+export const hashSymbol: unique symbol = Symbol.for("fncts.Hashable");
 
 /**
- * @tsplus static fncts.builtin.SymbolOps hashable
+ * @tsplus type fncts.Hashable
  */
-export const _hashable: typeof hashable = hashable;
-
 export interface Hashable {
-  [hashable]: number;
+  [hashSymbol]: number;
 }
 
 export function isHashable(u: unknown): u is Hashable {
-  return isObject(u) && Symbol.hashable in u;
+  return isObject(u) && Symbol.hash in u;
 }
 
 /**

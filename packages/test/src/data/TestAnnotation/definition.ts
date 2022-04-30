@@ -18,11 +18,11 @@ export class TestAnnotation<V> implements Hashable, Equatable {
     readonly combine: (v1: V, v2: V) => V,
   ) {}
 
-  get [Symbol.hashable]() {
-    return Hashable.combineHash(Hashable.hashString(this.identifier), Hashable.hash(this.tag));
+  get [Symbol.hash]() {
+    return Hashable.combine(Hashable.string(this.identifier), Hashable.unknown(this.tag));
   }
 
-  [Symbol.equatable](that: unknown) {
+  [Symbol.equals](that: unknown) {
     return (
       isTestAnnotation(that) &&
       Equatable.strictEquals(this.tag, that.tag) &&

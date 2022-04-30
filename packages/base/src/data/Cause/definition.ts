@@ -32,7 +32,7 @@ export const enum CauseTag {
   Stackless = "Stackless",
 }
 
-const _emptyHash = P.Hashable.hashString("fncts.Cause");
+const _emptyHash = Hashable.string("fncts.Cause");
 
 /**
  * @tsplus companion fncts.Cause.EmptyOps
@@ -43,10 +43,10 @@ export class Empty {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   readonly _tag = CauseTag.Empty;
 
-  get [Symbol.hashable](): number {
+  get [Symbol.hash](): number {
     return _emptyHash;
   }
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isCause(that) && this.equalsEval(that).run;
   }
 
@@ -78,10 +78,10 @@ export class Fail<E> {
 
   constructor(readonly value: E, readonly trace: Trace) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(P.Hashable.hash(this._tag), P.Hashable.hash(this.value));
+  get [Symbol.hash](): number {
+    return Hashable.combine(Hashable.string(this._tag), Hashable.unknown(this.value));
   }
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isCause(that) && Eval.run(this.equalsEval(that));
   }
 
@@ -115,10 +115,10 @@ export class Halt {
 
   constructor(readonly value: unknown, readonly trace: Trace) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(P.Hashable.hash(this._tag), P.Hashable.hash(this.value));
+  get [Symbol.hash](): number {
+    return Hashable.combine(Hashable.string(this._tag), Hashable.unknown(this.value));
   }
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isCause(that) && Eval.run(this.equalsEval(that));
   }
 
@@ -152,11 +152,11 @@ export class Interrupt {
 
   constructor(readonly id: FiberId, readonly trace: Trace) {}
 
-  get [Symbol.hashable](): number {
-    return P.Hashable.combineHash(P.Hashable.hash(this._tag), P.Hashable.hash(this.id));
+  get [Symbol.hash](): number {
+    return Hashable.combine(Hashable.string(this._tag), Hashable.unknown(this.id));
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isCause(that) && Eval.run(this.equalsEval(that));
   }
 
@@ -190,11 +190,11 @@ export class Then<E> {
 
   constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
 
-  get [Symbol.hashable](): number {
+  get [Symbol.hash](): number {
     return hashCode(this);
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isCause(that) && Eval.run(this.equalsEval(that));
   }
 
@@ -223,11 +223,11 @@ export class Both<E> {
 
   constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
 
-  get [Symbol.hashable](): number {
+  get [Symbol.hash](): number {
     return hashCode(this);
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isCause(that) && Eval.run(this.equalsEval(that));
   }
 
@@ -256,16 +256,16 @@ export class Stackless<E> {
 
   constructor(readonly cause: Cause<E>, readonly stackless: boolean) {}
 
-  get [Symbol.hashable](): number {
-    return this.cause[Symbol.hashable];
+  get [Symbol.hash](): number {
+    return this.cause[Symbol.hash];
   }
 
-  [Symbol.equatable](that: unknown): boolean {
-    return isCause(that) && this.cause[Symbol.equatable](that);
+  [Symbol.equals](that: unknown): boolean {
+    return isCause(that) && this.cause[Symbol.equals](that);
   }
 
   equalsEval(that: unknown): Eval<boolean> {
-    return Eval.now(this[Symbol.equatable](that));
+    return Eval.now(this[Symbol.equals](that));
   }
 }
 
@@ -514,8 +514,8 @@ function hashCode<A>(cause: Cause<A>): number {
   if (size === 0) {
     return _emptyHash;
   } else if (size === 1 && (head = flattened.unsafeHead) && head.size === 1) {
-    return List.from(head).unsafeHead[Symbol.hashable];
+    return List.from(head).unsafeHead[Symbol.hash];
   } else {
-    return Hashable.hashIterator(flattened[Symbol.iterator]());
+    return Hashable.iterator(flattened[Symbol.iterator]());
   }
 }

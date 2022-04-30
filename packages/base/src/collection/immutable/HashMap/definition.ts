@@ -32,13 +32,13 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]>, Hashable, Equat
     return new HashMapIterator(this, identity);
   }
 
-  get [Symbol.hashable](): number {
-    return Hashable.hashIterator(
-      new HashMapIterator(this, ([k, v]) => Hashable.combineHash(Hashable.hash(k), Hashable.hash(v))),
+  get [Symbol.hash](): number {
+    return Hashable.iterator(
+      new HashMapIterator(this, ([k, v]) => Hashable.combine(Hashable.unknown(k), Hashable.unknown(v))),
     );
   }
 
-  [Symbol.equatable](other: unknown): boolean {
+  [Symbol.equals](other: unknown): boolean {
     return (
       other instanceof HashMap &&
       other.size === this.size &&

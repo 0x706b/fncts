@@ -34,11 +34,11 @@ export class Vector<A> implements Iterable<A> {
     return new ForwardVectorIterator(this);
   }
 
-  get [Symbol.hashable](): number {
-    return Hashable.hashIterator(this[Symbol.iterator]());
+  get [Symbol.hash](): number {
+    return Hashable.iterator(this[Symbol.iterator]());
   }
 
-  [Symbol.equatable](that: unknown): boolean {
+  [Symbol.equals](that: unknown): boolean {
     return isVector(that) && corresponds_(this, that, Equatable.strictEquals);
   }
 }
@@ -55,8 +55,8 @@ export interface MutableVector<A> {
   root: Node | undefined;
   suffix: A[];
   [Symbol.iterator]: () => Iterator<A>;
-  [Symbol.hashable]: number;
-  [Symbol.equatable](that: unknown): boolean;
+  [Symbol.hash]: number;
+  [Symbol.equals](that: unknown): boolean;
   /**
    * This property doesn't exist at run-time. It exists to prevent a
    * MutableVector from being assignable to a Vector.
