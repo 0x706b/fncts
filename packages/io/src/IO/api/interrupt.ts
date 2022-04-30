@@ -78,6 +78,17 @@ export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore
 }
 
 /**
+ * Makes the effect interruptible, but passes it a restore function that can
+ * be used to restore the inherited interruptibility from whatever region the
+ * effect is composed into.
+ *
+ * @tsplus static fncts.io.IOOps interruptibleMask
+ */
+export function interruptibleMask<R, E, A>(k: (restore: InterruptStatusRestore) => IO<R, E, A>): IO<R, E, A> {
+  return IO.checkInterruptible((flag) => k(new InterruptStatusRestore(flag)).interruptible);
+}
+
+/**
  * Calls the specified function, and runs the effect it returns, if this
  * effect is interrupted.
  *
