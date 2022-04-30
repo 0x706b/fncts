@@ -21,6 +21,7 @@ export * from "./IO/api/core-scope.js";
 export * from "./IO/api/environment.js";
 export * from "./IO/api/foreachC.js";
 export * from "./IO/api/foreachExec.js";
+export * from "./IO/api/forkAll.js";
 export * from "./IO/api/forkIn.js";
 export * from "./IO/api/forkScoped.js";
 export * from "./IO/api/fulfill.js";
