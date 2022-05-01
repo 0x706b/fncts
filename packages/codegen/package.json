@@ -1,6 +1,7 @@
 {
   "name": "@fncts/codegen",
   "private": true,
+  "version": "0.0.2",
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf ./build"
