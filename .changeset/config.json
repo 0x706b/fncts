@@ -1,0 +1,10 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@2.0.0/schema.json",
+  "changelog": "@changesets/changelog-git",
+  "commit": false,
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "trunk",
+  "updateInternalDependencies": "patch",
+  "ignore": []
+}

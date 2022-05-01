@@ -1,5 +1,6 @@
 {
   "name": "@fncts/typelevel",
+  "version": "0.0.1",
   "type": "module",
   "typesVersions": {
     "*": {
@@ -7,6 +8,10 @@
         "./build/dts/*"
       ]
     }
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
   },
   "exports": {
     "./*": "./build/esm/*.js"

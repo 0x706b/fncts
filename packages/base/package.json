@@ -9,6 +9,10 @@
       ]
     }
   },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
   "exports": {
     "./*": "./build/esm/*.js"
   },

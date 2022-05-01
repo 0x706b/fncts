@@ -11,6 +11,8 @@
     "packages/*"
   ],
   "scripts": {
+    "changeset": "changeset",
+    "release": "changeset publish",
     "build": "tsc -b --verbose",
     "build-pack": "yarn build && ultra -r build-pack",
     "format": "ultra -r format",
@@ -28,6 +30,8 @@
     "@babel/core": "^7.17.10",
     "@babel/plugin-proposal-export-namespace-from": "^7.16.7",
     "@babel/plugin-transform-modules-commonjs": "^7.17.9",
+    "@changesets/changelog-git": "^0.1.11",
+    "@changesets/cli": "^2.22.0",
     "@tsplus/installer": "0.0.98",
     "@types/benchmark": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^5.18.0",
