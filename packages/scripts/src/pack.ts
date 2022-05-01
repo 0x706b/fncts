@@ -78,8 +78,8 @@ async function writePackageJson(project: Project, workspace: Workspace) {
 
   const exports: any = {};
   exports["./*"]     = {
-    import: "./_mjs/*",
-    require: "./_cjs/*",
+    import: "./_mjs/*.mjs",
+    require: "./_cjs/*.cjs",
   };
   rawManifest.exports = exports;
 
