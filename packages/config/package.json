@@ -1,5 +1,6 @@
 {
   "name": "@fncts/config",
+  "private": true,
   "exports": {
     "./prettier": {
       "require": "./prettier.config.cjs"
