@@ -7,7 +7,7 @@ import type { GenFailureDetails } from "../../data/GenFailureDetails.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
 import type { TestRenderer } from "../TestRenderer/definition.js";
 
-import { matchTag } from "@fncts/base/util/pattern.js";
+import { matchTag } from "@fncts/base/util/pattern";
 
 import { ExecutedSpecCaseTag } from "../../data/ExecutedSpec.js";
 import { Other } from "../../data/ExecutionResult.js";

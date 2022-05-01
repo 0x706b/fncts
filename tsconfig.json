@@ -2,6 +2,9 @@
   "extends": "./packages/config/tsconfig.base.json",
   "references": [
     {
+      "path": "./packages/scripts"
+    },
+    {
       "path": "./packages/codegen"
     },
     {

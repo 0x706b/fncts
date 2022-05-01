@@ -1,4 +1,4 @@
-import { SyntheticFiber } from "@fncts/io/Fiber"
+import { SyntheticFiber } from "@fncts/io/Fiber";
 
 /**
  * @tsplus static fncts.io.FiberOps done
@@ -10,8 +10,8 @@ export function done<E, A>(exit: Exit<E, A>): Fiber<E, A> {
     IO.succeedNow(Conc()),
     IO.unit,
     IO.succeedNow(Just(exit)),
-    () => IO.succeedNow(exit)
-  )
+    () => IO.succeedNow(exit),
+  );
 }
 
 /**

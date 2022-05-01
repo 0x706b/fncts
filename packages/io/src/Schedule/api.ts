@@ -1,4 +1,4 @@
-import { Driver } from "@fncts/io/Schedule/Driver.js";
+import { Driver } from "@fncts/io/Schedule/Driver";
 
 import { Decision, DecisionTag } from "./Decision.js";
 import { Interval } from "./Interval.js";

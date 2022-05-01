@@ -1,4 +1,4 @@
-import { ExitTag } from "@fncts/base/data/Exit.js";
+import { ExitTag } from "@fncts/base/data/Exit";
 
 import { FiberScope } from "../../FiberScope.js";
 import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";

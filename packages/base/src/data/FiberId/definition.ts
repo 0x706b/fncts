@@ -23,10 +23,7 @@ export class Runtime implements Hashable, Equatable {
   readonly _tag                   = "Runtime";
   constructor(readonly id: number, readonly startTime: number, readonly location: TraceElement) {}
   get [Symbol.hash]() {
-    return Hashable.combine(
-      Hashable.combine(_hashRuntime, Hashable.number(this.id)),
-      Hashable.unknown(this.location),
-    );
+    return Hashable.combine(Hashable.combine(_hashRuntime, Hashable.number(this.id)), Hashable.unknown(this.location));
   }
   [Symbol.equals](that: unknown): boolean {
     return isFiberId(that) && isRuntime(that) && this.id === that.id && this.startTime === that.startTime;

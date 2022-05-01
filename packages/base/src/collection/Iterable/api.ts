@@ -478,7 +478,10 @@ function partitionMapWithIndexIterator<A, B, C>(
 /**
  * @tsplus fluent fncts.Iterable partitionMap
  */
-export function partitionMap_<A, B, C>(self: Iterable<A>, f: (a: A) => Either<B, C>): readonly [Iterable<B>, Iterable<C>] {
+export function partitionMap_<A, B, C>(
+  self: Iterable<A>,
+  f: (a: A) => Either<B, C>,
+): readonly [Iterable<B>, Iterable<C>] {
   return self.partitionMapWithIndex((_, a) => f(a));
 }
 
@@ -504,7 +507,11 @@ function handlePartition<A>(
   return h === predicate(i, a) ? { emit: true, value: a } : { emit: false };
 }
 
-function partitionWithIndexIterator<A>(fa: Iterable<A>, predicate: PredicateWithIndex<number, A>, h: boolean): Iterator<A> {
+function partitionWithIndexIterator<A>(
+  fa: Iterable<A>,
+  predicate: PredicateWithIndex<number, A>,
+  h: boolean,
+): Iterator<A> {
   const ia = fa[Symbol.iterator]();
   let i    = 0;
   let done = false;
@@ -554,8 +561,14 @@ export function partitionWithIndex_<A, B extends A>(
   self: Iterable<A>,
   p: RefinementWithIndex<number, A, B>,
 ): readonly [Iterable<A>, Iterable<B>];
-export function partitionWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): readonly [Iterable<A>, Iterable<A>];
-export function partitionWithIndex_<A>(self: Iterable<A>, p: PredicateWithIndex<number, A>): readonly [Iterable<A>, Iterable<A>] {
+export function partitionWithIndex_<A>(
+  self: Iterable<A>,
+  p: PredicateWithIndex<number, A>,
+): readonly [Iterable<A>, Iterable<A>];
+export function partitionWithIndex_<A>(
+  self: Iterable<A>,
+  p: PredicateWithIndex<number, A>,
+): readonly [Iterable<A>, Iterable<A>] {
   return tuple(
     Iterable.make(() => partitionWithIndexIterator(self, p, false)),
     Iterable.make(() => partitionWithIndexIterator(self, p, true)),

@@ -1,6 +1,6 @@
 {
   "importMap": {
-    "^(.*)/packages/([^/]*)/src(.*)\\.ts$": "@fncts/$2$3.js"
+    "^(.*)/packages/([^/]*)/src(.*)\\.ts$": "@fncts/$2$3"
   },
   "traceMap": {
     "^(.*)/packages/([^/]*)/(.*)$": "(@fncts/$2) $3"

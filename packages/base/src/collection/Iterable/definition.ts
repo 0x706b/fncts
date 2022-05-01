@@ -4,7 +4,7 @@ declare global {
    */
   export interface Iterable<T> {}
 
-  export const Iterable: IterableOps
+  export const Iterable: IterableOps;
 }
 
 /**

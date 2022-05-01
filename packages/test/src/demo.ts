@@ -1,4 +1,4 @@
-import { DefaultRunnableSpec } from "@fncts/test/control/DefaultRunnableSpec.js";
+import { DefaultRunnableSpec } from "@fncts/test/control/DefaultRunnableSpec";
 
 import { suite, test, testIO } from "./api.js";
 import { strictEqualTo } from "./control/Assertion.js";

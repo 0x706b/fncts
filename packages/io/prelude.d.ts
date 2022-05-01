@@ -46,6 +46,10 @@ import { Vector } from "@fncts/base/collection/immutable/Vector";
 /**
  * @tsplus global
  */
+import { Iterable } from "@fncts/base/collection/Iterable";
+/**
+ * @tsplus global
+ */
 import { HashMap as MutableHashMap } from "@fncts/base/collection/mutable/HashMap";
 /**
  * @tsplus global
@@ -55,10 +59,6 @@ import { HashSet as MutableHashSet } from "@fncts/base/collection/mutable/HashSe
  * @tsplus global
  */
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
-/**
- * @tsplus global
- */
-import { Iterable } from "@fncts/base/collection/Iterable";
 /**
  * @tsplus global
  */
@@ -264,7 +264,7 @@ import { FIO, IO, UIO, URIO } from "@fncts/io/IO/definition";
 /**
  * @tsplus global
  */
-import {IOEnv} from "@fncts/io/IOEnv";
+import { IOEnv } from "@fncts/io/IOEnv";
 /**
  * @tsplus global
  */
@@ -292,11 +292,7 @@ import { PRef, Ref } from "@fncts/io/Ref";
 /**
  * @tsplus global
  */
-import {
-  RuntimeConfig,
-  RuntimeConfigFlag,
-  RuntimeConfigFlags,
-} from "@fncts/io/RuntimeConfig";
+import { RuntimeConfig, RuntimeConfigFlag, RuntimeConfigFlags } from "@fncts/io/RuntimeConfig";
 /**
  * @tsplus global
  */

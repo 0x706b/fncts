@@ -46,6 +46,10 @@ import { Vector } from "@fncts/base/collection/immutable/Vector";
 /**
  * @tsplus global
  */
+import { Iterable } from "@fncts/base/collection/Iterable/definition";
+/**
+ * @tsplus global
+ */
 import { HashMap as MutableHashMap } from "@fncts/base/collection/mutable/HashMap";
 /**
  * @tsplus global
@@ -55,10 +59,6 @@ import { HashSet as MutableHashSet } from "@fncts/base/collection/mutable/HashSe
  * @tsplus global
  */
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
-/**
- * @tsplus global
- */
-import { Iterable } from "@fncts/base/collection/Iterable/definition";
 /**
  * @tsplus global
  */

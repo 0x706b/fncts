@@ -1,5 +1,5 @@
 import { identity } from "@fncts/base/data/function";
-import { AtomicReference } from "@fncts/base/internal/AtomicReference.js";
+import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { TxnId } from "@fncts/io/TxnId";
 
 import { ContramapEnvironment, Effect, HaltException, STM } from "./definition.js";

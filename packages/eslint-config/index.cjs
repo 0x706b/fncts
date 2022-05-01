@@ -23,7 +23,9 @@ module.exports = {
     "@0x706b/module-specifier-extensions/module-specifier-extensions": [
       "error",
       {
-        includeTypeImports: true,
+        "remove": [
+          "^@fncts.*$"
+        ]
       },
     ],
     "@typescript-eslint/consistent-type-imports": "warn",

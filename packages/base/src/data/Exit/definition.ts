@@ -21,8 +21,8 @@ export const enum ExitTag {
   Failure = "Failure",
 }
 
-const _failureHash = Hashable.string("fncts.Exit.Failure")
-const _successHash = Hashable.string("fncts.Exit.Success")
+const _failureHash = Hashable.string("fncts.Exit.Failure");
+const _successHash = Hashable.string("fncts.Exit.Success");
 
 /**
  * @tsplus type fncts.Exit.Failure

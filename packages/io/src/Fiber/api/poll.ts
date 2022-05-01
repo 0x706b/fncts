@@ -2,6 +2,6 @@
  * @tsplus getter fncts.io.Fiber poll
  */
 export function poll<E, A>(self: Fiber<E, A>): UIO<Maybe<Exit<E, A>>> {
-  self.concrete()
-  return self.poll
+  self.concrete();
+  return self.poll;
 }

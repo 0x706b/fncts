@@ -12,7 +12,7 @@
  * for more information regarding copyright ownership
  */
 
-import { _Nil } from "@fncts/base/collection/immutable/List.js";
+import { _Nil } from "@fncts/base/collection/immutable/List";
 
 /**
  * @tsplus type fncts.ImmutableQueue

@@ -3,8 +3,8 @@ import type { Fragment } from "../../data/LogLine/Fragment.js";
 import type { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import type { TestAnnotationRenderer } from "../TestAnnotationRenderer.js";
 
-import { blue, bold, cyan, dim, green, red, underline, yellow } from "@fncts/base/util/AnsiFormat.js";
-import { matchTag_ } from "@fncts/base/util/pattern.js";
+import { blue, bold, cyan, dim, green, red, underline, yellow } from "@fncts/base/util/AnsiFormat";
+import { matchTag_ } from "@fncts/base/util/pattern";
 
 import { fr, info, sp, warn } from "../../data/LogLine.js";
 import { Line } from "../../data/LogLine/Line.js";

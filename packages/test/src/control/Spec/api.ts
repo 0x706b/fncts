@@ -6,7 +6,7 @@ import type { TestArgs } from "@fncts/test/data/TestArgs.js";
 
 import { identity, tuple } from "@fncts/base/data/function";
 import { matchTag, matchTag_ } from "@fncts/base/util/pattern";
-import { TestSuccess } from "@fncts/test/data/TestSuccess.js";
+import { TestSuccess } from "@fncts/test/data/TestSuccess";
 
 import { TestAnnotation } from "../../data/TestAnnotation.js";
 import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";

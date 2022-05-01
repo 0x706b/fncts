@@ -1,0 +1,26 @@
+{
+  "name": "@fncts/scripts",
+  "version": "0.0.1",
+  "type": "module",
+  "bin": {
+    "fncts-pack": "./bin/fncts-pack.js"
+  },
+  "exports": {
+    "./*": "./build/esm/*.js",
+    "./*.js": "./build/esm/*.js"
+  },
+  "scripts": {
+    "build": "tsc -b ./tsconfig.json",
+    "format": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts",
+    "circular": "madge --circular --no-spinner --warning build/esm",
+    "clean": "rm -rf ./build"
+  },
+  "devDependencies": {
+    "@fncts/config": "workspace:*",
+    "@fncts/eslint-config": "workspace:*",
+    "@yarnpkg/cli": "3.2.0",
+    "@yarnpkg/core": "3.2.0",
+    "madge": "^5.0.1",
+    "typescript": "^4.6.2"
+  }
+}

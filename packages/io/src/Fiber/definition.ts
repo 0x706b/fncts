@@ -99,7 +99,7 @@ export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
   readonly _typeId: FiberTypeId = FiberTypeId;
   readonly _E!: () => E;
   readonly _A!: () => A;
-  readonly await
+  readonly await;
 
   constructor(
     readonly id: FiberId,
@@ -109,7 +109,7 @@ export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
     readonly poll: UIO<Maybe<Exit<E, A>>>,
     readonly interruptAs: (fiberId: FiberId) => UIO<Exit<E, A>>,
   ) {
-    this.await = wait
+    this.await = wait;
   }
 }
 
@@ -119,7 +119,9 @@ export type ConcreteFiber<E, A> = Fiber.Runtime<E, A> | Fiber.Synthetic<E, A>;
  * @tsplus fluent fncts.io.Fiber concrete
  * @tsplus macro remove
  */
-export function concrete<E, A>(_fiber: Fiber<E, A>): asserts _fiber is ConcreteFiber<E, A> {}
+export function concrete<E, A>(_fiber: Fiber<E, A>): asserts _fiber is ConcreteFiber<E, A> {
+  //
+}
 
 export function isFiber(u: unknown): u is Fiber<unknown, unknown> {
   return hasTypeId(u, FiberTypeId);

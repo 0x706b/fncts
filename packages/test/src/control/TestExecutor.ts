@@ -4,7 +4,7 @@ import type { Annotated, Annotations } from "./Annotations.js";
 import type { Spec, SpecCase } from "./Spec.js";
 import type { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
 
-import { matchTag_ } from "@fncts/base/util/pattern.js";
+import { matchTag_ } from "@fncts/base/util/pattern";
 
 import { ExecutedSpec } from "../data/ExecutedSpec.js";
 import { TestAnnotationMap } from "../data/TestAnnotationMap.js";

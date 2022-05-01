@@ -13,4 +13,3 @@ export function fiberRefs(self: FiberRefs): HashSet<FiberRef<unknown>> {
 export function make(fiberRefLocals: HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>): FiberRefs {
   return new FiberRefs(fiberRefLocals);
 }
-
