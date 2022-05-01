@@ -28,11 +28,16 @@ export abstract class RunnableSpec<R, E> extends AbstractRunnableSpec<R, E> {
   }
 
   main(_args?: TestArgs): void {
-    // const filteredSpec = this.spec.filterByArgs(this.spec, args);
+    // const filteredSpec = this.spec.filterByArgs(args);
     this.run(this.spec)
       .provideLayer(this.runner.bootstrap)
       .unsafeRunAsyncWith((exit) => {
-        console.log(exit);
+        exit.match(
+          () => {
+            process.exit(1);
+          },
+          (code) => process.exit(code)
+        );
       });
   }
 }

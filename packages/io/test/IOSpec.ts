@@ -121,4 +121,4 @@ class IOSpec extends DefaultRunnableSpec {
   );
 }
 
-new IOSpec().main();
+export default new IOSpec();

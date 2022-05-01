@@ -17,6 +17,7 @@
     "build-pack": "yarn build && ultra -r build-pack",
     "format": "ultra -r format",
     "clean": "ultra -r clean",
+    "test": "ultra -r test",
     "circular": "madge --ts-config ./tsconfig.madge.json --circular --warning packages/*/build/esm",
     "postinstall": "tsplus-install",
     "org:tsc": "cd $INIT_CWD && tsc",
