@@ -1,11 +1,9 @@
 {
   "name": "@fncts/config",
-  "version": "0.0.2",
   "private": true,
   "exports": {
     "./prettier": {
       "require": "./prettier.config.cjs"
     }
-  },
-  "version": null
+  }
 }

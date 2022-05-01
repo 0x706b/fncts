@@ -1,11 +1,9 @@
 {
   "name": "@fncts/eslint-config",
-  "version": "0.0.2",
   "private": true,
   "exports": {
     ".": {
       "require": "./index.cjs"
     }
-  },
-  "version": null
+  }
 }
