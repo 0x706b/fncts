@@ -196,6 +196,12 @@ export const isTrue: Assertion<boolean> = Assertion.make("isTrue", [], identity)
 
 export const isEmpty: Assertion<Iterable<any>> = Assertion.make("isEmpty", [], (actual) => actual.size === 0);
 
+export const isUnit: Assertion<void> = Assertion.make("isUnit", [], (actual) => actual === void 0);
+
+export function isLessThanOrEqualTo(n: number): Assertion<number> {
+  return Assertion.make("isLessThanOrEqualTo", [RenderParam(n)], (actual) => actual <= n);
+}
+
 /**
  * @tsplus fluent fncts.test.Assertion label
  */

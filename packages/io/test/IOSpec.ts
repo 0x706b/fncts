@@ -1,5 +1,7 @@
 import { Live } from "@fncts/test/control/Live";
 
+import { withLatch } from "./Latch.js";
+
 class IOSpec extends DefaultRunnableSpec {
   spec = suite(
     "IO",
@@ -136,7 +138,9 @@ class IOSpec extends DefaultRunnableSpec {
           else return asyncIO(stackIOs(count - 1));
         }
         function asyncIO(cont: UIO<number>): UIO<number> {
-          return IO.asyncIO<unknown, never, number>((k) => Clock.sleep((5).milliseconds) > cont > IO.succeed(k(IO.succeed(42))));
+          return IO.asyncIO<unknown, never, number>(
+            (k) => Clock.sleep((5).milliseconds) > cont > IO.succeed(k(IO.succeed(42))),
+          );
         }
         const io = stackIOs(17);
         return Live.Live(io).assert(strictEqualTo(42));
@@ -151,10 +155,7 @@ class IOSpec extends DefaultRunnableSpec {
               IO.bracket(
                 acquire.succeed(undefined),
                 () => IO.never,
-                () => {
-                  debugger;
-                  return release.succeed(undefined);
-                },
+                () => release.succeed(undefined),
               ),
             ).disconnect.fork,
           );
@@ -211,8 +212,187 @@ class IOSpec extends DefaultRunnableSpec {
           return unexpected.assert(isEmpty) && result.assert(isNothing);
         }),
       ),
+      testIO("sleep 0 must return", Live.Live(Clock.sleep((0).milliseconds)).assert(isUnit)),
+      testIO("shallow bind of async chain", () => {
+        const io = Iterable.range(0, 9).foldLeft(IO.succeed(0), (acc, _) =>
+          acc.flatMap((n) => IO.async<unknown, never, number>((k) => k(IO.succeed(n + 1)))),
+        );
+        return io.assert(strictEqualTo(10));
+      }),
+      testIO("asyncIO can fail before registering", () => {
+        const io = IO.asyncIO<unknown, string, never>(() => IO.fail("Ouch")).swap;
+        return io.assert(strictEqualTo("Ouch"));
+      }),
+      testIO("asyncIO can defect before registering", () => {
+        const io = IO.asyncIO<unknown, string, void>(() =>
+          IO.succeed(() => {
+            throw new Error("Ouch");
+          }),
+        ).result.map((exit) =>
+          exit.match(
+            (cause) => cause.defects.head.flatMap((u) => (u instanceof Error ? Just(u.message) : Nothing())),
+            () => Nothing(),
+          ),
+        );
+        return io.assert(isJust(strictEqualTo("Ouch")));
+      }),
+    ),
+    suite(
+      "RTS concurrency correctness",
+      testIO(
+        "shallow fork/join identity",
+        Do((Δ) => {
+          const f = Δ(IO.succeed(42).fork);
+          const r = Δ(f.join);
+          return r.assert(strictEqualTo(42));
+        }),
+      ),
+      testIO("deep fork/join identity", () => {
+        const n = 20n;
+        return concurrentFib(n).assert(strictEqualTo(fib(n)));
+      }),
+      testIO(
+        "asyncInterrupt runs cancel token on interrupt",
+        Do((Δ) => {
+          const release = Δ(Future.make<never, number>());
+          const latch   = Δ(Future.make<never, void>());
+          const runtime = Δ(IO.runtime<unknown>());
+          const async   = IO.asyncInterrupt<unknown, never, never>(() => {
+            runtime.unsafeRunAsync(latch.succeed(undefined));
+            return Either.left(release.succeed(42).asUnit);
+          });
+          const fiber = Δ(async.fork);
+          Δ(latch.await);
+          Δ(fiber.interrupt);
+          const result = Δ(release.await);
+          return result.assert(strictEqualTo(42));
+        }),
+      ),
+      testIO("daemon fiber is unsupervised", () => {
+        const child = (ref: Ref<boolean>) => withLatch((release) => (release > IO.never).ensuring(ref.set(true)));
+        return Do((Δ) => {
+          const ref    = Δ(Ref.make(false));
+          const fiber  = Δ(child(ref).forkDaemon.fork);
+          const inner  = Δ(fiber.join);
+          const b      = Δ(ref.get);
+          const result = b.assert(isFalse);
+          Δ(inner.interrupt);
+          return result;
+        });
+      }),
+      testIO(
+        "race in daemon is executed",
+        Do((Δ) => {
+          const latch1 = Δ(Future.make<never, void>());
+          const latch2 = Δ(Future.make<never, void>());
+          const f1     = Δ(Future.make<never, void>());
+          const f2     = Δ(Future.make<never, void>());
+          const loser1 = IO.bracket(
+            latch1.succeed(undefined),
+            () => IO.never,
+            () => f1.succeed(undefined),
+          );
+          const loser2 = IO.bracket(
+            latch2.succeed(undefined),
+            () => IO.never,
+            () => f2.succeed(undefined),
+          );
+          const fiber = Δ(loser1.race(loser2).forkDaemon);
+          Δ(latch1.await);
+          Δ(latch2.await);
+          Δ(fiber.interrupt);
+          const res1 = Δ(f1.await);
+          const res2 = Δ(f1.await);
+          return res1.assert(isUnit) && res2.assert(isUnit);
+        }),
+      ),
+      testIO("supervise fibers", () => {
+        const makeChild = (n: number): UIO<Fiber<never, void>> => (Clock.sleep((20).milliseconds * n) > IO.never).fork;
+
+        const io = Do((Δ) => {
+          const counter = Δ(Ref.make(0));
+          Δ(
+            (makeChild(1) > makeChild(2)).ensuringChildren((fs) =>
+              fs.foldLeft(IO.unit, (acc, f) => acc > f.interrupt > counter.update((n) => n + 1)),
+            ),
+          );
+          return Δ(counter.get);
+        });
+
+        return io.assert(strictEqualTo(2));
+      }),
+      testIO("race of fail with success", () => {
+        const io = IO.fail(42).race(IO.succeed(24)).either;
+        return io.assert(isRight(strictEqualTo(24)));
+      }),
+      testIO("race of terminate with success", () => {
+        const io = IO.halt(new Error()).race(IO.succeed(24));
+        return io.assert(strictEqualTo(24));
+      }),
+      testIO("race of fail with fail", () => {
+        const io = IO.fail(42).race(IO.fail(42)).either;
+        return io.assert(isLeft(strictEqualTo(42)));
+      }),
+      testIO("race of value and never", () => {
+        const io = IO.succeed(42).race(IO.never);
+        return io.assert(strictEqualTo(42));
+      }),
+      testIO("race in uninterruptible region", () => {
+        const effect = IO.unit.race(IO.never).uninterruptible;
+        return effect.assert(isUnit);
+      }),
+      testIO(
+        "race of two forks does not interrupt winner",
+        Do((Δ) => {
+          const ref    = Δ(Ref.make(0));
+          const fibers = Δ(Ref.make(HashSet.makeDefault<Fiber<any, any>>()));
+          const latch  = Δ(Future.make<never, void>());
+          const effect = IO.uninterruptibleMask(({ restore }) =>
+            restore(latch.await.onInterrupt(() => ref.update((n) => n + 1))).fork.tap((f) =>
+              fibers.update((set) => set.add(f)),
+            ),
+          );
+          const awaitAll = fibers.get.flatMap(Fiber.awaitAll);
+          Δ(effect.race(effect));
+          const value = Δ(latch.succeed(undefined) > awaitAll > ref.get);
+          return value.assert(isLessThanOrEqualTo(1));
+        }),
+      ),
+      testIO(
+        "raceFirst interrupts loser on success",
+        Do((Δ) => {
+          const s      = Δ(Future.make<never, void>());
+          const effect = Δ(Future.make<never, number>());
+          const winner = s.await.asUnit;
+          const loser  = IO.bracket(
+            s.succeed(undefined),
+            () => IO.never,
+            () => effect.succeed(42),
+          );
+          Δ(winner.raceFirst(loser));
+          const b = Δ(effect.await);
+          return b.assert(strictEqualTo(42));
+        }),
+      ),
     ),
   );
+}
+
+function fib(n: bigint): bigint {
+  if (n <= 1) return n;
+  else return fib(n - 1n) + fib(n - 2n);
+}
+
+function concurrentFib(n: bigint): UIO<bigint> {
+  if (n <= 1) return IO.succeed(n);
+  else
+    return Do((Δ) => {
+      const f1 = Δ(concurrentFib(n - 1n).fork);
+      const f2 = Δ(concurrentFib(n - 2n).fork);
+      const v1 = Δ(f1.join);
+      const v2 = Δ(f2.join);
+      return v1 + v2;
+    });
 }
 
 export default new IOSpec();

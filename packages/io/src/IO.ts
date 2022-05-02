@@ -19,6 +19,7 @@ export * from "./IO/api/concurrency.js";
 export * from "./IO/api/concurrentFinalizers.js";
 export * from "./IO/api/consoleWith.js";
 export * from "./IO/api/core-scope.js";
+export * from "./IO/api/ensuringChildren.js";
 export * from "./IO/api/environment.js";
 export * from "./IO/api/foreachC.js";
 export * from "./IO/api/foreachExec.js";
