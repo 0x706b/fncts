@@ -4,7 +4,7 @@
  */
 export abstract class Clock {
   abstract readonly currentTime: UIO<number>;
-  abstract sleep(duration: number, __tsplusTrace?: string): UIO<void>;
+  abstract sleep(duration: Lazy<number>, __tsplusTrace?: string): UIO<void>;
 }
 
 /**

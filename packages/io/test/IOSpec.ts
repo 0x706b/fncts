@@ -1,3 +1,5 @@
+import { Live } from "@fncts/test/control/Live";
+
 class IOSpec extends DefaultRunnableSpec {
   spec = suite(
     "IO",
@@ -117,6 +119,98 @@ class IOSpec extends DefaultRunnableSpec {
           return reported.isSuccess().assert(isFalse);
         });
       }),
+    ),
+    suite(
+      "RTS asynchronous correctness",
+      testIO("simple async must return", () => {
+        const io = IO.async<unknown, never, number>((k) => k(IO.succeed(42)));
+        return io.assert(strictEqualTo(42));
+      }),
+      testIO("simple asyncIO must return", () => {
+        const io = IO.asyncIO<unknown, never, number>((k) => IO.succeed(k(IO.succeed(42))));
+        return io.assert(strictEqualTo(42));
+      }),
+      testIO("deep asyncIO doesn't block", () => {
+        function stackIOs(count: number): UIO<number> {
+          if (count <= 0) return IO.succeed(42);
+          else return asyncIO(stackIOs(count - 1));
+        }
+        function asyncIO(cont: UIO<number>): UIO<number> {
+          return IO.asyncIO<unknown, never, number>((k) => Clock.sleep(5) > cont > IO.succeed(k(IO.succeed(42))));
+        }
+        const io = stackIOs(17);
+        return Live.Live(io).assert(strictEqualTo(42));
+      }),
+      testIO(
+        "interrupt of asyncIO register",
+        Do((Δ) => {
+          const release = Δ(Future.make<never, void>());
+          const acquire = Δ(Future.make<never, void>());
+          const fiber   = Δ(
+            IO.asyncIO<unknown, never, void>(() =>
+              IO.bracket(
+                acquire.succeed(undefined),
+                () => IO.never,
+                () => {
+                  debugger;
+                  return release.succeed(undefined);
+                },
+              ),
+            ).disconnect.fork,
+          );
+          Δ(acquire.await);
+          Δ(fiber.interruptFork);
+          const a = Δ(release.await);
+          return a.assert(strictEqualTo<void>(undefined));
+        }),
+      ),
+      testIO(
+        "async should not resume fiber twice after interruption",
+        Do((Δ) => {
+          const step            = Δ(Future.make<never, void>());
+          const unexpectedPlace = Δ(Ref.make(List.empty<number>()));
+          const runtime         = Δ(IO.runtime<Has<Live>>());
+          const fork            = Δ(
+            IO.async<unknown, never, void>((k) => {
+              runtime.unsafeRunAsync(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
+            })
+              .ensuring(
+                IO.async<unknown, never, void>(() => {
+                  runtime.unsafeRunAsync(step.succeed(undefined));
+                  // never complete
+                }),
+              )
+              .ensuring(unexpectedPlace.update((_) => 2 + _)).forkDaemon,
+          );
+          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout(1000)));
+          const unexpected = Δ(unexpectedPlace.get);
+          return unexpected.assert(isEmpty) && result.assert(isNothing);
+        }),
+      ),
+      testIO(
+        "asyncMaybe should not resume fiber twice after synchronous result",
+        Do((Δ) => {
+          const step            = Δ(Future.make<never, void>());
+          const unexpectedPlace = Δ(Ref.make(List.empty<number>()));
+          const runtime         = Δ(IO.runtime<Has<Live>>());
+          const fork            = Δ(
+            IO.asyncMaybe((k) => {
+              runtime.unsafeRunAsync(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
+              return Just(IO.unit);
+            })
+              .flatMap(() =>
+                IO.async<unknown, never, void>(() => {
+                  runtime.unsafeRunAsync(step.succeed(undefined));
+                  // never complete
+                }),
+              )
+              .ensuring(unexpectedPlace.update((_) => 2 + _)).uninterruptible.forkDaemon,
+          );
+          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout(1000)));
+          const unexpected = Δ(unexpectedPlace.get);
+          return unexpected.assert(isEmpty) && result.assert(isNothing);
+        }),
+      ),
     ),
   );
 }

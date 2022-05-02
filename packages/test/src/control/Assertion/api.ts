@@ -194,6 +194,8 @@ export function isRight<A>(assertion: Assertion<A>): Assertion<Either<any, A>> {
 
 export const isTrue: Assertion<boolean> = Assertion.make("isTrue", [], identity);
 
+export const isEmpty: Assertion<Iterable<any>> = Assertion.make("isEmpty", [], (actual) => actual.size === 0);
+
 /**
  * @tsplus fluent fncts.test.Assertion label
  */

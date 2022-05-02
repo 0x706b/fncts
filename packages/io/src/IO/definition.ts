@@ -407,7 +407,7 @@ export type Instruction =
   | SetRuntimeConfig;
 
 /**
- * @optimize identity
+ * @tsplus macro identity
  */
 export function concrete(_: IO<any, any, any>): Instruction {
   // @ts-expect-error

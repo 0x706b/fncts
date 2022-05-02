@@ -58,13 +58,13 @@ export class TestClock extends Clock {
   ) {
     super();
   }
-  sleep = (ms: number) => {
+  sleep = (ms: Lazy<number>) => {
     const self = this;
     return IO.gen(function* (_) {
       const promise = yield* _(Future.make<never, void>());
       const wait    = yield* _(
         self.clockState.modify((data) => {
-          const end = data.duration + ms;
+          const end = data.duration + ms();
           if (end > data.duration) {
             return [true, new Data(data.duration, data.sleeps.prepend([end, promise]))];
           } else {

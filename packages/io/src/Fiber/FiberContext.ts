@@ -979,8 +979,8 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       if (leftRegister != null) {
         this.unsafeCompleteRace(left, right, race.leftWins, raceIndicator, cb);
       } else {
-        const rightRegister = right.unsafeAddObserver((exit) => {
-          this.unsafeCompleteRace(left, right, race.rightWins, raceIndicator, cb);
+        const rightRegister = right.unsafeAddObserver(() => {
+          this.unsafeCompleteRace(right, left, race.rightWins, raceIndicator, cb);
         });
         if (rightRegister != null) {
           this.unsafeCompleteRace(right, left, race.rightWins, raceIndicator, cb);

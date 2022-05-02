@@ -1,6 +1,10 @@
 /**
  * @tsplus global
  */
+/**
+ * @tsplus global
+ */
+import {Clock} from "@fncts/io/Clock";
 import { IO } from "@fncts/io/IO";
 /**
  * @tsplus global
@@ -13,7 +17,7 @@ import { suite, test, testIO } from "@fncts/test/api";
 /**
  * @tsplus global
  */
-import { fails, isFalse, isTrue, strictEqualTo } from "@fncts/test/control/Assertion";
+import { fails, isEmpty, isFalse, isNothing, isTrue, strictEqualTo } from "@fncts/test/control/Assertion";
 /**
  * @tsplus global
  */

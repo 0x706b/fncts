@@ -70,7 +70,7 @@ export function make<A>(
 /**
  * @tsplus static fncts.io.FiberRefOps forkScopeOverride
  */
-export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing());
+export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing(), () => Nothing());
 
 /**
  * @tsplus static fncts.io.FiberRefOps currentEnvironment
