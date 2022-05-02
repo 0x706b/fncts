@@ -1,5 +1,3 @@
-import type { Interval } from "./Interval.js";
-
 export const enum DecisionTag {
   Continue = "Continue",
   Done = "Done",

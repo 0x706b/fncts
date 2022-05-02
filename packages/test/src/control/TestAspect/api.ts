@@ -88,7 +88,7 @@ export function repeat<R0>(schedule: Schedule<R0, TestSuccess, any>): TestAspect
   );
 }
 
-export function timeoutWarning(duration: number): TestAspect<Has<Live>, any> {
+export function timeoutWarning(duration: Duration): TestAspect<Has<Live>, any> {
   return <R1, E1>(spec: Spec<R1, E1>) => {
     const loop = (labels: Vector<string>, spec: Spec<R1, E1>): Spec<R1 & Has<Live>, E1> =>
       matchTag_(spec.caseValue, {
@@ -103,7 +103,7 @@ export function timeoutWarning(duration: number): TestAspect<Has<Live>, any> {
   };
 }
 
-function warn<R, E>(labels: Vector<string>, test: IO<R, TestFailure<E>, TestSuccess>, duration: number) {
+function warn<R, E>(labels: Vector<string>, test: IO<R, TestFailure<E>, TestSuccess>, duration: Duration) {
   return test.raceWith(
     Live.withLive(showWarning(labels, duration), (io) => Clock.sleep(duration) > io),
     (result, fiber) => fiber.interrupt > IO.fromExitNow(result),
@@ -111,12 +111,12 @@ function warn<R, E>(labels: Vector<string>, test: IO<R, TestFailure<E>, TestSucc
   );
 }
 
-function showWarning(labels: Vector<string>, duration: number) {
+function showWarning(labels: Vector<string>, duration: Duration) {
   return Live.Live(Console.print(renderWarning(labels, duration)));
 }
 
-function renderWarning(labels: Vector<string>, duration: number) {
+function renderWarning(labels: Vector<string>, duration: Duration) {
   return `Test ${labels.join(
     " - ",
-  )} has taken more than ${duration} milliseconds to execute. If this is not expected, consider using TestAspect.timeout to timeout runaway tests for faster diagnostics`;
+  )} has taken more than ${duration.milliseconds} milliseconds to execute. If this is not expected, consider using TestAspect.timeout to timeout runaway tests for faster diagnostics`;
 }

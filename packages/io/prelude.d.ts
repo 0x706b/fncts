@@ -140,6 +140,10 @@ import { Identity } from "@fncts/base/data/Identity";
 /**
  * @tsplus global
  */
+import { Interval} from "@fncts/base/data/Interval";
+/**
+ * @tsplus global
+ */
 import { Just, Maybe, MaybeTag, Nothing } from "@fncts/base/data/Maybe";
 /**
  * @tsplus global

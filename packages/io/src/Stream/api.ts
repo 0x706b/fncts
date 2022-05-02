@@ -857,7 +857,7 @@ export function contramapEnvironment_<R, E, A, R0>(
 /**
  * @tsplus fluent fncts.io.Stream debounce
  */
-export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: number): Stream<R, E, A> {
+export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: Lazy<Duration>): Stream<R, E, A> {
   return Stream.unwrap(
     IO.transplant((grafter) =>
       Do((Δ) => {

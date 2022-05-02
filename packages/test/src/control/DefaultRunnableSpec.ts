@@ -7,6 +7,6 @@ import { TestRunner } from "@fncts/test/control/TestRunner";
 const defaultTestRunner = new TestRunner(defaultTestExecutor(TestEnvironment));
 
 export abstract class DefaultRunnableSpec extends RunnableSpec<TestEnvironment, any> {
-  aspects = [timeoutWarning(60000)];
+  aspects = [timeoutWarning((1).minutes)];
   runner  = defaultTestRunner;
 }

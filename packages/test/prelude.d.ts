@@ -78,7 +78,7 @@ import { Const } from "@fncts/base/data/Const/definition";
 /**
  * @tsplus global
  */
-import { Duration } from "@fncts/base/data/Duration/definition";
+import { Duration } from "@fncts/base/data/Duration";
 /**
  * @tsplus global
  */

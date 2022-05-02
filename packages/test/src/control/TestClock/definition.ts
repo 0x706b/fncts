@@ -58,13 +58,13 @@ export class TestClock extends Clock {
   ) {
     super();
   }
-  sleep = (ms: Lazy<number>) => {
+  sleep = (ms: Lazy<Duration>) => {
     const self = this;
     return IO.gen(function* (_) {
       const promise = yield* _(Future.make<never, void>());
       const wait    = yield* _(
         self.clockState.modify((data) => {
-          const end = data.duration + ms();
+          const end = data.duration + ms().milliseconds;
           if (end > data.duration) {
             return [true, new Data(data.duration, data.sleeps.prepend([end, promise]))];
           } else {
@@ -135,12 +135,12 @@ export class TestClock extends Clock {
   }
 
   private get delay(): UIO<void> {
-    return this.live.provide(Clock.sleep(5));
+    return this.live.provide(Clock.sleep((5).milliseconds));
   }
 
   private get awaitSuspended(): UIO<void> {
     return this.suspended
-      .zipWith(this.live.provide(Clock.sleep(10)) > this.suspended, Equatable.strictEquals)
+      .zipWith(this.live.provide(Clock.sleep((10).milliseconds)) > this.suspended, Equatable.strictEquals)
       .filterOrFail(Function.identity, (): void => undefined).eventually.asUnit;
   }
 
@@ -188,7 +188,7 @@ export class TestClock extends Clock {
     matchTag(
       {
         Start: () =>
-          Just(this.live.provide(Clock.sleep(5000) > Console.print(warning)).interruptible.fork.map(Pending)),
+          Just(this.live.provide(Clock.sleep((5).seconds) > Console.print(warning)).interruptible.fork.map(Pending)),
       },
       () => Nothing<IO<unknown, never, WarningData>>(),
     ),

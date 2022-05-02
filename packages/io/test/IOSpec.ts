@@ -136,7 +136,7 @@ class IOSpec extends DefaultRunnableSpec {
           else return asyncIO(stackIOs(count - 1));
         }
         function asyncIO(cont: UIO<number>): UIO<number> {
-          return IO.asyncIO<unknown, never, number>((k) => Clock.sleep(5) > cont > IO.succeed(k(IO.succeed(42))));
+          return IO.asyncIO<unknown, never, number>((k) => Clock.sleep((5).milliseconds) > cont > IO.succeed(k(IO.succeed(42))));
         }
         const io = stackIOs(17);
         return Live.Live(io).assert(strictEqualTo(42));
@@ -182,7 +182,7 @@ class IOSpec extends DefaultRunnableSpec {
               )
               .ensuring(unexpectedPlace.update((_) => 2 + _)).forkDaemon,
           );
-          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout(1000)));
+          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout((1).seconds)));
           const unexpected = Δ(unexpectedPlace.get);
           return unexpected.assert(isEmpty) && result.assert(isNothing);
         }),
@@ -206,7 +206,7 @@ class IOSpec extends DefaultRunnableSpec {
               )
               .ensuring(unexpectedPlace.update((_) => 2 + _)).uninterruptible.forkDaemon,
           );
-          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout(1000)));
+          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout((1).seconds)));
           const unexpected = Δ(unexpectedPlace.get);
           return unexpected.assert(isEmpty) && result.assert(isNothing);
         }),

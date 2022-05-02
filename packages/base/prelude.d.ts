@@ -136,6 +136,10 @@ import { Identity } from "@fncts/base/data/Identity/definition";
 /**
  * @tsplus global
  */
+import { Interval } from "@fncts/base/data/Interval";
+/**
+ * @tsplus global
+ */
 import { Just, Maybe, MaybeTag, Nothing } from "@fncts/base/data/Maybe/definition";
 /**
  * @tsplus global
