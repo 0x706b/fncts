@@ -374,6 +374,163 @@ class IOSpec extends DefaultRunnableSpec {
           return b.assert(strictEqualTo(42));
         }),
       ),
+      testIO(
+        "raceFirst interrupts loser on failure",
+        Do((Δ) => {
+          const s      = Δ(Future.make<never, void>());
+          const effect = Δ(Future.make<never, number>());
+          const winner = s.await > IO.fail(new Error());
+          const loser  = IO.bracket(
+            s.succeed(undefined),
+            () => IO.never,
+            () => effect.succeed(42),
+          );
+          Δ(winner.raceFirst(loser).result);
+          const b = Δ(effect.await);
+          return b.assert(strictEqualTo(42));
+        }),
+      ),
+      testIO("mergeAll", () => {
+        const io = IO.mergeAll(List("a", "aa", "aaa", "aaaa").map(IO.succeedNow), 0, (b, a) => b + a.length);
+        return io.assert(strictEqualTo(10));
+      }),
+    ),
+    suite(
+      "RTS interruption",
+      testIO("sync forever is interruptible", () =>
+        IO.succeed(1)
+          .forever.fork.flatMap((f) => f.interrupt)
+          .as(true)
+          .assert(strictEqualTo(true)),
+      ),
+      testIO("interrupt of never is interrupted with cause", () =>
+        IO.never.fork.flatMap((f) => f.interrupt).assert(isOnlyInterrupted),
+      ),
+      testIO("asyncIO is interruptible", () =>
+        IO.asyncIO<unknown, never, never>(() => IO.never)
+          .fork.flatMap((f) => f.interrupt)
+          .as(42)
+          .assert(strictEqualTo(42)),
+      ),
+      testIO("async is interruptible", () =>
+        IO.async<unknown, never, never>(() => {
+          //
+        })
+          .fork.flatMap((f) => f.interrupt)
+          .as(42)
+          .assert(strictEqualTo(42)),
+      ),
+      testIO("bracket is uninterruptible", () => {
+        const io = Do((Δ) => {
+          const future = Δ(Future.make<never, void>());
+          const fiber  = Δ(
+            IO.bracket(
+              future.succeed(undefined) < IO.never,
+              () => IO.unit,
+              () => IO.unit,
+            ).forkDaemon,
+          );
+          return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
+        });
+        return Live.Live(io).assert(strictEqualTo(42));
+      }),
+      testIO("bracketExit is uninterruptible", () => {
+        const io = Do((Δ) => {
+          const future = Δ(Future.make<never, void>());
+          const fiber  = Δ(
+            IO.bracketExit(
+              future.succeed(undefined) > IO.never > IO.succeed(1),
+              () => IO.unit,
+              () => IO.unit,
+            ).forkDaemon,
+          );
+          return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
+        });
+        return Live.Live(io).assert(strictEqualTo(42));
+      }),
+      testIO(
+        "bracket use is interruptible",
+        Do((Δ) => {
+          const fiber = Δ(
+            IO.bracket(
+              IO.unit,
+              () => IO.never,
+              () => IO.unit,
+            ).fork,
+          );
+          const res = Δ(fiber.interrupt);
+          return res.assert(isInterrupted);
+        }),
+      ),
+      testIO(
+        "bracketExit use is interruptible",
+        Do((Δ) => {
+          const fiber = Δ(
+            IO.bracketExit(
+              IO.unit,
+              () => IO.never,
+              () => IO.unit,
+            ).fork,
+          );
+          const res = Δ(fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
+          return res.assert(strictEqualTo(0));
+        }),
+      ),
+      testIO("bracket release called on interrupt", () => {
+        const io = Do((Δ) => {
+          const f1    = Δ(Future.make<never, void>());
+          const f2    = Δ(Future.make<never, void>());
+          const fiber = Δ(
+            IO.bracket(
+              IO.unit,
+              () => f1.succeed(undefined) > IO.never,
+              () => f2.succeed(undefined) > IO.unit,
+            ).fork,
+          );
+          Δ(f1.await);
+          Δ(fiber.interrupt);
+          Δ(f2.await);
+        });
+        return io.timeoutTo((1).seconds, 42, () => 0).assert(strictEqualTo(0));
+      }),
+      testIO(
+        "bracketExit release called on interrupt",
+        Do((Δ) => {
+          const done  = Δ(Future.make<never, void>());
+          const fiber = Δ(
+            withLatch(
+              (release) =>
+                IO.bracketExit(
+                  IO.unit,
+                  () => release > IO.never,
+                  () => done.succeed(undefined),
+                ).fork,
+            ),
+          );
+          Δ(fiber.interrupt);
+          const r = Δ(done.await.timeoutTo((60).seconds, 42, () => 0));
+          return r.assert(strictEqualTo(0));
+        }),
+      ),
+      testIO(
+        "bracket acquire returns immediately on interrupt",
+        Do((Δ) => {
+          const f1 = Δ(Future.make<never, void>());
+          const f2 = Δ(Future.make<never, number>());
+          const f3 = Δ(Future.make<never, void>());
+          const s  = Δ(
+            IO.bracket(
+              f1.succeed(undefined) > f2.await,
+              () => IO.unit,
+              () => f3.await,
+            ).disconnect.fork,
+          );
+          Δ(f1.await);
+          const res = Δ(s.interrupt);
+          Δ(f3.succeed(undefined));
+          return res.assert(isInterrupted);
+        }),
+      ),
     ),
   );
 }

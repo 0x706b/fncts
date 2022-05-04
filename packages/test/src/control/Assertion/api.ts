@@ -168,6 +168,13 @@ export const isInterrupted: Assertion<Exit<any, any>> = Assertion.make("isInterr
   ),
 );
 
+export const isOnlyInterrupted: Assertion<Exit<any, any>> = Assertion.make("isOnlyInterrupted", [], (exit) =>
+  exit.match(
+    (cause) => cause.isInterrupt(),
+    () => false,
+  ),
+);
+
 export function isLeft<A>(assertion: Assertion<A>): Assertion<Either<A, any>> {
   return Assertion.rec("isLeft", [RenderParam(assertion)], assertion, (actual) =>
     actual.match(

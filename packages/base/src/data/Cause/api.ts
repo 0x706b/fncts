@@ -631,6 +631,15 @@ export function isThen<E>(self: Cause<E>): self is Then<E> {
 }
 
 /**
+ * A type-guard matching `Interrupt`
+ *
+ * @tsplus fluent fncts.Cause isInterrupt
+ */
+export function isInterrupt<E>(self: Cause<E>): self is Interrupt {
+  return self._tag === CauseTag.Interrupt;
+}
+
+/**
  * A type-guard matching `Traced`
  *
  * @tsplus getter fncts.Cause isTraced

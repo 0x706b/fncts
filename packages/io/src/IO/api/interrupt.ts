@@ -100,7 +100,8 @@ export function onInterrupt_<R, E, A, R1>(
 ): IO<R & R1, E, A> {
   return uninterruptibleMask(({ restore }) =>
     restore(ma).matchCauseIO(
-      (cause) => (cause.interrupted ? cleanup(cause.interruptors) : IO.failCauseNow(cause)),
+      (cause) =>
+        cause.interrupted ? cleanup(cause.interruptors).apSecond(IO.failCauseNow(cause)) : IO.failCauseNow(cause),
       IO.succeedNow,
     ),
   );

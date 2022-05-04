@@ -1168,9 +1168,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.98":
-  version: 0.0.98
-  resolution: "@tsplus/installer@npm:0.0.98"
+"@tsplus/installer@npm:0.0.99":
+  version: 0.0.99
+  resolution: "@tsplus/installer@npm:0.0.99"
   dependencies:
     mkdirp: ^1.0.4
     rimraf: ^3.0.2
@@ -1179,7 +1179,7 @@ __metadata:
     zlib: ^1.0.5
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: c464cf5e0d952917079fa78c34caf3dbc7d63c3dc5545fe3d466c2893d53531681228cddfc6d1e0e01e02b131fc9f9e117a8dbbd0500d704cd72cc475bd0be78
+  checksum: 7d30433e64ab8b4367bc9017ddc1f42f8d380fa06c86254581efc851f6e0d8430cd80ecca85609425cc070f00683d7a9123211c10cec6fd8475c98a6e0344395
   languageName: node
   linkType: hard
 
@@ -3802,7 +3802,7 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": ^7.17.9
     "@changesets/changelog-git": ^0.1.11
     "@changesets/cli": ^2.22.0
-    "@tsplus/installer": 0.0.98
+    "@tsplus/installer": 0.0.99
     "@types/benchmark": ^2.1.1
     "@typescript-eslint/eslint-plugin": ^5.18.0
     "@typescript-eslint/experimental-utils": ^5.18.0
@@ -7221,12 +7221,12 @@ __metadata:
   linkType: hard
 
 "typescript@npm:^4.6.2":
-  version: 4.6.3
-  resolution: "typescript@npm:4.6.3"
+  version: 4.6.4
+  resolution: "typescript@npm:4.6.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 255bb26c8cb846ca689dd1c3a56587af4f69055907aa2c154796ea28ee0dea871535b1c78f85a6212c77f2657843a269c3a742d09d81495b97b914bf7920415b
+  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
   languageName: node
   linkType: hard
 
@@ -7241,12 +7241,12 @@ __metadata:
   linkType: hard
 
 "typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>":
-  version: 4.6.3
-  resolution: "typescript@patch:typescript@npm%3A4.6.3#~builtin<compat/typescript>::version=4.6.3&hash=bda367"
+  version: 4.6.4
+  resolution: "typescript@patch:typescript@npm%3A4.6.4#~builtin<compat/typescript>::version=4.6.4&hash=bda367"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 6bf45caf847062420592e711bc9c28bf5f9a9a7fa8245343b81493e4ededae33f1774009d1234d911422d1646a2c839f44e1a23ecb111b40a60ac2ea4c1482a8
+  checksum: 1cb434fbc637d347be90e3a0c6cd05e33c38f941713c8786d3031faf1842c2c148ba91d2fac01e7276b0ae3249b8633f1660e32686cc7a8c6a8fd5361dc52c66
   languageName: node
   linkType: hard
 
