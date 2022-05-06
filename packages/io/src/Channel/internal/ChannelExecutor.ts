@@ -197,7 +197,7 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
     switch (state._tag) {
       case State.ChannelStateTag.Emit: {
         const emitEffect = current.onEmit(current.upstream.getEmit());
-        if (readStack === undefined) {
+        if (readStack.isEmpty) {
           if (emitEffect === null) {
             return IO.defer(cont());
           } else {
@@ -213,7 +213,7 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
       }
       case State.ChannelStateTag.Done: {
         const doneEffect = current.onDone(current.upstream.getDone());
-        if (readStack === undefined) {
+        if (readStack.isEmpty) {
           if (doneEffect === null) {
             return IO.defer(cont());
           } else {

@@ -592,15 +592,16 @@ export function size<A>(self: Iterable<A>): number {
 export function take<A>(self: Iterable<A>, n: number): Iterable<A> {
   return Iterable.make<A>(() => {
     let done       = false;
-    const i        = 0;
+    let i          = 0;
     let value: IteratorResult<A>;
     const iterator = self[Symbol.iterator]();
     return {
       next() {
-        if (done || i > n) {
+        if (done || i >= n) {
           return this.return!();
         }
         value = iterator.next();
+        i++;
         if (value.done) {
           this.return!();
         }

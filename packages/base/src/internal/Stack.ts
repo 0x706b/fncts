@@ -13,6 +13,10 @@ export class Stack<A> {
     return !!this.node;
   }
 
+  get isEmpty(): boolean {
+    return !this.hasNext;
+  }
+
   peek(): A | undefined {
     if (this.node) {
       return this.node.value;

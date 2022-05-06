@@ -309,7 +309,7 @@ class AppendN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.start.asIterable.concat(this.buffer).take(this.bufferUsed)[Symbol.iterator]() as Iterator<A>;
+    return this.start.asIterable.concat(this.buffer.asIterable.take(this.bufferUsed))[Symbol.iterator]() as Iterator<A>;
   }
 
   append<A1>(a: A1): ConcImplementation<A | A1> {
