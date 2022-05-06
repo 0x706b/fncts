@@ -2023,7 +2023,25 @@ export function mapIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
   f: (a: A) => IO<R1, E1, B>,
 ): Stream<R & R1, E | E1, B> {
-  return stream.loopOnPartialChunksElements((a, emit) => f(a).flatMap(emit));
+  return new Stream(stream.channel.pipeTo(mapIOLoop(Iterable.empty<A>()[Symbol.iterator](), f)));
+}
+
+function mapIOLoop<R, E, A, R1, E1, B>(
+  iterator: Iterator<A>,
+  f: (a: A) => IO<R1, E1, B>,
+): Channel<R & R1, E, Conc<A>, unknown, E | E1, Conc<B>, unknown> {
+  const next = iterator.next();
+  if (next.done) {
+    return Channel.readWithCause(
+      (elem) => mapIOLoop(elem[Symbol.iterator](), f),
+      Channel.failCauseNow,
+      Channel.succeedNow,
+    );
+  } else {
+    return Channel.unwrap(
+      f(next.value).map((b) => Channel.writeNow(Conc.single(b)) > mapIOLoop<R, E, A, R1, E1, B>(iterator, f)),
+    );
+  }
 }
 
 /**

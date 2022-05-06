@@ -702,8 +702,8 @@ export function fromInput<Err, Elem, Done>(
  *
  * @tsplus static fncts.io.ChannelOps fromIO
  */
-export function fromIO<R, E, A>(io: IO<R, E, A>): Channel<R, unknown, unknown, unknown, E, never, A> {
-  return new FromIO(io);
+export function fromIO<R, E, A>(io: Lazy<IO<R, E, A>>): Channel<R, unknown, unknown, unknown, E, never, A> {
+  return Channel.defer(new FromIO(io()));
 }
 
 /**
@@ -1238,7 +1238,7 @@ export const unit: Channel<unknown, unknown, unknown, unknown, never, never, voi
  * @tsplus static fncts.io.ChannelOps unwrap
  */
 export function unwrap<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
-  self: IO<R, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
+  self: Lazy<IO<R, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>>,
 ): Channel<R & Env, InErr, InElem, InDone, E | OutErr, OutElem, OutDone> {
   return Channel.fromIO(self).flatten;
 }
