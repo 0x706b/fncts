@@ -669,23 +669,28 @@ export function collectWhileIO_<R, E, A, R1, E1, B>(
   stream: Stream<R, E, A>,
   pf: (a: A) => Maybe<IO<R1, E1, B>>,
 ): Stream<R & R1, E | E1, B> {
-  return stream.loopOnPartialChunks((chunk, emit) => {
-    const pfJust = (a: A) =>
-      pf(a).match(
-        () => IO.succeedNow(false),
-        (effect) => effect.flatMap(emit).as(true),
-      );
+  return new Stream(stream.channel.pipeTo(collectWhileIOLoop(Iterable.empty<A>()[Symbol.iterator](), pf)));
+}
 
-    const loop = (chunk: Conc<A>): IO<R1, E1, boolean> => {
-      if (chunk.isEmpty) {
-        return IO.succeedNow(true);
-      } else {
-        return pfJust(chunk.unsafeHead).flatMap((cont) => (cont ? loop(chunk.unsafeTail) : IO.succeedNow(false)));
-      }
-    };
-
-    return loop(chunk);
-  });
+function collectWhileIOLoop<R, E, A, R1, E1, B>(
+  iterator: Iterator<A>,
+  pf: (a: A) => Maybe<IO<R1, E1, B>>,
+): Channel<R & R1, E, Conc<A>, unknown, E | E1, Conc<B>, unknown> {
+  const next = iterator.next();
+  if (next.done) {
+    return Channel.readWithCause(
+      (elem) => collectWhileIOLoop(elem[Symbol.iterator](), pf),
+      Channel.failCauseNow,
+      Channel.succeedNow,
+    );
+  } else {
+    return Channel.unwrap(
+      pf(next.value).match(
+        () => IO.succeedNow(Channel.unit),
+        (b) => b.map((b) => Channel.writeNow(Conc.single(b)) > collectWhileIOLoop<R, E, A, R1, E1, B>(iterator, pf)),
+      ),
+    );
+  }
 }
 
 function combineProducer<Err, Elem>(
@@ -1274,7 +1279,29 @@ export function filterIO_<R, E, A, R1, E1>(
   fa: Stream<R, E, A>,
   f: (a: A) => IO<R1, E1, boolean>,
 ): Stream<R & R1, E | E1, A> {
-  return fa.loopOnPartialChunksElements((a, emit) => f(a).flatMap((r) => (r ? emit(a) : IO.unit)));
+  return new Stream(fa.channel.pipeTo(filterIOLoop(Iterable.empty<A>()[Symbol.iterator](), f)));
+}
+
+function filterIOLoop<R, E, A, R1, E1>(
+  iterator: Iterator<A>,
+  f: (a: A) => IO<R1, E1, boolean>,
+): Channel<R & R1, E, Conc<A>, unknown, E | E1, Conc<A>, unknown> {
+  const next = iterator.next();
+  if (next.done) {
+    return Channel.readWithCause(
+      (elem) => filterIOLoop(elem[Symbol.iterator](), f),
+      Channel.failCauseNow,
+      Channel.succeedNow,
+    );
+  } else {
+    return Channel.unwrap(
+      f(next.value).map((b) =>
+        b
+          ? Channel.writeNow(Conc.single(next.value)) > filterIOLoop<R, E, A, R1, E1>(iterator, f)
+          : filterIOLoop<R, E, A, R1, E1>(iterator, f),
+      ),
+    );
+  }
 }
 
 /**
@@ -1291,7 +1318,30 @@ export function filterMapIO_<R, E, A, R1, E1, B>(
   fa: Stream<R, E, A>,
   f: (a: A) => IO<R1, E1, Maybe<B>>,
 ): Stream<R & R1, E | E1, B> {
-  return fa.loopOnPartialChunksElements((a, emit) => f(a).flatMap((maybeB) => maybeB.match(() => IO.unit, emit)));
+  return new Stream(fa.channel.pipeTo(filterMapIOLoop<R, E, A, R1, E1, B>(Iterable.empty<A>()[Symbol.iterator](), f)));
+}
+
+function filterMapIOLoop<R, E, A, R1, E1, B>(
+  iterator: Iterator<A>,
+  f: (a: A) => IO<R1, E1, Maybe<B>>,
+): Channel<R & R1, E, Conc<A>, unknown, E | E1, Conc<B>, unknown> {
+  const next = iterator.next();
+  if (next.done) {
+    return Channel.readWithCause(
+      (elem) => filterMapIOLoop(elem[Symbol.iterator](), f),
+      Channel.failCauseNow,
+      Channel.succeedNow,
+    );
+  } else {
+    return Channel.unwrap(
+      f(next.value).map((b) =>
+        b.match(
+          () => filterMapIOLoop(iterator, f),
+          (b) => Channel.writeNow(Conc.single(b)) > filterMapIOLoop<R, E, A, R1, E1, B>(iterator, f),
+        ),
+      ),
+    );
+  }
 }
 
 /**
@@ -1786,68 +1836,6 @@ export function interruptWhenFuture_<R, E, A, E1>(
   future: Future<E1, unknown>,
 ): Stream<R, E | E1, A> {
   return new Stream(fa.channel.interruptWhen(future));
-}
-
-/**
- * Loops over the stream chunks concatenating the result of f
- *
- * @tsplus fluent fncts.io.Stream loopOnChunks
- */
-export function loopOnChunks_<R, E, A, R1, E1, A1>(
-  stream: Stream<R, E, A>,
-  f: (a: Conc<A>) => Channel<R1, E | E1, Conc<A>, unknown, E | E1, Conc<A1>, boolean>,
-): Stream<R & R1, E | E1, A1> {
-  const loop: Channel<R1, E | E1, Conc<A>, unknown, E | E1, Conc<A1>, boolean> = Channel.readWithCause(
-    (chunk) => f(chunk).flatMap((cont) => (cont ? loop : Channel.endNow(false))),
-    Channel.failCauseNow,
-    (_) => Channel.succeedNow(false),
-  );
-  return new Stream(stream.channel.pipeTo(loop));
-}
-
-/**
- * Loops on chunks emitting partially
- *
- * @tsplus fluent fncts.io.Stream loopOnPartialChunks
- */
-export function loopOnPartialChunks_<R, E, A, R1, E1, A1>(
-  stream: Stream<R, E, A>,
-  f: (a: Conc<A>, emit: (a: A1) => UIO<void>) => IO<R1, E1, boolean>,
-): Stream<R & R1, E | E1, A1> {
-  return stream.loopOnChunks((chunk) =>
-    Channel.unwrap(
-      IO.defer(() => {
-        let outputChunk = Conc.empty<A1>();
-        return f(chunk, (a) =>
-          IO.succeed(() => {
-            outputChunk = outputChunk.append(a);
-          }),
-        )
-          .map((cont) => Channel.write(outputChunk).apSecond(Channel.endNow(cont)))
-          .catchAll((failure) =>
-            IO.succeed(() => {
-              if (outputChunk.isEmpty) {
-                return Channel.failNow(failure);
-              } else {
-                return Channel.writeNow(outputChunk).apSecond(Channel.failNow(failure));
-              }
-            }),
-          );
-      }),
-    ),
-  );
-}
-
-/**
- * Loops on chunks elements emitting partially
- *
- * @tsplus fluent fncts.io.Stream loopOnPartialChunksElements
- */
-export function loopOnPartialChunksElements_<R, E, A, R1, E1, A1>(
-  stream: Stream<R, E, A>,
-  f: (a: A, emit: (a: A1) => UIO<void>) => IO<R1, E1, void>,
-): Stream<R & R1, E | E1, A1> {
-  return stream.loopOnPartialChunks((as, emit) => as.mapIO((a) => f(a, emit)).as(true));
 }
 
 /**
@@ -2600,11 +2588,29 @@ export function takeUntilIO_<R, E, A, R1, E1>(
   ma: Stream<R, E, A>,
   f: (a: A) => IO<R1, E1, boolean>,
 ): Stream<R & R1, E | E1, A> {
-  return ma.loopOnPartialChunks((chunk, emit) =>
-    chunk
-      .takeWhileIO((v) => emit(v).apSecond(f(v).map((b) => !b)))
-      .map((taken) => taken.drop(taken.length).take(1).isEmpty),
-  );
+  return new Stream(ma.channel.pipeTo(takeUntilIOLoop(Iterable.empty<A>()[Symbol.iterator](), f)));
+}
+
+function takeUntilIOLoop<R, E, A, R1, E1>(
+  iterator: Iterator<A>,
+  f: (a: A) => IO<R1, E1, boolean>,
+): Channel<R & R1, E, Conc<A>, unknown, E | E1, Conc<A>, unknown> {
+  const next = iterator.next();
+  if (next.done) {
+    return Channel.readWithCause(
+      (elem) => takeUntilIOLoop(elem[Symbol.iterator](), f),
+      Channel.failCauseNow,
+      Channel.succeedNow,
+    );
+  } else {
+    return Channel.unwrap(
+      f(next.value).map((b) =>
+        b
+          ? Channel.writeNow(Conc.single(next.value))
+          : Channel.writeNow(Conc.single(next.value)) > takeUntilIOLoop<R, E, A, R1, E1>(iterator, f),
+      ),
+    );
+  }
 }
 
 function takeUntilLoop<R, E, A>(p: Predicate<A>): Channel<R, E, Conc<A>, unknown, E, Conc<A>, unknown> {
