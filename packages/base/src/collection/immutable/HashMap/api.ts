@@ -60,7 +60,7 @@ export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.S
     return F.foldLeft_(fka, makeWith(config), (b, [k, a]) => {
       const oa = b.get(k);
       if (oa.isJust()) {
-        return b.set(k, S.combine_(oa.value, a));
+        return b.set(k, S.combine(oa.value, a));
       } else {
         return b.set(k, a);
       }
@@ -117,7 +117,7 @@ export function has_<K, V>(map: HashMap<K, V>, key: K): boolean {
  */
 export function modifyHash_<K, V>(map: HashMap<K, V>, key: K, hash: number, f: UpdateFn<V>): HashMap<K, V> {
   const size    = { value: map.size };
-  const newRoot = map.root.modify(map.editable ? map.edit : NaN, map.config.equals_, 0, f, hash, key, size);
+  const newRoot = map.root.modify(map.editable ? map.edit : NaN, map.config.equals, 0, f, hash, key, size);
   return setTree(map, newRoot, size.value);
 }
 
@@ -688,7 +688,7 @@ function setTree<K, V>(map: HashMap<K, V>, newRoot: Node<K, V>, newSize: number)
 function tryGetHash<K, V>(map: HashMap<K, V>, key: K, hash: number): Maybe<V> {
   let node    = map.root;
   let shift   = 0;
-  const keyEq = map.config.equals_;
+  const keyEq = map.config.equals;
 
   // eslint-disable-next-line no-constant-condition
   while (true) {

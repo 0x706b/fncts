@@ -15,27 +15,36 @@ export interface EitherF extends HKT {
  */
 export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
   return P.Eq({
-    equals_: (x, y) =>
+    equals: (x, y) =>
       x === y ||
       x.match(
         (e1) =>
           y.match(
-            (e2) => EE.equals_(e1, e2),
+            (e2) => EE.equals(e1, e2),
             () => false,
           ),
         (a1) =>
           y.match(
             () => false,
-            (a2) => EA.equals_(a1, a2),
+            (a2) => EA.equals(a1, a2),
           ),
       ),
   });
 }
 
 /**
- * @tsplus static fncts.EitherOps getEq
+ * @tsplus derive fncts.Eq[fncts.Either]<_> 10
  */
-export function getFilerable<E>(ME: P.Monoid<E>) {
+export function deriveEq<A extends Either<any, any>>(
+  ...[left, right]: [A] extends [Either<infer E, infer A>] ? [left: P.Eq<E>, right: P.Eq<A>] : never
+): P.Eq<A> {
+  return Either.getEq(left, right);
+}
+
+/**
+ * @tsplus static fncts.EitherOps getFilterable
+ */
+export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterable<EitherF, HKT.Fix<"E", E>> {
   type FixE = HKT.Fix<"E", E>;
 
   const empty = Left(ME.nat);

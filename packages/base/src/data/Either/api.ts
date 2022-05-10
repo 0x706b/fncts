@@ -65,19 +65,10 @@ export function foldRight_<E, A, B>(self: Either<E, A>, b: B, f: (a: A, b: B) =>
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.Either foldMap
  */
-export function foldMap_<M>(M: P.Monoid<M>) {
-  return <E, A>(self: Either<E, A>, f: (a: A) => M): M => (self._tag === EitherTag.Left ? M.nat : f(self.right));
-}
-
-/**
- * @tsplus getter fncts.Either foldMap
- */
-export function foldMapSelf<E, A>(self: Either<E, A>) {
-  return <M>(M: P.Monoid<M>) =>
-    (f: (a: A) => M): M =>
-      foldMap_(M)(self, f);
+export function foldMap_<E, A, M>(self: Either<E, A>, f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
+  return self._tag === EitherTag.Left ? M.nat : f(self.right);
 }
 
 /**

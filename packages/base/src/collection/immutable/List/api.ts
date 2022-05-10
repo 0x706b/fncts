@@ -252,15 +252,11 @@ export function reverse<A>(self: List<A>): List<A> {
   return result;
 }
 
-export function sort<A>(O: P.Ord<A>) {
-  return (self: List<A>): List<A> => sortWith_(self, O.compare_);
-}
-
 /**
  * @tsplus fluent fncts.List sort
  */
-export function sortSelf<A>(self: List<A>, O: P.Ord<A>): List<A> {
-  return self.sortWith(O.compare_);
+export function sort<A>(self: List<A>, /** @tsplus auto */ O: P.Ord<A>): List<A> {
+  return sortWith_(self, O.compare);
 }
 
 /**

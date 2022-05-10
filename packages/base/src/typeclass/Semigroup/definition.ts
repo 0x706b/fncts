@@ -1,4 +1,4 @@
-import type { Closure, combine_ } from "@fncts/base/typeclass/Closure";
+import type { Closure } from "@fncts/base/typeclass/Closure";
 
 import { mkClosure } from "@fncts/base/typeclass/Closure";
 
@@ -14,11 +14,7 @@ export interface SemigroupOps {}
 
 export const Semigroup: SemigroupOps = {};
 
-export type SemigroupMin<A> = {
-  combine_: combine_<A>;
-};
-
 /**
  * @tsplus static fncts.SemigroupOps __call
  */
-export const mkSemigroup: <A>(F: SemigroupMin<A>) => Semigroup<A> = mkClosure;
+export const mkSemigroup = mkClosure;

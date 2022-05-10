@@ -314,43 +314,27 @@ export function foldLeft_<A, B>(self: Iterable<A>, b: B, f: (b: B, a: A) => B): 
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.Iterable foldMap
  */
-export function foldMap_<M>(M: P.Monoid<M>) {
-  return <A>(self: Iterable<A>, f: (a: A) => M): M => self.foldMapWithIndex(M)((_, a) => f(a));
+export function foldMap_<A, M>(self: Iterable<A>, f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
+  return self.foldMapWithIndex((_, a) => f(a), M);
 }
 
 /**
- * @tsplus getter fncts.Iterable foldMap
+ * @tsplus fluent fncts.Iterable foldMapWithIndex
  */
-export function foldMapSelf<A>(self: Iterable<A>) {
-  return <M>(M: P.Monoid<M>) =>
-    (f: (a: A) => M): M =>
-      self.foldMapWithIndex(M)((_, a) => f(a));
-}
-
-/**
- * @constrained
- */
-export function foldMapWithIndex_<M>(M: P.Monoid<M>) {
-  return <A>(self: Iterable<A>, f: (i: number, a: A) => M): M => {
-    let res = M.nat;
-    let n   = -1;
-    for (const value of self) {
-      n  += 1;
-      res = M.combine_(res, f(n, value));
-    }
-    return res;
-  };
-}
-
-/**
- * @tsplus getter fncts.Iterable foldMapWithIndex
- */
-export function foldMapWithIndexSelf<A>(self: Iterable<A>) {
-  return <M>(M: P.Monoid<M>) =>
-    (f: (i: number, a: A) => M): M =>
-      foldMapWithIndex_(M)(self, f);
+export function foldMapWithIndex_<A, M>(
+  self: Iterable<A>,
+  f: (i: number, a: A) => M,
+  /** @tsplus auto */ M: P.Monoid<M>,
+): M {
+  let res = M.nat;
+  let n   = -1;
+  for (const value of self) {
+    n  += 1;
+    res = M.combine(res, f(n, value));
+  }
+  return res;
 }
 
 /**

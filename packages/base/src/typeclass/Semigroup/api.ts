@@ -7,7 +7,7 @@ import { Semigroup } from "@fncts/base/typeclass/Semigroup/definition";
  */
 export function min<A>(O: Ord<A>): Semigroup<A> {
   return Semigroup({
-    combine_: O.min,
+    combine: O.min,
   });
 }
 
@@ -16,6 +16,6 @@ export function min<A>(O: Ord<A>): Semigroup<A> {
  */
 export function max<A>(O: Ord<A>): Semigroup<A> {
   return Semigroup({
-    combine_: O.max,
+    combine: O.max,
   });
 }

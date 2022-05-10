@@ -81,7 +81,7 @@ export class HashSet<A> implements Iterable<A> {
       const old                     = n;
       let prev: Node<A> | undefined = undefined;
       while (n !== undefined && n.hash <= hash) {
-        if (n.hash === hash && this.config.equals_(elem, n.key)) {
+        if (n.hash === hash && this.config.equals(elem, n.key)) {
           return false;
         }
         prev = n;
@@ -102,7 +102,7 @@ export class HashSet<A> implements Iterable<A> {
     const n   = this.table[idx];
     if (n === undefined) {
       return false;
-    } else if (n.hash === hash && this.config.equals_(n.key, elem)) {
+    } else if (n.hash === hash && this.config.equals(n.key, elem)) {
       this.table[idx]   = n.next;
       this.contentSize -= 1;
       return true;
@@ -110,7 +110,7 @@ export class HashSet<A> implements Iterable<A> {
       let prev = n;
       let next = n.next;
       while (next && next.hash <= hash) {
-        if (next.hash === hash && this.config.equals_(next.key, elem)) {
+        if (next.hash === hash && this.config.equals(next.key, elem)) {
           prev.next         = next.next;
           this.contentSize -= 1;
           return true;
@@ -137,7 +137,7 @@ export class HashSet<A> implements Iterable<A> {
   private findNode(key: A): Node<A> | undefined {
     const hash = this.computeHash(key);
     const n    = this.table[this.index(hash)];
-    return n === undefined ? n : n.findNode(key, hash, this.config.equals_);
+    return n === undefined ? n : n.findNode(key, hash, this.config.equals);
   }
 
   private growTable(newLen: number) {

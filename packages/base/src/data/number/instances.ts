@@ -3,13 +3,15 @@ import { EQ, GT, LT } from "../../typeclass.js";
 
 /**
  * @tsplus static fncts.NumberOps Eq
+ * @tsplus implicit
  */
-export const Eq: P.Eq<number> = P.Eq({ equals_: (x, y) => x === y });
+export const Eq: P.Eq<number> = P.Eq({ equals: (x, y) => x === y });
 
 /**
  * @tsplus static fncts.NumberOps Ord
+ * @tsplus implicit
  */
 export const Ord: P.Ord<number> = P.Ord({
-  compare_: (x, y) => (x < y ? LT : x > y ? GT : EQ),
-  equals_: (x, y) => x === y,
+  compare: (x, y) => (x < y ? LT : x > y ? GT : EQ),
+  equals: (x, y) => x === y,
 });

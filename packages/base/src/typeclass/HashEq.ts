@@ -1,4 +1,3 @@
-import type { EqMin } from "./Eq.js";
 import type { Hash } from "./Hash.js";
 
 import { Eq } from "./Eq.js";
@@ -15,7 +14,7 @@ export interface HashEqOps {}
 
 export const HashEq: HashEqOps = {};
 
-export type HashEqMin<A> = Hash<A> & EqMin<A>;
+export type HashEqMin<A> = Hash<A> & Eq<A>;
 
 /**
  * @tsplus static fncts.HashEqOps __call
@@ -32,7 +31,7 @@ export function mkHashEq<A>(F: HashEqMin<A>): HashEq<A> {
  */
 export const StructuralStrict = HashEq({
   hash: Hashable.unknown,
-  equals_: Equatable.strictEquals,
+  equals: Equatable.strictEquals,
 });
 
 /**
@@ -40,5 +39,5 @@ export const StructuralStrict = HashEq({
  */
 export const StructuralDeep = HashEq({
   hash: Hashable.unknown,
-  equals_: Equatable.deepEquals,
+  equals: Equatable.deepEquals,
 });

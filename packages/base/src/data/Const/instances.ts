@@ -14,8 +14,8 @@ export interface ConstF extends HKT {
  */
 export function getApply<E>(S: P.Semigroup<E>): P.Apply<ConstF, HKT.Fix<"E", E>> {
   type CE = HKT.Fix<"E", E>;
-  const ap_: P.ap_<ConstF, CE>           = (fab, fa) => Const(S.combine_(fab, fa));
-  const zipWith_: P.zipWith_<ConstF, CE> = (fa, fb, _f) => Const(S.combine_(fa, fb));
+  const ap_: P.ap_<ConstF, CE>           = (fab, fa) => Const(S.combine(fab, fa));
+  const zipWith_: P.zipWith_<ConstF, CE> = (fa, fb, _f) => Const(S.combine(fa, fb));
   return P.Apply({
     map_,
     ap_,

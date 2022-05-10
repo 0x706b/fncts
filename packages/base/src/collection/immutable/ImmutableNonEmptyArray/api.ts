@@ -168,28 +168,17 @@ export function crossWith_<A, B, C>(
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.ImmutableNonEmptyArray elem
  */
-export function elem_<A>(E: P.Eq<A>) {
-  return (self: ImmutableNonEmptyArray<A>, a: A): boolean => {
-    const p   = (element: A) => E.equals_(a, element);
-    const len = self.length;
-    for (let i = 0; i < len; i++) {
-      if (p(self._array[i]!)) {
-        return true;
-      }
+export function elem_<A>(self: ImmutableNonEmptyArray<A>, a: A, /** @tsplus auto */ E: P.Eq<A>): boolean {
+  const p   = (element: A) => E.equals(a, element);
+  const len = self.length;
+  for (let i = 0; i < len; i++) {
+    if (p(self._array[i]!)) {
+      return true;
     }
-    return false;
-  };
-}
-
-/**
- * @tsplus getter fncts.ImmutableNonEmptyArray elem
- */
-export function elemSelf<A>(self: ImmutableNonEmptyArray<A>) {
-  return (E: P.Eq<A>) =>
-    (a: A): boolean =>
-      elem_(E)(self, a);
+  }
+  return false;
 }
 
 /**
@@ -200,17 +189,10 @@ export function flatten<A>(self: ImmutableNonEmptyArray<ImmutableNonEmptyArray<A
 }
 
 /**
- * @constrained
- */
-export function fold_<A>(S: P.Semigroup<A>) {
-  return (self: ImmutableNonEmptyArray<A>): A => self.slice(1).foldLeft(self._array[0], S.combine_);
-}
-
-/**
  * @tsplus fluent fncts.ImmutableNonEmptyArray fold
  */
-export function foldSelf<A>(self: ImmutableNonEmptyArray<A>, S: P.Semigroup<A>): A {
-  return fold_(S)(self);
+export function fold_<A>(self: ImmutableNonEmptyArray<A>, /** @tsplus auto */ S: P.Semigroup<A>): A {
+  return self.slice(1).foldLeft(self._array[0], S.combine);
 }
 
 /**
@@ -233,39 +215,21 @@ export function foldLeftWithIndex_<A, B>(self: ImmutableNonEmptyArray<A>, b: B, 
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.ImmutableNonEmptyArray foldMapWithIndex
  */
-export function foldMapWithIndex_<M>(M: P.Monoid<M>) {
-  return <A>(self: ImmutableNonEmptyArray<A>, f: (i: number, a: A) => M): M => {
-    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine_(b, f(i, a)));
-  };
+export function foldMapWithIndex_<A, M>(
+  self: ImmutableNonEmptyArray<A>,
+  f: (i: number, a: A) => M,
+  /** @tsplus auto */ M: P.Monoid<M>,
+): M {
+  return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
 }
 
 /**
- * @tsplus getter fncts.ImmutableNonEmptyArray foldMapWithIndex
+ * @tsplus fluent fncts.ImmutableNonEmptyArray foldMap
  */
-export function foldMapWithIndexSelf<A>(self: ImmutableNonEmptyArray<A>) {
-  return <M>(M: P.Monoid<M>) =>
-    (f: (i: number, a: A) => M): M =>
-      foldMapWithIndex_(M)(self, f);
-}
-
-/**
- * @constrained
- */
-export function foldMap_<M>(M: P.Monoid<M>) {
-  return <A>(self: ImmutableNonEmptyArray<A>, f: (a: A) => M): M => {
-    return self.foldMapWithIndex(M)((_, a) => f(a));
-  };
-}
-
-/**
- * @tsplus getter fncts.ImmutableNonEmptyArray foldMap
- */
-export function foldMapSelf<A>(self: ImmutableNonEmptyArray<A>) {
-  return <M>(M: P.Monoid<M>) =>
-    (f: (a: A) => M): M =>
-      self.foldMapWithIndex(M)((_, a) => f(a));
+export function foldMap_<A, M>(self: ImmutableNonEmptyArray<A>, f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
+  return self.foldMapWithIndex((_, a) => f(a), M);
 }
 
 /**
@@ -286,38 +250,34 @@ export function foldRightWithIndex_<A, B>(self: ImmutableNonEmptyArray<A>, b: B,
   return r;
 }
 
-export function group<A>(E: P.Eq<A>) {
-  return (self: ImmutableNonEmptyArray<A>): ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>> => {
-    return self.chop((as) => {
-      const h   = as._array[0];
-      const out = [h];
-      let i     = 1;
-      for (; i < as.length; i++) {
-        const a = as._array[i]!;
-        if (E.equals_(a, h)) {
-          out.push(a);
-        } else {
-          break;
-        }
-      }
-      return [out.unsafeAsNonEmptyArray, as.slice(i)];
-    });
-  };
-}
-
 /**
- * @tsplus getter fncts.ImmutableNonEmptyArray group
+ * @tsplus fluent fncts.ImmutableNonEmptyArray group
  */
-export function groupSelf<A>(self: ImmutableNonEmptyArray<A>) {
-  return (E: P.Eq<A>): ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>> => group(E)(self);
+export function group<A>(
+  self: ImmutableNonEmptyArray<A>,
+  /** @tsplus auto */ E: P.Eq<A>,
+): ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>> {
+  return self.chop((as) => {
+    const h   = as._array[0];
+    const out = [h];
+    let i     = 1;
+    for (; i < as.length; i++) {
+      const a = as._array[i]!;
+      if (E.equals(a, h)) {
+        out.push(a);
+      } else {
+        break;
+      }
+    }
+    return [out.unsafeAsNonEmptyArray, as.slice(i)];
+  });
 }
 
 export function groupSort<A>(
-  O: P.Ord<A>,
-): (as: ImmutableNonEmptyArray<A>) => ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>> {
-  const sortO  = sort(O);
-  const groupO = group(O);
-  return (as) => groupO(sortO(as));
+  as: ImmutableNonEmptyArray<A>,
+  /** @tsplus auto */ O: P.Ord<A>,
+): ImmutableNonEmptyArray<ImmutableNonEmptyArray<A>> {
+  return as.sort(O).group(O);
 }
 
 /**
@@ -348,34 +308,22 @@ export function mapWithIndex_<A, B>(
   return ImmutableNonEmptyArray.from(out);
 }
 
-export function max<A>(O: P.Ord<A>) {
-  const S = P.Semigroup.max(O);
-  return (self: ImmutableNonEmptyArray<A>): A => {
-    const [head, tail] = self.unprepend;
-    return tail.isNonEmpty() ? tail.foldLeft(head, S.combine_) : head;
-  };
+/**
+ * @tsplus fluent fncts.ImmutableNonEmptyArray max
+ */
+export function max<A>(self: ImmutableNonEmptyArray<A>, /** @tsplus auto */ O: P.Ord<A>): A {
+  const S            = P.Semigroup.max(O);
+  const [head, tail] = self.unprepend;
+  return tail.isNonEmpty() ? tail.foldLeft(head, S.combine) : head;
 }
 
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray max
  */
-export function maxSelf<A>(self: ImmutableNonEmptyArray<A>, O: P.Ord<A>): A {
-  return max(O)(self);
-}
-
-export function min<A>(O: P.Ord<A>) {
-  const S = P.Semigroup.min(O);
-  return (self: ImmutableNonEmptyArray<A>): A => {
-    const [head, tail] = self.unprepend;
-    return tail.isNonEmpty() ? tail.foldLeft(head, S.combine_) : head;
-  };
-}
-
-/**
- * @tsplus fluent fncts.ImmutableNonEmptyArray max
- */
-export function minSelf<A>(self: ImmutableNonEmptyArray<A>, O: P.Ord<A>): A {
-  return max(O)(self);
+export function min<A>(self: ImmutableNonEmptyArray<A>, /** @tsplus auto */ O: P.Ord<A>): A {
+  const S            = P.Semigroup.min(O);
+  const [head, tail] = self.unprepend;
+  return tail.isNonEmpty() ? tail.foldLeft(head, S.combine) : head;
 }
 
 /**
@@ -433,18 +381,13 @@ export function splitAt_<A>(
     : [self._array.slice(0, m).unsafeAsNonEmptyArray, self.slice(m)];
 }
 
-export function sort<B>(O: P.Ord<B>) {
-  return <A extends B>(self: ImmutableNonEmptyArray<A>): ImmutableNonEmptyArray<A> =>
-    self.length === 1
-      ? self
-      : self._array.slice().sort((first, second) => O.compare_(first, second)).unsafeAsNonEmptyArray;
-}
-
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray sort
  */
-export function sortSelf<A extends B, B>(self: ImmutableNonEmptyArray<A>, O: P.Ord<B>): ImmutableNonEmptyArray<A> {
-  return sort(O)(self);
+export function sort<A>(self: ImmutableNonEmptyArray<A>, /** @tsplus auto */ O: P.Ord<A>): ImmutableNonEmptyArray<A> {
+  return self.length === 1
+    ? self
+    : self._array.slice().sort((first, second) => O.compare(first, second)).unsafeAsNonEmptyArray;
 }
 
 export const traverseWithIndex_: P.traverseWithIndex_<ImmutableNonEmptyArrayF> =
@@ -471,29 +414,22 @@ export const traverse_: P.traverse_<ImmutableNonEmptyArrayF> = (A) => (self, f) 
 export const traverseSelf: P.traverseSelf<ImmutableNonEmptyArrayF> = (self) => (A) => (f) =>
   self.traverseWithIndex(A)((_, a) => f(a));
 
-export function uniq<A>(E: P.Eq<A>) {
-  return (self: ImmutableNonEmptyArray<A>): ImmutableNonEmptyArray<A> => {
-    if (self.length === 1) {
-      return self;
-    }
-    const elemE_ = elem_(E);
-    const out    = [self._array[0]];
-    const len    = self.length;
-    for (let i = 1; i < len; i++) {
-      const a = self._array[i]!;
-      if (!elemE_(out.unsafeAsNonEmptyArray, a)) {
-        out.push(a);
-      }
-    }
-    return out.unsafeAsNonEmptyArray;
-  };
-}
-
 /**
- * @tsplus getter fncts.ImmutableNonEmptyArray uniq
+ * @tsplus fluent fncts.ImmutableNonEmptyArray uniq
  */
-export function uniqSelf<A>(self: ImmutableNonEmptyArray<A>) {
-  return (E: P.Eq<A>): ImmutableNonEmptyArray<A> => uniq(E)(self);
+export function uniq<A>(self: ImmutableNonEmptyArray<A>, /** @tsplus auto */ E: P.Eq<A>): ImmutableNonEmptyArray<A> {
+  if (self.length === 1) {
+    return self;
+  }
+  const out = [self._array[0]];
+  const len = self.length;
+  for (let i = 1; i < len; i++) {
+    const a = self._array[i]!;
+    if (!out.unsafeAsNonEmptyArray.elem(a, E)) {
+      out.push(a);
+    }
+  }
+  return out.unsafeAsNonEmptyArray;
 }
 
 /**

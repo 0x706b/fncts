@@ -8,13 +8,13 @@ import { Semigroup } from "@fncts/base/typeclass/Semigroup";
  */
 export function getSemigroup<A = never>(): Semigroup<Ord<A>> {
   return Semigroup({
-    combine_: (x, y) =>
+    combine: (x, y) =>
       Ord({
-        compare_: (a1, a2) => {
-          const ox = x.compare_(a1, a2);
-          return ox !== 0 ? ox : y.compare_(a1, a2);
+        compare: (a1, a2) => {
+          const ox = x.compare(a1, a2);
+          return ox !== 0 ? ox : y.compare(a1, a2);
         },
-        equals_: (a1, a2) => x.equals_(a1, a2) && y.equals_(a1, a2),
+        equals: (a1, a2) => x.equals(a1, a2) && y.equals(a1, a2),
       }),
   });
 }
@@ -25,6 +25,6 @@ export function getSemigroup<A = never>(): Semigroup<Ord<A>> {
 export function getMonoid<A = never>(): Monoid<Ord<A>> {
   return Monoid({
     ...Ord.getSemigroup<A>(),
-    nat: Ord({ compare_: () => Ordering.EQ, equals_: () => true }),
+    nat: Ord({ compare: () => Ordering.EQ, equals: () => true }),
   });
 }

@@ -16,7 +16,7 @@ import { just } from "./constructors.js";
 export interface MaybeF extends HKT {
   readonly type: Maybe<this["A"]>;
   readonly variance: {
-    readonly A: "-";
+    readonly A: "+";
   };
 }
 

@@ -156,7 +156,7 @@ export function deepEqualTo<A>(expected: A): Assertion<A> {
 }
 
 export function equals<A>(expected: A, E: Eq<A>): Assertion<A> {
-  return Assertion.make("equals", [RenderParam(expected)], (actual) => E.equals_(actual, expected));
+  return Assertion.make("equals", [RenderParam(expected)], (actual) => E.equals(actual, expected));
 }
 
 export const isFalse: Assertion<boolean> = Assertion.make("isFale", [], (b) => !b);

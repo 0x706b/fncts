@@ -8,7 +8,7 @@ export function elem<A>(self: ReadonlyArray<A>) {
   return (eq: Eq<A>) =>
     (a: A): boolean => {
       for (let i = 0; i < self.length; i++) {
-        if (eq.equals_(self[i]!, a)) {
+        if (eq.equals(self[i]!, a)) {
           return true;
         }
       }

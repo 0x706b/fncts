@@ -761,12 +761,14 @@ export function foldLeft_<A, B, R, E>(
 /**
  * Combines an array of `IO`s using a `Monoid`
  *
- * @constrained
  * @tsplus static fncts.io.IOOps foldMap
  */
-export function foldMap_<M>(M: P.Monoid<M>) {
-  return <R, E, A>(as: Iterable<IO<R, E, A>>, f: (a: A) => M): IO<R, E, M> =>
-    IO.foldLeft(as, M.nat, (m, a) => a.map((a) => M.combine_(m, f(a))));
+export function foldMap_<R, E, A, M>(
+  as: Iterable<IO<R, E, A>>,
+  f: (a: A) => M,
+  /** @tsplus auto */ M: P.Monoid<M>,
+): IO<R, E, M> {
+  return IO.foldLeft(as, M.nat, (m, a) => a.map((a) => M.combine(m, f(a))));
 }
 
 function foldRightLoop<A, B, R, E>(

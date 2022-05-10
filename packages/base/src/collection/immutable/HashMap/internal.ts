@@ -133,7 +133,7 @@ export function canEditNode<K, V>(edit: number, node: Node<K, V>): boolean {
   return isEmptyNode(node) ? false : edit === node.edit;
 }
 
-export type KeyEq<K> = Eq<K>["equals_"];
+export type KeyEq<K> = Eq<K>["equals"];
 
 export type UpdateFn<V> = (v: Maybe<V>) => Maybe<V>;
 

@@ -169,7 +169,7 @@ export function flatMapDefault<A, B>(self: HashSet<A>, f: (a: A) => Iterable<B>)
  */
 export function getEq<A>(): P.Eq<HashSet<A>> {
   return P.Eq({
-    equals_: (x, y) => {
+    equals: (x, y) => {
       if (y === x) {
         return true;
       }
@@ -406,7 +406,7 @@ export function union_<A>(l: HashSet<A>, r: Iterable<A>): HashSet<A> {
 export function toArray_<A>(set: HashSet<A>, O: P.Ord<A>): ReadonlyArray<A> {
   const r: Array<A> = [];
   set.forEach((a) => r.push(a));
-  return r.sort(O.compare_);
+  return r.sort(O.compare);
 }
 
 /*
@@ -426,14 +426,14 @@ function setTree<A>(set: HashSet<A>, newRoot: Node<A>, newSize: number) {
 
 function modifyHash<A>(set: HashSet<A>, value: A, hash: number, remove: boolean): HashSet<A> {
   const size    = { value: set._size };
-  const newRoot = set._root.modify(remove, set._editable ? set._edit : NaN, set.config.equals_, 0, hash, value, size);
+  const newRoot = set._root.modify(remove, set._editable ? set._edit : NaN, set.config.equals, 0, hash, value, size);
   return setTree(set, newRoot, size.value);
 }
 
 function tryGetHash<A>(set: HashSet<A>, value: A, hash: number): Maybe<A> {
   let node  = set._root;
   let shift = 0;
-  const eq  = set.config.equals_;
+  const eq  = set.config.equals;
 
   // eslint-disable-next-line no-constant-condition
   while (true) {

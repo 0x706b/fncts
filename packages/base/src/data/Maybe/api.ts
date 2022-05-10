@@ -33,7 +33,7 @@ export function flatMap_<A, B>(self: Maybe<A>, f: (a: A) => Maybe<B>): Maybe<B> 
  * @constrained
  */
 export function elem_<A>(E: Eq<A>) {
-  return (self: Maybe<A>, elem: A): boolean => (self._tag === MaybeTag.Just ? E.equals_(self.value, elem) : false);
+  return (self: Maybe<A>, elem: A): boolean => (self._tag === MaybeTag.Just ? E.equals(self.value, elem) : false);
 }
 
 /**
@@ -114,19 +114,10 @@ export function foldRight_<A, B>(self: Maybe<A>, b: B, f: (a: A, b: B) => B): B 
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.Maybe foldMap
  */
-export function foldMap_<M>(M: Monoid<M>) {
-  return <A>(self: Maybe<A>, f: (a: A) => M): M => (self._tag === MaybeTag.Just ? f(self.value) : M.nat);
-}
-
-/**
- * @tsplus getter fncts.Maybe foldMap
- */
-export function foldMapSelf<A>(self: Maybe<A>) {
-  return <M>(M: Monoid<M>) =>
-    (f: (a: A) => M): M =>
-      foldMap_(M)(self, f);
+export function foldMap_<A, M>(self: Maybe<A>, f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>): M {
+  return self._tag === MaybeTag.Just ? f(self.value) : M.nat;
 }
 
 /**

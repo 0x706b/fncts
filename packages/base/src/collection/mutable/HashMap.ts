@@ -80,7 +80,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
       let prev: Node<K, V> | undefined = undefined;
       let nd: Node<K, V> | undefined   = n;
       while (nd) {
-        if (hash === nd.hash && this.config.equals_(key, nd.key)) {
+        if (hash === nd.hash && this.config.equals(key, nd.key)) {
           previousNode = prev;
           foundNode    = nd;
           break;
@@ -158,7 +158,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
       const old = n;
       let prev: Node<K, V> | undefined = undefined;
       while (n !== undefined && n.hash <= hash) {
-        if (n.hash === hash && this.config.equals_(key, n.key)) {
+        if (n.hash === hash && this.config.equals(key, n.key)) {
           const old = n.value;
           n.value   = value;
           if (getOld) return Just(old);
@@ -186,7 +186,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     const nd  = this.table[idx];
     if (nd === undefined) {
       return undefined;
-    } else if (nd.hash === hash && this.config.equals_(nd.key, key)) {
+    } else if (nd.hash === hash && this.config.equals(nd.key, key)) {
       this.table[idx]   = nd.next;
       this.contentSize -= 1;
       return nd;
@@ -194,7 +194,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
       let prev = nd;
       let next = nd.next;
       while (next && next.hash <= hash) {
-        if (next.hash === hash && this.config.equals_(next.key, key)) {
+        if (next.hash === hash && this.config.equals(next.key, key)) {
           prev.next         = next.next;
           this.contentSize -= 1;
           return next;
@@ -221,7 +221,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
   private findNode(key: K): Node<K, V> | undefined {
     const hash = this.computeHash(key);
     const n    = this.table[this.index(hash)];
-    return n === undefined ? n : n.findNode(key, hash, this.config.equals_);
+    return n === undefined ? n : n.findNode(key, hash, this.config.equals);
   }
 
   private growTable(newLen: number) {

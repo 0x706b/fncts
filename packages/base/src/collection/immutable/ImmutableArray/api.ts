@@ -266,7 +266,6 @@ export function comprehension<A, R>(
 /**
  * @tsplus fluent fncts.ImmutableArray concat
  * @tsplus operator fncts.ImmutableArray +
- * @tsplus operator fncts.base.MutableArray +
  */
 export function concat_<A, B>(self: ImmutableArray<A>, that: ImmutableArray<B>): ImmutableArray<A | B> {
   const lenx = self._array.length;
@@ -295,20 +294,14 @@ export function deleteAt_<A>(as: ImmutableArray<A>, i: number): Maybe<ImmutableA
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.ImmutableArray difference
  */
-export function difference_<A>(E: P.Eq<A>) {
-  const elemE_ = elem_(E);
-  return (self: ImmutableArray<A>, ys: ImmutableArray<A>): ImmutableArray<A> => self.filter((a) => !elemE_(ys, a));
-}
-
-/**
- * @tsplus getter fncts.ImmutableArray difference
- */
-export function differenceSelf<A>(self: ImmutableArray<A>) {
-  return (E: P.Eq<A>) =>
-    (that: ImmutableArray<A>): ImmutableArray<A> =>
-      difference_(E)(self, that);
+export function difference_<A>(
+  self: ImmutableArray<A>,
+  ys: ImmutableArray<A>,
+  /** @tsplus auto */ E: P.Eq<A>,
+): ImmutableArray<A> {
+  return self.filter((a) => !ys.elem(a, E));
 }
 
 /**
@@ -344,32 +337,17 @@ export function dropLastWhile_<A>(as: ImmutableArray<A>, p: Predicate<A>): Immut
  * argument which returns the function to use to search for a value of type `A` in
  * an array of type `ImmutableArray<A>`.
  *
- * @constrained
+ * @tsplus fluent fncts.ImmutableArray elem
  */
-export function elem_<A>(E: P.Eq<A>) {
-  return (as: ImmutableArray<A>, a: A): boolean => {
-    const predicate = (element: A) => E.equals_(element, a);
-    const len       = as.length;
-    for (let i = 0; i < len; i++) {
-      if (predicate(as._array[i]!)) {
-        return true;
-      }
+export function elem_<A>(as: ImmutableArray<A>, a: A, /** @tsplus auto */ E: P.Eq<A>): boolean {
+  const predicate = (element: A) => E.equals(element, a);
+  const len       = as.length;
+  for (let i = 0; i < len; i++) {
+    if (predicate(as._array[i]!)) {
+      return true;
     }
-    return false;
-  };
-}
-
-/**
- * Test if a value is a member of an array. Takes an `Eq<A>` as a single
- * argument which returns the function to use to search for a value of type `A` in
- * an array of type `ImmutableArray<A>`.
- *
- * @tsplus getter fncts.ImmutableArray elem
- */
-export function elemSelf<A>(self: ImmutableArray<A>) {
-  return (E: P.Eq<A>) =>
-    (a: A): boolean =>
-      elem_(E)(self, a);
+  }
+  return false;
 }
 
 /**
@@ -604,59 +582,33 @@ export function foldLeftWithIndexWhile_<A, B>(
   return out;
 }
 
-export function fold<M>(M: Monoid<M>) {
-  return (self: ImmutableArray<M>): M => self.foldLeft(M.nat, M.combine_);
-}
-
 /**
  * @tsplus fluent fncts.ImmutableArray fold
- * @tsplus fluent fncts.base.MutableArray fold
  */
-export function foldSelf<M>(self: ImmutableArray<M>, M: Monoid<M>): M {
-  return self.foldLeft(M.nat, M.combine_);
+export function fold<M>(self: ImmutableArray<M>, /** @tsplus auto */ M: Monoid<M>): M {
+  return self.foldLeft(M.nat, M.combine);
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.ImmutableArray foldMapWithIndex
  */
-export function foldMapWithIndex_<M>(M: Monoid<M>) {
-  return <A>(self: ImmutableArray<A>, f: (i: number, a: A) => M): M => {
-    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine_(b, f(i, a)));
-  };
+export function foldMapWithIndex_<A, M>(
+  self: ImmutableArray<A>,
+  f: (i: number, a: A) => M,
+  /** @tsplus auto */ M: Monoid<M>,
+): M {
+  return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
 }
 
 /**
- * @tsplus getter fncts.ImmutableArray foldMapWithIndex
- * @tsplus getter fncts.base.MutableArray foldMapWithIndex
+ * @tsplus fluent fncts.ImmutableArray foldMap
  */
-export function foldMapWithIndexSelf<A>(self: ImmutableArray<A>) {
-  return <M>(M: Monoid<M>) =>
-    (f: (i: number, a: A) => M): M =>
-      foldMapWithIndex_(M)(self, f);
-}
-
-/**
- * @constrained
- */
-export function foldMap_<M>(M: Monoid<M>) {
-  return <A>(self: ImmutableArray<A>, f: (a: A) => M): M => {
-    return self.foldMapWithIndex(M)((_, a) => f(a));
-  };
-}
-
-/**
- * @tsplus getter fncts.ImmutableArray foldMap
- * @tsplus getter fncts.base.MutableArray foldMap
- */
-export function foldMapSelf<A>(self: ImmutableArray<A>) {
-  return <M>(M: Monoid<M>) =>
-    (f: (a: A) => M): M =>
-      self.foldMapWithIndex(M)((_, a) => f(a));
+export function foldMap_<A, M>(self: ImmutableArray<A>, f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>): M {
+  return self.foldMapWithIndex((_, a) => f(a), M);
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray foldRightWithIndex
- * @tsplus fluent fncts.base.MutableArray foldRightWithIndex
  */
 export function foldRightWithIndex_<A, B>(self: ImmutableArray<A>, b: B, f: (i: number, a: A, b: B) => B): B {
   let r = b;
@@ -723,7 +675,7 @@ export function group<A>(E: P.Eq<A>): (self: ImmutableArray<A>) => ImmutableArra
     let i     = 1;
     for (; i < self.length; i++) {
       const a = self._array[i]!;
-      if (E.equals_(a, h)) {
+      if (E.equals(a, h)) {
         out.push(a);
       } else {
         break;
@@ -782,18 +734,15 @@ export function insertAt_<A>(self: ImmutableArray<A>, i: number, a: A): Maybe<Im
   return self.isOutOfBound(i) ? Nothing() : Just(self.unsafeInsertAt(i, a));
 }
 
-export function intersection_<A>(E: P.Eq<A>) {
-  const elemE = elem_(E);
-  return (self: ImmutableArray<A>, that: ImmutableArray<A>): ImmutableArray<A> => self.filter((a) => elemE(that, a));
-}
-
 /**
- * @tsplus getter fncts.ImmutableArray intersection
+ * @tsplus fluent fncts.ImmutableArray intersection
  */
-export function intersectionSelf<A>(self: ImmutableArray<A>) {
-  return (E: P.Eq<A>) =>
-    (that: ImmutableArray<A>): ImmutableArray<A> =>
-      intersection_(E)(self, that);
+export function intersection_<A>(
+  self: ImmutableArray<A>,
+  that: ImmutableArray<A>,
+  /** @tsplus auto */ E: P.Eq<A>,
+): ImmutableArray<A> {
+  return self.filter((a) => that.elem(a, E));
 }
 
 export function intersperse_<A>(self: ImmutableArray<A>, a: A): ImmutableArray<A> {
@@ -1095,14 +1044,14 @@ export function scanRight_<A, B>(self: ImmutableArray<A>, b: B, f: (a: A, b: B) 
 /**
  * @tsplus fluent fncts.ImmutableArray sort
  */
-export function sort<A extends B, B>(self: ImmutableArray<A>, O: P.Ord<B>): ImmutableArray<A> {
-  return self.isEmpty() || self.length === 1 ? self : self._array.slice().sort(O.compare_).asImmutableArray;
+export function sort<A>(self: ImmutableArray<A>, /** @tsplus auto */ O: P.Ord<A>): ImmutableArray<A> {
+  return self.isEmpty() || self.length === 1 ? self : self._array.slice().sort(O.compare).asImmutableArray;
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray sortBy
  */
-export function sortBy<A extends B, B>(self: ImmutableArray<A>, Os: ImmutableArray<P.Ord<B>>): ImmutableArray<A> {
+export function sortBy<A>(self: ImmutableArray<A>, Os: ImmutableArray<P.Ord<A>>): ImmutableArray<A> {
   return self.sort(Os.fold(P.Ord.getMonoid()));
 }
 
@@ -1294,35 +1243,33 @@ export const traverse: P.traverse<ImmutableArrayF> = (A) => (f) => (self) => sel
 export const traverseSelf: P.traverseSelf<ImmutableArrayF> = (self) => (A) => (f) =>
   self.traverseWithIndex(A)((_, a) => f(a));
 
-export function union_<A>(E: P.Eq<A>) {
-  const elemE = elem_(E);
-  return (self: ImmutableArray<A>, that: ImmutableArray<A>): ImmutableArray<A> =>
-    self.concat(that.filter((a) => !elemE(self, a)));
-}
-
-export function uniq<A>(E: P.Eq<A>) {
-  return (self: ImmutableArray<A>): ImmutableArray<A> => {
-    if (self.length === 1) {
-      return self;
-    }
-    const elemE_ = elem_(E);
-    const out    = [] as Array<A>;
-    const len    = self.length;
-    for (let i = 0; i < len; i++) {
-      const a = self._array[i]!;
-      if (!elemE_(out.asImmutableArray, a)) {
-        out.push(a);
-      }
-    }
-    return out.asImmutableArray;
-  };
+/**
+ * @tsplus fluent fncts.ImmutableArray union
+ */
+export function union_<A>(
+  self: ImmutableArray<A>,
+  that: ImmutableArray<A>,
+  /** @tsplus auto */ E: P.Eq<A>,
+): ImmutableArray<A> {
+  return self.concat(that.filter((a) => !self.elem(a, E)));
 }
 
 /**
  * @tsplus fluent fncts.ImmutableArray uniq
  */
-export function uniqSelf<A>(self: ImmutableArray<A>, E: P.Eq<A>): ImmutableArray<A> {
-  return uniq(E)(self);
+export function uniq<A>(self: ImmutableArray<A>, /** @tsplus auto */ E: P.Eq<A>): ImmutableArray<A> {
+  if (self.length === 1) {
+    return self;
+  }
+  const out = [] as Array<A>;
+  const len = self.length;
+  for (let i = 0; i < len; i++) {
+    const a = self._array[i]!;
+    if (!out.asImmutableArray.elem(a, E)) {
+      out.push(a);
+    }
+  }
+  return out.asImmutableArray;
 }
 
 /**

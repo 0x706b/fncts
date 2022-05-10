@@ -2,23 +2,27 @@ import * as P from "../../typeclass.js";
 
 /**
  * @tsplus static fncts.StringOps Eq
+ * @tsplus implicit
  */
-export const Eq: P.Eq<string> = P.Eq({ equals_: (x, y) => x === y });
+export const Eq: P.Eq<string> = P.Eq({ equals: (x, y) => x === y });
 
 /**
  * @tsplus static fncts.StringOps Semigroup
+ * @tsplus implicit
  */
-export const Semigroup: P.Semigroup<string> = P.Semigroup({ combine_: (x, y) => x + y });
+export const Semigroup: P.Semigroup<string> = P.Semigroup({ combine: (x, y) => x + y });
 
 /**
  * @tsplus static fncts.StringOps Monoid
+ * @tsplus implicit
  */
-export const Monoid: P.Monoid<string> = P.Monoid({ combine_: (x, y) => x + y, nat: "" });
+export const Monoid: P.Monoid<string> = P.Monoid({ combine: (x, y) => x + y, nat: "" });
 
 /**
  * @tsplus static fncts.StringOps Ord
+ * @tsplus implicit
  */
 export const Ord: P.Ord<string> = P.Ord({
-  compare_: (x, y) => (x < y ? -1 : x > y ? 1 : 0),
-  equals_: (x, y) => x === y,
+  ...Eq,
+  compare: (x, y) => (x < y ? -1 : x > y ? 1 : 0),
 });

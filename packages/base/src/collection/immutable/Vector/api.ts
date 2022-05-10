@@ -267,7 +267,7 @@ function elemCb(value: any, state: ElemState): boolean {
  */
 export function elem_<A>(self: Vector<A>) {
   return (E: Eq<A>) => {
-    const elemState: ElemState = { equals: E.equals_, element: undefined, result: false };
+    const elemState: ElemState = { equals: E.equals, element: undefined, result: false };
     return (a: A): boolean => {
       elemState.element = a;
       return foldLeftCb(elemCb, elemState, self).result;
@@ -506,21 +506,21 @@ export function foldRightWhile_<A, B>(fa: Vector<A>, b: B, cont: Predicate<B>, f
 }
 
 /**
- * @tsplus getter fncts.Vector foldMap
+ * @tsplus fluent fncts.Vector foldMap
  */
-export function foldMap_<A>(self: Vector<A>) {
-  return <M>(M: Monoid<M>) =>
-    (f: (a: A) => M): M =>
-      self.foldMapWithIndex(M)((_, a) => f(a));
+export function foldMap_<A, M>(self: Vector<A>, f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>): M {
+  return self.foldMapWithIndex((_, a) => f(a), M);
 }
 
 /**
- * @tsplus getter fncts.Vector foldMapWithIndex
+ * @tsplus fluent fncts.Vector foldMapWithIndex
  */
-export function foldMapWithIndex_<A>(self: Vector<A>) {
-  return <M>(M: Monoid<M>) =>
-    (f: (i: number, a: A) => M): M =>
-      self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine_(b, f(i, a)));
+export function foldMapWithIndex_<A, M>(
+  self: Vector<A>,
+  f: (i: number, a: A) => M,
+  /** @tsplus auto */ M: Monoid<M>,
+): M {
+  return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
 }
 
 /**
@@ -1041,8 +1041,8 @@ export function slice_<A>(as: Vector<A>, from: number, to: number): Vector<A> {
 /**
  * @tsplus getter fncts.Vector sort
  */
-export function sort_<A>(self: Vector<A>) {
-  return (O: Ord<A>): Vector<A> => self.sortWith(O.compare_);
+export function sort_<A>(self: Vector<A>, /** @tsplus auto */ O: Ord<A>): Vector<A> {
+  return self.sortWith(O.compare);
 }
 
 /**
@@ -1191,7 +1191,7 @@ export function toList<A>(self: Vector<A>): List<A> {
  * @tsplus getter fncts.Vector uniq
  */
 export function uniq<A>(as: Vector<A>) {
-  return (E: Eq<A>) => as.dropRepeatsWith(E.equals_);
+  return (E: Eq<A>) => as.dropRepeatsWith(E.equals);
 }
 
 /**

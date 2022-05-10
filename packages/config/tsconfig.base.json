@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "moduleResolution": "node",
+    "suppressImplicitAnyIndexErrors": true,
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/src/*"],
       "@fncts/base/*": ["../base/src/*"],

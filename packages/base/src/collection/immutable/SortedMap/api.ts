@@ -19,7 +19,7 @@ export function find_<K, V>(m: SortedMap<K, V>, key: K, direction: 0 | 1 = 0): S
   return {
     ord: m.ord,
     [Symbol.iterator]() {
-      const cmp = m.ord.compare_;
+      const cmp = m.ord.compare;
       let n     = m.root;
       const stack: Array<Node<K, V>> = [];
       while (n) {
@@ -124,7 +124,7 @@ export function forEachGt_<K, V>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V)
  * @tsplus fluent fncts.SortedMap get
  */
 export function get_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
-  const cmp = m.ord.compare_;
+  const cmp = m.ord.compare;
   let n     = m.root;
   while (n) {
     const d = cmp(key, n.key);
@@ -151,7 +151,7 @@ export function get_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
  * @tsplus fluent fncts.SortedMap getGt
  */
 export function getGt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
-  const cmp     = m.ord.compare_;
+  const cmp     = m.ord.compare;
   let n         = m.root;
   let lastValue = Nothing<V>();
   while (n) {
@@ -175,7 +175,7 @@ export function getGt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
  * @tsplus fluent fncts.SortedMap getLt
  */
 export function getLt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
-  const cmp     = m.ord.compare_;
+  const cmp     = m.ord.compare;
   let n         = m.root;
   let lastValue = Nothing<V>();
   while (n) {
@@ -198,7 +198,7 @@ export function getLt_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
  * @tsplus fluent fncts.SortedMap getLte
  */
 export function getLte_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
-  const cmp     = m.ord.compare_;
+  const cmp     = m.ord.compare;
   let n         = m.root;
   let lastValue = Nothing<V>();
   while (n) {
@@ -222,7 +222,7 @@ export function getLte_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
  * @tsplus fluent fncts.SortedMap getGte
  */
 export function getGte_<K, V>(m: SortedMap<K, V>, key: K): Maybe<V> {
-  const cmp     = m.ord.compare_;
+  const cmp     = m.ord.compare;
   let n         = m.root;
   let lastValue = Nothing<V>();
   while (n) {
@@ -251,7 +251,7 @@ export function insert_<K, V>(m: SortedMap<K, V>, key: K, value: V): SortedMap<K
   if (isEmptyNode(m.root)) {
     return new SortedMap(m.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
   }
-  const cmp = m.ord.compare_;
+  const cmp = m.ord.compare;
   const nodeStack: Array<Node<K, V>> = [];
   const orderStack: Array<Ordering>  = [];
   let n: RBNode<K, V>                = m.root;
@@ -277,49 +277,52 @@ export function insert_<K, V>(m: SortedMap<K, V>, key: K, value: V): SortedMap<K
  * Inserts an element into the correct position in the map, combining the values of keys of equal ordering
  * with a `Semigroup` instance
  */
-export function insertWith_<V>(S: Semigroup<V>) {
-  return <K>(m: SortedMap<K, V>, key: K, value: V) => {
-    if (isEmptyNode(m.root)) {
-      return new SortedMap(m.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
-    }
-    const com = S.combine_;
-    const cmp = m.ord.compare_;
-    const nodeStack: Array<Node<K, V>> = [];
-    const orderStack: Array<1 | -1>    = [];
-    let n: RBNode<K, V>                = m.root;
-    let cv: V | null                   = null;
-    while (n && !cv) {
-      const d = cmp(key, n.key);
-      nodeStack.push(n);
-      switch (d) {
-        case -1: {
-          orderStack.push(d);
-          n = n.left;
-          break;
-        }
-        case 1: {
-          orderStack.push(d);
-          n = n.right;
-          break;
-        }
-        case 0: {
-          cv = com(n.value, value);
-          break;
-        }
+export function insertWith_<K, V>(
+  m: SortedMap<K, V>,
+  key: K,
+  value: V,
+  /** @tsplus auto */ S: Semigroup<V>,
+): SortedMap<K, V> {
+  if (isEmptyNode(m.root)) {
+    return new SortedMap(m.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
+  }
+  const com = S.combine;
+  const cmp = m.ord.compare;
+  const nodeStack: Array<Node<K, V>> = [];
+  const orderStack: Array<1 | -1>    = [];
+  let n: RBNode<K, V>                = m.root;
+  let cv: V | null                   = null;
+  while (n && !cv) {
+    const d = cmp(key, n.key);
+    nodeStack.push(n);
+    switch (d) {
+      case -1: {
+        orderStack.push(d);
+        n = n.left;
+        break;
+      }
+      case 1: {
+        orderStack.push(d);
+        n = n.right;
+        break;
+      }
+      case 0: {
+        cv = com(n.value, value);
+        break;
       }
     }
-    if (cv) {
-      const u                         = nodeStack[nodeStack.length - 1]!;
-      const updated                   = new Node(u.color, u.left, u.key, cv, u.right, u.count);
-      nodeStack[nodeStack.length - 1] = updated;
-      rebuildModifiedPath(nodeStack, orderStack, 0);
-    } else {
-      nodeStack.push(new Node(Color.R, Leaf, key, value, Leaf, 1));
-      rebuildModifiedPath(nodeStack, orderStack);
-      balanceModifiedPath(nodeStack);
-    }
-    return new SortedMap(m.ord, nodeStack[0]!);
-  };
+  }
+  if (cv) {
+    const u                         = nodeStack[nodeStack.length - 1]!;
+    const updated                   = new Node(u.color, u.left, u.key, cv, u.right, u.count);
+    nodeStack[nodeStack.length - 1] = updated;
+    rebuildModifiedPath(nodeStack, orderStack, 0);
+  } else {
+    nodeStack.push(new Node(Color.R, Leaf, key, value, Leaf, 1));
+    rebuildModifiedPath(nodeStack, orderStack);
+    balanceModifiedPath(nodeStack);
+  }
+  return new SortedMap(m.ord, nodeStack[0]!);
 }
 
 /**
@@ -386,7 +389,7 @@ export function visitLte<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V
   let current: RBNode<K, V>      = m.root;
   const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
-  const cmp = m.ord.compare_;
+  const cmp = m.ord.compare;
 
   while (!done) {
     if (current) {
@@ -416,7 +419,7 @@ export function visitLt<K, V, A>(m: SortedMap<K, V>, max: K, visit: (k: K, v: V)
   let current: RBNode<K, V>      = m.root;
   const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
-  const cmp = m.ord.compare_;
+  const cmp = m.ord.compare;
 
   while (!done) {
     if (current) {
@@ -446,7 +449,7 @@ export function visitGte<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V
   let current: RBNode<K, V>      = m.root;
   const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
-  const cmp = m.ord.compare_;
+  const cmp = m.ord.compare;
 
   while (!done) {
     if (current) {
@@ -479,7 +482,7 @@ export function visitGt<K, V, A>(m: SortedMap<K, V>, min: K, visit: (k: K, v: V)
   let current: RBNode<K, V>      = m.root;
   const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
-  const cmp = m.ord.compare_;
+  const cmp = m.ord.compare;
 
   while (!done) {
     if (current) {
@@ -512,7 +515,7 @@ export function visitBetween<K, V, A>(m: SortedMap<K, V>, min: K, max: K, visit:
   let current: RBNode<K, V>      = m.root;
   const stack: Stack<Node<K, V>> = Stack();
   let done  = false;
-  const cmp = m.ord.compare_;
+  const cmp = m.ord.compare;
 
   while (!done) {
     if (current) {

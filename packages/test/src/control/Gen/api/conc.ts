@@ -32,19 +32,17 @@ export function uniqueConc_<R, A>(
   constraints: LengthConstraints & EqConstraint<A> = {},
 ): Gen<Has<Sized> & R, Conc<A>> {
   const minLength = constraints.minLength ?? 0;
-  const eq        = constraints.eq ?? Eq({ equals_: Equatable.strictEquals });
+  const eq        = constraints.eq ?? Eq({ equals: Equatable.strictEquals });
   return constraints.maxLength
-    ? Gen.bounded(minLength, constraints.maxLength, (n) => self.uniqueConcN(eq)(n))
-    : Gen.small((n) => self.uniqueConcN(eq)(n), minLength);
+    ? Gen.bounded(minLength, constraints.maxLength, (n) => self.uniqueConcN(n, eq))
+    : Gen.small((n) => self.uniqueConcN(n, eq), minLength);
 }
 
 /**
- * @tsplus getter fncts.test.Gen uniqueConcN
+ * @tsplus fluent fncts.test.Gen uniqueConcN
  */
-export function uniqueConcN_<R, A>(self: Gen<R, A>) {
-  return (E: Eq<A>) =>
-    (n: number): Gen<R, Conc<A>> =>
-      Conc.replicate(n, self).foldLeft(Gen.constant(Conc.empty()) as Gen<R, Conc<A>>, (gen, a) =>
-        gen.zipWith(a, (as, a) => (as.elem(E)(a) ? as : as.append(a))),
-      );
+export function uniqueConcN_<R, A>(self: Gen<R, A>, n: number, /** @tsplus auto */ E: Eq<A>): Gen<R, Conc<A>> {
+  return Conc.replicate(n, self).foldLeft(Gen.constant(Conc.empty()) as Gen<R, Conc<A>>, (gen, a) =>
+    gen.zipWith(a, (as, a) => (as.elem(a, E) ? as : as.append(a))),
+  );
 }

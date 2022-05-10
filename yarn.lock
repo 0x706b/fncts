@@ -7210,43 +7210,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^3.9.10, typescript@npm:^3.9.5, typescript@npm:^3.9.7":
-  version: 3.9.10
-  resolution: "typescript@npm:3.9.10"
+"typescript@https://github.com/0x706b/typescript/raw/a55207d39d/typescript-4.7.0-tsplus.20220508.tgz":
+  version: 4.7.0-tsplus.20220508
+  resolution: "typescript@https://github.com/0x706b/typescript/raw/a55207d39d/typescript-4.7.0-tsplus.20220508.tgz"
   bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 46c842e2cd4797b88b66ef06c9c41dd21da48b95787072ccf39d5f2aa3124361bc4c966aa1c7f709fae0509614d76751455b5231b12dbb72eb97a31369e1ff92
+    tsc: ./bin/tsc
+    tsserver: ./bin/tsserver
+  checksum: 2a115dd456c4eff83763e0f9b921b9df48f6400443d4da96fbe4dcda17cdbca39a01df33a16e7375a88bff34ff6111e956fbb939fc5326f02e3205f8e8ffffa8
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.6.2":
-  version: 4.6.4
-  resolution: "typescript@npm:4.6.4"
+"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/a55207d39d/typescript-4.7.0-tsplus.20220508.tgz#~builtin<compat/typescript>":
+  version: 4.7.0-tsplus.20220508
+  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/a55207d39d/typescript-4.7.0-tsplus.20220508.tgz#~builtin<compat/typescript>::version=4.7.0-tsplus.20220508&hash=bda367"
   bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: e7bfcc39cd4571a63a54e5ea21f16b8445268b9900bf55aee0e02ad981be576acc140eba24f1af5e3c1457767c96cea6d12861768fb386cf3ffb34013718631a
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@^3.9.10#~builtin<compat/typescript>, typescript@patch:typescript@^3.9.5#~builtin<compat/typescript>, typescript@patch:typescript@^3.9.7#~builtin<compat/typescript>":
-  version: 3.9.10
-  resolution: "typescript@patch:typescript@npm%3A3.9.10#~builtin<compat/typescript>::version=3.9.10&hash=bda367"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: dc7141ab555b23a8650a6787f98845fc11692063d02b75ff49433091b3af2fe3d773650dea18389d7c21f47d620fb3b110ea363dab4ab039417a6ccbbaf96fc2
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@^4.6.2#~builtin<compat/typescript>":
-  version: 4.6.4
-  resolution: "typescript@patch:typescript@npm%3A4.6.4#~builtin<compat/typescript>::version=4.6.4&hash=bda367"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 1cb434fbc637d347be90e3a0c6cd05e33c38f941713c8786d3031faf1842c2c148ba91d2fac01e7276b0ae3249b8633f1660e32686cc7a8c6a8fd5361dc52c66
+    tsc: ./bin/tsc
+    tsserver: ./bin/tsserver
+  checksum: c88389e96e9f273114335de9e210ac94e6f5b6fee69a933bdd10d37f8ee205a93a286f8031e29b1b4a124812a2aa45cd408345c7948956e57e5b3a79921f8b2d
   languageName: node
   linkType: hard
 

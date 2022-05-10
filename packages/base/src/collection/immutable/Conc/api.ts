@@ -211,12 +211,10 @@ export function concat_<A, B>(self: Conc<A>, that: Conc<B>): Conc<A | B> {
 }
 
 /**
- * @tsplus getter fncts.Conc elem
+ * @tsplus fluent fncts.Conc elem
  */
-export function elem_<A>(self: Conc<A>) {
-  return (E: Eq<A>) =>
-    (a: A): boolean =>
-      self.exists((el) => E.equals_(el, a));
+export function elem_<A>(self: Conc<A>, a: A, /** @tsplus auto */ E: Eq<A>): boolean {
+  return self.exists((el) => E.equals(el, a));
 }
 
 /**
@@ -458,36 +456,17 @@ export function foldLeftWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, b: 
 }
 
 /**
- * @constrained
+ * @tsplus fluent fncts.Conc foldMap
  */
-export function foldMap_<M>(M: P.Monoid<M>) {
-  return <A>(fa: Conc<A>, f: (a: A) => M) => fa.foldMapWithIndex(M)((_, a) => f(a));
+export function foldMap_<A, M>(fa: Conc<A>, f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
+  return fa.foldMapWithIndex((_, a) => f(a), M);
 }
 
 /**
- * @tsplus getter fncts.Conc foldMap
+ * @tsplus fluent fncts.Conc foldMapWithIndex
  */
-export function foldMapSelf<A>(self: Conc<A>) {
-  return <M>(M: P.Monoid<M>) =>
-    (f: (a: A) => M): M =>
-      self.foldMapWithIndex(M)((_, a) => f(a));
-}
-
-/**
- * @constrained
- */
-export function foldMapWithIndex_<M>(M: P.Monoid<M>) {
-  return <A>(fa: Conc<A>, f: (i: number, a: A) => M): M =>
-    fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine_(b, f(i, a)));
-}
-
-/**
- * @tsplus getter fncts.Conc foldMapWithIndex
- */
-export function foldMapWithIndexSelf<A>(self: Conc<A>) {
-  return <M>(M: P.Monoid<M>) =>
-    (f: (i: number, a: A) => M): M =>
-      foldMapWithIndex_(M)(self, f);
+export function foldMapWithIndex_<A, M>(fa: Conc<A>, f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
+    return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
 }
 
 /**
