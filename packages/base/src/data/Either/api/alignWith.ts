@@ -11,6 +11,8 @@ export function alignWith_<E1, A, E2, B, C>(
   fb: Either<E2, B>,
   f: (_: These<A, B>) => C,
 ): Either<E1 | E2, C> {
+  self.concrete();
+  fb.concrete();
   return self._tag === EitherTag.Left
     ? fb._tag === EitherTag.Left
       ? self

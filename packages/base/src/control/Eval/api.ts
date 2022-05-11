@@ -1,7 +1,7 @@
 import type { _A } from "@fncts/base/types";
 
 import { Chain } from "@fncts/base/control/Eval/definition";
-import { identity } from "@fncts/base/data/function";
+import { identity, tuple } from "@fncts/base/data/function";
 
 /**
  * @tsplus fluent fncts.control.Eval and
@@ -36,6 +36,10 @@ export function map_<A, B>(self: Eval<A>, f: (a: A) => B): Eval<B> {
  */
 export function zipWith_<A, B, C>(self: Eval<A>, fb: Eval<B>, f: (a: A, b: B) => C): Eval<C> {
   return self.flatMap((a) => fb.map((b) => f(a, b)));
+}
+
+export function zip_<A, B>(self: Eval<A>, fb: Eval<B>): Eval<readonly [A, B]> {
+  return self.zipWith(fb, tuple);
 }
 
 /**

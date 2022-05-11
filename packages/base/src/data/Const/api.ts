@@ -1,10 +1,10 @@
-import type { Const } from "./definition.js";
+import { Const } from "./definition.js";
 
 /**
  * @tsplus fluent fncts.Const map
  */
 export function map_<E, A, B>(self: Const<E, A>, _f: (a: A) => B): Const<E, B> {
-  return unsafeCoerce(self);
+  return new Const(self.getConst);
 }
 
 /**
@@ -12,5 +12,5 @@ export function map_<E, A, B>(self: Const<E, A>, _f: (a: A) => B): Const<E, B> {
  * @tsplus static fncts.ConstOps __call
  */
 export function mkConst<E, A = never>(e: E): Const<E, A> {
-  return unsafeCoerce(e);
+  return new Const(e);
 }

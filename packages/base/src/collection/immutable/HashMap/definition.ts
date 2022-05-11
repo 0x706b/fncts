@@ -4,21 +4,18 @@ import type { HashEq } from "@fncts/base/typeclass";
 import { isEmptyNode } from "@fncts/base/collection/immutable/HashMap/internal";
 import { identity, tuple } from "@fncts/base/data/function";
 
-export interface HashMapF extends HKT {
-  readonly type: HashMap<this["K"], this["A"]>;
-  readonly variance: {
-    K: "_";
-    A: "+";
-  };
-}
+export interface HashMapF extends HashMap<any, any> {}
 
 /**
  * @tsplus type fncts.HashMap
  * @tsplus companion fncts.HashMapOps
  */
 export class HashMap<K, V> implements Iterable<readonly [K, V]>, Hashable, Equatable {
-  readonly _K!: () => K;
-  readonly _V!: () => V;
+  readonly [HKT.F]!: HashMapF;
+  readonly [HKT.K]!: () => K;
+  readonly [HKT.A]!: () => V;
+  readonly [HKT.T]!: HashMap<HKT._K<this>, HKT._A<this>>;
+  readonly [HKT.Ix]!: K;
 
   constructor(
     public editable: boolean,
@@ -55,6 +52,7 @@ export class HashMapIterator<K, V, T> implements IterableIterator<T> {
   }
 
   next(): IteratorResult<T> {
+    this.v.concrete();
     if (this.v.isNothing()) {
       return { done: true, value: undefined };
     }

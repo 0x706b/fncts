@@ -7,12 +7,19 @@ import { PSetter } from "@fncts/base/optics/Setter";
  * @tsplus type fncts.optics.PTraversal
  */
 export interface PTraversal<S, T, A, B> extends PSetter<S, T, A, B>, Fold<S, A> {
-  readonly modifyA_: modifyA_<S, T, A, B>;
-  readonly modifyA: modifyA<S, T, A, B>;
+  modifyA<F extends HKT, K, Q, W, X, I, _S, R, E>(
+    s: S,
+    f: (a: A) => HKT.Kind<F, K, Q, W, X, I, _S, R, E, B>,
+    /** @tsplus auto */ F: Applicative<F>,
+  ): HKT.Kind<F, K, Q, W, X, I, _S, R, E, T>;
 }
 
 export interface PTraversalMin<S, T, A, B> {
-  readonly modifyA_: modifyA_<S, T, A, B>;
+  modifyA<F extends HKT, K, Q, W, X, I, _S, R, E>(
+    s: S,
+    f: (a: A) => HKT.Kind<F, K, Q, W, X, I, _S, R, E, B>,
+    /** @tsplus auto */ F: Applicative<F>,
+  ): HKT.Kind<F, K, Q, W, X, I, _S, R, E, T>;
 }
 
 /**
@@ -27,17 +34,21 @@ export const PTraversal: PTraversalOps = {};
  */
 export function mkPTraversal<S, T, A, B>(F: PTraversalMin<S, T, A, B>): PTraversal<S, T, A, B> {
   return {
-    modifyA_: F.modifyA_,
-    modifyA: (A) => (f) => (s) => F.modifyA_(A)(s, f),
-    ...PSetter({
-      modify_: (s, f) => F.modifyA_(Identity.Applicative)(s, f),
-      set_: (s, b) => F.modifyA_(Identity.Applicative)(s, () => b),
+    modifyA: F.modifyA,
+    ...PSetter<S, T, A, B>({
+      modify_: (s, f) =>
+        F.modifyA(
+          s,
+          f.compose((b) => Identity.get(b)),
+          Identity.Applicative,
+        ).getIdentity,
+      set_: (s, b) => F.modifyA(s, () => Identity.get(b), Identity.Applicative).getIdentity,
     }),
-    ...Fold({
+    ...Fold<S, A>({
       foldMap_:
         <M>(M: Monoid<M>) =>
         (s: S, f: (a: A) => M) =>
-          F.modifyA_(Const.getApplicative(M))(s, (a) => Const(f(a))),
+          F.modifyA(s, (a) => Const(f(a)), Const.getApplicative(M)).getConst,
     }),
   };
 }
@@ -57,17 +68,4 @@ export interface TraversalOps extends PTraversalOps {}
  */
 export function mkTraversal<S, A>(F: PTraversalMin<S, S, A, A>): Traversal<S, A> {
   return PTraversal(F);
-}
-
-export interface modifyA_<S, T, A, B> {
-  <F extends HKT, C = HKT.None>(F: Applicative<F, C>): <K, Q, W, X, I, _S, R, E>(
-    s: S,
-    f: (a: A) => HKT.Kind<F, C, K, Q, W, X, I, _S, R, E, B>,
-  ) => HKT.Kind<F, C, K, Q, W, X, I, _S, R, E, T>;
-}
-
-export interface modifyA<S, T, A, B> {
-  <F extends HKT, C = HKT.None>(F: Applicative<F, C>): <K, Q, W, X, I, _S, R, E>(
-    f: (a: A) => HKT.Kind<F, C, K, Q, W, X, I, _S, R, E, B>,
-  ) => (s: S) => HKT.Kind<F, C, K, Q, W, X, I, _S, R, E, T>;
 }

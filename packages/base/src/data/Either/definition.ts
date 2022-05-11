@@ -6,37 +6,50 @@ export const enum EitherTag {
 export const EitherTypeId = Symbol.for("fncts.base.data.Either");
 export type EitherTypeId = typeof EitherTypeId;
 
+export interface EitherF extends Either<any, any> {}
+export interface Either1F<E> extends Either1<E, any> {}
+
+/**
+ * @tsplus type fncts.Either
+ * @tsplus companion fncts.EitherOps
+ */
+export class Either<E, A> {
+  readonly _typeId: EitherTypeId = EitherTypeId;
+  readonly [HKT.F]!: EitherF;
+  readonly [HKT.E]!: () => E;
+  readonly [HKT.A]!: () => A;
+  readonly [HKT.T]!: Either<HKT._E<this>, HKT._A<this>>;
+}
+
+export interface Either1<E, A> {
+  readonly _typeId: EitherTypeId;
+  readonly [HKT.F]: EitherF;
+  readonly [HKT.E]: () => E;
+  readonly [HKT.A]: () => A;
+  readonly [HKT.T]: Either<E, HKT._A<this>>;
+}
+
 /**
  * @tsplus type fncts.Either.Left
  * @tsplus companion fncts.Either.LeftOps
  */
-export class Left<E> {
-  readonly _typeId: EitherTypeId = EitherTypeId;
-  readonly _tag                  = EitherTag.Left;
-  constructor(readonly left: E) {}
+export class Left<E> extends Either<E, never> {
+  readonly _tag = EitherTag.Left;
+  constructor(readonly left: E) {
+    super();
+  }
 }
 
 /**
  * @tsplus type fncts.Either.Right
  * @tsplus companion fncts.Either.RightOps
  */
-export class Right<A> {
-  readonly _typeId: EitherTypeId = EitherTypeId;
-  readonly _tag                  = EitherTag.Right;
-  constructor(readonly right: A) {}
+export class Right<A> extends Either<never, A> {
+  readonly _tag = EitherTag.Right;
+  constructor(readonly right: A) {
+    super();
+  }
 }
-
-/**
- * @tsplus type fncts.Either
- */
-export type Either<E, A> = Left<E> | Right<A>;
-
-/**
- * @tsplus type fncts.EitherOps
- */
-export interface EitherOps {}
-
-export const Either: EitherOps = {};
 
 /**
  * @tsplus unify fncts.Either
@@ -45,4 +58,13 @@ export function unifyEither<X extends Either<any, any>>(
   self: X,
 ): Either<[X] extends [Either<infer E, any>] ? E : never, [X] extends [Either<any, infer A>] ? A : never> {
   return self;
+}
+
+/**
+ * @tsplus fluent fncts.Either concrete
+ * @tsplus static fncts.EitherOps concrete
+ * @tsplus macro remove
+ */
+export function concrete<E, A>(self: Either<E, A>): asserts self is Left<E> | Right<A> {
+  //
 }

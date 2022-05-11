@@ -1,14 +1,16 @@
-import * as P from "../../typeclass.js";
-import { map_ } from "./api.js";
-import { EitherTag, Left, Right } from "./definition.js";
+import type { Either1F, EitherF } from "@fncts/base/data/Either/definition.js";
 
-export interface EitherF extends HKT {
-  readonly type: Either<this["E"], this["A"]>;
-  readonly variance: {
-    E: "+";
-    A: "+";
-  };
-}
+import { map_ } from "@fncts/base/data/Either/api";
+import { concrete, Either, EitherTag, Right } from "@fncts/base/data/Either/definition";
+
+import * as P from "../../typeclass.js";
+
+/**
+ * @tsplus implicit
+ */
+export const Functor: P.Functor<EitherF> = {
+  map: map_,
+};
 
 /**
  * @tsplus static fncts.EitherOps getEq
@@ -44,46 +46,48 @@ export function deriveEq<A extends Either<any, any>>(
 /**
  * @tsplus static fncts.EitherOps getFilterable
  */
-export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterable<EitherF, HKT.Fix<"E", E>> {
-  type FixE = HKT.Fix<"E", E>;
-
-  const empty = Left(ME.nat);
-
-  const partitionMap_: P.partitionMap_<EitherF, FixE> = (fa, f) => {
-    if (fa._tag === EitherTag.Left) {
-      return [fa, fa];
-    }
-    const fb = f(fa.right);
-    switch (fb._tag) {
-      case EitherTag.Left:
-        return [Right(fb.left), empty];
-      case EitherTag.Right:
-        return [empty, fb];
-    }
+export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterable<Either1F<E>> {
+  return <P.Filterable<Either1F<E>>>{
+    ...Functor,
+    partitionMap: (fa, f) => {
+      concrete(fa);
+      if (fa._tag === EitherTag.Left) {
+        return [fa, fa];
+      }
+      const fb = f(fa.right);
+      concrete(fb);
+      switch (fb._tag) {
+        case EitherTag.Left:
+          return [Right(fb.left), Either.left(ME.nat)];
+        case EitherTag.Right:
+          return [Either.left(ME.nat), fb];
+      }
+    },
+    filter: <A>(fa: Either<E, A>, p: Predicate<A>) => {
+      concrete(fa);
+      switch (fa._tag) {
+        case EitherTag.Left:
+          return fa;
+        case EitherTag.Right:
+          return p(fa.right) ? fa : Either.left(ME.nat);
+      }
+    },
+    filterMap: (fa, f) => {
+      concrete(fa);
+      if (fa._tag === EitherTag.Left) {
+        return fa;
+      }
+      return f(fa.right).match(
+        () => Either.left(ME.nat),
+        (b) => Either.right(b),
+      );
+    },
+    partition: <A>(fa: Either<E, A>, p: Predicate<A>): readonly [Either<E, A>, Either<E, A>] => {
+      concrete(fa);
+      if (fa._tag === EitherTag.Left) {
+        return [fa, fa];
+      }
+      return p(fa.right) ? [Either.left(ME.nat), fa] : [fa, Either.left(ME.nat)];
+    },
   };
-
-  const partition_: P.partition_<EitherF, FixE> = <A>(
-    fa: Either<E, A>,
-    p: Predicate<A>,
-  ): readonly [Either<E, A>, Either<E, A>] =>
-    fa._tag === EitherTag.Left ? [fa, fa] : p(fa.right) ? [empty, fa] : [fa, empty];
-
-  const filterMap_: P.filterMap_<EitherF, FixE> = (fa, f) =>
-    fa._tag === EitherTag.Left
-      ? fa
-      : f(fa.right).match(
-          () => empty,
-          (b) => Right(b),
-        );
-
-  const filter_: P.filter_<EitherF, FixE> = <A>(fa: Either<E, A>, p: Predicate<A>): Either<E, A> =>
-    fa._tag === EitherTag.Left ? fa : p(fa.right) ? fa : empty;
-
-  return P.Filterable<EitherF, FixE>({
-    map_,
-    filter_,
-    filterMap_,
-    partition_,
-    partitionMap_,
-  });
 }

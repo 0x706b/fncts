@@ -63,6 +63,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
           switch (state._stateTag) {
             case StateTag.Emit: {
               const x = state.notifyConsumers.dequeue;
+              Maybe.concrete(x);
               if (x.isNothing()) {
                 return tuple(IO.unit, new StateEmpty(p));
               } else {

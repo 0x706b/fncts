@@ -1,5 +1,6 @@
 import type { Concat, ConcF } from "@fncts/base/collection/immutable/Conc/definition";
 import type { Eq } from "@fncts/base/typeclass";
+import type * as P from "@fncts/base/typeclass";
 
 import {
   _Empty,
@@ -13,7 +14,6 @@ import {
 import { EitherTag } from "@fncts/base/data/Either";
 import { identity, tuple } from "@fncts/base/data/function";
 import { Stack } from "@fncts/base/internal/Stack";
-import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus fluent fncts.Conc align
@@ -103,6 +103,7 @@ export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>):
   while (buffer.length > 0) {
     const e = buffer.unsafeHead;
     buffer  = buffer.unsafeTail;
+    Either.concrete(e);
     if (e._tag === EitherTag.Left) {
       buffer = f(e.left).concat(buffer);
     } else {
@@ -122,6 +123,7 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>
   let out       = Conc.empty<B>();
 
   function go(e: Either<A, B>): void {
+    Either.concrete(e);
     if (e._tag === EitherTag.Left) {
       f(e.left).forEach((ab) => ((buffer = buffer.append(ab)), undefined));
     } else {
@@ -959,22 +961,21 @@ export function takeWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
   }
 }
 
-export const traverse_: P.traverse_<ConcF> = (A) => (ta, f) => traverseWithIndex_(A)(ta, (_, a) => f(a));
+/**
+ * @tsplus fluent fncts.Conc traverse
+ */
+export const traverse: P.Traversable<ConcF>["traverse"] = (self, f, G) => self.traverseWithIndex((_, a) => f(a), G);
 
 /**
- * @tsplus getter fncts.Conc traverse
+ * @tsplus fluent fncts.Conc traverseWithIndex
  */
-export const traverseSelf: P.traverseSelf<ConcF> = (ta) => (A) => (f) => traverseWithIndex_(A)(ta, (_, a) => f(a));
-
-export const traverseWithIndex_: P.traverseWithIndex_<ConcF> = P.mkTraverseWithIndex_<ConcF>()(
-  (_) => (A) => (ta, f) =>
-    ta.foldLeftWithIndex(A.pure(Conc.empty()), (i, fbs, a) => A.zipWith_(fbs, f(i, a), (bs, b) => bs.append(b))),
-);
-
-/**
- * @tsplus getter fncts.Conc traverseWithIndex
- */
-export const traverseSelfWithIndex: P.traverseWithIndexSelf<ConcF> = (ta) => (A) => (f) => traverseWithIndex_(A)(ta, f);
+export function traverseWithIndex<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG, A, B>(
+  self: Conc<A>,
+  f: (i: number, a: A) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, B>,
+  /** @tsplus auto */ G: P.Applicative<G>,
+): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, Conc<B>> {
+  return self.foldLeftWithIndex(G.pure(Conc.empty()), (i, fbs, a) => fbs.zipWith(f(i, a), (bs, b) => bs.append(b), G));
+}
 
 /**
  * @tsplus fluent fncts.ConcOps unfold

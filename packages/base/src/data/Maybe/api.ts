@@ -1,8 +1,5 @@
-import type { MaybeF } from "./instances.js";
 import type { Eq, Monoid } from "@fncts/base/typeclass";
 import type { Nullable } from "@fncts/base/types";
-
-import { Apply } from "@fncts/base/typeclass";
 
 import { identity } from "../function.js";
 import { MaybeTag } from "./definition.js";
@@ -11,13 +8,10 @@ import { MaybeTag } from "./definition.js";
  * @tsplus fluent fncts.Maybe ap
  */
 export function ap_<A, B>(self: Maybe<(a: A) => B>, fa: Maybe<A>): Maybe<B> {
+  self.concrete();
+  fa.concrete();
   return self._tag === MaybeTag.Just && fa._tag === MaybeTag.Just ? Just(self.value(fa.value)) : Nothing();
 }
-
-/**
- * @tsplus static fncts.MaybeOps sequenceS
- */
-export const sequenceS = Apply.sequenceSF<MaybeF>({ map_, ap_, zipWith_ });
 
 /**
  * Applies `f` to the value contained in `Maybe` if it is `Just` and returns the result,
@@ -26,23 +20,16 @@ export const sequenceS = Apply.sequenceSF<MaybeF>({ map_, ap_, zipWith_ });
  * @tsplus fluent fncts.Maybe flatMap
  */
 export function flatMap_<A, B>(self: Maybe<A>, f: (a: A) => Maybe<B>): Maybe<B> {
+  self.concrete();
   return self._tag === MaybeTag.Just ? f(self.value) : (self as Nothing);
-}
-
-/**
- * @constrained
- */
-export function elem_<A>(E: Eq<A>) {
-  return (self: Maybe<A>, elem: A): boolean => (self._tag === MaybeTag.Just ? E.equals(self.value, elem) : false);
 }
 
 /**
  * @tsplus fluent fncts.Maybe elem
  */
-export function elemSelf<A>(self: Maybe<A>) {
-  return (E: Eq<A>) =>
-    (elem: A): boolean =>
-      elem_(E)(self, elem);
+export function elem_<A>(self: Maybe<A>, elem: A, E: Eq<A>): boolean {
+  self.concrete();
+  return self._tag === MaybeTag.Just ? E.equals(self.value, elem) : false;
 }
 
 /**
@@ -50,6 +37,7 @@ export function elemSelf<A>(self: Maybe<A>) {
  * @tsplus fluent fncts.Maybe exists
  */
 export function exists_<A>(self: Maybe<A>, p: Predicate<A>): boolean {
+  self.concrete();
   return self._tag === MaybeTag.Just ? p(self.value) : false;
 }
 
@@ -59,6 +47,7 @@ export function exists_<A>(self: Maybe<A>, p: Predicate<A>): boolean {
 export function filter_<A, B>(self: Maybe<A>, p: Predicate<A>): Maybe<A>;
 export function filter_<A, B extends A>(self: Maybe<A>, p: Refinement<A, B>): Maybe<B>;
 export function filter_<A, B>(self: Maybe<A>, p: Predicate<A>): Maybe<A> {
+  self.concrete();
   return self._tag === MaybeTag.Just && p(self.value) ? self : Nothing();
 }
 
@@ -82,6 +71,7 @@ export function flatten<A>(self: Maybe<Maybe<A>>): Maybe<A> {
 export function partition_<A>(self: Maybe<A>, p: Predicate<A>): readonly [Maybe<A>, Maybe<A>];
 export function partition_<A, B extends A>(self: Maybe<A>, p: Refinement<A, B>): readonly [Maybe<A>, Maybe<B>];
 export function partition_<A>(self: Maybe<A>, p: Predicate<A>): readonly [Maybe<A>, Maybe<A>] {
+  self.concrete();
   return self._tag === MaybeTag.Just && p(self.value) ? [Nothing(), self] : [self, Nothing()];
 }
 
@@ -89,6 +79,7 @@ export function partition_<A>(self: Maybe<A>, p: Predicate<A>): readonly [Maybe<
  * @tsplus fluent fncts.Maybe partitionMap
  */
 export function partitionMap_<A, B, C>(self: Maybe<A>, f: (a: A) => Either<B, C>): readonly [Maybe<B>, Maybe<C>] {
+  self.concrete();
   if (self._tag === MaybeTag.Just) {
     return f(self.value).match(
       (b) => [Just(b), Nothing()],
@@ -103,6 +94,7 @@ export function partitionMap_<A, B, C>(self: Maybe<A>, f: (a: A) => Either<B, C>
  * @tsplus fluent fncts.Maybe foldLeft
  */
 export function foldLeft_<A, B>(self: Maybe<A>, b: B, f: (b: B, a: A) => B): B {
+  self.concrete();
   return self._tag === MaybeTag.Just ? f(b, self.value) : b;
 }
 
@@ -110,6 +102,7 @@ export function foldLeft_<A, B>(self: Maybe<A>, b: B, f: (b: B, a: A) => B): B {
  * @tsplus fluent fncts.Maybe foldRight
  */
 export function foldRight_<A, B>(self: Maybe<A>, b: B, f: (a: A, b: B) => B): B {
+  self.concrete();
   return self._tag === MaybeTag.Just ? f(self.value, b) : b;
 }
 
@@ -117,6 +110,7 @@ export function foldRight_<A, B>(self: Maybe<A>, b: B, f: (a: A, b: B) => B): B 
  * @tsplus fluent fncts.Maybe foldMap
  */
 export function foldMap_<A, M>(self: Maybe<A>, f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>): M {
+  self.concrete();
   return self._tag === MaybeTag.Just ? f(self.value) : M.nat;
 }
 
@@ -126,6 +120,7 @@ export function foldMap_<A, M>(self: Maybe<A>, f: (a: A) => M, /** @tsplus auto 
  * @tsplus fluent fncts.Maybe getOrElse
  */
 export function getOrElse_<A, B>(self: Maybe<A>, orElse: Lazy<B>): A | B {
+  self.concrete();
   return self._tag === MaybeTag.Just ? self.value : orElse();
 }
 
@@ -135,6 +130,7 @@ export function getOrElse_<A, B>(self: Maybe<A>, orElse: Lazy<B>): A | B {
  * @tsplus fluent fncts.Maybe map
  */
 export function map_<A, B>(self: Maybe<A>, f: (a: A) => B): Maybe<B> {
+  self.concrete();
   return self._tag === MaybeTag.Just ? Just(f(self.value)) : (self as Nothing);
 }
 
@@ -151,6 +147,7 @@ export function mapNullable_<A, B>(self: Maybe<A>, f: (a: A) => Nullable<B>): Ma
  * @tsplus fluent fncts.Maybe orElse
  */
 export function orElse_<A, B>(self: Maybe<A>, fb: Lazy<Maybe<B>>): Maybe<A | B> {
+  self.concrete();
   return self._tag === MaybeTag.Nothing ? fb() : self;
 }
 
@@ -167,6 +164,8 @@ export function toUndefined<A>(self: Maybe<A>): A | undefined {
  * @tsplus fluent fncts.Maybe zipWith
  */
 export function zipWith_<A, B, C>(self: Maybe<A>, fb: Maybe<B>, f: (a: A, b: B) => C): Maybe<C> {
+  self.concrete();
+  fb.concrete();
   return self._tag === MaybeTag.Just && fb._tag === MaybeTag.Just ? Just(f(self.value, fb.value)) : Nothing();
 }
 

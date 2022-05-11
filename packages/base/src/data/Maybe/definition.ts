@@ -8,17 +8,31 @@ export const enum MaybeTag {
 export const MaybeTypeId = Symbol.for("fncts.Maybe");
 export type MaybeTypdId = typeof MaybeTypeId;
 
+export type MaybeF = Maybe<any>;
+
 const _justHash    = Hashable.string("fncts.Just");
 const _nothingHash = Hashable.string("fncts.Nothing");
+
+/**
+ * @tsplus type fncts.Maybe
+ * @tsplus companion fncts.MaybeOps
+ */
+export class Maybe<A> {
+  readonly _typeId: MaybeTypdId = MaybeTypeId;
+  readonly [HKT.F]!: MaybeF;
+  readonly [HKT.A]!: () => A;
+  readonly [HKT.T]!: Maybe<HKT._A<this>>;
+}
 
 /**
  * @tsplus type fncts.Just
  * @tsplus companion fncts.JustOps
  */
-export class Just<A> {
-  readonly _typeId: MaybeTypdId = MaybeTypeId;
-  readonly _tag                 = MaybeTag.Just;
-  constructor(readonly value: A) {}
+export class Just<A> extends Maybe<A> {
+  readonly _tag = MaybeTag.Just;
+  constructor(readonly value: A) {
+    super();
+  }
   [Symbol.equals](that: unknown): boolean {
     return isMaybe(that) && that.isJust() && Equatable.strictEquals(this.value, that.value);
   }
@@ -31,9 +45,8 @@ export class Just<A> {
  * @tsplus type fncts.Nothing
  * @tsplus companion fncts.NothingOps
  */
-export class Nothing {
-  readonly _typeId: MaybeTypdId = MaybeTypeId;
-  readonly _tag                 = MaybeTag.Nothing;
+export class Nothing extends Maybe<never> {
+  readonly _tag = MaybeTag.Nothing;
   [Symbol.equals](that: unknown): boolean {
     return isMaybe(that) && that.isNothing();
   }
@@ -41,18 +54,6 @@ export class Nothing {
     return _nothingHash;
   }
 }
-
-/**
- * @tsplus type fncts.Maybe
- */
-export type Maybe<A> = Just<A> | Nothing;
-
-/**
- * @tsplus type fncts.MaybeOps
- */
-export interface MaybeOps {}
-
-export const Maybe: MaybeOps = {};
 
 /**
  * @tsplus unify fncts.Maybe
@@ -78,6 +79,7 @@ export function isMaybe(u: unknown): u is Maybe<unknown> {
  * @tsplus fluent fncts.Maybe isJust
  */
 export function isJust<A>(self: Maybe<A>): self is Just<A> {
+  self.concrete();
   return self._tag === MaybeTag.Just;
 }
 
@@ -87,5 +89,15 @@ export function isJust<A>(self: Maybe<A>): self is Just<A> {
  * @tsplus fluent fncts.Maybe isNothing
  */
 export function isNothing<A>(self: Maybe<A>): self is Nothing {
+  self.concrete();
   return self._tag === MaybeTag.Nothing;
+}
+
+/**
+ * @tsplus fluent fncts.Maybe concrete
+ * @tsplus static fncts.MaybeOps concrete
+ * @tsplus macro remove
+ */
+export function concrete<A>(self: Maybe<A>): asserts self is Just<A> | Nothing {
+  //
 }

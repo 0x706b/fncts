@@ -1,11 +1,15 @@
+export interface IdentityN {
+  readonly [HKT.T]: Identity<HKT._A<this>>
+}
+
 /**
  * @tsplus type fncts.Identity
  */
-export type Identity<A> = A;
+export interface Identity<A> extends Newtype<"Identity", A> {}
 
 /**
  * @tsplus type fncts.IdentityOps
  */
-export interface IdentityOps {}
+export interface IdentityOps extends NewtypeIso<IdentityN> {}
 
-export const Identity: IdentityOps = {};
+export const Identity: IdentityOps = Newtype<IdentityN>();

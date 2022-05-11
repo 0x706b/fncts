@@ -56,6 +56,7 @@ function foldLoop<E, Z>(
     }
   } else {
     return out.foldLeft(List.empty(), (acc, v) => {
+      Either.concrete(v);
       if (v.isRight()) {
         return acc.prepend(v.right);
       } else {

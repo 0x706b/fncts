@@ -1,6 +1,7 @@
-import * as P from "../../typeclass.js";
+import type * as P from "../../typeclass.js";
+import type { MaybeF } from "@fncts/base/data/Maybe/definition";
+
 import {
-  ap_,
   filter_,
   filterMap_,
   flatMap_,
@@ -9,45 +10,34 @@ import {
   map_,
   partition_,
   partitionMap_,
+  zip_,
   zipWith_,
 } from "./api.js";
 import { just } from "./constructors.js";
 
-export interface MaybeF extends HKT {
-  readonly type: Maybe<this["A"]>;
-  readonly variance: {
-    readonly A: "+";
-  };
-}
+export const Functor: P.Functor<MaybeF> = { map: map_ };
 
-export const Functor: P.Functor<MaybeF> = P.Functor({ map_ });
+export const Apply: P.Apply<MaybeF> = { ...Functor, zip: zip_, zipWith: zipWith_ };
 
-export const Apply: P.Apply<MaybeF> = P.Apply({ map_, ap_, zipWith_ });
-
-export const Applicative: P.Applicative<MaybeF> = P.Applicative({
-  map_,
-  ap_,
-  zipWith_,
+export const Applicative: P.Applicative<MaybeF> = {
+  ...Apply,
   pure: just,
-});
+};
 
-export const Monad: P.Monad<MaybeF> = P.Monad({
-  map_,
-  ap_,
-  zipWith_,
-  pure: just,
-  flatMap_: flatMap_,
-});
+export const Monad: P.Monad<MaybeF> = {
+  ...Applicative,
+  flatMap: flatMap_,
+};
 
-export const Foldable: P.Foldable<MaybeF> = P.Foldable({
-  foldLeft_,
-  foldRight_,
-});
+export const Foldable: P.Foldable<MaybeF> = {
+  foldLeft: foldLeft_,
+  foldRight: foldRight_,
+};
 
-export const Filterable: P.Filterable<MaybeF> = P.Filterable({
-  map_,
-  filter_,
-  filterMap_,
-  partition_,
-  partitionMap_,
-});
+export const Filterable: P.Filterable<MaybeF> = {
+  ...Functor,
+  filter: filter_,
+  filterMap: filterMap_,
+  partition: partition_,
+  partitionMap: partitionMap_,
+};

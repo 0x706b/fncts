@@ -1,8 +1,12 @@
+export interface ImmutableNonEmptyArrayF extends ImmutableNonEmptyArray<any> {}
+
 /**
  * @tsplus type fncts.ImmutableNonEmptyArray
  * @tsplus companion fncts.ImmutableNonEmptyArrayOps
  */
 export class ImmutableNonEmptyArray<A> extends ImmutableArray<A> {
+  [HKT.F]!: ImmutableNonEmptyArrayF;
+  [HKT.T]!: ImmutableNonEmptyArray<HKT._A<this>>;
   constructor(readonly _array: ReadonlyNonEmptyArray<A>) {
     super(_array);
   }
@@ -20,12 +24,4 @@ export interface NonEmptyArray<T> extends Array<T> {
  */
 export interface ReadonlyNonEmptyArray<T> extends ReadonlyArray<T> {
   readonly 0: T;
-}
-
-export interface ImmutableNonEmptyArrayF extends HKT {
-  readonly type: ImmutableNonEmptyArray<this["A"]>;
-  readonly variance: {
-    readonly A: "+";
-  };
-  readonly index: number;
 }

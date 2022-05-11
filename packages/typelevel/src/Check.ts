@@ -36,7 +36,7 @@ export declare namespace Check {
   /**
    * @tsplus type fncts.Check.Extends
    */
-  type Extends<A, B> = [A] extends [never] ? never : [A] extends [B] ? unknown : never;
+  type Extends<A, B> = [A] extends [B] ? unknown : never;
 
   /**
    * @tsplus type fncts.Check.IsUnion
@@ -60,7 +60,7 @@ export declare namespace Check {
   /**
    * @tsplus type fncts.Check.IsStruct
    */
-  type IsStruct<A> = Extends<keyof A, string> & Not<IsUnion<A>>;
+  type IsStruct<A> = Check.Extends<keyof A, string> & Check.Not<Check.IsUnion<A>>;
 
   /**
    * @tsplus type fncts.Check.HaveSameLength

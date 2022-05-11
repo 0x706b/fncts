@@ -1,31 +1,32 @@
 import type { EvalF } from "@fncts/base/control/Eval/definition";
+import type * as P from "@fncts/base/typeclass";
 
-import { ap_, map_, zipWith_ } from "@fncts/base/control/Eval/api";
+import { ap_, map_, zip_, zipWith_ } from "@fncts/base/control/Eval/api";
 import { now } from "@fncts/base/control/Eval/constructors";
-import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus static fncts.control.EvalOps Functor
+ * @tsplus implicit
  */
-export const Functor: P.Functor<EvalF> = P.Functor({
-  map_,
-});
+export const Functor: P.Functor<EvalF> = {
+  map: map_,
+};
 
 /**
  * @tsplus static fncts.control.EvalOps Apply
+ * @tsplus implicit
  */
-export const Apply: P.Apply<EvalF> = P.Apply({
-  map_,
-  ap_,
-  zipWith_,
-});
+export const Apply: P.Apply<EvalF> = {
+  map: map_,
+  zip: zip_,
+  zipWith: zipWith_,
+};
 
 /**
  * @tsplus static fncts.control.EvalOps Applicative
+ * @tsplus implicit
  */
-export const Applicative: P.Applicative<EvalF> = P.Applicative({
-  map_,
-  ap_,
-  zipWith_,
+export const Applicative: P.Applicative<EvalF> = {
+  ...Apply,
   pure: now,
-});
+};

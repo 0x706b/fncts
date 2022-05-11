@@ -1,9 +1,10 @@
 import type { ImmutableArrayF } from "@fncts/base/collection/immutable/ImmutableArray/definition";
+import type * as P from "@fncts/base/typeclass";
 
 import {
   alignWith_,
   alt_,
-  ap_,
+  cross_,
   crossWith_,
   filter_,
   filterMap_,
@@ -28,141 +29,162 @@ import {
   witherWithIndex_,
 } from "@fncts/base/collection/immutable/ImmutableArray/api";
 import { empty } from "@fncts/base/collection/immutable/ImmutableArray/constructors";
-import * as P from "@fncts/base/typeclass";
 
-export const Align = P.Align<ImmutableArrayF>({
-  map_,
-  alignWith_,
+/**
+ * @tsplus implicit
+ */
+export const Align: P.Align<ImmutableArrayF> = {
+  map: map_,
+  alignWith: alignWith_,
   nil: empty,
-});
+};
 
-export const Functor = P.Functor<ImmutableArrayF>({
-  map_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Functor: P.Functor<ImmutableArrayF> = {
+  map: map_,
+};
 
-export const FunctorWithIndex = P.FunctorWithIndex<ImmutableArrayF>({
-  map_,
-  mapWithIndex_,
-});
+/**
+ * @tsplus implicit
+ */
+export const FunctorWithIndex: P.FunctorWithIndex<ImmutableArrayF> = {
+  map: map_,
+  mapWithIndex: mapWithIndex_,
+};
 
-export const Apply = P.Apply<ImmutableArrayF>({
-  map_,
-  ap_,
-  zipWith_: crossWith_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Apply: P.Apply<ImmutableArrayF> = {
+  map: map_,
+  zip: cross_,
+  zipWith: crossWith_,
+};
 
-export const Applicative = P.Applicative<ImmutableArrayF>({
-  map_,
-  ap_,
-  zipWith_: crossWith_,
+/**
+ * @tsplus implicit
+ */
+export const Applicative: P.Applicative<ImmutableArrayF> = {
+  map: map_,
+  zip: cross_,
+  zipWith: crossWith_,
   pure: (a) => ImmutableArray(a),
-});
+};
 
-export const Alt = P.Alt<ImmutableArrayF>({
-  map_,
-  alt_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Alt: P.Alt<ImmutableArrayF> = {
+  map: map_,
+  alt: alt_,
+};
 
-export const Alternative = P.Alternative<ImmutableArrayF>({
-  map_,
-  ap_,
-  zipWith_: crossWith_,
+/**
+ * @tsplus implicit
+ */
+export const Alternative: P.Alternative<ImmutableArrayF> = {
+  map: map_,
+  zip: cross_,
+  zipWith: crossWith_,
   pure: (a) => ImmutableArray(a),
-  alt_,
+  alt: alt_,
   nil: empty,
-});
+};
 
-export const Filterable = P.Filterable<ImmutableArrayF>({
-  map_,
-  filter_,
-  filterMap_,
-  partition_,
-  partitionMap_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Filterable: P.Filterable<ImmutableArrayF> = {
+  map: map_,
+  filter: filter_,
+  filterMap: filterMap_,
+  partition: partition_,
+  partitionMap: partitionMap_,
+};
 
-export const FilterableWithIndex = P.FilterableWithIndex<ImmutableArrayF>({
-  map_,
-  filter_,
-  filterMap_,
-  partition_,
-  partitionMap_,
-  mapWithIndex_,
-  filterWithIndex_,
-  filterMapWithIndex_,
-  partitionWithIndex_,
-  partitionMapWithIndex_,
-});
+/**
+ * @tsplus implicit
+ */
+export const FilterableWithIndex: P.FilterableWithIndex<ImmutableArrayF> = {
+  ...FunctorWithIndex,
+  ...Filterable,
+  filterWithIndex: filterWithIndex_,
+  filterMapWithIndex: filterMapWithIndex_,
+  partitionWithIndex: partitionWithIndex_,
+  partitionMapWithIndex: partitionMapWithIndex_,
+};
 
-export const Foldable = P.Foldable<ImmutableArrayF>({
-  foldLeft_,
-  foldRight_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Foldable: P.Foldable<ImmutableArrayF> = {
+  foldLeft: foldLeft_,
+  foldRight: foldRight_,
+};
 
-export const FoldableWithIndex = P.FoldableWithIndex<ImmutableArrayF>({
-  foldLeft_,
-  foldRight_,
-  foldLeftWithIndex_,
-  foldRightWithIndex_,
-});
+/**
+ * @tsplus implicit
+ */
+export const FoldableWithIndex: P.FoldableWithIndex<ImmutableArrayF> = {
+  ...Foldable,
+  foldLeftWithIndex: foldLeftWithIndex_,
+  foldRightWithIndex: foldRightWithIndex_,
+};
 
-export const Monad = P.Monad<ImmutableArrayF>({
-  map_,
-  ap_,
-  zipWith_: crossWith_,
-  pure: (a) => ImmutableArray(a),
-  flatMap_: flatMap_,
-});
+/**
+ * @tsplus implicit
+ */
+export const FlatMap: P.FlatMap<ImmutableArrayF> = {
+  ...Functor,
+  flatMap: flatMap_,
+};
 
-export const Traversable = P.Traversable<ImmutableArrayF>({
-  map_,
-  foldLeft_,
-  foldRight_,
-  traverse_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Monad: P.Monad<ImmutableArrayF> = {
+  ...Applicative,
+  ...FlatMap,
+};
 
-export const TraversableWithIndex = P.TraversableWithIndex<ImmutableArrayF>({
-  map_,
-  foldLeft_,
-  foldRight_,
-  traverse_,
-  mapWithIndex_,
-  foldLeftWithIndex_,
-  foldRightWithIndex_,
-  traverseWithIndex_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Traversable: P.Traversable<ImmutableArrayF> = {
+  ...Functor,
+  ...Foldable,
+  traverse: traverse_,
+};
 
-export const Witherable = P.Witherable<ImmutableArrayF>({
-  map_,
-  foldLeft_,
-  foldRight_,
-  filter_,
-  filterMap_,
-  partition_,
-  partitionMap_,
-  traverse_,
-  wither_,
-  wilt_,
-});
+/**
+ * @tsplus implicit
+ */
+export const TraversableWithIndex: P.TraversableWithIndex<ImmutableArrayF> = {
+  ...Traversable,
+  ...FoldableWithIndex,
+  ...FunctorWithIndex,
+  traverseWithIndex: traverseWithIndex_,
+};
 
-export const WitherableWithIndex = P.WitherableWithIndex<ImmutableArrayF>({
-  map_,
-  foldLeft_,
-  foldRight_,
-  filter_,
-  filterMap_,
-  partition_,
-  partitionMap_,
-  traverse_,
-  wither_,
-  wilt_,
-  mapWithIndex_,
-  foldLeftWithIndex_,
-  foldRightWithIndex_,
-  filterWithIndex_,
-  filterMapWithIndex_,
-  partitionWithIndex_,
-  partitionMapWithIndex_,
-  traverseWithIndex_,
-  witherWithIndex_,
-  wiltWithIndex_,
-});
+/**
+ * @tsplus implicit
+ */
+export const Witherable: P.Witherable<ImmutableArrayF> = {
+  ...Traversable,
+  ...Filterable,
+  wither: wither_,
+  wilt: wilt_,
+};
+
+/**
+ * @tsplus implicit
+ */
+export const WitherableWithIndex: P.WitherableWithIndex<ImmutableArrayF> = {
+  ...TraversableWithIndex,
+  ...FilterableWithIndex,
+  ...Witherable,
+  witherWithIndex: witherWithIndex_,
+  wiltWithIndex: wiltWithIndex_,
+};

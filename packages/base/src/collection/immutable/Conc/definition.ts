@@ -1,10 +1,5 @@
 import { Iterable } from "../../Iterable/definition.js";
 
-export interface ConcF extends HKT {
-  readonly type: Conc<this["A"]>;
-  readonly index: number;
-}
-
 export const BUFFER_SIZE = 64;
 
 export const UPDATE_BUFFER_SIZE = 256;
@@ -24,13 +19,19 @@ export const enum ConcTag {
   ByteChunk = "ByteChunk",
 }
 
+export interface ConcF extends Conc<any> {}
+
 /**
  * @tsplus type fncts.Conc
  * @tsplus companion fncts.ConcOps
  */
 export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
+  [HKT.F]?: ConcF;
+  [HKT.A]?: () => A;
+  [HKT.T]?: Conc<HKT._A<this>>;
+  [HKT.Ix]?: number;
+
   readonly _typeId: ConcTypeId = ConcTypeId;
-  readonly _A!: () => A;
   abstract readonly length: number;
   abstract [Symbol.iterator](): Iterator<A>;
 
@@ -43,7 +44,17 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
   }
 }
 
-abstract class ConcImplementation<A> extends Conc<A> {
+abstract class ConcImplementation<A> implements Iterable<A> {
+
+  readonly _typeId: ConcTypeId = ConcTypeId;
+  get [Symbol.hash](): number {
+    return Hashable.iterator(this[Symbol.iterator]());
+  }
+
+  [Symbol.equals](that: unknown): boolean {
+    return Conc.isConc(that) && (this as Conc<A>).corresponds(that, Equatable.strictEquals);
+  }
+
   abstract readonly length: number;
   abstract readonly binary: boolean;
   abstract get(n: number): A;

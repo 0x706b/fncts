@@ -1,34 +1,25 @@
-import * as P from "../../typeclass.js";
-import { map_ } from "./api.js";
+import type * as P from "../../typeclass.js";
+import type { Const1F,ConstF } from "@fncts/base/data/Const/definition";
 
-export interface ConstF extends HKT {
-  readonly type: Const<this["E"], this["A"]>;
-  readonly variance: {
-    E: "_";
-    A: "_";
-  };
-}
+import { Const } from "@fncts/base/data/Const/definition";
 
 /**
  * @tsplus static fncts.ConstOps getApply
  */
-export function getApply<E>(S: P.Semigroup<E>): P.Apply<ConstF, HKT.Fix<"E", E>> {
-  type CE = HKT.Fix<"E", E>;
-  const ap_: P.ap_<ConstF, CE>           = (fab, fa) => Const(S.combine(fab, fa));
-  const zipWith_: P.zipWith_<ConstF, CE> = (fa, fb, _f) => Const(S.combine(fa, fb));
-  return P.Apply({
-    map_,
-    ap_,
-    zipWith_,
-  });
+export function getApply<E>(S: P.Semigroup<E>): P.Apply<Const1F<E>> {
+  return {
+    map: (fa, f) => fa.map(f),
+    zip: (self, that) => Const(S.combine(self.getConst, that.getConst)),
+    zipWith: (self, that, _f) => Const(S.combine(self.getConst, that.getConst)),
+  };
 }
 
 /**
  * @tsplus static fncts.ConstOps getApplicative
  */
-export function getApplicative<E>(M: P.Monoid<E>): P.Applicative<ConstF, HKT.Fix<"E", E>> {
-  return P.Applicative({
+export function getApplicative<E>(M: P.Monoid<E>): P.Applicative<Const1F<E>> {
+  return {
     ...getApply(M),
     pure: <A>() => Const<E, A>(M.nat),
-  });
+  };
 }

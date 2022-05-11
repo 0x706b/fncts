@@ -1,23 +1,32 @@
 /**
  * @tsplus type fncts.Nil
  */
-export interface Nil<F extends HKT, FC = HKT.None> extends HKT.Typeclass<F, FC> {
-  readonly nil: nil<F, FC>;
+export interface Nil<F extends HKT> extends HKT.Typeclass<F> {
+  nil<
+    K = HKT.Low<"K">,
+    Q = HKT.Low<"Q">,
+    W = HKT.Low<"W">,
+    X = HKT.Low<"X">,
+    I = HKT.Low<"I">,
+    S = HKT.Low<"S">,
+    R = HKT.Low<"R">,
+    E = HKT.Low<"E">,
+  >(): HKT.Kind<F, K, Q, W, X, I, S, R, E, never>;
 }
 
-export type NilMin<F extends HKT, FC = HKT.None> = {
-  readonly nil: nil<F, FC>;
-};
-
-export interface nil<F extends HKT, FC = HKT.None> {
-  <
-    K = HKT.Low<F, "K">,
-    Q = HKT.Low<F, "Q">,
-    W = HKT.Low<F, "W">,
-    X = HKT.Low<F, "X">,
-    I = HKT.Low<F, "I">,
-    S = HKT.Low<F, "S">,
-    R = HKT.Low<F, "R">,
-    E = HKT.Low<F, "E">,
-  >(): HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, never>;
+/**
+ * @tsplus fluent fncts.Kind nil
+ */
+export function nil<
+  F extends HKT,
+  K = HKT.Low<"K">,
+  Q = HKT.Low<"Q">,
+  W = HKT.Low<"W">,
+  X = HKT.Low<"X">,
+  I = HKT.Low<"I">,
+  S = HKT.Low<"S">,
+  R = HKT.Low<"R">,
+  E = HKT.Low<"E">,
+>(/** @tsplus auto */ F: Nil<F>): HKT.Kind<F, K, Q, W, X, I, S, R, E, never> {
+  return F.nil();
 }

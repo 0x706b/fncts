@@ -338,6 +338,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
                     const r = current.register(this.unsafeCreateAsyncResume(epoch));
 
+                    Either.concrete(r);
                     switch (r._tag) {
                       case "Left": {
                         this.unsafeSetAsyncCanceller(epoch, r.left);

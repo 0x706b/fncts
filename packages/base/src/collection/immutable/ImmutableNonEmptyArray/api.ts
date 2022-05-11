@@ -168,6 +168,16 @@ export function crossWith_<A, B, C>(
 }
 
 /**
+ * @tsplus fluent fncts.ImmutableNonEmptyArray cross
+ */
+export function cross_<A, B>(
+  self: ImmutableNonEmptyArray<A>,
+  fb: ImmutableNonEmptyArray<B>,
+): ImmutableNonEmptyArray<readonly [A, B]> {
+  return self.crossWith(fb, (a, b) => [a, b]);
+}
+
+/**
  * @tsplus fluent fncts.ImmutableNonEmptyArray elem
  */
 export function elem_<A>(self: ImmutableNonEmptyArray<A>, a: A, /** @tsplus auto */ E: P.Eq<A>): boolean {
@@ -360,14 +370,6 @@ export function reverse<A>(self: ImmutableNonEmptyArray<A>): ImmutableNonEmptyAr
   return ImmutableNonEmptyArray.from(out);
 }
 
-export const sequence: P.sequence<ImmutableNonEmptyArrayF> = (A) => (self) => self.traverse(A)(identity);
-
-/**
- * @tsplus getter fncts.ImmutableNonEmptyArray sequence
- */
-export const sequenceSelf: P.sequenceSelf<ImmutableNonEmptyArrayF> = (self) => (A) =>
-  unsafeCoerce(self.traverse(A)(unsafeCoerce(identity)));
-
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray splitAt
  */
@@ -390,29 +392,20 @@ export function sort<A>(self: ImmutableNonEmptyArray<A>, /** @tsplus auto */ O: 
     : self._array.slice().sort((first, second) => O.compare(first, second)).unsafeAsNonEmptyArray;
 }
 
-export const traverseWithIndex_: P.traverseWithIndex_<ImmutableNonEmptyArrayF> =
-  P.mkTraverseWithIndex_<ImmutableNonEmptyArrayF>()(
-    (_) => (A) => (self, f) =>
-      self.tail.foldLeftWithIndex(
-        A.map_(f(0, self.head), (b) => ImmutableNonEmptyArray(b)),
-        (i, fbs, a) => A.zipWith_(fbs, f(i + 1, a), (bs, b) => bs.append(b)),
-      ),
+/**
+ * @tsplus fluent fncts.ImmutableNonEmptyArray traverseWithIndex
+ */
+export const traverseWithIndex_: P.TraversableWithIndex<ImmutableNonEmptyArrayF>["traverseWithIndex"] = (self, f, G) =>
+  self.tail.foldLeftWithIndex(
+    f(0, self.head).map((b) => ImmutableNonEmptyArray(b), G),
+    (i, fbs, a) => fbs.zipWith(f(i + 1, a), (bs, b) => bs.append(b), G),
   );
 
 /**
- * @tsplus getter fncts.ImmutableNonEmptyArray traverseWithIndex
+ * @tsplus fluent fncts.ImmutableNonEmptyArray traverse
  */
-export const traverseWithIndexSelf: P.traverseWithIndexSelf<ImmutableNonEmptyArrayF> = (self) => (A) => (f) =>
-  traverseWithIndex_(A)(self, f);
-
-export const traverse_: P.traverse_<ImmutableNonEmptyArrayF> = (A) => (self, f) =>
-  self.traverseWithIndex(A)((_, a) => f(a));
-
-/**
- * @tsplus getter fncts.ImmutableNonEmptyArray traverse
- */
-export const traverseSelf: P.traverseSelf<ImmutableNonEmptyArrayF> = (self) => (A) => (f) =>
-  self.traverseWithIndex(A)((_, a) => f(a));
+export const traverse_: P.Traversable<ImmutableNonEmptyArrayF>["traverse"] = (self, f, A) =>
+  self.traverseWithIndex((_, a) => f(a), A);
 
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray uniq

@@ -1,12 +1,18 @@
 export const ImmutableArrayTypeId = Symbol.for("fncts.ImmutableArray");
 export type ImmutableArrayTypeId = typeof ImmutableArrayTypeId;
 
+export interface ImmutableArrayF extends ImmutableArray<any> {}
+
 /**
  * @tsplus type fncts.ImmutableArray
  * @tsplus companion fncts.ImmutableArrayOps
  */
 export class ImmutableArray<A> implements Equatable, Hashable, Iterable<A> {
   readonly _typeId: ImmutableArrayTypeId = ImmutableArrayTypeId;
+  [HKT.F]?: ImmutableArrayF;
+  [HKT.A]?: () => A;
+  [HKT.T]?: ImmutableArray<HKT._A<this>>;
+  [HKT.Ix]?: number;
   constructor(readonly _array: ReadonlyArray<A>) {}
 
   [Symbol.equals](that: unknown): boolean {
@@ -28,12 +34,4 @@ export class ImmutableArray<A> implements Equatable, Hashable, Iterable<A> {
 
 export function isImmutableArray(u: unknown): u is ImmutableArray<unknown> {
   return hasTypeId(u, ImmutableArrayTypeId);
-}
-
-export interface ImmutableArrayF extends HKT {
-  readonly type: ImmutableArray<this["A"]>;
-  readonly variance: {
-    readonly A: "+";
-  };
-  readonly index: number;
 }

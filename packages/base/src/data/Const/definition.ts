@@ -1,11 +1,28 @@
 /**
- * @tsplus type fncts.Const
+ * @tsplus type fncts.ConstF
  */
-export type Const<E, A> = E & { readonly _A: A };
+export interface ConstF extends Const<any, any> {}
 
 /**
- * @tsplus type fncts.ConstOps
+ * @tsplus type fncts.ConstF
  */
-export interface ConstOps {}
+export interface Const1F<E> extends Const1<E, any> {}
 
-export const Const: ConstOps = {};
+/**
+ * @tsplus type fncts.Const
+ * @tsplus companion fncts.ConstOps
+ */
+export class Const<E, A> {
+  readonly [HKT.F]!: ConstF;
+  readonly [HKT.E]!: () => E;
+  readonly [HKT.A]!: () => A;
+  readonly [HKT.T]!: Const<HKT._E<this>, HKT._A<this>>;
+  constructor(readonly getConst: E) {}
+}
+
+export interface Const1<E, A> {
+  readonly [HKT.F]: ConstF;
+  readonly [HKT.E]: () => E;
+  readonly [HKT.A]: () => A;
+  readonly [HKT.T]: Const<E, HKT._A<this>>;
+}

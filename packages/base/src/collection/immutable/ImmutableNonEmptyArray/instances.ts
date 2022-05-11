@@ -1,9 +1,11 @@
 import type { ImmutableNonEmptyArrayF } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
+import type * as P from "@fncts/base/typeclass";
 
 import {
   align_,
   alignWith_,
   ap_,
+  cross_,
   crossWith_,
   flatMap_,
   foldLeft_,
@@ -16,100 +18,88 @@ import {
   traverseWithIndex_,
 } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/api";
 import { make } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/constructors";
-import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Semialign
  */
-export const Semialign: P.Semialign<ImmutableNonEmptyArrayF> = P.Semialign({
-  map_,
-  alignWith_,
-  align_,
-});
+export const Semialign: P.Semialign<ImmutableNonEmptyArrayF> = {
+  map: map_,
+  alignWith: alignWith_,
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Functor
  */
-export const Functor: P.Functor<ImmutableNonEmptyArrayF> = P.Functor({
-  map_,
-});
+export const Functor: P.Functor<ImmutableNonEmptyArrayF> = {
+  map: map_,
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps FunctorWithIndex
  */
-export const FunctorWithIndex: P.FunctorWithIndex<ImmutableNonEmptyArrayF> = P.FunctorWithIndex({
-  map_,
-  mapWithIndex_,
-});
+export const FunctorWithIndex: P.FunctorWithIndex<ImmutableNonEmptyArrayF> = {
+  map: map_,
+  mapWithIndex: mapWithIndex_,
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Apply
  */
-export const Apply: P.Apply<ImmutableNonEmptyArrayF> = P.Apply({
-  map_,
-  zipWith_: crossWith_,
-  ap_,
+export const Apply: P.Apply<ImmutableNonEmptyArrayF> = ({
+  ...Functor,
+  zip: cross_,
+  zipWith: crossWith_,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Applicative
  */
-export const Applicative: P.Applicative<ImmutableNonEmptyArrayF> = P.Applicative({
-  map_,
-  zipWith_: crossWith_,
-  ap_,
+export const Applicative: P.Applicative<ImmutableNonEmptyArrayF> = ({
+  ...Apply,
   pure: make,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Monad
  */
-export const Monad: P.Monad<ImmutableNonEmptyArrayF> = P.Monad({
-  map_,
-  zipWith_: crossWith_,
-  ap_,
-  pure: make,
-  flatMap_: flatMap_,
+export const Monad: P.Monad<ImmutableNonEmptyArrayF> = ({
+  ...Applicative,
+  flatMap: flatMap_,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Foldable
  */
-export const Foldable: P.Foldable<ImmutableNonEmptyArrayF> = P.Foldable({
-  foldLeft_,
-  foldRight_,
+export const Foldable: P.Foldable<ImmutableNonEmptyArrayF> = ({
+  foldLeft: foldLeft_,
+  foldRight: foldRight_,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps FoldableWithIndex
  */
-export const FoldableWithIndex: P.FoldableWithIndex<ImmutableNonEmptyArrayF> = P.FoldableWithIndex({
-  foldLeft_,
-  foldRight_,
-  foldLeftWithIndex_,
-  foldRightWithIndex_,
+export const FoldableWithIndex: P.FoldableWithIndex<ImmutableNonEmptyArrayF> = ({
+  ...Foldable,
+  foldLeftWithIndex: foldLeftWithIndex_,
+  foldRightWithIndex: foldRightWithIndex_,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Traversable
  */
-export const Traversable: P.Traversable<ImmutableNonEmptyArrayF> = P.Traversable({
-  map_,
-  foldLeft_,
-  foldRight_,
-  traverse_,
+export const Traversable: P.Traversable<ImmutableNonEmptyArrayF> = ({
+  ...Functor,
+  ...Foldable,
+  traverse: traverse_,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps TraversableWithIndex
  */
-export const TraversableWithIndex: P.TraversableWithIndex<ImmutableNonEmptyArrayF> = P.TraversableWithIndex({
-  map_,
-  foldLeft_,
-  foldRight_,
-  traverse_,
-  mapWithIndex_,
-  foldLeftWithIndex_,
-  foldRightWithIndex_,
-  traverseWithIndex_,
+export const TraversableWithIndex: P.TraversableWithIndex<ImmutableNonEmptyArrayF> = ({
+  ...Functor,
+  ...FunctorWithIndex,
+  ...FoldableWithIndex,
+  ...Traversable,
+  traverseWithIndex: traverseWithIndex_,
 });

@@ -55,9 +55,9 @@ export function makeDefault<K, V>(): HashMap<K, V> {
  *
  * @tsplus fluent fncts.HashMapOps fromFoldable
  */
-export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.Semigroup<A>, F: P.Foldable<F, C>) {
-  return <K_, Q, W, X, I, S, R, E>(fka: HKT.Kind<F, C, K_, Q, W, X, I, S, R, E, readonly [K, A]>): HashMap<K, A> => {
-    return F.foldLeft_(fka, makeWith(config), (b, [k, a]) => {
+export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.Semigroup<A>, F: P.Foldable<F>) {
+  return <K_, Q, W, X, I, S, R, E>(fka: HKT.Kind<F, K_, Q, W, X, I, S, R, E, readonly [K, A]>): HashMap<K, A> => {
+    return F.foldLeft(fka, makeWith(config), (b, [k, a]) => {
       const oa = b.get(k);
       if (oa.isJust()) {
         return b.set(k, S.combine(oa.value, a));
@@ -528,31 +528,16 @@ export function foldLeft_<K, V, Z>(map: HashMap<K, V>, z: Z, f: (z: Z, v: V) => 
   return map.foldLeftWithIndex(z, (_, b, a) => f(b, a));
 }
 
-export const traverseWithIndex_: P.traverseWithIndex_<HashMapF> = P.mkTraverseWithIndex_<HashMapF>()(
-  () => (A) => (ta, f) =>
-    foldLeftWithIndex_(ta, A.pure(makeWith(ta.config)), (k, b, a) => A.zipWith_(b, f(k, a), (map, b) => map.set(k, b))),
-);
-
-export const traverseWithIndex: P.traverseWithIndex<HashMapF> = (A) => {
-  const traverseWithIndexA_ = traverseWithIndex_(A);
-  return (f) => (ta) => traverseWithIndexA_(ta, f);
-};
+/**
+ * @tsplus fluent fncts.HashMap traverseWithIndex
+ */
+export const traverseWithIndex_: P.TraversableWithIndex<HashMapF>["traverseWithIndex"] = (ta, f, G) =>
+  ta.foldLeftWithIndex(G.pure(makeWith(ta.config)), (k, b, a) => b.zipWith(f(k, a), (map, b) => map.set(k, b), G));
 
 /**
- * @tsplus getter fncts.HashMap traverseWithIndex
+ * @tsplus fluent fncts.HashMap traverse
  */
-export const traverseWithIndexSelf: P.traverseWithIndexSelf<HashMapF> = (self) => (A) => (f) =>
-  traverseWithIndex_(A)(self, f);
-
-export const traverse_: P.traverse_<HashMapF> = (A) => {
-  const traverseWithIndexA_ = traverseWithIndex_(A);
-  return (ta, f) => traverseWithIndexA_(ta, (_, a) => f(a));
-};
-
-export const traverse: P.traverse<HashMapF> = (A) => {
-  const traverseWithIndexA_ = traverseWithIndex_(A);
-  return (f) => (ta) => traverseWithIndexA_(ta, (_, a) => f(a));
-};
+export const traverse_: P.Traversable<HashMapF>["traverse"] = (ta, f, G) => ta.traverseWithIndex((_, a) => f(a), G);
 
 /**
  * @tsplus fluent fncts.HashMap unsafeGet
@@ -562,69 +547,27 @@ export function unsafeGet_<K, V>(self: HashMap<K, V>, key: K): V | undefined {
 }
 
 /**
- * @tsplus getter fncts.HashMap traverse
+ * @tsplus fluent fncts.HashMap witherWithIndex
  */
-export const traverseSelf: P.traverseSelf<HashMapF> = (self) => (A) => (f) =>
-  traverseWithIndex_(A)(self, (_, a) => f(a));
-
-export const witherWithIndex_: P.witherWithIndex_<HashMapF> = (A) => (wa, f) =>
-  A.map_(wa.traverseWithIndex(A)(f), compact);
-
-export const witherWithIndex: P.witherWithIndex<HashMapF> = (A) => {
-  const witherWithIndexA_ = witherWithIndex_(A);
-  return (f) => (ta) => witherWithIndexA_(ta, f);
-};
+export const witherWithIndex_: P.WitherableWithIndex<HashMapF>["witherWithIndex"] = (wa, f, G) =>
+  wa.traverseWithIndex(f, G).map(compact, G);
 
 /**
- * @tsplus getter fncts.HashMap witherWithIndex
+ * @tsplus fluent fncts.HashMap wither
  */
-export const witherWithIndexSelf: P.witherWithIndexSelf<HashMapF> = (self) => (A) => (f) =>
-  witherWithIndex_(A)(self, f);
-
-export const wither_: P.wither_<HashMapF> = (A) => {
-  const witherWithIndexA_ = witherWithIndex_(A);
-  return (wa, f) => witherWithIndexA_(wa, (_, a) => f(a));
-};
-
-export const wither: P.wither<HashMapF> = (A) => {
-  const witherWithIndexA_ = witherWithIndex_(A);
-  return (f) => (wa) => witherWithIndexA_(wa, (_, a) => f(a));
-};
+export const wither_: P.Witherable<HashMapF>["wither"] = (wa, f, G) => wa.witherWithIndex((_, a) => f(a), G);
 
 /**
- * @tsplus getter fncts.HashMap wither
+ * @tsplus fluent fncts.HashMap wiltWithIndex
  */
-export const witherSelf: P.witherSelf<HashMapF> = (self) => (A) => (f) => self.witherWithIndex(A)((_, a) => f(a));
-
-export const wiltWithIndex_: P.wiltWithIndex_<HashMapF> = (A) => {
-  const traverseWithIndexA_ = traverseWithIndex_(A);
-  return (wa, f) => traverseWithIndexA_(wa, f).via(A.map(separate));
-};
-
-export const wiltWithIndex: P.wiltWithIndex<HashMapF> = (A) => {
-  const wiltWithIndexA_ = wiltWithIndex_(A);
-  return (f) => (wa) => wiltWithIndexA_(wa, f);
-};
+export const wiltWithIndex_: P.WitherableWithIndex<HashMapF>["wiltWithIndex"] = (wa, f, G) =>
+  wa.traverseWithIndex(f, G).map(separate, G);
 
 /**
- * @tsplus getter fncts.HashMap wiltWithIndex
+ * @tsplus fluent fncts.HashMap wilt
  */
-export const wiltWithIndexSelf: P.wiltWithIndexSelf<HashMapF> = (self) => (A) => (f) => wiltWithIndex_(A)(self, f);
-
-export const wilt_: P.wilt_<HashMapF> = (A) => {
-  const wiltWithIndexA_ = wiltWithIndex_(A);
-  return (wa, f) => wiltWithIndexA_(wa, (_, a) => f(a));
-};
-
-export const wilt: P.wilt<HashMapF> = (A) => {
-  const wiltWithIndexA_ = wiltWithIndex_(A);
-  return (f) => (wa) => wiltWithIndexA_(wa, (_, a) => f(a));
-};
-
-/**
- * @tsplus getter fncts.HashMap wilt
- */
-export const wiltSelf: P.wiltSelf<HashMapF> = (self) => (A) => (f) => self.wiltWithIndex(A)((_, a) => f(a));
+export const wilt_: P.Witherable<HashMapF>["wilt"] = (wa, f, G) =>
+  wa.wiltWithIndex((_, a) => f(a), G);
 
 /**
  * @tsplus fluent fncts.HashMap unionWith

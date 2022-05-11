@@ -218,6 +218,7 @@ export function filterDefects_<E>(self: Cause<E>, p: Predicate<unknown>): Maybe<
  */
 function findLoop<A, B>(self: Cause<A>, f: (cause: Cause<A>) => Maybe<B>, stack: List<Cause<A>>): Maybe<B> {
   const r = f(self);
+  Maybe.concrete(r);
   switch (r._tag) {
     case MaybeTag.Nothing: {
       switch (self._tag) {
@@ -808,6 +809,8 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
       return Eval.defer(() => sequenceCauseEitherEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseEitherEval(self.right)),
         (lefts, rights) => {
+          Either.concrete(lefts);
+          Either.concrete(rights);
           return lefts._tag === "Left"
             ? rights._tag === "Right"
               ? Either.right(rights.right)
@@ -820,6 +823,8 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
       return Eval.defer(() => sequenceCauseEitherEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseEitherEval(self.right)),
         (lefts, rights) => {
+          Either.concrete(lefts);
+          Either.concrete(rights);
           return lefts._tag === "Left"
             ? rights._tag === "Right"
               ? Either.right(rights.right)
@@ -863,6 +868,8 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
       return Eval.defer(() => sequenceCauseMaybeEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseMaybeEval(self.right)),
         (lefts, rights) => {
+          Maybe.concrete(lefts);
+          Maybe.concrete(rights);
           return lefts._tag === "Just"
             ? rights._tag === "Just"
               ? Maybe.just(Cause.then(lefts.value, rights.value))
@@ -877,6 +884,8 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
       return Eval.defer(() => sequenceCauseMaybeEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseMaybeEval(self.right)),
         (lefts, rights) => {
+          Maybe.concrete(lefts);
+          Maybe.concrete(rights);
           return lefts._tag === "Just"
             ? rights._tag === "Just"
               ? Maybe.just(Cause.both(lefts.value, rights.value))

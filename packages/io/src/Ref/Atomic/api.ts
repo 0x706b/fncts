@@ -29,6 +29,7 @@ export function getAndUpdateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
   return IO.succeed(() => {
     const v = self.unsafeGet;
     const o = f(v);
+    Maybe.concrete(o);
     if (o._tag === "Just") {
       self.unsafeSet(o.value);
     }
@@ -56,6 +57,7 @@ export function modifyJust<A, B>(self: Atomic<A>, def: B, f: (a: A) => Maybe<rea
     const v = self.unsafeGet;
     const o = f(v);
 
+    Maybe.concrete(o);
     if (o._tag === "Just") {
       self.unsafeSet(o.value[1]);
       return o.value[0];
@@ -91,6 +93,7 @@ export function updateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
   return IO.succeed(() => {
     const o = f(self.unsafeGet);
 
+    Maybe.concrete(o);
     if (o._tag === "Just") {
       self.unsafeSet(o.value);
     }
@@ -104,6 +107,7 @@ export function updateJustAndGet<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
   return IO.succeed(() => {
     const o = f(self.unsafeGet);
 
+    Maybe.concrete(o);
     if (o._tag === "Just") {
       self.unsafeSet(o.value);
     }

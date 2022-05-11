@@ -7,6 +7,6 @@ import { identity, unsafeCoerce } from "@fncts/base/data/function";
  */
 export function sequenceT<T extends ReadonlyNonEmptyArray<IO<any, any, any>>>(
   ...ios: T
-): IO<_R<T[number]>, _E<T[number]>, { [K in keyof T]: _A<T[K]> }> {
+): IO<HKT._R<T[number]>, HKT._E<T[number]>, { [K in keyof T]: HKT._A<T[K]> }> {
   return unsafeCoerce(IO.foreach(ios, identity));
 }

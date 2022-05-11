@@ -1,40 +1,32 @@
 import type * as P from "@fncts/base/typeclass";
 
 /**
- * @tsplus getter fncts.Iterable traverseToConcWithIndex
+ * @tsplus fluent fncts.Iterable traverseToConcWithIndex
  */
-export function traverseToConcWithIndex_<A>(
+export function traverseToConcWithIndex_<G extends HKT, K, Q, W, X, I, S, R, E, A, B>(
   ta: Iterable<A>,
-): <G extends HKT, CG>(
-  G: P.Applicative<G, CG>,
-) => <K, Q, W, X, I, S, R, E, B>(
-  f: (i: number, a: A) => HKT.Kind<G, CG, K, Q, W, X, I, S, R, E, B>,
-) => HKT.Kind<G, CG, K, Q, W, X, I, S, R, E, Conc<B>>;
-export function traverseToConcWithIndex_<A>(ta: Iterable<A>) {
-  return <G>(G: P.Applicative<HKT.F<G>>) =>
-    <K, Q, W, X, I, S, R, E, B>(
-      f: (i: number, a: A) => HKT.FK<G, K, Q, W, X, I, S, R, E, B>,
-    ): HKT.FK<G, K, Q, W, X, I, S, R, E, Conc<B>> => {
-      let output     = G.pure(Conc.empty<B>());
-      const iterator = ta[Symbol.iterator]();
-      let result: IteratorResult<A>;
-      let i          = 0;
-      while (!(result = iterator.next()).done) {
-        output = G.zipWith_(output, f(i, result.value), (bs, b) => bs.append(b));
-        i++;
-      }
+  f: (i: number, a: A) => HKT.Kind<G, K, Q, W, X, I, S, R, E, B>,
+  /** @tsplus auto */ G: P.Applicative<G>,
+): HKT.Kind<G, K, Q, W, X, I, S, R, E, Conc<B>> {
+  let output     = G.pure<Conc<B>, K, Q, W, X, I, S, R, E>(Conc.empty<B>());
+  const iterator = ta[Symbol.iterator]();
+  let result: IteratorResult<A>;
+  let i          = 0;
+  while (!(result = iterator.next()).done) {
+    output = G.zipWith(output, f(i, result.value), (bs, b) => bs.append(b));
+    i++;
+  }
 
-      return output;
-    };
+  return output;
 }
 
 /**
- * @tsplus getter fncts.Iterable traverseToConc
+ * @tsplus fluent fncts.Iterable traverseToConc
  */
-export function traverseToConc_<A>(ta: Iterable<A>) {
-  return <G extends HKT, GC>(G: P.Applicative<G, GC>) =>
-    <K, Q, W, X, I, S, R, E, B>(
-      f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
-    ): HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, Conc<B>> =>
-      ta.traverseToConcWithIndex(G)((_, a) => f(a));
+export function traverseToConc_<G extends HKT, K, Q, W, X, I, S, R, E, A, B>(
+  ta: Iterable<A>,
+  f: (a: A) => HKT.Kind<G, K, Q, W, X, I, S, R, E, B>,
+  /** @tsplus auto */ G: P.Applicative<G>,
+): HKT.Kind<G, K, Q, W, X, I, S, R, E, Conc<B>> {
+  return ta.traverseToConcWithIndex((_, a) => f(a), G);
 }

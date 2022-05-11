@@ -9,6 +9,7 @@
     "preserveSymlinks": true,
     "lib": ["ES2021", "ESNext.WeakRef"],
     "noUncheckedIndexedAccess": true,
+    "suppressImplicitAnyIndexErrors": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "baseUrl": ".",

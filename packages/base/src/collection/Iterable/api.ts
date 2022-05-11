@@ -414,6 +414,7 @@ function handlePartitionMap<A, B, C>(
   h: "Left" | "Right",
 ): PartitionHandleResult<B | C> {
   const bc = f(i, a);
+  Either.concrete(bc);
   return h === "Left" && bc._tag === "Left"
     ? { emit: true, value: bc.left }
     : h === "Right" && bc._tag === "Right"

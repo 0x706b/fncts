@@ -34,22 +34,28 @@ export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgeb
   return self
     .fold<A, Either<FreeBooleanAlgebra<A>, FreeBooleanAlgebra<A>>>({
       Value: (a) => Either.right(FreeBooleanAlgebra.success(a)),
-      And: (l, r) =>
-        l.isRight()
+      And: (l, r) => {
+        Either.concrete(l);
+        Either.concrete(r);
+        return l.isRight()
           ? r.isRight()
             ? Either.right(l.right && r.right)
             : r
           : r.isRight()
           ? l
-          : Either.left(l.left && r.left),
-      Or: (l, r) =>
-        l.isRight()
+          : Either.left(l.left && r.left);
+      },
+      Or: (l, r) => {
+        Either.concrete(l);
+        Either.concrete(r);
+        return l.isRight()
           ? r.isRight()
             ? Either.right(l.right || r.right)
             : l
           : r.isRight()
           ? r
-          : Either.left(l.left || r.left),
+          : Either.left(l.left || r.left);
+      },
       Not: (v) => v.swap,
     })
     .match(Maybe.just, () => Nothing());

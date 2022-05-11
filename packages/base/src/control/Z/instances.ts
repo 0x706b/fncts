@@ -1,14 +1,15 @@
-import type { ZF } from "./definition.js";
+import type * as P from "../../typeclass.js";
+import type { ZFixedF } from "./definition.js";
 
-import * as P from "../../typeclass.js";
-import { ap_, crossWith_, map_, succeedNow } from "./api.js";
+import { map_, succeedNow, zip_, zipWith_ } from "./api.js";
 
 /**
  * @tsplus static fncts.control.ZOps Applicative
+ * @tsplus implicit
  */
-export const Applicative: P.Applicative<ZF> = P.Applicative({
-  map_,
-  ap_,
-  zipWith_: crossWith_,
+export const Applicative: P.Applicative<ZFixedF> = {
+  map: map_,
+  zip: zip_,
+  zipWith: zipWith_,
   pure: succeedNow,
-});
+};

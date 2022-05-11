@@ -4,15 +4,19 @@ import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
 export const IOTypeId = Symbol.for("fncts.io.IO");
 export type IOTypeId = typeof IOTypeId;
 
+export interface IOF extends IO<any, any, any> {}
+
 /**
  * @tsplus type fncts.io.IO
  * @tsplus companion fncts.io.IOOps
  */
 export abstract class IO<R, E, A> {
   readonly _typeId: IOTypeId = IOTypeId;
-  readonly _R!: (_: R) => void;
-  readonly _E!: () => E;
-  readonly _A!: () => A;
+  readonly [HKT.F]!: IOF;
+  readonly [HKT.R]!: (_: R) => void;
+  readonly [HKT.E]!: () => E;
+  readonly [HKT.A]!: () => A;
+  readonly [HKT.T]!: IO<HKT._R<this>, HKT._E<this>, HKT._A<this>>;
 }
 
 /**

@@ -1,12 +1,16 @@
 export const EvalTypeId = Symbol.for("@fncts.base/control/Eval");
 export type EvalTypeId = typeof EvalTypeId;
 
+export interface EvalF extends Eval<any> {}
+
 /**
  * @tsplus type fncts.control.Eval
  */
 export interface Eval<A> {
   readonly _typeId: EvalTypeId;
-  readonly _A: () => A;
+  [HKT.F]?: EvalF;
+  [HKT.A]?: () => A;
+  [HKT.T]?: Eval<HKT._A<this>>;
 }
 
 /**
@@ -57,11 +61,4 @@ export function concrete(_: Eval<any>): asserts _ is Concrete {
  */
 export function unifyEval<X extends Eval<any>>(self: X): Eval<[X] extends [Eval<infer A>] ? A : never> {
   return self;
-}
-
-export interface EvalF extends HKT {
-  readonly type: Eval<this["A"]>;
-  readonly variance: {
-    readonly A: "-";
-  };
 }
