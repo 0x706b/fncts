@@ -55,11 +55,7 @@ export function foldMapWithIndex<F extends HKT, K, Q, W, X, I, S, R, E, A, M>(
   fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
   f: (k: HKT.IndexFor<F, K>, a: A) => M,
   /** @tsplus auto */ M: Monoid<M>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: FoldableWithIndex<F>,
+  /** @tsplus auto */ F: FoldableWithIndex<F>,
 ): M {
   return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
 }

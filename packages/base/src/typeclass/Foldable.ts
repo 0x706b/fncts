@@ -49,13 +49,8 @@ export function foldRight<F extends HKT, K, Q, W, X, I, S, R, E, A, B>(
 export function foldMap<F extends HKT, K, Q, W, X, I, S, R, E, A, M>(
   fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
   f: (a: A) => M,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Foldable<F>,
-  /** @tsplus auto */
-  M: Monoid<M>,
+  /** @tsplus auto */ F: Foldable<F>,
+  /** @tsplus auto */ M: Monoid<M>,
 ): M {
   return fa.foldLeft(M.nat, (b, a) => M.combine(b, f(a)));
 }

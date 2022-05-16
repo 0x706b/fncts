@@ -1427,11 +1427,7 @@ export function wiltWithIndex_<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG, B1
 export function wither_<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG, A, B>(
   self: ImmutableArray<A>,
   f: (a: A) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, Maybe<B>>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  G: P.Applicative<G>,
+  /** @tsplus auto */ G: P.Applicative<G>,
 ): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, ImmutableArray<B>> {
   return self.witherWithIndex((_, a) => f(a));
 }

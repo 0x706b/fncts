@@ -80,16 +80,8 @@ export function sequence<
   A,
 >(
   ta: HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, A>>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Traversable<F>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  G: Applicative<G>,
+  /** @tsplus auto */ F: Traversable<F>,
+  /** @tsplus auto */ G: Applicative<G>,
 ): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, A>> {
   return ta.traverse(identity);
 }

@@ -95,11 +95,7 @@ export function ap<F extends HKT, K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2,
     HKT.Intro<"E", E1, E2>,
     A
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Apply<F>,
+  /** @tsplus auto */ F: Apply<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K1, K2]>,
@@ -132,11 +128,7 @@ export function apFirst<F extends HKT, K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2
     HKT.Intro<"E", E1, E2>,
     B
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Apply<F>,
+  /** @tsplus auto */ F: Apply<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K1, K2]>,
@@ -169,11 +161,7 @@ export function apSecond<F extends HKT, K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q
     HKT.Intro<"E", E1, E2>,
     B
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Apply<F>,
+  /** @tsplus auto */ F: Apply<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K1, K2]>,
@@ -225,11 +213,7 @@ export function apS<
     HKT.Intro<"E", E1, E2>,
     B
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Apply<F>,
+  /** @tsplus auto */ F: Apply<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K1, K2]>,

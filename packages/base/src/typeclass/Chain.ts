@@ -102,11 +102,7 @@ export function flatten<F extends HKT, K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2
       A
     >
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: FlatMap<F>,
+  /** @tsplus auto */ F: FlatMap<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K2, K1]>,
@@ -141,11 +137,7 @@ export function tap<F extends HKT, K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2
     HKT.Intro<"E", E1, E2>,
     B
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: FlatMap<F>,
+  /** @tsplus auto */ F: FlatMap<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K1, K2]>,

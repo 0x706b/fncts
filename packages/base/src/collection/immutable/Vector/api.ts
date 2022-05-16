@@ -858,6 +858,13 @@ export function prepend_<A>(as: Vector<A>, a: A): Vector<A> {
 }
 
 /**
+ * @tsplus operator fncts.Vector +
+ */
+export function prependOperator<A>(a: A, as: Vector<A>): Vector<A> {
+  return as.prepend(a);
+}
+
+/**
  * Returns a Vector of numbers between an inclusive lower bound and an exclusive upper bound.
  *
  * @complexity O(n)
@@ -898,6 +905,13 @@ export function replicate<A>(n: number, a: A): Vector<A> {
     l.push(a);
   }
   return l;
+}
+
+/**
+ * @tsplus getter fncts.Vector reverse
+ */
+export function reverse<A>(self: Vector<A>): Vector<A> {
+  return self.foldLeft(Vector.empty(), (vec, elem) => vec.prepend(elem));
 }
 
 /**
@@ -1039,7 +1053,7 @@ export function slice_<A>(as: Vector<A>, from: number, to: number): Vector<A> {
 }
 
 /**
- * @tsplus getter fncts.Vector sort
+ * @tsplus fluent fncts.Vector sort
  */
 export function sort_<A>(self: Vector<A>, /** @tsplus auto */ O: Ord<A>): Vector<A> {
   return self.sortWith(O.compare);

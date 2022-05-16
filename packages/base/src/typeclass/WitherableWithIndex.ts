@@ -72,7 +72,7 @@ export function witherWithIndex<
   /** @tsplus auto */
   G: Applicative<G>,
 ): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, B>> {
-  return F.witherWithIndex(wa, f, G);
+  return F.witherWithIndex(wa, f);
 }
 
 /**
@@ -118,7 +118,7 @@ export function wiltWithIndex<
   EG,
   readonly [HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, B>, HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, B2>]
 > {
-  return F.wiltWithIndex(wa, f, G);
+  return F.wiltWithIndex(wa, f);
 }
 
 export function filterWithIndexA<
@@ -144,16 +144,8 @@ export function filterWithIndexA<
 >(
   fa: HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, AF>,
   p: (i: HKT.IndexFor<F, KF>, a: AF) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, boolean>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: WitherableWithIndex<F>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  G: Applicative<G>,
+  /** @tsplus auto */ F: WitherableWithIndex<F>,
+  /** @tsplus auto */ G: Applicative<G>,
 ): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, AF>> {
   return fa.witherWithIndex((i, a) => p(i, a).map((bb) => (bb ? Just(a) : Nothing()), G));
 }

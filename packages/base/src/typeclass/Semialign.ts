@@ -190,11 +190,7 @@ export function alignCombine<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W
     HKT.Intro<"E", E, E1>,
     A
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Semialign<F>,
+  /** @tsplus auto */ F: Semialign<F>,
   /** @tsplus auto */ S: Semigroup<A>,
 ): HKT.Kind<
   F,
@@ -208,6 +204,7 @@ export function alignCombine<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W
   HKT.Mix<"E", [E, E1]>,
   A
 > {
+
   return self.alignWith(that, (th) => th.match(identity, identity, S.combine));
 }
 
@@ -257,11 +254,7 @@ export function padZip<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1,
     HKT.Intro<"E", E, E1>,
     B
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Semialign<F>,
+  /** @tsplus auto */ F: Semialign<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K, K1]>,
@@ -346,7 +339,6 @@ export function padZipWith<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1,
         (b) => f([Nothing(), Just(b)]),
         (a, b) => f([Just(a), Just(b)]),
       ),
-    F,
   );
 }
 
@@ -400,11 +392,7 @@ export function zipAll<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1,
   >,
   a: A,
   b: B,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Semialign<F>,
+  /** @tsplus auto */ F: Semialign<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K, K1]>,

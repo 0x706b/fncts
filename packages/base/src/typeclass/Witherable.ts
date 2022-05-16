@@ -66,7 +66,7 @@ export function wither<
   /** @tsplus auto */ F: Witherable<F>,
   /** @tsplus auto */ G: Applicative<G>,
 ): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, B>> {
-  return F.wither(wa, f, G);
+  return F.wither(wa, f);
 }
 
 export function wilt<
@@ -108,7 +108,7 @@ export function wilt<
   EG,
   readonly [HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, B>, HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, B1>]
 > {
-  return F.wilt(wa, f, G);
+  return F.wilt(wa, f);
 }
 
 /**
@@ -137,16 +137,8 @@ export function filterA<
 >(
   fa: HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, AF>,
   p: (a: AF) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, boolean>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: Witherable<F>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  G: Applicative<G>,
+  /** @tsplus auto */ F: Witherable<F>,
+  /** @tsplus auto */ G: Applicative<G>,
 ): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, KF, QF, WF, XF, IF, SF, RF, EF, AF>> {
   return fa.wither((a) => p(a).map((bb) => (bb ? Just(a) : Nothing()), G));
 }

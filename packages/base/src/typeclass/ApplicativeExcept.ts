@@ -100,11 +100,7 @@ export function catchJust<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, 
       A1
     >
   >,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: ApplicativeExcept<F>,
+  /** @tsplus auto */ F: ApplicativeExcept<F>,
 ): HKT.Kind<
   F,
   HKT.Mix<"K", [K, K1]>,
@@ -125,11 +121,7 @@ export function catchJust<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, 
  */
 export function either<F extends HKT, K, Q, W, X, I, S, R, E, A>(
   self: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
-  /**
-   * @tsplus auto
-   * @tsplus implicit local
-   */
-  F: ApplicativeExcept<F>,
+  /** @tsplus auto */ F: ApplicativeExcept<F>,
 ): HKT.Kind<F, K, Q, W, X, I, S, R, never, Either<E, A>> {
   return self.map(Either.right, F).catchAll((e) => F.pure(Either.left(e)));
 }
