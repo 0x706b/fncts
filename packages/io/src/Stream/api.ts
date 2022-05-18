@@ -1849,11 +1849,11 @@ export function map_<R, E, A, B>(stream: Stream<R, E, A>, f: (o: A) => B): Strea
 
 function mapAccumAccumulator<S, E = never, A = never, B = never>(
   currS: S,
-  f: (s: S, a: A) => readonly [B, S],
+  f: (s: S, a: A) => readonly [S, B],
 ): Channel<unknown, E, Conc<A>, unknown, E, Conc<B>, void> {
   return Channel.readWith(
     (inp: Conc<A>) => {
-      const [bs, nextS] = inp.mapAccum(currS, f);
+      const [nextS, bs] = inp.mapAccum(currS, f);
       return Channel.writeNow(bs).apSecond(mapAccumAccumulator(nextS, f));
     },
     Channel.failNow,
@@ -1869,7 +1869,7 @@ function mapAccumAccumulator<S, E = never, A = never, B = never>(
 export function mapAccum_<R, E, A, S, B>(
   stream: Stream<R, E, A>,
   s: S,
-  f: (s: S, a: A) => readonly [B, S],
+  f: (s: S, a: A) => readonly [S, B],
 ): Stream<R, E, B> {
   return new Stream(stream.channel.pipeTo(mapAccumAccumulator(s, f)));
 }

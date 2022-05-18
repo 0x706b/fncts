@@ -574,7 +574,7 @@ export function map_<A, B>(self: Conc<A>, f: (a: A) => B): Conc<B> {
  *
  * @tsplus fluent fncts.Conc mapAccum
  */
-export function mapAccum_<A, S, B>(self: Conc<A>, s: S, f: (s: S, a: A) => readonly [B, S]): readonly [Conc<B>, S] {
+export function mapAccum_<A, S, B>(self: Conc<A>, s: S, f: (s: S, a: A) => readonly [S, B]): readonly [S, Conc<B>] {
   concrete(self);
   const iterator = self.arrayIterator();
   const out      = builder<B>();
@@ -586,11 +586,11 @@ export function mapAccum_<A, S, B>(self: Conc<A>, s: S, f: (s: S, a: A) => reado
     for (let i = 0; i < length; i++) {
       const a   = array[i]!;
       const tup = f(state, a);
-      out.append(tup[0]);
-      state = tup[1];
+      out.append(tup[1]);
+      state = tup[0];
     }
   }
-  return tuple(out.result(), s);
+  return tuple(s, out.result());
 }
 
 function mapArrayLike<A, B>(as: ArrayLike<A>, len: number, startIndex: number, f: (i: number, a: A) => B): Conc<B> {

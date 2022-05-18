@@ -38,6 +38,10 @@ import { ImmutableQueue } from "@fncts/base/collection/immutable/Queue/definitio
 /**
  * @tsplus global
  */
+import { RoseTree } from "@fncts/base/collection/immutable/RoseTree";
+/**
+ * @tsplus global
+ */
 import { SortedMap } from "@fncts/base/collection/immutable/SortedMap/definition";
 /**
  * @tsplus global
