@@ -2,6 +2,7 @@ import type { Either1F, EitherF } from "@fncts/base/data/Either/definition.js";
 
 import { map_ } from "@fncts/base/data/Either/api";
 import { concrete, Either, EitherTag, Right } from "@fncts/base/data/Either/definition";
+import { EitherJson } from "@fncts/base/json/EitherJson";
 
 import * as P from "../../typeclass.js";
 
@@ -90,4 +91,41 @@ export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterab
       return p(fa.right) ? [Either.left(ME.nat), fa] : [fa, Either.left(ME.nat)];
     },
   };
+}
+
+/**
+ * @tsplus derive fncts.Guard[fncts.Either]<_> 10
+ */
+export function deriveGuard<A extends Either<any, any>>(
+  ...[left, right]: [A] extends [Either<infer E, infer A>] ? [left: Guard<E>, right: Guard<A>] : never
+): Guard<A> {
+  return Guard((u): u is A => {
+    if (Either.isEither(u)) {
+      if (u.isLeft()) {
+        return left.is(u.left);
+      }
+      if (u.isRight()) {
+        return right.is(u.right);
+      }
+    }
+    return false;
+  });
+}
+
+/**
+ * @tsplus derive fncts.Decoder[fncts.Either]<_> 10
+ */
+export function deriveDecoder<A extends Either<any, any>>(
+  ...[left, right]: [A] extends [Either<infer E, infer A>] ? [left: Decoder<E>, right: Decoder<A>] : never
+): Decoder<A> {
+  const jsonDecoder = EitherJson.getDecoder(left, right);
+  return Decoder(
+    (u) =>
+      jsonDecoder
+        .decode(u)
+        .map((result) =>
+          result._tag === "Left" ? (Either.left(result.left) as A) : (Either.right(result.right) as A),
+        ),
+    `Either<${left.label}, ${right.label}>`,
+  );
 }

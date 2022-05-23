@@ -45,3 +45,10 @@ export type These<E, A> = Left<E> | Right<A> | Both<E, A>;
 export interface TheseOps {}
 
 export const These: TheseOps = {};
+
+/**
+ * @tsplus static fncts.TheseOps isThese
+ */
+export function isThese(u: unknown): u is These<unknown, unknown> {
+  return hasTypeId(u, TheseTypeId);
+}

@@ -1,6 +1,8 @@
 import type * as P from "../../typeclass.js";
 import type { MaybeF } from "@fncts/base/data/Maybe/definition";
 
+import { MaybeJson } from "@fncts/base/json/MaybeJson";
+
 import {
   filter_,
   filterMap_,
@@ -41,3 +43,38 @@ export const Filterable: P.Filterable<MaybeF> = {
   partition: partition_,
   partitionMap: partitionMap_,
 };
+
+/**
+ * @tsplus derive fncts.Guard[fncts.Maybe]<_> 10
+ */
+export function deriveGuard<A extends Maybe<any>>(
+  ...[guard]: [A] extends [Maybe<infer A>] ? [guard: Guard<A>] : never
+): Guard<A> {
+  return Guard((u): u is A => {
+    if (Maybe.isMaybe(u)) {
+      if (u.isNothing()) {
+        return true;
+      }
+      if (u.isJust()) {
+        return guard.is(u.value);
+      }
+    }
+    return false;
+  });
+}
+
+/**
+ * @tsplus derive fncts.Decoder[fncts.Maybe]<_> 10
+ */
+export function deriveDecoder<A extends Maybe<any>>(
+  ...[value]: [A] extends [Maybe<infer A>] ? [value: Decoder<A>] : never
+): Decoder<A> {
+  const label = `Maybe<${value.label}>`;
+  return Decoder(
+    (input) =>
+      MaybeJson.getDecoder(value)
+        .decode(input)
+        .map((decoded) => (decoded._tag === "Nothing" ? (Nothing() as A) : (Just(decoded.value) as A))),
+    label,
+  );
+}

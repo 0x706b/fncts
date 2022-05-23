@@ -90,6 +90,10 @@ import { Const } from "@fncts/base/data/Const/definition";
 /**
  * @tsplus global
  */
+import { Decoder } from "@fncts/base/data/Decoder";
+/**
+ * @tsplus global
+ */
 import { Duration } from "@fncts/base/data/Duration/definition";
 /**
  * @tsplus global
@@ -181,7 +185,7 @@ import { Tag } from "@fncts/base/data/Tag/definition";
 /**
  * @tsplus global
  */
-import { These } from "@fncts/base/data/These/definition";
+import { These } from "@fncts/base/data/These";
 /**
  * @tsplus global
  */
@@ -198,6 +202,10 @@ import { Stack } from "@fncts/base/internal/Stack";
  * @tsplus global
  */
 import { Equatable } from "@fncts/base/typeclass/Equatable";
+/**
+ * @tsplus global
+ */
+import { Guard } from "@fncts/base/typeclass/Guard";
 /**
  * @tsplus global
  */

@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
-import type { MutableVector } from "@fncts/base/collection/immutable/Vector/definition";
-import type { Eq, Monoid, Ord, Ordering } from "@fncts/base/typeclass";
+import type { MutableVector, VectorF } from "@fncts/base/collection/immutable/Vector/definition";
+import type { Eq, Monoid, Ord, Ordering, Traversable, TraversableWithIndex } from "@fncts/base/typeclass";
 
 import {
   affixPush,
@@ -36,6 +36,7 @@ import {
   nodeNth,
   nodeNthDense,
   prependNodeToTree,
+  push,
   reverseArray,
   setDepth,
   setPrefix,
@@ -1196,6 +1197,29 @@ export function toList<A>(self: Vector<A>): List<A> {
   });
   return buffer.toList;
 }
+
+/**
+ * @tsplus fluent fncts.Vector traverseWithIndex
+ */
+export const traverseWithIndex: TraversableWithIndex<VectorF>["traverseWithIndex"] = (self, f, G) => {
+  return self.foldLeftWithIndex(G.pure(Vector.emptyPushable()), (i, b, a) =>
+    b.zipWith(
+      f(i, a),
+      (v, b) => {
+        push(v, b);
+        return v;
+      },
+      G,
+    ),
+  );
+};
+
+/**
+ * @tsplus fluent fncts.Vector traverse
+ */
+export const traverse: Traversable<VectorF>["traverse"] = (self, f, G) => {
+  return self.traverseWithIndex((_, a) => f(a));
+};
 
 /**
  * Returns a new Vector without repeated elements by using the given

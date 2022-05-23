@@ -2,8 +2,10 @@
  * @tsplus fluent fncts.Refinement and
  * @tsplus operator fncts.Refinement &&
  */
-export function and<A, B extends A, C extends B>(self: Refinement<A, B>, that: Refinement<B, C>): Refinement<A, C> {
-  return (a): a is C => self(a) && that(a);
+export function and<A, B extends A, C extends B>(self: Refinement<A, B>, that: Refinement<B, C>): Refinement<A, C>;
+export function and<A, B extends A>(self: Refinement<A, B>, that: Predicate<B>): Refinement<A, B>;
+export function and<A, B extends A>(self: Refinement<A, B>, that: Predicate<B>): Refinement<A, B> {
+  return (a): a is B => self(a) && that(a);
 }
 
 /**

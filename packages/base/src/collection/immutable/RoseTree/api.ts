@@ -230,3 +230,23 @@ export function zipWithAccumLoop<S, A, B, C>(
     Cons({ todoL: acc.todoL.tail, todoR: acc.todoR.tail, label: acc.label, done: acc.done }, stack),
   );
 }
+
+/**
+ * @tsplus getter fncts.RoseTree draw
+ */
+export function draw(tree: RoseTree<string>): string {
+  return tree.value + drawLoop("\n", tree.forest);
+}
+
+function drawLoop(indentation: string, forest: Vector<RoseTree<string>>): string {
+  let r     = "";
+  const len = forest.length;
+  let tree: RoseTree<string>;
+  for (let i = 0; i < len; i++) {
+    tree         = forest.unsafeGet(i)!;
+    const isLast = i === len - 1;
+    r           += indentation + (isLast ? "└" : "├") + "─ " + tree.value;
+    r           += drawLoop(indentation + (len > 1 && !isLast ? "|  " : "   "), tree.forest);
+  }
+  return r;
+}

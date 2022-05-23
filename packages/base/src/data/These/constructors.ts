@@ -23,3 +23,13 @@ export function right<E = never, A = never>(a: A): These<E, A> {
 export function both<E = never, A = never>(e: E, a: A): These<E, A> {
   return new Both(e, a);
 }
+
+/**
+ * @tsplus static fncts.TheseOps rightOrBoth
+ */
+export function rightOrBoth<E = never, A = never>(e: Maybe<E>, a: A): These<E, A> {
+  return e.match(
+    () => These.right(a),
+    (e) => These.both(e, a)
+  );
+}

@@ -1,3 +1,5 @@
+import { isString } from "@fncts/base/util/predicates";
+
 import * as P from "../../typeclass.js";
 
 /**
@@ -26,3 +28,9 @@ export const Ord: P.Ord<string> = P.Ord({
   ...Eq,
   compare: (x, y) => (x < y ? -1 : x > y ? 1 : 0),
 });
+
+/**
+ * @tsplus static fncts.StringOps Guard
+ * @tsplus implicit
+ */
+export const Guard: P.Guard<string> = P.Guard(isString);
