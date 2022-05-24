@@ -23,7 +23,7 @@ export const CurrentTag = Symbol();
 export type CurrentTag = typeof CurrentTag;
 export class Current<E, A> {
   readonly _tag = DebounceStateTag.Current;
-  constructor(readonly fiber: Fiber<E, HandoffSignal<void, E, A>>) {}
+  constructor(readonly fiber: Fiber<E, HandoffSignal<E, A>>) {}
 }
 
 /**
@@ -53,7 +53,7 @@ export function previous<A>(fiber: Fiber<never, Conc<A>>): DebounceState<never, 
 /**
  * @tsplus static fncts.io.Stream.DebounceStateOps Current
  */
-export function current<E, A>(fiber: Fiber<E, HandoffSignal<void, E, A>>): DebounceState<E, A> {
+export function current<E, A>(fiber: Fiber<E, HandoffSignal<E, A>>): DebounceState<E, A> {
   return new Current(fiber);
 }
 

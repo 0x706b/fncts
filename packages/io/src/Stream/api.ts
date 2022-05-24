@@ -12,7 +12,8 @@ import { DEFAULT_CHUNK_SIZE, Stream } from "./definition.js";
 import { DebounceState } from "./internal/DebounceState.js";
 import { Handoff, HandoffSignal } from "./internal/Handoff.js";
 import { Pull } from "./internal/Pull.js";
-import { ScheduleEnd, ScheduleTimeout, SinkEnd, UpstreamEnd } from "./internal/SinkEndReason.js";
+import { SinkEndReasonTag } from "./internal/SinkEndReason.js";
+import { ScheduleEnd, UpstreamEnd } from "./internal/SinkEndReason.js";
 import { Take } from "./internal/Take.js";
 
 /**
@@ -77,17 +78,17 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
   sink: Sink<R1, E1, A1, A1, B>,
   schedule: Schedule<R2, Maybe<B>, C>,
 ): Stream<R & R1 & R2, E | E1, Either<C, B>> {
-  type LocalHandoffSignal = HandoffSignal<C, E | E1, A1>;
-  type LocalSinkEndReason = SinkEndReason<C>;
+  type LocalHandoffSignal = HandoffSignal<E | E1, A1>;
 
   const deps = IO.sequenceT(
     Handoff<LocalHandoffSignal>(),
-    Ref.make<LocalSinkEndReason>(new SinkEnd()),
+    Ref.make<SinkEndReason>(new ScheduleEnd()),
     Ref.make(Conc.empty<A1>()),
     schedule.driver,
+    Ref.make(false),
   );
 
-  return Stream.fromIO(deps).flatMap(([handoff, sinkEndReason, sinkLeftovers, scheduleDriver]) => {
+  return Stream.fromIO(deps).flatMap(([handoff, sinkEndReason, sinkLeftovers, scheduleDriver, consumed]) => {
     const handoffProducer: Channel<unknown, E | E1, Conc<A1>, unknown, never, never, any> = Channel.readWithCause(
       (_in: Conc<A1>) => Channel.fromIO(handoff.offer(HandoffSignal.Emit(_in))).apSecond(handoffProducer),
       (cause: Cause<E | E1>) => Channel.fromIO(handoff.offer(HandoffSignal.Halt(cause))),
@@ -96,62 +97,102 @@ export function aggregateAsyncWithinEither_<R, E, A extends A1, R1, E1, A1, B, R
 
     const handoffConsumer: Channel<unknown, unknown, unknown, unknown, E | E1, Conc<A1>, void> = Channel.unwrap(
       sinkLeftovers.getAndSet(Conc.empty<A>()).flatMap((leftovers) => {
-        if (leftovers.isEmpty) {
-          return IO.succeedNow(Channel.writeNow(leftovers).apSecond(handoffConsumer));
+        if (leftovers.isNonEmpty) {
+          return consumed.set(true) > IO.succeedNow(Channel.writeNow(leftovers) > handoffConsumer);
         } else {
           return handoff.take.map((signal) =>
             signal.match({
-              Emit: ({ els }) => Channel.writeNow(els).apSecond(handoffConsumer),
+              Emit: ({ els }) => Channel.fromIO(consumed.set(true)) > Channel.writeNow(els) > handoffConsumer,
               Halt: ({ error }) => Channel.failCause(error),
-              End: ({ reason }) => Channel.fromIO(sinkEndReason.set(reason)),
+              End: ({ reason }) => {
+                if (reason._tag === SinkEndReasonTag.ScheduleEnd) {
+                  return Channel.unwrap(
+                    consumed.get.map((p) =>
+                      p
+                        ? Channel.fromIO(sinkEndReason.set(new ScheduleEnd()))
+                        : Channel.fromIO(sinkEndReason.set(new ScheduleEnd())) > handoffConsumer,
+                    ),
+                  );
+                } else {
+                  return Channel.fromIO(sinkEndReason.set(reason));
+                }
+              },
             }),
           );
         }
       }),
     );
 
-    const scheduledAggregator = (
-      lastB: Maybe<B>,
-    ): Channel<R1 & R2, unknown, unknown, unknown, E | E1, Conc<Either<C, B>>, any> => {
-      const timeout = scheduleDriver.next(lastB).matchCauseIO(
-        (_) =>
-          _.failureOrCause.match(
-            () => handoff.offer(HandoffSignal.End(new ScheduleTimeout())),
-            (cause) => handoff.offer(HandoffSignal.Halt(cause)),
-          ),
-        (c) => handoff.offer(HandoffSignal.End(new ScheduleEnd(c))),
-      );
+    function timeout(lastB: Maybe<B>): IO<R2, Nothing, C> {
+      return scheduleDriver.next(lastB);
+    }
 
-      return Channel.unwrapScoped(
-        timeout.forkScoped.map((fiber) => {
-          return handoffConsumer.pipeToOrFail(sink.channel).doneCollect.flatMap(([leftovers, b]) => {
-            return Channel.fromIO(fiber.interrupt.apSecond(sinkLeftovers.set(leftovers.flatten))).apSecond(
-              Channel.unwrap(
-                sinkEndReason.modify((reason) =>
-                  reason.match({
-                    ScheduleEnd: ({ c }) =>
-                      tuple(Channel.writeNow(Conc.from([Either.right(b), Either.left(c)])).as(Just(b)), new SinkEnd()),
-                    ScheduleTimeout: () =>
-                      tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Just(b)), new SinkEnd()),
-                    SinkEnd: () => tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Just(b)), new SinkEnd()),
-                    UpstreamEnd: () =>
-                      tuple(Channel.writeNow(Conc.single(Either.right(b))).as(Nothing()), new UpstreamEnd()),
-                  }),
+    const scheduledAggregator = (
+      sinkFiber: Fiber.Runtime<E | E1, readonly [Conc<Conc<A1>>, B]>,
+      scheduleFiber: Fiber.Runtime<Nothing, C>,
+    ): Channel<R1 & R2, unknown, unknown, unknown, E | E1, Conc<Either<C, B>>, any> => {
+      const forkSink =
+        consumed.set(false) > handoffConsumer.pipeToOrFail(sink.channel).doneCollect.runScoped.forkScoped;
+
+      function handleSide(leftovers: Conc<Conc<A1>>, b: B, c: Maybe<C>) {
+        return Channel.unwrap(
+          sinkLeftovers.set(leftovers.flatten) >
+            sinkEndReason.get.map((reason) =>
+              reason.match({
+                ScheduleEnd: () =>
+                  Channel.unwrapScoped(
+                    Do((Δ) => {
+                      const consumed_     = Δ(consumed.get);
+                      const sinkFiber     = Δ(forkSink);
+                      const scheduleFiber = Δ(timeout(Just(b)).forkScoped);
+                      const toWrite       = c.match(
+                        () => Conc(Either.right(b)),
+                        (c) => Conc(Either.right(b), Either.left(c)),
+                      );
+                      return consumed_
+                        ? Channel.write(toWrite) > scheduledAggregator(sinkFiber, scheduleFiber)
+                        : scheduledAggregator(sinkFiber, scheduleFiber);
+                    }),
+                  ),
+                UpstreamEnd: () =>
+                  Channel.unwrap(consumed.get.map((p) => (p ? Channel.write(Conc(Either.right(b))) : Channel.unit))),
+              }),
+            ),
+        );
+      }
+
+      return Channel.unwrap(
+        sinkFiber.join.raceWith(
+          scheduleFiber.join,
+          (sinkExit, scheduleFiber) =>
+            scheduleFiber.interrupt >
+            IO.fromExit(sinkExit).map(([leftovers, b]) => handleSide(leftovers, b, Nothing())),
+          (scheduleExit, sinkFiber) =>
+            IO.fromExit(scheduleExit).matchCauseIO(
+              (cause) =>
+                cause.failureOrCause.match(
+                  () =>
+                    handoff.offer(HandoffSignal.End(new ScheduleEnd())).forkDaemon >
+                    sinkFiber.join.map(([leftovers, b]) => handleSide(leftovers, b, Nothing())),
+                  (cause) =>
+                    handoff.offer(HandoffSignal.Halt(cause)).forkDaemon >
+                    sinkFiber.join.map(([leftovers, b]) => handleSide(leftovers, b, Nothing())),
                 ),
-              ),
-            );
-          });
-        }),
-      ).flatMap((_) =>
-        _.match(
-          () => Channel.unit,
-          () => scheduledAggregator(_),
+              (c) =>
+                handoff.offer(HandoffSignal.End(new ScheduleEnd())).forkDaemon >
+                sinkFiber.join.map(([leftovers, b]) => handleSide(leftovers, b, Just(c))),
+            ),
         ),
       );
     };
 
-    return Stream.scoped(stream.channel.pipeTo(handoffProducer).runScoped.forkDaemon).apSecond(
-      new Stream(scheduledAggregator(Nothing())),
+    return Stream.unwrapScoped(
+      Do((Δ) => {
+        Δ(stream.channel.pipeTo(handoffProducer).runScoped.forkScoped);
+        const sinkFiber     = Δ(handoffConsumer.pipeToOrFail(sink.channel).doneCollect.runScoped.forkScoped);
+        const scheduleFiber = Δ(timeout(Nothing()).forkScoped);
+        return new Stream(scheduledAggregator(sinkFiber, scheduleFiber));
+      }),
     );
   });
 }
@@ -866,7 +907,7 @@ export function debounce_<R, E, A>(stream: Stream<R, E, A>, duration: Lazy<Durat
   return Stream.unwrap(
     IO.transplant((grafter) =>
       Do((Δ) => {
-        const handoff = Δ(Handoff<HandoffSignal<void, E, A>>());
+        const handoff = Δ(Handoff<HandoffSignal<E, A>>());
         function enqueue(last: Conc<A>) {
           return grafter(Clock.sleep(duration).as(last).fork).map((f) => consumer(DebounceState.Previous(f)));
         }

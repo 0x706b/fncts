@@ -112,17 +112,17 @@ export class Halt<E> {
 
 export const EndTypeId = Symbol("fncts.io.Stream.HandoffSignal.End");
 export type EndTypeId = typeof EndTypeId;
-export class End<C> {
+export class End {
   readonly _typeId: typeof HandoffSignalTypeId = HandoffSignalTypeId;
   readonly _tag: typeof EndTypeId              = EndTypeId;
 
-  constructor(readonly reason: SinkEndReason<C>) {}
+  constructor(readonly reason: SinkEndReason) {}
 }
 
 /**
  * @tsplus type fncts.io.Stream.HandoffSignal
  */
-export type HandoffSignal<C, E, A> = Emit<A> | Halt<E> | End<C>;
+export type HandoffSignal<E, A> = Emit<A> | Halt<E> | End;
 
 /**
  * @tsplus type fncts.io.Stream.HandoffSignalOps
@@ -134,33 +134,33 @@ export const HandoffSignal: HandoffSignalOps = {};
 /**
  * @tsplus static fncts.io.Stream.HandoffSignalOps Emit
  */
-export function emit<A>(els: Conc<A>): HandoffSignal<never, never, A> {
+export function emit<A>(els: Conc<A>): HandoffSignal<never, A> {
   return new Emit(els);
 }
 
 /**
  * @tsplus static fncts.io.Stream.HandoffSignalOps Halt
  */
-export function halt<E>(error: Cause<E>): HandoffSignal<never, E, never> {
+export function halt<E>(error: Cause<E>): HandoffSignal<E, never> {
   return new Halt(error);
 }
 
 /**
  * @tsplus static fncts.io.Stream.HandoffSignalOps End
  */
-export function end<C>(reason: SinkEndReason<C>): HandoffSignal<C, never, never> {
+export function end<C>(reason: SinkEndReason): HandoffSignal<never, never> {
   return new End(reason);
 }
 
 /**
  * @tsplus fluent fncts.io.Stream.HandoffSignal match
  */
-export function matchSignal_<C, E, A, B, D, F>(
-  signal: HandoffSignal<C, E, A>,
+export function matchSignal_<E, A, B, D, F>(
+  signal: HandoffSignal<E, A>,
   cases: {
     Emit: (_: Emit<A>) => B;
     Halt: (_: Halt<E>) => D;
-    End: (_: End<C>) => F;
+    End: (_: End) => F;
   },
 ): B | D | F {
   switch (signal._tag) {
