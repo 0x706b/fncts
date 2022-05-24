@@ -1,5 +1,15 @@
 # @fncts/test
 
+## 0.0.5
+
+### Patch Changes
+
+- 8e7e087: chore: fix circular imports
+- Updated dependencies [8e7e087]
+  - @fncts/base@0.0.5
+  - @fncts/io@0.0.5
+  - @fncts/typelevel@0.0.5
+
 ## 0.0.4
 
 ### Patch Changes
