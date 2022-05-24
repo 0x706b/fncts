@@ -2,7 +2,8 @@
  * @tsplus fluent fncts.Environment add
  */
 export function add<R, S, H extends S = S>(self: Environment<R>, service: H, tag: Tag<S>): Environment<R & Has<S>> {
-  return new Environment(self.map.set(tag, [service, self.index]), self.index + 1);
+  const self0 = self.index === Number.MAX_SAFE_INTEGER ? self.clean : self;
+  return new Environment(self0.map.set(tag, [service, self0.index]), self0.index + 1);
 }
 
 /**
@@ -36,10 +37,25 @@ export function make(): Environment<unknown> {
  * @tsplus fluent fncts.Environment union
  */
 export function union<R, R1>(self: Environment<R>, that: Environment<R1>): Environment<R & R1> {
+  const [self0, that0] = self.index + that.index < self.index ? [self.clean, that.clean] : [self, that];
   return new Environment(
-    self.map.union(that.map.map(([service, index]) => [service, self.index + index] as const)),
-    self.index + that.index,
+    self0.map.union(that0.map.map(([service, index]) => [service, self0.index + index] as const)),
+    self0.index + that0.index,
   );
+}
+
+/**
+ * @tsplus getter fncts.Environment clean
+ */
+export function clean<R>(self: Environment<R>): Environment<R> {
+  const [map, index] = self.map.toList
+    .sort(Number.Ord.contramap(([, [, idx]]) => idx))
+    .foldLeft(
+      [HashMap.makeDefault<Tag<unknown>, readonly [unknown, number]>(), 0],
+      ([map, index], [tag, [service]]) => [map.set(tag, [service, index] as const), index + 1],
+    );
+
+  return new Environment(map, index);
 }
 
 /**
@@ -67,7 +83,6 @@ export function unsafeGet<R, S>(self: Environment<R>, tag: Tag<S>): S {
     },
     (a) => a as S,
   );
-  // return self.cache.unsafeGet(tag) as S;
 }
 
 /**
