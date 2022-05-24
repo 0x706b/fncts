@@ -55,6 +55,7 @@ import {
  * @complexity O(n)
  *
  * @tsplus fluent fncts.Vector append
+ * @tsplus operator fncts.Vector +
  */
 export function append_<A>(as: Vector<A>, a: A): Vector<A> {
   const suffixSize = getSuffixSize(as);
@@ -112,6 +113,7 @@ export function chunksOf_<A>(as: Vector<A>, size: number): Vector<Vector<A>> {
  *
  * @complexity O(log(n))
  * @tsplus fluent fncts.Vector concat
+ * @tsplus operator fncts.Vector + 1
  */
 export function concat_<A, B>(self: Vector<A>, that: Vector<B>): Vector<A | B>;
 export function concat_<A>(self: Vector<A>, that: Vector<A>): Vector<A> {

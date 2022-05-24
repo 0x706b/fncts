@@ -235,18 +235,44 @@ export function zipWithAccumLoop<S, A, B, C>(
  * @tsplus getter fncts.RoseTree draw
  */
 export function draw(tree: RoseTree<string>): string {
-  return tree.value + drawLoop("\n", tree.forest);
+  return (
+    tree.value +
+    drawLoop(Vector("\n"), { todo: tree.forest, len: tree.forest.length, done: Vector() }, List())
+  );
 }
 
-function drawLoop(indentation: string, forest: Vector<RoseTree<string>>): string {
-  let r     = "";
-  const len = forest.length;
-  let tree: RoseTree<string>;
-  for (let i = 0; i < len; i++) {
-    tree         = forest.unsafeGet(i)!;
-    const isLast = i === len - 1;
-    r           += indentation + (isLast ? "└" : "├") + "─ " + tree.value;
-    r           += drawLoop(indentation + (len > 1 && !isLast ? "|  " : "   "), tree.forest);
+interface DrawAcc {
+  len: number;
+  todo: Vector<RoseTree<string>>;
+  done: Vector<string>;
+}
+
+/**
+ * @tsplus tailRec
+ */
+function drawLoop(indentation: Vector<string>, acc: DrawAcc, stack: List<DrawAcc>): string {
+  if (acc.todo.isEmpty()) {
+    if (stack.isEmpty()) {
+      return acc.done.reverse.join("");
+    }
+    const top = stack.head;
+    return drawLoop(
+      indentation.pop,
+      { len: top.len, todo: top.todo, done: acc.done + top.done },
+      stack.tail,
+    );
+  } else {
+    const tree   = acc.todo.unsafeHead!;
+    const rest   = acc.todo.tail;
+    const isLast = rest.length === 0;
+    return drawLoop(
+      indentation + (acc.len > 1 && !isLast ? "│  " : "   "),
+      {
+        len: tree.forest.length,
+        todo: tree.forest,
+        done: Vector(indentation.join("") + (isLast ? "└" : "├") + "─ " + tree.value)
+      },
+      Cons({ len: acc.len, todo: rest, done: acc.done }, stack),
+    );
   }
-  return r;
 }
