@@ -1,5 +1,15 @@
 # @fncts/test
 
+## 0.0.4
+
+### Patch Changes
+
+- 8a16019: bump version
+- Updated dependencies [8a16019]
+  - @fncts/base@0.0.4
+  - @fncts/io@0.0.4
+  - @fncts/typelevel@0.0.4
+
 ## 0.0.3
 
 ### Patch Changes
