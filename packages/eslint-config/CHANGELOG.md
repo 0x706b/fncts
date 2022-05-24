@@ -1,5 +1,11 @@
 # @fncts/eslint-config
 
+## 0.0.5
+
+### Patch Changes
+
+- 8e7e087: chore: fix circular imports
+
 ## 0.0.4
 
 ### Patch Changes
