@@ -1,7 +1,6 @@
-import type { UpstreamPullRequest } from "@fncts/io/Channel/UpstreamPullRequest";
+import type { UpstreamPullRequest } from "@fncts/io/Channel/UpstreamPullRequest/definition";
 
-import { NoUpstream } from "@fncts/io/Channel/UpstreamPullRequest";
-import { Pulled } from "@fncts/io/Channel/UpstreamPullRequest";
+import { NoUpstream, Pulled } from "@fncts/io/Channel/UpstreamPullRequest/definition";
 
 /**
  * @tsplus fluent fncts.io.Channel.UpstreamPullRequest match

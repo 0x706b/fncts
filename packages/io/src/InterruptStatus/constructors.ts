@@ -1,3 +1,5 @@
+import { InterruptStatus } from "./definition.js";
+
 /**
  * @tsplus static fncts.InterruptStatusOps interruptible
  */

@@ -1,6 +1,7 @@
 import type { ImmutableNonEmptyArrayF } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
 
 import { allocWithHead } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/constructors";
+import { ImmutableNonEmptyArray } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
 import { identity } from "@fncts/base/data/function";
 import * as P from "@fncts/base/typeclass";
 

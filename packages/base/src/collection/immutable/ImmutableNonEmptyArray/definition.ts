@@ -1,3 +1,5 @@
+import { ImmutableArray } from "@fncts/base/collection/immutable/ImmutableArray/definition";
+
 export interface ImmutableNonEmptyArrayF extends ImmutableNonEmptyArray<any> {}
 
 /**
@@ -24,4 +26,18 @@ export interface NonEmptyArray<T> extends Array<T> {
  */
 export interface ReadonlyNonEmptyArray<T> extends ReadonlyArray<T> {
   readonly 0: T;
+}
+
+/**
+ * @tsplus getter fncts.ImmutableArray length
+ */
+export function length<A>(self: ImmutableArray<A>): number {
+  return self._array.length;
+}
+
+/**
+ * @tsplus fluent fncts.ImmutableArray isNonEmpty
+ */
+export function isNonEmpty<A>(self: ImmutableArray<A>): self is ImmutableNonEmptyArray<A> {
+  return self.length > 0;
 }

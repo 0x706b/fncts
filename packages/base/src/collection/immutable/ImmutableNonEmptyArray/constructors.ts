@@ -1,3 +1,5 @@
+import { ImmutableNonEmptyArray } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
+
 export function allocWithHead<A>(head: A, length: number): Array<A> & { 0: A } {
   const as = new Array(length);
   as[0]    = head;

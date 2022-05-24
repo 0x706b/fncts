@@ -1,3 +1,4 @@
+import { RoseTree } from "./definition.js";
 /**
  * @tsplus static fncts.RoseTreeOps __call
  */
@@ -235,10 +236,7 @@ export function zipWithAccumLoop<S, A, B, C>(
  * @tsplus getter fncts.RoseTree draw
  */
 export function draw(tree: RoseTree<string>): string {
-  return (
-    tree.value +
-    drawLoop(Vector("\n"), { todo: tree.forest, len: tree.forest.length, done: Vector() }, List())
-  );
+  return tree.value + drawLoop(Vector("\n"), { todo: tree.forest, len: tree.forest.length, done: Vector() }, List());
 }
 
 interface DrawAcc {
@@ -256,11 +254,7 @@ function drawLoop(indentation: Vector<string>, acc: DrawAcc, stack: List<DrawAcc
       return acc.done.reverse.join("");
     }
     const top = stack.head;
-    return drawLoop(
-      indentation.pop,
-      { len: top.len, todo: top.todo, done: acc.done + top.done },
-      stack.tail,
-    );
+    return drawLoop(indentation.pop, { len: top.len, todo: top.todo, done: acc.done + top.done }, stack.tail);
   } else {
     const tree   = acc.todo.unsafeHead!;
     const rest   = acc.todo.tail;
@@ -270,7 +264,7 @@ function drawLoop(indentation: Vector<string>, acc: DrawAcc, stack: List<DrawAcc
       {
         len: tree.forest.length,
         todo: tree.forest,
-        done: Vector(indentation.join("") + (isLast ? "└" : "├") + "─ " + tree.value)
+        done: Vector(indentation.join("") + (isLast ? "└" : "├") + "─ " + tree.value),
       },
       Cons({ len: acc.len, todo: rest, done: acc.done }, stack),
     );

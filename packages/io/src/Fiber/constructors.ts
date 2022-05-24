@@ -1,4 +1,4 @@
-import { SyntheticFiber } from "@fncts/io/Fiber";
+import { SyntheticFiber } from "@fncts/io/Fiber/definition";
 
 /**
  * @tsplus static fncts.io.FiberOps done

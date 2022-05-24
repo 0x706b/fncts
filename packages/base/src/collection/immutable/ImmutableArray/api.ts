@@ -193,7 +193,7 @@ export function chop_<A, B>(
 ): ImmutableArray<B> {
   const result: Array<B>    = [];
   let cs: ImmutableArray<A> = as;
-  while (isNonEmpty(cs)) {
+  while (cs.isNonEmpty()) {
     const [b, c] = f(cs);
     result.push(b);
     cs = c;
@@ -202,13 +202,6 @@ export function chop_<A, B>(
 }
 
 export const chop = Pipeable(chop_);
-
-/**
- * @tsplus fluent fncts.ImmutableArray chunksOf
- */
-export function chunksOf_<A>(self: ImmutableArray<A>, n: number): ImmutableArray<ImmutableArray<A>> {
-  return self.chop((as) => as.splitAt(n));
-}
 
 /**
  * @tsplus fluent fncts.ImmutableArray collectWhile
@@ -762,13 +755,6 @@ export function isEmpty<A>(self: ImmutableArray<A>): boolean {
 }
 
 /**
- * @tsplus fluent fncts.ImmutableArray isNonEmpty
- */
-export function isNonEmpty<A>(self: ImmutableArray<A>): self is ImmutableNonEmptyArray<A> {
-  return self.length > 0;
-}
-
-/**
  * @tsplus fluent fncts.ImmutableArray isOutOfBound
  */
 export function isOutOfBound_<A>(self: ImmutableArray<A>, i: number): boolean {
@@ -1140,39 +1126,6 @@ export function spanIndexRight_<A>(as: ImmutableArray<A>, predicate: Predicate<A
     }
   }
   return i;
-}
-
-/**
- * @tsplus fluent fncts.ImmutableArray slice
- */
-export function slice_<A>(self: ImmutableArray<A>, start?: number, end?: number): ImmutableArray<A> {
-  return self._array.slice(start, end).asImmutableArray;
-}
-
-/**
- * @tsplus fluent fncts.ImmutableArray splitAt
- */
-export function splitAt_<A>(as: ImmutableArray<A>, n: number): readonly [ImmutableArray<A>, ImmutableArray<A>] {
-  return [as.slice(0, n), as.slice(n)];
-}
-
-/**
- * @tsplus fluent fncts.ImmutableArray splitWhere
- */
-export function splitWhere_<A>(
-  self: ImmutableArray<A>,
-  p: Predicate<A>,
-): readonly [ImmutableArray<A>, ImmutableArray<A>] {
-  let cont = true;
-  let i    = 0;
-  while (cont && i < self.length) {
-    if (p(self._array[i]!)) {
-      cont = false;
-    } else {
-      i++;
-    }
-  }
-  return self.splitAt(i);
 }
 
 /**

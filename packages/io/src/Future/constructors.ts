@@ -1,4 +1,4 @@
-import { Pending } from "@fncts/io/Future/definition";
+import { Future, Pending } from "@fncts/io/Future/definition";
 
 /**
  * Makes a new future to be completed by the fiber creating the future.
