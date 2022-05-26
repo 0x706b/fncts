@@ -36,7 +36,7 @@
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
     "madge": "^5.0.1",
-    "typescript": "^4.6.2"
+    "typescript": "^4.7.2"
   },
   "tsplus": {
     "typeDir": "./build/dts"
