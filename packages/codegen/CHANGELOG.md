@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.6
+
+### Patch Changes
+
+- da4343d: chore: update dependencies
+
 ## 0.0.5
 
 ### Patch Changes
