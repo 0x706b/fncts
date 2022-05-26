@@ -1,5 +1,14 @@
 # @fncts/io
 
+## 0.0.6
+
+### Patch Changes
+
+- da4343d: chore: update dependencies
+- Updated dependencies [da4343d]
+  - @fncts/base@0.0.6
+  - @fncts/typelevel@0.0.6
+
 ## 0.0.5
 
 ### Patch Changes
