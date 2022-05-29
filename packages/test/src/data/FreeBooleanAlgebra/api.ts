@@ -21,6 +21,13 @@ export function flatMap_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => FreeBoo
 }
 
 /**
+ * @tsplus fluent fncts.test.FreeBooleanAlgebra map
+ */
+export function map_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => B): FreeBooleanAlgebra<B> {
+  return self.flatMap((a) => FreeBooleanAlgebra.success(f(a)));
+}
+
+/**
  * @tsplus static fncts.test.FreeBooleanAlgebraOps failure
  */
 export function failure<A>(a: A): FreeBooleanAlgebra<A> {

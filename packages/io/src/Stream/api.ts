@@ -2932,6 +2932,16 @@ export function unwrapScoped<R0, E0, R, E, A>(
 }
 
 /**
+ * @tsplus getter fncts.io.Stream zipWithIndex
+ */
+export function zipWithIndex_<R, E, A>(
+  self: Stream<R, E, A>,
+  __tsPlusTrace?: string,
+): Stream<R, E, readonly [A, number]> {
+  return self.mapAccum(0, (index, a) => [index + 1, [a, index]]);
+}
+
+/**
  * Zips the two streams so that when a value is emitted by either of the two
  * streams, it is combined with the latest value from the other stream to
  * produce a result.

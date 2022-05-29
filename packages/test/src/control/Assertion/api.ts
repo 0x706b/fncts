@@ -249,3 +249,5 @@ export function succeeds<A>(assertion: Assertion<A>): Assertion<Exit<any, A>> {
 export function test_<A>(self: Assertion<A>, actual: A): boolean {
   return self.run(actual).isSuccess;
 }
+
+export const completes = Assertion.make("completes", [], () => true);
