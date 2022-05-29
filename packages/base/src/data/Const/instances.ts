@@ -1,5 +1,5 @@
 import type * as P from "../../typeclass.js";
-import type { Const1F,ConstF } from "@fncts/base/data/Const/definition";
+import type { Const1F } from "@fncts/base/data/Const/definition";
 
 import { Const } from "@fncts/base/data/Const/definition";
 

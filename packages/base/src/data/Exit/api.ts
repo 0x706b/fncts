@@ -5,7 +5,7 @@ import { ExitTag } from "./definition.js";
  * @tsplus fluent fncts.Exit ap
  */
 export function ap_<E, A, G, B>(fab: Exit<G, (a: A) => B>, fa: Exit<E, A>): Exit<E | G, B> {
-  return flatMap_(fab, (f) => map_(fa, (a) => f(a)));
+  return fab.flatMap((f) => fa.map((a) => f(a)));
 }
 
 /**

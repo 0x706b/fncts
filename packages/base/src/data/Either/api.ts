@@ -141,6 +141,11 @@ export function map_<E, A, B>(self: Either<E, A>, f: (a: A) => B): Either<E, B> 
 }
 
 /**
+ * @tsplus static fncts.EitherOps map
+ */
+export const map = Pipeable(map_);
+
+/**
  * @tsplus fluent fncts.Either mapLeft
  */
 export function mapLeft_<E1, A, E2>(self: Either<E1, A>, f: (e: E1) => E2): Either<E2, A> {

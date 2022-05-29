@@ -1,3 +1,5 @@
+import { EitherTag } from "@fncts/base/data/Either";
+
 import { Stack } from "../../internal/Stack.js";
 import { identity } from "../function.js";
 import { _Empty, Both, Cause, CauseTag, Empty, Fail, Halt, Interrupt, Stackless, Then } from "./definition.js";
@@ -55,7 +57,7 @@ export function both<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
  * @tsplus fluent fncts.Cause flatMap
  */
 export function flatMap_<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Cause<D> {
-  return Eval.run(chainEval(self, f));
+  return chainEval(self, f).run;
 }
 
 /**
@@ -64,7 +66,7 @@ export function flatMap_<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Cause<D> 
  * @tsplus fluent fncts.Cause contains
  */
 export function contains_<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): boolean {
-  return Eval.run(containsEval(self, that));
+  return containsEval(self, that).run;
 }
 
 /**
@@ -649,9 +651,9 @@ export function isTraced<E>(self: Cause<E>): boolean {
   return self
     .find((cause) => {
       switch (cause._tag) {
-        case "Halt":
-        case "Fail":
-        case "Interrupt":
+        case CauseTag.Halt:
+        case CauseTag.Fail:
+        case CauseTag.Interrupt:
           return cause.trace !== Trace.none ? Just(undefined) : Nothing();
         default:
           return Nothing();
@@ -811,8 +813,8 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
         (lefts, rights) => {
           Either.concrete(lefts);
           Either.concrete(rights);
-          return lefts._tag === "Left"
-            ? rights._tag === "Right"
+          return lefts._tag === EitherTag.Left
+            ? rights._tag === EitherTag.Right
               ? Either.right(rights.right)
               : Either.left(Cause.then(lefts.left, rights.left))
             : Either.right(lefts.right);
@@ -825,8 +827,8 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
         (lefts, rights) => {
           Either.concrete(lefts);
           Either.concrete(rights);
-          return lefts._tag === "Left"
-            ? rights._tag === "Right"
+          return lefts._tag === EitherTag.Left
+            ? rights._tag === EitherTag.Right
               ? Either.right(rights.right)
               : Either.left(Cause.both(lefts.left, rights.left))
             : Either.right(lefts.right);
@@ -870,11 +872,11 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
         (lefts, rights) => {
           Maybe.concrete(lefts);
           Maybe.concrete(rights);
-          return lefts._tag === "Just"
-            ? rights._tag === "Just"
+          return lefts._tag === MaybeTag.Just
+            ? rights._tag === MaybeTag.Just
               ? Maybe.just(Cause.then(lefts.value, rights.value))
               : lefts
-            : rights._tag === "Just"
+            : rights._tag === MaybeTag.Just
             ? rights
             : Maybe.nothing();
         },
@@ -886,11 +888,11 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
         (lefts, rights) => {
           Maybe.concrete(lefts);
           Maybe.concrete(rights);
-          return lefts._tag === "Just"
-            ? rights._tag === "Just"
+          return lefts._tag === MaybeTag.Just
+            ? rights._tag === MaybeTag.Just
               ? Maybe.just(Cause.both(lefts.value, rights.value))
               : lefts
-            : rights._tag === "Just"
+            : rights._tag === MaybeTag.Just
             ? rights
             : Maybe.nothing();
         },

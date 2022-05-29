@@ -1,4 +1,11 @@
 /**
+ * @tsplus fluent fncts.Dictionary foldLeft
+ */
+export function foldLeft_<A, B>(self: Dictionary<A>, b: B, f: (b: B, a: A) => B): B {
+  return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+}
+
+/**
  * @tsplus fluent fncts.Dictionary foldLeftWithIndex
  */
 export function foldLeftWithIndex_<A, B>(self: Dictionary<A>, b: B, f: (k: string, b: B, a: A) => B): B {
@@ -10,6 +17,13 @@ export function foldLeftWithIndex_<A, B>(self: Dictionary<A>, b: B, f: (k: strin
     out     = f(k, out, self.toRecord[k]!);
   }
   return out;
+}
+
+/**
+ * @tsplus fluent fncts.Dictionary get
+ */
+export function get_<A>(self: Dictionary<A>, key: string): Maybe<A> {
+  return Maybe.fromNullable(self.unsafeGet(key));
 }
 
 /**
@@ -46,4 +60,11 @@ export function mapWithIndex_<A, B>(self: Dictionary<A>, f: (k: string, a: A) =>
  */
 export function toRecord<A>(self: Dictionary<A>): Record<string, A> {
   return Dictionary.reverseGet(self);
+}
+
+/**
+ * @tsplus fluent fncts.Dictionary unsafeGet
+ */
+export function unsafeGet_<A>(self: Dictionary<A>, key: string): A | undefined {
+  return self.toRecord[key];
 }

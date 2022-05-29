@@ -246,11 +246,11 @@ function generateStyles() {
   }));
 
   return {
-    ...Struct.get(modifiers).map(([open, close]) => style(open, close)).reverseGet,
-    ...Struct.get(colors).map(([open, close]) => style(open, close)).reverseGet,
-    ...Struct.get(colorsBright).map(([open, close]) => style(open, close)).reverseGet,
-    ...Struct.get(colorsBg).map(([open, close]) => style(open, close)).reverseGet,
-    ...Struct.get(colorsBrightBg).map(([open, close]) => style(open, close)).reverseGet,
+    ...Struct(modifiers).map(([open, close]) => style(open, close)).getStruct,
+    ...Struct(colors).map(([open, close]) => style(open, close)).getStruct,
+    ...Struct(colorsBright).map(([open, close]) => style(open, close)).getStruct,
+    ...Struct(colorsBg).map(([open, close]) => style(open, close)).getStruct,
+    ...Struct(colorsBrightBg).map(([open, close]) => style(open, close)).getStruct,
   };
 }
 
