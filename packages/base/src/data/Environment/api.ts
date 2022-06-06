@@ -77,7 +77,9 @@ export function unsafeGet<R, S>(self: Environment<R>, tag: Tag<S>): S {
       }
       if (service === null) throw new Error("Defect in Environment: Could not find tag in map");
       else {
+        // @ts-expect-error: 4.8.0-tsplus.20220605
         self.cache = self.cache.set(tag, service);
+        // @ts-expect-error: 4.8.0-tsplus.20220605
         return service;
       }
     },

@@ -400,9 +400,9 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
               case "InspectionInfo": {
                 base = Z.succeedNow(info.base);
                 keys = Conc.from(info.keys)
-                  .traverse((key) => showProperty(value, key, info.extrasType))
+                  .traverse((key) => showProperty(value, key, info.extrasType), Z.Applicative)
                   .crossWith(
-                    info.protoProps.traverse((key) => showProperty(value, key, PROTO_TYPE)),
+                    info.protoProps.traverse((key) => showProperty(value, key, PROTO_TYPE), Z.Applicative),
                     (k1, k2) => k1.concat(k2),
                   );
                 indices    = info.formatter(value);
@@ -546,6 +546,7 @@ function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
     .apSecond(
       (value as Iterable<[unknown, unknown]>).traverseToConc(([k, v]) =>
         _show(k).crossWith(_show(v), (k, v) => `${k} => ${v}`),
+        Z.Applicative
       ),
     )
     .apFirst(
@@ -577,7 +578,7 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
           .apSecond(
             Z.succeedNow(output).flatMap((output) =>
               Conc("BYTES_PER_ELEMENT", "length", "byteLength", "byteOffset", "buffer")
-                .traverse((key) => _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`))
+                .traverse((key) => _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`), Z.Applicative)
                 .map((shownKeys) => output.concat(shownKeys)),
             ),
           )

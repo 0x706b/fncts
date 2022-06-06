@@ -487,6 +487,7 @@ class Update<A> extends ConcImplementation<A> {
         break;
       }
     }
+    // @ts-expect-error: 4.8.0-tsplus.20220605
     return a !== null ? a : this.conc.get(n);
   }
 

@@ -40,7 +40,7 @@ export function set_<A, N extends string, B>(
 /**
  * @tsplus fluent fncts.Struct hmap
  */
-export function hmap_<A, F extends { [N in keyof A]: (a: A[N]) => any }>(
+export function hmap_<A extends {}, F extends { [N in keyof A]: (a: A[N]) => any }>(
   self: Struct<A>,
   fs: F,
 ): Struct<{ readonly [K in keyof F]: ReturnType<F[K]> }> {
@@ -80,7 +80,7 @@ export function pick_<A, N extends ReadonlyArray<keyof A>>(
 /**
  * @tsplus fluent fncts.Struct omit
  */
-export function omit_<A, N extends ReadonlyArray<keyof A>>(
+export function omit_<A extends {}, N extends ReadonlyArray<keyof A>>(
   self: Struct<A>,
   keys: [...N],
 ): Struct<{ readonly [P in Exclude<keyof A, N[number]>]: A[P] }> {
@@ -108,7 +108,7 @@ export function map_<A, B>(self: Struct<A>, f: (a: A[keyof A]) => B): Struct<Rec
 /**
  * @tsplus getter fncts.Struct keys
  */
-export function keys<A>(self: Struct<A>): ReadonlyArray<keyof A> {
+export function keys<A extends {}>(self: Struct<A>): ReadonlyArray<keyof A> {
   return unsafeCoerce(Object.keys(self.getStruct));
 }
 

@@ -67,7 +67,7 @@ export abstract class Strategy<A> {
       } else {
         const pollResult = subscription.poll(empty);
 
-        if (pollResult === null) {
+        if (pollResult == null) {
           pollers.enqueueAll(pollers.unsafeDequeueAll.prepend(poller));
         } else {
           poller.unsafeSucceed(pollResult);
@@ -303,7 +303,7 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
       const empty   = null as unknown as A;
       const message = this.pollers.isEmpty ? this.subscription.poll(empty) : empty;
 
-      if (message === null) {
+      if (message == null) {
         const future = Future.unsafeMake<never, A>(fiberId);
 
         return IO.defer(() => {

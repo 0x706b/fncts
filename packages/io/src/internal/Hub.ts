@@ -633,7 +633,7 @@ class UnboundedHubSubscription<A> extends SubscriptionInternal<A> {
       } else {
         const a = this.subscriberHead.next!.value;
 
-        if (a !== null) {
+        if (a != null) {
           polled = a;
           this.subscriberHead.subscribers -= 1;
 
@@ -655,13 +655,12 @@ class UnboundedHubSubscription<A> extends SubscriptionInternal<A> {
   }
 
   pollUpTo(n: number): Conc<A> {
-    let builder    = Conc.empty<A>();
-    const default_ = null;
-    let i          = 0;
+    let builder = Conc.empty<A>();
+    let i       = 0;
 
     while (i !== n) {
-      const a = this.poll(default_ as unknown as A);
-      if (a === default_) {
+      const a = this.poll(null as unknown as A);
+      if (a == null) {
         i = n;
       } else {
         builder = builder.append(a);

@@ -28,5 +28,5 @@ export function traverseToConc_<G extends HKT, K, Q, W, X, I, S, R, E, A, B>(
   f: (a: A) => HKT.Kind<G, K, Q, W, X, I, S, R, E, B>,
   /** @tsplus auto */ G: P.Applicative<G>,
 ): HKT.Kind<G, K, Q, W, X, I, S, R, E, Conc<B>> {
-  return ta.traverseToConcWithIndex((_, a) => f(a), G);
+  return ta.traverseToConcWithIndex((_, a) => f(a));
 }

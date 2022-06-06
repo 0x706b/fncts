@@ -4,7 +4,7 @@ import type { Monad } from "@fncts/base/typeclass/Monad";
 /**
  * @tsplus type fncts.MonadExcept
  */
-export interface MonadExcept<F> extends Monad<F>, ApplicativeExcept<F> {}
+export interface MonadExcept<F extends HKT> extends Monad<F>, ApplicativeExcept<F> {}
 
 /**
  * @tsplus type fncts.MonadExceptOps
