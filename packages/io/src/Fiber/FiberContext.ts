@@ -91,12 +91,12 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
   get inheritRefs(): UIO<void> {
     return IO.defer(() => {
-      const childFiberRefs = FiberRefs(this.fiberRefLocals.get);
-      if (childFiberRefs.fiberRefLocals.isEmpty) {
+      const childFiberRefLocals = this.fiberRefLocals.get;
+      if (childFiberRefLocals.isEmpty) {
         return IO.unit;
       } else {
         return IO.updateFiberRefs((parentFiberId, parentFiberRefs) =>
-          parentFiberRefs.join(parentFiberId, childFiberRefs),
+          parentFiberRefs.join(parentFiberId, FiberRefs(childFiberRefLocals)),
         );
       }
     });
