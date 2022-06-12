@@ -1,3 +1,4 @@
+import { completes } from "@fncts/test/control/Assertion";
 import { Live } from "@fncts/test/control/Live";
 
 import { withLatch } from "./Latch.js";
@@ -529,6 +530,23 @@ class IOSpec extends DefaultRunnableSpec {
           const res = Δ(s.interrupt);
           Δ(f3.succeed(undefined));
           return res.assert(isInterrupted);
+        }),
+      ),
+    ),
+    suite(
+      "zipC",
+      testIO(
+        "is interruptible",
+        Do((Δ) => {
+          const future1 = Δ(Future.make<never, void>());
+          const future2 = Δ(Future.make<never, void>());
+          const left    = future1.succeed(undefined) > IO.never;
+          const right   = future2.succeed(undefined) > IO.never;
+          const fiber   = Δ(left.zipC(right).fork);
+          Δ(future1.await);
+          Δ(future2.await);
+          Δ(fiber.interrupt);
+          return true.assert(completes);
         }),
       ),
     ),

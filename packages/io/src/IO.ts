@@ -47,9 +47,9 @@ export * from "./IO/api/sleep.js";
 export * from "./IO/api/stateful.js";
 export * from "./IO/api/timeout.js";
 export * from "./IO/api/withChildren.js";
+export * from "./IO/api/withEarlyRelease.js";
 export * from "./IO/api/withFinalizer.js";
 export * from "./IO/api/withFinalizerExit.js";
 export * from "./IO/api/withRuntimeConfig.js";
 export * from "./IO/api/zipC.js";
-export * from "./IO/api/zipWithC.js";
 // codegen:end
