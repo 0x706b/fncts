@@ -94,7 +94,7 @@ export function size<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) 
  *
  * @tsplus getter fncts.io.Queue take
  */
-export function take<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
+export function take<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): IO<RB, EB, B> {
   concrete(queue);
   return queue.take;
 }

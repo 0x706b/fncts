@@ -45,7 +45,6 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
 }
 
 abstract class ConcImplementation<A> implements Iterable<A> {
-
   readonly _typeId: ConcTypeId = ConcTypeId;
   get [Symbol.hash](): number {
     return Hashable.iterator(this[Symbol.iterator]());

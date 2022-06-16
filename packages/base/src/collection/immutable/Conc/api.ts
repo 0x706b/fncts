@@ -468,7 +468,7 @@ export function foldMap_<A, M>(fa: Conc<A>, f: (a: A) => M, /** @tsplus auto */ 
  * @tsplus fluent fncts.Conc foldMapWithIndex
  */
 export function foldMapWithIndex_<A, M>(fa: Conc<A>, f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
-    return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
+  return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
 }
 
 /**
@@ -975,6 +975,14 @@ export function traverseWithIndex<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG,
   /** @tsplus auto */ G: P.Applicative<G>,
 ): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, Conc<B>> {
   return self.foldLeftWithIndex(G.pure(Conc.empty()), (i, fbs, a) => fbs.zipWith(f(i, a), (bs, b) => bs.append(b), G));
+}
+
+/**
+ * @tsplus getter fncts.Conc toBuffer
+ */
+export function toBuffer(self: Conc<Byte>): Uint8Array {
+  concrete(self);
+  return unsafeCoerce(self.arrayLike());
 }
 
 /**

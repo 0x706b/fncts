@@ -1,0 +1,40 @@
+{
+  "name": "@fncts/node",
+  "version": "0.0.0",
+  "type": "module",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./build/dts/*"
+      ]
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "dist"
+  },
+  "exports": {
+    "./*": "./build/esm/*.js"
+  },
+  "scripts": {
+    "build": "tsc -b ./tsconfig.json",
+    "build-mjs": "babel build/esm --config-file ./.babel.mjs.json --out-dir build/mjs --out-file-extension .mjs --source-maps",
+    "build-cjs": "babel build/esm --config-file ./.babel.cjs.json --out-dir build/cjs --out-file-extension .cjs --source-maps",
+    "build-pack": "yarn build && yarn org:concurrently \"yarn build-cjs\" \"yarn build-mjs\" && fncts-pack",
+    "test": "tsc -b ./tsconfig.test.json && node build/test/runTests.js",
+    "format": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "circular": "madge --circular --no-spinner --warning build/esm",
+    "clean": "rm -rf ./build ./dist"
+  },
+  "dependencies": {
+    "@fncts/io": "workspace:*"
+  },
+  "devDependencies": {
+    "@fncts/config": "workspace:*",
+    "@fncts/eslint-config": "workspace:*",
+    "@fncts/scripts": "workspace:*",
+    "madge": "^5.0.1",
+    "typescript": "^4.7.2"
+  }
+}
