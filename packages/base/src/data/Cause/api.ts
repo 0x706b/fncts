@@ -799,6 +799,39 @@ export function stripFailures<A>(self: Cause<A>): Cause<never> {
   });
 }
 
+/**
+ * Remove all `Halt` causes that the specified partial function is defined at,
+ * returning `Just` with the remaining causes or `Nothing` if there are no
+ * remaining causes.
+ *
+ * @tsplus fluent fncts.Cause stripSomeDefects
+ */
+export function stripSomeDefects<E>(self: Cause<E>, p: Predicate<unknown>): Maybe<Cause<E>> {
+  return self.fold({
+    Empty: () => Just(Empty()),
+    Fail: (e, trace) => Just(Fail(e, trace)),
+    Halt: (t, trace) => (p(t) ? Nothing() : Just(Halt(t, trace))),
+    Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
+    Then: (l, r) =>
+      l.isJust() && r.isJust()
+        ? Just(Then(l.value, r.value))
+        : l.isJust()
+        ? Just(l.value)
+        : r.isJust()
+        ? Just(r.value)
+        : Nothing(),
+    Both: (l, r) =>
+      l.isJust() && r.isJust()
+        ? Just(Then(l.value, r.value))
+        : l.isJust()
+        ? Just(l.value)
+        : r.isJust()
+        ? Just(r.value)
+        : Nothing(),
+    Stackless: (causeOption, stackless) => causeOption.map((cause) => Stackless(cause, stackless)),
+  });
+}
+
 function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<Cause<E>, A>> {
   switch (self._tag) {
     case CauseTag.Empty: {
