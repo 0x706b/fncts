@@ -1,5 +1,17 @@
 # @fncts/io
 
+## 0.0.7
+
+### Patch Changes
+
+- 286f472: fix: interruptibility of zipWithC (via ZIO)
+- a2dde85: perf: improve performance of FiberRefs#join (via ZIO)
+- eecc62c: feat(Cause): add Cause#squashWith
+- Updated dependencies [eecc62c]
+- Updated dependencies [56dd399]
+- Updated dependencies [dd771bc]
+  - @fncts/base@0.0.7
+
 ## 0.0.6
 
 ### Patch Changes
