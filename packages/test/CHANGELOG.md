@@ -1,5 +1,17 @@
 # @fncts/test
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [286f472]
+- Updated dependencies [a2dde85]
+- Updated dependencies [eecc62c]
+- Updated dependencies [56dd399]
+- Updated dependencies [dd771bc]
+  - @fncts/io@0.0.7
+  - @fncts/base@0.0.7
+
 ## 0.0.6
 
 ### Patch Changes

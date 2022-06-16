@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.7
+
+### Patch Changes
+
+- eecc62c: feat(Cause): add Cause#squashWith
+- 56dd399: feat: add `pattern` package
+- dd771bc: feat(Cause): add Cause#stripSomeDefects
+
 ## 0.0.6
 
 ### Patch Changes
