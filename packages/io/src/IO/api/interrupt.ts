@@ -96,7 +96,7 @@ export function interruptibleMask<R, E, A>(k: (restore: InterruptStatusRestore) 
  */
 export function onInterrupt_<R, E, A, R1>(
   ma: IO<R, E, A>,
-  cleanup: (interruptors: ReadonlySet<FiberId>) => IO<R1, never, any>,
+  cleanup: (interruptors: HashSet<FiberId>) => IO<R1, never, any>,
 ): IO<R & R1, E, A> {
   return uninterruptibleMask(({ restore }) =>
     restore(ma).matchCauseIO(

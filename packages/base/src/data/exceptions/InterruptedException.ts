@@ -5,7 +5,7 @@ export type InterruptedExceptionTypeId = typeof InterruptedExceptionTypeId;
 
 export class InterruptedException {
   readonly _typeId: InterruptedExceptionTypeId = InterruptedExceptionTypeId;
-  constructor(readonly message: string) {}
+  constructor(readonly message?: string) {}
 }
 
 export function isInterruptedException(u: unknown): u is InterruptedException {

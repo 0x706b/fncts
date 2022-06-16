@@ -92,15 +92,15 @@ export function asyncInterrupt<R, E, A>(
   return new Async(register, blockingOn, __tsplusTrace);
 }
 
-// /**
-//  * Attempts to convert defects into a failure, throwing away all information
-//  * about the cause of the failure.
-//  *
-//  * @tsplus fluent fncts.io.IO absorbWith
-//  */
-// export function absorbWith_<R, E, A>(ma: IO<R, E, A>, f: (e: E) => unknown, __tsplusTrace?: string) {
-//   return ma.sandbox.matchIO((cause) => IO.failNow(cause.squash(f)), IO.succeedNow)
-// }
+/**
+ * Attempts to convert defects into a failure, throwing away all information
+ * about the cause of the failure.
+ *
+ * @tsplus fluent fncts.io.IO absorbWith
+ */
+export function absorbWith_<R, E, A>(ma: IO<R, E, A>, f: (e: E) => unknown, __tsplusTrace?: string) {
+  return ma.sandbox.matchIO((cause) => IO.failNow(cause.squashWith(f)), IO.succeedNow)
+}
 
 /**
  * @tsplus fluent fncts.io.IO apFirst

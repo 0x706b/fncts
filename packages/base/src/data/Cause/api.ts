@@ -643,6 +643,15 @@ export function isInterrupt<E>(self: Cause<E>): self is Interrupt {
 }
 
 /**
+ * Determines if the `Cause` contains an interruption.
+ *
+ * @tsplus getter fncts.Cause isInterrupted
+ */
+export function isInterrupted<E>(self: Cause<E>): boolean {
+  return self.find((cause) => (cause.isInterrupt() ? Just(cause) : Nothing())).isJust();
+}
+
+/**
  * A type-guard matching `Traced`
  *
  * @tsplus getter fncts.Cause isTraced
@@ -689,8 +698,10 @@ export function interruptOption<E>(self: Cause<E>): Maybe<FiberId> {
  *
  * @tsplus getter fncts.Cause interruptors
  */
-export function interruptors<E>(self: Cause<E>): ReadonlySet<FiberId> {
-  return self.foldLeft(new Set(), (s, c) => (c._tag === CauseTag.Interrupt ? Just(s.add(c.id)) : Nothing()));
+export function interruptors<E>(self: Cause<E>): HashSet<FiberId> {
+  return self.foldLeft(HashSet.makeDefault(), (s, c) =>
+    c._tag === CauseTag.Interrupt ? Just(s.add(c.id)) : Nothing(),
+  );
 }
 
 /**
@@ -915,52 +926,31 @@ export function sequenceCauseMaybe<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
   return Eval.run(sequenceCauseMaybeEval(self));
 }
 
-// /**
-//  * Squashes a `Cause` down to a single `Error`, chosen to be the
-//  * "most important" `Error`.
-//  */
-// export function squash_<Id>(
-//   S: P.Show<Id>
-// ): <E>(cause: Cause<E>, f: (e: E) => unknown) => unknown {
-//   return (cause, f) =>
-//     cause.failureOption
-//       .map(f)
-//       .orElse(
-//         interrupted(cause)
-//           ? Maybe.just<unknown>(
-//               new InterruptedException(
-//                 "Interrupted by fibers: " +
-//                   Array.from(interruptors(cause))
-//                     .map((id) => S.show(id))
-//                     .join(", ")
-//               )
-//             )
-//           : Maybe.nothing()
-//       )
-//       .orElse(defects(cause).head)
-//       .getOrElse(new InterruptedException("Interrupted"));
-// }
-
-// /**
-//  * @tsplus getter PCause squash
-//  */
-// export function squash0<Id, E>(self: Cause<E>) {
-//   return (S: P.Show<Id>) =>
-//     (f: (e: E) => unknown): unknown =>
-//       squash_(S)(self, f);
-// }
-
-// /**
-//  * Squashes a `Cause` down to a single `Error`, chosen to be the
-//  * "most important" `Error`.
-//  *
-//  * @dataFirst squash_
-//  */
-// export function squash<Id>(
-//   S: P.Show<Id>
-// ): <E>(f: (e: E) => unknown) => (cause: Cause<E>) => unknown {
-//   return (f) => (cause) => squash_(S)(cause, f);
-// }
+/**
+ * Squashes a `Cause` down to a single `Error`, chosen to be the
+ * "most important" `Error`.
+ *
+ * @tsplus fluent fncts.Cause squashWith
+ */
+export function squashWith_<E>(self: Cause<E>, f: (e: E) => unknown): unknown {
+  return self.failureMaybe
+    .map(f)
+    .orElse(
+      self.isInterrupted
+        ? Just(
+            new InterruptedException(
+              "Interrupted by fibers: " +
+                self.interruptors
+                  .flatMap((id) => id.ids)
+                  .map((id) => `#${id}`)
+                  .join(", "),
+            ),
+          )
+        : Nothing(),
+    )
+    .orElse(self.defects.head)
+    .getOrElse(new InterruptedException());
+}
 
 /**
  * Constructs a `Cause` from two `Cause`s, representing sequential failures.
