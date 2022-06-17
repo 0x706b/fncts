@@ -1,4 +1,3 @@
-import { PQueue } from "@fncts/io/Queue";
 import * as fs from "fs";
 
 type ErrnoException = NodeJS.ErrnoException;
