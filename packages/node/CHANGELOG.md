@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.1
+
+### Patch Changes
+
+- 456b8ef: chore: remove unused import
+- Updated dependencies [4d77e94]
+  - @fncts/io@0.0.8
+
 ## 0.0.7
 
 ### Patch Changes
