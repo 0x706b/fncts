@@ -1,5 +1,13 @@
 # @fncts/io
 
+## 0.0.8
+
+### Patch Changes
+
+- 4d77e94: feat: add `node` package
+- Updated dependencies [4d77e94]
+  - @fncts/base@0.0.8
+
 ## 0.0.7
 
 ### Patch Changes
