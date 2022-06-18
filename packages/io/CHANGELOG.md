@@ -1,5 +1,15 @@
 # @fncts/io
 
+## 0.0.9
+
+### Patch Changes
+
+- 1323211: feat: add express package
+- b438746: chore: update tsplus
+- Updated dependencies [b438746]
+  - @fncts/base@0.0.9
+  - @fncts/typelevel@0.0.7
+
 ## 0.0.8
 
 ### Patch Changes
