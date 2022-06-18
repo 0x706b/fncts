@@ -1,4 +1,4 @@
-import type { ErasedExitHandler, ExitHandler } from "./ExitHandler.js";
+import type { ExitHandler } from "./ExitHandler.js";
 
 export interface ExpressAppConfig {
   readonly port: number;
