@@ -21,6 +21,12 @@
     },
     {
       "path": "./packages/node"
+    },
+    {
+      "path": "./packages/express"
+    },
+    {
+      "path": "./packages/pattern"
     }
   ]
 }
