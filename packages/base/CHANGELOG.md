@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.9
+
+### Patch Changes
+
+- b438746: chore: update tsplus
+- Updated dependencies [b438746]
+  - @fncts/typelevel@0.0.7
+
 ## 0.0.8
 
 ### Patch Changes

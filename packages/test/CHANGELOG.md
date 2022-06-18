@@ -1,5 +1,16 @@
 # @fncts/test
 
+## 0.0.9
+
+### Patch Changes
+
+- b438746: chore: update tsplus
+- Updated dependencies [1323211]
+- Updated dependencies [b438746]
+  - @fncts/io@0.0.9
+  - @fncts/base@0.0.9
+  - @fncts/typelevel@0.0.7
+
 ## 0.0.8
 
 ### Patch Changes
