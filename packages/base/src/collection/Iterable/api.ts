@@ -572,6 +572,13 @@ export function size<A>(self: Iterable<A>): number {
 }
 
 /**
+ * @tsplus getter fncts.Iterable sum
+ */
+export function sum(self: Iterable<number>): number {
+  return self.foldLeft(0, (b, a) => b + a);
+}
+
+/**
  * @tsplus fluent fncts.Iterable take
  */
 export function take<A>(self: Iterable<A>, n: number): Iterable<A> {
