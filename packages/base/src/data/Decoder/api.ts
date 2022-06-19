@@ -41,6 +41,7 @@ export const number: Decoder<number> = fromGuard(Number.Guard, (u) => new Primit
 export const boolean: Decoder<boolean> = fromGuard(Boolean.Guard, (u) => new PrimitiveError(u, "boolean"), "boolean");
 
 /**
+ * @tsplus static fncts.DecoderOps record
  * @tsplus implicit
  */
 export const record: Decoder<{}> = fromGuard(Object.Guard, (u) => new PrimitiveError(u, "{}"), "{}");
@@ -95,7 +96,7 @@ export function deriveUnion<A extends ReadonlyArray<unknown>>(
 }
 
 /**
- * @tsplus derive fncts.Decoder<_> 10
+ * @tsplus derive fncts.Decoder<_> 20
  */
 export function deriveStruct<A extends Record<string, any>>(
   ...[requiredFields, optionalFields]: Check<Check.IsStruct<A>> extends Check.True
