@@ -9,15 +9,11 @@
     "tsPlusConfig": "../config/tsplus.config.json",
     "tsBuildInfoFile": "build/tsbuildinfo/esm.tsbuildinfo"
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "files": [
-    "./prelude.d.ts"
-  ],
+  "include": ["./src/**/*"],
+  "files": ["./prelude.d.ts"],
   "references": [
     {
-      "path": "../typelevel/tsconfig.json"
+      "path": "../typelevel/tsconfig.build.json"
     },
     {
       "path": "../base/tsconfig.build.json"

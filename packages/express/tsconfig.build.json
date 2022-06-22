@@ -13,7 +13,7 @@
   "files": ["./prelude.d.ts"],
   "references": [
     {
-      "path": "../io/tsconfig.json"
+      "path": "../io/tsconfig.build.json"
     }
   ]
 }

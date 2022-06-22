@@ -7,19 +7,14 @@
     "tsPlusConfig": "../config/tsplus.config.json",
     "tsBuildInfoFile": "build/tsbuildinfo/test.tsbuildinfo"
   },
-  "include": [
-    "./test/**/*"
-  ],
-  "files": [
-    "./prelude.d.ts",
-    "./prelude.test.d.ts"
-  ],
+  "include": ["./test/**/*"],
+  "files": ["./prelude.d.ts", "./prelude.test.d.ts"],
   "references": [
     {
       "path": "./tsconfig.build.json"
     },
     {
-      "path": "../test/tsconfig.json"
+      "path": "../test/tsconfig.build.json"
     }
   ]
 }
