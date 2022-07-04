@@ -1,10 +1,12 @@
+import type { Journal } from "./internal/Journal.js";
+
 import { identity } from "@fncts/base/data/function";
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { TxnId } from "@fncts/io/TxnId";
 
 import { ContramapEnvironment, Effect, HaltException, STM } from "./definition.js";
 import { CommitState } from "./internal/CommitState.js";
-import { Journal, tryCommitAsync, tryCommitSync } from "./internal/Journal.js";
+import { tryCommitAsync, tryCommitSync } from "./internal/Journal.js";
 import { TryCommitTag } from "./internal/TryCommit.js";
 
 /**
@@ -48,7 +50,7 @@ export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>): STM<R, E | E1
  * @tsplus static fncts.io.STMOps Effect
  */
 export function makeEffect<R, E, A>(f: (journal: Journal, fiberId: FiberId, r: R) => A): STM<R, E, A> {
-  return new Effect(f)
+  return new Effect(f);
 }
 
 /**
@@ -84,7 +86,7 @@ export function environmentWithSTM<R0, R, E, A>(f: (r: R0) => STM<R, E, A>) {
  */
 export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
   return IO.environmentWithIO((r: Environment<R>) =>
-    IO.deferWith((_, fiberId) => {
+    IO.fiberId.flatMap((fiberId) => {
       const result = tryCommitSync(fiberId, stm, r);
       switch (result._tag) {
         case TryCommitTag.Done: {

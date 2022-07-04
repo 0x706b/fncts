@@ -4,7 +4,9 @@ IOSpec.run(IOSpec.spec)
   .provideLayer(IOSpec.runner.bootstrap)
   .unsafeRunWith((exit) =>
     exit.match(
-      () => process.exit(1),
+      (cause) => {
+        console.log(cause.prettyPrint);
+      },
       (code) => process.exit(code),
     ),
   );

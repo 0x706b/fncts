@@ -1,3 +1,4 @@
+import {} from "@fncts/io/Fiber";
 import { completes } from "@fncts/test/control/Assertion";
 import { Live } from "@fncts/test/control/Live";
 

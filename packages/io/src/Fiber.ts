@@ -1,7 +1,8 @@
 // codegen:start { preset: barrel, include: Fiber/*.ts }
 export * from "./Fiber/constructors.js";
 export * from "./Fiber/definition.js";
-export * from "./Fiber/FiberContext.js";
+export * from "./Fiber/FiberMessage.js";
+export * from "./Fiber/FiberRuntime.js";
 // codegen:end
 
 // codegen:start { preset: barrel, include: Fiber/api/*.ts }
@@ -9,8 +10,6 @@ export * from "./Fiber/api/await.js";
 export * from "./Fiber/api/awaitAll.js";
 export * from "./Fiber/api/children.js";
 export * from "./Fiber/api/collectAll.js";
-export * from "./Fiber/api/evalOn.js";
-export * from "./Fiber/api/evalOnIO.js";
 export * from "./Fiber/api/fromIO.js";
 export * from "./Fiber/api/id.js";
 export * from "./Fiber/api/inheritRefs.js";

@@ -1,4 +1,4 @@
-import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
+import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
 
 /**
  * A `Scope` represents the scope of a fiber lifetime. The scope of a fiber can
@@ -10,26 +10,26 @@ import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
  */
 export abstract class FiberScope {
   abstract fiberId: FiberId;
-  abstract unsafeAdd(child: FiberContext<unknown, unknown>): boolean;
+  abstract unsafeAdd(child: FiberRuntime<unknown, unknown>): boolean;
 }
 
 export class Global extends FiberScope {
   get fiberId(): FiberId {
     return FiberId.none;
   }
-  unsafeAdd(_child: FiberContext<any, any>): boolean {
+  unsafeAdd(_child: FiberRuntime<any, any>): boolean {
     return true;
   }
 }
 
 export class Local extends FiberScope {
-  constructor(readonly fiberId: FiberId, private parentRef: WeakRef<FiberContext<unknown, unknown>>) {
+  constructor(readonly fiberId: FiberId, private parentRef: WeakRef<FiberRuntime<unknown, unknown>>) {
     super();
   }
-  unsafeAdd(child: FiberContext<unknown, unknown>): boolean {
+  unsafeAdd(child: FiberRuntime<unknown, unknown>): boolean {
     const parent = this.parentRef.deref();
     if (parent != null) {
-      parent.unsafeAddChild(child);
+      parent.addChild(child);
       return true;
     } else {
       return false;

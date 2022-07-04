@@ -6,8 +6,6 @@ export function withChildren<R, E, A>(
   __tsplusTrace?: string,
 ): IO<R, E, A> {
   return Supervisor.track.flatMap((supervisor) =>
-    get(
-      supervisor.value.flatMap((children) => IO.descriptor.map((d) => children.filter((_) => _.id != d.id))),
-    ).supervised(supervisor),
+    get(supervisor.value.flatMap((children) => IO.fiberId.map((id) => children.filter((_) => _.id != id)))),
   );
 }

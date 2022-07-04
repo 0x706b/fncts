@@ -1,4 +1,4 @@
-import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
+import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
 
 import { Global, Local } from "@fncts/io/FiberScope/definition";
 
@@ -14,6 +14,6 @@ export const global = new Global();
 /**
  * @tsplus static fncts.io.FiberScopeOps unsafeMake
  */
-export function unsafeMake(fiber: FiberContext<any, any>): FiberScope {
+export function unsafeMake(fiber: FiberRuntime<any, any>): FiberScope {
   return new Local(fiber.id, new WeakRef(fiber));
 }

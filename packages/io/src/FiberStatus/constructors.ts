@@ -1,6 +1,7 @@
+import type { RuntimeFlags } from "../RuntimeFlags.js";
 import type { FiberStatus } from "./definition.js";
 
-import { Done, Finishing, Running, Suspended } from "./definition.js";
+import { Done, Running, Suspended } from "./definition.js";
 
 /**
  * @tsplus static fncts.FiberStatusOps done
@@ -8,28 +9,15 @@ import { Done, Finishing, Running, Suspended } from "./definition.js";
 export const done: FiberStatus = new Done();
 
 /**
- * @tsplus static fncts.FiberStatusOps finishing
- */
-export function finishing(interrupting: boolean): FiberStatus {
-  return new Finishing(interrupting);
-}
-
-/**
  * @tsplus static fncts.FiberStatusOps running
  */
-export function running(interrupting: boolean): FiberStatus {
-  return new Running(interrupting);
+export function running(runtimeFlags: RuntimeFlags, trace?: string): FiberStatus {
+  return new Running(runtimeFlags, trace);
 }
 
 /**
  * @tsplus static fncts.FiberStatusOps suspended
  */
-export function suspended(
-  interrupting: boolean,
-  interruptible: boolean,
-  epoch: number,
-  blockingOn: FiberId,
-  asyncTrace?: string,
-): FiberStatus {
-  return new Suspended(interrupting, interruptible, epoch, blockingOn, asyncTrace);
+export function suspended(runtimeFlags: RuntimeFlags, blockingOn: FiberId, trace?: string): FiberStatus {
+  return new Suspended(runtimeFlags, blockingOn, trace);
 }

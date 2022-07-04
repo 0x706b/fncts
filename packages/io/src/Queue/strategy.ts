@@ -33,9 +33,9 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     takers: MutableQueue<Future<never, A>>,
     isShutdown: AtomicBoolean,
   ): UIO<boolean> {
-    return IO.descriptorWith((d) =>
+    return IO.fiberId.flatMap((id) =>
       IO.defer(() => {
-        const p = Future.unsafeMake<never, boolean>(d.id);
+        const p = Future.unsafeMake<never, boolean>(id);
 
         return IO.defer(() => {
           this.unsafeOffer(as, p);

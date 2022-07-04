@@ -49,6 +49,11 @@ export function unsafeMake<A>(
 }
 
 /**
+ * @tsplus static fncts.io.FiberRefOps interruptedCause
+ */
+export const interruptedCause = FiberRef.unsafeMake(Cause.empty<never>(), identity, (parent, _) => parent);
+
+/**
  * @tsplus static fncts.io.FiberRefOps forkScopeOverride
  */
 export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing(), () => Nothing());

@@ -24,7 +24,7 @@ export class LiveAnnotations extends Annotations {
     );
   }
 
-  supervisedFibers = IO.descriptorWith((descriptor) =>
+  supervisedFibers = IO.fiberId.flatMap((id) =>
     this.fiberRef.get
       .map((m) => m.get(TestAnnotation.Fibers))
       .flatMap((r) =>
@@ -35,7 +35,7 @@ export class LiveAnnotations extends Annotations {
               .map((fibers) =>
                 fibers.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s1, s2) => s1.union(s2)),
               )
-              .map((s) => s.filter((f) => Equatable.strictEquals(f.id, descriptor.id))),
+              .map((s) => s.filter((f) => Equatable.strictEquals(f.id, id))),
         ),
       ),
   );
