@@ -14,7 +14,7 @@ export interface RuntimeFlagsPatch
     {
       readonly RuntimeFlagsPatch: unique symbol;
     },
-    bigint
+    number
   > {}
 
 /**
@@ -31,7 +31,7 @@ export const RuntimeFlagsPatch: RuntimeFlagsPatchOps = Newtype();
  * @tsplus static fncts.io.RuntimeFlagsPatchOps __call
  */
 export function makeRuntimeFlagsPatch(active: number, enabled: number): RuntimeFlags.Patch {
-  return RuntimeFlags.Patch.get((BigInt(active) << 0n) + ((BigInt(enabled) & BigInt(active)) << 32n));
+  return ((active << 0) + ((enabled & active) << 16)) as unknown as RuntimeFlags.Patch;
 }
 
 /**
@@ -66,7 +66,8 @@ export function isEnabledPatch(patch: RuntimeFlags.Patch, flag: RuntimeFlag): bo
  * @tsplus fluent fncts.io.RuntimeFlagsPatch patch
  */
 export function patch(patch: RuntimeFlags.Patch, flags: RuntimeFlags): RuntimeFlags {
-  return RuntimeFlags.get((flags.reverseGet & (~active(patch) | enabled(patch))) | (active(patch) & enabled(patch)));
+  return ((flags.reverseGet & (~active(patch) | enabled(patch))) |
+    (active(patch) & enabled(patch))) as unknown as RuntimeFlags;
 }
 
 /**
@@ -77,9 +78,9 @@ export function exclude(patch: RuntimeFlags.Patch, flag: RuntimeFlag): RuntimeFl
 }
 
 function active(patch: RuntimeFlags.Patch): number {
-  return Number((patch.reverseGet >> 0n) & 0xffffffffn);
+  return Number((patch.reverseGet >> 0) & 0xffffffff);
 }
 
 function enabled(patch: RuntimeFlags.Patch): number {
-  return Number((patch.reverseGet >> 32n) & 0xffffffffn);
+  return Number((patch.reverseGet >> 16) & 0xffffffff);
 }

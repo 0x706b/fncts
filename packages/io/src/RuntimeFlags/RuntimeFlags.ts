@@ -32,7 +32,7 @@ export declare namespace RuntimeFlags {
  * @tsplus static fncts.io.RuntimeFlagsOps __call
  */
 export function makeRuntimeFlags(...flags: ReadonlyArray<RuntimeFlag>): RuntimeFlags {
-  return RuntimeFlags.get(flags.reduce((b, a) => b | a, 0));
+  return flags.reduce((b, a) => b | a, 0) as unknown as RuntimeFlags;
 }
 
 /**
@@ -46,7 +46,7 @@ export function isEnabled(flags: RuntimeFlags, flag: RuntimeFlag): boolean {
  * @tsplus fluent fncts.io.RuntimeFlags enable
  */
 export function enable(flags: RuntimeFlags, flag: RuntimeFlag): RuntimeFlags {
-  return RuntimeFlags.get(RuntimeFlags.reverseGet(flags) | flag);
+  return (RuntimeFlags.reverseGet(flags) | flag) as unknown as RuntimeFlags;
 }
 
 /**
@@ -101,7 +101,7 @@ export function diff(oldValue: RuntimeFlags, newValue: RuntimeFlags) {
 /**
  * @tsplus static fncts.io.RuntimeFlagsOps none
  */
-export const none = RuntimeFlags.get(0);
+export const none = 0 as unknown as RuntimeFlags;
 
 /**
  * @tsplus static fncts.io.RuntimeFlagsOps default
