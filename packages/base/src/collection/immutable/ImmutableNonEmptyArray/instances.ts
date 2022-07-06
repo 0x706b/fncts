@@ -45,61 +45,61 @@ export const FunctorWithIndex: P.FunctorWithIndex<ImmutableNonEmptyArrayF> = {
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Apply
  */
-export const Apply: P.Apply<ImmutableNonEmptyArrayF> = ({
+export const Apply: P.Apply<ImmutableNonEmptyArrayF> = {
   ...Functor,
   zip: cross_,
   zipWith: crossWith_,
-});
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Applicative
  */
-export const Applicative: P.Applicative<ImmutableNonEmptyArrayF> = ({
+export const Applicative: P.Applicative<ImmutableNonEmptyArrayF> = {
   ...Apply,
   pure: make,
-});
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Monad
  */
-export const Monad: P.Monad<ImmutableNonEmptyArrayF> = ({
+export const Monad: P.Monad<ImmutableNonEmptyArrayF> = {
   ...Applicative,
   flatMap: flatMap_,
-});
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Foldable
  */
-export const Foldable: P.Foldable<ImmutableNonEmptyArrayF> = ({
+export const Foldable: P.Foldable<ImmutableNonEmptyArrayF> = {
   foldLeft: foldLeft_,
   foldRight: foldRight_,
-});
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps FoldableWithIndex
  */
-export const FoldableWithIndex: P.FoldableWithIndex<ImmutableNonEmptyArrayF> = ({
+export const FoldableWithIndex: P.FoldableWithIndex<ImmutableNonEmptyArrayF> = {
   ...Foldable,
   foldLeftWithIndex: foldLeftWithIndex_,
   foldRightWithIndex: foldRightWithIndex_,
-});
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Traversable
  */
-export const Traversable: P.Traversable<ImmutableNonEmptyArrayF> = ({
+export const Traversable: P.Traversable<ImmutableNonEmptyArrayF> = {
   ...Functor,
   ...Foldable,
   traverse: traverse_,
-});
+};
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps TraversableWithIndex
  */
-export const TraversableWithIndex: P.TraversableWithIndex<ImmutableNonEmptyArrayF> = ({
+export const TraversableWithIndex: P.TraversableWithIndex<ImmutableNonEmptyArrayF> = {
   ...Functor,
   ...FunctorWithIndex,
   ...FoldableWithIndex,
   ...Traversable,
   traverseWithIndex: traverseWithIndex_,
-});
+};

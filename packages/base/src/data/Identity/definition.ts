@@ -1,5 +1,5 @@
 export interface IdentityN {
-  readonly [HKT.T]: Identity<HKT._A<this>>
+  readonly [HKT.T]: Identity<HKT._A<this>>;
 }
 
 /**

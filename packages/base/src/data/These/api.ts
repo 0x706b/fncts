@@ -177,7 +177,7 @@ export function condemn<E, A>(self: These<E, A>): These<E, A> {
  * @tsplus fluent fncts.These condemnWhen
  */
 export function condemnWhen<E, A>(self: These<E, A>, p: Predicate<E>): These<E, A> {
-  if(self._tag === TheseTag.Both && p(self.left)) {
+  if (self._tag === TheseTag.Both && p(self.left)) {
     return These.left(self.left);
   }
   return self;

@@ -35,7 +35,7 @@
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
     "madge": "^5.0.1",
-    "ts-node": "^10.8.0",
-    "typescript": "^4.7.2"
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4"
   }
 }

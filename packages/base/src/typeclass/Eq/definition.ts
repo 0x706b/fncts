@@ -2,7 +2,7 @@
  * @tsplus type fncts.Eq
  */
 export interface Eq<A> {
-  readonly equals: (x: A, y: A) => boolean
+  readonly equals: (x: A, y: A) => boolean;
 }
 
 /**

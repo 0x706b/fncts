@@ -30,6 +30,6 @@ export function both<E = never, A = never>(e: E, a: A): These<E, A> {
 export function rightOrBoth<E = never, A = never>(e: Maybe<E>, a: A): These<E, A> {
   return e.match(
     () => These.right(a),
-    (e) => These.both(e, a)
+    (e) => These.both(e, a),
   );
 }

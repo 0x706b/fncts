@@ -204,7 +204,6 @@ export function alignCombine<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W
   HKT.Mix<"E", [E, E1]>,
   A
 > {
-
   return self.alignWith(that, (th) => th.match(identity, identity, S.combine));
 }
 
@@ -331,14 +330,12 @@ export function padZipWith<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1,
   HKT.Mix<"E", [E, E1]>,
   D
 > {
-  return fa.alignWith(
-    fb,
-    (th) =>
-      th.match(
-        (a) => f([Just(a), Nothing()]),
-        (b) => f([Nothing(), Just(b)]),
-        (a, b) => f([Just(a), Just(b)]),
-      ),
+  return fa.alignWith(fb, (th) =>
+    th.match(
+      (a) => f([Just(a), Nothing()]),
+      (b) => f([Nothing(), Just(b)]),
+      (a, b) => f([Just(a), Just(b)]),
+    ),
   );
 }
 

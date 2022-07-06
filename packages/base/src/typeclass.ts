@@ -37,4 +37,3 @@ export * from "./typeclass/TraversableWithIndex.js";
 export * from "./typeclass/Witherable.js";
 export * from "./typeclass/WitherableWithIndex.js";
 // codegen:end
-

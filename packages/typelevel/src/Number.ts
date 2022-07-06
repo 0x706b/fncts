@@ -36,10 +36,7 @@ export type _AddPositive<N1 extends Iteration, N2 extends Iteration> = Pos<N2> e
   ? IterationOf<number>
   : _AddPositive<Next<N1>, Prev<N2>>;
 
-export type AddPositive<N1 extends Iteration, N2 extends Iteration> = _AddPositive<
-  N1,
-  N2
-> extends infer X
+export type AddPositive<N1 extends Iteration, N2 extends Iteration> = _AddPositive<N1, N2> extends infer X
   ? Cast<X, Iteration>
   : never;
 
@@ -49,10 +46,7 @@ export type _AddNegative<N1 extends Iteration, N2 extends Iteration> = Pos<N2> e
   ? IterationOf<number>
   : _AddNegative<Prev<N1>, Next<N2>>;
 
-export type AddNegative<N1 extends Iteration, N2 extends Iteration> = _AddNegative<
-  N1,
-  N2
-> extends infer X
+export type AddNegative<N1 extends Iteration, N2 extends Iteration> = _AddNegative<N1, N2> extends infer X
   ? Cast<X, Iteration>
   : never;
 
@@ -98,10 +92,7 @@ export type Lower<X extends number, Y extends number> = X extends unknown
     : never
   : never;
 
-export type _GreaterEq<N1 extends Iteration, N2 extends Iteration> = Or<
-  Equals<N1, N2>,
-  _Greater<N1, N2>
->;
+export type _GreaterEq<N1 extends Iteration, N2 extends Iteration> = Or<Equals<N1, N2>, _Greater<N1, N2>>;
 
 export type GreaterEq<X extends number, Y extends number> = X extends unknown
   ? Y extends unknown
@@ -109,10 +100,7 @@ export type GreaterEq<X extends number, Y extends number> = X extends unknown
     : never
   : never;
 
-export type _LowerEq<N1 extends Iteration, N2 extends Iteration> = Or<
-  Equals<N1, N2>,
-  _Lower<N1, N2>
->;
+export type _LowerEq<N1 extends Iteration, N2 extends Iteration> = Or<Equals<N1, N2>, _Lower<N1, N2>>;
 
 export type LowerEq<X extends number, Y extends number> = X extends unknown
   ? Y extends unknown

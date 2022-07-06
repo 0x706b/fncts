@@ -1,16 +1,10 @@
 import type { Cast, Equals, Extends, Is, Match } from "./Any.js";
-import type { False,True } from "./Boolean.js";
+import type { False, True } from "./Boolean.js";
 import type { List, Prepend } from "./List.js";
 
-export type IntersectionOf<U> = (U extends unknown ? (k: U) => void : never) extends (
-  k: infer I,
-) => void
-  ? I
-  : never;
+export type IntersectionOf<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 
-export type Last<U> = IntersectionOf<U extends unknown ? (x: U) => void : never> extends (
-  x: infer P,
-) => void
+export type Last<U> = IntersectionOf<U extends unknown ? (x: U) => void : never> extends (x: infer P) => void
   ? P
   : never;
 

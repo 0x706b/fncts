@@ -46,16 +46,16 @@ export declare namespace Check {
   /**
    * @tsplus type fncts.Check.IsEqual
    */
-  type IsEqual<A, B> = (<T>() => T extends EqualsWrapped<A> ? 1 : 2) extends <
-    T,
-  >() => T extends EqualsWrapped<B> ? 1 : 2
+  type IsEqual<A, B> = (<T>() => T extends EqualsWrapped<A> ? 1 : 2) extends <T>() => T extends EqualsWrapped<B> ? 1 : 2
     ? unknown
     : never;
 
   /**
    * @tsplus type fncts.Check.IsLiteral
    */
-  type IsLiteral<A extends string | number | boolean> = Not<Extends<string, A> | Extends<number, A> | Extends<boolean, A>>;
+  type IsLiteral<A extends string | number | boolean> = Not<
+    Extends<string, A> | Extends<number, A> | Extends<boolean, A>
+  >;
 
   /**
    * @tsplus type fncts.Check.IsStruct
@@ -65,10 +65,7 @@ export declare namespace Check {
   /**
    * @tsplus type fncts.Check.HaveSameLength
    */
-  type HaveSameLength<A extends { length: number }, B extends { length: number }> = IsEqual<
-    A["length"],
-    B["length"]
-  >;
+  type HaveSameLength<A extends { length: number }, B extends { length: number }> = IsEqual<A["length"], B["length"]>;
 
   /**
    * @tsplus type fncts.Check.IsTagged

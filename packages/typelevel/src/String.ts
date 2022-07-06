@@ -13,16 +13,10 @@ export type Join<T extends List<Literal>, D extends string = ""> = _Join<T, D> e
   ? Cast<X, string>
   : never;
 
-type __Split<
-  S extends string,
-  D extends string,
-  T extends string[] = [],
-> = S extends `${infer BS}${D}${infer AS}` ? __Split<AS, D, [...T, BS]> : [...T, S];
+type __Split<S extends string, D extends string, T extends string[] = []> = S extends `${infer BS}${D}${infer AS}`
+  ? __Split<AS, D, [...T, BS]>
+  : [...T, S];
 
-type _Split<S extends string, D extends string = ""> = D extends ""
-  ? Pop<__Split<S, D>>
-  : __Split<S, D>;
+type _Split<S extends string, D extends string = ""> = D extends "" ? Pop<__Split<S, D>> : __Split<S, D>;
 
-export type Split<S extends string, D extends string = ""> = _Split<S, D> extends infer X
-  ? Cast<X, string[]>
-  : never;
+export type Split<S extends string, D extends string = ""> = _Split<S, D> extends infer X ? Cast<X, string[]> : never;

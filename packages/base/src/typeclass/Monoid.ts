@@ -48,7 +48,7 @@ export function deriveLazy<A>(fn: (_: Monoid<A>) => Monoid<A>): Monoid<A> {
         cached = fn(M);
       }
       return cached.nat;
-    }
+    },
   });
   return M;
 }
@@ -74,8 +74,8 @@ export function deriveStruct<A extends Record<string, any>>(
       ]
     : never
 ): Monoid<A> {
-  const [ requiredFields, optionalFields ] = args;
-  const nat: Record<string, unknown>       = {};
+  const [requiredFields, optionalFields] = args;
+  const nat: Record<string, unknown>     = {};
   for (const field in requiredFields) {
     nat[field] = (requiredFields[field] as Monoid<any>).nat;
   }
@@ -84,6 +84,6 @@ export function deriveStruct<A extends Record<string, any>>(
   }
   return Monoid({
     ...Semigroup.deriveStruct<A>(...args),
-    nat: nat as A
+    nat: nat as A,
   });
 }

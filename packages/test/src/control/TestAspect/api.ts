@@ -116,7 +116,7 @@ function showWarning(labels: Vector<string>, duration: Duration) {
 }
 
 function renderWarning(labels: Vector<string>, duration: Duration) {
-  return `Test ${labels.join(
-    " - ",
-  )} has taken more than ${duration.milliseconds} milliseconds to execute. If this is not expected, consider using TestAspect.timeout to timeout runaway tests for faster diagnostics`;
+  return `Test ${labels.join(" - ")} has taken more than ${
+    duration.milliseconds
+  } milliseconds to execute. If this is not expected, consider using TestAspect.timeout to timeout runaway tests for faster diagnostics`;
 }

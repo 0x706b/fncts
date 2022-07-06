@@ -36,7 +36,7 @@ export abstract class RunnableSpec<R, E> extends AbstractRunnableSpec<R, E> {
           () => {
             process.exit(1);
           },
-          (code) => process.exit(code)
+          (code) => process.exit(code),
         );
       });
   }

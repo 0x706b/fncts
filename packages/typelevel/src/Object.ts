@@ -45,11 +45,7 @@ type MetaPath<O, SP extends List<Index> = [], P extends List<Index> = []> = {
   [__Path]: [];
 };
 
-type NextPath<OP> = At<UnionOf<At<OP, __Cont>>, __Path> extends infer X
-  ? undefined extends X
-    ? never
-    : X
-  : never;
+type NextPath<OP> = At<UnionOf<At<OP, __Cont>>, __Path> extends infer X ? (undefined extends X ? never : X) : never;
 
 type ExecPath<A, SP extends List<Index>> = NextPath<Path<MetaPath<A, SP>, PrependAll<SP, __Cont>>>;
 
@@ -140,9 +136,7 @@ export type _ExcludeMatch<O, O1, M extends Match> = {
   }[Is<O[K], At<O1, K>, M>];
 }[keyof O];
 
-export type ExcludeMatch<O, O1, M extends Match> = O extends unknown
-  ? _ExcludeMatch<O, O1, M>
-  : never;
+export type ExcludeMatch<O, O1, M extends Match> = O extends unknown ? _ExcludeMatch<O, O1, M> : never;
 
 export type ExcludeKeys<O, O1, M extends Match = "default"> = {
   default: U.Exclude<Keys<O>, Keys<O1>>;
@@ -223,9 +217,7 @@ type MergeDeepObject<O, O1, Ignore, Fill, OOKeys extends Key = _OptionalKeys<O>>
   [K in keyof (Anyify<O> & O1)]: MergeDeepChoice<At<O, K>, At<O1, K>, Ignore, Fill, OOKeys, K>;
 };
 
-type MergeDeepChoice<OK, O1K, Ignore, Fill, OOKeys extends Key, K extends Key> = [OK] extends [
-  never,
-]
+type MergeDeepChoice<OK, O1K, Ignore, Fill, OOKeys extends Key, K extends Key> = [OK] extends [never]
   ? MergeProp<OK, O1K, Fill, OOKeys, K>
   : [O1K] extends [never]
   ? MergeProp<OK, O1K, Fill, OOKeys, K>
@@ -255,11 +247,7 @@ export type MergeDeep<O, O1, Ignore, Fill> = O extends unknown
  * -------------------------------------------------------------------------------------------------
  */
 
-type PatchProp<OK, O1K, Fill, OKeys extends Key, K extends Key> = K extends OKeys
-  ? OK extends Fill
-    ? O1K
-    : OK
-  : O1K;
+type PatchProp<OK, O1K, Fill, OKeys extends Key, K extends Key> = K extends OKeys ? (OK extends Fill ? O1K : OK) : O1K;
 
 /**
  * @hidden
@@ -324,9 +312,6 @@ export type PatchDeep<O, O1, Ignore, Fill> = O extends unknown
     : never
   : never;
 
-export type Diff<O, O1, M extends Match = "default"> = PatchFlat<
-  Exclude<O, O1, M>,
-  Exclude<O1, O, M>
->;
+export type Diff<O, O1, M extends Match = "default"> = PatchFlat<Exclude<O, O1, M>, Exclude<O1, O, M>>;
 
 export type EnforceNonEmpty<O> = keyof O extends never ? never : O;

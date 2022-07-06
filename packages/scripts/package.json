@@ -19,9 +19,9 @@
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@yarnpkg/cli": "4.0.0-rc.6",
-    "@yarnpkg/core": "4.0.0-rc.6",
+    "@yarnpkg/cli": "4.0.0-rc.11",
+    "@yarnpkg/core": "4.0.0-rc.11",
     "madge": "^5.0.1",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.4"
   }
 }

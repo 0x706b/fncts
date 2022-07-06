@@ -1,10 +1,10 @@
 export interface NothingJson {
-  readonly _tag: "Nothing"
+  readonly _tag: "Nothing";
 }
 
 export interface JustJson<A> {
-  readonly _tag: "Just"
-  readonly value: A
+  readonly _tag: "Just";
+  readonly value: A;
 }
 
 /**

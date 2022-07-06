@@ -544,9 +544,9 @@ function showSet(value: Set<unknown>): ShowComputationChunk {
 function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
     .apSecond(
-      (value as Iterable<[unknown, unknown]>).traverseToConc(([k, v]) =>
-        _show(k).crossWith(_show(v), (k, v) => `${k} => ${v}`),
-        Z.Applicative
+      (value as Iterable<[unknown, unknown]>).traverseToConc(
+        ([k, v]) => _show(k).crossWith(_show(v), (k, v) => `${k} => ${v}`),
+        Z.Applicative,
       ),
     )
     .apFirst(
@@ -578,7 +578,10 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
           .apSecond(
             Z.succeedNow(output).flatMap((output) =>
               Conc("BYTES_PER_ELEMENT", "length", "byteLength", "byteOffset", "buffer")
-                .traverse((key) => _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`), Z.Applicative)
+                .traverse(
+                  (key) => _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`),
+                  Z.Applicative,
+                )
                 .map((shownKeys) => output.concat(shownKeys)),
             ),
           )

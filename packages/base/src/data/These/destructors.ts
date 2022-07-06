@@ -50,12 +50,8 @@ export function match_<E, A, B, C, D>(
 /**
  * @tsplus fluent fncts.These match2
  */
-export function match2<E, A, B, C>(
-  self: These<E, A>,
-  left: (e: E) => B,
-  right: (e: Maybe<E>, a: A) => C
-): B | C {
-  switch(self._tag) {
+export function match2<E, A, B, C>(self: These<E, A>, left: (e: E) => B, right: (e: Maybe<E>, a: A) => C): B | C {
+  switch (self._tag) {
     case TheseTag.Left:
       return left(self.left);
     case TheseTag.Right:

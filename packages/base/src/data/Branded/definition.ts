@@ -17,18 +17,22 @@ export declare namespace Branded {
   export type Validated<A, K extends string> = A & Brand<A, K>;
 
   export type IsValidated<P extends Brand<any, any>> = {
-    [K in keyof P[Branded.Symbol]]: P extends P[Branded.Symbol][K] ? 0 : 1
-  }[keyof P[Branded.Symbol]] extends 0 ? unknown : never;
+    [K in keyof P[Branded.Symbol]]: P extends P[Branded.Symbol][K] ? 0 : 1;
+  }[keyof P[Branded.Symbol]] extends 0
+    ? unknown
+    : never;
 
   export type Unbrand<P extends Brand<any, any>> = P extends infer Q & Brands<P> ? Q : P;
 
-  export type Brands<P extends Brand<any, any>> = Union.IntersectionOf<{
-    [K in keyof P[Branded.Symbol]]: P extends P[Branded.Symbol][K]
-      ? K extends string
-        ? Brand<P[Branded.Symbol][K], K>
-        : never
-      : never;
-  }[keyof P[Branded.Symbol]]>;
+  export type Brands<P extends Brand<any, any>> = Union.IntersectionOf<
+    {
+      [K in keyof P[Branded.Symbol]]: P extends P[Branded.Symbol][K]
+        ? K extends string
+          ? Brand<P[Branded.Symbol][K], K>
+          : never
+        : never;
+    }[keyof P[Branded.Symbol]]
+  >;
 }
 
 /**

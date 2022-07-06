@@ -28,6 +28,6 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "typescript": "^4.7.2"
+    "typescript": "^4.7.4"
   }
 }

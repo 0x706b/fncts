@@ -5,10 +5,7 @@ import type { Has } from "./Union.js";
 
 export type Cast<A, B> = A extends B ? A : B;
 
-export type Try<A1 , A2 , Catch = never> =
-    A1 extends A2
-    ? A1
-    : Catch;
+export type Try<A1, A2, Catch = never> = A1 extends A2 ? A1 : Catch;
 
 export type Extends<A, B> = [A] extends [never] ? False : A extends B ? True : False;
 

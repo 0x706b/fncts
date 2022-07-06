@@ -21,7 +21,7 @@ export class Vector<A> implements Iterable<A> {
   readonly [HKT.F]!: VectorF;
   readonly [HKT.A]!: () => A;
   readonly [HKT.T]!: Vector<HKT._A<this>>;
-  readonly [HKT.Ix]!: number
+  readonly [HKT.Ix]!: number;
   constructor(
     /** @private */
     readonly bits: number,
@@ -57,7 +57,7 @@ export interface MutableVector<A> {
   readonly [HKT.F]: VectorF;
   readonly [HKT.A]: () => A;
   readonly [HKT.T]: Vector<HKT._A<this>>;
-  readonly [HKT.Ix]: number
+  readonly [HKT.Ix]: number;
   bits: number;
   offset: number;
   length: number;

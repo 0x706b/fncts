@@ -99,7 +99,7 @@ export function asyncInterrupt<R, E, A>(
  * @tsplus fluent fncts.io.IO absorbWith
  */
 export function absorbWith_<R, E, A>(ma: IO<R, E, A>, f: (e: E) => unknown, __tsplusTrace?: string) {
-  return ma.sandbox.matchIO((cause) => IO.failNow(cause.squashWith(f)), IO.succeedNow)
+  return ma.sandbox.matchIO((cause) => IO.failNow(cause.squashWith(f)), IO.succeedNow);
 }
 
 /**

@@ -12,17 +12,9 @@ export type Length<L extends List> = L["length"];
 
 export type Head<L extends List> = L[0];
 
-export type Tail<L extends List> = L extends readonly []
-  ? L
-  : L extends readonly [any?, ...infer Tail]
-  ? Tail
-  : L;
+export type Tail<L extends List> = L extends readonly [] ? L : L extends readonly [any?, ...infer Tail] ? Tail : L;
 
-export type Init<L extends List> = L extends readonly []
-  ? L
-  : L extends readonly [...infer Init, any?]
-  ? Init
-  : L;
+export type Init<L extends List> = L extends readonly [] ? L : L extends readonly [...infer Init, any?] ? Init : L;
 
 export type Last<L extends List> = L[Length<Tail<L>>];
 
@@ -32,9 +24,7 @@ export type PrependAll<L extends List, A, O extends List = []> = Length<L> exten
   ? O
   : PrependAll<Tail<L>, A, [...O, A, Head<L>]>;
 
-export type Pop<L extends List> = L extends
-  | readonly [...infer LBody, any]
-  | readonly [...infer LBody, any?]
+export type Pop<L extends List> = L extends readonly [...infer LBody, any] | readonly [...infer LBody, any?]
   ? LBody
   : L;
 

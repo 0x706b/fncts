@@ -566,8 +566,7 @@ export const wiltWithIndex_: P.WitherableWithIndex<HashMapF>["wiltWithIndex"] = 
 /**
  * @tsplus fluent fncts.HashMap wilt
  */
-export const wilt_: P.Witherable<HashMapF>["wilt"] = (wa, f, G) =>
-  wa.wiltWithIndex((_, a) => f(a), G);
+export const wilt_: P.Witherable<HashMapF>["wilt"] = (wa, f, G) => wa.wiltWithIndex((_, a) => f(a), G);
 
 /**
  * @tsplus fluent fncts.HashMap unionWith
