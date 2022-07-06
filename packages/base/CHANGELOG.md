@@ -1,5 +1,16 @@
 # @fncts/base
 
+## 0.0.10
+
+### Patch Changes
+
+- e6581bc: feat: add Record Decoder
+- 5d1eafa: chore: update dependencies
+- 5f1f22d: feat: add IterableWeakMap and IterableWeakSet
+- 8ea40ef: feat: implement TReentrantLock
+- Updated dependencies [5d1eafa]
+  - @fncts/typelevel@0.0.8
+
 ## 0.0.9
 
 ### Patch Changes
