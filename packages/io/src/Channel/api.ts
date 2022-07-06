@@ -232,6 +232,23 @@ export function catchAllCause_<
 }
 
 /**
+ * @tsplus getter fncts.io.Channel collectElements
+ */
+export function collectElements<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+): Channel<Env, InErr, InElem, InDone, OutErr, never, readonly [Conc<OutElem>, OutDone]> {
+  return Channel.defer(() => {
+    const builder = new ConcBuilder<OutElem>(Conc.empty());
+    const reader: Channel<Env, OutErr, OutElem, OutDone, OutErr, never, OutDone> = Channel.readWith(
+      (out) => Channel.succeed(builder.append(out)) > reader,
+      Channel.failNow,
+      Channel.succeedNow,
+    );
+    return self.pipeTo(reader).flatMap((z) => Channel.succeedNow([builder.result(), z]));
+  });
+}
+
+/**
  * @tsplus getter fncts.io.Channel concatAll
  */
 export function concatAll<Env, InErr, InElem, InDone, OutErr, OutElem>(
@@ -735,9 +752,9 @@ export function fromQueue<Err, Elem, Done>(
  */
 export function provideEnvironment_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  env: Environment<Env>,
+  env: Lazy<Environment<Env>>,
 ): Channel<unknown, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  return new Provide(env, self);
+  return Channel.defer(new Provide(env(), self));
 }
 
 /**
@@ -945,6 +962,49 @@ export function matchCauseChannel_<
   );
 }
 
+/**
+ * Fold the channel exposing success and full error cause
+ *
+ * @tsplus fluent fncts.io.Channel matchChannel
+ */
+export function matchChannel_<
+  Env,
+  Env1,
+  Env2,
+  InErr,
+  InErr1,
+  InErr2,
+  InElem,
+  InElem1,
+  InElem2,
+  InDone,
+  InDone1,
+  InDone2,
+  OutErr,
+  OutErr2,
+  OutErr3,
+  OutElem,
+  OutElem1,
+  OutElem2,
+  OutDone,
+  OutDone2,
+  OutDone3,
+>(
+  channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  onError: (e: OutErr) => Channel<Env1, InErr1, InElem1, InDone1, OutErr2, OutElem1, OutDone2>,
+  onSuccess: (o: OutDone) => Channel<Env2, InErr2, InElem2, InDone2, OutErr3, OutElem2, OutDone3>,
+): Channel<
+  Env & Env1 & Env2,
+  InErr & InErr1 & InErr2,
+  InElem & InElem1 & InElem2,
+  InDone & InDone1 & InDone2,
+  OutErr2 | OutErr3,
+  OutElem | OutElem1 | OutElem2,
+  OutDone2 | OutDone3
+> {
+  return channel.matchCauseChannel((cause) => cause.failureOrCause.match(onError, Channel.failCauseNow), onSuccess);
+}
+
 export const never: Channel<unknown, unknown, unknown, unknown, never, never, never> = Channel.fromIO(IO.never);
 
 /**
@@ -1007,6 +1067,7 @@ export function orHaltWith_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone
  * Pipe the output of a channel into the input of another
  *
  * @tsplus fluent fncts.io.Channel pipeTo
+ * @tsplus operator fncts.io.Channel >>>
  */
 export function pipeTo_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1, OutDone1>(
   left: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
@@ -1174,16 +1235,24 @@ export function repeated<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
 }
 
 /**
- * @tsplus static fncts.io.Channel toQueue
+ * @tsplus static fncts.io.ChannelOps toQueue
  */
 export function toQueue<Err, Done, Elem>(
-  queue: Queue.Enqueue<Either<Exit<Err, Done>, Elem>>,
-): Channel<unknown, Err, Elem, Done, never, never, any> {
-  return readWithCause(
-    (in_: Elem) => Channel.fromIO(queue.offer(Either.right(in_))).apSecond(toQueue(queue)),
-    (cause: Cause<Err>) => Channel.fromIO(queue.offer(Either.left(Exit.failCause(cause)))),
-    (done: Done) => Channel.fromIO(queue.offer(Either.left(Exit.succeed(done)))),
-  );
+  queue: Lazy<Queue.Enqueue<Either<Exit<Err, Done>, Elem>>>,
+): Channel<unknown, Err, Elem, Done, never, never, unknown> {
+  return Channel.defer(() => {
+    function toQueue<Err, Done, Elem>(
+      queue: Queue.Enqueue<Either<Exit<Err, Done>, Elem>>,
+    ): Channel<unknown, Err, Elem, Done, never, never, unknown> {
+      return Channel.readWithCause(
+        (inp) => Channel.fromIO(queue.offer(Either.right(inp))) > toQueue(queue),
+        (cause) => Channel.fromIO(queue.offer(Either.left(Exit.failCause(cause)))),
+        (done) => Channel.fromIO(queue.offer(Either.left(Exit.succeed(done)))),
+      );
+    }
+
+    return toQueue(queue());
+  });
 }
 
 /**
@@ -1249,10 +1318,28 @@ export function unwrap<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
  * @tsplus static fncts.io.ChannelOps unwrapScoped
  */
 export function unwrapScoped<R, E, Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
-  self: IO<R & Has<Scope>, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
+  self: Lazy<IO<R & Has<Scope>, E, Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>>,
 ): Channel<R & Env, InErr, InElem, InDone, E | OutErr, OutElem, OutDone> {
   return Channel.scoped(self).concatAllWith(
     (d, _) => d,
     (d, _) => d,
   );
+}
+
+/**
+ * @tsplus static fncts.io.ChannelOps fromHubScoped
+ */
+export function fromHubScoped<Err, Done, Elem>(
+  hub: Lazy<Hub<Either<Exit<Err, Done>, Elem>>>,
+): IO<Has<Scope>, never, Channel<unknown, unknown, unknown, unknown, Err, Elem, Done>> {
+  return IO.defer(hub().subscribe.map(Channel.fromQueue));
+}
+
+/**
+ * @tsplus static fncts.io.ChannelOps toHub
+ */
+export function toHub<Err, Done, Elem>(
+  hub: Lazy<Hub<Either<Exit<Err, Done>, Elem>>>,
+): Channel<unknown, Err, Elem, Done, never, never, unknown> {
+  return Channel.toQueue(hub);
 }

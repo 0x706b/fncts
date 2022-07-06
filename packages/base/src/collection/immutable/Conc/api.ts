@@ -57,7 +57,7 @@ export function append_<A1, A2>(self: Conc<A1>, a: A2): Conc<A1 | A2> {
 }
 
 export class ConcBuilder<A> {
-  constructor(private conc: Conc<A>) {}
+  constructor(private conc: Conc<A> = Conc.empty()) {}
   append(a: A): ConcBuilder<A> {
     this.conc = this.conc.append(a);
     return this;
