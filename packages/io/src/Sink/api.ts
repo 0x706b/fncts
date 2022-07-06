@@ -3,6 +3,8 @@ import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { MergeDecision } from "../Channel/internal/MergeDecision.js";
 
 /**
+ * Like {@link zip}, but keeps only the result from this sink
+ *
  * @tsplus fluent fncts.io.Sink apFirst
  */
 export function apFirst<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
@@ -13,6 +15,8 @@ export function apFirst<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1
 }
 
 /**
+ * Like {@link zipC}, but keeps only the result from this sink
+ *
  * @tsplus fluent fncts.io.Sink apFirstC
  */
 export function apFirstC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
@@ -23,33 +27,47 @@ export function apFirstC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z
 }
 
 /**
+ * Like {@link zip}, but keeps only the result from the `that` sink
+ *
  * @tsplus fluent fncts.io.Sink apSecond
  */
 export function apSecond<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, Z1> {
   return self.zipWith(that, (_, z1) => z1);
 }
 
 /**
+ * Like {@link zipC}, but keeps only the result from the `that` sink
+ *
  * @tsplus fluent fncts.io.Sink apSecondC
  */
 export function apSecondC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, Z1> {
   return self.zipWithC(that, (_, z1) => z1);
 }
 
 /**
+ * Replaces this sink's result with the provided value.
+ *
  * @tsplus fluent fncts.io.Sink as
  */
-export function as<R, E, In, L, Z, Z1>(self: Sink<R, E, In, L, Z>, z: Lazy<Z1>): Sink<R, E, In, L, Z1> {
+export function as<R, E, In, L, Z, Z1>(
+  self: Sink<R, E, In, L, Z>,
+  z: Lazy<Z1>,
+  __tsplusTrace?: string,
+): Sink<R, E, In, L, Z1> {
   return self.map(() => z());
 }
 
 /**
+ * Repeatedly runs the sink and accumulates its results into a chunk
+ *
  * @tsplus fluent fncts.io.Sink collectAll
  */
 export function collectAll<R, E, In extends L, L, Z>(
@@ -64,6 +82,10 @@ export function collectAll<R, E, In extends L, L, Z>(
 }
 
 /**
+ * Repeatedly runs the sink for as long as its results satisfy the predicate
+ * `p`. The sink's results will be accumulated using the stepping function
+ * `f`.
+ *
  * @tsplus fluent fncts.io.Sink collectAllWhileWith
  */
 export function collectAllWhileWith<R, E, In extends L, L, Z, S>(
@@ -104,6 +126,9 @@ export function collectAllWhileWith<R, E, In extends L, L, Z, S>(
 }
 
 /**
+ * Collects the leftovers from the stream when the sink succeeds and returns
+ * them as part of the sink's result
+ *
  * @tsplus getter fncts.io.Sink collectLeftover
  */
 export function collectLeftover<R, E, In, L, Z>(
@@ -114,18 +139,27 @@ export function collectLeftover<R, E, In, L, Z>(
 }
 
 /**
+ * Transforms this sink's input elements.
+ *
  * @tsplus fluent fncts.io.Sink contramap
  */
-export function contramap<R, E, In, L, Z, In1>(self: Sink<R, E, In, L, Z>, f: (inp: In1) => In): Sink<R, E, In1, L, Z> {
+export function contramap<R, E, In, L, Z, In1>(
+  self: Sink<R, E, In, L, Z>,
+  f: (inp: In1) => In,
+  __tsplusTrace?: string,
+): Sink<R, E, In1, L, Z> {
   return self.contramapChunks((chunk) => chunk.map(f));
 }
 
 /**
+ * Transforms this sink's input chunks. `f` must preserve chunking-invariance
+ *
  * @tsplus fluent fncts.io.Sink contramapChunks
  */
 export function contramapChunks<R, E, In, L, Z, In1>(
   self: Sink<R, E, In, L, Z>,
   f: (chunk: Conc<In1>) => Conc<In>,
+  __tsplusTrace?: string,
 ): Sink<R, E, In1, L, Z> {
   const loop: Channel<R, never, Conc<In1>, unknown, never, Conc<In>, unknown> = Channel.readWith(
     (chunk) => Channel.writeNow(f(chunk)) > loop,
@@ -136,11 +170,15 @@ export function contramapChunks<R, E, In, L, Z, In1>(
 }
 
 /**
+ * Effectfully transforms this sink's input chunks. `f` must preserve
+ * chunking-invariance
+ *
  * @tsplus fluent fncts.io.Sink contramapChunksIO
  */
 export function contramapChunksIO<R, E, In, L, Z, R1, E1, In1>(
   self: Sink<R, E, In, L, Z>,
   f: (chunk: Conc<In1>) => IO<R1, E1, Conc<In>>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In1, L, Z> {
   const loop: Channel<R & R1, never, Conc<In1>, unknown, E | E1, Conc<In>, unknown> = Channel.readWith(
     (chunk) => Channel.fromIO(f(chunk)).flatMap(Channel.writeNow) > loop,
@@ -151,63 +189,85 @@ export function contramapChunksIO<R, E, In, L, Z, R1, E1, In1>(
 }
 
 /**
+ * Effectfully transforms this sink's input elements.
+ *
  * @tsplus fluent fncts.io.Sink contramapIO
  */
 export function contramapIO<R, E, In, L, Z, R1, E1, In1>(
   self: Sink<R, E, In, L, Z>,
   f: (inp: In1) => IO<R1, E1, In>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In1, L, Z> {
   return self.contramapChunksIO((chunk) => chunk.mapIO(f));
 }
 
 /**
+ * Transforms both inputs and result of this sink using the provided
+ * functions.
+ *
  * @tsplus fluent fncts.io.Sink dimap
  */
 export function dimap<R, E, In, L, Z, In1, Z1>(
   self: Sink<R, E, In, L, Z>,
   f: (inp: In1) => In,
   g: (z: Z) => Z1,
+  __tsplusTrace?: string,
 ): Sink<R, E, In1, L, Z1> {
   return self.contramap(f).map(g);
 }
 
 /**
+ * Transforms both input chunks and result of this sink using the provided
+ * functions.
+ *
  * @tsplus fluent fncts.io.Sink dimapChunks
  */
 export function dimapChunks<R, E, In, L, Z, In1, Z1>(
   self: Sink<R, E, In, L, Z>,
   f: (chunk: Conc<In1>) => Conc<In>,
   g: (z: Z) => Z1,
+  __tsplusTrace?: string,
 ): Sink<R, E, In1, L, Z1> {
   return self.contramapChunks(f).map(g);
 }
 
 /**
+ * Effectfully transforms both input chunks and result of this sink using the
+ * provided functions. `f` and `g` must preserve chunking-invariance
+ *
  * @tsplus fluent fncts.io.Sink dimapChunksIO
  */
 export function dimapChunksIO<R, E, In, L, Z, R1, E1, In1, R2, E2, Z1>(
   self: Sink<R, E, In, L, Z>,
   f: (chunk: Conc<In1>) => IO<R1, E1, Conc<In>>,
   g: (z: Z) => IO<R2, E2, Z1>,
+  __tsplusTrace?: string,
 ): Sink<R & R1 & R2, E | E1 | E2, In1, L, Z1> {
   return self.contramapChunksIO(f).mapIO(g);
 }
 
 /**
+ * Effectfully transforms both inputs and result of this sink using the
+ * provided functions.
+ *
  * @tsplus fluent fncts.io.Sink dimapIO
  */
 export function dimapIO<R, E, In, L, Z, R1, E1, In1, R2, E2, Z1>(
   self: Sink<R, E, In, L, Z>,
   f: (inp: In1) => IO<R1, E1, In>,
   g: (z: Z) => IO<R2, E2, Z1>,
+  __tsplusTrace?: string,
 ): Sink<R & R1 & R2, E | E1 | E2, In1, L, Z1> {
   return self.contramapIO(f).mapIO(g);
 }
 
 /**
+ * Returns a lazily constructed sink that may require effects for its
+ * creation.
+ *
  * @tsplus static fncts.io.SinkOps defer
  */
-export function defer<R, E, In, L, Z>(sink: Lazy<Sink<R, E, In, L, Z>>): Sink<R, E, In, L, Z> {
+export function defer<R, E, In, L, Z>(sink: Lazy<Sink<R, E, In, L, Z>>, __tsplusTrace?: string): Sink<R, E, In, L, Z> {
   return new Sink(Channel.defer(sink().channel));
 }
 
@@ -225,9 +285,58 @@ const drainLoop: Channel<unknown, never, Conc<unknown>, unknown, never, Conc<nev
 export const drain: Sink<unknown, never, unknown, never, void> = new Sink(drainLoop);
 
 /**
+ * Drops incoming elements until the predicate `p` is satisfied.
+ *
+ * @tsplus static fncts.io.SinkOps dropUntil
+ */
+export function makeDropUntil<In>(p: Predicate<In>, __tsplusTrace?: string): Sink<unknown, never, In, In, void> {
+  const loop: Channel<unknown, never, Conc<In>, any, never, Conc<In>, void> = Channel.readWith(
+    (inp: Conc<In>) => {
+      const leftover = inp.dropUntil(p);
+      const more     = leftover.isEmpty;
+      if (more) {
+        return loop;
+      } else {
+        return Channel.writeNow(leftover) > Channel.id<never, Conc<In>, void>();
+      }
+    },
+    Channel.failNow,
+    () => Channel.unit,
+  );
+  return new Sink(loop);
+}
+
+/**
+ * Drops incoming elements until the effectful predicate `p` is satisfied.
+ *
+ * @tsplus static fncts.io.SinkOps dropUntilIO
+ */
+export function makeDropUntilIO<R, E, In>(
+  p: (inp: In) => IO<R, E, boolean>,
+  __tsplusTrace?: string,
+): Sink<R, E, In, In, void> {
+  const loop: Channel<R, E, Conc<In>, any, E, Conc<In>, void> = Channel.readWith(
+    (inp: Conc<In>) =>
+      Channel.unwrap(
+        inp
+          .dropUntilIO(p)
+          .map((leftover) => (leftover.isEmpty ? loop : Channel.writeNow(leftover) > Channel.id<E, Conc<In>, void>())),
+      ),
+    Channel.failNow,
+    () => Channel.unit,
+  );
+  return new Sink(loop);
+}
+
+/**
+ * Drops incoming elements as long as the predicate `p` is satisfied.
+ *
  * @tsplus static fncts.io.SinkOps dropWhile
  */
-export function dropWhile<Err, In>(predicate: Predicate<In>): Sink<unknown, never, In, In, any> {
+export function makeDropWhile<Err, In>(
+  predicate: Predicate<In>,
+  __tsplusTrace?: string,
+): Sink<unknown, never, In, In, any> {
   const loop: Channel<unknown, never, Conc<In>, any, never, Conc<In>, any> = Channel.readWith(
     (inp: Conc<In>) => {
       const leftover = inp.dropWhile(predicate);
@@ -245,6 +354,31 @@ export function dropWhile<Err, In>(predicate: Predicate<In>): Sink<unknown, neve
 }
 
 /**
+ * Drops incoming elements as long as the effectful predicate `p` is
+ * satisfied.
+ *
+ * @tsplus static fncts.io.SinkOps dropWhileIO
+ */
+export function dropWhileIO<R, E, In>(
+  p: (inp: In) => IO<R, E, boolean>,
+  __tsplusTrace?: string,
+): Sink<R, E, In, In, void> {
+  const loop: Channel<R, E, Conc<In>, any, E, Conc<In>, void> = Channel.readWith(
+    (inp: Conc<In>) =>
+      Channel.unwrap(
+        inp
+          .dropWhileIO(p)
+          .map((leftover) => (leftover.isEmpty ? loop : Channel.writeNow(leftover) > Channel.id<E, Conc<In>, void>())),
+      ),
+    Channel.failNow,
+    () => Channel.unit,
+  );
+  return new Sink(loop);
+}
+
+/**
+ * Accesses the whole environment of the sink.
+ *
  * @tsplus static fncts.io.SinkOps environment
  */
 export function environment<R>(__tsplusTrace?: string): Sink<R, never, unknown, never, Environment<R>> {
@@ -252,6 +386,8 @@ export function environment<R>(__tsplusTrace?: string): Sink<R, never, unknown, 
 }
 
 /**
+ * Accesses the environment of the sink.
+ *
  * @tsplus static fncts.io.SinkOps environmentWith
  */
 export function environmentWith<R, Z>(
@@ -262,6 +398,8 @@ export function environmentWith<R, Z>(
 }
 
 /**
+ * Accesses the environment of the sink in the context of an effect.
+ *
  * @tsplus static fncts.io.SinkOps environmentWithIO
  */
 export function environmentWithIO<R, R1, E, Z>(
@@ -272,6 +410,8 @@ export function environmentWithIO<R, R1, E, Z>(
 }
 
 /**
+ * Accesses the environment of the sink in the context of a sink.
+ *
  * @tsplus static fncts.io.SinkOps environmentWithSink
  */
 export function environmentWithSink<R, R1, E, In, L, Z>(
@@ -282,13 +422,17 @@ export function environmentWithSink<R, R1, E, In, L, Z>(
 }
 
 /**
+ * A sink that always fails with the specified error.
+ *
  * @tsplus static fncts.io.SinkOps fail
  */
-export function fail<E>(e: Lazy<E>): Sink<unknown, E, unknown, never, never> {
+export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
   return new Sink(Channel.fail(e));
 }
 
 /**
+ * Creates a sink halting with a specified cause.
+ *
  * @tsplus static fncts.io.SinkOps failCause
  */
 export function failCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
@@ -296,6 +440,8 @@ export function failCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): Sin
 }
 
 /**
+ * Creates a sink halting with a specified cause.
+ *
  * @tsplus static fncts.io.SinkOps failCauseNow
  */
 export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
@@ -303,6 +449,8 @@ export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Sink<u
 }
 
 /**
+ * A sink that always fails with the specified error.
+ *
  * @tsplus static fncts.io.SinkOps failNow
  */
 export function failNow<E>(e: E, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
@@ -310,6 +458,8 @@ export function failNow<E>(e: E, __tsplusTrace?: string): Sink<unknown, E, unkno
 }
 
 /**
+ * Filters the sink's input with the given predicate
+ *
  * @tsplus static fncts.io.SinkOps filterInput
  */
 export function filterInput<R, E, In, L, Z>(
@@ -321,6 +471,8 @@ export function filterInput<R, E, In, L, Z>(
 }
 
 /**
+ * Filters the sink's input with the given IO predicate
+ *
  * @tsplus static fncts.io.SinkOps filterInputIO
  */
 export function filterInputIO<R, E, In, L, Z, R1, E1>(
@@ -332,6 +484,8 @@ export function filterInputIO<R, E, In, L, Z, R1, E1>(
 }
 
 /**
+ * Creates a sink that produces values until one verifies the predicate `f`.
+ *
  * @tsplus fluent fncts.io.Sink findIO
  */
 export function findIO<R, E, In extends L, L, Z, R1, E1>(
@@ -373,6 +527,12 @@ export function findIO<R, E, In extends L, L, Z, R1, E1>(
 }
 
 /**
+ * Runs this sink until it yields a result, then uses that result to create
+ * another sink from the provided function which will continue to run until it
+ * yields a result.
+ *
+ * This function essentially runs sinks in sequence.
+ *
  * @tsplus fluent fncts.io.Sink flatMap
  */
 export function flatMap<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1>(
@@ -384,6 +544,8 @@ export function flatMap<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1>(
 }
 
 /**
+ * Creates a sink from a {@link Channel}
+ *
  * @tsplus static fncts.io.SinkOps fromChannel
  * @tsplus static fncts.io.SinkOps __call
  */
@@ -394,6 +556,8 @@ export function fromChannel<R, E, In, L, Z>(
 }
 
 /**
+ * Creates a sink from a chunk processing function.
+ *
  * @tsplus static fncts.io.SinkOps fromPush
  */
 export function fromPush<R, E, In, L, Z, R1>(
@@ -430,16 +594,27 @@ function fromPushPull<R, E, In, L, Z>(
 }
 
 /**
+ * Create a sink which enqueues each element into the specified queue.
+ *
  * @tsplus static fncts.io.SinkOps fromQueue
  */
-export function fromQueue<In>(queue: Lazy<Queue.Enqueue<In>>): Sink<unknown, never, In, never, void> {
+export function fromQueue<In>(
+  queue: Lazy<Queue.Enqueue<In>>,
+  __tsplusTrace?: string,
+): Sink<unknown, never, In, never, void> {
   return Sink.unwrap(IO.succeed(queue).map((queue) => Sink.foreachChunk((inp) => queue.offerAll(inp))));
 }
 
 /**
+ * Create a sink which enqueues each element into the specified queue. The
+ * queue will be shutdown once the stream is closed.
+ *
  * @tsplus static fncts.io.SinkOps fromQueueWithShutdown
  */
-export function fromQueueWithShutdown<In>(queue: Lazy<Queue.Enqueue<In>>): Sink<unknown, never, In, never, void> {
+export function fromQueueWithShutdown<In>(
+  queue: Lazy<Queue.Enqueue<In>>,
+  __tsplusTrace?: string,
+): Sink<unknown, never, In, never, void> {
   return Sink.unwrapScoped(
     IO.succeed(queue)
       .acquireRelease((queue) => queue.shutdown)
@@ -448,27 +623,39 @@ export function fromQueueWithShutdown<In>(queue: Lazy<Queue.Enqueue<In>>): Sink<
 }
 
 /**
+ * Create a sink which publishes each element to the specified hub.
+ *
  * @tsplus static fncts.io.SinkOps fromHub
  */
-export function fromHub<In>(hub: Lazy<Hub<In>>): Sink<unknown, never, In, never, void> {
+export function fromHub<In>(hub: Lazy<Hub<In>>, __tsplusTrace?: string): Sink<unknown, never, In, never, void> {
   return Sink.fromQueue(hub);
 }
 
 /**
+ * Create a sink which publishes each element to the specified hub. The hub
+ * will be shutdown once the stream is closed.
+ *
  * @tsplus static fncts.io.SinkOps fromHubWithShutdown
  */
-export function fromHubWithShutdown<In>(hub: Lazy<Hub<In>>): Sink<unknown, never, In, never, void> {
+export function fromHubWithShutdown<In>(
+  hub: Lazy<Hub<In>>,
+  __tsplusTrace?: string,
+): Sink<unknown, never, In, never, void> {
   return Sink.fromQueueWithShutdown(hub);
 }
 
 /**
+ * Creates a single-value sink produced from an effect
+ *
  * @tsplus static fncts.io.SinkOps fromIO
  */
-export function fromIO<R, E, Z>(b: Lazy<IO<R, E, Z>>): Sink<R, E, unknown, never, Z> {
+export function fromIO<R, E, Z>(b: Lazy<IO<R, E, Z>>, __tsplusTrace?: string): Sink<R, E, unknown, never, Z> {
   return new Sink(Channel.fromIO(b));
 }
 
 /**
+ * Creates a sink halting with the specified unchecked value.
+ *
  * @tsplus static fncts.io.SinkOps halt
  */
 export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Sink<unknown, never, unknown, never, never> {
@@ -476,6 +663,8 @@ export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Sink<unknow
 }
 
 /**
+ * Creates a sink halting with the specified unchecked value.
+ *
  * @tsplus static fncts.io.SinkOps haltNow
  */
 export function haltNow(defect: unknown, __tsplusTrace?: string): Sink<unknown, never, unknown, never, never> {
@@ -483,6 +672,8 @@ export function haltNow(defect: unknown, __tsplusTrace?: string): Sink<unknown, 
 }
 
 /**
+ * Creates a sink containing the first value.
+ *
  * @tsplus static fncts.io.SinkOps head
  */
 export function head<In>(__tsplusTrace?: string): Sink<unknown, never, In, In, Maybe<In>> {
@@ -498,6 +689,8 @@ export function head<In>(__tsplusTrace?: string): Sink<unknown, never, In, In, M
 }
 
 /**
+ * Drains the remaining elements from the stream after the sink finishes
+ *
  * @tsplus getter fncts.io.Sink ignoreLeftover
  */
 export function ignoreLeftover<R, E, In, L, Z>(
@@ -508,6 +701,8 @@ export function ignoreLeftover<R, E, In, L, Z>(
 }
 
 /**
+ * Creates a sink containing the last value.
+ *
  * @tsplus static fncts.io.SinkOps last
  */
 export function last<In>(__tsplusTrace?: string): Sink<unknown, never, In, In, Maybe<In>> {
@@ -515,6 +710,9 @@ export function last<In>(__tsplusTrace?: string): Sink<unknown, never, In, In, M
 }
 
 /**
+ * Creates a sink that does not consume any input but provides the given chunk
+ * as its leftovers
+ *
  * @tsplus static fncts.io.SinkOps leftover
  */
 export function leftover<L>(c: Lazy<Conc<L>>, __tsplusTrace?: string): Sink<unknown, never, unknown, L, void> {
@@ -522,6 +720,8 @@ export function leftover<L>(c: Lazy<Conc<L>>, __tsplusTrace?: string): Sink<unkn
 }
 
 /**
+ * Logs the specified message at the current log level.
+ *
  * @tsplus static fncts.io.SinkOps log
  */
 export function log(message: Lazy<string>, __tsplusTrace?: string): Sink<unknown, never, unknown, never, void> {
@@ -545,6 +745,12 @@ function collectLoop<A>(state: Conc<A>): Channel<unknown, never, Conc<A>, unknow
   );
 }
 
+/**
+ * A sink that collects first `n` elements into a chunk. Note that the chunk
+ * is preallocated and must fit in memory.
+ *
+ * @tsplus static fncts.io.SinkOps collectAllN
+ */
 export function makeCollectAllN<In>(n: Lazy<number>): Sink<unknown, never, In, In, Conc<In>> {
   return Sink.fromIO(IO.succeed(new ConcBuilder<In>())).flatMap((builder) =>
     Sink.foldUntil<In, ConcBuilder<In>>(builder, n, (builder, inp) => builder.append(inp)).map((builder) =>
@@ -566,6 +772,9 @@ export function makeForeach<R, Err, In>(
 }
 
 /**
+ * A sink that executes the provided effectful function for every chunk fed to
+ * it.
+ *
  * @tsplus static fncts.io.SinkOps foreachChunk
  */
 export function makeForeachChunk<R, E, In>(
@@ -615,6 +824,9 @@ function foreachWhileLoop<R, Err, In>(
 }
 
 /**
+ * A sink that executes the provided effectful function for every chunk fed to
+ * it until `f` evaluates to `false`.
+ *
  * @tsplus static fncts.io.SinkOps foreachChunkWhile
  */
 export function makeForeachChunkWhile<R, E, In>(
@@ -631,6 +843,9 @@ export function makeForeachChunkWhile<R, E, In>(
 }
 
 /**
+ * A sink that folds its inputs with the provided function, termination
+ * predicate and initial state.
+ *
  * @tsplus static fncts.io.SinkOps fold
  */
 export function makeFold<In, S>(
@@ -689,6 +904,11 @@ function foldReader<S, In>(
 }
 
 /**
+ * Creates a sink that folds elements of type `In` into a structure of type
+ * `S` until `max` elements have been folded.
+ *
+ * Like {@link foldWeighted}, but with a constant cost function of 1.
+ *
  * @tsplus static fncts.io.SinkOps foldUntil
  */
 export function makeFoldUntil<In, S>(
@@ -709,12 +929,18 @@ export function makeFoldUntil<In, S>(
 }
 
 /**
+ * A sink that folds its input chunks with the provided function, termination
+ * predicate and initial state. `contFn` condition is checked only for the
+ * initial value and at the end of processing of each chunk. `f` and `contFn`
+ * must preserve chunking-invariance.
+ *
  * @tsplus static fncts.io.SinkOps foldChunks
  */
 export function makeFoldChunks<In, S>(
   z: Lazy<S>,
   contFn: Predicate<S>,
   f: (s: S, inp: Conc<In>) => S,
+  __tsplusTrace?: string,
 ): Sink<unknown, never, In, never, S> {
   return Sink.defer(new Sink(foldChunksReader(z(), contFn, f)));
 }
@@ -739,12 +965,18 @@ function foldChunksReader<In, S>(
 }
 
 /**
+ * A sink that effectfully folds its input chunks with the provided function,
+ * termination predicate and initial state. `contFn` condition is checked only
+ * for the initial value and at the end of processing of each chunk. `f` and
+ * `contFn` must preserve chunking-invariance.
+ *
  * @tsplus static fncts.io.SinkOps foldChunksIO
  */
 export function makeFoldChunksIO<Env, Err, In, S>(
   z: Lazy<S>,
   contFn: Predicate<S>,
   f: (s: S, inp: Conc<In>) => IO<Env, Err, S>,
+  __tsplusTrace?: string,
 ): Sink<Env, Err, In, In, S> {
   return Sink.defer(new Sink(foldChunksIOReader(z(), contFn, f)));
 }
@@ -766,6 +998,8 @@ function foldChunksIOReader<Env, Err, In, S>(
 }
 
 /**
+ * A sink that folds its inputs with the provided function and initial state.
+ *
  * @tsplus static fncts.io.SinkOps foldLeft
  */
 export function makeFoldLeft<In, S>(z: Lazy<S>, f: (s: S, inp: In) => S): Sink<unknown, never, In, never, S> {
@@ -773,6 +1007,9 @@ export function makeFoldLeft<In, S>(z: Lazy<S>, f: (s: S, inp: In) => S): Sink<u
 }
 
 /**
+ * A sink that folds its input chunks with the provided function and initial
+ * state. `f` must preserve chunking-invariance.
+ *
  * @tsplus static fncts.io.SinkOps foldLeftChunks
  */
 export function makeFoldLeftChunks<In, S>(
@@ -783,23 +1020,37 @@ export function makeFoldLeftChunks<In, S>(
 }
 
 /**
+ * A sink that effectfully folds its input chunks with the provided function
+ * and initial state. `f` must preserve chunking-invariance.
+ *
  * @tsplus static fncts.io.SinkOps foldLeftChunksIO
  */
 export function makeFoldLeftChunksIO<R, E, In, S>(
   z: Lazy<S>,
   f: (s: S, inp: Conc<In>) => IO<R, E, S>,
+  __tsplusTrace?: string,
 ): Sink<R, E, In, In, S> {
   return Sink.foldChunksIO(z, () => true, f);
 }
 
 /**
+ * A sink that effectfully folds its inputs with the provided function and
+ * initial state.
+ *
  * @tsplus static fncts.io.SinkOps foldLeftIO
  */
-export function makeFoldLeftIO<R, E, In, S>(z: Lazy<S>, f: (s: S, inp: In) => IO<R, E, S>): Sink<R, E, In, In, S> {
+export function makeFoldLeftIO<R, E, In, S>(
+  z: Lazy<S>,
+  f: (s: S, inp: In) => IO<R, E, S>,
+  __tsplusTrace?: string,
+): Sink<R, E, In, In, S> {
   return Sink.foldIO(z, () => true, f);
 }
 
 /**
+ * A sink that effectfully folds its inputs with the provided function,
+ * termination predicate and initial state.
+ *
  * @tsplus static fncts.io.SinkOps foldIO
  */
 export function makeFoldIO<R, E, In, S>(
@@ -854,12 +1105,18 @@ function foldIOReader<R, E, In, S>(
 }
 
 /**
+ * Creates a sink that effectfully folds elements of type `In` into a
+ * structure of type `S` until `max` elements have been folded.
+ *
+ * Like {@link makeFoldWeightedIO}, but with a constant cost function of 1.
+ *
  * @tsplus static fncts.io.SinkOps foldUntilIO
  */
 export function makeFoldUntilIO<R, E, In, S>(
   z: Lazy<S>,
   max: Lazy<number>,
   f: (s: S, inp: In) => IO<R, E, S>,
+  __tsplusTrace?: string,
 ): Sink<R, E, In, In, S> {
   return Sink.foldIO<R, E, In, readonly [S, number]>(
     [z(), 0],
@@ -869,6 +1126,22 @@ export function makeFoldUntilIO<R, E, In, S>(
 }
 
 /**
+ * Creates a sink that folds elements of type `In` into a structure of type
+ * `S`, until `max` worth of elements (determined by the `costFn`) have been
+ * folded.
+ *
+ * The `decompose` function will be used for decomposing elements that cause
+ * an `S` aggregate to cross `max` into smaller elements.
+ *
+ *
+ * Be vigilant with this function, it has to generate "simpler" values or the
+ * fold may never end. A value is considered indivisible if `decompose` yields
+ * the empty chunk or a single-valued chunk. In these cases, there is no other
+ * choice than to yield a value that will cross the threshold.
+ *
+ * The {@link makeFoldWeightedDecomposeIO} allows the decompose function to return a
+ * `IO` value, and consequently it allows the sink to fail.
+ *
  * @tsplus static fncts.io.SinkOps foldWeightedDecompose
  */
 export function makeFoldWeightedDecompose<In, S>(
@@ -877,6 +1150,7 @@ export function makeFoldWeightedDecompose<In, S>(
   max: Lazy<number>,
   decompose: (inp: In) => Conc<In>,
   f: (s: S, inp: In) => S,
+  __tsplusTrace?: string,
 ): Sink<unknown, never, In, In, S> {
   return Sink.defer(() => {
     /**
@@ -939,6 +1213,17 @@ export function makeFoldWeightedDecompose<In, S>(
 }
 
 /**
+ * Creates a sink that effectfully folds elements of type `In` into a
+ * structure of type `S`, until `max` worth of elements (determined by the
+ * `costFn`) have been folded.
+ *
+ * The `decompose` function will be used for decomposing elements that cause
+ * an `S` aggregate to cross `max` into smaller elements. Be vigilant with
+ * this function, it has to generate "simpler" values or the fold may never
+ * end. A value is considered indivisible if `decompose` yields the empty
+ * chunk or a single-valued chunk. In these cases, there is no other choice
+ * than to yield a value that will cross the threshold.
+ *
  * @tsplus static fncts.io.SinkOps foldWeightedDecomposeIO
  */
 export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
@@ -947,6 +1232,7 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
   max: Lazy<number>,
   decompose: (inp: In) => IO<R2, E2, Conc<In>>,
   f: (s: S, inp: In) => IO<R, E, S>,
+  __tsplusTrace?: string,
 ): Sink<R & R1 & R2, E | E1 | E2, In, In, S> {
   return Sink.defer(() => {
     function fold(
@@ -1007,6 +1293,15 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
 }
 
 /**
+ * Creates a sink that folds elements of type `In` into a structure of type
+ * `S`, until `max` worth of elements (determined by the `costFn`) have been
+ * folded.
+ *
+ * @note
+ *   Elements that have an individual cost larger than `max` will force the
+ *   sink to cross the `max` cost. See {@link makeFoldWeightedDecompose} for a variant
+ *   that can handle these cases.
+ *
  * @tsplus static fncts.io.SinkOps foldWeighted
  */
 export function makeFoldWeighted<In, S>(
@@ -1014,11 +1309,21 @@ export function makeFoldWeighted<In, S>(
   costFn: (s: S, inp: In) => number,
   max: Lazy<number>,
   f: (s: S, inp: In) => S,
+  __tsplusTrace?: string,
 ): Sink<unknown, never, In, In, S> {
   return Sink.foldWeightedDecompose(z, costFn, max, Conc.single, f);
 }
 
 /**
+ * Creates a sink that effectfully folds elements of type `In` into a
+ * structure of type `S`, until `max` worth of elements (determined by the
+ * `costFn`) have been folded.
+ *
+ * @note
+ *   Elements that have an individual cost larger than `max` will force the
+ *   sink to cross the `max` cost. See {@link makeFoldWeightedDecomposeIO} for a
+ *   variant that can handle these cases.
+ *
  * @tsplus static fncts.io.SinkOps foldWeightedIO
  */
 export function makeFoldWeightedIO<R, E, In, S, R1, E1>(
@@ -1026,6 +1331,7 @@ export function makeFoldWeightedIO<R, E, In, S, R1, E1>(
   costFn: (s: S, inp: In) => IO<R, E, number>,
   max: Lazy<number>,
   f: (s: S, inp: In) => IO<R1, E1, S>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In, In, S> {
   return Sink.foldWeightedDecomposeIO(z, costFn, max, (inp) => IO.succeedNow(Conc.single(inp)), f);
 }
@@ -1105,6 +1411,8 @@ export function matchSink_<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1, R2, E
 }
 
 /**
+ * Switch to another sink in case of failure
+ *
  * @tsplus fluent fncts.io.Sink orElse
  */
 export function orElse<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
@@ -1116,6 +1424,9 @@ export function orElse<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
 }
 
 /**
+ * Provides the sink with its required environment, which eliminates its
+ * dependency on `R`.
+ *
  * @tsplus fluent fncts.io.Sink provideEnvironment
  */
 export function provideEnvironment<R, E, In, L, Z>(
@@ -1127,22 +1438,30 @@ export function provideEnvironment<R, E, In, L, Z>(
 }
 
 /**
+ * Runs both sinks in parallel on the input, returning the result or the
+ * error from the one that finishes first.
+ *
  * @tsplus fluent fncts.io.Sink race
  */
 export function race<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, Z | Z1> {
   return self.raceBoth(that).map((result) => result.value);
 }
 
 /**
+ * Runs both sinks in parallel on the input, returning the result or the error
+ * from the one that finishes first.
+ *
  * @tsplus fluent fncts.io.Sink raceBoth
  */
 export function raceBoth<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   capacity: Lazy<number> = () => 16,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, Either<Z, Z1>> {
   return self.raceWith(
     that,
@@ -1153,6 +1472,9 @@ export function raceBoth<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
 }
 
 /**
+ * Runs both sinks in parallel on the input, using the specified merge
+ * function as soon as one result or the other has been computed.
+ *
  * @tsplus fluent fncts.io.Sink raceWith
  */
 export function raceWith<R, E, In, L, Z, R1, E1, In1, L1, Z1, R2, E2, Z2, R3, E3, Z3>(
@@ -1184,6 +1506,8 @@ export function raceWith<R, E, In, L, Z, R1, E1, In1, L1, Z1, R2, E2, Z2, R3, E3
 }
 
 /**
+ * Accesses the specified service in the environment of the effect.
+ *
  * @tsplus static fncts.io.SinkOps service
  */
 export function service<S>(/** @tsplus auto */ tag: Tag<S>): Sink<Has<S>, never, unknown, never, S> {
@@ -1191,6 +1515,8 @@ export function service<S>(/** @tsplus auto */ tag: Tag<S>): Sink<Has<S>, never,
 }
 
 /**
+ * Accesses the specified service in the environment of the sink.
+ *
  * @tsplus static fncts.io.SinkOps serviceWith
  */
 export function serviceWith<S, Z>(
@@ -1201,6 +1527,9 @@ export function serviceWith<S, Z>(
 }
 
 /**
+ * Accesses the specified service in the environment of the sink in the
+ * context of an effect.
+ *
  * @tsplus static fncts.io.SinkOps serviceWithIO
  */
 export function serviceWithIO<S, R, E, Z>(
@@ -1211,6 +1540,9 @@ export function serviceWithIO<S, R, E, Z>(
 }
 
 /**
+ * Accesses the specified service in the environment of the sink in the
+ * context of a sink.
+ *
  * @tsplus static fncts.io.SinkOps serviceWithSink
  */
 export function serviceWithSink<S, R, E, In, L, Z>(
@@ -1228,11 +1560,16 @@ export function serviceWithSink<S, R, E, In, L, Z>(
 }
 
 /**
+ * Splits the sink on the specified predicate, returning a new sink that
+ * consumes elements until an element after the first satisfies the specified
+ * predicate.
+ *
  * @tsplus fluent fncts.io.Sink splitWhere
  */
 export function splitWhere<R, E, In, L extends In, Z>(
   self: Sink<R, E, In, L, Z>,
   p: Predicate<In>,
+  __tsplusTrace?: string,
 ): Sink<R, E, In, In, Z> {
   return new Sink(
     Channel.fromIO(Ref.make<Conc<In>>(Conc.empty())).flatMap((ref) =>
@@ -1280,6 +1617,8 @@ function splitter<R, E, In>(
 }
 
 /**
+ * A sink that immediately ends with the specified value.
+ *
  * @tsplus static fncts.io.SinkOps succeed
  */
 export function succeed<Z>(z: Lazy<Z>, __tsplusTrace?: string): Sink<unknown, never, unknown, never, Z> {
@@ -1287,6 +1626,8 @@ export function succeed<Z>(z: Lazy<Z>, __tsplusTrace?: string): Sink<unknown, ne
 }
 
 /**
+ * A sink that immediately ends with the specified value.
+ *
  * @tsplus static fncts.io.SinkOps succeedNow
  */
 export function succeedNow<Z>(z: Z, __tsplusTrace?: string): Sink<unknown, never, unknown, never, Z> {
@@ -1294,6 +1635,9 @@ export function succeedNow<Z>(z: Z, __tsplusTrace?: string): Sink<unknown, never
 }
 
 /**
+ * Summarize a sink by running an effect when the sink starts and again when
+ * it completes
+ *
  * @tsplus fluent fncts.io.Sink summarized
  */
 export function summarized<R, E, In, L, Z, R1, E1, B, C>(
@@ -1324,6 +1668,8 @@ export function timed<R, E, In, L, Z>(
 }
 
 /**
+ * Creates a sink produced from an effect.
+ *
  * @tsplus static fncts.io.SinkOps unwrap
  */
 export function unwrap<R, E, R1, E1, In, L, Z>(
@@ -1339,26 +1685,36 @@ export function unwrap<R, E, R1, E1, In, L, Z>(
  */
 export function unwrapScoped<R, E, R1, E1, In, L, Z>(
   scoped: Lazy<IO<Has<Scope> & R, E, Sink<R1, E1, In, L, Z>>>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In, L, Z> {
   return new Sink(Channel.unwrapScoped(scoped().map((sink) => sink.channel)));
 }
 
 /**
+ * Feeds inputs to this sink until it yields a result, then switches over to
+ * the provided sink until it yields a result, finally combining the two
+ * results into a tuple.
+ *
  * @tsplus fluent fncts.io.Sink zip
  */
 export function zip<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
   return self.zipWith(that, Function.tuple);
 }
 
 /**
+ * Runs both sinks in parallel on the input and combines the results in a
+ * tuple.
+ *
  * @tsplus fluent fncts.io.Sink zipC
  */
 export function zipC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
   return self.zipWithC(that, Function.tuple);
 }
@@ -1374,6 +1730,7 @@ export function zipWith<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1
   self: Lazy<Sink<R, E, In, L, Z>>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   f: (z: Z, z1: Z1) => Z2,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, Z2> {
   return Sink.defer(self().flatMap((z) => that().map((z1) => f(z, z1))));
 }
@@ -1388,6 +1745,7 @@ export function zipWithC<R, E, In, L, Z, R1, E1, In1, L1, Z1, Z2>(
   self: Lazy<Sink<R, E, In, L, Z>>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   f: (z: Z, z1: Z1) => Z2,
+  __tsplusTrace?: string,
 ): Sink<R & R1, E | E1, In & In1, L | L1, Z2> {
   return Sink.defer(
     self().raceWith(

@@ -261,6 +261,22 @@ export function drop_<A>(self: Conc<A>, n: number): Conc<A> {
 }
 
 /**
+ * @tsplus fluent fncts.Conc dropUntil
+ */
+export function dropUntil<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
+  let cont = true;
+  let i    = 0;
+  for (const elem of self) {
+    if (!cont) {
+      break;
+    }
+    i++;
+    cont = !p(elem);
+  }
+  return self.drop(i);
+}
+
+/**
  * @tsplus fluent fncts.Conc dropWhile
  */
 export function dropWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
