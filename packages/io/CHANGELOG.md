@@ -1,5 +1,19 @@
 # @fncts/io
 
+## 0.0.10
+
+### Patch Changes
+
+- 5d1eafa: chore: update dependencies
+- 1ede0f0: feat: finish Sink api
+- 8ea40ef: feat: implement TReentrantLock
+- Updated dependencies [e6581bc]
+- Updated dependencies [5d1eafa]
+- Updated dependencies [5f1f22d]
+- Updated dependencies [8ea40ef]
+  - @fncts/base@0.0.10
+  - @fncts/typelevel@0.0.8
+
 ## 0.0.9
 
 ### Patch Changes

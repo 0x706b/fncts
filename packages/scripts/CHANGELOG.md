@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.8
+
+### Patch Changes
+
+- 5d1eafa: chore: update dependencies
+
 ## 0.0.7
 
 ### Patch Changes
