@@ -294,6 +294,20 @@ export function find_<A>(ia: Iterable<A>, predicate: Predicate<A>): Maybe<A> {
 }
 
 /**
+ * @tsplus fluent fncts.Iterable findIndex
+ */
+export function findIndex<A>(self: Iterable<A>, p: Predicate<A>): number {
+  let i = 0;
+  for (const value of self) {
+    if (p(value)) {
+      return i;
+    }
+    i++;
+  }
+  return -1;
+}
+
+/**
  * @tsplus fluent fncts.Iterable foldLeftWithIndex
  */
 export function foldLeftWithIndex_<A, B>(fa: Iterable<A>, b: B, f: (i: number, b: B, a: A) => B): B {

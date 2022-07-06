@@ -20,6 +20,21 @@ export abstract class MergeDecision<R, E0, Z0, E, Z> {
 }
 
 /**
+ * @tsplus unify fncts.io.Channel.MergeDecision
+ */
+export function unifyMergeDecision<X extends MergeDecision<any, any, any, any, any>>(
+  _: X,
+): MergeDecision<
+  [X] extends [MergeDecision<infer R, any, any, any, any>] ? R : never,
+  [X] extends [MergeDecision<any, infer E0, any, any, any>] ? E0 : never,
+  [X] extends [MergeDecision<any, any, infer Z0, any, any>] ? Z0 : never,
+  [X] extends [MergeDecision<any, any, any, infer E, any>] ? E : never,
+  [X] extends [MergeDecision<any, any, any, any, infer Z>] ? Z : never
+> {
+  return _;
+}
+
+/**
  * @tsplus fluent fncts.io.Channel.MergeDecision concrete
  * @tsplus macro remove
  */
