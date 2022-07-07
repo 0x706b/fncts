@@ -891,7 +891,7 @@ function _showString(context: ShowContext, value: string): string {
   ) {
     return (
       result
-        .split(/(?<=\n)/)
+        .split(/(?!\n)/)
         .map((line) => context.stylize(strEscape(line), "string"))
         .join(` +\n${" ".repeat(context.indentationLevel + 2)}`) + trailer
     );
