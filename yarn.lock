@@ -1044,6 +1044,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@fncts/callbag@workspace:packages/callbag":
+  version: 0.0.0-use.local
+  resolution: "@fncts/callbag@workspace:packages/callbag"
+  dependencies:
+    "@fncts/base": "workspace:*"
+    "@fncts/config": "workspace:*"
+    "@fncts/eslint-config": "workspace:*"
+    "@fncts/scripts": "workspace:*"
+    madge: "npm:^5.0.1"
+    typescript: "npm:^4.7.4"
+  languageName: unknown
+  linkType: soft
+
 "@fncts/codegen@workspace:packages/codegen":
   version: 0.0.0-use.local
   resolution: "@fncts/codegen@workspace:packages/codegen"

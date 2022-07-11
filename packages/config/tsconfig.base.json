@@ -14,17 +14,14 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "moduleResolution": "node",
-    "suppressImplicitAnyIndexErrors": true,
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/src/*"],
       "@fncts/base/*": ["../base/src/*"],
       "@fncts/test/*": ["../test/src/*"],
-      "@fncts/io/*": ["../io/src/*"]
+      "@fncts/io/*": ["../io/src/*"],
+      "@fncts/callbag/*": ["../callbag/src/*"]
     }
   },
-  "exclude": [
-    "node_modules",
-    "build"
-  ],
+  "exclude": ["node_modules", "build"],
   "include": []
 }
