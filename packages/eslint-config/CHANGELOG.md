@@ -1,5 +1,11 @@
 # @fncts/eslint-config
 
+## 0.0.7
+
+### Patch Changes
+
+- 07dc52c: fix: Cause and Z circular dependency
+
 ## 0.0.6
 
 ### Patch Changes

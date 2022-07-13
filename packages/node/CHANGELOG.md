@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.4
+
+### Patch Changes
+
+- 07dc52c: fix: Cause and Z circular dependency
+- Updated dependencies [07dc52c]
+  - @fncts/io@0.0.11
+
 ## 0.0.3
 
 ### Patch Changes
