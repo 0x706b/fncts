@@ -1017,11 +1017,3 @@ export function traced<E>(cause: Cause<E>, trace: Trace): Cause<E> {
 export function untraced<E>(self: Cause<E>): Cause<E> {
   return self.mapTrace(() => Trace.none);
 }
-
-// codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/fold.js";
-export * from "./api/isEmpty.js";
-export * from "./api/linearize.js";
-export * from "./api/prettyPrint.js";
-export * from "./api/unified.js";
-// codegen:end
