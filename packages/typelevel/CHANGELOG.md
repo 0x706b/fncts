@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.9
+
+### Patch Changes
+
+- 07dc52c: fix: Cause and Z circular dependency
+
 ## 0.0.8
 
 ### Patch Changes
