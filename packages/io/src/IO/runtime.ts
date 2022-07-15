@@ -7,18 +7,11 @@ import { IOEnv } from "@fncts/io/IOEnv/definition";
 export class Runtime<R> {
   constructor(readonly environment: Environment<R>, readonly runtimeConfig: RuntimeConfig) {}
 
-  unsafeRunWith = <E, A>(
-    io: IO<R, E, A>,
-    k: (exit: Exit<E, A>) => any,
-    __tsplusTrace?: string,
-  ): ((fiberId: FiberId) => (f: (exit: Exit<E, A>) => any) => void) => {
-    const fiberId = FiberId.unsafeMake(TraceElement.parse(__tsplusTrace));
-
-    const children = new Set<FiberContext<any, any>>();
-
+  unsafeRunFiber = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): FiberContext<E, A> => {
+    const fiberId    = FiberId.unsafeMake(TraceElement.parse(__tsplusTrace));
+    const children   = new Set<FiberContext<any, any>>();
     const supervisor = this.runtimeConfig.supervisor;
-
-    const context = new FiberContext<E, A>(
+    const context    = new FiberContext<E, A>(
       fiberId,
       this.runtimeConfig,
       Stack.single(InterruptStatus.interruptible.toBoolean),
@@ -41,6 +34,15 @@ export class Runtime<R> {
 
     context.nextIO = concrete(io);
     context.run();
+    return context;
+  };
+
+  unsafeRunWith = <E, A>(
+    io: IO<R, E, A>,
+    k: (exit: Exit<E, A>) => any,
+    __tsplusTrace?: string,
+  ): ((fiberId: FiberId) => (f: (exit: Exit<E, A>) => any) => void) => {
+    const context = this.unsafeRunFiber(io);
     context.unsafeOnDone((exit) => k(exit.flatten));
     return (fiberId) => (k) => this.unsafeRunAsyncWith(context.interruptAs(fiberId), (exit) => k(exit.flatten));
   };
@@ -77,6 +79,11 @@ export const defaultRuntimeConfig = new RuntimeConfig({
 });
 
 export const defaultRuntime = new Runtime(Environment.empty, defaultRuntimeConfig);
+
+/**
+ * @tsplus fluent fncts.io.IO unsafeRunFiber
+ */
+export const unsafeRunFiber = defaultRuntime.unsafeRunFiber;
 
 /**
  * @tsplus fluent fncts.io.IO unsafeRunAsync
