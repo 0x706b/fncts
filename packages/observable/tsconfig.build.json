@@ -1,0 +1,22 @@
+{
+  "extends": "../config/tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2021", "ESNext.WeakRef", "DOM"],
+    "rootDir": "./src",
+    "outDir": "./build/esm",
+    "declaration": true,
+    "declarationDir": "./build/dts",
+    "sourceMap": true,
+    "tsPlusConfig": "../config/tsplus.config.json",
+    "tsBuildInfoFile": "build/tsbuildinfo/esm.tsbuildinfo"
+  },
+  "include": ["./src/**/*"],
+  "references": [
+    {
+      "path": "../base"
+    },
+    {
+      "path": "../io"
+    }
+  ]
+}

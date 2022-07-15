@@ -1132,6 +1132,19 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@fncts/observable@workspace:packages/observable":
+  version: 0.0.0-use.local
+  resolution: "@fncts/observable@workspace:packages/observable"
+  dependencies:
+    "@fncts/base": "workspace:*"
+    "@fncts/config": "workspace:*"
+    "@fncts/eslint-config": "workspace:*"
+    "@fncts/scripts": "workspace:*"
+    madge: "npm:^5.0.1"
+    typescript: "npm:^4.7.4"
+  languageName: unknown
+  linkType: soft
+
 "@fncts/pattern@workspace:packages/pattern":
   version: 0.0.0-use.local
   resolution: "@fncts/pattern@workspace:packages/pattern"
