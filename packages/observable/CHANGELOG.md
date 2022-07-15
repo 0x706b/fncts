@@ -1,5 +1,14 @@
 # @fncts/pattern
 
+## 0.0.1
+
+### Patch Changes
+
+- bd50dfa: fix(build): add @babel/plugin-proposal-export-namespace-from to cjs config
+- 14122f0: feat: add observable package
+- Updated dependencies [bd50dfa]
+  - @fncts/base@0.0.12
+
 ## 0.0.4
 
 ### Patch Changes
