@@ -1,5 +1,14 @@
 # @fncts/express
 
+## 0.0.4
+
+### Patch Changes
+
+- bd50dfa: fix(build): add @babel/plugin-proposal-export-namespace-from to cjs config
+- Updated dependencies [bd50dfa]
+- Updated dependencies [14122f0]
+  - @fncts/io@0.0.12
+
 ## 0.0.3
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @fncts/test
 
+## 0.0.12
+
+### Patch Changes
+
+- bd50dfa: fix(build): add @babel/plugin-proposal-export-namespace-from to cjs config
+- Updated dependencies [bd50dfa]
+- Updated dependencies [14122f0]
+  - @fncts/base@0.0.12
+  - @fncts/io@0.0.12
+  - @fncts/typelevel@0.0.10
+
 ## 0.0.11
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @fncts/config
 
+## 0.0.8
+
+### Patch Changes
+
+- 14122f0: feat: add observable package
+
 ## 0.0.7
 
 ### Patch Changes
