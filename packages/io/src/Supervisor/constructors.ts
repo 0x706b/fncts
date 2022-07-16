@@ -1,12 +1,14 @@
 import type { AtomicReference } from "@fncts/base/internal/AtomicReference";
 
+import { IterableWeakSet } from "@fncts/base/collection/weak/IterableWeakSet";
+
 import { ConstSupervisor } from "./definition.js";
 
 /**
  * @tsplus static fncts.io.SupervisorOps unsafeTrack
  */
-export function unsafeTrack(): Supervisor<Conc<Fiber.Runtime<any, any>>> {
-  const set = new Set<Fiber.Runtime<any, any>>();
+export function unsafeTrack(weak: boolean): Supervisor<Conc<Fiber.Runtime<any, any>>> {
+  const set = weak ? new IterableWeakSet<Fiber.Runtime<any, any>>() : new Set<Fiber.Runtime<any, any>>();
   return new (class extends Supervisor<Conc<Fiber.Runtime<any, any>>> {
     value = IO.succeed(Conc.from(set));
     unsafeOnStart<R, E, A>(
@@ -62,4 +64,6 @@ export const none = new ConstSupervisor(IO.unit);
 /**
  * @tsplus static fncts.io.SupervisorOps track
  */
-export const track: UIO<Supervisor<Conc<Fiber.Runtime<any, any>>>> = IO.succeed(unsafeTrack());
+export function track(weak: boolean, __tsplusTrace?: string): UIO<Supervisor<Conc<Fiber.Runtime<any, any>>>> {
+  return IO.succeed(unsafeTrack(weak));
+}

@@ -72,7 +72,7 @@ export function runtime<R>(__tsplusTrace?: string): URIO<R, Runtime<R>> {
 
 export const defaultRuntimeConfig = new RuntimeConfig({
   reportFailure: () => undefined,
-  supervisor: Supervisor.unsafeTrack(),
+  supervisor: Supervisor.unsafeTrack(true),
   flags: RuntimeConfigFlags.empty,
   yieldOpCount: 2048,
   logger: Logger.defaultString.map((s) => console.log(s)).filterLogLevel((level) => level >= LogLevel.Info),

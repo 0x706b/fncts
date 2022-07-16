@@ -1,7 +1,7 @@
 /**
  * @tsplus type fncts.IterableWeakMap
  */
-export class IterableWeakMap<K extends object, V> implements Iterable<readonly [K, V]> {
+export class IterableWeakMap<K extends object, V> implements Iterable<readonly [K, V]>, Map<K, V> {
   private weakMap           = new WeakMap<K, { value: V; ref: WeakRef<K> }>();
   private refSet            = new Set<WeakRef<K>>();
   private finalizationGroup = new FinalizationRegistry<{ ref: WeakRef<K>; set: Set<WeakRef<K>> }>(
@@ -44,11 +44,48 @@ export class IterableWeakMap<K extends object, V> implements Iterable<readonly [
     return true;
   }
 
-  [Symbol.iterator](this: this): IterableIterator<readonly [K, V]> {
+  has(this: this, key: K): boolean {
+    return this.weakMap.has(key);
+  }
+
+  clear(): void {
+    for (const ref of this.refSet) {
+      const key = ref.deref();
+      if (!key) continue;
+      const entry = this.weakMap.get(key)!;
+      this.weakMap.delete(key);
+      this.refSet.delete(entry.ref);
+      this.finalizationGroup.unregister(entry.ref);
+    }
+    this.refSet.clear();
+  }
+
+  forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: IterableWeakMap<K, V>): void {
+    thisArg = thisArg ?? this;
+    for (const kv of this) {
+      callbackfn(kv[1], kv[0], thisArg);
+    }
+  }
+
+  get size(): number {
+    let n = 0;
+    for (const ref of this.refSet) {
+      const key = ref.deref();
+      if (!key) continue;
+      n++;
+    }
+    return n;
+  }
+
+  [Symbol.iterator](this: this): IterableIterator<[K, V]> {
     return this.entries();
   }
 
-  *entries(this: this): IterableIterator<readonly [K, V]> {
+  get [Symbol.toStringTag](): string {
+    return this.weakMap[Symbol.toStringTag];
+  }
+
+  *entries(this: this): IterableIterator<[K, V]> {
     for (const ref of this.refSet) {
       const key = ref.deref();
       if (!key) continue;
@@ -57,7 +94,15 @@ export class IterableWeakMap<K extends object, V> implements Iterable<readonly [
     }
   }
 
-  has(this: this, key: K): boolean {
-    return this.weakMap.has(key);
+  *keys(this: this): IterableIterator<K> {
+    for (const [key] of this) {
+      yield key;
+    }
+  }
+
+  *values(): IterableIterator<V> {
+    for (const [, value] of this) {
+      yield value;
+    }
   }
 }
