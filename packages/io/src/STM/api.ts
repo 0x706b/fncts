@@ -1,4 +1,4 @@
-import type { Journal} from "./internal/Journal.js";
+import type { Journal } from "./internal/Journal.js";
 
 import { identity } from "@fncts/base/data/function";
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
@@ -86,33 +86,35 @@ export function environmentWithSTM<R0, R, E, A>(f: (r: R0) => STM<R, E, A>) {
  */
 export function atomically<R, E, A>(stm: STM<R, E, A>): IO<R, E, A> {
   return IO.environmentWithIO((r: Environment<R>) =>
-    IO.deferWith((_, fiberId) => {
-      const result = tryCommitSync(fiberId, stm, r);
-      switch (result._tag) {
-        case TryCommitTag.Done: {
-          return IO.fromExitNow(result.exit);
-        }
-        case TryCommitTag.Suspend: {
-          const id    = TxnId.make();
-          const state = new AtomicReference<CommitState<E, A>>(CommitState.Running);
-          const async = IO.async(tryCommitAsync(result.journal, fiberId, stm, id, state, r));
-          return IO.uninterruptibleMask(({ restore }) =>
-            restore(async).catchAllCause((cause) => {
-              state.compareAndSet(CommitState.Running, CommitState.Interrupted);
-              const newState = state.get;
-              switch (newState._tag) {
-                case "Done": {
-                  return IO.fromExitNow(newState.exit);
+    FiberRef.currentScheduler.getWith((scheduler) =>
+      IO.deferWith((_, fiberId) => {
+        const result = tryCommitSync(fiberId, stm, r, scheduler);
+        switch (result._tag) {
+          case TryCommitTag.Done: {
+            return IO.fromExitNow(result.exit);
+          }
+          case TryCommitTag.Suspend: {
+            const id    = TxnId.make();
+            const state = new AtomicReference<CommitState<E, A>>(CommitState.Running);
+            const async = IO.async(tryCommitAsync(result.journal, fiberId, stm, id, state, r, scheduler));
+            return IO.uninterruptibleMask(({ restore }) =>
+              restore(async).catchAllCause((cause) => {
+                state.compareAndSet(CommitState.Running, CommitState.Interrupted);
+                const newState = state.get;
+                switch (newState._tag) {
+                  case "Done": {
+                    return IO.fromExitNow(newState.exit);
+                  }
+                  default: {
+                    return IO.failCauseNow(cause);
+                  }
                 }
-                default: {
-                  return IO.failCauseNow(cause);
-                }
-              }
-            }),
-          );
+              }),
+            );
+          }
         }
-      }
-    }),
+      }),
+    ),
   );
 }
 

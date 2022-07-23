@@ -4,6 +4,8 @@ import { FiberContext } from "@fncts/io/Fiber";
 import { concrete } from "@fncts/io/IO/definition";
 import { IOEnv } from "@fncts/io/IOEnv/definition";
 
+import { StagedScheduler } from "../internal/Scheduler.js";
+
 export class Runtime<R> {
   constructor(readonly environment: Environment<R>, readonly runtimeConfig: RuntimeConfig) {}
 
@@ -59,6 +61,46 @@ export class Runtime<R> {
     new Promise((resolve) => {
       this.unsafeRunAsyncWith(io, resolve);
     });
+
+  unsafeRunSyncExit = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Exit<E, A> => {
+    const fiberId    = FiberId.unsafeMake(TraceElement.parse(__tsplusTrace));
+    const children   = new Set<FiberContext<any, any>>();
+    const supervisor = this.runtimeConfig.supervisor;
+    const scheduler  = new StagedScheduler();
+    const context    = new FiberContext<E, A>(
+      fiberId,
+      this.runtimeConfig,
+      Stack.single(InterruptStatus.interruptible.toBoolean),
+      new AtomicReference(
+        HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
+          [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
+          [IOEnv.services, Cons([fiberId, IOEnv.environment])],
+          [FiberRef.currentScheduler, Cons([fiberId, scheduler])],
+        ),
+      ),
+      children,
+    );
+
+    FiberScope.global.unsafeAdd(context);
+
+    if (supervisor !== Supervisor.none) {
+      supervisor.unsafeOnStart(this.environment, io, Nothing(), context);
+
+      context.unsafeOnDone((exit) => supervisor.unsafeOnEnd(exit.flatten, context));
+    }
+
+    context.nextIO = concrete(io);
+    context.run();
+    scheduler.flush();
+
+    const result = context.unsafePoll();
+
+    if (result.isJust()) {
+      return result.value;
+    }
+
+    return Exit.halt(context);
+  };
 }
 
 /**
@@ -104,3 +146,8 @@ export const unsafeRunPromiseExit = defaultRuntime.unsafeRunPromiseExit;
  * @tsplus fluent fncts.io.IO unsafeRunWith
  */
 export const unsafeRunWith = defaultRuntime.unsafeRunWith;
+
+/**
+ * @tsplus getter fncts.io.IO unsafeRunSyncExit
+ */
+export const unsafeRunSyncExit = defaultRuntime.unsafeRunSyncExit;

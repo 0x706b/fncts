@@ -533,7 +533,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   }
 
   unsafeRunLater(i0: Instruction) {
-    defaultScheduler(() => {
+    this.unsafeGetRef(FiberRef.currentScheduler).scheduleTask(() => {
       this.nextIO = i0;
       this.runUntil(this.runtimeConfig.yieldOpCount);
     });
@@ -569,7 +569,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     this.fiberRefLocals.set(this.fiberRefLocals.get.remove(ref));
   }
 
-  private unsafePoll() {
+  unsafePoll() {
     switch (this.state._tag) {
       case "Executing": {
         return Nothing();
@@ -929,7 +929,9 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     const childIO = !parentScope.unsafeAdd(childContext) ? IO.interruptAs(parentScope.fiberId) : io;
 
     childContext.nextIO = concrete(childIO);
-    defaultScheduler(() => childContext.runUntil(this.runtimeConfig.yieldOpCount));
+    this.unsafeGetRef(FiberRef.currentScheduler).scheduleTask(() =>
+      childContext.runUntil(this.runtimeConfig.yieldOpCount),
+    );
 
     return childContext;
   }

@@ -1,7 +1,9 @@
 import type { LogSpan } from "../LogSpan.js";
+import type { Scheduler } from "@fncts/io/internal/Scheduler.js";
 
 import { identity } from "@fncts/base/data/function";
 import { Patch } from "@fncts/base/data/Patch";
+import { defaultScheduler } from "@fncts/io/internal/Scheduler";
 
 import { FiberRefInternal } from "./definition.js";
 
@@ -77,3 +79,8 @@ export const currentLogSpan = FiberRef.unsafeMake<List<LogSpan>>(Nil());
  * @tsplus static fncts.io.FiberRefOps currentLogAnnotations
  */
 export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>>(HashMap.makeDefault());
+
+/**
+ * @tsplus static fncts.io.FiberRefOps currentScheduler
+ */
+export const currentScheduler = FiberRef.unsafeMake<Scheduler>(defaultScheduler);

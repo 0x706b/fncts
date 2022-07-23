@@ -1,6 +1,7 @@
 import type { Entry } from "./Entry.js";
 import type { TryCommit } from "./TryCommit.js";
 import type { AtomicReference } from "@fncts/base/internal/AtomicReference";
+import type { Scheduler } from "@fncts/io/internal/Scheduler";
 import type { Atomic } from "@fncts/io/TRef";
 import type { TxnId } from "@fncts/io/TxnId";
 
@@ -127,10 +128,10 @@ export function execTodos(todos: Map<TxnId, Todo>) {
  *
  * @tsplus fluent fncts.io.Journal completeTodos
  */
-export function completeTodos<E, A>(journal: Journal, exit: Exit<E, A>): Done<E, A> {
+export function completeTodos<E, A>(journal: Journal, exit: Exit<E, A>, scheduler: Scheduler): Done<E, A> {
   const todos = collectTodos(journal);
   if (todos.size > 0) {
-    defaultScheduler(() => execTodos(todos));
+    scheduler.scheduleTask(() => execTodos(todos));
   }
   return new Done(exit);
 }
@@ -180,7 +181,12 @@ export function untrackedTodoTargets(oldJournal: Journal, newJournal: Journal): 
   return untracked;
 }
 
-export function tryCommitSync<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, r: Environment<R>): TryCommit<E, A> {
+export function tryCommitSync<R, E, A>(
+  fiberId: FiberId,
+  stm: STM<R, E, A>,
+  r: Environment<R>,
+  scheduler: Scheduler,
+): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
   const analysis         = journal.analyze();
@@ -194,16 +200,16 @@ export function tryCommitSync<R, E, A>(fiberId: FiberId, stm: STM<R, E, A>, r: E
       return new Suspend(journal);
     }
     case TExitTag.Succeed: {
-      return journal.completeTodos(Exit.succeed(value.value));
+      return journal.completeTodos(Exit.succeed(value.value), scheduler);
     }
     case TExitTag.Fail: {
-      return journal.completeTodos(Exit.fail(value.value));
+      return journal.completeTodos(Exit.fail(value.value), scheduler);
     }
     case TExitTag.Halt: {
-      return journal.completeTodos(Exit.halt(value.value));
+      return journal.completeTodos(Exit.halt(value.value), scheduler);
     }
     case TExitTag.Interrupt: {
-      return journal.completeTodos(Exit.interrupt(value.fiberId));
+      return journal.completeTodos(Exit.interrupt(value.fiberId), scheduler);
     }
   }
 }
@@ -213,6 +219,7 @@ function tryCommit<R, E, A>(
   stm: STM<R, E, A>,
   state: AtomicReference<CommitState<E, A>>,
   r: Environment<R>,
+  scheduler: Scheduler,
 ): TryCommit<E, A> {
   const journal: Journal = new Map();
   const value            = new STMDriver(stm, journal, fiberId, r).run();
@@ -228,16 +235,16 @@ function tryCommit<R, E, A>(
       return new Suspend(journal);
     }
     case TExitTag.Succeed: {
-      return journal.completeTodos(Exit.succeed(value.value));
+      return journal.completeTodos(Exit.succeed(value.value), scheduler);
     }
     case TExitTag.Fail: {
-      return journal.completeTodos(Exit.fail(value.value));
+      return journal.completeTodos(Exit.fail(value.value), scheduler);
     }
     case TExitTag.Halt: {
-      return journal.completeTodos(Exit.halt(value.value));
+      return journal.completeTodos(Exit.halt(value.value), scheduler);
     }
     case TExitTag.Interrupt: {
-      return journal.completeTodos(Exit.interrupt(value.fiberId));
+      return journal.completeTodos(Exit.interrupt(value.fiberId), scheduler);
     }
   }
 }
@@ -255,12 +262,13 @@ function suspendTryCommit<R, E, A>(
   k: (_: IO<R, E, A>) => unknown,
   accum: Journal,
   journal: Journal,
+  scheduler: Scheduler,
 ): void {
   // eslint-disable-next-line no-constant-condition
   while (1) {
-    journal.addTodo(txnId, () => tryCommitAsync(undefined, fiberId, stm, txnId, state, r)(k));
+    journal.addTodo(txnId, () => tryCommitAsync(undefined, fiberId, stm, txnId, state, r, scheduler)(k));
     if (isInvalid(journal)) {
-      const result = tryCommit(fiberId, stm, state, r);
+      const result = tryCommit(fiberId, stm, state, r, scheduler);
       switch (result._tag) {
         case "Done": {
           completeTryCommit(result.exit, k);
@@ -293,20 +301,21 @@ export function tryCommitAsync<R, E, A>(
   txnId: TxnId,
   state: AtomicReference<CommitState<E, A>>,
   r: Environment<R>,
+  scheduler: Scheduler,
 ): (k: (_: IO<R, E, A>) => unknown) => void {
   return (k) => {
     if (state.get.isRunning) {
       if (journal != null) {
-        suspendTryCommit(fiberId, stm, txnId, state, r, k, journal, journal);
+        suspendTryCommit(fiberId, stm, txnId, state, r, k, journal, journal, scheduler);
       } else {
-        const result = tryCommitSync(fiberId, stm, r);
+        const result = tryCommitSync(fiberId, stm, r, scheduler);
         switch (result._tag) {
           case "Done": {
             completeTryCommit(result.exit, k);
             break;
           }
           case "Suspend": {
-            suspendTryCommit(fiberId, stm, txnId, state, r, k, result.journal, result.journal);
+            suspendTryCommit(fiberId, stm, txnId, state, r, k, result.journal, result.journal, scheduler);
             break;
           }
         }
