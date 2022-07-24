@@ -90,6 +90,10 @@ import { Const } from "@fncts/base/data/Const/definition";
 /**
  * @tsplus global
  */
+import { Datum } from "@fncts/base/data/Datum/definition";
+/**
+ * @tsplus global
+ */
 import { Decoder } from "@fncts/base/data/Decoder";
 /**
  * @tsplus global
@@ -194,6 +198,10 @@ import { Trace } from "@fncts/base/data/Trace/definition";
  * @tsplus global
  */
 import { TraceElement } from "@fncts/base/data/TraceElement/definition";
+/**
+ * @tsplus global
+ */
+import { Zipped } from "@fncts/base/data/Zipped";
 /**
  * @tsplus global
  */

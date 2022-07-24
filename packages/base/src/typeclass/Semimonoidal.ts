@@ -23,7 +23,7 @@ export interface Semimonoidal<F extends HKT> extends HKT.Typeclass<F> {
     HKT.Mix<"S", [S1, S2]>,
     HKT.Mix<"R", [R1, R2]>,
     HKT.Mix<"E", [E1, E2]>,
-    readonly [A, B]
+    Zipped.Make<A, B>
   >;
 }
 
@@ -62,7 +62,7 @@ export function zip<F extends HKT, C, K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2,
   HKT.Mix<"S", [S1, S2]>,
   HKT.Mix<"R", [R1, R2]>,
   HKT.Mix<"E", [E1, E2]>,
-  readonly [A, B]
+  Zipped.Make<A, B>
 > {
   return F.zip(fa, fb);
 }

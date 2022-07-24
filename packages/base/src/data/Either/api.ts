@@ -185,6 +185,9 @@ export const traverse_: P.Traversable<EitherF>["traverse"] = (self, f, A) =>
     (a) => f(a).map((b) => Right(b), A),
   );
 
+/**
+ * @tsplus fluent fncts.Either zipWith
+ */
 export function zipWith_<E1, A, E2, B, C>(
   self: Either<E1, A>,
   fb: Either<E2, B>,
@@ -193,6 +196,13 @@ export function zipWith_<E1, A, E2, B, C>(
   self.concrete();
   fb.concrete();
   return self._tag === EitherTag.Left ? self : fb._tag === EitherTag.Left ? fb : Right(f(self.right, fb.right));
+}
+
+/**
+ * @tsplus fluent fncts.Either zip
+ */
+export function zip<E, A, E1, B>(self: Either<E, A>, that: Either<E1, B>): Either<E | E1, Zipped.Make<A, B>> {
+  return self.zipWith(that, (a, b) => Zipped(a, b));
 }
 
 /**

@@ -172,6 +172,6 @@ export function zipWith_<A, B, C>(self: Maybe<A>, fb: Maybe<B>, f: (a: A, b: B) 
 /**
  * @tsplus fluent fncts.Maybe zip
  */
-export function zip_<A, B>(self: Maybe<A>, that: Maybe<B>): Maybe<readonly [A, B]> {
-  return self.zipWith(that, (a, b) => [a, b]);
+export function zip_<A, B>(self: Maybe<A>, that: Maybe<B>): Maybe<Zipped.Make<A, B>> {
+  return self.zipWith(that, (a, b) => Zipped(a, b));
 }
