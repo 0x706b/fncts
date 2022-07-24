@@ -38,8 +38,11 @@ export function zipWith_<A, B, C>(self: Eval<A>, fb: Eval<B>, f: (a: A, b: B) =>
   return self.flatMap((a) => fb.map((b) => f(a, b)));
 }
 
-export function zip_<A, B>(self: Eval<A>, fb: Eval<B>): Eval<readonly [A, B]> {
-  return self.zipWith(fb, tuple);
+/**
+ * @tsplus fluent fncts.control.Eval zip
+ */
+export function zip_<A, B>(self: Eval<A>, fb: Eval<B>): Eval<Zipped.Make<A, B>> {
+  return self.zipWith(fb, (a, b) => Zipped(a, b));
 }
 
 /**

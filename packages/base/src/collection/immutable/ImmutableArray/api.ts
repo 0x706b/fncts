@@ -84,8 +84,8 @@ export function crossWith_<A, B, C>(
 /**
  * @tsplus fluent fncts.ImmutableArray cross
  */
-export function cross_<A, B>(self: ImmutableArray<A>, fb: ImmutableArray<B>): ImmutableArray<readonly [A, B]> {
-  return self.crossWith(fb, tuple);
+export function cross_<A, B>(self: ImmutableArray<A>, fb: ImmutableArray<B>): ImmutableArray<Zipped.Make<A, B>> {
+  return self.crossWith(fb, (a, b) => Zipped(a, b));
 }
 
 /**

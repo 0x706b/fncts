@@ -30,8 +30,8 @@ export function zipWith_<A, B, C>(fa: Identity<A>, fb: Identity<B>, f: (a: A, b:
 /**
  * @tsplus fluent fncts.Identity zip
  */
-export function zip_<A, B>(fa: Identity<A>, fb: Identity<B>): Identity<readonly [A, B]> {
-  return fa.zipWith(fb, (a, b) => [a, b]);
+export function zip_<A, B>(fa: Identity<A>, fb: Identity<B>): Identity<Zipped.Make<A, B>> {
+  return fa.zipWith(fb, (a, b) => Zipped(a, b));
 }
 
 /**

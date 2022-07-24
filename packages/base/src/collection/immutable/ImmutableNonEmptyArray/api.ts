@@ -174,8 +174,8 @@ export function crossWith_<A, B, C>(
 export function cross_<A, B>(
   self: ImmutableNonEmptyArray<A>,
   fb: ImmutableNonEmptyArray<B>,
-): ImmutableNonEmptyArray<readonly [A, B]> {
-  return self.crossWith(fb, (a, b) => [a, b]);
+): ImmutableNonEmptyArray<Zipped.Make<A, B>> {
+  return self.crossWith(fb, (a, b) => Zipped(a, b));
 }
 
 /**

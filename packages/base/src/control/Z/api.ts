@@ -583,8 +583,8 @@ export function writeAll_<W, S1, S2, R, E, A, W1>(
 export function zip_<W, S1, S2, R, E, A, W1, S3, Q, D, B>(
   fa: Z<W, S1, S2, R, E, A>,
   fb: Z<W1, S2, S3, Q, D, B>,
-): Z<W | W1, S1, S3, Q & R, D | E, readonly [A, B]> {
-  return fa.zipWith(fb, tuple);
+): Z<W | W1, S1, S3, Q & R, D | E, Zipped.Make<A, B>> {
+  return fa.zipWith(fb, (a, b) => Zipped(a, b));
 }
 
 /**
