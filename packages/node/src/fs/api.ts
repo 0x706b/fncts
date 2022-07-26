@@ -3,7 +3,7 @@ import * as fs from "fs";
 type ErrnoException = NodeJS.ErrnoException;
 
 interface FileDescriptorN extends HKT {
-  readonly [HKT.T]: FileDescriptor;
+  type: FileDescriptor;
 }
 export interface FileDescriptor
   extends Newtype<

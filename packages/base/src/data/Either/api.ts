@@ -179,10 +179,10 @@ export function swap<E, A>(self: Either<E, A>): Either<A, E> {
 /**
  * @tsplus fluent fncts.Either traverse
  */
-export const traverse_: P.Traversable<EitherF>["traverse"] = (self, f, A) =>
+export const traverse_: P.Traversable<EitherF>["traverse"] = (self) => (A) => (f) =>
   self.match(
     (e) => A.pure(Left(e)),
-    (a) => f(a).map((b) => Right(b), A),
+    (a) => A.map(f(a), (b) => Right(b)),
   );
 
 /**

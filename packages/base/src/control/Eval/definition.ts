@@ -1,16 +1,19 @@
 export const EvalTypeId = Symbol.for("@fncts.base/control/Eval");
 export type EvalTypeId = typeof EvalTypeId;
 
-export interface EvalF extends Eval<any> {}
+export interface EvalF extends HKT {
+  type: Eval<this["A"]>;
+  variance: {
+    A: "+";
+  };
+}
 
 /**
  * @tsplus type fncts.control.Eval
  */
 export interface Eval<A> {
   readonly _typeId: EvalTypeId;
-  [HKT.F]?: EvalF;
-  [HKT.A]?: () => A;
-  [HKT.T]?: Eval<HKT._A<this>>;
+  readonly _A: () => A;
 }
 
 /**

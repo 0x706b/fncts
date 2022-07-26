@@ -394,19 +394,21 @@ export function sort<A>(self: ImmutableNonEmptyArray<A>, /** @tsplus auto */ O: 
 }
 
 /**
- * @tsplus fluent fncts.ImmutableNonEmptyArray traverseWithIndex
+ * @tsplus getter fncts.ImmutableNonEmptyArray traverseWithIndex
  */
-export const traverseWithIndex_: P.TraversableWithIndex<ImmutableNonEmptyArrayF>["traverseWithIndex"] = (self, f, G) =>
-  self.tail.foldLeftWithIndex(
-    f(0, self.head).map((b) => ImmutableNonEmptyArray(b), G),
-    (i, fbs, a) => fbs.zipWith(f(i + 1, a), (bs, b) => bs.append(b), G),
-  );
+export const traverseWithIndex = P.TraversableWithIndex.makeTraverseWithIndex<ImmutableNonEmptyArrayF>()(
+  () => (self) => (G) => (f) =>
+    self.tail.foldLeftWithIndex(
+      G.map(f(0, self.head), (b) => ImmutableNonEmptyArray(b)),
+      (i, fbs, a) => G.zipWith(fbs, f(i + 1, a), (bs, b) => bs.append(b)),
+    ),
+);
 
 /**
- * @tsplus fluent fncts.ImmutableNonEmptyArray traverse
+ * @tsplus getter fncts.ImmutableNonEmptyArray traverse
  */
-export const traverse_: P.Traversable<ImmutableNonEmptyArrayF>["traverse"] = (self, f, A) =>
-  self.traverseWithIndex((_, a) => f(a), A);
+export const traverse: P.Traversable<ImmutableNonEmptyArrayF>["traverse"] = (self) => (G) => (f) =>
+  self.traverseWithIndex(G)((_, a) => f(a));
 
 /**
  * @tsplus fluent fncts.ImmutableNonEmptyArray uniq

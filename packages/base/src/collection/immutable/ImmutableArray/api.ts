@@ -228,7 +228,9 @@ function comprehensionLoop<A, R>(
   if (input.length === 0) {
     return g(...scope) ? Eval.now(ImmutableArray(f(...scope))) : Eval.now(ImmutableArray.empty());
   } else {
-    return input[0]!.traverse((a) => comprehensionLoop(scope.append(a), input.slice(1), f, g)).map((rs) => rs.flatten);
+    return input[0]!
+      .traverse(Eval.Applicative)((a) => comprehensionLoop(scope.append(a), input.slice(1), f, g))
+      .map((rs) => rs.flatten);
   }
 }
 
@@ -1164,16 +1166,20 @@ export function takeWhile_<A>(self: ImmutableArray<A>, p: Predicate<A>): Immutab
 }
 
 /**
- * @tsplus fluent fncts.ImmutableArray traverseWithIndex
+ * @tsplus getter fncts.ImmutableArray traverseWithIndex
  */
-export const traverseWithIndex_: P.TraversableWithIndex<ImmutableArrayF>["traverseWithIndex"] = (ta, f, G) =>
-  ta.foldLeftWithIndex(G.pure(ImmutableArray.empty()), (i, fbs, a) => fbs.zipWith(f(i, a), (bs, b) => bs.append(b), G));
+export const traverseWithIndex_ = P.TraversableWithIndex.makeTraverseWithIndex<ImmutableArrayF>()(
+  () => (ta) => (G) => (f) =>
+    ta.foldLeftWithIndex(G.pure(ImmutableArray.empty()), (i, fbs, a) =>
+      G.zipWith(fbs, f(i, a), (bs, b) => bs.append(b)),
+    ),
+);
 
 /**
- * @tsplus fluent fncts.ImmutableArray traverse
+ * @tsplus getter fncts.ImmutableArray traverse
  */
-export const traverse_: P.Traversable<ImmutableArrayF>["traverse"] = (self, f, G) =>
-  self.traverseWithIndex((_, a) => f(a), G);
+export const traverse_: P.Traversable<ImmutableArrayF>["traverse"] = (self) => (G) => (f) =>
+  self.traverseWithIndex(G)((_, a) => f(a));
 
 /**
  * @tsplus fluent fncts.ImmutableArray union
@@ -1292,122 +1298,59 @@ export function updateAt_<A>(as: ImmutableArray<A>, i: number, a: A): Maybe<Immu
 }
 
 /**
- * @tsplus fluent fncts.ImmutableArray wilt
+ * @tsplus getter fncts.ImmutableArray wiltWithIndex
  */
-export function wilt_<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG, B1, A, B>(
-  self: ImmutableArray<A>,
-  f: (a: A) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, Either<B, B1>>,
-  /** @tsplus auto */
-  G: P.Applicative<G>,
-): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, readonly [ImmutableArray<B>, ImmutableArray<B1>]> {
-  return self
-    .foldLeft(
-      G.pure([[] as Array<B>, [] as Array<B1>] as const) as HKT.Kind<
-        G,
-        KG,
-        QG,
-        WG,
-        XG,
-        IG,
-        SG,
-        RG,
-        EG,
-        readonly [B[], B1[]]
-      >,
-      (fbs, a) =>
-        f(a).zipWith(
-          fbs,
-          (eb, r) =>
-            eb.match(
-              (b1) => {
-                r[0].push(b1);
-                return r;
-              },
-              (b2) => {
-                r[1].push(b2);
-                return r;
-              },
-            ),
-          G,
+export const wiltWithIndex = P.WitherableWithIndex.makeWiltWithIndex<ImmutableArrayF>()(
+  (_) => (self) => (G) => (f) =>
+    G.map(
+      self.foldLeftWithIndex(G.pure([[] as Array<typeof _["B"]>, [] as Array<typeof _["B1"]>] as const), (i, fbs, a) =>
+        G.zipWith(f(i, a), fbs, (eb, r) =>
+          eb.match(
+            (b1) => {
+              r[0].push(b1);
+              return r;
+            },
+            (b2) => {
+              r[1].push(b2);
+              return r;
+            },
+          ),
         ),
-    )
-    .map(([b1s, b2s]) => [b1s.asImmutableArray, b2s.asImmutableArray], G);
-}
-
-export function wiltWithIndex_<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG, B1, A, B>(
-  self: ImmutableArray<A>,
-  f: (i: number, a: A) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, Either<B, B1>>,
-  /** @tsplus auto */
-  G: P.Applicative<G>,
-): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, readonly [ImmutableArray<B>, ImmutableArray<B1>]> {
-  return self
-    .foldLeftWithIndex(
-      G.pure([[] as Array<B>, [] as Array<B1>] as const) as HKT.Kind<
-        G,
-        KG,
-        QG,
-        WG,
-        XG,
-        IG,
-        SG,
-        RG,
-        EG,
-        readonly [B[], B1[]]
-      >,
-      (i, fbs, a) =>
-        f(i, a).zipWith(
-          fbs,
-          (eb, r) =>
-            eb.match(
-              (b1) => {
-                r[0].push(b1);
-                return r;
-              },
-              (b2) => {
-                r[1].push(b2);
-                return r;
-              },
-            ),
-          G,
-        ),
-    )
-    .map(([b1s, b2s]) => [b1s.asImmutableArray, b2s.asImmutableArray], G);
-}
+      ),
+      ([b1s, b2s]) => [b1s.asImmutableArray, b2s.asImmutableArray],
+    ),
+);
 
 /**
- * @tsplus fluent fncts.ImmutableArray wither
+ * @tsplus getter fncts.ImmutableArray wilt
  */
-export function wither_<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG, A, B>(
-  self: ImmutableArray<A>,
-  f: (a: A) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, Maybe<B>>,
-  /** @tsplus auto */ G: P.Applicative<G>,
-): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, ImmutableArray<B>> {
-  return self.witherWithIndex((_, a) => f(a));
-}
+export const wilt: P.WitherableWithIndex<ImmutableArrayF>["wilt"] = (self) => (G) => (f) =>
+  self.wiltWithIndex(G)((_, a) => f(a));
 
 /**
- * @tsplus fluent fncts.ImmutableArray witherWithIndex
+ * @tsplus getter fncts.ImmutableArray witherWithIndex
  */
-export function witherWithIndex_<G extends HKT, KG, QG, WG, XG, IG, SG, RG, EG, A, B>(
-  self: ImmutableArray<A>,
-  f: (k: number, a: A) => HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, Maybe<B>>,
-  /** @tsplus auto */ G: P.Applicative<G>,
-): HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, ImmutableArray<B>> {
-  return self
-    .foldLeftWithIndex(G.pure([] as Array<B>) as HKT.Kind<G, KG, QG, WG, XG, IG, SG, RG, EG, B[]>, (i, b, a) =>
-      f(i, a).zipWith(
-        b,
-        (maybeB, bs) => {
+export const witherWithIndex = P.WitherableWithIndex.makeWitherWithIndex<ImmutableArrayF>()(
+  (_) => (self) => (G) => (f) => {
+    return G.map(
+      self.foldLeftWithIndex(G.pure([] as Array<typeof _["B"]>), (i, b, a) =>
+        G.zipWith(f(i, a), b, (maybeB, bs) => {
           if (maybeB.isJust()) {
             bs.push(maybeB.value);
           }
           return bs;
-        },
-        G,
+        }),
       ),
-    )
-    .map((bs) => bs.asImmutableArray, G);
-}
+      (bs) => bs.asImmutableArray,
+    );
+  },
+);
+
+/**
+ * @tsplus getter fncts.ImmutableArray wither
+ */
+export const wither: P.Witherable<ImmutableArrayF>["wither"] = (self) => (G) => (f) =>
+  self.witherWithIndex(G)((_, a) => f(a));
 
 /**
  * @tsplus fluent fncts.ImmutableArray zip

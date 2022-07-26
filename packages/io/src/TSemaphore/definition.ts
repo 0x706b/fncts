@@ -1,5 +1,5 @@
 interface TSemaphoreN extends HKT {
-  readonly [HKT.T]: TSemaphore;
+  readonly type: TSemaphore;
 }
 
 /**

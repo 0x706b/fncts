@@ -1,7 +1,12 @@
 export const RoseTreeTypeId = Symbol.for("fncts.RoseTree");
 export type RoseTreeTypeId = typeof RoseTreeTypeId;
 
-export interface RoseTreeF extends RoseTree<any> {}
+export interface RoseTreeF extends HKT {
+  type: RoseTree<this["A"]>;
+  variance: {
+    A: "+";
+  };
+}
 
 /**
  * @tsplus type fncts.RoseTree
@@ -9,9 +14,7 @@ export interface RoseTreeF extends RoseTree<any> {}
  */
 export class RoseTree<A> implements Hashable, Equatable {
   readonly _typeId: RoseTreeTypeId = RoseTreeTypeId;
-  readonly [HKT.F]!: RoseTreeF;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: RoseTree<HKT._A<this>>;
+  declare _A: () => A;
   constructor(readonly value: A, readonly forest: Vector<RoseTree<A>>) {}
   [Symbol.equals](that: unknown): boolean {
     return isRoseTree(that) ? Equatable.strictEquals(this.value, that.value) && this.forest == that.forest : false;

@@ -1,5 +1,6 @@
 import type { ExpressApp, ExpressEnv } from "./ExpressApp.js";
 import type { ErasedRequestHandlerIO, RequestHandlerIO, RequestHandlerRouteIO } from "./RequestHandlerIO.js";
+import type { _R } from "@fncts/base/types";
 import type { NextHandleFunction } from "connect";
 import type { RequestHandler } from "express";
 import type { RouteParameters } from "express-serve-static-core";
@@ -56,7 +57,7 @@ export function match(method: Methods): {
     ...handlers: never extends Handlers ? Array<RequestHandlerIO<any, Route, RouteParameters<Route>>> : Handlers
   ): URIO<
     ExpressEnv &
-      HKT._R<
+      _R<
         {
           [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
         }[number]
@@ -78,7 +79,7 @@ export function use<Handlers extends Array<RequestHandlerRouteIO>>(
   ...handlers: Handlers
 ): URIO<
   ExpressEnv &
-    HKT._R<
+    _R<
       {
         [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
       }[number]
@@ -90,7 +91,7 @@ export function use<Route extends string, Handlers extends Array<RequestHandlerR
   ...handlers: never extends Handlers ? Array<RequestHandlerRouteIO<any, Route>> : Handlers
 ): URIO<
   ExpressEnv &
-    HKT._R<
+    _R<
       {
         [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
       }[number]

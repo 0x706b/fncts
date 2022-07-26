@@ -8,7 +8,13 @@ import { ForwardVectorIterator } from "@fncts/base/collection/immutable/Vector/i
 export const VectorTypeId = Symbol.for("fncts.Vector");
 export type VectorTypeId = typeof VectorTypeId;
 
-export interface VectorF extends Vector<any> {}
+export interface VectorF extends HKT {
+  type: Vector<this["A"]>;
+  variance: {
+    A: "+";
+  };
+  index: number;
+}
 
 /**
  * Represents a Vector of elements.
@@ -18,10 +24,7 @@ export interface VectorF extends Vector<any> {}
  */
 export class Vector<A> implements Iterable<A> {
   readonly _typeId: VectorTypeId = VectorTypeId;
-  readonly [HKT.F]!: VectorF;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: Vector<HKT._A<this>>;
-  readonly [HKT.Ix]!: number;
+  readonly _A!: () => A;
   constructor(
     /** @private */
     readonly bits: number,
@@ -54,10 +57,7 @@ export class Vector<A> implements Iterable<A> {
  */
 export interface MutableVector<A> {
   readonly _typeId: VectorTypeId;
-  readonly [HKT.F]: VectorF;
-  readonly [HKT.A]: () => A;
-  readonly [HKT.T]: Vector<HKT._A<this>>;
-  readonly [HKT.Ix]: number;
+  readonly _A: () => A;
   bits: number;
   offset: number;
   length: number;

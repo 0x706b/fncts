@@ -8,7 +8,12 @@ export const enum MaybeTag {
 export const MaybeTypeId = Symbol.for("fncts.Maybe");
 export type MaybeTypdId = typeof MaybeTypeId;
 
-export type MaybeF = Maybe<any>;
+export interface MaybeF extends HKT {
+  type: Maybe<this["A"]>;
+  variance: {
+    A: "+";
+  };
+}
 
 const _justHash    = Hashable.string("fncts.Just");
 const _nothingHash = Hashable.string("fncts.Nothing");
@@ -18,10 +23,8 @@ const _nothingHash = Hashable.string("fncts.Nothing");
  * @tsplus companion fncts.MaybeOps
  */
 export class Maybe<A> {
+  readonly _A!: () => A;
   readonly _typeId: MaybeTypdId = MaybeTypeId;
-  readonly [HKT.F]!: MaybeF;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: Maybe<HKT._A<this>>;
 }
 
 /**

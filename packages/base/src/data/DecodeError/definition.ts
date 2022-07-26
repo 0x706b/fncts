@@ -72,7 +72,7 @@ export class CompoundError<E extends DecodeError> extends DecodeError {
   }
   render = Eval.defer(
     this.errors
-      .traverse((error) => error.render)
+      .traverse(Eval.Applicative)((error) => error.render)
       .map((errors) =>
         RoseTree(
           `${this.errors.length} error(s) found while decoding ${startsWithVowel(this.name) ? "an" : "a"} ${this.name}`,
@@ -89,7 +89,7 @@ export class CompositionError<E extends DecodeError> extends DecodeError {
   }
   render = Eval.defer(
     this.errors
-      .traverse((error) => error.render)
+      .traverse(Eval.Applicative)((error) => error.render)
       .map((errors) =>
         errors.length === 1
           ? errors.unsafeGet(1)!
@@ -221,7 +221,7 @@ export class UnionError extends DecodeError {
   }
   render = Eval.defer(
     this.errors
-      .traverse((error) => error.render)
+      .traverse(Eval.Applicative)((error) => error.render)
       .map((errors) => RoseTree(`${this.errors.length} error(s) found while decoding ${this.label}`, errors)),
   );
 }

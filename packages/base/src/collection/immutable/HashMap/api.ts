@@ -55,8 +55,8 @@ export function makeDefault<K, V>(): HashMap<K, V> {
  *
  * @tsplus fluent fncts.HashMapOps fromFoldable
  */
-export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.Semigroup<A>, F: P.Foldable<F>) {
-  return <K_, Q, W, X, I, S, R, E>(fka: HKT.Kind<F, K_, Q, W, X, I, S, R, E, readonly [K, A]>): HashMap<K, A> => {
+export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.Semigroup<A>, F: P.Foldable<F, C>) {
+  return <K_, Q, W, X, I, S, R, E>(fka: HKT.Kind<F, C, K_, Q, W, X, I, S, R, E, readonly [K, A]>): HashMap<K, A> => {
     return F.foldLeft(fka, makeWith(config), (b, [k, a]) => {
       const oa = b.get(k);
       if (oa.isJust()) {
@@ -529,15 +529,18 @@ export function foldLeft_<K, V, Z>(map: HashMap<K, V>, z: Z, f: (z: Z, v: V) => 
 }
 
 /**
- * @tsplus fluent fncts.HashMap traverseWithIndex
+ * @tsplus getter fncts.HashMap traverseWithIndex
  */
-export const traverseWithIndex_: P.TraversableWithIndex<HashMapF>["traverseWithIndex"] = (ta, f, G) =>
-  ta.foldLeftWithIndex(G.pure(makeWith(ta.config)), (k, b, a) => b.zipWith(f(k, a), (map, b) => map.set(k, b), G));
+export const traverseWithIndex = P.TraversableWithIndex.makeTraverseWithIndex<HashMapF>()(
+  () => (ta) => (G) => (f) =>
+    ta.foldLeftWithIndex(G.pure(makeWith(ta.config)), (k, b, a) => G.zipWith(b, f(k, a), (map, b) => map.set(k, b))),
+);
 
 /**
- * @tsplus fluent fncts.HashMap traverse
+ * @tsplus getter fncts.HashMap traverse
  */
-export const traverse_: P.Traversable<HashMapF>["traverse"] = (ta, f, G) => ta.traverseWithIndex((_, a) => f(a), G);
+export const traverse: P.Traversable<HashMapF>["traverse"] = (ta) => (G) => (f) =>
+  ta.traverseWithIndex(G)((_, a) => f(a));
 
 /**
  * @tsplus fluent fncts.HashMap unsafeGet
@@ -547,26 +550,26 @@ export function unsafeGet_<K, V>(self: HashMap<K, V>, key: K): V | undefined {
 }
 
 /**
- * @tsplus fluent fncts.HashMap witherWithIndex
+ * @tsplus getter fncts.HashMap witherWithIndex
  */
-export const witherWithIndex_: P.WitherableWithIndex<HashMapF>["witherWithIndex"] = (wa, f, G) =>
-  wa.traverseWithIndex(f, G).map(compact, G);
+export const witherWithIndex: P.WitherableWithIndex<HashMapF>["witherWithIndex"] = (wa) => (G) => (f) =>
+  G.map(wa.traverseWithIndex(G)(f), compact);
 
 /**
- * @tsplus fluent fncts.HashMap wither
+ * @tsplus getter fncts.HashMap wither
  */
-export const wither_: P.Witherable<HashMapF>["wither"] = (wa, f, G) => wa.witherWithIndex((_, a) => f(a), G);
+export const wither: P.Witherable<HashMapF>["wither"] = (wa) => (G) => (f) => wa.witherWithIndex(G)((_, a) => f(a));
 
 /**
- * @tsplus fluent fncts.HashMap wiltWithIndex
+ * @tsplus getter fncts.HashMap wiltWithIndex
  */
-export const wiltWithIndex_: P.WitherableWithIndex<HashMapF>["wiltWithIndex"] = (wa, f, G) =>
-  wa.traverseWithIndex(f, G).map(separate, G);
+export const wiltWithIndex: P.WitherableWithIndex<HashMapF>["wiltWithIndex"] = (wa) => (G) => (f) =>
+  G.map(wa.traverseWithIndex(G)(f), separate);
 
 /**
- * @tsplus fluent fncts.HashMap wilt
+ * @tsplus getter fncts.HashMap wilt
  */
-export const wilt_: P.Witherable<HashMapF>["wilt"] = (wa, f, G) => wa.wiltWithIndex((_, a) => f(a), G);
+export const wilt: P.Witherable<HashMapF>["wilt"] = (wa) => (G) => (f) => wa.wiltWithIndex(G)((_, a) => f(a));
 
 /**
  * @tsplus fluent fncts.HashMap unionWith

@@ -6,24 +6,24 @@ import { flatMap, map, repleteRight, zip, zipWith } from "@fncts/base/data/Datum
 /**
  * @tsplus implicit
  */
-export const Functor: P.Functor<DatumF> = { map };
+export const Functor = HKT.instance<P.Functor<DatumF>>({ map });
 
 /**
  * @tsplus implicit
  */
-export const Semimonoidal: P.Semimonoidal<DatumF> = { zip };
+export const Semimonoidal = HKT.instance<P.Semimonoidal<DatumF>>({ zip });
 
 /**
  * @tsplus implicit
  */
-export const Apply: P.Apply<DatumF> = { map, zip, zipWith };
+export const Apply = HKT.instance<P.Apply<DatumF>>({ map, zip, zipWith });
 
 /**
  * @tsplus implicit
  */
-export const Applicative: P.Applicative<DatumF> = { map, zip, zipWith, pure: repleteRight };
+export const Applicative = HKT.instance<P.Applicative<DatumF>>({ map, zip, zipWith, pure: repleteRight });
 
 /**
  * @tsplus implicit
  */
-export const Monad: P.Monad<DatumF> = { map, zip, zipWith, pure: repleteRight, flatMap };
+export const Monad = HKT.instance<P.Monad<DatumF>>({ map, zip, zipWith, pure: repleteRight, flatMap });

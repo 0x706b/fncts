@@ -1,41 +1,23 @@
 /**
  * @tsplus type fncts.Fail
  */
-export interface Fail<F extends HKT> extends HKT.Typeclass<F> {
-  fail<
+export interface Fail<F extends HKT, FC = HKT.None> extends HKT.Typeclass<F, FC> {
+  fail: <
     E,
-    K = HKT.Low<"K">,
-    Q = HKT.Low<"Q">,
-    W = HKT.Low<"W">,
-    X = HKT.Low<"X">,
-    I = HKT.Low<"I">,
-    S = HKT.Low<"S">,
-    R = HKT.Low<"R">,
+    K = HKT.Low<F, "K">,
+    Q = HKT.Low<F, "Q">,
+    W = HKT.Low<F, "W">,
+    X = HKT.Low<F, "X">,
+    I = HKT.Low<F, "I">,
+    S = HKT.Low<F, "S">,
+    R = HKT.Low<F, "R">,
     A = never,
   >(
     e: E,
-  ): HKT.Kind<F, K, Q, W, X, I, S, R, E, A>;
+  ) => HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>;
 }
 
 /**
  * @tsplus type fncts.FailOps
  */
 export interface FailOps {}
-
-/**
- * @tsplus static fncts.FailOps fail
- */
-export function fail<
-  F extends HKT,
-  E,
-  K = HKT.Low<"K">,
-  Q = HKT.Low<"Q">,
-  W = HKT.Low<"W">,
-  X = HKT.Low<"X">,
-  I = HKT.Low<"I">,
-  S = HKT.Low<"S">,
-  R = HKT.Low<"R">,
-  A = never,
->(e: E, /** @tsplus auto */ F: Fail<F>): HKT.Kind<F, K, Q, W, X, I, S, R, E, A> {
-  return F.fail(e);
-}

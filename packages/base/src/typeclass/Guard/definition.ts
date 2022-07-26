@@ -9,9 +9,7 @@ export type GuardTypeId = typeof GuardTypeId;
  */
 export class Guard<A> {
   readonly _typeId: GuardTypeId = GuardTypeId;
-  readonly [HKT.F]!: GuardF;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: Guard<HKT._A<this>>;
+  declare _A: () => A;
   constructor(readonly is: Refinement<unknown, A>) {}
 }
 

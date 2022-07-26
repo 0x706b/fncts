@@ -1,5 +1,5 @@
 interface DictionaryN extends HKT {
-  readonly [HKT.T]: Dictionary<HKT._A<this>>;
+  readonly type: Dictionary<this["A"]>;
 }
 
 /**

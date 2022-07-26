@@ -6,8 +6,13 @@ export const enum EitherTag {
 export const EitherTypeId = Symbol.for("fncts.base.data.Either");
 export type EitherTypeId = typeof EitherTypeId;
 
-export interface EitherF extends Either<any, any> {}
-export interface Either1F<E> extends Either1<E, any> {}
+export interface EitherF extends HKT {
+  type: Either<this["E"], this["A"]>;
+  variance: {
+    E: "+";
+    A: "+";
+  };
+}
 
 /**
  * @tsplus type fncts.Either
@@ -15,18 +20,8 @@ export interface Either1F<E> extends Either1<E, any> {}
  */
 export class Either<E, A> {
   readonly _typeId: EitherTypeId = EitherTypeId;
-  readonly [HKT.F]!: EitherF;
-  readonly [HKT.E]!: () => E;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: Either<HKT._E<this>, HKT._A<this>>;
-}
-
-export interface Either1<E, A> {
-  readonly _typeId: EitherTypeId;
-  readonly [HKT.F]: EitherF;
-  readonly [HKT.E]: () => E;
-  readonly [HKT.A]: () => A;
-  readonly [HKT.T]: Either<E, HKT._A<this>>;
+  readonly _E!: () => E;
+  readonly _A!: () => A;
 }
 
 /**

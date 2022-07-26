@@ -1,7 +1,7 @@
 import type { UTRef } from "../TRef.js";
 
 interface TFutureN extends HKT {
-  readonly [HKT.T]: TFuture<HKT._E<this>, HKT._A<this>>;
+  readonly type: TFuture<this["E"], this["A"]>;
 }
 
 /**

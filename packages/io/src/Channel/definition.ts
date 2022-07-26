@@ -26,13 +26,13 @@ export const enum ChannelTag {
  * @tsplus companion fncts.io.ChannelOps
  */
 export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  readonly _Env!: (_: Env) => void;
-  readonly _InErr!: (_: InErr) => void;
-  readonly _InElem!: (_: InElem) => void;
-  readonly _InDone!: (_: InDone) => void;
-  readonly _OutErr!: () => OutErr;
-  readonly _OutElem!: () => OutElem;
-  readonly _OutDone!: () => OutDone;
+  declare _Env: (_: Env) => void;
+  declare _InErr: (_: InErr) => void;
+  declare _InElem: (_: InElem) => void;
+  declare _InDone: (_: InDone) => void;
+  declare _OutErr: () => OutErr;
+  declare _OutElem: () => OutElem;
+  declare _OutDone: () => OutDone;
 }
 
 /**

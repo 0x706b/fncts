@@ -588,19 +588,19 @@ export function toLoading<E, A>(self: Datum<E, A>): Datum<E, A> {
 /**
  * @tsplus fluent fncts.Datum traverse
  */
-export const traverse: P.Traversable<DatumF>["traverse"] = (self, f, A) =>
+export const traverse: P.Traversable<DatumF>["traverse"] = (self) => (A) => (f) =>
   self.match({
     Initial: () => A.pure(Initial()),
     Pending: () => A.pure(Pending()),
     Refresh: (value) =>
       value.match2(
         (e) => A.pure(Datum.refreshLeft(e)),
-        (e, a) => f(a).map((b) => Refresh(These.rightOrBoth(e, b))),
+        (e, a) => A.map(f(a), (b) => Refresh(These.rightOrBoth(e, b))),
       ),
     Replete: (value) =>
       value.match2(
         (e) => A.pure(Datum.refreshLeft(e)),
-        (e, a) => f(a).map((b) => Replete(These.rightOrBoth(e, b))),
+        (e, a) => A.map(f(a), (b) => Replete(These.rightOrBoth(e, b))),
       ),
   });
 

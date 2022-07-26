@@ -1,5 +1,5 @@
 interface StructN extends HKT {
-  readonly [HKT.T]: Struct<HKT._A<this>>;
+  type: Struct<this["A"]>;
 }
 
 /**

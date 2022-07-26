@@ -19,17 +19,20 @@ export const enum ConcTag {
   ByteChunk = "ByteChunk",
 }
 
-export interface ConcF extends Conc<any> {}
+export interface ConcF extends HKT {
+  type: Conc<this["A"]>;
+  variance: {
+    A: "+";
+  };
+  index: number;
+}
 
 /**
  * @tsplus type fncts.Conc
  * @tsplus companion fncts.ConcOps
  */
 export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
-  [HKT.F]?: ConcF;
-  [HKT.A]?: () => A;
-  [HKT.T]?: Conc<HKT._A<this>>;
-  [HKT.Ix]?: number;
+  readonly _A!: () => A;
 
   readonly _typeId: ConcTypeId = ConcTypeId;
   abstract readonly length: number;
@@ -46,6 +49,7 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
 
 abstract class ConcImplementation<A> implements Iterable<A> {
   readonly _typeId: ConcTypeId = ConcTypeId;
+  readonly _A!: () => A;
   get [Symbol.hash](): number {
     return Hashable.iterator(this[Symbol.iterator]());
   }

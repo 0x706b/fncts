@@ -8,7 +8,13 @@ export const enum DatumTag {
 export const DatumTypeId = Symbol.for("fncts.Datum");
 export type DatumTypeId = typeof DatumTypeId;
 
-export interface DatumF extends Datum<any, any> {}
+export interface DatumF extends HKT {
+  type: Datum<this["E"], this["A"]>;
+  variance: {
+    E: "+";
+    A: "+";
+  };
+}
 
 /**
  * @tsplus type fncts.Datum
@@ -16,10 +22,8 @@ export interface DatumF extends Datum<any, any> {}
  */
 export class Datum<E, A> {
   readonly _typeId: DatumTypeId = DatumTypeId;
-  readonly [HKT.F]!: DatumF;
-  readonly [HKT.E]!: () => E;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: Datum<HKT._E<this>, HKT._A<this>>;
+  declare _E: () => E;
+  declare _A: () => A;
 }
 
 const datumHash = Hashable.string("fncts.Datum");

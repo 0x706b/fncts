@@ -6,8 +6,8 @@ import { identity, tuple } from "@fncts/base/data/function";
 /**
  * @tsplus type fncts.Semialign
  */
-export interface Semialign<F extends HKT> extends Functor<F> {
-  readonly alignWith: alignWith<F>;
+export interface Semialign<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
+  readonly alignWith: alignWith<F, FC>;
 }
 
 /**
@@ -17,221 +17,238 @@ export interface SemialignOps {}
 
 export const Semialign: SemialignOps = {};
 
-export interface align<F extends HKT> {
+export interface align<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
-      HKT.Intro<"K", K, K1>,
-      HKT.Intro<"Q", Q, Q1>,
-      HKT.Intro<"W", W, W1>,
-      HKT.Intro<"X", X, X1>,
-      HKT.Intro<"I", I, I1>,
-      HKT.Intro<"S", S, S1>,
-      HKT.Intro<"R", R, R1>,
-      HKT.Intro<"E", E, E1>,
+      FC,
+      HKT.Intro<F, "K", K, K1>,
+      HKT.Intro<F, "Q", Q, Q1>,
+      HKT.Intro<F, "W", W, W1>,
+      HKT.Intro<F, "X", X, X1>,
+      HKT.Intro<F, "I", I, I1>,
+      HKT.Intro<F, "S", S, S1>,
+      HKT.Intro<F, "R", R, R1>,
+      HKT.Intro<F, "E", E, E1>,
       B
     >,
   ): HKT.Kind<
     F,
-    HKT.Mix<"K", [K, K1]>,
-    HKT.Mix<"Q", [Q, Q1]>,
-    HKT.Mix<"W", [W, W1]>,
-    HKT.Mix<"X", [X, X1]>,
-    HKT.Mix<"I", [I, I1]>,
-    HKT.Mix<"S", [S, S1]>,
-    HKT.Mix<"R", [R, R1]>,
-    HKT.Mix<"E", [E, E1]>,
+    FC,
+    HKT.Mix<F, "K", [K, K1]>,
+    HKT.Mix<F, "Q", [Q, Q1]>,
+    HKT.Mix<F, "W", [W, W1]>,
+    HKT.Mix<F, "X", [X, X1]>,
+    HKT.Mix<F, "I", [I, I1]>,
+    HKT.Mix<F, "S", [S, S1]>,
+    HKT.Mix<F, "R", [R, R1]>,
+    HKT.Mix<F, "E", [E, E1]>,
     These<A, B>
   >;
 }
 
 /**
- * @tsplus fluent fncts.Kind align
+ * @tsplus static fncts.SemialignOps align
  */
-export function align<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-  fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+export function align<F extends HKT, FC = HKT.None>(
+  F: Semialign<F, FC>,
+): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
-    HKT.Intro<"K", K, K1>,
-    HKT.Intro<"Q", Q, Q1>,
-    HKT.Intro<"W", W, W1>,
-    HKT.Intro<"X", X, X1>,
-    HKT.Intro<"I", I, I1>,
-    HKT.Intro<"S", S, S1>,
-    HKT.Intro<"R", R, R1>,
-    HKT.Intro<"E", E, E1>,
+    FC,
+    HKT.Intro<F, "K", K, K1>,
+    HKT.Intro<F, "Q", Q, Q1>,
+    HKT.Intro<F, "W", W, W1>,
+    HKT.Intro<F, "X", X, X1>,
+    HKT.Intro<F, "I", I, I1>,
+    HKT.Intro<F, "S", S, S1>,
+    HKT.Intro<F, "R", R, R1>,
+    HKT.Intro<F, "E", E, E1>,
     B
   >,
-  /** @tsplus auto */ F: Semialign<F>,
-): HKT.Kind<
+) => HKT.Kind<
   F,
-  HKT.Mix<"K", [K, K1]>,
-  HKT.Mix<"Q", [Q, Q1]>,
-  HKT.Mix<"W", [W, W1]>,
-  HKT.Mix<"X", [X, X1]>,
-  HKT.Mix<"I", [I, I1]>,
-  HKT.Mix<"S", [S, S1]>,
-  HKT.Mix<"R", [R, R1]>,
-  HKT.Mix<"E", [E, E1]>,
+  FC,
+  HKT.Mix<F, "K", [K, K1]>,
+  HKT.Mix<F, "Q", [Q, Q1]>,
+  HKT.Mix<F, "W", [W, W1]>,
+  HKT.Mix<F, "X", [X, X1]>,
+  HKT.Mix<F, "I", [I, I1]>,
+  HKT.Mix<F, "S", [S, S1]>,
+  HKT.Mix<F, "R", [R, R1]>,
+  HKT.Mix<F, "E", [E, E1]>,
   These<A, B>
 > {
-  return F.alignWith(fa, fb, identity);
+  return (fa, fb) => F.alignWith(fa, fb, identity);
 }
 
-export interface alignWith<F extends HKT> {
+export interface alignWith<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
-    fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
-      HKT.Intro<"K", K, K1>,
-      HKT.Intro<"Q", Q, Q1>,
-      HKT.Intro<"W", W, W1>,
-      HKT.Intro<"X", X, X1>,
-      HKT.Intro<"I", I, I1>,
-      HKT.Intro<"S", S, S1>,
-      HKT.Intro<"R", R, R1>,
-      HKT.Intro<"E", E, E1>,
+      FC,
+      HKT.Intro<F, "K", K, K1>,
+      HKT.Intro<F, "Q", Q, Q1>,
+      HKT.Intro<F, "W", W, W1>,
+      HKT.Intro<F, "X", X, X1>,
+      HKT.Intro<F, "I", I, I1>,
+      HKT.Intro<F, "S", S, S1>,
+      HKT.Intro<F, "R", R, R1>,
+      HKT.Intro<F, "E", E, E1>,
       B
     >,
     f: (th: These<A, B>) => C,
   ): HKT.Kind<
     F,
-    HKT.Mix<"K", [K, K1]>,
-    HKT.Mix<"Q", [Q, Q1]>,
-    HKT.Mix<"W", [W, W1]>,
-    HKT.Mix<"X", [X, X1]>,
-    HKT.Mix<"I", [I, I1]>,
-    HKT.Mix<"S", [S, S1]>,
-    HKT.Mix<"R", [R, R1]>,
-    HKT.Mix<"E", [E, E1]>,
+    FC,
+    HKT.Mix<F, "K", [K, K1]>,
+    HKT.Mix<F, "Q", [Q, Q1]>,
+    HKT.Mix<F, "W", [W, W1]>,
+    HKT.Mix<F, "X", [X, X1]>,
+    HKT.Mix<F, "I", [I, I1]>,
+    HKT.Mix<F, "S", [S, S1]>,
+    HKT.Mix<F, "R", [R, R1]>,
+    HKT.Mix<F, "E", [E, E1]>,
     C
   >;
 }
 
 /**
- * @tsplus fluent fncts.Kind alignWith
+ * @tsplus static fncts.SemialignOps alignWith
  */
-export function alignWith<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
-  fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+export function alignWith<F extends HKT, FC = HKT.None>(
+  F: Semialign<F, FC>,
+): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
-    HKT.Intro<"K", K, K1>,
-    HKT.Intro<"Q", Q, Q1>,
-    HKT.Intro<"W", W, W1>,
-    HKT.Intro<"X", X, X1>,
-    HKT.Intro<"I", I, I1>,
-    HKT.Intro<"S", S, S1>,
-    HKT.Intro<"R", R, R1>,
-    HKT.Intro<"E", E, E1>,
+    FC,
+    HKT.Intro<F, "K", K, K1>,
+    HKT.Intro<F, "Q", Q, Q1>,
+    HKT.Intro<F, "W", W, W1>,
+    HKT.Intro<F, "X", X, X1>,
+    HKT.Intro<F, "I", I, I1>,
+    HKT.Intro<F, "S", S, S1>,
+    HKT.Intro<F, "R", R, R1>,
+    HKT.Intro<F, "E", E, E1>,
     B
   >,
   f: (th: These<A, B>) => C,
-  /** @tsplus auto */ F: Semialign<F>,
-): HKT.Kind<
+) => HKT.Kind<
   F,
-  HKT.Mix<"K", [K, K1]>,
-  HKT.Mix<"Q", [Q, Q1]>,
-  HKT.Mix<"W", [W, W1]>,
-  HKT.Mix<"X", [X, X1]>,
-  HKT.Mix<"I", [I, I1]>,
-  HKT.Mix<"S", [S, S1]>,
-  HKT.Mix<"R", [R, R1]>,
-  HKT.Mix<"E", [E, E1]>,
+  FC,
+  HKT.Mix<F, "K", [K, K1]>,
+  HKT.Mix<F, "Q", [Q, Q1]>,
+  HKT.Mix<F, "W", [W, W1]>,
+  HKT.Mix<F, "X", [X, X1]>,
+  HKT.Mix<F, "I", [I, I1]>,
+  HKT.Mix<F, "S", [S, S1]>,
+  HKT.Mix<F, "R", [R, R1]>,
+  HKT.Mix<F, "E", [E, E1]>,
   C
 > {
-  return fa.alignWith(fb, f, F);
+  return (fa, fb, f) => F.alignWith(fa, fb, f);
 }
 
-export interface alignCombine<F extends HKT> {
+export interface alignCombine<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1>(
-    self: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+    self: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     that: HKT.Kind<
       F,
-      HKT.Intro<"K", K, K1>,
-      HKT.Intro<"Q", Q, Q1>,
-      HKT.Intro<"W", W, W1>,
-      HKT.Intro<"X", X, X1>,
-      HKT.Intro<"I", I, I1>,
-      HKT.Intro<"S", S, S1>,
-      HKT.Intro<"R", R, R1>,
-      HKT.Intro<"E", E, E1>,
+      FC,
+      HKT.Intro<F, "K", K, K1>,
+      HKT.Intro<F, "Q", Q, Q1>,
+      HKT.Intro<F, "W", W, W1>,
+      HKT.Intro<F, "X", X, X1>,
+      HKT.Intro<F, "I", I, I1>,
+      HKT.Intro<F, "S", S, S1>,
+      HKT.Intro<F, "R", R, R1>,
+      HKT.Intro<F, "E", E, E1>,
       A
     >,
     S: Semigroup<A>,
   ): HKT.Kind<
     F,
-    HKT.Mix<"K", [K, K1]>,
-    HKT.Mix<"Q", [Q, Q1]>,
-    HKT.Mix<"W", [W, W1]>,
-    HKT.Mix<"X", [X, X1]>,
-    HKT.Mix<"I", [I, I1]>,
-    HKT.Mix<"S", [S, S1]>,
-    HKT.Mix<"R", [R, R1]>,
-    HKT.Mix<"E", [E, E1]>,
+    FC,
+    HKT.Mix<F, "K", [K, K1]>,
+    HKT.Mix<F, "Q", [Q, Q1]>,
+    HKT.Mix<F, "W", [W, W1]>,
+    HKT.Mix<F, "X", [X, X1]>,
+    HKT.Mix<F, "I", [I, I1]>,
+    HKT.Mix<F, "S", [S, S1]>,
+    HKT.Mix<F, "R", [R, R1]>,
+    HKT.Mix<F, "E", [E, E1]>,
     A
   >;
 }
 
 /**
- * @tsplus fluent fncts.Kind alignCombine
+ * @tsplus static fncts.SemialignOps alignCombine
  */
-export function alignCombine<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1>(
-  self: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+export function alignCombine<F extends HKT, FC = HKT.None>(
+  F: Semialign<F, FC>,
+): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1>(
+  self: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   that: HKT.Kind<
     F,
-    HKT.Intro<"K", K, K1>,
-    HKT.Intro<"Q", Q, Q1>,
-    HKT.Intro<"W", W, W1>,
-    HKT.Intro<"X", X, X1>,
-    HKT.Intro<"I", I, I1>,
-    HKT.Intro<"S", S, S1>,
-    HKT.Intro<"R", R, R1>,
-    HKT.Intro<"E", E, E1>,
+    FC,
+    HKT.Intro<F, "K", K, K1>,
+    HKT.Intro<F, "Q", Q, Q1>,
+    HKT.Intro<F, "W", W, W1>,
+    HKT.Intro<F, "X", X, X1>,
+    HKT.Intro<F, "I", I, I1>,
+    HKT.Intro<F, "S", S, S1>,
+    HKT.Intro<F, "R", R, R1>,
+    HKT.Intro<F, "E", E, E1>,
     A
   >,
-  /** @tsplus auto */ F: Semialign<F>,
   /** @tsplus auto */ S: Semigroup<A>,
-): HKT.Kind<
+) => HKT.Kind<
   F,
-  HKT.Mix<"K", [K, K1]>,
-  HKT.Mix<"Q", [Q, Q1]>,
-  HKT.Mix<"W", [W, W1]>,
-  HKT.Mix<"X", [X, X1]>,
-  HKT.Mix<"I", [I, I1]>,
-  HKT.Mix<"S", [S, S1]>,
-  HKT.Mix<"R", [R, R1]>,
-  HKT.Mix<"E", [E, E1]>,
+  FC,
+  HKT.Mix<F, "K", [K, K1]>,
+  HKT.Mix<F, "Q", [Q, Q1]>,
+  HKT.Mix<F, "W", [W, W1]>,
+  HKT.Mix<F, "X", [X, X1]>,
+  HKT.Mix<F, "I", [I, I1]>,
+  HKT.Mix<F, "S", [S, S1]>,
+  HKT.Mix<F, "R", [R, R1]>,
+  HKT.Mix<F, "E", [E, E1]>,
   A
 > {
-  return self.alignWith(that, (th) => th.match(identity, identity, S.combine));
+  return (self, that, S) => F.alignWith(self, that, (th) => th.match(identity, identity, S.combine));
 }
 
-export interface padZip<F extends HKT> {
+export interface padZip<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
-      HKT.Intro<"K", K, K1>,
-      HKT.Intro<"Q", Q, Q1>,
-      HKT.Intro<"W", W, W1>,
-      HKT.Intro<"X", X, X1>,
-      HKT.Intro<"I", I, I1>,
-      HKT.Intro<"S", S, S1>,
-      HKT.Intro<"R", R, R1>,
-      HKT.Intro<"E", E, E1>,
+      FC,
+      HKT.Intro<F, "K", K, K1>,
+      HKT.Intro<F, "Q", Q, Q1>,
+      HKT.Intro<F, "W", W, W1>,
+      HKT.Intro<F, "X", X, X1>,
+      HKT.Intro<F, "I", I, I1>,
+      HKT.Intro<F, "S", S, S1>,
+      HKT.Intro<F, "R", R, R1>,
+      HKT.Intro<F, "E", E, E1>,
       B
     >,
   ): HKT.Kind<
     F,
-    HKT.Mix<"K", [K, K1]>,
-    HKT.Mix<"Q", [Q, Q1]>,
-    HKT.Mix<"W", [W, W1]>,
-    HKT.Mix<"X", [X, X1]>,
-    HKT.Mix<"I", [I, I1]>,
-    HKT.Mix<"S", [S, S1]>,
-    HKT.Mix<"R", [R, R1]>,
-    HKT.Mix<"E", [E, E1]>,
+    FC,
+    HKT.Mix<F, "K", [K, K1]>,
+    HKT.Mix<F, "Q", [Q, Q1]>,
+    HKT.Mix<F, "W", [W, W1]>,
+    HKT.Mix<F, "X", [X, X1]>,
+    HKT.Mix<F, "I", [I, I1]>,
+    HKT.Mix<F, "S", [S, S1]>,
+    HKT.Mix<F, "R", [R, R1]>,
+    HKT.Mix<F, "E", [E, E1]>,
     readonly [Maybe<A>, Maybe<B>]
   >;
 }
@@ -239,174 +256,189 @@ export interface padZip<F extends HKT> {
 /**
  * @tsplus fluent fncts.Kind padZip
  */
-export function padZip<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-  fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+export function padZip<F extends HKT, FC = HKT.None>(
+  F: Semialign<F, FC>,
+): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
-    HKT.Intro<"K", K, K1>,
-    HKT.Intro<"Q", Q, Q1>,
-    HKT.Intro<"W", W, W1>,
-    HKT.Intro<"X", X, X1>,
-    HKT.Intro<"I", I, I1>,
-    HKT.Intro<"S", S, S1>,
-    HKT.Intro<"R", R, R1>,
-    HKT.Intro<"E", E, E1>,
+    FC,
+    HKT.Intro<F, "K", K, K1>,
+    HKT.Intro<F, "Q", Q, Q1>,
+    HKT.Intro<F, "W", W, W1>,
+    HKT.Intro<F, "X", X, X1>,
+    HKT.Intro<F, "I", I, I1>,
+    HKT.Intro<F, "S", S, S1>,
+    HKT.Intro<F, "R", R, R1>,
+    HKT.Intro<F, "E", E, E1>,
     B
   >,
-  /** @tsplus auto */ F: Semialign<F>,
-): HKT.Kind<
+) => HKT.Kind<
   F,
-  HKT.Mix<"K", [K, K1]>,
-  HKT.Mix<"Q", [Q, Q1]>,
-  HKT.Mix<"W", [W, W1]>,
-  HKT.Mix<"X", [X, X1]>,
-  HKT.Mix<"I", [I, I1]>,
-  HKT.Mix<"S", [S, S1]>,
-  HKT.Mix<"R", [R, R1]>,
-  HKT.Mix<"E", [E, E1]>,
+  FC,
+  HKT.Mix<F, "K", [K, K1]>,
+  HKT.Mix<F, "Q", [Q, Q1]>,
+  HKT.Mix<F, "W", [W, W1]>,
+  HKT.Mix<F, "X", [X, X1]>,
+  HKT.Mix<F, "I", [I, I1]>,
+  HKT.Mix<F, "S", [S, S1]>,
+  HKT.Mix<F, "R", [R, R1]>,
+  HKT.Mix<F, "E", [E, E1]>,
   readonly [Maybe<A>, Maybe<B>]
 > {
-  return fa.padZipWith(fb, identity);
+  return (fa, fb) => Semialign.padZipWith(F)(fa, fb, identity);
 }
 
-export interface padZipWith<F extends HKT> {
+export interface padZipWith<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, D>(
-    fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
-      HKT.Intro<"K", K, K1>,
-      HKT.Intro<"Q", Q, Q1>,
-      HKT.Intro<"W", W, W1>,
-      HKT.Intro<"X", X, X1>,
-      HKT.Intro<"I", I, I1>,
-      HKT.Intro<"S", S, S1>,
-      HKT.Intro<"R", R, R1>,
-      HKT.Intro<"E", E, E1>,
+      FC,
+      HKT.Intro<F, "K", K, K1>,
+      HKT.Intro<F, "Q", Q, Q1>,
+      HKT.Intro<F, "W", W, W1>,
+      HKT.Intro<F, "X", X, X1>,
+      HKT.Intro<F, "I", I, I1>,
+      HKT.Intro<F, "S", S, S1>,
+      HKT.Intro<F, "R", R, R1>,
+      HKT.Intro<F, "E", E, E1>,
       B
     >,
     f: (_: readonly [Maybe<A>, Maybe<B>]) => D,
   ): HKT.Kind<
     F,
-    HKT.Mix<"K", [K, K1]>,
-    HKT.Mix<"Q", [Q, Q1]>,
-    HKT.Mix<"W", [W, W1]>,
-    HKT.Mix<"X", [X, X1]>,
-    HKT.Mix<"I", [I, I1]>,
-    HKT.Mix<"S", [S, S1]>,
-    HKT.Mix<"R", [R, R1]>,
-    HKT.Mix<"E", [E, E1]>,
+    FC,
+    HKT.Mix<F, "K", [K, K1]>,
+    HKT.Mix<F, "Q", [Q, Q1]>,
+    HKT.Mix<F, "W", [W, W1]>,
+    HKT.Mix<F, "X", [X, X1]>,
+    HKT.Mix<F, "I", [I, I1]>,
+    HKT.Mix<F, "S", [S, S1]>,
+    HKT.Mix<F, "R", [R, R1]>,
+    HKT.Mix<F, "E", [E, E1]>,
     D
   >;
 }
 
 /**
- * @tsplus fluent fncts.Kind padZipWith
+ * @tsplus static fncts.SemialignOps padZipWith
  */
-export function padZipWith<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, D>(
-  fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+export function padZipWith<F extends HKT, FC = HKT.None>(
+  F: Semialign<F, FC>,
+): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, D>(
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
-    HKT.Intro<"K", K, K1>,
-    HKT.Intro<"Q", Q, Q1>,
-    HKT.Intro<"W", W, W1>,
-    HKT.Intro<"X", X, X1>,
-    HKT.Intro<"I", I, I1>,
-    HKT.Intro<"S", S, S1>,
-    HKT.Intro<"R", R, R1>,
-    HKT.Intro<"E", E, E1>,
+    FC,
+    HKT.Intro<F, "K", K, K1>,
+    HKT.Intro<F, "Q", Q, Q1>,
+    HKT.Intro<F, "W", W, W1>,
+    HKT.Intro<F, "X", X, X1>,
+    HKT.Intro<F, "I", I, I1>,
+    HKT.Intro<F, "S", S, S1>,
+    HKT.Intro<F, "R", R, R1>,
+    HKT.Intro<F, "E", E, E1>,
     B
   >,
   f: (_: readonly [Maybe<A>, Maybe<B>]) => D,
-  /** @tsplus auto */ F: Semialign<F>,
-): HKT.Kind<
+) => HKT.Kind<
   F,
-  HKT.Mix<"K", [K, K1]>,
-  HKT.Mix<"Q", [Q, Q1]>,
-  HKT.Mix<"W", [W, W1]>,
-  HKT.Mix<"X", [X, X1]>,
-  HKT.Mix<"I", [I, I1]>,
-  HKT.Mix<"S", [S, S1]>,
-  HKT.Mix<"R", [R, R1]>,
-  HKT.Mix<"E", [E, E1]>,
+  FC,
+  HKT.Mix<F, "K", [K, K1]>,
+  HKT.Mix<F, "Q", [Q, Q1]>,
+  HKT.Mix<F, "W", [W, W1]>,
+  HKT.Mix<F, "X", [X, X1]>,
+  HKT.Mix<F, "I", [I, I1]>,
+  HKT.Mix<F, "S", [S, S1]>,
+  HKT.Mix<F, "R", [R, R1]>,
+  HKT.Mix<F, "E", [E, E1]>,
   D
 > {
-  return fa.alignWith(fb, (th) =>
-    th.match(
-      (a) => f([Just(a), Nothing()]),
-      (b) => f([Nothing(), Just(b)]),
-      (a, b) => f([Just(a), Just(b)]),
-    ),
-  );
+  return (fa, fb, f) =>
+    F.alignWith(fa, fb, (th) =>
+      th.match(
+        (a) => f([Just(a), Nothing()]),
+        (b) => f([Nothing(), Just(b)]),
+        (a, b) => f([Just(a), Just(b)]),
+      ),
+    );
 }
 
-export interface zipAll<F extends HKT> {
+export interface zipAll<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
-      HKT.Intro<"K", K, K1>,
-      HKT.Intro<"Q", Q, Q1>,
-      HKT.Intro<"W", W, W1>,
-      HKT.Intro<"X", X, X1>,
-      HKT.Intro<"I", I, I1>,
-      HKT.Intro<"S", S, S1>,
-      HKT.Intro<"R", R, R1>,
-      HKT.Intro<"E", E, E1>,
+      FC,
+      HKT.Intro<F, "K", K, K1>,
+      HKT.Intro<F, "Q", Q, Q1>,
+      HKT.Intro<F, "W", W, W1>,
+      HKT.Intro<F, "X", X, X1>,
+      HKT.Intro<F, "I", I, I1>,
+      HKT.Intro<F, "S", S, S1>,
+      HKT.Intro<F, "R", R, R1>,
+      HKT.Intro<F, "E", E, E1>,
       B
     >,
     a: A,
     b: B,
   ): HKT.Kind<
     F,
-    HKT.Mix<"K", [K, K1]>,
-    HKT.Mix<"Q", [Q, Q1]>,
-    HKT.Mix<"W", [W, W1]>,
-    HKT.Mix<"X", [X, X1]>,
-    HKT.Mix<"I", [I, I1]>,
-    HKT.Mix<"S", [S, S1]>,
-    HKT.Mix<"R", [R, R1]>,
-    HKT.Mix<"E", [E, E1]>,
+    FC,
+    HKT.Mix<F, "K", [K, K1]>,
+    HKT.Mix<F, "Q", [Q, Q1]>,
+    HKT.Mix<F, "W", [W, W1]>,
+    HKT.Mix<F, "X", [X, X1]>,
+    HKT.Mix<F, "I", [I, I1]>,
+    HKT.Mix<F, "S", [S, S1]>,
+    HKT.Mix<F, "R", [R, R1]>,
+    HKT.Mix<F, "E", [E, E1]>,
     readonly [A, B]
   >;
 }
 
 /**
- * @tsplus fluent fncts.Kind zipAll
+ * @tsplus static fncts.SemialignOps zipAll
  */
-export function zipAll<F extends HKT, K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-  fa: HKT.Kind<F, K, Q, W, X, I, S, R, E, A>,
+export function zipAll<F extends HKT, FC = HKT.None>(
+  F: Semialign<F, FC>,
+): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
-    HKT.Intro<"K", K, K1>,
-    HKT.Intro<"Q", Q, Q1>,
-    HKT.Intro<"W", W, W1>,
-    HKT.Intro<"X", X, X1>,
-    HKT.Intro<"I", I, I1>,
-    HKT.Intro<"S", S, S1>,
-    HKT.Intro<"R", R, R1>,
-    HKT.Intro<"E", E, E1>,
+    FC,
+    HKT.Intro<F, "K", K, K1>,
+    HKT.Intro<F, "Q", Q, Q1>,
+    HKT.Intro<F, "W", W, W1>,
+    HKT.Intro<F, "X", X, X1>,
+    HKT.Intro<F, "I", I, I1>,
+    HKT.Intro<F, "S", S, S1>,
+    HKT.Intro<F, "R", R, R1>,
+    HKT.Intro<F, "E", E, E1>,
     B
   >,
   a: A,
   b: B,
-  /** @tsplus auto */ F: Semialign<F>,
-): HKT.Kind<
+) => HKT.Kind<
   F,
-  HKT.Mix<"K", [K, K1]>,
-  HKT.Mix<"Q", [Q, Q1]>,
-  HKT.Mix<"W", [W, W1]>,
-  HKT.Mix<"X", [X, X1]>,
-  HKT.Mix<"I", [I, I1]>,
-  HKT.Mix<"S", [S, S1]>,
-  HKT.Mix<"R", [R, R1]>,
-  HKT.Mix<"E", [E, E1]>,
+  FC,
+  HKT.Mix<F, "K", [K, K1]>,
+  HKT.Mix<F, "Q", [Q, Q1]>,
+  HKT.Mix<F, "W", [W, W1]>,
+  HKT.Mix<F, "X", [X, X1]>,
+  HKT.Mix<F, "I", [I, I1]>,
+  HKT.Mix<F, "S", [S, S1]>,
+  HKT.Mix<F, "R", [R, R1]>,
+  HKT.Mix<F, "E", [E, E1]>,
   readonly [A, B]
 > {
-  return fa.alignWith(fb, (th) =>
-    th.match(
-      (x) => [x, b],
-      (x) => [a, x],
-      tuple,
-    ),
-  );
+  return (fa, fb, a, b) =>
+    F.alignWith(fa, fb, (th) =>
+      th.match(
+        (x) => [x, b],
+        (x) => [a, x],
+        tuple,
+      ),
+    );
 }

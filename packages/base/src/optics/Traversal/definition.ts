@@ -7,19 +7,21 @@ import { PSetter } from "@fncts/base/optics/Setter";
  * @tsplus type fncts.optics.PTraversal
  */
 export interface PTraversal<S, T, A, B> extends PSetter<S, T, A, B>, Fold<S, A> {
-  modifyA<F extends HKT, K, Q, W, X, I, _S, R, E>(
+  modifyA: <F extends HKT, FC = HKT.None>(
+    F: Applicative<F, FC>,
+  ) => <K, Q, W, X, I, _S, R, E>(
     s: S,
-    f: (a: A) => HKT.Kind<F, K, Q, W, X, I, _S, R, E, B>,
-    /** @tsplus auto */ F: Applicative<F>,
-  ): HKT.Kind<F, K, Q, W, X, I, _S, R, E, T>;
+    f: (a: A) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, B>,
+  ) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, T>;
 }
 
 export interface PTraversalMin<S, T, A, B> {
-  modifyA<F extends HKT, K, Q, W, X, I, _S, R, E>(
+  modifyA: <F extends HKT, FC = HKT.None>(
+    F: Applicative<F, FC>,
+  ) => <K, Q, W, X, I, _S, R, E>(
     s: S,
-    f: (a: A) => HKT.Kind<F, K, Q, W, X, I, _S, R, E, B>,
-    /** @tsplus auto */ F: Applicative<F>,
-  ): HKT.Kind<F, K, Q, W, X, I, _S, R, E, T>;
+    f: (a: A) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, B>,
+  ) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, T>;
 }
 
 /**
@@ -37,18 +39,17 @@ export function mkPTraversal<S, T, A, B>(F: PTraversalMin<S, T, A, B>): PTravers
     modifyA: F.modifyA,
     ...PSetter<S, T, A, B>({
       modify_: (s, f) =>
-        F.modifyA(
+        F.modifyA(Identity.Applicative)(
           s,
           f.compose((b) => Identity.get(b)),
-          Identity.Applicative,
         ).getIdentity,
-      set_: (s, b) => F.modifyA(s, () => Identity.get(b), Identity.Applicative).getIdentity,
+      set_: (s, b) => F.modifyA(Identity.Applicative)(s, () => Identity.get(b)).getIdentity,
     }),
     ...Fold<S, A>({
       foldMap_:
         <M>(M: Monoid<M>) =>
         (s: S, f: (a: A) => M) =>
-          F.modifyA(s, (a) => Const(f(a)), Const.getApplicative(M)).getConst,
+          F.modifyA(Const.getApplicative(M))(s, (a) => Const(f(a))).getConst,
     }),
   };
 }

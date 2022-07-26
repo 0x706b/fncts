@@ -1,8 +1,15 @@
 import { hasTypeId } from "../../util/predicates.js";
 
-export interface ZF extends Z<any, any, any, any, any, any> {}
-
-export interface ZFixedF extends ZFixed<any, any, any, any, any> {}
+export interface ZF extends HKT {
+  type: Z<this["W"], this["S"], this["S"], this["R"], this["E"], this["A"]>;
+  variance: {
+    W: "+";
+    S: "_";
+    R: "-";
+    E: "+";
+    A: "+";
+  };
+}
 
 export const ZTypeId = Symbol.for("@principia/base/Z");
 export type ZTypeId = typeof ZTypeId;
@@ -22,26 +29,12 @@ export type ZTypeId = typeof ZTypeId;
  */
 export abstract class Z<W, S1, S2, R, E, A> {
   readonly _typeId: ZTypeId = ZTypeId;
-  readonly [HKT.F]!: ZF;
-  readonly [HKT.W]!: () => W;
-  readonly [HKT.Q]!: (_: S1) => void;
-  readonly [HKT.S]!: () => S2;
-  readonly [HKT.R]!: (_: R) => void;
-  readonly [HKT.E]!: () => E;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: Z<HKT._W<this>, HKT._Q<this>, HKT._S<this>, HKT._R<this>, HKT._E<this>, HKT._A<this>>;
-}
-
-export interface ZFixed<W, S, R, E, A> {
-  readonly _typeId: ZTypeId;
-  readonly [HKT.F]: ZF;
-  readonly [HKT.W]: () => W;
-  readonly [HKT.Q]: (_: S) => void;
-  readonly [HKT.S]: () => S;
-  readonly [HKT.R]: (_: R) => void;
-  readonly [HKT.E]: () => E;
-  readonly [HKT.A]: () => A;
-  readonly [HKT.T]: Z<HKT._W<this>, HKT._S<this>, HKT._S<this>, HKT._R<this>, HKT._E<this>, HKT._A<this>>;
+  readonly _W!: () => W;
+  readonly _S1!: (_: S1) => void;
+  readonly _S2!: () => S2;
+  readonly _R!: (_: R) => void;
+  readonly _E!: () => E;
+  readonly _A!: () => A;
 }
 
 /**
@@ -49,7 +42,14 @@ export interface ZFixed<W, S, R, E, A> {
  */
 export function unifyZ<X extends Z<any, any, any, any, any, any>>(
   _: X,
-): Z<HKT._W<X>, HKT._Q<X>, HKT._S<X>, HKT._R<X>, HKT._E<X>, HKT._A<X>> {
+): Z<
+  [X] extends [Z<infer W, any, any, any, any, any>] ? W : never,
+  [X] extends [Z<any, infer S1, any, any, any, any>] ? S1 : never,
+  [X] extends [Z<any, any, infer S2, any, any, any>] ? S2 : never,
+  [X] extends [Z<any, any, any, infer R, any, any>] ? R : never,
+  [X] extends [Z<any, any, any, any, infer E, any>] ? E : never,
+  [X] extends [Z<any, any, any, any, any, infer A>] ? A : never
+> {
   return _;
 }
 

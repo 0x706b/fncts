@@ -3,7 +3,12 @@ import type { DecodeError } from "@fncts/base/data/DecodeError";
 export const DecoderTypeId = Symbol.for("fncts.Decoder");
 export type DecoderTypeId = typeof DecoderTypeId;
 
-export interface DecoderF extends Decoder<any> {}
+export interface DecoderF extends HKT {
+  type: Decoder<this["A"]>;
+  variance: {
+    A: "+";
+  };
+}
 
 /**
  * @tsplus type fncts.Decoder
@@ -11,9 +16,7 @@ export interface DecoderF extends Decoder<any> {}
  */
 export class Decoder<A> {
   readonly _typeId: DecoderTypeId = DecoderTypeId;
-  readonly [HKT.F]!: DecoderF;
-  readonly [HKT.A]!: () => A;
-  readonly [HKT.T]!: Decoder<HKT._A<this>>;
+  readonly _A!: () => A;
   constructor(readonly decode: (input: unknown) => These<DecodeError, A>, readonly label: string) {}
 }
 

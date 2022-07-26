@@ -1,14 +1,19 @@
 import { ImmutableArray } from "@fncts/base/collection/immutable/ImmutableArray/definition";
 
-export interface ImmutableNonEmptyArrayF extends ImmutableNonEmptyArray<any> {}
+export interface ImmutableNonEmptyArrayF extends HKT {
+  type: ImmutableNonEmptyArray<this["A"]>;
+  variance: {
+    A: "+";
+  };
+  index: number;
+}
 
 /**
  * @tsplus type fncts.ImmutableNonEmptyArray
  * @tsplus companion fncts.ImmutableNonEmptyArrayOps
  */
 export class ImmutableNonEmptyArray<A> extends ImmutableArray<A> {
-  [HKT.F]!: ImmutableNonEmptyArrayF;
-  [HKT.T]!: ImmutableNonEmptyArray<HKT._A<this>>;
+  readonly _A!: () => A;
   constructor(readonly _array: ReadonlyNonEmptyArray<A>) {
     super(_array);
   }

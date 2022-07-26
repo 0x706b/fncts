@@ -17,32 +17,32 @@ import {
 } from "./api.js";
 import { just } from "./constructors.js";
 
-export const Functor: P.Functor<MaybeF> = { map: map_ };
+export const Functor = HKT.instance<P.Functor<MaybeF>>({ map: map_ });
 
-export const Apply: P.Apply<MaybeF> = { ...Functor, zip: zip_, zipWith: zipWith_ };
+export const Apply = HKT.instance<P.Apply<MaybeF>>({ ...Functor, zip: zip_, zipWith: zipWith_ });
 
-export const Applicative: P.Applicative<MaybeF> = {
+export const Applicative = HKT.instance<P.Applicative<MaybeF>>({
   ...Apply,
   pure: just,
-};
+});
 
-export const Monad: P.Monad<MaybeF> = {
+export const Monad = HKT.instance<P.Monad<MaybeF>>({
   ...Applicative,
   flatMap: flatMap_,
-};
+});
 
-export const Foldable: P.Foldable<MaybeF> = {
+export const Foldable = HKT.instance<P.Foldable<MaybeF>>({
   foldLeft: foldLeft_,
   foldRight: foldRight_,
-};
+});
 
-export const Filterable: P.Filterable<MaybeF> = {
+export const Filterable = HKT.instance<P.Filterable<MaybeF>>({
   ...Functor,
   filter: filter_,
   filterMap: filterMap_,
   partition: partition_,
   partitionMap: partitionMap_,
-};
+});
 
 /**
  * @tsplus derive fncts.Guard[fncts.Maybe]<_> 10

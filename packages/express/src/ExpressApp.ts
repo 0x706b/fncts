@@ -1,5 +1,6 @@
 import type { ExpressAppConfig } from "./ExpressAppConfig.js";
 import type { ErasedRequestHandlerIO, RequestHandlerRouteIO } from "./RequestHandlerIO";
+import type { _R } from "@fncts/base/types";
 import type { Express, NextFunction, Request, RequestHandler, Response } from "express";
 import type { Server } from "http";
 
@@ -18,7 +19,7 @@ export interface ExpressApp {
   readonly runtime: <Handlers extends Array<RequestHandlerRouteIO>>(
     handlers: Handlers,
   ) => IO<
-    HKT._R<
+    _R<
       {
         [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
       }[number]
@@ -66,7 +67,7 @@ export const makeExpressApp: IO<Has<Scope> & Has<ExpressAppConfig>, never, Expre
 
   function runtime<Handlers extends Array<RequestHandlerRouteIO>>(handlers: Handlers) {
     return IO.runtime<
-      HKT._R<
+      _R<
         {
           [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
         }[number]
@@ -112,7 +113,7 @@ export function LiveExpress<R>(
 export function expressRuntime<Handlers extends Array<RequestHandlerRouteIO>>(
   handlers: never extends Handlers ? Array<RequestHandlerRouteIO> : Handlers,
 ): IO<
-  HKT._R<
+  _R<
     {
       [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
     }[number]

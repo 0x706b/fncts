@@ -1,4 +1,4 @@
-import type { Either1F, EitherF } from "@fncts/base/data/Either/definition.js";
+import type { EitherF } from "@fncts/base/data/Either/definition.js";
 
 import { map_ } from "@fncts/base/data/Either/api";
 import { concrete, Either, EitherTag, Right } from "@fncts/base/data/Either/definition";
@@ -9,9 +9,9 @@ import * as P from "../../typeclass.js";
 /**
  * @tsplus implicit
  */
-export const Functor: P.Functor<EitherF> = {
+export const Functor = HKT.instance<P.Functor<EitherF>>({
   map: map_,
-};
+});
 
 /**
  * @tsplus static fncts.EitherOps getEq
@@ -47,8 +47,8 @@ export function deriveEq<A extends Either<any, any>>(
 /**
  * @tsplus static fncts.EitherOps getFilterable
  */
-export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterable<Either1F<E>> {
-  return <P.Filterable<Either1F<E>>>{
+export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterable<EitherF, HKT.Fix<"E", E>> {
+  return HKT.instance<P.Filterable<EitherF, HKT.Fix<"E", E>>>({
     ...Functor,
     partitionMap: (fa, f) => {
       concrete(fa);
@@ -90,7 +90,7 @@ export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterab
       }
       return p(fa.right) ? [Either.left(ME.nat), fa] : [fa, Either.left(ME.nat)];
     },
-  };
+  });
 }
 
 /**

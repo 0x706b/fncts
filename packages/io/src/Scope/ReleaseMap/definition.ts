@@ -15,7 +15,7 @@ export class Running {
 export type State = Exited | Running;
 
 interface ReleaseMapN extends HKT {
-  readonly [HKT.T]: ReleaseMap;
+  readonly type: ReleaseMap;
 }
 
 /**

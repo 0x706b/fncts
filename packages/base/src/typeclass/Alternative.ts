@@ -5,7 +5,7 @@ import type { Nil } from "@fncts/base/typeclass/Nil";
 /**
  * @tsplus type fncts.Alternative
  */
-export interface Alternative<F extends HKT> extends Applicative<F>, Nil<F>, Alt<F> {}
+export interface Alternative<F extends HKT, FC = HKT.None> extends Applicative<F, FC>, Nil<F, FC>, Alt<F, FC> {}
 
 /**
  * @tsplus type fncts.AlternativeOps

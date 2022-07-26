@@ -1,5 +1,5 @@
 interface FinalizerN extends HKT {
-  readonly [HKT.T]: Finalizer;
+  readonly type: Finalizer;
 }
 
 /**

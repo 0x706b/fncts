@@ -400,9 +400,9 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
               case "InspectionInfo": {
                 base = Z.succeedNow(info.base);
                 keys = Conc.from(info.keys)
-                  .traverse((key) => showProperty(value, key, info.extrasType), Z.Applicative)
+                  .traverse(Z.Applicative)((key) => showProperty(value, key, info.extrasType))
                   .crossWith(
-                    info.protoProps.traverse((key) => showProperty(value, key, PROTO_TYPE), Z.Applicative),
+                    info.protoProps.traverse(Z.Applicative)((key) => showProperty(value, key, PROTO_TYPE)),
                     (k1, k2) => k1.concat(k2),
                   );
                 indices    = info.formatter(value);
@@ -537,16 +537,15 @@ function removeColors(str: string): string {
 
 function showSet(value: Set<unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
-    .apSecond((value as Iterable<unknown>).traverseToConc(_show, Z.Applicative))
+    .apSecond((value as Iterable<unknown>).traverseToConc(Z.Applicative)(_show))
     .apFirst(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
 }
 
 function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
     .apSecond(
-      (value as Iterable<[unknown, unknown]>).traverseToConc(
-        ([k, v]) => _show(k).crossWith(_show(v), (k, v) => `${k} => ${v}`),
-        Z.Applicative,
+      (value as Iterable<[unknown, unknown]>).traverseToConc(Z.Applicative)(([k, v]) =>
+        _show(k).crossWith(_show(v), (k, v) => `${k} => ${v}`),
       ),
     )
     .apFirst(
@@ -578,9 +577,8 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
           .apSecond(
             Z.succeedNow(output).flatMap((output) =>
               Conc("BYTES_PER_ELEMENT", "length", "byteLength", "byteOffset", "buffer")
-                .traverse(
-                  (key) => _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`),
-                  Z.Applicative,
+                .traverse(Z.Applicative)((key) =>
+                  _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`),
                 )
                 .map((shownKeys) => output.concat(shownKeys)),
             ),
@@ -699,7 +697,7 @@ function showChunk(value: Conc<unknown>): ShowComputationChunk {
     return tuple(remaining, chunk);
   }).flatMap(([remaining, chunk]) =>
     chunk
-      .traverse(_show, Z.Applicative)
+      .traverse(Z.Applicative)(_show)
       .map((chunk) => (remaining > 0 ? chunk.append(`... ${remaining} more item${pluralize(remaining)}`) : chunk)),
   );
 }

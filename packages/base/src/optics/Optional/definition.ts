@@ -37,10 +37,10 @@ export function mkPOptional<S, T, A, B>(F: POptionalMin<S, T, A, B>): POptional<
     modifyMaybe_,
     modifyMaybe: (f) => (s) => modifyMaybe_(s, f),
     ...PTraversal<S, T, A, B>({
-      modifyA: (s, f, A) =>
+      modifyA: (A) => (s, f) =>
         F.getOrModify(s).match(
           (t) => A.pure(t),
-          (a) => f(a).map((b) => F.replace_(s, b), A),
+          (a) => A.map(f(a), (b) => F.replace_(s, b)),
         ),
     }),
   };

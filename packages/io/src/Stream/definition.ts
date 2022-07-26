@@ -25,9 +25,9 @@ export type StreamTypeId = typeof StreamTypeId;
  */
 export class Stream<R, E, A> {
   readonly [StreamTypeId]: StreamTypeId = StreamTypeId;
-  readonly _R!: (_: R) => void;
-  readonly _E!: () => E;
-  readonly _A!: () => A;
+  declare _R: (_: R) => void;
+  declare _E: () => E;
+  declare _A: () => A;
 
   constructor(readonly channel: Channel<R, unknown, unknown, unknown, E, Conc<A>, unknown>) {}
 }

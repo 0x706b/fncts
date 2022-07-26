@@ -5,20 +5,20 @@ import { PTraversal } from "@fncts/base/optics/Traversal/definition";
 /**
  * @tsplus static fncts.optics.PTraversalOps fromTraversable
  */
-export function fromTraversable<T extends HKT>(T: P.Traversable<T>) {
+export function fromTraversable<F extends HKT, FC = HKT.None>(T: P.Traversable<F, FC>) {
   return <
     A,
     B,
-    K = HKT.Low<"K">,
-    Q = HKT.Low<"Q">,
-    W = HKT.Low<"W">,
-    X = HKT.Low<"X">,
-    I = HKT.Low<"I">,
-    S = HKT.Low<"S">,
-    R = HKT.Low<"R">,
-    E = HKT.Low<"E">,
+    K = HKT.Low<F, "K">,
+    Q = HKT.Low<F, "Q">,
+    W = HKT.Low<F, "W">,
+    X = HKT.Low<F, "X">,
+    I = HKT.Low<F, "I">,
+    S = HKT.Low<F, "S">,
+    R = HKT.Low<F, "R">,
+    E = HKT.Low<F, "E">,
   >() =>
-    PTraversal<HKT.Kind<T, K, Q, W, X, I, S, R, E, A>, HKT.Kind<T, K, Q, W, X, I, S, R, E, B>, A, B>({
-      modifyA: (s, f, F) => T.traverse(s, f, F),
+    PTraversal<HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>, A, B>({
+      modifyA: (F) => (s, f) => T.traverse(s)(F)(f),
     });
 }
