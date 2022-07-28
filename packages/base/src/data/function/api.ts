@@ -31,6 +31,7 @@ export function tuple<A extends ReadonlyArray<unknown>>(...as: A): A {
 }
 
 /**
+ * @tsplus fluent global unsafeCoerce
  * @tsplus static fncts.FunctionOps unsafeCoerce
  * @tsplus macro identity
  */

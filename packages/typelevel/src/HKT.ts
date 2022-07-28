@@ -89,6 +89,9 @@ export namespace HKT {
     readonly _A: A;
   }
 
+  /**
+   * @tsplus type fncts.HKT.FK1
+   */
   export interface FK1<F, A> {
     readonly _F: F;
     readonly _K: unknown;
@@ -137,6 +140,13 @@ export namespace HKT {
       readonly S: "_";
       readonly R: "_";
       readonly E: "_";
+      readonly A: "_";
+    };
+  }
+
+  export interface F1<F> extends HKT {
+    readonly type: FK1<F, this["A"]>;
+    readonly variance: {
       readonly A: "_";
     };
   }
@@ -341,4 +351,13 @@ export namespace HKT {
     // @ts-expect-error: typelevel utility
     return _;
   }
+}
+
+/**
+ * @tsplus unify fncts.HKT.FK1
+ */
+export function unifyFK1<X extends HKT.FK1<any, any>>(
+  _: X,
+): HKT.FK1<[X] extends [HKT.FK1<infer F, any>] ? F : never, [X] extends [HKT.FK1<any, infer A>] ? A : never> {
+  return _;
 }

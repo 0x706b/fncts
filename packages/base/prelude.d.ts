@@ -94,6 +94,10 @@ import { Datum } from "@fncts/base/data/Datum/definition";
 /**
  * @tsplus global
  */
+import { DatumEither } from "@fncts/base/data/DatumEither/definition";
+/**
+ * @tsplus global
+ */
 import { Decoder } from "@fncts/base/data/Decoder";
 /**
  * @tsplus global
