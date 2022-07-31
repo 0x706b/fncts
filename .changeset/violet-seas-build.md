@@ -3,4 +3,4 @@
 "@fncts/typelevel": patch
 ---
 
-feat: add Gard<Record> dirivation
+feat: add `Guard<Record>` dirivation
