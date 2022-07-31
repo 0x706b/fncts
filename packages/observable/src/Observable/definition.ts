@@ -10,7 +10,7 @@ export type ObservableTypeId = typeof ObservableTypeId;
  * @tsplus type fncts.observable.Observable
  * @tsplus companion fncts.observable.ObservableOps
  */
-export class Observable<E, A> implements Subscribable<E, A> {
+export class Observable<E, A> implements Subscribable<E, A>, AsyncIterable<A> {
   readonly _E!: () => E;
   readonly _A!: () => A;
 
@@ -23,6 +23,55 @@ export class Observable<E, A> implements Subscribable<E, A> {
     if (subscribe) {
       this.subscribeInternal = subscribe;
     }
+  }
+
+  [Symbol.asyncIterator]() {
+    let done         = false;
+    const queue: A[] = [];
+    let error: Cause<E>;
+
+    let resolveCurrent: ((a: A) => void) | undefined;
+    let rejectCurrent: ((err: unknown) => void) | undefined;
+    this.subscribe({
+      next: (value) => {
+        if (resolveCurrent) {
+          resolveCurrent(value);
+        } else {
+          queue.push(value);
+        }
+      },
+      error: (err) => {
+        if (rejectCurrent) {
+          rejectCurrent(err);
+        } else {
+          error = err;
+        }
+      },
+      complete: () => {
+        done = true;
+      },
+    });
+    return {
+      next() {
+        if (error) {
+          return Promise.reject(error);
+        }
+        if (done) {
+          return Promise.resolve({ done, value: undefined });
+        }
+        if (queue.length) {
+          return Promise.resolve({ done, value: queue.shift()! });
+        }
+        return new Promise<A>((resolve, reject) => {
+          resolveCurrent = resolve;
+          rejectCurrent  = reject;
+        }).then((value) => {
+          resolveCurrent = undefined;
+          rejectCurrent  = undefined;
+          return { done: false, value };
+        });
+      },
+    };
   }
 
   lift<E1, A1>(operator: Operator<E1, A1>): Observable<E1, A1> {
