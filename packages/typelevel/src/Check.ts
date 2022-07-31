@@ -60,7 +60,17 @@ export declare namespace Check {
   /**
    * @tsplus type fncts.Check.IsStruct
    */
-  type IsStruct<A> = Check.Extends<keyof A, string> & Check.Not<Check.IsUnion<A>>;
+  type IsStruct<A> = Not<Extends<string, keyof A>> & Not<IsUnion<A>> & IsEqual<A, { [k in keyof A]: A[k] }>;
+
+  /**
+   * @tsplus type fncts.Check.IsDictionary
+   */
+  type IsDictionary<A> = IsEqual<A, Record<keyof A, A[keyof A]>> & Extends<string, keyof A> & Not<IsUnion<A>>;
+
+  /**
+   * @tsplus type fncts.Check.IsRecord
+   */
+  type IsRecord<A> = IsEqual<A, Record<keyof A, A[keyof A]>> & Extends<string, keyof A> & Not<IsUnion<A>>;
 
   /**
    * @tsplus type fncts.Check.HaveSameLength

@@ -3,6 +3,49 @@ import type { Check } from "@fncts/typelevel/Check";
 import { CompoundError, MissingKeyError, OptionalKeyError, RequiredKeyError } from "@fncts/base/data/DecodeError";
 
 /**
+ * @tsplus derive fncts.Guard<_> 15
+ */
+export function deriveDictionaryGuard<A extends Record<string, any>>(
+  ...[value]: Check<Check.IsDictionary<A>> extends Check.True ? [value: Guard<A[keyof A]>] : never
+): Guard<A> {
+  return Guard((u): u is A => {
+    if (!Derive<Guard<{}>>().is(u)) {
+      return false;
+    }
+    for (const k of Object.keys(u)) {
+      if (!value.is(u[k])) {
+        return false;
+      }
+    }
+    return true;
+  });
+}
+
+/**
+ * @tsplus derive fncts.Guard<_> 15
+ */
+export function deriveGuard<A extends Record<string, any>>(
+  ...[key, value, requiredKeys]: Check<Check.IsRecord<A>> extends Check.True
+    ? [key: Guard<keyof A>, value: Guard<A[keyof A]>, requiredKeys: { [k in keyof A]: 0 }]
+    : never
+): Guard<A> {
+  const requiredKeysSet = new Set(Object.keys(requiredKeys));
+  return Guard((record): record is A => {
+    const missing = new Set(requiredKeysSet);
+    if (!Derive<Guard<{}>>().is(record)) {
+      return false;
+    }
+    for (const k of Object.keys(record)) {
+      if (requiredKeysSet.has(k) && !value.is(record[k])) {
+        return false;
+      }
+      missing.delete(k);
+    }
+    return missing.size === 0;
+  });
+}
+
+/**
  * @tsplus derive fncts.Decoder<_> 15
  */
 export function deriveDecoder<A extends Record<string, any>>(
@@ -57,3 +100,4 @@ export function deriveDecoder<A extends Record<string, any>>(
     return These.right(res as A);
   }, `Record<string, ${valueDecoder.label}>`);
 }
+
