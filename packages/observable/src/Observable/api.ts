@@ -1250,7 +1250,7 @@ export function combineLatest_<E, A, O extends ReadonlyArray<ObservableInput<any
   ...sources: O
 ): Observable<E | Observable.ErrorOf<O[number]>, [A, ...{ [K in keyof O]: Observable.TypeOf<O[K]> }]> {
   if (!sources.length) {
-    return Function.unsafeCoerce(from(self));
+    return from(self).unsafeCoerce();
   }
   return from(self).operate((source, subscriber) => {
     combineLatestInternal(subscriber, [source, ...sources]);
