@@ -25,6 +25,6 @@ export function mergeAllUnboundedWith_<
     OutDone
   >,
   f: (x: OutDone, y: OutDone) => OutDone,
-): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem, OutDone> {
+): Channel<Env | Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem, OutDone> {
   return channels.mergeAllWith(Number.MAX_SAFE_INTEGER, f);
 }

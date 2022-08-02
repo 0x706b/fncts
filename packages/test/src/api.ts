@@ -78,14 +78,14 @@ export function testIO<R, E>(label: string, assertion: Lazy<IO<R, E, TestResult>
   return Spec.test(Test.fromAssertion(assertion), TestAnnotationMap.empty).labeled(label);
 }
 
-export function test(label: string, assertion: Lazy<TestResult>): Spec<unknown, never> {
+export function test(label: string, assertion: Lazy<TestResult>): Spec<never, never> {
   return testIO(label, IO.succeed(assertion));
 }
 
 /**
  * @tsplus fluent fncts.test.Gen check
  */
-export function check<R, A>(rv: Gen<R, A>, test: (a: A) => TestResult): IO<R & Has<TestConfig>, never, TestResult> {
+export function check<R, A>(rv: Gen<R, A>, test: (a: A) => TestResult): IO<R | TestConfig, never, TestResult> {
   return TestConfig.samples.flatMap((n) =>
     checkStream(rv.sample.forever.filterMap(identity).take(n), (a) => IO.succeed(test(a))),
   );
@@ -97,7 +97,7 @@ export function check<R, A>(rv: Gen<R, A>, test: (a: A) => TestResult): IO<R & H
 export function checkIO<R, A, R1, E>(
   rv: Gen<R, A>,
   test: (a: A) => IO<R1, E, TestResult>,
-): IO<R & R1 & Has<TestConfig>, E, TestResult> {
+): IO<R | R1 | TestConfig, E, TestResult> {
   return TestConfig.samples.flatMap((n) => checkStream(rv.sample.forever.filterMap(identity).take(n), test));
 }
 
@@ -108,7 +108,7 @@ export function checkAllC<R, A>(
   rv: Gen<R, A>,
   concurrency: number,
   test: (a: A) => TestResult,
-): IO<R & Has<TestConfig>, never, TestResult> {
+): IO<R | TestConfig, never, TestResult> {
   return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, (a) => IO.succeed(test(a)));
 }
 
@@ -119,7 +119,7 @@ export function checkAllIOC<R, A, R1, E>(
   rv: Gen<R, A>,
   concurrency: number,
   test: (a: A) => IO<R1, E, TestResult>,
-): IO<R & R1 & Has<TestConfig>, E, TestResult> {
+): IO<R | R1 | TestConfig, E, TestResult> {
   return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, test);
 }
 
@@ -127,7 +127,7 @@ function checkStreamC<R, E, A, R1>(
   stream: Stream<R, never, Sample<R, A>>,
   concurrency: number,
   test: (a: A) => IO<R1, E, TestResult>,
-): IO<R & R1 & Has<TestConfig>, E, TestResult> {
+): IO<R | R1 | TestConfig, E, TestResult> {
   return TestConfig.shrinks.flatMap((shrinks) =>
     shrinkStream(
       stream.zipWithIndex
@@ -161,7 +161,7 @@ function checkStreamC<R, E, A, R1>(
 function checkStream<R, E, A, R1>(
   stream: Stream<R, never, Sample<R, A>>,
   test: (a: A) => IO<R1, E, TestResult>,
-): IO<R & R1 & Has<TestConfig>, E, TestResult> {
+): IO<R | R1 | TestConfig, E, TestResult> {
   return TestConfig.shrinks.flatMap((shrinks) =>
     shrinkStream(
       stream.zipWithIndex.mapIO(([initial, index]) =>
@@ -187,7 +187,7 @@ function shrinkStream<R, E, A, R1>(
   stream: Stream<R1, never, Sample<R1, Either<E, TestResult>>>,
   maxShrinks: number,
   __tsPlusTrace?: string,
-): IO<R & R1 & Has<TestConfig>, E, TestResult> {
+): IO<R | R1 | TestConfig, E, TestResult> {
   return stream
     .dropWhile(
       (sample) =>

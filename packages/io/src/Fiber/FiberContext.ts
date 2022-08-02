@@ -34,7 +34,7 @@ export class TracedCont {
 
 export class Finalizer {
   readonly _tag = "Finalizer";
-  constructor(readonly finalizer: UIO<any>, readonly apply: ErasedCont, readonly trace?: string) {}
+  constructor(readonly finalizer: IO<any, never, any>, readonly apply: ErasedCont, readonly trace?: string) {}
 }
 
 export type Frame =
@@ -592,7 +592,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     }
   });
 
-  private unsafeAddFinalizer(finalizer: UIO<any>): void {
+  private unsafeAddFinalizer(finalizer: IO<any, never, any>): void {
     this.stack.push(
       new Finalizer(finalizer, (v) => {
         this.unsafeDisableInterruption();
@@ -970,12 +970,12 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
   private unsafeRace<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
     race: Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>,
-  ): IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
+  ): IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> {
     const raceIndicator = new AtomicReference(true);
     const left          = this.unsafeFork(concrete(race.left), Nothing(), race.trace);
     const right         = this.unsafeFork(concrete(race.right), Nothing(), race.trace);
 
-    return IO.async<R & R1 & R2 & R3, E2 | E3, A2 | A3>((cb) => {
+    return IO.async<R | R1 | R2 | R3, E2 | E3, A2 | A3>((cb) => {
       const leftRegister = left.unsafeAddObserver(() => {
         this.unsafeCompleteRace(left, right, race.leftWins, raceIndicator, cb);
       });
@@ -997,7 +997,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     loser: Fiber<any, any>,
     cont: (fiber0: Fiber<any, any>, fiber1: Fiber<any, any>) => Erased,
     ab: AtomicReference<boolean>,
-    cb: (_: IO<R & R1 & R2 & R3, E2 | E3, A2 | A3>) => void,
+    cb: (_: IO<R | R1 | R2 | R3, E2 | E3, A2 | A3>) => void,
   ): void {
     if (ab.compareAndSet(true, false)) {
       cb(cont(winner, loser));

@@ -5,7 +5,7 @@ export function onTermination<R, E, A, R1>(
   self: Lazy<IO<R, E, A>>,
   cleanup: (cause: Cause<never>) => URIO<R1, any>,
   __tsPlusTrace?: string,
-): IO<R & R1, E, A> {
+): IO<R | R1, E, A> {
   return IO.unit.bracketExit(
     () => self(),
     (_, exit: Exit<E, A>) =>

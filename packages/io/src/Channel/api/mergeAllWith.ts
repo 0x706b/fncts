@@ -32,7 +32,7 @@ export function mergeAllWith_<
   f: (x: OutDone, y: OutDone) => OutDone,
   bufferSize = 16,
   mergeStrategy: MergeStrategy = "BackPressure",
-): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem, OutDone> {
+): Channel<Env | Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem, OutDone> {
   return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
       Do((Δ) => {
@@ -49,7 +49,7 @@ export function mergeAllWith_<
         const permits     = Δ(TSemaphore.make(n).commit);
         const pull        = Δ(channels.toPull);
 
-        const evaluatePull = (pull: IO<Env & Env1, OutErr | OutErr1, Either<OutDone, OutElem>>) =>
+        const evaluatePull = (pull: IO<Env | Env1, OutErr | OutErr1, Either<OutDone, OutElem>>) =>
           pull
             .flatMap((ea) =>
               ea.match(
@@ -129,7 +129,7 @@ export function mergeAllWith_<
         return queue;
       }),
     ).map((queue) => {
-      const consumer: Channel<Env & Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem, OutDone> =
+      const consumer: Channel<Env | Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem, OutDone> =
         Channel.unwrap(
           queue.take.flatten.matchCause(Channel.failCauseNow, (out) =>
             out.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),

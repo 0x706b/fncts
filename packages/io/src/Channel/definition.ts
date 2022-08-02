@@ -26,7 +26,7 @@ export const enum ChannelTag {
  * @tsplus companion fncts.io.ChannelOps
  */
 export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  declare _Env: (_: Env) => void;
+  declare _Env: () => Env;
   declare _InErr: (_: InErr) => void;
   declare _InElem: (_: InElem) => void;
   declare _InDone: (_: InDone) => void;
@@ -53,7 +53,7 @@ export function unifyChannel<X extends Channel<any, any, any, any, any, any, any
 }
 
 export abstract class Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> {
-  readonly _Env!: (_: Env) => void;
+  readonly _Env!: () => Env;
   readonly _InErr!: (_: InErr) => void;
   readonly _InElem!: (_: InElem) => void;
   readonly _InDone!: (_: InDone) => void;
@@ -170,14 +170,14 @@ export class Read<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone,
   }
 }
 
-export class Done<OutDone> extends Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
+export class Done<OutDone> extends Channel<never, unknown, unknown, unknown, never, never, OutDone> {
   readonly _tag = ChannelTag.Done;
   constructor(readonly terminal: () => OutDone) {
     super();
   }
 }
 
-export class Fail<OutErr> extends Channel<unknown, unknown, unknown, unknown, OutErr, never, never> {
+export class Fail<OutErr> extends Channel<never, unknown, unknown, unknown, OutErr, never, never> {
   readonly _tag = ChannelTag.Halt;
   constructor(readonly cause: () => Cause<OutErr>) {
     super();
@@ -257,7 +257,7 @@ export class BracketOut<R, E, Z, OutDone> extends Channel<R, unknown, unknown, u
 }
 
 export class Provide<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> extends Channel<
-  unknown,
+  never,
   InErr,
   InElem,
   InDone,
@@ -274,7 +274,7 @@ export class Provide<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> exten
   }
 }
 
-export class Emit<OutElem, OutDone> extends Channel<unknown, unknown, unknown, unknown, never, OutElem, OutDone> {
+export class Emit<OutElem, OutDone> extends Channel<never, unknown, unknown, unknown, never, OutElem, OutDone> {
   readonly _tag = ChannelTag.Emit;
   constructor(readonly out: () => OutElem) {
     super();

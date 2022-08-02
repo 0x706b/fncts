@@ -6,7 +6,7 @@ import { Gen } from "../definition.js";
 /**
  * @tsplus static fncts.test.GenOps float
  */
-export function float(constraints: NumberConstraints & FloatConstraints = {}): Gen<unknown, number> {
+export function float(constraints: NumberConstraints & FloatConstraints = {}): Gen<never, number> {
   const {
     noDefaultInfinity = false,
     min = noDefaultInfinity ? -MAX_VALUE_32 : Number.NEGATIVE_INFINITY,

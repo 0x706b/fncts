@@ -25,7 +25,7 @@ export type StreamTypeId = typeof StreamTypeId;
  */
 export class Stream<R, E, A> {
   readonly [StreamTypeId]: StreamTypeId = StreamTypeId;
-  declare _R: (_: R) => void;
+  declare _R: () => R;
   declare _E: () => E;
   declare _A: () => A;
 

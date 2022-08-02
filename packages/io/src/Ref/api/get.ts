@@ -8,7 +8,7 @@ import { concrete } from "../definition.js";
  * @tsplus getter fncts.io.Ref get
  * @tsplus getter fncts.io.Ref.Synchronized get
  */
-export function get<RA, RB, EA, EB, A, B>(self: PRef<RA, RB, EA, EB, A, B>): IO<RA & RB, EA | EB, B> {
+export function get<RA, RB, EA, EB, A, B>(self: PRef<RA, RB, EA, EB, A, B>): IO<RA | RB, EA | EB, B> {
   concrete(self);
-  return self.get as IO<RA & RB, EA | EB, B>;
+  return self.get as IO<RA | RB, EA | EB, B>;
 }

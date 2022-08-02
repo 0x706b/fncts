@@ -11,15 +11,15 @@ export type RefTypeId = typeof RefTypeId;
  */
 export interface PRef<RA, RB, EA, EB, A, B> {
   readonly _U: RefTypeId;
-  readonly _RA: (_: RA) => void;
-  readonly _RB: (_: RB) => void;
+  readonly _RA: () => RA;
+  readonly _RB: () => RB;
   readonly _EA: () => EA;
   readonly _EB: () => EB;
   readonly _A: (_: A) => void;
   readonly _B: () => B;
 }
 
-export type Ref<A> = PRef<unknown, unknown, never, never, A, A>;
+export type Ref<A> = PRef<never, never, never, never, A, A>;
 export type ERef<E, A> = PRef<unknown, unknown, E, E, A, A>;
 
 export declare namespace PRef {
@@ -27,12 +27,12 @@ export declare namespace PRef {
 }
 
 export declare namespace ERef {
-  export type Synchronized<E, A> = Synchro.PSynchronized<unknown, unknown, E, E, A, A>;
+  export type Synchronized<E, A> = Synchro.PSynchronized<never, never, E, E, A, A>;
 }
 
 export declare namespace Ref {
   export type Atomic<A> = Atomic_<A>;
-  export type Synchronized<A> = Synchro.PSynchronized<unknown, unknown, never, never, A, A>;
+  export type Synchronized<A> = Synchro.PSynchronized<never, never, never, never, A, A>;
 }
 
 /**
@@ -43,13 +43,13 @@ export interface RefOps {}
 export const Ref: RefOps = {};
 
 export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, EA, EB, A, B> {
-  readonly _U!: RefTypeId;
-  readonly _RA!: (_: RA) => void;
-  readonly _RB!: (_: RB) => void;
-  readonly _EA!: () => EA;
-  readonly _EB!: () => EB;
-  readonly _A!: (_: A) => void;
-  readonly _B!: () => B;
+  declare _U: RefTypeId;
+  declare _RA: () => RA;
+  declare _RB: () => RB;
+  declare _EA: () => EA;
+  declare _EB: () => EB;
+  declare _A: (_: A) => void;
+  declare _B: () => B;
 
   /**
    * Folds over the error and value types of the `Ref`. This is a highly
@@ -76,7 +76,7 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, 
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => Either<EC, A>,
     bd: (_: B) => Either<ED, D>,
-  ): PRef<RA & RB, RB, EC, ED, C, D>;
+  ): PRef<RA | RB, RB, EC, ED, C, D>;
 
   /**
    * Reads the value from the `Ref`.

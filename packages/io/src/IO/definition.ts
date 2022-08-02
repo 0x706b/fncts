@@ -19,7 +19,7 @@ export interface IOF extends HKT {
  */
 export abstract class IO<R, E, A> {
   readonly _typeId: IOTypeId = IOTypeId;
-  declare _R: (_: R) => void;
+  declare _R: () => R;
   declare _E: () => E;
   declare _A: () => A;
 }
@@ -47,11 +47,11 @@ export function unifyIO<X extends IO<any, any, any>>(
   return self;
 }
 
-export type UIO<A> = IO<unknown, never, A>;
+export type UIO<A> = IO<never, never, A>;
 
 export type URIO<R, A> = IO<R, never, A>;
 
-export type FIO<E, A> = IO<unknown, E, A>;
+export type FIO<E, A> = IO<never, E, A>;
 
 export const enum IOTag {
   SucceedNow = "SucceedNow",
@@ -91,7 +91,7 @@ export function isIO(u: unknown): u is IO<any, any, any> {
 /**
  * @internal
  */
-export class Chain<R, R1, E, E1, A, A1> extends IO<R & R1, E | E1, A1> {
+export class Chain<R, R1, E, E1, A, A1> extends IO<R | R1, E | E1, A1> {
   readonly _tag = IOTag.Chain;
   constructor(readonly io: IO<R, E, A>, readonly f: (a: A) => IO<R1, E1, A1>, readonly trace?: string) {
     super();
@@ -101,7 +101,7 @@ export class Chain<R, R1, E, E1, A, A1> extends IO<R & R1, E | E1, A1> {
 /**
  * @internal
  */
-export class SucceedNow<A> extends IO<unknown, never, A> {
+export class SucceedNow<A> extends IO<never, never, A> {
   readonly _tag = IOTag.SucceedNow;
   constructor(readonly value: A, readonly trace?: string) {
     super();
@@ -111,21 +111,21 @@ export class SucceedNow<A> extends IO<unknown, never, A> {
 /**
  * @internal
  */
-export class Succeed<A> extends IO<unknown, never, A> {
+export class Succeed<A> extends IO<never, never, A> {
   readonly _tag = IOTag.Succeed;
   constructor(readonly effect: () => A, readonly trace?: string) {
     super();
   }
 }
 
-export class SucceedWith<A> extends IO<unknown, never, A> {
+export class SucceedWith<A> extends IO<never, never, A> {
   readonly _tag = IOTag.SucceedWith;
   constructor(readonly effect: (runtimeConfig: RuntimeConfig, fiberId: FiberId) => A, readonly trace?: string) {
     super();
   }
 }
 
-export class Trace extends IO<unknown, never, Trace_> {
+export class Trace extends IO<never, never, Trace_> {
   readonly _tag = IOTag.Trace;
   constructor(readonly trace?: string) {
     super();
@@ -135,7 +135,7 @@ export class Trace extends IO<unknown, never, Trace_> {
 /**
  * @internal
  */
-export class Async<R, E, A, R1> extends IO<R & R1, E, A> {
+export class Async<R, E, A, R1> extends IO<R | R1, E, A> {
   readonly _tag = IOTag.Async;
   constructor(
     readonly register: (f: (_: IO<R, E, A>) => void) => Either<Canceler<R1>, IO<R, E, A>>,
@@ -149,7 +149,7 @@ export class Async<R, E, A, R1> extends IO<R & R1, E, A> {
 /**
  * @internal
  */
-export class Match<R, E, A, R1, E1, B, R2, E2, C> extends IO<R & R1 & R2, E1 | E2, B | C> {
+export class Match<R, E, A, R1, E1, B, R2, E2, C> extends IO<R | R1 | R2, E1 | E2, B | C> {
   readonly _tag = IOTag.Match;
 
   constructor(
@@ -178,7 +178,7 @@ export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
 /**
  * @internal
  */
-export class Fail<E> extends IO<unknown, E, never> {
+export class Fail<E> extends IO<never, E, never> {
   readonly _tag = IOTag.Fail;
 
   constructor(readonly cause: Lazy<Cause<E>>, readonly trace?: string) {
@@ -189,7 +189,7 @@ export class Fail<E> extends IO<unknown, E, never> {
 /**
  * @internal
  */
-export class Yield extends IO<unknown, never, void> {
+export class Yield extends IO<never, never, void> {
   readonly _tag = IOTag.Yield;
 
   constructor(readonly trace?: string) {
@@ -222,7 +222,7 @@ export class DeferWith<R, E, A> extends IO<R, E, A> {
 /**
  * @internal
  */
-export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
+export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> {
   readonly _tag = "Race";
 
   constructor(
@@ -283,7 +283,7 @@ export class Supervise<R, E, A> extends IO<R, E, A> {
 /**
  * @internal
  */
-export class FiberRefModify<A, B> extends IO<unknown, never, B> {
+export class FiberRefModify<A, B> extends IO<never, never, B> {
   readonly _tag = IOTag.FiberRefModify;
 
   constructor(readonly fiberRef: FiberRef<unknown>, readonly f: (a: A) => readonly [B, A], readonly trace?: string) {
@@ -303,7 +303,7 @@ export class FiberRefLocally<V, R, E, A> extends IO<R, E, A> {
   }
 }
 
-export class FiberRefDelete extends IO<unknown, never, void> {
+export class FiberRefDelete extends IO<never, never, void> {
   readonly _tag = IOTag.FiberRefDelete;
   constructor(readonly fiberRef: FiberRef<unknown>, readonly trace?: string) {
     super();
@@ -317,7 +317,7 @@ export class FiberRefWith<A, P, R, E, B> extends IO<R, E, B> {
   }
 }
 
-export class FiberRefModifyAll<A> extends IO<unknown, never, A> {
+export class FiberRefModifyAll<A> extends IO<never, never, A> {
   readonly _tag = IOTag.FiberRefModifyAll;
   constructor(
     readonly f: (fiberId: FiberId.Runtime, fiberRefs: FiberRefs) => readonly [A, FiberRefs],
@@ -357,14 +357,14 @@ export class GetRuntimeConfig<R, E, A> extends IO<R, E, A> {
   }
 }
 
-export class Ensuring<R, E, A, R1> extends IO<R & R1, E, A> {
+export class Ensuring<R, E, A, R1> extends IO<R | R1, E, A> {
   readonly _tag = IOTag.Ensuring;
   constructor(readonly io: IO<R, E, A>, readonly finalizer: IO<R1, never, any>, readonly trace?: string) {
     super();
   }
 }
 
-export class Logged extends IO<unknown, never, void> {
+export class Logged extends IO<never, never, void> {
   readonly _tag = IOTag.Logged;
   constructor(
     readonly message: () => string,
@@ -378,7 +378,7 @@ export class Logged extends IO<unknown, never, void> {
   }
 }
 
-export class SetRuntimeConfig extends IO<unknown, never, void> {
+export class SetRuntimeConfig extends IO<never, never, void> {
   readonly _tag = IOTag.SetRuntimeConfig;
   constructor(readonly runtimeConfig: RuntimeConfig, readonly trace?: string) {
     super();

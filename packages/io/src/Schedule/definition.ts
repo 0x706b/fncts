@@ -32,7 +32,7 @@ import type { Driver as Driver_ } from "./Driver.js";
  * @tsplus companion fncts.io.ScheduleOps
  */
 export abstract class Schedule<Env, In, Out> {
-  readonly _Env!: (_: Env) => void;
+  readonly _Env!: () => Env;
   readonly _In!: (_: In) => void;
   readonly _Out!: () => Out;
   readonly _State!: unknown;

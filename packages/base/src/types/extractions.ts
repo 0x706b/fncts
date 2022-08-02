@@ -6,6 +6,6 @@ export type ExtractCovariantPhantom<A, P extends PropertyKey> = [A] extends [{ [
 export type _W<A> = ExtractCovariantPhantom<A, "_W">;
 export type _S1<A> = ExtractContravariantPhantom<A, "_S1">;
 export type _S2<A> = ExtractCovariantPhantom<A, "_S2">;
-export type _R<A> = ExtractContravariantPhantom<A, "_R">;
+export type _R<A> = ExtractCovariantPhantom<A, "_R">;
 export type _E<A> = ExtractCovariantPhantom<A, "_E">;
 export type _A<A> = ExtractCovariantPhantom<A, "_A">;

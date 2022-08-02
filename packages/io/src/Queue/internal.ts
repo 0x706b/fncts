@@ -6,7 +6,7 @@ import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
 import { unbounded } from "@fncts/io/internal/MutableQueue";
 import { QueueInternal } from "@fncts/io/Queue/definition";
 
-class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A> {
+class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
   constructor(
     readonly queue: MutableQueue<A>,
     readonly takers: MutableQueue<Future<never, A>>,
@@ -23,7 +23,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
 
   isShutdown: UIO<boolean> = IO.succeed(this.shutdownFlag.get);
 
-  offer(a: A): IO<unknown, never, boolean> {
+  offer(a: A): IO<never, never, boolean> {
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -46,7 +46,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
     });
   }
 
-  offerAll(as: Iterable<A>): IO<unknown, never, boolean> {
+  offerAll(as: Iterable<A>): IO<never, never, boolean> {
     const arr = Conc.from(as);
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
@@ -91,7 +91,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
     }
   });
 
-  take: IO<unknown, never, A> = IO.deferWith((_, fiberId) =>
+  take: IO<never, never, A> = IO.deferWith((_, fiberId) =>
     IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -118,7 +118,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
     }),
   );
 
-  takeAll: IO<unknown, never, Conc<A>> = IO.defer(() => {
+  takeAll: IO<never, never, Conc<A>> = IO.defer(() => {
     if (this.shutdownFlag.get) {
       return IO.interrupt;
     } else {
@@ -130,7 +130,7 @@ class UnsafeQueue<A> extends QueueInternal<unknown, unknown, never, never, A, A>
     }
   });
 
-  takeUpTo(max: number): IO<unknown, never, Conc<A>> {
+  takeUpTo(max: number): IO<never, never, Conc<A>> {
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -155,7 +155,7 @@ function _unsafeQueue<A>(
   return new UnsafeQueue(queue, takers, shutdownHook, shutdownFlag, strategy);
 }
 
-export function _makeQueue<A>(strategy: Strategy<A>): (queue: MutableQueue<A>) => IO<unknown, never, Queue<A>> {
+export function _makeQueue<A>(strategy: Strategy<A>): (queue: MutableQueue<A>) => IO<never, never, Queue<A>> {
   return (queue) =>
     Future.make<never, void>().map((p) => _unsafeQueue(queue, unbounded(), p, new AtomicBoolean(false), strategy));
 }

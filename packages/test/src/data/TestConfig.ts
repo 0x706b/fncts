@@ -17,7 +17,7 @@ export const TestConfigTag = Tag<TestConfig>();
 /**
  * @tsplus static fncts.test.data.TestConfigOps Live
  */
-export function live(_: TestConfig): Layer<unknown, never, Has<TestConfig>> {
+export function live(_: TestConfig): Layer<never, never, TestConfig> {
   return Layer.succeed(
     new (class extends TestConfig {
       repeats = _.repeats;

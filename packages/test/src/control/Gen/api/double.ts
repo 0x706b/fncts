@@ -19,7 +19,7 @@ import { Gen } from "../definition.js";
 /**
  * @tsplus static fncts.test.GenOps arrayInt64
  */
-export function arrayInt64(min: ArrayInt64, max: ArrayInt64): Gen<unknown, ArrayInt64> {
+export function arrayInt64(min: ArrayInt64, max: ArrayInt64): Gen<never, ArrayInt64> {
   return new Gen(
     Stream.fromIO(computeArrayInt64GenerateRange(min, max, undefined, undefined))
       .flatMap(({ min, max }) => Stream.repeatIO(Random.nextArrayIntBetween(min, max)))
@@ -35,7 +35,7 @@ export function arrayInt64(min: ArrayInt64, max: ArrayInt64): Gen<unknown, Array
 /**
  * @tsplus static fncts.test.GenOps double
  */
-export function double(constraints: NumberConstraints & FloatConstraints = {}): Gen<unknown, number> {
+export function double(constraints: NumberConstraints & FloatConstraints = {}): Gen<never, number> {
   const {
     noDefaultInfinity = false,
     noNaN = false,

@@ -107,14 +107,14 @@ export function withWriteLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>): I
 /**
  * @tsplus getter fncts.io.TReentrantLock readLock
  */
-export function readLock(self: TReentrantLock, __tsplusTrace?: string): IO<Has<Scope>, never, number> {
+export function readLock(self: TReentrantLock, __tsplusTrace?: string): IO<Scope, never, number> {
   return self.acquireRead.commit.acquireRelease(() => self.releaseRead.commit);
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock writeLock
  */
-export function writeLock(self: TReentrantLock, __tsplusTrace?: string): IO<Has<Scope>, never, number> {
+export function writeLock(self: TReentrantLock, __tsplusTrace?: string): IO<Scope, never, number> {
   return self.acquireWrite.commit.acquireRelease(() => self.releaseWrite.commit);
 }
 

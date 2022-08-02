@@ -7,7 +7,7 @@ import { ContinuationK, Done, Fail, Fold } from "./definition.js";
  *
  * @tsplus static fncts.io.ChannelOps failCause
  */
-export function failCause<E>(result: Lazy<Cause<E>>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
+export function failCause<E>(result: Lazy<Cause<E>>): Channel<never, unknown, unknown, unknown, E, never, never> {
   return new Fail(result);
 }
 
@@ -16,7 +16,7 @@ export function failCause<E>(result: Lazy<Cause<E>>): Channel<unknown, unknown, 
  *
  * @tsplus static fncts.io.ChannelOps failCauseNow
  */
-export function failCauseNow<E>(result: Cause<E>): Channel<unknown, unknown, unknown, unknown, E, never, never> {
+export function failCauseNow<E>(result: Cause<E>): Channel<never, unknown, unknown, unknown, E, never, never> {
   return Channel.failCause(result);
 }
 
@@ -27,7 +27,7 @@ export function failCauseNow<E>(result: Cause<E>): Channel<unknown, unknown, unk
  */
 export function end<OutDone>(
   result: Lazy<OutDone>,
-): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
+): Channel<never, unknown, unknown, unknown, never, never, OutDone> {
   return new Done(result);
 }
 
@@ -36,7 +36,7 @@ export function end<OutDone>(
  *
  * @tsplus static fncts.io.ChannelOps endNow
  */
-export function endNow<OutDone>(result: OutDone): Channel<unknown, unknown, unknown, unknown, never, never, OutDone> {
+export function endNow<OutDone>(result: OutDone): Channel<never, unknown, unknown, unknown, never, never, OutDone> {
   return Channel.end(result);
 }
 
@@ -45,7 +45,7 @@ export function endNow<OutDone>(result: OutDone): Channel<unknown, unknown, unkn
  *
  * @tsplus static fncts.io.ChannelOps succeed
  */
-export function succeed<Z>(z: Lazy<Z>): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
+export function succeed<Z>(z: Lazy<Z>): Channel<never, unknown, unknown, unknown, never, never, Z> {
   return Channel.end(z);
 }
 
@@ -54,7 +54,7 @@ export function succeed<Z>(z: Lazy<Z>): Channel<unknown, unknown, unknown, unkno
  *
  * @tsplus static fncts.io.ChannelOps succeedNow
  */
-export function succeedNow<Z>(z: Z): Channel<unknown, unknown, unknown, unknown, never, never, Z> {
+export function succeedNow<Z>(z: Z): Channel<never, unknown, unknown, unknown, never, never, Z> {
   return Channel.end(z);
 }
 
@@ -99,7 +99,7 @@ export function flatMap_<
   channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   f: (d: OutDone) => Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone2>,
 ): Channel<
-  Env & Env1,
+  Env | Env1,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,
@@ -108,7 +108,7 @@ export function flatMap_<
   OutDone2
 > {
   return new Fold<
-    Env & Env1,
+    Env | Env1,
     InErr & InErr1,
     InElem & InElem1,
     InDone & InDone1,
@@ -145,7 +145,7 @@ export function cross_<
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
-  Env & Env1,
+  Env | Env1,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,
@@ -181,7 +181,7 @@ export function apFirst_<
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
-  Env & Env1,
+  Env | Env1,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,
@@ -218,7 +218,7 @@ export function apSecond_<
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
-  Env & Env1,
+  Env | Env1,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,

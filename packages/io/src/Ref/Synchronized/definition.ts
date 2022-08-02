@@ -49,7 +49,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
     ca: (_: C) => (_: B) => IO<RC, EC, A>,
     bd: (_: B) => IO<RD, ED, D>,
     __tsplusTrace?: string,
-  ): PSynchronizedInternal<RA & RC & RB, RB & RD, EC, ED, C, D> {
+  ): PSynchronizedInternal<RA | RC | RB, RB | RD, EC, ED, C, D> {
     return new PSynchronizedInternal(
       this.semaphores,
       this.get.matchIO((e) => IO.failNow(eb(e)), bd),
@@ -67,7 +67,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
     ca: (_: C) => IO<RC, EC, A>,
     bd: (_: B) => IO<RD, ED, D>,
     __tsplusTrace?: string,
-  ): PSynchronizedInternal<RA & RC, RB & RD, EC, ED, C, D> {
+  ): PSynchronizedInternal<RA | RC, RB | RD, EC, ED, C, D> {
     return new PSynchronizedInternal(
       this.semaphores,
       this.unsafeGet.matchIO((e) => IO.failNow(eb(e)), bd),

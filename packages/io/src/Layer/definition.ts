@@ -6,7 +6,7 @@ export type LayerHash = typeof LayerHash;
  * @tsplus companion fncts.io.LayerOps
  */
 export abstract class Layer<RIn, E, ROut> {
-  readonly _R!: (_: RIn) => void;
+  readonly _R!: () => RIn;
   readonly _E!: () => E;
   readonly _A!: () => ROut;
 
@@ -67,9 +67,9 @@ export class Fresh<RIn, E, ROut> extends Layer<RIn, E, ROut> {
   }
 }
 
-export class FromScoped<RIn, E, ROut> extends Layer<RIn, E, ROut> {
+export class FromScoped<RIn, E, ROut> extends Layer<Exclude<RIn, Scope>, E, ROut> {
   readonly _tag = LayerTag.Scoped;
-  constructor(readonly self: IO<RIn & Has<Scope>, E, Environment<ROut>>) {
+  constructor(readonly self: IO<RIn, E, Environment<ROut>>) {
     super();
   }
 }
@@ -88,7 +88,7 @@ export class To<RIn, E, ROut, E1, ROut1> extends Layer<RIn, E | E1, ROut1> {
   }
 }
 
-export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn & RIn1, E | E1, ROut2> {
+export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn | RIn1, E | E1, ROut2> {
   readonly _tag = LayerTag.ZipWith;
   constructor(
     readonly self: Layer<RIn, E, ROut>,
@@ -99,7 +99,7 @@ export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn & R
   }
 }
 
-export class ZipWithC<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn & RIn1, E | E1, ROut2> {
+export class ZipWithC<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn | RIn1, E | E1, ROut2> {
   readonly _tag = LayerTag.ZipWithC;
   constructor(
     readonly self: Layer<RIn, E, ROut>,

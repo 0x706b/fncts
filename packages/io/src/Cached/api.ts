@@ -8,7 +8,7 @@ export function auto<R, Error, Resource>(
   acquire: IO<R, Error, Resource>,
   policy: Schedule<any, any, any>,
   __tsplusTrace?: string,
-): IO<R & Has<Scope>, never, Cached<Error, Resource>> {
+): IO<R | Scope, never, Cached<Error, Resource>> {
   return Do((Δ) => {
     const manual = Δ(Cached.manual(acquire));
     Δ(IO.acquireRelease(IO.interruptible(manual.refresh.schedule(policy)).forkDaemon, (fiber) => fiber.interrupt));
@@ -29,7 +29,7 @@ export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTra
  */
 export function manual<R, Error, Resource>(
   acquire: IO<R, Error, Resource>,
-): IO<R & Has<Scope>, never, Cached<Error, Resource>> {
+): IO<R | Scope, never, Cached<Error, Resource>> {
   return Do((Δ) => {
     const env = Δ(IO.environment<R>());
     const ref = Δ(ScopedRef.fromAcquire(acquire.result));
@@ -38,7 +38,7 @@ export function manual<R, Error, Resource>(
 }
 
 class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
-  constructor(readonly ref: ScopedRef<Exit<Error, Resource>>, readonly acquire: IO<Has<Scope>, Error, Resource>) {
+  constructor(readonly ref: ScopedRef<Exit<Error, Resource>>, readonly acquire: IO<Scope, Error, Resource>) {
     super();
   }
   get: FIO<Error, Resource> = this.ref.get.flatMap(IO.fromExitNow);

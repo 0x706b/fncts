@@ -19,7 +19,7 @@ function pull<R, E, A1, R1, E1, A2, A3>(
   pullLeft: IO<R, Maybe<E>, Conc<A1>>,
   pullRight: IO<R1, Maybe<E1>, Conc<A2>>,
   f: (as: Conc<A1>, bs: Conc<A2>) => readonly [Conc<A3>, Either<Conc<A1>, Conc<A2>>],
-): IO<R & R1, never, Exit<Maybe<E | E1>, readonly [Conc<A3>, State<A1, A2>]>> {
+): IO<R | R1, never, Exit<Maybe<E | E1>, readonly [Conc<A3>, State<A1, A2>]>> {
   switch (state._tag) {
     case "PullBoth":
       return pullLeft.zipC(pullRight).matchIO(
@@ -84,6 +84,6 @@ export function zipWithChunks_<R, E, A, R1, E1, B, C>(
   self: Stream<R, E, A>,
   that: Stream<R1, E1, B>,
   f: (as: Conc<A>, bs: Conc<B>) => readonly [Conc<C>, Either<Conc<A>, Conc<B>>],
-): Stream<R & R1, E | E1, C> {
+): Stream<R | R1, E | E1, C> {
   return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) => pull(s, l, r, f));
 }

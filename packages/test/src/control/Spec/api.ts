@@ -17,7 +17,7 @@ import { ExecCase, LabeledCase, MultipleCase, PSpec, ScopedCase, TestCase } from
 /**
  * @tsplus getter fncts.test.PSpec annotated
  */
-export function annotated<R, E, T>(spec: PSpec<R, E, T>): PSpec<R & Has<Annotations>, Annotated<E>, Annotated<T>> {
+export function annotated<R, E, T>(spec: PSpec<R, E, T>): PSpec<R | Annotations, Annotated<E>, Annotated<T>> {
   return spec.transform(
     matchTag(
       {
@@ -35,7 +35,7 @@ export function annotated<R, E, T>(spec: PSpec<R, E, T>): PSpec<R & Has<Annotati
 export function combine_<R, E, T, R1, E1, T1>(
   self: PSpec<R, E, T>,
   that: PSpec<R1, E1, T1>,
-): PSpec<R & R1, E | E1, T | T1> {
+): PSpec<R | R1, E | E1, T | T1> {
   if (self.caseValue.isMultiple() && that.caseValue.isMultiple()) {
     return MultipleCase(self.caseValue.specs.concat(that.caseValue.specs));
   }
@@ -45,7 +45,7 @@ export function combine_<R, E, T, R1, E1, T1>(
   if (that.caseValue.isMultiple()) {
     return MultipleCase(that.caseValue.specs.prepend(self));
   }
-  return MultipleCase(Conc<PSpec<R & R1, E | E1, T | T1>>(self, that));
+  return MultipleCase(Conc<PSpec<R | R1, E | E1, T | T1>>(self, that));
 }
 
 /**
@@ -60,8 +60,8 @@ export function contramapEnvironment_<R, E, T, R0>(
       {
         Scoped: ({ scoped }) =>
           new ScopedCase(
-            scoped.contramapEnvironment((r: Environment<R0 & Has<Scope>>) =>
-              Environment.empty.add(r.get(Scope.Tag), Scope.Tag).union(f(r)),
+            scoped.contramapEnvironment((r: Environment<R0 | Scope>) =>
+              Environment.empty.add(r.get(Scope.Tag), Scope.Tag).union(f(r as Environment<R0>)),
             ),
           ),
         Test: ({ test, annotations }) => new TestCase(test.contramapEnvironment(f), annotations),
@@ -74,7 +74,7 @@ export function contramapEnvironment_<R, E, T, R0>(
 /**
  * @tsplus fluent fncts.test.PSpec countTests
  */
-export function countTests_<R, E, T>(spec: PSpec<R, E, T>, f: (t: T) => boolean): IO<R & Has<Scope>, E, number> {
+export function countTests_<R, E, T>(spec: PSpec<R, E, T>, f: (t: T) => boolean): IO<R | Scope, E, number> {
   return spec.fold(
     matchTag({
       Exec: ({ spec }) => spec,
@@ -89,7 +89,7 @@ export function countTests_<R, E, T>(spec: PSpec<R, E, T>, f: (t: T) => boolean)
 /**
  * @tsplus static fncts.test.PSpecOps empty
  */
-export const empty: PSpec<unknown, never, never> = multipleCase(Conc.empty());
+export const empty: PSpec<never, never, never> = multipleCase(Conc.empty());
 
 /**
  * @tsplus static fncts.test.PSpecOps exec
@@ -105,8 +105,8 @@ export function exec<R, E, T>(spec: PSpec<R, E, T>, exec: ExecutionStrategy): PS
 export function execute<R, E, T>(
   self: PSpec<R, E, T>,
   defExec: ExecutionStrategy,
-): IO<R & Has<Scope>, never, PSpec<unknown, E, T>> {
-  return IO.environmentWithIO((r: Environment<R & Has<Scope>>) =>
+): IO<R | Scope, never, PSpec<never, E, T>> {
+  return IO.environmentWithIO((r: Environment<R | Scope>) =>
     self.provideEnvironment(r).foreachExec(IO.failCauseNow, IO.succeedNow, defExec),
   );
 }
@@ -186,9 +186,9 @@ export function fold_<R, E, T, Z>(spec: PSpec<R, E, T>, f: (_: SpecCase<R, E, T,
  */
 export function foldScoped_<R, E, T, R1, E1, Z>(
   spec: PSpec<R, E, T>,
-  f: (_: SpecCase<R, E, T, Z>) => IO<R1 & Has<Scope>, E1, Z>,
+  f: (_: SpecCase<R, E, T, Z>) => IO<R1 | Scope, E1, Z>,
   defExec: ExecutionStrategy,
-): IO<R & R1 & Has<Scope>, E1, Z> {
+): IO<R | R1 | Scope, E1, Z> {
   return matchTag_(spec.caseValue, {
     Exec: ({ exec, spec }) => spec.foldScoped(f, exec).flatMap((z) => f(new ExecCase(exec, z))),
     Labeled: ({ label, spec }) => spec.foldScoped(f, defExec).flatMap((z) => f(new LabeledCase(label, z))),
@@ -213,7 +213,7 @@ export function foreachExec_<R, E, T, R1, E1, A, R2, E2, B>(
   failure: (c: Cause<E>) => IO<R1, E1, A>,
   success: (t: T) => IO<R2, E2, B>,
   defExec: ExecutionStrategy,
-): IO<R & R1 & R2 & Has<Scope>, never, PSpec<R & R1 & R2, E1 | E2, A | B>> {
+): IO<R | R1 | R2 | Scope, never, PSpec<R | R1 | R2, E1 | E2, A | B>> {
   return spec.foldScoped(
     matchTag({
       Exec: ({ exec, spec }) => IO.succeedNow(ExecCase(spec, exec)),
@@ -248,7 +248,7 @@ export function labeledCase<R, E, T>(spec: PSpec<R, E, T>, label: string): PSpec
  * @tsplus static fncts.test.PSpecOps scoped
  * @tsplus static fncts.test.PSpec.ScopedCaseOps __call
  */
-export function scoped<R, E, T>(managed: IO<R & Has<Scope>, E, PSpec<R, E, T>>): PSpec<R, E, T> {
+export function scoped<R, E, T>(managed: IO<R | Scope, E, PSpec<R, E, T>>): PSpec<R, E, T> {
   return new PSpec(new ScopedCase(managed));
 }
 
@@ -292,21 +292,21 @@ export function multipleCase<R, E, T>(specs: Conc<PSpec<R, E, T>>): PSpec<R, E, 
 /**
  * @tsplus fluent fncts.test.PSpec provideEnvironment
  */
-export function provideEnvironment_<R, E, T>(self: PSpec<R, E, T>, r: Environment<R>): PSpec<unknown, E, T> {
+export function provideEnvironment_<R, E, T>(self: PSpec<R, E, T>, r: Environment<R>): PSpec<never, E, T> {
   return self.contramapEnvironment(() => r);
 }
 
 /**
  * @tsplus fluent fncts.test.PSpec provideLayer
  */
-export function provideLayer_<RIn, E, ROut extends Spreadable, R, E1, T>(
+export function provideLayer_<RIn, E, ROut, E1, T>(
   self: PSpec<ROut, E1, T>,
   layer: Layer<RIn, E, ROut>,
 ): PSpec<RIn, E | E1, T> {
   return self.transform(
     matchTag(
       {
-        Scoped: ({ scoped }) => new ScopedCase(scoped.provideLayer(Layer.environment<Has<Scope>>().and(layer))),
+        Scoped: ({ scoped }) => new ScopedCase(scoped.provideLayer(Layer.environment<Scope>().and(layer))),
         Test: ({ test, annotations }) => new TestCase(test.provideLayer(layer), annotations),
       },
       identity,
@@ -359,7 +359,7 @@ export function annotate_<R, E, T, V>(self: PSpec<R, E, T>, key: TestAnnotation<
 export function whenIO_<R, E, R1, E1>(
   self: PSpec<R, E, TestSuccess>,
   b: IO<R1, E1, boolean>,
-): PSpec<R & R1 & Has<Annotations>, E | E1, TestSuccess> {
+): PSpec<R | R1 | Annotations, E | E1, TestSuccess> {
   return matchTag_(self.caseValue, {
     Exec: (c) => exec(c.spec.whenIO(b), c.exec),
     Labeled: ({ label, spec }) => Spec.labeled(spec.whenIO(b), label),
@@ -376,9 +376,6 @@ export function whenIO_<R, E, R1, E1>(
 /**
  * @tsplus fluent fncts.test.PSpec when
  */
-export function when_<R, E>(
-  self: PSpec<R, E, TestSuccess>,
-  b: Lazy<boolean>,
-): PSpec<R & Has<Annotations>, E, TestSuccess> {
+export function when_<R, E>(self: PSpec<R, E, TestSuccess>, b: Lazy<boolean>): PSpec<R | Annotations, E, TestSuccess> {
   return self.whenIO(IO.succeed(b));
 }

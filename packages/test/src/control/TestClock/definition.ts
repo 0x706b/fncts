@@ -114,7 +114,7 @@ export class TestClock extends Clock {
     );
   }
 
-  private get freeze(): IO<unknown, void, HashMap<FiberId, FiberStatus>> {
+  private get freeze(): IO<never, void, HashMap<FiberId, FiberStatus>> {
     return this.supervizedFibers.flatMap((fibers) =>
       IO.foldLeft(fibers, HashMap.makeDefault<FiberId, FiberStatus>(), (map, fiber) =>
         fiber.status.flatMap((status) => {
@@ -166,7 +166,7 @@ export class TestClock extends Clock {
     );
   }
 
-  private get suspended(): IO<unknown, void, HashMap<FiberId, FiberStatus>> {
+  private get suspended(): IO<never, void, HashMap<FiberId, FiberStatus>> {
     return this.freeze.zip(this.delay > this.freeze).flatMap(([first, last]) => {
       if (Equatable.strictEquals(first, last)) {
         return IO.succeedNow(first);
@@ -190,7 +190,7 @@ export class TestClock extends Clock {
         Start: () =>
           Just(this.live.provide(Clock.sleep((5).seconds) > Console.print(warning)).interruptible.fork.map(Pending)),
       },
-      () => Nothing<IO<unknown, never, WarningData>>(),
+      () => Nothing<IO<never, never, WarningData>>(),
     ),
   );
 }

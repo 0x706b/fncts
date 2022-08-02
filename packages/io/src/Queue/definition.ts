@@ -8,8 +8,8 @@
  * @tsplus type fncts.io.Queue
  */
 export interface PQueue<RA, RB, EA, EB, A, B> {
-  readonly _RA: (_: RA) => void;
-  readonly _RB: (_: RB) => void;
+  readonly _RA: () => RA;
+  readonly _RB: () => RB;
   readonly _EA: () => EA;
   readonly _EB: () => EB;
   readonly _A: (_: A) => void;
@@ -40,8 +40,8 @@ export function concrete<RA, RB, EA, EB, A, B>(
  * with errors of type `EB`.
  */
 export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, RB, EA, EB, A, B> {
-  readonly _RA!: (_: RA) => void;
-  readonly _RB!: (_: RB) => void;
+  readonly _RA!: () => RA;
+  readonly _RB!: () => RB;
   readonly _EA!: () => EA;
   readonly _EB!: () => EB;
   readonly _A!: (_: A) => void;
@@ -115,7 +115,7 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, 
  *
  * @tsplus type fncts.io.Queue
  */
-export interface Queue<A> extends PQueue<unknown, unknown, never, never, A, A> {}
+export interface Queue<A> extends PQueue<never, never, never, never, A, A> {}
 
 export declare namespace Queue {
   /**
@@ -123,12 +123,12 @@ export declare namespace Queue {
    *
    * @tsplus type fncts.io.Queue
    */
-  export interface Dequeue<A> extends PQueue<never, unknown, unknown, never, never, A> {}
+  export interface Dequeue<A> extends PQueue<never, never, unknown, never, never, A> {}
 
   /**
    * A queue that can only be enqueued.
    *
    * @tsplus type fncts.io.Queue
    */
-  export interface Enqueue<A> extends PQueue<unknown, never, never, unknown, A, any> {}
+  export interface Enqueue<A> extends PQueue<never, never, never, unknown, A, any> {}
 }

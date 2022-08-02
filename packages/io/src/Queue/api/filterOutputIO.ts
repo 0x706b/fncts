@@ -1,6 +1,6 @@
 import { concrete, QueueInternal } from "@fncts/io/Queue/definition";
 
-export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, RB & RB1, EA, EB | EB1, A, B> {
+export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, RB | RB1, EA, EB | EB1, A, B> {
   constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RB1, EB1, boolean>) {
     super();
   }
@@ -23,13 +23,13 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
 
   size: UIO<number> = this.queue.size;
 
-  take: IO<RB & RB1, EB1 | EB, B> = this.queue.take.flatMap((b) =>
+  take: IO<RB | RB1, EB1 | EB, B> = this.queue.take.flatMap((b) =>
     this.f(b).flatMap((p) => (p ? IO.succeedNow(b) : this.take)),
   );
 
-  takeAll: IO<RB & RB1, EB | EB1, Conc<B>> = this.queue.takeAll.flatMap((bs) => IO.filter(bs, this.f));
+  takeAll: IO<RB | RB1, EB | EB1, Conc<B>> = this.queue.takeAll.flatMap((bs) => IO.filter(bs, this.f));
 
-  loop(max: number, acc: Conc<B>): IO<RB & RB1, EB | EB1, Conc<B>> {
+  loop(max: number, acc: Conc<B>): IO<RB | RB1, EB | EB1, Conc<B>> {
     return this.queue.takeUpTo(max).flatMap((bs) => {
       if (bs.isEmpty) {
         return IO.succeedNow(acc);
@@ -47,7 +47,7 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
     });
   }
 
-  takeUpTo(n: number): IO<RB & RB1, EB | EB1, Conc<B>> {
+  takeUpTo(n: number): IO<RB | RB1, EB | EB1, Conc<B>> {
     return IO.defer(this.loop(n, Conc.empty()));
   }
 }
@@ -58,7 +58,7 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
 export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<RB1, EB1, boolean>,
-): PQueue<RA, RB & RB1, EA, EB | EB1, A, B> {
+): PQueue<RA, RB | RB1, EA, EB | EB1, A, B> {
   concrete(queue);
   return new FilterOutputIO(queue, f);
 }

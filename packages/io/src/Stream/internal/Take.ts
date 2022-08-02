@@ -52,7 +52,7 @@ export function matchIO_<R, R1, R2, E, E1, E2, E3, A, Z>(
   end: IO<R, E1, Z>,
   error: (cause: Cause<E>) => IO<R1, E2, Z>,
   value: (chunk: Conc<A>) => IO<R2, E3, Z>,
-): IO<R & R1 & R2, E1 | E2 | E3, Z> {
+): IO<R | R1 | R2, E1 | E2 | E3, Z> {
   return self.exit.match((cause) => cause.flipCauseMaybe.match(() => end, error), value);
 }
 

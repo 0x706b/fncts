@@ -175,8 +175,8 @@ export function unsafeSucceed_<A>(future: Future<never, A>, a: A): void {
  *
  * @tsplus getter fncts.io.Future await
  */
-export function wait<E, A>(future: Future<E, A>): IO<unknown, E, A> {
-  return IO.asyncInterrupt<unknown, E, A>((k) => {
+export function wait<E, A>(future: Future<E, A>): IO<never, E, A> {
+  return IO.asyncInterrupt<never, E, A>((k) => {
     switch (future.state._tag) {
       case FutureStateTag.Done: {
         return Either.right(future.state.value);
@@ -189,7 +189,7 @@ export function wait<E, A>(future: Future<E, A>): IO<unknown, E, A> {
   }, future.blockingOn);
 }
 
-function interruptJoiner<E, A>(future: Future<E, A>, joiner: (a: FIO<E, A>) => void): Canceler<unknown> {
+function interruptJoiner<E, A>(future: Future<E, A>, joiner: (a: FIO<E, A>) => void): Canceler<never> {
   return IO.succeed(() => {
     switch (future.state._tag) {
       case FutureStateTag.Pending: {

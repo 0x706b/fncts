@@ -21,7 +21,7 @@ import { TestAnnotationMap } from "../../data/TestAnnotationMap.js";
 import { TestTimeoutException } from "../../data/TestTimeoutException.js";
 import { TestLogger } from "../TestLogger.js";
 
-export type TestReporter<E> = (duration: number, spec: ExecutedSpec<E>) => URIO<Has<TestLogger>, void>;
+export type TestReporter<E> = (duration: number, spec: ExecutedSpec<E>) => URIO<TestLogger, void>;
 
 /**
  * @tsplus static fncts.test.DefaultTestReporter report

@@ -12,7 +12,7 @@ export type MergeDecisionTypeId = typeof MergeDecisionTypeId;
  */
 export abstract class MergeDecision<R, E0, Z0, E, Z> {
   readonly _typeId: MergeDecisionTypeId = MergeDecisionTypeId;
-  readonly _R!: (_: R) => void;
+  readonly _R!: () => R;
   readonly _E0!: (_: E0) => void;
   readonly _Z0!: (_: Z0) => void;
   readonly _E!: () => E;

@@ -37,6 +37,6 @@ export function succeed_<E, A>(self: TFuture<E, A>, a: A): USTM<boolean> {
 /**
  * @tsplus getter fncts.io.TFuture await
  */
-export function wait<E, A>(self: TFuture<E, A>): STM<unknown, E, A> {
+export function wait<E, A>(self: TFuture<E, A>): STM<never, E, A> {
   return TFuture.reverseGet(self).get.filterMapSTM((mea) => mea.map(STM.fromEitherNow));
 }

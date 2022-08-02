@@ -8,7 +8,7 @@ import type { _A, _E, _R } from "@fncts/base/types.js";
  * @tsplus companion fncts.test.PSpecOps
  */
 export class PSpec<R, E, T> {
-  readonly _R!: (_: R) => void;
+  readonly _R!: () => R;
   readonly _E!: () => E;
   readonly _A!: () => T;
 
@@ -56,7 +56,7 @@ export class LabeledCase<Spec> {
  */
 export class ScopedCase<R, E, Spec> {
   readonly _tag = SpecCaseTag.Scoped;
-  constructor(readonly scoped: IO<R & Has<Scope>, E, Spec>) {}
+  constructor(readonly scoped: IO<R | Scope, E, Spec>) {}
 }
 
 /**
@@ -71,7 +71,7 @@ export class MultipleCase<Spec> {
  * @tsplus companion fncts.test.PSpec.TestCaseOps
  */
 export class TestCase<R, E, T> {
-  readonly _R!: (_: R) => void;
+  readonly _R!: () => R;
   readonly _E!: () => E;
   readonly _A!: () => T;
   readonly _tag = SpecCaseTag.Test;

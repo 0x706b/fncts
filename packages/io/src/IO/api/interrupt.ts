@@ -15,7 +15,7 @@ export function interruptAs(fiberId: FiberId, __tsplusTrace?: string): FIO<never
  *
  * @tsplus static fncts.io.IOOps interrupt
  */
-export const interrupt: IO<unknown, never, never> = IO.fiberId.flatMap(IO.interruptAs);
+export const interrupt: IO<never, never, never> = IO.fiberId.flatMap(IO.interruptAs);
 
 /**
  * Switches the interrupt status for this effect. If `true` is used, then the
@@ -97,7 +97,7 @@ export function interruptibleMask<R, E, A>(k: (restore: InterruptStatusRestore) 
 export function onInterrupt_<R, E, A, R1>(
   ma: IO<R, E, A>,
   cleanup: (interruptors: HashSet<FiberId>) => IO<R1, never, any>,
-): IO<R & R1, E, A> {
+): IO<R | R1, E, A> {
   return uninterruptibleMask(({ restore }) =>
     restore(ma).matchCauseIO(
       (cause) =>
@@ -116,7 +116,7 @@ export function onInterrupt_<R, E, A, R1>(
 export function onInterruptExtended_<R, E, A, R2, E2>(
   self: IO<R, E, A>,
   cleanup: Lazy<IO<R2, E2, any>>,
-): IO<R & R2, E | E2, A> {
+): IO<R | R2, E | E2, A> {
   return uninterruptibleMask(({ restore }) =>
     restore(self).matchCauseIO(
       (cause) =>

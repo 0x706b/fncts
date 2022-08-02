@@ -41,11 +41,11 @@ export function feedBooleans(...booleans: ReadonlyArray<boolean>) {
 /**
  * @tsplus static fncts.test.TestRandomOps make
  */
-export function make(initialData: Data): Layer<unknown, never, unknown & Has<TestRandom>> {
+export function make(initialData: Data): Layer<never, never, Random | TestRandom> {
   return Layer.fromIOEnvironment(
-    IO.gen(function* (_) {
-      const data   = yield* _(Ref.make(initialData));
-      const buffer = yield* _(Ref.make(new Buffer()));
+    Do((_) => {
+      const data   = _(Ref.make(initialData));
+      const buffer = _(Ref.make(new Buffer()));
       const test   = new TestRandom(data, buffer);
       return Environment().add(test, TestRandom.Tag).add(test, Random.Tag);
     }),
@@ -62,13 +62,13 @@ export const determinictic = TestRandom.make(defaultData);
 /**
  * @tsplus static fncts.test.TestRandomOps Random
  */
-export const random: Layer<unknown, never, Has<TestRandom>> = determinictic.to(
+export const random: Layer<unknown, never, TestRandom> = determinictic.to(
   Layer.scoped(
-    IO.gen(function* (_) {
-      const testRandom = yield* _(IO.service(TestRandom.Tag));
-      const time       = yield* _(Clock.currentTime);
-      yield* _(testRandom.setSeed(time));
-      yield* _(IOEnv.services.locallyScopedWith((_) => _.add(testRandom, Random.Tag)));
+    Do((_) => {
+      const testRandom = _(IO.service(TestRandom.Tag));
+      const time       = _(Clock.currentTime);
+      _(testRandom.setSeed(time));
+      _(IOEnv.services.locallyScopedWith((_) => _.add(testRandom, Random.Tag)));
       return testRandom;
     }),
     TestRandom.Tag,

@@ -43,6 +43,14 @@ import { isDate, isFunction, isIterable, isObject, isPlain } from "@fncts/base/u
 /**
  * @tsplus global
  */
+import { Clock } from "@fncts/io/Clock";
+/**
+ * @tsplus global
+ */
+import { Console } from "@fncts/io/Console";
+/**
+ * @tsplus global
+ */
 import { Fiber, FiberContext } from "@fncts/io/Fiber";
 /**
  * @tsplus global
@@ -52,6 +60,10 @@ import { IO, isIO, UIO } from "@fncts/io/IO";
  * @tsplus global
  */
 import { IOEnv } from "@fncts/io/IOEnv";
+/**
+ * @tsplus global
+ */
+import { Random } from "@fncts/io/Random";
 /**
  * @tsplus global
  */

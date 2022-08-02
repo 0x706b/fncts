@@ -125,10 +125,10 @@ export class BackPressure<A> extends Strategy<A> {
   get shutdown(): UIO<void> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
-    return IO.gen(function* (_) {
-      const fiberId    = yield* _(IO.fiberId);
-      const publishers = yield* _(IO.succeed(self.publishers.unsafeDequeueAll));
-      yield* _(IO.foreachC(publishers, ([_, future, last]) => (last ? future.interruptAs(fiberId) : IO.unit)));
+    return Do((_) => {
+      const fiberId    = _(IO.fiberId);
+      const publishers = _(IO.succeed(self.publishers.unsafeDequeueAll));
+      _(IO.foreachC(publishers, ([_, future, last]) => (last ? future.interruptAs(fiberId) : IO.unit)));
     });
   }
 
@@ -254,7 +254,7 @@ export class Sliding<A> extends Strategy<A> {
   }
 }
 
-class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never, never, A> {
+class UnsafeSubscription<A> extends QueueInternal<never, never, unknown, never, never, A> {
   constructor(
     readonly hub: HubInternal<A>,
     readonly subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
@@ -294,7 +294,7 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
 
   offerAll = (_: Iterable<never>): IO<never, unknown, boolean> => IO.succeedNow(false);
 
-  take: IO<unknown, never, A> = IO.fiberId.flatMap((fiberId) =>
+  take: IO<never, never, A> = IO.fiberId.flatMap((fiberId) =>
     IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -327,7 +327,7 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
     }),
   );
 
-  takeAll: IO<unknown, never, Conc<A>> = IO.defer(() => {
+  takeAll: IO<never, never, Conc<A>> = IO.defer(() => {
     if (this.shutdownFlag.get) {
       return IO.interrupt;
     }
@@ -339,7 +339,7 @@ class UnsafeSubscription<A> extends QueueInternal<never, unknown, unknown, never
     return IO.succeedNow(as);
   });
 
-  takeUpTo = (n: number): IO<unknown, never, Conc<A>> => {
+  takeUpTo = (n: number): IO<never, never, Conc<A>> => {
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -395,7 +395,7 @@ export function subscribersHashSet<A>(): HashSet<
   return HashSet.empty<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>();
 }
 
-class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
+class UnsafeHub<A> extends PHubInternal<never, never, never, never, A, A> {
   constructor(
     readonly hub: HubInternal<A>,
     readonly subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
@@ -431,14 +431,14 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
     return IO.succeed(this.hub.size());
   });
 
-  subscribe: IO<Has<Scope>, never, Queue.Dequeue<A>> = IO.acquireRelease(
+  subscribe: IO<Scope, never, Queue.Dequeue<A>> = IO.acquireRelease(
     makeSubscription(this.hub, this.subscribers, this.strategy).tap((dequeue) =>
       this.scope.addFinalizer(dequeue.shutdown),
     ),
     (dequeue) => dequeue.shutdown,
   );
 
-  publish = (a: A): IO<unknown, never, boolean> =>
+  publish = (a: A): IO<never, never, boolean> =>
     IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -452,7 +452,7 @@ class UnsafeHub<A> extends PHubInternal<unknown, unknown, never, never, A, A> {
       return this.strategy.handleSurplus(this.hub, this.subscribers, Conc.single(a), this.shutdownFlag);
     });
 
-  publishAll = (as: Iterable<A>): IO<unknown, never, boolean> =>
+  publishAll = (as: Iterable<A>): IO<never, never, boolean> =>
     IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -485,9 +485,9 @@ export function unsafeMakeHub<A>(
 }
 
 export function makeHubInternal<A>(hub: HubInternal<A>, strategy: Strategy<A>): UIO<Hub<A>> {
-  return IO.gen(function* (_) {
-    const scope  = yield* _(Scope.make);
-    const future = yield* _(Future.make<never, void>());
+  return Do((_) => {
+    const scope  = _(Scope.make);
+    const future = _(Future.make<never, void>());
     return unsafeMakeHub(hub, subscribersHashSet(), scope, future, new AtomicBoolean(false), strategy);
   });
 }

@@ -16,6 +16,6 @@ export function mergeAll_<Env, InErr, InElem, InDone, OutErr, Env1, InErr1, InEl
   n: number,
   bufferSize = 16,
   mergeStrategy: MergeStrategy = "BackPressure",
-): Channel<Env & Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem, unknown> {
+): Channel<Env | Env1, InErr & InErr1, InElem & InElem1, InDone & InDone1, OutErr | OutErr1, OutElem, unknown> {
   return channels.mergeAllWith(n, () => undefined, bufferSize, mergeStrategy);
 }
