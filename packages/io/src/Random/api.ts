@@ -18,7 +18,7 @@ export const nextInt = IO.randomWith((random) => random.nextInt);
 /**
  * @tsplus static fncts.io.RandomOps nextRange
  */
-export function nextRange(low: number, high: number): IO<unknown, never, number> {
+export function nextRange(low: number, high: number): IO<never, never, number> {
   return IO.randomWith((random) => random.nextRange(low, high));
 }
 

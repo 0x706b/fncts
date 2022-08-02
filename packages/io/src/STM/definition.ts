@@ -22,7 +22,7 @@ export type STMTypeId = typeof STMTypeId;
  */
 export abstract class STM<R, E, A> {
   readonly _typeId: STMTypeId = STMTypeId;
-  readonly _R!: (_: R) => void;
+  readonly _R!: () => R;
   readonly _E!: () => E;
   readonly _A!: () => A;
 }
@@ -37,11 +37,11 @@ export function unifySTM<X extends STM<any, any, any>>(self: X): STM<_R<X>, _E<X
 /**
  * @tsplus type fncts.io.STM
  */
-export interface USTM<A> extends STM<unknown, never, A> {}
+export interface USTM<A> extends STM<never, never, A> {}
 
 export class Effect<R, E, A> extends STM<R, E, A> {
   readonly _tag = STMTag.Effect;
-  constructor(readonly f: (journal: Journal, fiberId: FiberId, r: R) => A) {
+  constructor(readonly f: (journal: Journal, fiberId: FiberId, r: Environment<R>) => A) {
     super();
   }
 }
@@ -73,14 +73,14 @@ export class OnSuccess<R, E, A, B> extends STM<R, E, B> {
   }
 }
 
-export class Succeed<A> extends STM<unknown, never, A> {
+export class Succeed<A> extends STM<never, never, A> {
   readonly _tag = STMTag.Succeed;
   constructor(readonly a: () => A) {
     super();
   }
 }
 
-export class SucceedNow<A> extends STM<unknown, never, A> {
+export class SucceedNow<A> extends STM<never, never, A> {
   readonly _tag = STMTag.SucceedNow;
   constructor(readonly a: A) {
     super();
@@ -89,7 +89,7 @@ export class SucceedNow<A> extends STM<unknown, never, A> {
 
 export class ContramapEnvironment<R, E, A, R0> extends STM<R0, E, A> {
   readonly _tag = STMTag.ContramapEnvironment;
-  constructor(readonly stm: STM<R, E, A>, readonly f: (_: R0) => R) {
+  constructor(readonly stm: STM<R, E, A>, readonly f: (_: Environment<R0>) => Environment<R>) {
     super();
   }
 }

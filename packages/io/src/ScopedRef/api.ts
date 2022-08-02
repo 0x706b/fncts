@@ -1,21 +1,16 @@
 /**
  * @tsplus static fncts.io.ScopedRefOps fromAcquire
  */
-export function fromAcquire<R, E, A>(
-  acquire: IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R & Has<Scope>, E, ScopedRef<A>> {
+export function fromAcquire<R, E, A>(acquire: IO<R, E, A>, __tsplusTrace?: string): IO<R | Scope, E, ScopedRef<A>> {
   return IO.uninterruptibleMask(({ restore }) =>
-    IO.gen(function* (_) {
-      const newScope = yield* _(Scope.make);
-      const a        = yield* _(
-        restore(acquire(IO.$.provideSomeService(newScope, Scope.Tag))).tapCause((cause) =>
-          newScope.close(Exit.fail(cause)),
-        ),
+    Do((_) => {
+      const newScope = _(Scope.make);
+      const a        = _(
+        restore(acquire.provideSomeService(newScope, Scope.Tag).tapCause((cause) => newScope.close(Exit.fail(cause)))),
       );
-      const ref       = yield* _(Ref.Synchronized.make([newScope, a] as const));
+      const ref       = _(Ref.Synchronized.make([newScope, a] as const));
       const scopedRef = new Synch(ref);
-      yield* _(IO.addFinalizer(scopedRef.close));
+      _(IO.addFinalizer(scopedRef.close));
       return scopedRef;
     }),
   );
@@ -28,13 +23,13 @@ class Synch<A> extends ScopedRef<A> {
 
   close: UIO<void> = this.ref.get.flatMap(([scope, _]) => scope.close(Exit.unit));
 
-  set<R, E>(acquire: IO<R & Has<Scope>, E, A>, __tsplusTrace?: string): IO<R, E, void> {
+  set<R, E>(acquire: IO<R, E, A>, __tsplusTrace?: string): IO<Exclude<R, Scope>, E, void> {
     return this.ref.modifyIO(([oldScope, a]) =>
       IO.uninterruptibleMask(({ restore }) =>
-        IO.gen(function* (_) {
-          const newScope = yield* _(Scope.make);
-          const exit     = yield* _(restore(acquire(IO.$.provideSomeService(newScope, Scope.Tag))).result);
-          return yield* _(
+        Do((_) => {
+          const newScope = _(Scope.make);
+          const exit     = _(restore(acquire.provideSomeService(newScope, Scope.Tag)).result);
+          return _(
             exit.match(
               (cause): UIO<readonly [FIO<E, void>, readonly [Scope.Closeable, A]]> =>
                 newScope.close(Exit.unit).ignore.as([IO.failCauseNow(cause), [oldScope, a]] as const),

@@ -13,8 +13,8 @@ export type HubTypeId = typeof HubTypeId;
  */
 export interface PHub<RA, RB, EA, EB, A, B> {
   readonly _typeId: HubTypeId;
-  readonly _RA: (_: RA) => void;
-  readonly _RB: (_: RB) => void;
+  readonly _RA: () => RA;
+  readonly _RB: () => RB;
   readonly _EA: () => EA;
   readonly _EB: () => EB;
   readonly _A: (_: A) => void;
@@ -24,7 +24,7 @@ export interface PHub<RA, RB, EA, EB, A, B> {
 /**
  * @tsplus type fncts.io.Hub
  */
-export interface Hub<A> extends PHub<unknown, unknown, never, never, A, A> {}
+export interface Hub<A> extends PHub<never, never, never, never, A, A> {}
 
 /**
  * @tsplus type fncts.io.HubOps
@@ -40,8 +40,8 @@ export declare namespace Hub {
 
 export abstract class PHubInternal<RA, RB, EA, EB, A, B> implements PHub<RA, RB, EA, EB, A, B> {
   _typeId: HubTypeId = HubTypeId;
-  readonly _RA!: (_: RA) => void;
-  readonly _RB!: (_: RB) => void;
+  readonly _RA!: () => RA;
+  readonly _RB!: () => RB;
   readonly _EA!: () => EA;
   readonly _EB!: () => EB;
   readonly _A!: (_: A) => void;
@@ -89,7 +89,7 @@ export abstract class PHubInternal<RA, RB, EA, EB, A, B> implements PHub<RA, RB,
    * can be evaluated multiple times within the scope of the managed to take a
    * message from the hub each time.
    */
-  abstract subscribe: IO<Has<Scope>, never, Hub.Dequeue<RB, EB, B>>;
+  abstract subscribe: IO<Scope, never, Hub.Dequeue<RB, EB, B>>;
 }
 
 /**

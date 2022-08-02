@@ -22,7 +22,7 @@ export function zipC_<
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
-  Env1 & Env,
+  Env1 | Env,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,
@@ -59,7 +59,7 @@ export function zipFirstC_<
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
-  Env1 & Env,
+  Env1 | Env,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,
@@ -92,7 +92,7 @@ export function zipSecondC_<
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ): Channel<
-  Env1 & Env,
+  Env1 | Env,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,

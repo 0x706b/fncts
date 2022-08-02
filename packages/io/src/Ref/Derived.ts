@@ -4,7 +4,7 @@ import type { PRef } from "./definition.js";
 import { RefInternal } from "./definition.js";
 import { DerivedAll } from "./DerivedAll.js";
 
-export class Derived<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, EB, A, B> {
+export class Derived<EA, EB, A, B> extends RefInternal<never, never, EA, EB, A, B> {
   readonly _tag = "Derived";
 
   constructor(
@@ -23,7 +23,7 @@ export class Derived<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, EB,
     eb: (_: EB) => ED,
     ca: (_: C) => Either<EC, A>,
     bd: (_: B) => Either<ED, D>,
-  ): PRef<unknown, unknown, EC, ED, C, D> {
+  ): PRef<never, never, EC, ED, C, D> {
     return this.use(
       (value, getEither, setEither) =>
         new Derived<EC, ED, C, D>((f) =>
@@ -42,7 +42,7 @@ export class Derived<EA, EB, A, B> extends RefInternal<unknown, unknown, EA, EB,
     ec: (_: EB) => EC,
     ca: (_: C) => (_: B) => Either<EC, A>,
     bd: (_: B) => Either<ED, D>,
-  ): PRef<unknown, unknown, EC, ED, C, D> {
+  ): PRef<never, never, EC, ED, C, D> {
     return this.use(
       (value, getEither, setEither) =>
         new DerivedAll<EC, ED, C, D>((f) =>

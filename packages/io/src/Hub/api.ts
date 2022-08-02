@@ -40,13 +40,13 @@ export function capacity<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>)
 export function contramapIO_<RA, RB, RC, EA, EB, EC, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
-): PHub<RC & RA, RB, EA | EC, EB, C, B> {
+): PHub<RC | RA, RB, EA | EC, EB, C, B> {
   return self.dimapIO(f, IO.succeedNow);
 }
 
 class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
-  RC & RA,
-  RD & RB,
+  RC | RA,
+  RD | RB,
   EA | EC,
   EB | ED,
   C,
@@ -96,12 +96,12 @@ export function dimapIO_<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D>(
   source: PHub<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
   g: (b: B) => IO<RD, ED, D>,
-): PHub<RC & RA, RD & RB, EA | EC, EB | ED, C, D> {
+): PHub<RC | RA, RD | RB, EA | EC, EB | ED, C, D> {
   concrete(source);
   return new DimapIO(source, f, g);
 }
 
-class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA & RA1, RB, EA | EA1, EB, A, B> {
+class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA | RA1, RB, EA | EA1, EB, A, B> {
   constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>, readonly f: (a: A) => IO<RA1, EA1, boolean>) {
     super();
   }
@@ -125,7 +125,7 @@ class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA & RA
 export function filterInputIO_<RA, RA1, RB, EA, EA1, EB, A, B>(
   source: PHub<RA, RB, EA, EB, A, B>,
   f: (a: A) => IO<RA1, EA1, boolean>,
-): PHub<RA & RA1, RB, EA | EA1, EB, A, B> {
+): PHub<RA | RA1, RB, EA | EA1, EB, A, B> {
   concrete(source);
   return new FilterInputIO(source, f);
 }
@@ -139,7 +139,7 @@ export function filterInput_<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A,
   return self.filterInputIO((a) => IO.succeedNow(f(a)));
 }
 
-class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB & RB1, EA, EB | EB1, A, B> {
+class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB | RB1, EA, EB | EB1, A, B> {
   constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>, readonly f: (a: B) => IO<RB1, EB1, boolean>) {
     super();
   }
@@ -162,7 +162,7 @@ class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB
 export function filterOutputIO_<RA, RB, RB1, EA, EB, EB1, A, B>(
   source: PHub<RA, RB, EA, EB, A, B>,
   f: (a: B) => IO<RB1, EB1, boolean>,
-): PHub<RA, RB & RB1, EA, EB | EB1, A, B> {
+): PHub<RA, RB | RB1, EA, EB | EB1, A, B> {
   concrete(source);
   return new FilterOutputIO(source, f);
 }
@@ -262,7 +262,7 @@ export function map_<RA, RB, EA, EB, A, B, C>(
 export function mapIO_<RA, RB, RC, EA, EB, EC, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<RC, EC, C>,
-): PHub<RA, RC & RB, EA, EB | EC, A, C> {
+): PHub<RA, RC | RB, EA, EB | EC, A, C> {
   return self.dimapIO(IO.succeedNow, f);
 }
 
@@ -279,7 +279,7 @@ class ToQueue<RA, RB, EA, EB, A, B> extends QueueInternal<RA, never, EA, unknown
   takeAll       = IO.succeedNow(Conc.empty<never>());
   offer         = (a: A): IO<RA, EA, boolean> => this.source.publish(a);
   offerAll      = (as: Iterable<A>): IO<RA, EA, boolean> => this.source.publishAll(as);
-  takeUpTo      = (): IO<unknown, never, Conc<never>> => IO.succeedNow(Conc.empty());
+  takeUpTo      = (): IO<never, never, Conc<never>> => IO.succeedNow(Conc.empty());
 }
 
 /**
@@ -326,7 +326,7 @@ export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>)
  */
 export function subscribe<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
-): IO<Has<Scope>, never, Hub.Dequeue<RB, EB, B>> {
+): IO<Scope, never, Hub.Dequeue<RB, EB, B>> {
   concrete(self);
   return self.subscribe;
 }

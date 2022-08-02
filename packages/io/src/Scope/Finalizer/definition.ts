@@ -10,7 +10,7 @@ export interface Finalizer
     {
       readonly Finalizer: unique symbol;
     },
-    (exit: Exit<any, any>) => IO<unknown, never, any>
+    (exit: Exit<any, any>) => IO<never, never, any>
   > {}
 
 /**

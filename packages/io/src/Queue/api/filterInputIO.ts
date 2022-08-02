@@ -1,7 +1,7 @@
 import { concrete, QueueInternal } from "@fncts/io/Queue/definition";
 
 export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends QueueInternal<
-  RA & R2,
+  RA | R2,
   RB,
   EA | E2,
   EB,
@@ -18,11 +18,11 @@ export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends Q
 
   isShutdown: UIO<boolean> = this.queue.isShutdown;
 
-  offer(a: A1): IO<RA & R2, EA | E2, boolean> {
+  offer(a: A1): IO<RA | R2, EA | E2, boolean> {
     return this.f(a).flatMap((b) => (b ? this.queue.offer(a) : IO.succeedNow(false)));
   }
 
-  offerAll(as: Iterable<A1>): IO<RA & R2, EA | E2, boolean> {
+  offerAll(as: Iterable<A1>): IO<RA | R2, EA | E2, boolean> {
     return IO.foreach(as, (a) => this.f(a).map((b) => (b ? Just(a) : Nothing()))).flatMap((ms) => {
       const filtered = ms.compact;
       if (filtered.isEmpty) {
@@ -54,7 +54,7 @@ export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends Q
 export function filterInputIO_<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (_: A1) => IO<R2, E2, boolean>,
-): PQueue<RA & R2, RB, EA | E2, EB, A1, B> {
+): PQueue<RA | R2, RB, EA | E2, EB, A1, B> {
   concrete(queue);
   return new FilterInputIO(queue, f);
 }

@@ -4,9 +4,9 @@ import { PSynchronizedInternal } from "./definition.js";
  * @tsplus static fncts.io.Ref.SynchronizedOps make
  */
 export function makeSynchronized<A>(a: Lazy<A>): UIO<Ref.Synchronized<A>> {
-  return IO.gen(function* (_) {
-    const ref       = yield* _(Ref.make(a));
-    const semaphore = yield* _(TSemaphore.make(1).commit);
-    return new PSynchronizedInternal(new Set([semaphore]), ref.get, (a) => ref.set(a));
+  return Do((_) => {
+    const ref       = _(Ref.make(a));
+    const semaphore = _(TSemaphore.make(1).commit);
+    return new PSynchronizedInternal(new Set([semaphore]), ref.get, (a: A) => ref.set(a));
   });
 }

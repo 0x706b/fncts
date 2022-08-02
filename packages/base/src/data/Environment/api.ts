@@ -1,7 +1,7 @@
 /**
  * @tsplus fluent fncts.Environment add
  */
-export function add<R, S, H extends S = S>(self: Environment<R>, service: H, tag: Tag<S>): Environment<R & Has<S>> {
+export function add<R, H extends S, S = H>(self: Environment<R>, service: H, tag: Tag<S>): Environment<R | S> {
   const self0 = self.index === Number.MAX_SAFE_INTEGER ? self.clean : self;
   return new Environment(self0.map.set(tag, [service, self0.index]), self0.index + 1);
 }
@@ -11,11 +11,13 @@ export function add<R, S, H extends S = S>(self: Environment<R>, service: H, tag
  */
 export const empty = Environment();
 
+type Tags<R> = R extends infer S ? Tag<S> : never;
+
 /**
  * @tsplus fluent fncts.Environment get
  */
-export function get<R extends Has<S>, S>(self: Environment<R>, tag: Tag<S>): S {
-  return self.unsafeGet(tag);
+export function get<R, T extends Tags<R>>(self: Environment<R>, tag: T): T extends Tag<infer S> ? S : never {
+  return unsafeCoerce(self.unsafeGet(tag));
 }
 
 /**
@@ -28,7 +30,7 @@ export function getMaybe<R extends Has<S>, S>(self: Environment<R>, tag: Tag<S>)
 /**
  * @tsplus static fncts.EnvironmentOps __call
  */
-export function make(): Environment<unknown> {
+export function make(): Environment<never> {
   return new Environment(HashMap.makeDefault(), 0, HashMap.makeDefault());
 }
 
@@ -88,6 +90,6 @@ export function unsafeGet<R, S>(self: Environment<R>, tag: Tag<S>): S {
 /**
  * @tsplus fluent fncts.Environment update
  */
-export function update<R extends Has<S>, S>(self: Environment<R>, f: (s: S) => S, tag: Tag<S>): Environment<R> {
-  return self.add(f(self.get(tag)), tag);
+export function update<R, S extends R>(self: Environment<R>, f: (s: S) => S, tag: Tag<S>): Environment<R> {
+  return self.add(f(self.unsafeGet(tag)), tag);
 }

@@ -3,7 +3,7 @@ import { Sized } from "./definition.js";
 /**
  * @tsplus static fncts.test.SizedOps Live
  */
-export function Live(size: number): Layer<unknown, never, Has<Sized>> {
+export function Live(size: number): Layer<never, never, Sized> {
   return Layer.scoped(
     FiberRef.make(size).map(
       (ref) =>

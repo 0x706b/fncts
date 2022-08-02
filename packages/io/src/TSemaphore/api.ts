@@ -52,7 +52,7 @@ export function releaseN_(self: TSemaphore, n: number): USTM<void> {
 /**
  * @tsplus getter fncts.io.TSemaphore withPermits
  */
-export function withPermitsSelf(self: TSemaphore) {
+export function withPermits(self: TSemaphore) {
   return (n: number) =>
     <R, E, A>(io: IO<R, E, A>) =>
       IO.uninterruptibleMask(({ restore }) =>
@@ -63,6 +63,6 @@ export function withPermitsSelf(self: TSemaphore) {
 /**
  * @tsplus getter fncts.io.TSemaphore withPermit
  */
-export function withPermitSelf(self: TSemaphore) {
+export function withPermit(self: TSemaphore) {
   return <R, E, A>(io: IO<R, E, A>) => self.withPermits(1)(io);
 }

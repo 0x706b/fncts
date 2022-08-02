@@ -1,8 +1,8 @@
 import { concrete, QueueInternal } from "@fncts/io/Queue/definition";
 
 class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
-  RC & RA,
-  RD & RB,
+  RC | RA,
+  RD | RB,
   EC | EA,
   ED | EB,
   C,
@@ -22,11 +22,11 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
 
   isShutdown: UIO<boolean> = this.queue.isShutdown;
 
-  offer(c: C): IO<RC & RA, EA | EC, boolean> {
+  offer(c: C): IO<RC | RA, EA | EC, boolean> {
     return this.f(c).flatMap((a) => this.queue.offer(a));
   }
 
-  offerAll(cs: Iterable<C>): IO<RC & RA, EC | EA, boolean> {
+  offerAll(cs: Iterable<C>): IO<RC | RA, EC | EA, boolean> {
     return IO.foreach(cs, this.f).flatMap((as) => this.queue.offerAll(as));
   }
 
@@ -34,11 +34,11 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
 
   size: UIO<number> = this.queue.size;
 
-  take: IO<RD & RB, ED | EB, D> = this.queue.take.flatMap(this.g);
+  take: IO<RD | RB, ED | EB, D> = this.queue.take.flatMap(this.g);
 
-  takeAll: IO<RD & RB, ED | EB, Conc<D>> = this.queue.takeAll.flatMap((bs) => IO.foreach(bs, this.g));
+  takeAll: IO<RD | RB, ED | EB, Conc<D>> = this.queue.takeAll.flatMap((bs) => IO.foreach(bs, this.g));
 
-  takeUpTo(n: number): IO<RD & RB, ED | EB, Conc<D>> {
+  takeUpTo(n: number): IO<RD | RB, ED | EB, Conc<D>> {
     return this.queue.takeUpTo(n).flatMap((bs) => IO.foreach(bs, this.g));
   }
 }
@@ -66,7 +66,7 @@ export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
   g: (b: B) => IO<RD, ED, D>,
-): PQueue<RC & RA, RD & RB, EC | EA, ED | EB, C, D> {
+): PQueue<RC | RA, RD | RB, EC | EA, ED | EB, C, D> {
   concrete(queue);
   return new DimapIO(queue, f, g);
 }
@@ -79,7 +79,7 @@ export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
 export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
-): PQueue<RA & RC, RB, EA | EC, EB, C, B> {
+): PQueue<RA | RC, RB, EA | EC, EB, C, B> {
   return queue.dimapIO(f, IO.succeedNow);
 }
 
@@ -103,7 +103,7 @@ export function contramap_<RA, RB, EA, EB, A, B, C>(
 export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<R2, E2, C>,
-): PQueue<RA, R2 & RB, EA, EB | E2, A, C> {
+): PQueue<RA, R2 | RB, EA, EB | E2, A, C> {
   return queue.dimapIO(IO.succeedNow, f);
 }
 

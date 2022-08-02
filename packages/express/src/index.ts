@@ -56,8 +56,8 @@ export function match(method: Methods): {
     path: Route,
     ...handlers: never extends Handlers ? Array<RequestHandlerIO<any, Route, RouteParameters<Route>>> : Handlers
   ): URIO<
-    ExpressEnv &
-      _R<
+    | ExpressEnv
+    | _R<
         {
           [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
         }[number]
@@ -66,7 +66,7 @@ export function match(method: Methods): {
   >;
 } {
   return function (path, ...handlers) {
-    return expressRuntime(handlers as Array<ErasedRequestHandlerIO<any>>).flatMap((expressHandlers) =>
+    return expressRuntime(handlers as Array<ErasedRequestHandlerIO<never>>).flatMap((expressHandlers) =>
       IO.serviceWithIO(
         (service: ExpressApp) => IO.succeed(() => service.app[method](path, ...expressHandlers)),
         ExpressAppTag,
@@ -90,8 +90,8 @@ export function use<Route extends string, Handlers extends Array<RequestHandlerR
   path: Route,
   ...handlers: never extends Handlers ? Array<RequestHandlerRouteIO<any, Route>> : Handlers
 ): URIO<
-  ExpressEnv &
-    _R<
+  | ExpressEnv
+  | _R<
       {
         [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
       }[number]
@@ -101,9 +101,11 @@ export function use<Route extends string, Handlers extends Array<RequestHandlerR
 export function use(...args: Array<any>): URIO<ExpressEnv, void> {
   return IO.serviceWithIO((service: ExpressApp) => {
     if (typeof args[0] === "function") {
-      return expressRuntime(args).flatMap((expressHandlers) => IO.succeed(() => service.app.use(...expressHandlers)));
+      return expressRuntime(args as Array<RequestHandlerRouteIO>).flatMap((expressHandlers) =>
+        IO.succeed(() => service.app.use(...expressHandlers)),
+      );
     } else {
-      return expressRuntime(args.slice(1) ?? []).flatMap((expressHandlers) =>
+      return expressRuntime((args as Array<RequestHandlerRouteIO>).slice(1) ?? []).flatMap((expressHandlers) =>
         IO.succeed(() => service.app.use(args[0], ...expressHandlers)),
       );
     }

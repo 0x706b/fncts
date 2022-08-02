@@ -2,7 +2,7 @@ class LiveClock extends Clock {
   currentTime: UIO<number> = IO.succeed(Date.now());
 
   sleep(duration: Lazy<Duration>, __tsplusTrace?: string): UIO<void> {
-    return IO.asyncInterrupt<unknown, never, void>((k) => {
+    return IO.asyncInterrupt<never, never, void>((k) => {
       const handle = setTimeout(() => {
         k(IO.unit);
       }, duration().milliseconds);

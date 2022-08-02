@@ -10,7 +10,7 @@ import { Sample } from "./definition.js";
 /**
  * @tsplus fluent fncts.test.Sample flatMap
  */
-export function flatMap_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>): Sample<R & R1, B> {
+export function flatMap_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>): Sample<R | R1, B> {
   const sample = f(ma.value);
   return new Sample(
     sample.value,
@@ -45,7 +45,7 @@ export function filter_<R, A>(ma: Sample<R, A>, f: Predicate<A>): Stream<R, neve
 export function foreach_<R, A, R1, B>(
   ma: Sample<R, A>,
   f: (a: A) => IO<R1, never, B>,
-): IO<R & R1, never, Sample<R & R1, B>> {
+): IO<R | R1, never, Sample<R | R1, B>> {
   return f(ma.value).map(
     (b) =>
       new Sample(
@@ -104,28 +104,28 @@ export function unfold<R, A, S>(s: S, f: (s: S) => readonly [A, Stream<R, never,
 /**
  * @tsplus fluent fncts.test.Sample zip
  */
-export function zip<R, A, R1, B>(ma: Sample<R, A>, mb: Sample<R1, B>): Sample<R & R1, readonly [A, B]> {
+export function zip<R, A, R1, B>(ma: Sample<R, A>, mb: Sample<R1, B>): Sample<R | R1, readonly [A, B]> {
   return ma.zipWith(mb, tuple);
 }
 
 /**
  * @tsplus fluent fncts.test.Sample zipWith
  */
-export function zipWith_<R, A, R1, B, C>(ma: Sample<R, A>, mb: Sample<R1, B>, f: (a: A, b: B) => C): Sample<R & R1, C> {
+export function zipWith_<R, A, R1, B, C>(ma: Sample<R, A>, mb: Sample<R1, B>, f: (a: A, b: B) => C): Sample<R | R1, C> {
   return ma.flatMap((a) => map_(mb, (b) => f(a, b)));
 }
 
 /**
  * @tsplus static fncts.test.SampleOps noShrink
  */
-export function noShrink<A>(a: A): Sample<unknown, A> {
+export function noShrink<A>(a: A): Sample<never, A> {
   return new Sample(a, Stream.empty);
 }
 
 /**
  * @tsplus static fncts.test.SampleOps shrinkFractional
  */
-export function shrinkFractional(smallest: number): (a: number) => Sample<unknown, number> {
+export function shrinkFractional(smallest: number): (a: number) => Sample<never, number> {
   return (a) =>
     Sample.unfold(a, (max) =>
       tuple(
@@ -155,7 +155,7 @@ function bigIntAbs(x: bigint): bigint {
 /**
  * @tsplus static fncts.test.SampleOps shrinkBigInt
  */
-export function shrinkBigInt(smallest: bigint): (a: bigint) => Sample<unknown, bigint> {
+export function shrinkBigInt(smallest: bigint): (a: bigint) => Sample<never, bigint> {
   return (a) =>
     Sample.unfold(a, (max) =>
       tuple(
@@ -177,7 +177,7 @@ export function shrinkBigInt(smallest: bigint): (a: bigint) => Sample<unknown, b
 /**
  * @tsplus static fncts.test.SampleOps shrinkIntegral
  */
-export function shrinkIntegral(smallest: number): (a: number) => Sample<unknown, number> {
+export function shrinkIntegral(smallest: number): (a: number) => Sample<never, number> {
   return (a) =>
     Sample.unfold(a, (max) =>
       tuple(
@@ -199,7 +199,7 @@ export function shrinkIntegral(smallest: number): (a: number) => Sample<unknown,
 /**
  * @tsplus static fncts.test.SampleOps shrinkArrayInt64
  */
-export function shrinkArrayInt64(target: ArrayInt64): (value: ArrayInt64) => Sample<unknown, ArrayInt64> {
+export function shrinkArrayInt64(target: ArrayInt64): (value: ArrayInt64) => Sample<never, ArrayInt64> {
   return (value) =>
     Sample.unfold(value, (max) =>
       tuple(
@@ -219,8 +219,8 @@ export function shrinkArrayInt64(target: ArrayInt64): (value: ArrayInt64) => Sam
 function mergeStream<R, A, R1, B>(
   left: Stream<R, never, Maybe<A>>,
   right: Stream<R1, never, Maybe<B>>,
-): Stream<R & R1, never, Maybe<A | B>> {
-  return flatMapStream(Stream.fromChunk(Conc(Just<Stream<R & R1, never, Maybe<A | B>>>(left), Just(right))), identity);
+): Stream<R | R1, never, Maybe<A | B>> {
+  return flatMapStream(Stream.fromChunk(Conc(Just<Stream<R | R1, never, Maybe<A | B>>>(left), Just(right))), identity);
 }
 
 /**
@@ -229,7 +229,7 @@ function mergeStream<R, A, R1, B>(
 export function flatMapStream<R, A, R1, B>(
   stream: Stream<R, never, Maybe<A>>,
   f: (a: A) => Stream<R1, never, Maybe<B>>,
-): Stream<R & R1, never, Maybe<B>> {
+): Stream<R | R1, never, Maybe<B>> {
   return new Stream(
     stream.rechunk(1).channel.concatMapWithCustom(
       (values) =>

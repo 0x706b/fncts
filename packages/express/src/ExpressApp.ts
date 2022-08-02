@@ -31,7 +31,7 @@ export interface ExpressApp {
 
 export const ExpressAppTag = Tag<ExpressApp>();
 
-export const makeExpressApp: IO<Has<Scope> & Has<ExpressAppConfig>, never, ExpressApp> = Do((Δ) => {
+export const makeExpressApp: IO<Scope | ExpressAppConfig, never, ExpressApp> = Do((Δ) => {
   const open = Δ(IO.succeed(new AtomicBoolean(true)).acquireRelease((_) => IO.succeed(() => _.set(false))));
 
   const app = Δ(IO.succeed(() => express()));
@@ -39,7 +39,7 @@ export const makeExpressApp: IO<Has<Scope> & Has<ExpressAppConfig>, never, Expre
   const config = Δ(IO.service(ExpressAppConfigTag));
 
   const server = Δ(
-    IO.async<unknown, never, Server>((cb) => {
+    IO.async<never, never, Server>((cb) => {
       const onError = (err: Error) => {
         cb(IO.halt(new NodeServerListenError(err)));
       };
@@ -53,7 +53,7 @@ export const makeExpressApp: IO<Has<Scope> & Has<ExpressAppConfig>, never, Expre
       });
       server.addListener("error", onError);
     }).acquireRelease((server) =>
-      IO.async<unknown, never, void>((cb) => {
+      IO.async<never, never, void>((cb) => {
         server.close((err) => {
           if (err) {
             cb(IO.halt(new NodeServerCloseError(err)));
@@ -94,9 +94,9 @@ export const makeExpressApp: IO<Has<Scope> & Has<ExpressAppConfig>, never, Expre
 
 export const LiveExpressApp = Layer.scoped(makeExpressApp, ExpressAppTag);
 
-export type ExpressEnv = Has<ExpressAppConfig> & Has<ExpressApp>;
+export type ExpressEnv = ExpressAppConfig | ExpressApp;
 
-export function LiveExpress(host: string, port: number): Layer<unknown, never, ExpressEnv>;
+export function LiveExpress(host: string, port: number): Layer<never, never, ExpressEnv>;
 export function LiveExpress<R>(
   host: string,
   port: number,
@@ -113,12 +113,12 @@ export function LiveExpress<R>(
 export function expressRuntime<Handlers extends Array<RequestHandlerRouteIO>>(
   handlers: never extends Handlers ? Array<RequestHandlerRouteIO> : Handlers,
 ): IO<
-  _R<
-    {
-      [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
-    }[number]
-  > &
-    Has<ExpressApp>,
+  | _R<
+      {
+        [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
+      }[number]
+    >
+  | ExpressApp,
   never,
   ReadonlyArray<RequestHandler>
 > {

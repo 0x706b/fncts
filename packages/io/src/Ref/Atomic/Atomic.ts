@@ -7,7 +7,7 @@ import { DerivedAll } from "../DerivedAll.js";
 /**
  * @tsplus type fncts.io.Ref.Atomic
  */
-export class Atomic<A> extends RefInternal<unknown, unknown, never, never, A, A> {
+export class Atomic<A> extends RefInternal<never, never, never, never, A, A> {
   readonly _tag = "Atomic";
 
   constructor(private value: A) {
@@ -22,7 +22,7 @@ export class Atomic<A> extends RefInternal<unknown, unknown, never, never, A, A>
     _eb: (_: never) => ED,
     ca: (_: C) => Either<EC, A>,
     bd: (_: A) => Either<ED, D>,
-  ): PRef<unknown, unknown, EC, ED, C, D> {
+  ): PRef<never, never, EC, ED, C, D> {
     return new Derived<EC, ED, C, D>((f) => f(this, bd, ca));
   }
 
@@ -32,7 +32,7 @@ export class Atomic<A> extends RefInternal<unknown, unknown, never, never, A, A>
     _ec: (_: never) => EC,
     ca: (_: C) => (_: A) => Either<EC, A>,
     bd: (_: A) => Either<ED, D>,
-  ): PRef<unknown, unknown, EC, ED, C, D> {
+  ): PRef<never, never, EC, ED, C, D> {
     return new DerivedAll<EC, ED, C, D>((f) => f(this, bd, ca));
   }
 

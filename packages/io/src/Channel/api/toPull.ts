@@ -11,7 +11,7 @@ import { ChannelStateTag } from "@fncts/io/Channel/internal/ChannelState";
  */
 export function toPull<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-): IO<Env & Has<Scope>, never, IO<Env, OutErr, Either<OutDone, OutElem>>> {
+): IO<Env | Scope, never, IO<Env, OutErr, Either<OutDone, OutElem>>> {
   return IO.acquireReleaseExit(
     IO.succeed(new ChannelExecutor(() => self, null, identity)),
     (exec, exit) => exec.close(exit) || IO.unit,

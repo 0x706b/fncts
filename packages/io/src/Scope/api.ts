@@ -11,7 +11,7 @@ export function addFinalizer_(self: Scope, finalizer: Lazy<UIO<any>>): UIO<void>
 /**
  * @tsplus static fncts.io.ScopeOps addFinalizer
  */
-export function addFinalizer(finalizer: Lazy<UIO<void>>): IO<Has<Scope>, never, void> {
+export function addFinalizer(finalizer: Lazy<UIO<void>>): IO<Scope, never, void> {
   return IO.serviceWithIO((scope) => scope.addFinalizer(finalizer), Scope.Tag);
 }
 
@@ -24,7 +24,7 @@ export const concurrent: UIO<Scope.Closeable> = makeWith(ExecutionStrategy.concu
 /**
  * @tsplus fluent fncts.io.Scope extend
  */
-export function extend_<R, E, A>(self: Scope, io: Lazy<IO<R & Has<Scope>, E, A>>): IO<R, E, A> {
+export function extend_<R, E, A>(self: Scope, io: Lazy<IO<R, E, A>>): IO<Exclude<R, Scope>, E, A> {
   return IO.defer(io).contramapEnvironment((r) => r.union(Environment.empty.add(self, Scope.Tag)));
 }
 
@@ -65,10 +65,10 @@ export function makeWith(executionStrategy: Lazy<ExecutionStrategy>): UIO<Scope.
         }
         get fork() {
           return IO.uninterruptible(
-            IO.gen(function* (_) {
-              const scope     = yield* _(Scope.make);
-              const finalizer = yield* _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
-              yield* _(scope.addFinalizerExit(finalizer));
+            Do((_) => {
+              const scope     = _(Scope.make);
+              const finalizer = _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
+              _(scope.addFinalizerExit(finalizer));
               return scope;
             }),
           );
@@ -98,10 +98,10 @@ export function unsafeMakeWith(executionStrategy: ExecutionStrategy): Scope.Clos
     }
     get fork() {
       return IO.uninterruptible(
-        IO.gen(function* (_) {
-          const scope     = yield* _(Scope.make);
-          const finalizer = yield* _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
-          yield* _(scope.addFinalizerExit(finalizer));
+        Do((_) => {
+          const scope     = _(Scope.make);
+          const finalizer = _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
+          _(scope.addFinalizerExit(finalizer));
           return scope;
         }),
       );
@@ -112,6 +112,6 @@ export function unsafeMakeWith(executionStrategy: ExecutionStrategy): Scope.Clos
 /**
  * @tsplus fluent fncts.io.Scope.Closeable use
  */
-export function use_<R, E, A>(self: Scope.Closeable, io: Lazy<IO<R & Has<Scope>, E, A>>): IO<R, E, A> {
+export function use_<R, E, A>(self: Scope.Closeable, io: Lazy<IO<R, E, A>>): IO<Exclude<R, Scope>, E, A> {
   return self.extend(io).onExit((exit) => self.close(exit));
 }

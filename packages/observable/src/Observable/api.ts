@@ -16,7 +16,7 @@ export type ObservableInput<E = never, A = never> =
   | ArrayLike<A>
   | Iterable<A>
   | ReadableStreamLike<A>
-  | IO<IOEnv, E, A>;
+  | IO<never, E, A>;
 
 /*
  * -------------------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ export function makeZip<O extends ReadonlyArray<ObservableInput<any, any>>>(
 /**
  * @tsplus static fncts.observable.ObservableOps fromIO
  */
-export function fromIO<E, A>(io: IO<unknown, E, A>, scheduler: SchedulerLike = asyncScheduler): Observable<E, A> {
+export function fromIO<E, A>(io: IO<never, E, A>, scheduler: SchedulerLike = asyncScheduler): Observable<E, A> {
   return new Observable((s) => {
     let fiber: FiberContext<E, A>;
     const scheduled = scheduler.schedule(() => {

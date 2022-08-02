@@ -8,7 +8,7 @@ export function defaultExitHandler(
   _req: Request,
   _res: Response,
   _next: NextFunction,
-): (cause: Cause<never>) => URIO<unknown, void> {
+): (cause: Cause<never>) => URIO<never, void> {
   return (cause) =>
     IO.succeed(() => {
       if (cause.halted) {

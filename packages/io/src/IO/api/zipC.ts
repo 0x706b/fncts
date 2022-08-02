@@ -4,7 +4,7 @@ import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 /**
  * @tsplus fluent fncts.io.IO zipC
  */
-export function zipC_<R, E, A, R1, E1, B>(self: IO<R, E, A>, that: IO<R1, E1, B>): IO<R & R1, E | E1, readonly [A, B]> {
+export function zipC_<R, E, A, R1, E1, B>(self: IO<R, E, A>, that: IO<R1, E1, B>): IO<R | R1, E | E1, readonly [A, B]> {
   return self.zipWithC(that, tuple);
 }
 
@@ -15,7 +15,7 @@ export function zipWithC_<R, E, A, R1, E1, B, C>(
   self: IO<R, E, A>,
   that: IO<R1, E1, B>,
   f: (a: A, b: B) => C,
-): IO<R & R1, E | E1, C> {
+): IO<R | R1, E | E1, C> {
   return IO.descriptorWith((descriptor) =>
     IO.uninterruptibleMask(({ restore }) => {
       const future = Future.unsafeMake<void, C>(FiberId.none);

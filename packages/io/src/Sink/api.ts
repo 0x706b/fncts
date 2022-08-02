@@ -10,7 +10,7 @@ import { MergeDecision } from "../Channel/internal/MergeDecision.js";
 export function apFirst<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Z> {
   return self.zipWith(that, (z, _) => z);
 }
 
@@ -22,7 +22,7 @@ export function apFirst<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1
 export function apFirstC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Z> {
   return self.zipWithC(that, (z, _) => z);
 }
 
@@ -35,7 +35,7 @@ export function apSecond<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z1> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Z1> {
   return self.zipWith(that, (_, z1) => z1);
 }
 
@@ -48,7 +48,7 @@ export function apSecondC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, 
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z1> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Z1> {
   return self.zipWithC(that, (_, z1) => z1);
 }
 
@@ -97,7 +97,7 @@ export function collectAllWhileWith<R, E, In extends L, L, Z, S>(
 ): Sink<R, E, In, L, S> {
   return new Sink(
     Channel.fromIO(Ref.make<Conc<In>>(Conc.empty()).zip(Ref.make(false))).flatMap(([leftoversRef, upstreamDoneRef]) => {
-      const upstreamMarker: Channel<unknown, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
+      const upstreamMarker: Channel<never, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
         (inp) => Channel.writeNow(inp) > upstreamMarker,
         Channel.failNow,
         (x) => Channel.fromIO(upstreamDoneRef.set(true)).as(x),
@@ -179,8 +179,8 @@ export function contramapChunksIO<R, E, In, L, Z, R1, E1, In1>(
   self: Sink<R, E, In, L, Z>,
   f: (chunk: Conc<In1>) => IO<R1, E1, Conc<In>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In1, L, Z> {
-  const loop: Channel<R & R1, never, Conc<In1>, unknown, E | E1, Conc<In>, unknown> = Channel.readWith(
+): Sink<R | R1, E | E1, In1, L, Z> {
+  const loop: Channel<R | R1, never, Conc<In1>, unknown, E | E1, Conc<In>, unknown> = Channel.readWith(
     (chunk) => Channel.fromIO(f(chunk)).flatMap(Channel.writeNow) > loop,
     Channel.failNow,
     Channel.succeedNow,
@@ -197,7 +197,7 @@ export function contramapIO<R, E, In, L, Z, R1, E1, In1>(
   self: Sink<R, E, In, L, Z>,
   f: (inp: In1) => IO<R1, E1, In>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In1, L, Z> {
+): Sink<R | R1, E | E1, In1, L, Z> {
   return self.contramapChunksIO((chunk) => chunk.mapIO(f));
 }
 
@@ -242,7 +242,7 @@ export function dimapChunksIO<R, E, In, L, Z, R1, E1, In1, R2, E2, Z1>(
   f: (chunk: Conc<In1>) => IO<R1, E1, Conc<In>>,
   g: (z: Z) => IO<R2, E2, Z1>,
   __tsplusTrace?: string,
-): Sink<R & R1 & R2, E | E1 | E2, In1, L, Z1> {
+): Sink<R | R1 | R2, E | E1 | E2, In1, L, Z1> {
   return self.contramapChunksIO(f).mapIO(g);
 }
 
@@ -257,7 +257,7 @@ export function dimapIO<R, E, In, L, Z, R1, E1, In1, R2, E2, Z1>(
   f: (inp: In1) => IO<R1, E1, In>,
   g: (z: Z) => IO<R2, E2, Z1>,
   __tsplusTrace?: string,
-): Sink<R & R1 & R2, E | E1 | E2, In1, L, Z1> {
+): Sink<R | R1 | R2, E | E1 | E2, In1, L, Z1> {
   return self.contramapIO(f).mapIO(g);
 }
 
@@ -271,7 +271,7 @@ export function defer<R, E, In, L, Z>(sink: Lazy<Sink<R, E, In, L, Z>>, __tsplus
   return new Sink(Channel.defer(sink().channel));
 }
 
-const drainLoop: Channel<unknown, never, Conc<unknown>, unknown, never, Conc<never>, void> = Channel.readWithCause(
+const drainLoop: Channel<never, never, Conc<unknown>, unknown, never, Conc<never>, void> = Channel.readWithCause(
   () => drainLoop,
   Channel.failCauseNow,
   () => Channel.unit,
@@ -282,15 +282,15 @@ const drainLoop: Channel<unknown, never, Conc<unknown>, unknown, never, Conc<nev
  *
  * @tsplus static fncts.io.SinkOps drain
  */
-export const drain: Sink<unknown, never, unknown, never, void> = new Sink(drainLoop);
+export const drain: Sink<never, never, unknown, never, void> = new Sink(drainLoop);
 
 /**
  * Drops incoming elements until the predicate `p` is satisfied.
  *
  * @tsplus static fncts.io.SinkOps dropUntil
  */
-export function makeDropUntil<In>(p: Predicate<In>, __tsplusTrace?: string): Sink<unknown, never, In, In, void> {
-  const loop: Channel<unknown, never, Conc<In>, any, never, Conc<In>, void> = Channel.readWith(
+export function makeDropUntil<In>(p: Predicate<In>, __tsplusTrace?: string): Sink<never, never, In, In, void> {
+  const loop: Channel<never, never, Conc<In>, any, never, Conc<In>, void> = Channel.readWith(
     (inp: Conc<In>) => {
       const leftover = inp.dropUntil(p);
       const more     = leftover.isEmpty;
@@ -336,8 +336,8 @@ export function makeDropUntilIO<R, E, In>(
 export function makeDropWhile<Err, In>(
   predicate: Predicate<In>,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, In, any> {
-  const loop: Channel<unknown, never, Conc<In>, any, never, Conc<In>, any> = Channel.readWith(
+): Sink<never, never, In, In, any> {
+  const loop: Channel<never, never, Conc<In>, any, never, Conc<In>, any> = Channel.readWith(
     (inp: Conc<In>) => {
       const leftover = inp.dropWhile(predicate);
       const more     = leftover.isEmpty;
@@ -405,7 +405,7 @@ export function environmentWith<R, Z>(
 export function environmentWithIO<R, R1, E, Z>(
   f: (r: Environment<R>) => IO<R1, E, Z>,
   __tsplusTrace?: string,
-): Sink<R & R1, E, unknown, never, Z> {
+): Sink<R | R1, E, unknown, never, Z> {
   return Sink.fromIO(IO.environmentWithIO(f));
 }
 
@@ -417,7 +417,7 @@ export function environmentWithIO<R, R1, E, Z>(
 export function environmentWithSink<R, R1, E, In, L, Z>(
   f: (r: Environment<R>) => Sink<R1, E, In, L, Z>,
   __tsplusTrace?: string,
-): Sink<R & R1, E, In, L, Z> {
+): Sink<R | R1, E, In, L, Z> {
   return new Sink(Channel.unwrap(IO.environmentWith(f.compose((s) => s.channel))));
 }
 
@@ -426,7 +426,7 @@ export function environmentWithSink<R, R1, E, In, L, Z>(
  *
  * @tsplus static fncts.io.SinkOps fail
  */
-export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
+export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Sink<never, E, unknown, never, never> {
   return new Sink(Channel.fail(e));
 }
 
@@ -435,7 +435,7 @@ export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Sink<unknown, E, un
  *
  * @tsplus static fncts.io.SinkOps failCause
  */
-export function failCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
+export function failCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): Sink<never, E, unknown, never, never> {
   return new Sink(Channel.failCause(cause));
 }
 
@@ -444,7 +444,7 @@ export function failCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): Sin
  *
  * @tsplus static fncts.io.SinkOps failCauseNow
  */
-export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
+export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Sink<never, E, unknown, never, never> {
   return new Sink(Channel.failCauseNow(cause));
 }
 
@@ -453,7 +453,7 @@ export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Sink<u
  *
  * @tsplus static fncts.io.SinkOps failNow
  */
-export function failNow<E>(e: E, __tsplusTrace?: string): Sink<unknown, E, unknown, never, never> {
+export function failNow<E>(e: E, __tsplusTrace?: string): Sink<never, E, unknown, never, never> {
   return new Sink(Channel.failNow(e));
 }
 
@@ -479,7 +479,7 @@ export function filterInputIO<R, E, In, L, Z, R1, E1>(
   self: Sink<R, E, In, L, Z>,
   p: (inp: In) => IO<R1, E1, boolean>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In, L, Z> {
+): Sink<R | R1, E | E1, In, L, Z> {
   return self.contramapChunksIO((chunk) => chunk.filterIO(p));
 }
 
@@ -492,17 +492,17 @@ export function findIO<R, E, In extends L, L, Z, R1, E1>(
   self: Sink<R, E, In, L, Z>,
   f: (z: Z) => IO<R1, E1, boolean>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In, L, Maybe<Z>> {
+): Sink<R | R1, E | E1, In, L, Maybe<Z>> {
   return new Sink(
     Channel.fromIO(Ref.make(Conc.empty<In>()).zip(Ref.make(false))).flatMap(([leftoversRef, upstreamDoneRef]) => {
-      const upstreamMarker: Channel<unknown, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
+      const upstreamMarker: Channel<never, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
         (inp) => Channel.writeNow(inp) > upstreamMarker,
         Channel.failNow,
         (x) => Channel.fromIO(upstreamDoneRef.set(true)).as(x),
       );
 
       const loop: Channel<
-        R & R1,
+        R | R1,
         never,
         Conc<In>,
         unknown,
@@ -539,7 +539,7 @@ export function flatMap<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1>(
   self: Sink<R, E, In, L, Z>,
   f: (z: Z) => Sink<R1, E1, In1, L1, Z1>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In1, L | L1, Z1> {
+): Sink<R | R1, E | E1, In1, L | L1, Z1> {
   return self.matchSink(Sink.failNow, f);
 }
 
@@ -561,9 +561,9 @@ export function fromChannel<R, E, In, L, Z>(
  * @tsplus static fncts.io.SinkOps fromPush
  */
 export function fromPush<R, E, In, L, Z, R1>(
-  push: IO<Has<Scope> & R, never, (_: Maybe<Conc<In>>) => IO<R1, readonly [Either<E, Z>, Conc<L>], void>>,
+  push: IO<R, never, (_: Maybe<Conc<In>>) => IO<R1, readonly [Either<E, Z>, Conc<L>], void>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E, In, L, Z> {
+): Sink<Exclude<R, Scope> | R1, E, In, L, Z> {
   return new Sink(Channel.unwrapScoped(push.map(fromPushPull)));
 }
 
@@ -601,7 +601,7 @@ function fromPushPull<R, E, In, L, Z>(
 export function fromQueue<In>(
   queue: Lazy<Queue.Enqueue<In>>,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, never, void> {
+): Sink<never, never, In, never, void> {
   return Sink.unwrap(IO.succeed(queue).map((queue) => Sink.foreachChunk((inp) => queue.offerAll(inp))));
 }
 
@@ -614,7 +614,7 @@ export function fromQueue<In>(
 export function fromQueueWithShutdown<In>(
   queue: Lazy<Queue.Enqueue<In>>,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, never, void> {
+): Sink<never, never, In, never, void> {
   return Sink.unwrapScoped(
     IO.succeed(queue)
       .acquireRelease((queue) => queue.shutdown)
@@ -627,7 +627,7 @@ export function fromQueueWithShutdown<In>(
  *
  * @tsplus static fncts.io.SinkOps fromHub
  */
-export function fromHub<In>(hub: Lazy<Hub<In>>, __tsplusTrace?: string): Sink<unknown, never, In, never, void> {
+export function fromHub<In>(hub: Lazy<Hub<In>>, __tsplusTrace?: string): Sink<never, never, In, never, void> {
   return Sink.fromQueue(hub);
 }
 
@@ -640,7 +640,7 @@ export function fromHub<In>(hub: Lazy<Hub<In>>, __tsplusTrace?: string): Sink<un
 export function fromHubWithShutdown<In>(
   hub: Lazy<Hub<In>>,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, never, void> {
+): Sink<never, never, In, never, void> {
   return Sink.fromQueueWithShutdown(hub);
 }
 
@@ -658,7 +658,7 @@ export function fromIO<R, E, Z>(b: Lazy<IO<R, E, Z>>, __tsplusTrace?: string): S
  *
  * @tsplus static fncts.io.SinkOps halt
  */
-export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Sink<unknown, never, unknown, never, never> {
+export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Sink<never, never, unknown, never, never> {
   return Sink.failCause(Cause.halt(defect()));
 }
 
@@ -667,7 +667,7 @@ export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Sink<unknow
  *
  * @tsplus static fncts.io.SinkOps haltNow
  */
-export function haltNow(defect: unknown, __tsplusTrace?: string): Sink<unknown, never, unknown, never, never> {
+export function haltNow(defect: unknown, __tsplusTrace?: string): Sink<never, never, unknown, never, never> {
   return Sink.failCauseNow(Cause.halt(defect));
 }
 
@@ -676,7 +676,7 @@ export function haltNow(defect: unknown, __tsplusTrace?: string): Sink<unknown, 
  *
  * @tsplus static fncts.io.SinkOps head
  */
-export function head<In>(__tsplusTrace?: string): Sink<unknown, never, In, In, Maybe<In>> {
+export function head<In>(__tsplusTrace?: string): Sink<never, never, In, In, Maybe<In>> {
   return Sink.fold(
     Nothing(),
     (elem) => elem.isNothing(),
@@ -705,7 +705,7 @@ export function ignoreLeftover<R, E, In, L, Z>(
  *
  * @tsplus static fncts.io.SinkOps last
  */
-export function last<In>(__tsplusTrace?: string): Sink<unknown, never, In, In, Maybe<In>> {
+export function last<In>(__tsplusTrace?: string): Sink<never, never, In, In, Maybe<In>> {
   return Sink.foldLeft(Nothing(), (_, inp) => Just(inp));
 }
 
@@ -715,7 +715,7 @@ export function last<In>(__tsplusTrace?: string): Sink<unknown, never, In, In, M
  *
  * @tsplus static fncts.io.SinkOps leftover
  */
-export function leftover<L>(c: Lazy<Conc<L>>, __tsplusTrace?: string): Sink<unknown, never, unknown, L, void> {
+export function leftover<L>(c: Lazy<Conc<L>>, __tsplusTrace?: string): Sink<never, never, unknown, L, void> {
   return new Sink(Channel.write(c));
 }
 
@@ -724,7 +724,7 @@ export function leftover<L>(c: Lazy<Conc<L>>, __tsplusTrace?: string): Sink<unkn
  *
  * @tsplus static fncts.io.SinkOps log
  */
-export function log(message: Lazy<string>, __tsplusTrace?: string): Sink<unknown, never, unknown, never, void> {
+export function log(message: Lazy<string>, __tsplusTrace?: string): Sink<never, never, unknown, never, void> {
   return Sink.fromIO(IO.log(message));
 }
 
@@ -733,11 +733,11 @@ export function log(message: Lazy<string>, __tsplusTrace?: string): Sink<unknown
  *
  * @tsplus static fncts.io.SinkOps collectAll
  */
-export function makeCollectAll<In>(): Sink<unknown, never, In, never, Conc<In>> {
+export function makeCollectAll<In>(): Sink<never, never, In, never, Conc<In>> {
   return new Sink(collectLoop<In>(Conc.empty()));
 }
 
-function collectLoop<A>(state: Conc<A>): Channel<unknown, never, Conc<A>, unknown, never, Conc<never>, Conc<A>> {
+function collectLoop<A>(state: Conc<A>): Channel<never, never, Conc<A>, unknown, never, Conc<never>, Conc<A>> {
   return Channel.readWithCause(
     (inp: Conc<A>) => collectLoop(state.concat(inp)),
     Channel.failCauseNow,
@@ -751,7 +751,7 @@ function collectLoop<A>(state: Conc<A>): Channel<unknown, never, Conc<A>, unknow
  *
  * @tsplus static fncts.io.SinkOps collectAllN
  */
-export function makeCollectAllN<In>(n: Lazy<number>): Sink<unknown, never, In, In, Conc<In>> {
+export function makeCollectAllN<In>(n: Lazy<number>): Sink<never, never, In, In, Conc<In>> {
   return Sink.fromIO(IO.succeed(new ConcBuilder<In>())).flatMap((builder) =>
     Sink.foldUntil<In, ConcBuilder<In>>(builder, n, (builder, inp) => builder.append(inp)).map((builder) =>
       builder.result(),
@@ -853,7 +853,7 @@ export function makeFold<In, S>(
   contFn: Predicate<S>,
   f: (s: S, inp: In) => S,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, In, S> {
+): Sink<never, never, In, In, S> {
   return Sink.defer(new Sink(foldReader(z(), contFn, f)));
 }
 
@@ -884,7 +884,7 @@ function foldReader<S, In>(
   s: S,
   contFn: Predicate<S>,
   f: (s: S, inp: In) => S,
-): Channel<unknown, never, Conc<In>, any, never, Conc<In>, S> {
+): Channel<never, never, Conc<In>, any, never, Conc<In>, S> {
   if (!contFn(s)) {
     return Channel.succeedNow(s);
   } else {
@@ -916,7 +916,7 @@ export function makeFoldUntil<In, S>(
   max: Lazy<number>,
   f: (s: S, inp: In) => S,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, In, S> {
+): Sink<never, never, In, In, S> {
   return Sink.unwrap(
     IO.succeed(max).map((max) =>
       Sink.fold<In, readonly [S, number]>(
@@ -941,7 +941,7 @@ export function makeFoldChunks<In, S>(
   contFn: Predicate<S>,
   f: (s: S, inp: Conc<In>) => S,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, never, S> {
+): Sink<never, never, In, never, S> {
   return Sink.defer(new Sink(foldChunksReader(z(), contFn, f)));
 }
 
@@ -949,7 +949,7 @@ function foldChunksReader<In, S>(
   s: S,
   contFn: Predicate<S>,
   f: (s: S, inp: Conc<In>) => S,
-): Channel<unknown, never, Conc<In>, unknown, never, never, S> {
+): Channel<never, never, Conc<In>, unknown, never, never, S> {
   if (!contFn(s)) {
     return Channel.succeedNow(s);
   } else {
@@ -1002,7 +1002,7 @@ function foldChunksIOReader<Env, Err, In, S>(
  *
  * @tsplus static fncts.io.SinkOps foldLeft
  */
-export function makeFoldLeft<In, S>(z: Lazy<S>, f: (s: S, inp: In) => S): Sink<unknown, never, In, never, S> {
+export function makeFoldLeft<In, S>(z: Lazy<S>, f: (s: S, inp: In) => S): Sink<never, never, In, never, S> {
   return Sink.fold(z, () => true, f).ignoreLeftover;
 }
 
@@ -1012,10 +1012,7 @@ export function makeFoldLeft<In, S>(z: Lazy<S>, f: (s: S, inp: In) => S): Sink<u
  *
  * @tsplus static fncts.io.SinkOps foldLeftChunks
  */
-export function makeFoldLeftChunks<In, S>(
-  z: Lazy<S>,
-  f: (s: S, inp: Conc<In>) => S,
-): Sink<unknown, never, In, never, S> {
+export function makeFoldLeftChunks<In, S>(z: Lazy<S>, f: (s: S, inp: Conc<In>) => S): Sink<never, never, In, never, S> {
   return Sink.foldChunks(z, () => true, f).ignoreLeftover;
 }
 
@@ -1151,7 +1148,7 @@ export function makeFoldWeightedDecompose<In, S>(
   decompose: (inp: In) => Conc<In>,
   f: (s: S, inp: In) => S,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, In, S> {
+): Sink<never, never, In, In, S> {
   return Sink.defer(() => {
     /**
      * @tsplus tailRec
@@ -1190,7 +1187,7 @@ export function makeFoldWeightedDecompose<In, S>(
       cost: number,
       dirty: boolean,
       max: number,
-    ): Channel<unknown, never, Conc<In>, unknown, never, Conc<In>, S> {
+    ): Channel<never, never, Conc<In>, unknown, never, Conc<In>, S> {
       return Channel.readWith(
         (inp: Conc<In>) => {
           const [nextS, nextCost, nextDirty, leftovers] = fold(inp, s, max, dirty, cost, 0);
@@ -1233,7 +1230,7 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
   decompose: (inp: In) => IO<R2, E2, Conc<In>>,
   f: (s: S, inp: In) => IO<R, E, S>,
   __tsplusTrace?: string,
-): Sink<R & R1 & R2, E | E1 | E2, In, In, S> {
+): Sink<R | R1 | R2, E | E1 | E2, In, In, S> {
   return Sink.defer(() => {
     function fold(
       inp: Conc<In>,
@@ -1242,7 +1239,7 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
       dirty: boolean,
       cost: number,
       idx: number,
-    ): IO<R & R1 & R2, E | E1 | E2, readonly [S, number, boolean, Conc<In>]> {
+    ): IO<R | R1 | R2, E | E1 | E2, readonly [S, number, boolean, Conc<In>]> {
       if (idx === inp.length) {
         return IO.succeedNow([s, cost, dirty, Conc.empty()]);
       } else {
@@ -1271,7 +1268,7 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
       cost: number,
       dirty: boolean,
       max: number,
-    ): Channel<R & R1 & R2, E | E1 | E2, Conc<In>, unknown, E | E1 | E2, Conc<In>, S> {
+    ): Channel<R | R1 | R2, E | E1 | E2, Conc<In>, unknown, E | E1 | E2, Conc<In>, S> {
       return Channel.readWith(
         (inp: Conc<In>) =>
           Channel.fromIO(fold(inp, s, max, dirty, cost, 0)).flatMap(([nextS, nextCost, nextDirty, leftovers]) => {
@@ -1310,7 +1307,7 @@ export function makeFoldWeighted<In, S>(
   max: Lazy<number>,
   f: (s: S, inp: In) => S,
   __tsplusTrace?: string,
-): Sink<unknown, never, In, In, S> {
+): Sink<never, never, In, In, S> {
   return Sink.foldWeightedDecompose(z, costFn, max, Conc.single, f);
 }
 
@@ -1332,7 +1329,7 @@ export function makeFoldWeightedIO<R, E, In, S, R1, E1>(
   max: Lazy<number>,
   f: (s: S, inp: In) => IO<R1, E1, S>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In, In, S> {
+): Sink<R | R1, E | E1, In, In, S> {
   return Sink.foldWeightedDecomposeIO(z, costFn, max, (inp) => IO.succeedNow(Conc.single(inp)), f);
 }
 
@@ -1371,7 +1368,7 @@ export function mapIO_<R, E, In, L, Z, R1, E1, Z1>(
   self: Sink<R, E, In, L, Z>,
   f: (z: Z) => IO<R1, E1, Z1>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In, L, Z1> {
+): Sink<R | R1, E | E1, In, L, Z1> {
   return new Sink(self.channel.mapIO(f));
 }
 
@@ -1389,8 +1386,8 @@ export function matchSink_<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1, R2, E
   onFailure: (e: E) => Sink<R1, E1, In1, L1, Z1>,
   onSuccess: (z: Z) => Sink<R2, E2, In2, L2, Z2>,
   __tsplusTrace?: string,
-): Sink<R & R1 & R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2> {
-  return new Sink<R & R1 & R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2>(
+): Sink<R | R1 | R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2> {
+  return new Sink<R | R1 | R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2>(
     self.channel.doneCollect.matchChannel(
       (e) => onFailure(e).channel,
       ([leftovers, z]) =>
@@ -1419,8 +1416,8 @@ export function orElse<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z | Z1> {
-  return Sink.defer(new Sink<R & R1, E | E1, In & In1, L | L1, Z | Z1>(self.channel.orElse(that().channel)));
+): Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1> {
+  return Sink.defer(new Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1>(self.channel.orElse(that().channel)));
 }
 
 /**
@@ -1433,7 +1430,7 @@ export function provideEnvironment<R, E, In, L, Z>(
   self: Sink<R, E, In, L, Z>,
   r: Lazy<Environment<R>>,
   __tsplusTrace?: string,
-): Sink<unknown, E, In, L, Z> {
+): Sink<never, E, In, L, Z> {
   return new Sink(self.channel.provideEnvironment(r));
 }
 
@@ -1447,7 +1444,7 @@ export function race<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z | Z1> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1> {
   return self.raceBoth(that).map((result) => result.value);
 }
 
@@ -1462,7 +1459,7 @@ export function raceBoth<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   capacity: Lazy<number> = () => 16,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, Either<Z, Z1>> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Either<Z, Z1>> {
   return self.raceWith(
     that,
     (selfDone) => MergeDecision.Done(IO.fromExitNow(selfDone).map(Either.left)),
@@ -1484,7 +1481,7 @@ export function raceWith<R, E, In, L, Z, R1, E1, In1, L1, Z1, R2, E2, Z2, R3, E3
   rightDone: (exit: Exit<E1, Z1>) => MergeDecision<R, E, Z, E3, Z3>,
   capacity: Lazy<number> = () => 16,
   __tsplusTrace?: string,
-): Sink<R & R1 & R2 & R3, E2 | E3, In & In1, L | L1, Z2 | Z3> {
+): Sink<R | R1 | R2 | R3, E2 | E3, In & In1, L | L1, Z2 | Z3> {
   const scoped = IO.defer(() => {
     const that0     = that();
     const capacity0 = capacity();
@@ -1499,7 +1496,7 @@ export function raceWith<R, E, In, L, Z, R1, E1, In1, L1, Z1, R2, E2, Z2, R3, E3
         () => MergeDecision.Await(IO.fromExitNow),
         (done) => MergeDecision.Done(IO.fromExitNow(done)),
       );
-      return new Sink<R & R1 & R2 & R3, E2 | E3, In & In1, L | L1, Z2 | Z3>(channel);
+      return new Sink<R | R1 | R2 | R3, E2 | E3, In & In1, L | L1, Z2 | Z3>(channel);
     });
   });
   return Sink.unwrapScoped(scoped);
@@ -1510,7 +1507,7 @@ export function raceWith<R, E, In, L, Z, R1, E1, In1, L1, Z1, R2, E2, Z2, R3, E3
  *
  * @tsplus static fncts.io.SinkOps service
  */
-export function service<S>(/** @tsplus auto */ tag: Tag<S>): Sink<Has<S>, never, unknown, never, S> {
+export function service<S>(/** @tsplus auto */ tag: Tag<S>): Sink<S, never, unknown, never, S> {
   return Sink.serviceWith(Function.identity);
 }
 
@@ -1522,7 +1519,7 @@ export function service<S>(/** @tsplus auto */ tag: Tag<S>): Sink<Has<S>, never,
 export function serviceWith<S, Z>(
   f: (service: S) => Z,
   /** @tsplus auto */ tag: Tag<S>,
-): Sink<Has<S>, never, unknown, never, Z> {
+): Sink<S, never, unknown, never, Z> {
   return Sink.fromIO(IO.serviceWith(f, tag));
 }
 
@@ -1535,7 +1532,7 @@ export function serviceWith<S, Z>(
 export function serviceWithIO<S, R, E, Z>(
   f: (service: S) => IO<R, E, Z>,
   /** @tsplus auto */ tag: Tag<S>,
-): Sink<Has<S> & R, E, unknown, never, Z> {
+): Sink<S | R, E, unknown, never, Z> {
   return Sink.fromIO(IO.serviceWithIO(f, tag));
 }
 
@@ -1548,7 +1545,7 @@ export function serviceWithIO<S, R, E, Z>(
 export function serviceWithSink<S, R, E, In, L, Z>(
   f: (service: S) => Sink<R, E, In, L, Z>,
   /** @tsplus auto */ tag: Tag<S>,
-): Sink<Has<S> & R, E, In, L, Z> {
+): Sink<S | R, E, In, L, Z> {
   return new Sink(
     Channel.unwrap(
       IO.serviceWith(
@@ -1621,7 +1618,7 @@ function splitter<R, E, In>(
  *
  * @tsplus static fncts.io.SinkOps succeed
  */
-export function succeed<Z>(z: Lazy<Z>, __tsplusTrace?: string): Sink<unknown, never, unknown, never, Z> {
+export function succeed<Z>(z: Lazy<Z>, __tsplusTrace?: string): Sink<never, never, unknown, never, Z> {
   return new Sink(Channel.succeed(z));
 }
 
@@ -1630,7 +1627,7 @@ export function succeed<Z>(z: Lazy<Z>, __tsplusTrace?: string): Sink<unknown, ne
  *
  * @tsplus static fncts.io.SinkOps succeedNow
  */
-export function succeedNow<Z>(z: Z, __tsplusTrace?: string): Sink<unknown, never, unknown, never, Z> {
+export function succeedNow<Z>(z: Z, __tsplusTrace?: string): Sink<never, never, unknown, never, Z> {
   return new Sink(Channel.succeedNow(z));
 }
 
@@ -1645,7 +1642,7 @@ export function summarized<R, E, In, L, Z, R1, E1, B, C>(
   summary: Lazy<IO<R1, E1, B>>,
   f: (b1: B, b2: B) => C,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In, L, readonly [Z, C]> {
+): Sink<R | R1, E | E1, In, L, readonly [Z, C]> {
   return new Sink(
     Channel.unwrap(
       IO.succeed(summary).map((summary) =>
@@ -1674,7 +1671,7 @@ export function timed<R, E, In, L, Z>(
  */
 export function unwrap<R, E, R1, E1, In, L, Z>(
   io: Lazy<IO<R, E, Sink<R1, E1, In, L, Z>>>,
-): Sink<R & R1, E | E1, In, L, Z> {
+): Sink<R | R1, E | E1, In, L, Z> {
   return new Sink(Channel.unwrap(io().map((sink) => sink.channel)));
 }
 
@@ -1684,9 +1681,9 @@ export function unwrap<R, E, R1, E1, In, L, Z>(
  * @tsplus static fncts.io.SinkOps unwrapScoped
  */
 export function unwrapScoped<R, E, R1, E1, In, L, Z>(
-  scoped: Lazy<IO<Has<Scope> & R, E, Sink<R1, E1, In, L, Z>>>,
+  scoped: Lazy<IO<R, E, Sink<R1, E1, In, L, Z>>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In, L, Z> {
+): Sink<Exclude<R, Scope> | R1, E | E1, In, L, Z> {
   return new Sink(Channel.unwrapScoped(scoped().map((sink) => sink.channel)));
 }
 
@@ -1701,7 +1698,7 @@ export function zip<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
+): Sink<R | R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
   return self.zipWith(that, Function.tuple);
 }
 
@@ -1715,7 +1712,7 @@ export function zipC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
+): Sink<R | R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
   return self.zipWithC(that, Function.tuple);
 }
 
@@ -1731,7 +1728,7 @@ export function zipWith<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   f: (z: Z, z1: Z1) => Z2,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z2> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Z2> {
   return Sink.defer(self().flatMap((z) => that().map((z1) => f(z, z1))));
 }
 
@@ -1746,7 +1743,7 @@ export function zipWithC<R, E, In, L, Z, R1, E1, In1, L1, Z1, Z2>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   f: (z: Z, z1: Z1) => Z2,
   __tsplusTrace?: string,
-): Sink<R & R1, E | E1, In & In1, L | L1, Z2> {
+): Sink<R | R1, E | E1, In & In1, L | L1, Z2> {
   return Sink.defer(
     self().raceWith(
       that(),

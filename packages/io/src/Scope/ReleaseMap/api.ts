@@ -23,7 +23,7 @@ export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Ma
 /**
  * @tsplus fluent fncts.io.Scope.ReleaseMap release
  */
-export function release_(releaseMap: ReleaseMap, key: number, exit: Exit<any, any>): IO<unknown, never, any> {
+export function release_(releaseMap: ReleaseMap, key: number, exit: Exit<any, any>): IO<never, never, any> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited": {

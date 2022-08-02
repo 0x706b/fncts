@@ -22,7 +22,7 @@ export interface RequestHandlerIO<
 
 export type ErasedRequestHandlerIO<R> = RequestHandlerIO<R, any, any, any, any, any, any>;
 
-export type RequestHandlerRouteIO<R = unknown, Route extends string = any> = RequestHandlerIO<
+export type RequestHandlerRouteIO<R = never, Route extends string = any> = RequestHandlerIO<
   R,
   Route,
   RouteParameters<Route>

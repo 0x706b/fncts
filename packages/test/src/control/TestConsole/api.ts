@@ -7,15 +7,15 @@ import { TestConsole } from "@fncts/test/control/TestConsole/definition";
 /**
  * @tsplus static fncts.test.TestConsoleOps make
  */
-export function make(data: ConsoleData, debug = true): Layer<Has<Live>, never, Has<TestConsole>> {
+export function make(data: ConsoleData, debug = true): Layer<Live, never, TestConsole> {
   return Layer.scopedEnvironment(
     IO.serviceWithIO(
       (live) =>
-        IO.gen(function* (_) {
-          const ref      = yield* _(Ref.make(data));
-          const debugRef = yield* _(FiberRef.make(debug));
+        Do((_) => {
+          const ref      = _(Ref.make(data));
+          const debugRef = _(FiberRef.make(debug));
           const test     = new TestConsole(ref, live, debugRef);
-          yield* _(IOEnv.services.locallyScopedWith((_) => _.add(test, Console.Tag)));
+          _(IOEnv.services.locallyScopedWith((_) => _.add(test, Console.Tag)));
           return Environment.empty.add(test, TestConsole.Tag);
         }),
       Live.Tag,

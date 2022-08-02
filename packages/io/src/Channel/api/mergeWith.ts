@@ -38,7 +38,7 @@ export function mergeWith_<
   leftDone: (ex: Exit<OutErr, OutDone>) => MergeDecision<Env2, OutErr1, OutDone1, OutErr2, OutDone2>,
   rightDone: (ex: Exit<OutErr1, OutDone1>) => MergeDecision<Env3, OutErr, OutDone, OutErr3, OutDone3>,
 ): Channel<
-  Env & Env1 & Env2 & Env3,
+  Env | Env1 | Env2 | Env3,
   InErr & InErr1,
   InElem & InElem1,
   InDone & InDone1,
@@ -53,7 +53,7 @@ export function mergeWith_<
       const pullL       = _(queueReader.pipeTo(self).toPull);
       const pullR       = _(queueReader.pipeTo(that).toPull);
       type LocalMergeState = MergeState<
-        Env & Env1 & Env2 & Env3,
+        Env | Env1 | Env2 | Env3,
         OutErr,
         OutErr1,
         OutErr2 | OutErr3,
@@ -67,24 +67,24 @@ export function mergeWith_<
         <Err, Done, Err2, Done2>(
           exit: Exit<Err, Either<Done, OutElem | OutElem1>>,
           fiber: Fiber<Err2, Either<Done2, OutElem | OutElem1>>,
-          pull: IO<Env & Env1 & Env2 & Env3, Err, Either<Done, OutElem | OutElem1>>,
+          pull: IO<Env | Env1 | Env2 | Env3, Err, Either<Done, OutElem | OutElem1>>,
         ) =>
         (
           done: (
             ex: Exit<Err, Done>,
-          ) => MergeDecision<Env & Env1 & Env2 & Env3, Err2, Done2, OutErr2 | OutErr3, OutDone2 | OutDone3>,
+          ) => MergeDecision<Env | Env1 | Env2 | Env3, Err2, Done2, OutErr2 | OutErr3, OutDone2 | OutDone3>,
           both: (
             f1: Fiber<Err, Either<Done, OutElem | OutElem1>>,
             f2: Fiber<Err2, Either<Done2, OutElem | OutElem1>>,
           ) => LocalMergeState,
           single: (
-            f: (ex: Exit<Err2, Done2>) => IO<Env & Env1 & Env2 & Env3, OutErr2 | OutErr3, OutDone2 | OutDone3>,
+            f: (ex: Exit<Err2, Done2>) => IO<Env | Env1 | Env2 | Env3, OutErr2 | OutErr3, OutDone2 | OutDone3>,
           ) => LocalMergeState,
         ): IO<
-          Env & Env1 & Env2 & Env3,
+          Env | Env1 | Env2 | Env3,
           never,
           Channel<
-            Env & Env1 & Env2 & Env3,
+            Env | Env1 | Env2 | Env3,
             unknown,
             unknown,
             unknown,
@@ -94,7 +94,7 @@ export function mergeWith_<
           >
         > => {
           const onDecision = (
-            decision: MergeDecision<Env & Env1 & Env2 & Env3, Err2, Done2, OutErr2 | OutErr3, OutDone2 | OutDone3>,
+            decision: MergeDecision<Env | Env1 | Env2 | Env3, Err2, Done2, OutErr2 | OutErr3, OutDone2 | OutDone3>,
           ) => {
             decision.concrete();
             switch (decision._tag) {
@@ -127,7 +127,7 @@ export function mergeWith_<
       const go = (
         state: LocalMergeState,
       ): Channel<
-        Env & Env1 & Env2 & Env3,
+        Env | Env1 | Env2 | Env3,
         unknown,
         unknown,
         unknown,

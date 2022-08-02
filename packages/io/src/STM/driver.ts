@@ -14,7 +14,7 @@ type Cont =
 
 export class STMDriver<R, E, A> {
   private contStack: Stack<Cont>;
-  private envStack: Stack<unknown>;
+  private envStack: Stack<Environment<unknown>>;
 
   constructor(readonly self: STM<R, E, A>, readonly journal: Journal, readonly fiberId: FiberId, r0: Environment<R>) {
     this.contStack = Stack();
@@ -68,7 +68,7 @@ export class STMDriver<R, E, A> {
           break;
         }
         case STMTag.ContramapEnvironment: {
-          this.envStack.push(k.f(this.envStack.peek()));
+          this.envStack.push(k.f(this.envStack.peek() ?? Environment()));
           curr = k.stm.ensuring(
             STM.succeed(() => {
               this.envStack.pop();
@@ -93,7 +93,7 @@ export class STMDriver<R, E, A> {
         }
         case STMTag.Effect: {
           try {
-            const a = k.f(this.journal, this.fiberId, this.envStack.peek());
+            const a = k.f(this.journal, this.fiberId, this.envStack.peek() ?? Environment());
             if (!this.contStack.hasNext) {
               exit = TExit.succeed(a);
             } else {

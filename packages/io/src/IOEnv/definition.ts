@@ -2,7 +2,7 @@ import type { Patch } from "@fncts/base/data/Patch";
 
 import { Console } from "@fncts/io/Console";
 
-export type IOEnv = Has<Clock> & Has<Console> & Has<Random>;
+export type IOEnv = Clock | Console | Random;
 
 /**
  * @tsplus type fncts.io.IOEnvOps

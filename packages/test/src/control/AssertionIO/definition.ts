@@ -4,7 +4,7 @@ import type { FreeBooleanAlgebraIO } from "../FreeBooleanAlgebraIO.js";
 
 import { hasTypeId } from "@fncts/base/util/predicates";
 
-export type AssertResultIO<A> = FreeBooleanAlgebraIO<unknown, never, AssertionValue<A>>;
+export type AssertResultIO<A> = FreeBooleanAlgebraIO<never, never, AssertionValue<A>>;
 
 export const AssertionIOTypeId = Symbol.for("fncts.test.AssertionIO");
 export type AssertionIOTypeId = typeof AssertionIOTypeId;

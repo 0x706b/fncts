@@ -13,7 +13,7 @@ export const LiveTag = Tag<Live>();
 export abstract class Live {
   abstract provide<R, E, A>(io: IO<R, E, A>): IO<R, E, A>;
 
-  static Default: Layer<IOEnv, never, Has<Live>> = Layer.fromIO(
+  static Default: Layer<IOEnv, never, Live> = Layer.fromIO(
     IO.environmentWith(
       (env) =>
         new (class extends Live {
@@ -25,7 +25,7 @@ export abstract class Live {
     LiveTag,
   );
 
-  static Live<R extends Has<Live>, E, A>(io: IO<R, E, A>): IO<R & Has<Live>, E, A> {
+  static Live<R extends Live, E, A>(io: IO<R, E, A>): IO<R | Live, E, A> {
     return IO.serviceWithIO((live) => live.provide(io), LiveTag);
   }
 }
@@ -35,13 +35,13 @@ export abstract class Live {
  */
 export function withLive_<R, E, A, E1, B>(
   io: IO<R, E, A>,
-  f: (_: IO<unknown, E, A>) => IO<IOEnv, E1, B>,
-): IO<Erase<R, Has<Live>>, E | E1, B> {
+  f: (_: IO<never, E, A>) => IO<IOEnv, E1, B>,
+): IO<Exclude<R, Live>, E | E1, B> {
   // @ts-expect-error
-  return IO.environment<R & Has<Live>>().flatMap((r) => Live.Live(f(io.provideEnvironment(r))));
+  return IO.environment<R | Live>().flatMap((r) => Live.Live(f(io.provideEnvironment(r))));
 }
 
-export function withLive<R extends Has<Live>, E, A>(io: IO<R, E, A>) {
-  return <E1, B>(f: (_: IO<R, E, A>) => IO<R, E1, B>): IO<R & Has<Live>, E1, B> =>
+export function withLive<R extends Live, E, A>(io: IO<R, E, A>) {
+  return <E1, B>(f: (_: IO<R, E, A>) => IO<R, E1, B>): IO<R | Live, E1, B> =>
     IOEnv.services.getWith((services) => Live.Live(f(IOEnv.services.locally(services)(io))));
 }

@@ -5,6 +5,6 @@
 export function acquireRelease<R, E, A, R1>(
   acquire: Lazy<IO<R, E, A>>,
   release: (a: A) => IO<R1, never, any>,
-): IO<R & R1 & Has<Scope>, E, A> {
+): IO<R | R1 | Scope, E, A> {
   return IO.acquireReleaseExit(acquire, (a, _) => release(a));
 }

@@ -10,7 +10,7 @@ const INDEX_POSITIVE_INFINITY_32 = 2139095040; // floatToIndex(MAX_VALUE_32) + 1
 /** @internal */
 const INDEX_NEGATIVE_INFINITY_32 = -2139095041; // floatToIndex(-MAX_VALUE_32) - 1
 
-export function safeFloatToIndex(f: number, label: string): IO<unknown, never, number> {
+export function safeFloatToIndex(f: number, label: string): IO<never, never, number> {
   const conversionTrick = "you can convert any double to a 32-bit float by using `new Float32Array([myDouble])[0]`";
   const errorMessage    = "fc.floatNext constraints." + label + " must be a 32-bit float - " + conversionTrick;
   if (Number.isNaN(f) || (Number.isFinite(f) && (f < -MAX_VALUE_32 || f > MAX_VALUE_32))) {
@@ -397,7 +397,7 @@ export function indexToDouble(index: ArrayInt64): number {
  *
  * @internal
  */
-export function safeDoubleToIndex(d: number, label: string): IO<unknown, never, ArrayInt64> {
+export function safeDoubleToIndex(d: number, label: string): IO<never, never, ArrayInt64> {
   if (Number.isNaN(d)) {
     // Number.NaN does not have any associated index in the current implementation
     return IO.haltNow(new Error("fc.doubleNext constraints." + label + " must be a 32-bit float"));
@@ -478,7 +478,7 @@ export function computeArrayInt64GenerateRange(
   max: ArrayInt64,
   biasFactor: number | undefined,
   biasedRanges: { min: ArrayInt64; max: ArrayInt64 }[] | undefined,
-): URIO<unknown, { min: ArrayInt64; max: ArrayInt64 }> {
+): UIO<{ min: ArrayInt64; max: ArrayInt64 }> {
   return IO.gen(function* (_) {
     if (biasFactor === undefined || (yield* _(Random.nextIntBetween(1, biasFactor))) !== 1) {
       return { min, max };

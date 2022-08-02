@@ -13,9 +13,9 @@ export class Environment<R> implements Hashable, Equatable {
   readonly _typeId: EnvSymbol = EnvSymbol;
   readonly [EnvSymbol]!: (_: never) => R;
   constructor(
-    readonly map: HashMap<Tag<unknown>, readonly [unknown, number]>,
+    readonly map: HashMap<Tag<any>, readonly [unknown, number]>,
     readonly index: number,
-    public cache: HashMap<Tag<unknown>, unknown> = HashMap.makeDefault(),
+    public cache: HashMap<Tag<any>, unknown> = HashMap.makeDefault(),
   ) {}
 
   get [Symbol.hash](): number {

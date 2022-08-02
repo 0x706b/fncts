@@ -9,10 +9,10 @@ import { TestLogger } from "@fncts/test/control/TestLogger";
 
 export abstract class RunnableSpec<R, E> extends AbstractRunnableSpec<R, E> {
   readonly _tag = "RunnableSpec";
-  run(spec: Spec<R, E>): URIO<Has<TestLogger>, number> {
+  run(spec: Spec<R, E>): URIO<TestLogger, number> {
     const self = this;
-    return IO.gen(function* (_) {
-      const results     = yield* _(self.runSpec(spec));
+    return Do((_) => {
+      const results     = _(self.runSpec(spec));
       const hasFailures = results.exists(
         matchTag(
           {
@@ -22,7 +22,7 @@ export abstract class RunnableSpec<R, E> extends AbstractRunnableSpec<R, E> {
         ),
       );
       const summary = SummaryBuilder.buildSummary(results);
-      yield* _(TestLogger.logLine(summary.summary));
+      _(TestLogger.logLine(summary.summary));
       return hasFailures ? 1 : 0;
     });
   }

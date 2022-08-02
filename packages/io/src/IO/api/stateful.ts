@@ -7,7 +7,7 @@ import { State } from "../../State.js";
  */
 export function stateful<S, R, E, A>(
   s: S,
-  io: Lazy<IO<Has<State<S>> & R, E, A>>,
+  io: Lazy<IO<State<S> | R, E, A>>,
   tag: Tag<State<S>>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {

@@ -13,7 +13,7 @@ import { Atomic } from "./definition.js";
  *
  * @tsplus static fncts.io.TRefOps makeNow
  */
-export function makeNow<A>(a: A): STM<unknown, never, UTRef<A>> {
+export function makeNow<A>(a: A): STM<never, never, UTRef<A>> {
   return new Effect((journal) => {
     const value     = a;
     const versioned = new Versioned(value);
@@ -29,7 +29,7 @@ export function makeNow<A>(a: A): STM<unknown, never, UTRef<A>> {
  *
  * @tsplus static fncts.io.TRefOps make
  */
-export function make<A>(a: Lazy<A>): STM<unknown, never, UTRef<A>> {
+export function make<A>(a: Lazy<A>): STM<never, never, UTRef<A>> {
   return new Effect((journal) => {
     const value     = a();
     const versioned = new Versioned(value);

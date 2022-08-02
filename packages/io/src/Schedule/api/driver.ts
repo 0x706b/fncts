@@ -9,11 +9,11 @@ export function driver<State, Env, In, Out>(
 ): UIO<Schedule.Driver<State, Env, In, Out>> {
   return Ref.make<readonly [Maybe<Out>, State]>([Nothing(), schedule.initial]).map((ref) => {
     const next = (inp: In, __tsplusTrace?: string) =>
-      IO.gen(function* (_) {
-        const state                   = yield* _(ref.get.map(([_, s]) => s));
-        const now                     = yield* _(Clock.currentTime);
-        const [state1, out, decision] = yield* _(schedule.step(now, inp, state));
-        return yield* _(
+      Do((_) => {
+        const state                   = _(ref.get.map(([_, s]) => s));
+        const now                     = _(Clock.currentTime);
+        const [state1, out, decision] = _(schedule.step(now, inp, state));
+        return _(
           decision.match(
             () => ref.set([Just(out), state1]).apSecond(IO.failNow(Nothing() as Nothing)),
             (interval) =>

@@ -98,10 +98,10 @@ export class BackPressureStrategy<A> implements Strategy<A> {
   get shutdown(): UIO<void> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
-    return IO.gen(function* (_) {
-      const fiberId = yield* _(IO.fiberId);
-      const putters = yield* _(IO.succeed(_unsafePollAll(self.putters)));
-      yield* _(IO.foreachC(putters, ([, p, lastItem]) => (lastItem ? p.interruptAs(fiberId).asUnit : IO.unit)));
+    return Do((_) => {
+      const fiberId = _(IO.fiberId);
+      const putters = _(IO.succeed(_unsafePollAll(self.putters)));
+      _(IO.foreachC(putters, ([, p, lastItem]) => (lastItem ? p.interruptAs(fiberId).asUnit : IO.unit)));
     });
   }
 

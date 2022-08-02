@@ -5,7 +5,7 @@
  *
  * @tsplus static fncts.io.FiberOps joinAll
  */
-export function joinAll<E, A>(as: Iterable<Fiber<E, A>>): IO<unknown, E, Conc<A>> {
+export function joinAll<E, A>(as: Iterable<Fiber<E, A>>): IO<never, E, Conc<A>> {
   return Fiber.awaitAll(as)
     .flatMap(IO.fromExitNow)
     .tap(() => IO.foreach(as, (f) => f.inheritRefs));

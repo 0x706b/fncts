@@ -80,7 +80,7 @@ export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
   readonly evalOnIO: <R1, E1, B, R2, E2, C>(
     effect: IO<R1, E1, B>,
     orElse: IO<R2, E2, C>,
-  ) => IO<R1 & R2, E1 | E2, B | C>;
+  ) => IO<R1 | R2, E1 | E2, B | C>;
 
   /**
    * The status of the fiber.

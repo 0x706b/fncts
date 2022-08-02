@@ -62,7 +62,7 @@ export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
   leftWins: (exit: Exit<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
   rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
   __tsplusTrace?: string,
-): IO<R & R1 & R2 & R3, E2 | E3, A2 | A3> {
+): IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> {
   return IO.defer(
     () =>
       new Race(

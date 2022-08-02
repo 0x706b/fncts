@@ -55,7 +55,7 @@ class IOSpec extends DefaultRunnableSpec {
         Do((Δ) => {
           const ref     = Δ(Ref.make(false));
           const future  = Δ(Future.make<never, void>());
-          const actions = List<IO<unknown, string, void>>(
+          const actions = List<IO<never, string, void>>(
             IO.never,
             IO.succeed(1),
             IO.fail("C"),
@@ -126,11 +126,11 @@ class IOSpec extends DefaultRunnableSpec {
     suite(
       "RTS asynchronous correctness",
       testIO("simple async must return", () => {
-        const io = IO.async<unknown, never, number>((k) => k(IO.succeed(42)));
+        const io = IO.async<never, never, number>((k) => k(IO.succeed(42)));
         return io.assert(strictEqualTo(42));
       }),
       testIO("simple asyncIO must return", () => {
-        const io = IO.asyncIO<unknown, never, number>((k) => IO.succeed(k(IO.succeed(42))));
+        const io = IO.asyncIO<never, never, number>((k) => IO.succeed(k(IO.succeed(42))));
         return io.assert(strictEqualTo(42));
       }),
       testIO("deep asyncIO doesn't block", () => {
@@ -139,7 +139,7 @@ class IOSpec extends DefaultRunnableSpec {
           else return asyncIO(stackIOs(count - 1));
         }
         function asyncIO(cont: UIO<number>): UIO<number> {
-          return IO.asyncIO<unknown, never, number>(
+          return IO.asyncIO<never, never, number>(
             (k) => Clock.sleep((5).milliseconds) > cont > IO.succeed(k(IO.succeed(42))),
           );
         }
@@ -152,7 +152,7 @@ class IOSpec extends DefaultRunnableSpec {
           const release = Δ(Future.make<never, void>());
           const acquire = Δ(Future.make<never, void>());
           const fiber   = Δ(
-            IO.asyncIO<unknown, never, void>(() =>
+            IO.asyncIO<never, never, void>(() =>
               IO.bracket(
                 acquire.succeed(undefined),
                 () => IO.never,
@@ -171,13 +171,13 @@ class IOSpec extends DefaultRunnableSpec {
         Do((Δ) => {
           const step            = Δ(Future.make<never, void>());
           const unexpectedPlace = Δ(Ref.make(List.empty<number>()));
-          const runtime         = Δ(IO.runtime<Has<Live>>());
+          const runtime         = Δ(IO.runtime<Live>());
           const fork            = Δ(
-            IO.async<unknown, never, void>((k) => {
+            IO.async<never, never, void>((k) => {
               runtime.unsafeRunAsync(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
             })
               .ensuring(
-                IO.async<unknown, never, void>(() => {
+                IO.async<never, never, void>(() => {
                   runtime.unsafeRunAsync(step.succeed(undefined));
                   // never complete
                 }),
@@ -194,14 +194,14 @@ class IOSpec extends DefaultRunnableSpec {
         Do((Δ) => {
           const step            = Δ(Future.make<never, void>());
           const unexpectedPlace = Δ(Ref.make(List.empty<number>()));
-          const runtime         = Δ(IO.runtime<Has<Live>>());
+          const runtime         = Δ(IO.runtime<Live>());
           const fork            = Δ(
-            IO.asyncMaybe((k) => {
+            IO.asyncMaybe<never, never, void>((k) => {
               runtime.unsafeRunAsync(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
               return Just(IO.unit);
             })
               .flatMap(() =>
-                IO.async<unknown, never, void>(() => {
+                IO.async<never, never, void>(() => {
                   runtime.unsafeRunAsync(step.succeed(undefined));
                   // never complete
                 }),
@@ -216,16 +216,16 @@ class IOSpec extends DefaultRunnableSpec {
       testIO("sleep 0 must return", Live.Live(Clock.sleep((0).milliseconds)).assert(isUnit)),
       testIO("shallow bind of async chain", () => {
         const io = Iterable.range(0, 9).foldLeft(IO.succeed(0), (acc, _) =>
-          acc.flatMap((n) => IO.async<unknown, never, number>((k) => k(IO.succeed(n + 1)))),
+          acc.flatMap((n) => IO.async<never, never, number>((k) => k(IO.succeed(n + 1)))),
         );
         return io.assert(strictEqualTo(10));
       }),
       testIO("asyncIO can fail before registering", () => {
-        const io = IO.asyncIO<unknown, string, never>(() => IO.fail("Ouch")).swap;
+        const io = IO.asyncIO<never, string, never>(() => IO.fail("Ouch")).swap;
         return io.assert(strictEqualTo("Ouch"));
       }),
       testIO("asyncIO can defect before registering", () => {
-        const io = IO.asyncIO<unknown, string, void>(() =>
+        const io = IO.asyncIO<never, string, void>(() =>
           IO.succeed(() => {
             throw new Error("Ouch");
           }),
@@ -257,8 +257,8 @@ class IOSpec extends DefaultRunnableSpec {
         Do((Δ) => {
           const release = Δ(Future.make<never, number>());
           const latch   = Δ(Future.make<never, void>());
-          const runtime = Δ(IO.runtime<unknown>());
-          const async   = IO.asyncInterrupt<unknown, never, never>(() => {
+          const runtime = Δ(IO.runtime<never>());
+          const async   = IO.asyncInterrupt<never, never, never>(() => {
             runtime.unsafeRunAsync(latch.succeed(undefined));
             return Either.left(release.succeed(42).asUnit);
           });
@@ -408,13 +408,13 @@ class IOSpec extends DefaultRunnableSpec {
         IO.never.fork.flatMap((f) => f.interrupt).assert(isOnlyInterrupted),
       ),
       testIO("asyncIO is interruptible", () =>
-        IO.asyncIO<unknown, never, never>(() => IO.never)
+        IO.asyncIO<never, never, never>(() => IO.never)
           .fork.flatMap((f) => f.interrupt)
           .as(42)
           .assert(strictEqualTo(42)),
       ),
       testIO("async is interruptible", () =>
-        IO.async<unknown, never, never>(() => {
+        IO.async<never, never, never>(() => {
           //
         })
           .fork.flatMap((f) => f.interrupt)

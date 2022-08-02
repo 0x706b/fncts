@@ -15,10 +15,10 @@ export type TestAspectPoly = TestAspect<unknown, never>;
 
 export const id: TestAspectPoly = Function.identity;
 
-export const ignore: TestAspectAtLeastR<Has<Annotations>> = (spec) => spec.when(false);
+export const ignore: TestAspectAtLeastR<Annotations> = (spec) => spec.when(false);
 
 export function perTest<R, E>(
-  f: <R1, E1>(test: IO<R1, TestFailure<E1>, TestSuccess>) => IO<R & R1, TestFailure<E | E1>, TestSuccess>,
+  f: <R1, E1>(test: IO<R1, TestFailure<E1>, TestSuccess>) => IO<R | R1, TestFailure<E | E1>, TestSuccess>,
 ): TestAspect<R, E> {
   return (spec) =>
     spec.transform(
@@ -41,8 +41,8 @@ export function after<R, E, A>(effect: IO<R, E, A>): TestAspect<R, E> {
   );
 }
 
-export function around<R, E, A, R1>(before: IO<R, E, A>, after: (a: A) => IO<R1, never, any>): TestAspect<R & R1, E> {
-  return perTest<R & R1, E>((test) =>
+export function around<R, E, A, R1>(before: IO<R, E, A>, after: (a: A) => IO<R1, never, any>): TestAspect<R | R1, E> {
+  return perTest<R | R1, E>((test) =>
     before.catchAllCause((c) => IO.fail(new RuntimeFailure(c))).bracket(() => test, after),
   );
 }
@@ -50,9 +50,9 @@ export function around<R, E, A, R1>(before: IO<R, E, A>, after: (a: A) => IO<R1,
 export function aroundAll<R, E, A, R1>(
   before: IO<R, E, A>,
   after: (a: A) => IO<R1, never, any>,
-): TestAspect<R & R1, E> {
+): TestAspect<R | R1, E> {
   return <R0, E0>(spec: Spec<R0, E0>) =>
-    Spec.scoped<R & R1 & R0, TestFailure<E | E0>, TestSuccess>(
+    Spec.scoped<R | R1 | R0, TestFailure<E | E0>, TestSuccess>(
       IO.acquireRelease(before, after)
         .mapError((e) => TestFailure.fail(e))
         .as(spec),
@@ -69,12 +69,10 @@ export function beforeAll<R0, E0>(effect: IO<R0, E0, any>): TestAspect<R0, E0> {
 
 export const eventually = perTest((test) => test.eventually);
 
-export function repeat<R0>(schedule: Schedule<R0, TestSuccess, any>): TestAspect<R0 & Has<Annotations>, never> {
-  return perTest<R0 & Has<Annotations>, never>(
-    <R1, E1>(
-      test: IO<R1, TestFailure<E1>, TestSuccess>,
-    ): IO<R0 & R1 & Has<Annotations>, TestFailure<E1>, TestSuccess> =>
-      IO.environmentWithIO((r: Environment<R0 & R1 & Has<Annotations>>) =>
+export function repeat<R0>(schedule: Schedule<R0, TestSuccess, any>): TestAspect<R0 & Annotations, never> {
+  return perTest<R0 | Annotations, never>(
+    <R1, E1>(test: IO<R1, TestFailure<E1>, TestSuccess>): IO<R0 | R1 | Annotations, TestFailure<E1>, TestSuccess> =>
+      IO.environmentWithIO((r: Environment<R0 | R1 | Annotations>) =>
         test
           .provideEnvironment(r)
           .repeat(
@@ -88,9 +86,9 @@ export function repeat<R0>(schedule: Schedule<R0, TestSuccess, any>): TestAspect
   );
 }
 
-export function timeoutWarning(duration: Duration): TestAspect<Has<Live>, any> {
+export function timeoutWarning(duration: Duration): TestAspect<Live, any> {
   return <R1, E1>(spec: Spec<R1, E1>) => {
-    const loop = (labels: Vector<string>, spec: Spec<R1, E1>): Spec<R1 & Has<Live>, E1> =>
+    const loop = (labels: Vector<string>, spec: Spec<R1, E1>): Spec<R1 | Live, E1> =>
       matchTag_(spec.caseValue, {
         Exec: ({ exec, spec }) => Spec.exec(loop(labels, spec), exec),
         Labeled: ({ label, spec }) => Spec.labeled(loop(labels.append(label), spec), label),

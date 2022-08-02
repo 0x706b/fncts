@@ -5,7 +5,7 @@ export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone,
   self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   n: number,
   f: (_: OutElem) => IO<Env1, OutErr1, OutElem1>,
-): Channel<Env & Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone> {
+): Channel<Env | Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone> {
   return Channel.unwrapScoped(
     IO.withChildren((getChildren) =>
       Do((Δ) => {
@@ -51,7 +51,7 @@ export function mapOutIOC_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone,
         return queue;
       }),
     ).map((queue) => {
-      const consumer: Channel<Env & Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem1, OutDone> =
+      const consumer: Channel<Env | Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem1, OutDone> =
         Channel.unwrap(
           queue.take.flatten.matchCause(Channel.failCauseNow, (r) =>
             r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),

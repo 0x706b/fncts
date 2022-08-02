@@ -9,7 +9,7 @@ import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
 export function and_<R, E, A extends A1, R1, E1, A1>(
   self: FreeBooleanAlgebraIO<R, E, A>,
   that: FreeBooleanAlgebraIO<R1, E1, A1>,
-): FreeBooleanAlgebraIO<R & R1, E | E1, A | A1> {
+): FreeBooleanAlgebraIO<R | R1, E | E1, A | A1> {
   return self.zipWith(that, (a, b) => a && b);
 }
 
@@ -20,7 +20,7 @@ export function and_<R, E, A extends A1, R1, E1, A1>(
 export function or_<R, E, A extends A1, R1, E1, A1>(
   self: FreeBooleanAlgebraIO<R, E, A>,
   that: FreeBooleanAlgebraIO<R1, E1, A1>,
-): FreeBooleanAlgebraIO<R & R1, E | E1, A | A1> {
+): FreeBooleanAlgebraIO<R | R1, E | E1, A | A1> {
   return self.zipWith(that, (a, b) => a || b);
 }
 
@@ -48,14 +48,14 @@ export function isFailure<R, E, A>(self: FreeBooleanAlgebraIO<R, E, A>): IO<R, E
 /**
  * @tsplus static fncts.test.FreeBooleanAlgebraIOOps success
  */
-export function success<A>(a: A): FreeBooleanAlgebraIO<unknown, never, A> {
+export function success<A>(a: A): FreeBooleanAlgebraIO<never, never, A> {
   return IO.succeedNow(FreeBooleanAlgebra.success(a));
 }
 
 /**
  * @tsplus static fncts.test.FreeBooleanAlgebraIOOps failure
  */
-export function failure<A>(a: A): FreeBooleanAlgebraIO<unknown, never, A> {
+export function failure<A>(a: A): FreeBooleanAlgebraIO<never, never, A> {
   return IO.succeedNow(FreeBooleanAlgebra.failure(a));
 }
 

@@ -4,6 +4,6 @@
 export function addFinalizer<R>(
   finalizer: Lazy<URIO<R, any>>,
   __tsplusTrace?: string,
-): IO<R & Has<Scope>, never, void> {
+): IO<R | Scope, never, void> {
   return IO.addFinalizerExit(() => finalizer());
 }

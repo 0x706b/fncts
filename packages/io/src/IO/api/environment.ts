@@ -40,7 +40,7 @@ export function environmentWith<R, A>(f: (_: Environment<R>) => A, __tsplusTrace
 export function environmentWithIO<R0, R, E, A>(
   f: (r: Environment<R0>) => IO<R, E, A>,
   __tsplusTrace?: string,
-): IO<R & R0, E, A> {
+): IO<R | R0, E, A> {
   return IO.environment<R0>().flatMap(f);
 }
 
@@ -63,7 +63,7 @@ export function provideSomeEnvironment_<R, E, A, R0>(
   self: IO<R, E, A>,
   environment: Environment<R0>,
   __tsplusTrace?: string,
-): IO<Intersection.Erase<R, R0>, E, A> {
+): IO<Exclude<R, R0>, E, A> {
   return self.contramapEnvironment((r0) => r0.union(environment));
 }
 
@@ -71,7 +71,7 @@ export function provideSomeEnvironment_<R, E, A, R0>(
  * @tsplus fluent fncts.io.IO provideService
  */
 export function provideService_<E, A, T>(
-  self: IO<Has<T>, E, A>,
+  self: IO<T, E, A>,
   service: T,
   tag: Tag<T>,
   __tsplusTrace?: string,
@@ -87,30 +87,28 @@ export function provideSomeService_<R, E, A, T>(
   service: T,
   tag: Tag<T>,
   __tsplusTrace?: string,
-): IO<Intersection.Erase<R, Has<T>>, E, A> {
-  return self.contramapEnvironment((r: Environment<R>) => r.add(service, tag));
+): IO<Exclude<R, T>, E, A> {
+  return self.contramapEnvironment((r: Environment<Exclude<R, T>>) => r.add(service, tag) as Environment<R>);
 }
 
 /**
  * @tsplus static fncts.io.IOAspects provideSomeService
  */
 export function provideSomeService<T>(service: T, tag: Tag<T>, __tsplusTrace?: string) {
-  return <R, E, A>(io: IO<R & Has<T>, E, A>): IO<R, E, A> =>
-    // @ts-expect-error
-    io.provideSomeService(service, tag);
+  return <R, E, A>(io: IO<R | T, E, A>): IO<R, E, A> => io.provideSomeService(service, tag);
 }
 
 /**
  * @tsplus static fncts.io.IOOps service
  */
-export function service<T>(tag: Tag<T>, __tsplusTrace?: string): IO<Has<T>, never, T> {
+export function service<T>(tag: Tag<T>, __tsplusTrace?: string): IO<T, never, T> {
   return IO.serviceWithIO(IO.succeedNow, tag);
 }
 
 /**
  * @tsplus static fncts.io.IOOps serviceWith
  */
-export function serviceWith<S, A>(f: (service: S) => A, tag: Tag<S>): IO<Has<S>, never, A> {
+export function serviceWith<S, A>(f: (service: S) => A, tag: Tag<S>): IO<S, never, A> {
   return IO.serviceWithIO((s) => IO.succeedNow(f(s)), tag);
 }
 
@@ -121,6 +119,6 @@ export function serviceWithIO<T, R, E, A>(
   f: (service: T) => IO<R, E, A>,
   tag: Tag<T>,
   __tsplusTrace?: string,
-): IO<R & Has<T>, E, A> {
+): IO<R | T, E, A> {
   return IO.defer(FiberRef.currentEnvironment.get.flatMap((environment) => f(environment.unsafeGet(tag))));
 }
