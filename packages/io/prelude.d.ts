@@ -140,7 +140,11 @@ import { Identity } from "@fncts/base/data/Identity";
 /**
  * @tsplus global
  */
-import { Interval} from "@fncts/base/data/Interval";
+import { Interval } from "@fncts/base/data/Interval";
+/**
+ * @tsplus global
+ */
+import { Intervals } from "@fncts/base/data/Intervals";
 /**
  * @tsplus global
  */

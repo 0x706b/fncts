@@ -5,7 +5,7 @@ export const enum DecisionTag {
 
 export class Continue {
   readonly _tag = DecisionTag.Continue;
-  constructor(readonly interval: Interval) {}
+  constructor(readonly interval: Intervals) {}
 }
 
 export class Done {
@@ -32,14 +32,21 @@ export const done: Decision = new Done();
 /**
  * @tsplus static fncts.io.Schedule.DecisionOps Continue
  */
-export function continue_(interval: Interval): Decision {
+export function continue_(interval: Intervals): Decision {
   return new Continue(interval);
+}
+
+/**
+ * @tsplus static fncts.io.Schedule.DecisionOps continueWith
+ */
+export function continueWith(interval: Interval): Decision {
+  return new Continue(Intervals(List(interval)));
 }
 
 /**
  * @tsplus fluent fncts.io.Schedule.Decision match
  */
-export function match_<A, B>(self: Decision, onDone: () => A, onContinue: (interval: Interval) => B): A | B {
+export function match_<A, B>(self: Decision, onDone: () => A, onContinue: (interval: Intervals) => B): A | B {
   switch (self._tag) {
     case DecisionTag.Continue:
       return onContinue(self.interval);

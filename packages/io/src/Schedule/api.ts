@@ -200,7 +200,7 @@ export function delays<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedu
       decision.match(
         () => IO.succeedNow([state, 0, Decision.Done]),
         (interval) => {
-          const delay = interval.startMilliseconds - now;
+          const delay = interval.start - now;
           return IO.succeedNow([state, delay, Decision.Continue(interval)]);
         },
       ),
@@ -238,7 +238,7 @@ export function duration(duration: number): Schedule.WithState<boolean, never, u
     IO.succeed(() => {
       if (state) {
         const interval = Interval.after(now + duration);
-        return [false, duration, Decision.Continue(interval)];
+        return [false, duration, Decision.continueWith(interval)];
       } else {
         return [false, 0, Decision.Done];
       }
@@ -249,18 +249,16 @@ export function duration(duration: number): Schedule.WithState<boolean, never, u
 /**
  * @tsplus static fncts.io.ScheduleOps elapsed
  */
-export const elapsed: Schedule.WithState<Maybe<number>, never, unknown, number> = Schedule(
-  Nothing(),
-  (now, _, state) =>
-    IO.succeed(
-      state.match(
-        () => [Just(now), 0, Decision.Continue(Interval(now, Number.MAX_SAFE_INTEGER))],
-        (start) => {
-          const duration = now - start;
-          return [Just(start), duration, Decision.Continue(Interval(now, Number.MAX_SAFE_INTEGER))];
-        },
-      ),
+export const elapsed: Schedule.WithState<Maybe<number>, never, unknown, number> = Schedule(Nothing(), (now, _, state) =>
+  IO.succeed(
+    state.match(
+      () => [Just(now), 0, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))],
+      (start) => {
+        const duration = now - start;
+        return [Just(start), duration, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))];
+      },
     ),
+  ),
 );
 
 /**
@@ -309,14 +307,14 @@ export function fixed(
       ms.match(
         () => {
           const nextRun = now + interval;
-          return [[Just([now, nextRun]), n + 1], n, Decision.Continue(Interval.after(nextRun))];
+          return [[Just([now, nextRun]), n + 1], n, Decision.continueWith(Interval.after(nextRun))];
         },
         ([startMillis, lastRun]) => {
           const runningBehind = now > lastRun + interval;
           const boundary      = interval === 0 ? interval : interval - ((now - startMillis) % interval);
           const sleepTime     = boundary === 0 ? interval : boundary;
           const nextRun       = runningBehind ? now : now + sleepTime;
-          return [[Just([startMillis, nextRun]), n + 1], n, Decision.Continue(Interval.after(nextRun))];
+          return [[Just([startMillis, nextRun]), n + 1], n, Decision.continueWith(Interval.after(nextRun))];
         },
       ),
     ),
@@ -375,7 +373,7 @@ export const forever = Schedule.unfold(0, (n) => n + 1);
  * @tsplus static fncts.io.ScheduleOps identity
  */
 export function identity<A>(): Schedule.WithState<void, never, A, A> {
-  return Schedule(undefined, (now, inp, state) => IO.succeed([state, inp, Decision.Continue(Interval.after(now))]));
+  return Schedule(undefined, (now, inp, state) => IO.succeed([state, inp, Decision.continueWith(Interval.after(now))]));
 }
 
 function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
@@ -384,24 +382,24 @@ function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
   inp: I & I1,
   lState: S,
   out: O,
-  lInterval: Interval,
+  lInterval: Intervals,
   rState: S1,
   out2: O1,
-  rInterval: Interval,
-  f: (lInterval: Interval, rInterval: Interval) => Interval,
+  rInterval: Intervals,
+  f: (lInterval: Intervals, rInterval: Intervals) => Intervals,
 ): IO<R | R1, never, readonly [readonly [S, S1], readonly [O, O1], Decision]> {
   const combined = f(lInterval, rInterval);
   if (combined.isNonEmpty) {
     return IO.succeedNow([[lState, rState], [out, out2], Decision.Continue(combined)]);
   } else if (lInterval < rInterval) {
-    return self.step(lInterval.endMilliseconds, inp, lState).flatMap(([lState, out, decision]) =>
+    return self.step(lInterval.end, inp, lState).flatMap(([lState, out, decision]) =>
       decision.match(
         () => IO.succeedNow([[lState, rState], [out, out2], Decision.Done]),
         (lInterval) => intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
       ),
     );
   } else {
-    return that.step(rInterval.endMilliseconds, inp, rState).flatMap(([rState, out2, decision]) =>
+    return that.step(rInterval.end, inp, rState).flatMap(([rState, out2, decision]) =>
       decision.match(
         () => IO.succeedNow([[lState, rState], [out, out2], Decision.Done]),
         (rInterval) => intersectWithLoop(self, that, inp, lState, out, lInterval, rState, out2, rInterval, f),
@@ -416,7 +414,7 @@ function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
 export function intersectWith_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
-  f: (int1: Interval, int2: Interval) => Interval,
+  f: (int1: Intervals, int2: Intervals) => Intervals,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, readonly [O, O1]> {
   return Schedule([self.initial, that.initial] as const, (now, inp, state) => {
     const left  = self.step(now, inp, state[0]);
@@ -473,15 +471,15 @@ export function modifyDelayIO_<State, Env, In, Out, Env1>(
       decision.match(
         () => IO.succeedNow([state, out, decision]),
         (interval) => {
-          const delay = Interval(now, interval.startMilliseconds).size;
+          const delay = Interval(now, interval.start).size;
 
           return f(out, delay).map((duration) => {
-            const oldStart    = interval.startMilliseconds;
+            const oldStart    = interval.start;
             const newStart    = now + duration;
             const delta       = newStart - oldStart;
-            const newEnd      = interval.endMilliseconds + delta;
+            const newEnd      = interval.end + delta;
             const newInterval = Interval(newStart, newEnd);
-            return [state, out, Decision.Continue(newInterval)];
+            return [state, out, Decision.continueWith(newInterval)];
           });
         },
       ),
@@ -542,7 +540,7 @@ export function reconsiderIO_<S, R, I, O, R1, O1>(
           f(state, out, decision).map((r) =>
             r.match(
               (out1) => [state, out1, Decision.Done],
-              ([out1, interval]) => [state, out1, Decision.Continue(interval)],
+              ([out1, interval]) => [state, out1, Decision.continueWith(interval)],
             ),
           ),
       ),
@@ -652,7 +650,7 @@ export function run_<S, R, I, O>(
       return self.step(now, xs.head, state).flatMap(([state, out, decision]) =>
         decision.match(
           () => IO.succeed(acc.append(out)),
-          (interval) => loop(interval.startMilliseconds, xs.tail, state, acc.append(out)),
+          (interval) => loop(interval.start, xs.tail, state, acc.append(out)),
         ),
       );
     }
@@ -700,7 +698,7 @@ export function tapOutput_<S, R, I, O, R1>(
 export function unionWith_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
-  f: (int1: Interval, int2: Interval) => Interval,
+  f: (int1: Intervals, int2: Intervals) => Intervals,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, readonly [O, O1]> {
   return Schedule([self.initial, that.initial], (now, inp, state) => {
     const left  = self.step(now, inp, state[0]);
@@ -731,7 +729,7 @@ export function unionWith_<S, R, I, O, S1, R1, I1, O1>(
  */
 export function unfold<A>(a: Lazy<A>, f: (a: A) => A): Schedule.WithState<A, never, unknown, A> {
   return Schedule<A, never, unknown, A>(a(), (now, inp, state) =>
-    IO.succeed([f(state), state, Decision.Continue(Interval(now, Number.MAX_SAFE_INTEGER))]),
+    IO.succeed([f(state), state, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))]),
   );
 }
 
@@ -831,11 +829,11 @@ export function windowed(
   return Schedule([Nothing(), 0], (now, inp, [m, n]) =>
     IO.succeed(() =>
       m.match(
-        () => [[Just(now), n + 1], n, Decision.Continue(Interval.after(now + interval))],
+        () => [[Just(now), n + 1], n, Decision.continueWith(Interval.after(now + interval))],
         (startMillis) => [
           [Just(startMillis), n + 1],
           n,
-          Decision.Continue(Interval.after(now + (interval - ((now - startMillis) % interval)))),
+          Decision.continueWith(Interval.after(now + (interval - ((now - startMillis) % interval)))),
         ],
       ),
     ),

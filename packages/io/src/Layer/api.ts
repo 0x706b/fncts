@@ -282,7 +282,7 @@ function retryUpdate<S, RIn, E, X>(
         .flatMap(([state, _, decision]) =>
           decision._tag === DecisionTag.Done
             ? IO.failNow(e)
-            : Clock.sleep(Duration.fromInterval(now, decision.interval.startMilliseconds)).as({ state }),
+            : Clock.sleep(Duration.fromInterval(now, decision.interval.start)).as({ state }),
         ),
     ),
     tag,

@@ -19,7 +19,7 @@ export function driver<State, Env, In, Out>(
             (interval) =>
               ref
                 .set([Just(out), state1])
-                .apSecond(Clock.sleep(Duration.fromInterval(now, interval.startMilliseconds)))
+                .apSecond(Clock.sleep(Duration.fromInterval(now, interval.start)))
                 .as(out),
           ),
         );
