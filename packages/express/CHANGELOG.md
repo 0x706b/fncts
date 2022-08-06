@@ -1,5 +1,18 @@
 # @fncts/express
 
+## 0.0.5
+
+### Patch Changes
+
+- d543dd6: refactor: covariant environment
+- ca3853b: refactor: use previous HKT encoding
+- a74b350: chore: update dependencies
+- Updated dependencies [d543dd6]
+- Updated dependencies [a0f8ed2]
+- Updated dependencies [ca3853b]
+- Updated dependencies [a74b350]
+  - @fncts/io@0.0.13
+
 ## 0.0.4
 
 ### Patch Changes

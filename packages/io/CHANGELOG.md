@@ -1,5 +1,22 @@
 # @fncts/io
 
+## 0.0.13
+
+### Patch Changes
+
+- d543dd6: refactor: covariant environment
+- a0f8ed2: feat: IterableWeakMap and IterableWeakSet implement Map and Set
+- ca3853b: refactor: use previous HKT encoding
+- a74b350: chore: update dependencies
+- Updated dependencies [d543dd6]
+- Updated dependencies [a0f8ed2]
+- Updated dependencies [15aaf26]
+- Updated dependencies [ca3853b]
+- Updated dependencies [73e1a58]
+- Updated dependencies [bbe72f6]
+  - @fncts/base@0.0.13
+  - @fncts/typelevel@0.0.11
+
 ## 0.0.12
 
 ### Patch Changes

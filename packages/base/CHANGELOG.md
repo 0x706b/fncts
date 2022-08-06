@@ -1,5 +1,21 @@
 # @fncts/base
 
+## 0.0.13
+
+### Patch Changes
+
+- d543dd6: refactor: covariant environment
+- a0f8ed2: feat: IterableWeakMap and IterableWeakSet implement Map and Set
+- 15aaf26: refactor: Datum and DatumEither
+- ca3853b: refactor: use previous HKT encoding
+- 73e1a58: feat: implememt Datum
+- bbe72f6: feat: add `Guard<Record>` dirivation
+- Updated dependencies [d543dd6]
+- Updated dependencies [15aaf26]
+- Updated dependencies [ca3853b]
+- Updated dependencies [bbe72f6]
+  - @fncts/typelevel@0.0.11
+
 ## 0.0.12
 
 ### Patch Changes

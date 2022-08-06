@@ -1,5 +1,18 @@
 # @fncts/pattern
 
+## 0.0.2
+
+### Patch Changes
+
+- d543dd6: refactor: covariant environment
+- Updated dependencies [d543dd6]
+- Updated dependencies [a0f8ed2]
+- Updated dependencies [15aaf26]
+- Updated dependencies [ca3853b]
+- Updated dependencies [73e1a58]
+- Updated dependencies [bbe72f6]
+  - @fncts/base@0.0.13
+
 ## 0.0.1
 
 ### Patch Changes

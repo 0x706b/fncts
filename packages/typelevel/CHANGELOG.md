@@ -1,5 +1,14 @@
 # @fncts/typelevel
 
+## 0.0.11
+
+### Patch Changes
+
+- d543dd6: refactor: covariant environment
+- 15aaf26: refactor: Datum and DatumEither
+- ca3853b: refactor: use previous HKT encoding
+- bbe72f6: feat: add `Guard<Record>` dirivation
+
 ## 0.0.10
 
 ### Patch Changes
