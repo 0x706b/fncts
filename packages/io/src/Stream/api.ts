@@ -647,6 +647,19 @@ export function chunks<R, E, A>(stream: Stream<R, E, A>): Stream<R, E, Conc<A>> 
   return stream.mapChunks(Conc.single);
 }
 
+/**
+ * Performs the specified stream transformation with the chunk structure of
+ * the stream exposed.
+ *
+ * @tsplus fluent fncts.io.Stream chunksWith
+ */
+export function chunksWith<R, E, A, R1, E1, B>(
+  self: Stream<R, E, A>,
+  f: (_: Stream<R, E, Conc<A>>) => Stream<R1, E1, Conc<B>>,
+): Stream<R1, E1, B> {
+  return f(self.chunks).flattenChunks;
+}
+
 function changesWithWriter<R, E, A>(
   f: (x: A, y: A) => boolean,
   last: Maybe<A>,
