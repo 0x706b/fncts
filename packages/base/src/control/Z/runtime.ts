@@ -24,13 +24,13 @@ type Frame = MatchFrame | ApplyFrame;
  * @tsplus fluent fncts.control.Z unsafeRunAll
  */
 export function unsafeRunAll_<W, S1, S2, E, A>(
-  ma: Z<W, S1, S2, unknown, E, A>,
+  ma: Z<W, S1, S2, never, E, A>,
   s: S1,
 ): readonly [Conc<W>, Exit<E, readonly [S2, A]>] {
   const stack: Stack<Frame> = Stack();
   let s0                    = s as any;
   let result: any           = null;
-  const environment         = Stack<unknown>();
+  const environment         = Stack<Environment<unknown>>();
   let failed                = false;
   let current               = ma as Z<any, any, any, any, any, any> | undefined;
   let log                   = Conc.empty<W>();
@@ -141,8 +141,8 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
             );
             break;
           }
-          case ZTag.Environment: {
-            current = currZ.asks(environment.peek() ?? {});
+          case ZTag.Access: {
+            current = currZ.asks(environment.peek() ?? Environment());
             break;
           }
           case ZTag.Provide: {
@@ -215,7 +215,7 @@ export function unsafeRunAll_<W, S1, S2, E, A>(
  *
  * @tsplus fluent fncts.control.Z unsafeRun
  */
-export function unsafeRun_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, never, A>, s: S1): readonly [S2, A] {
+export function unsafeRun_<W, S1, S2, A>(ma: Z<W, S1, S2, never, never, A>, s: S1): readonly [S2, A] {
   return ma.unsafeRunAll(s)[1].match((cause) => {
     // throw cause.squash
     throw new Error();
@@ -227,7 +227,7 @@ export function unsafeRun_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, never, A>, s:
  *
  * @tsplus getter fncts.control.Z unsafeRunResult
  */
-export function unsafeRunResult<W, A>(ma: Z<W, unknown, unknown, unknown, never, A>): A {
+export function unsafeRunResult<W, A>(ma: Z<W, unknown, unknown, never, never, A>): A {
   return unsafeRun_(ma, {})[1];
 }
 
@@ -236,7 +236,7 @@ export function unsafeRunResult<W, A>(ma: Z<W, unknown, unknown, unknown, never,
  *
  * @tsplus fluent fncts.control.Z unsafeRunReader
  */
-export function unsafeRunReader_<W, R, A>(ma: Z<W, unknown, never, R, never, A>, r: R): A {
+export function unsafeRunReader_<W, R, A>(ma: Z<W, unknown, never, R, never, A>, r: Environment<R>): A {
   return unsafeRunResult(ma.provideEnvironment(r));
 }
 

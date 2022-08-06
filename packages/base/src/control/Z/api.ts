@@ -1,17 +1,5 @@
 import { identity, tuple } from "../../data/function.js";
-import {
-  Chain,
-  Defer,
-  Environment,
-  Fail,
-  MapLog,
-  Match,
-  Modify,
-  Provide,
-  Succeed,
-  SucceedNow,
-  Tell,
-} from "./definition.js";
+import { Access, Chain, Defer, Fail, MapLog, Match, Modify, Provide, Succeed, SucceedNow, Tell } from "./definition.js";
 
 /**
  * @tsplus getter fncts.control.Z absolve
@@ -101,9 +89,9 @@ export function flatMap_<W, S1, S2, R, E, A, W1, S3, R1, E1, B>(
  */
 export function contramapEnvironment_<R0, W, S1, S2, R, E, A>(
   ma: Z<W, S1, S2, R, E, A>,
-  f: (r0: R0) => R,
+  f: (r0: Environment<R0>) => Environment<R>,
 ): Z<W, S1, S2, R0, E, A> {
-  return Z.environmentWithZ((r: R0) => ma.provideEnvironment(f(r)));
+  return Z.environmentWithZ((r) => ma.provideEnvironment(f(r)));
 }
 
 /**
@@ -164,24 +152,24 @@ export function either<W, S1, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, 
 /**
  * @tsplus static fncts.control.ZOps environment
  */
-export function environment<R>(): Z<never, unknown, never, R, never, R> {
-  return new Environment((r: R) => Z.succeedNow(r));
+export function environment<R>(): Z<never, unknown, never, R, never, Environment<R>> {
+  return new Access((r) => Z.succeedNow(r));
 }
 
 /**
  * @tsplus static fncts.control.ZOps environmentWith
  */
-export function environmentWith<R0, A>(f: (r: R0) => A): Z<never, unknown, never, R0, never, A> {
-  return new Environment((r: R0) => succeed(f(r)));
+export function environmentWith<R0, A>(f: (r: Environment<R0>) => A): Z<never, unknown, never, R0, never, A> {
+  return new Access((r) => succeed(f(r)));
 }
 
 /**
  * @tsplus static fncts.control.ZOps environmentWithZ
  */
 export function environmentWithZ<R0, W, S1, S2, R, E, A>(
-  f: (r: R0) => Z<W, S1, S2, R, E, A>,
-): Z<W, S1, S2, R & R0, E, A> {
-  return new Environment(f);
+  f: (r: Environment<R0>) => Z<W, S1, S2, R, E, A>,
+): Z<W, S1, S2, R | R0, E, A> {
+  return new Access(f);
 }
 
 /**
@@ -454,7 +442,10 @@ export function orElseEither_<W, S1, S2, R, E, A, S3, S4, R1, E1, A1>(
 /**
  * @tsplus fluent fncts.control.Z provideEnvironment
  */
-export function provideEnvironment_<W, S1, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>, r: R): Z<W, S1, S2, unknown, E, A> {
+export function provideEnvironment_<W, S1, S2, R, E, A>(
+  fa: Z<W, S1, S2, R, E, A>,
+  r: Environment<R>,
+): Z<W, S1, S2, never, E, A> {
   return new Provide(fa, r);
 }
 

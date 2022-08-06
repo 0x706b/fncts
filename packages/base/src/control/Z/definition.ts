@@ -68,7 +68,7 @@ export const enum ZTag {
   Modify = "Modify",
   Chain = "Chain",
   Match = "Match",
-  Environment = "Environment",
+  Access = "Access",
   Provide = "Provide",
   Tell = "Tell",
   Listen = "Listen",
@@ -135,16 +135,16 @@ export class Match<W, S1, S2, S5, R, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>
   }
 }
 
-export class Environment<W, R0, S1, S2, R, E, A> extends Z<W, S1, S2, R0 & R, E, A> {
-  readonly _tag = ZTag.Environment;
-  constructor(readonly asks: (r: R0) => Z<W, S1, S2, R, E, A>) {
+export class Access<W, R0, S1, S2, R, E, A> extends Z<W, S1, S2, R0 | R, E, A> {
+  readonly _tag = ZTag.Access;
+  constructor(readonly asks: (r: Environment<R0>) => Z<W, S1, S2, R, E, A>) {
     super();
   }
 }
 
-export class Provide<W, S1, S2, R, E, A> extends Z<W, S1, S2, unknown, E, A> {
+export class Provide<W, S1, S2, R, E, A> extends Z<W, S1, S2, never, E, A> {
   readonly _tag = ZTag.Provide;
-  constructor(readonly ma: Z<W, S1, S2, R, E, A>, readonly env: R) {
+  constructor(readonly ma: Z<W, S1, S2, R, E, A>, readonly env: Environment<R>) {
     super();
   }
 }
@@ -169,7 +169,7 @@ export type Concrete =
   | Modify<any, any, any>
   | Chain<any, any, any, any, any, any, any, any, any, any, any>
   | Match<any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any>
-  | Environment<any, any, any, any, any, any, any>
+  | Access<any, any, any, any, any, any, any>
   | Provide<any, any, any, any, any, any>
   | Defer<any, any, any, any, any, any>
   | Succeed<any>
@@ -179,6 +179,7 @@ export type Concrete =
 /**
  * @tsplus static fncts.control.ZOps concrete
  */
+// @ts-expect-error
 export function concrete(_: Z<any, any, any, any, any, any>): asserts _ is Concrete {
   //
 }
