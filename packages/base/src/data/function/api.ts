@@ -31,6 +31,13 @@ export function tuple<A extends ReadonlyArray<unknown>>(...as: A): A {
 }
 
 /**
+ * @tsplus getter fncts.Function tupled
+ */
+export function tupled<A, B, C>(f: (a: A, b: B) => C): (_: readonly [A, B]) => C {
+  return ([a, b]) => f(a, b);
+}
+
+/**
  * @tsplus fluent global unsafeCoerce
  * @tsplus static fncts.FunctionOps unsafeCoerce
  * @tsplus macro identity

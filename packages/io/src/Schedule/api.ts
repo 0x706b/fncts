@@ -247,6 +247,28 @@ export function duration(duration: number): Schedule.WithState<boolean, never, u
 }
 
 /**
+ * @tsplus fluent fncts.io.Schedule either
+ * @tsplus operator fncts.io.Schedule ||
+ */
+export function either<S, R, I, O, S1, R1, I1, O1>(
+  self: Schedule.WithState<S, R, I, O>,
+  that: Schedule.WithState<S1, R1, I1, O1>,
+): Schedule.WithState<readonly [S, S1], R | R1, I & I1, readonly [O, O1]> {
+  return self.unionWith(that, (interval1, interval2) => interval1 || interval2);
+}
+
+/**
+ * @tsplus fluent fncts.io.Schedule eitherWith
+ */
+export function eitherWith<S, R, I, O, S1, R1, I1, O1, O2>(
+  self: Schedule.WithState<S, R, I, O>,
+  that: Schedule.WithState<S1, R1, I1, O1>,
+  f: (out1: O, out2: O1) => O2,
+): Schedule.WithState<readonly [S, S1], R | R1, I & I1, O2> {
+  return (self || that).map(f.tupled);
+}
+
+/**
  * @tsplus static fncts.io.ScheduleOps elapsed
  */
 export const elapsed: Schedule.WithState<Maybe<number>, never, unknown, number> = Schedule(Nothing(), (now, _, state) =>
