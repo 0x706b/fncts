@@ -1,5 +1,12 @@
 # @fncts/pattern
 
+## 0.0.7
+
+### Patch Changes
+
+- d543dd6: refactor: covariant environment
+- a74b350: chore: update dependencies
+
 ## 0.0.6
 
 ### Patch Changes

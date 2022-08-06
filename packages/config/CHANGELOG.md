@@ -1,5 +1,11 @@
 # @fncts/config
 
+## 0.0.9
+
+### Patch Changes
+
+- d543dd6: refactor: covariant environment
+
 ## 0.0.8
 
 ### Patch Changes
