@@ -2950,7 +2950,7 @@ export function unwrapScoped<R0, E0, R, E, A>(
  */
 export function zipWithIndex_<R, E, A>(
   self: Stream<R, E, A>,
-  __tsPlusTrace?: string,
+  __tsplusTrace?: string,
 ): Stream<R, E, readonly [A, number]> {
   return self.mapAccum(0, (index, a) => [index + 1, [a, index]]);
 }

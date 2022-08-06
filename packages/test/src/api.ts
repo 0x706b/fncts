@@ -186,7 +186,7 @@ function checkStream<R, E, A, R1>(
 function shrinkStream<R, E, A, R1>(
   stream: Stream<R1, never, Sample<R1, Either<E, TestResult>>>,
   maxShrinks: number,
-  __tsPlusTrace?: string,
+  __tsplusTrace?: string,
 ): IO<R | R1 | TestConfig, E, TestResult> {
   return stream
     .dropWhile(
