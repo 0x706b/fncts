@@ -73,7 +73,10 @@ export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: stri
  *
  * @tsplus static fncts.io.IOOps uninterruptibleMask
  */
-export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore) => IO<R, E, A>): IO<R, E, A> {
+export function uninterruptibleMask<R, E, A>(
+  f: (restore: InterruptStatusRestore) => IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
   return IO.checkInterruptible((flag) => f(new InterruptStatusRestore(flag)).uninterruptible);
 }
 
@@ -84,7 +87,10 @@ export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore
  *
  * @tsplus static fncts.io.IOOps interruptibleMask
  */
-export function interruptibleMask<R, E, A>(k: (restore: InterruptStatusRestore) => IO<R, E, A>): IO<R, E, A> {
+export function interruptibleMask<R, E, A>(
+  k: (restore: InterruptStatusRestore) => IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
   return IO.checkInterruptible((flag) => k(new InterruptStatusRestore(flag)).interruptible);
 }
 
@@ -97,6 +103,7 @@ export function interruptibleMask<R, E, A>(k: (restore: InterruptStatusRestore) 
 export function onInterrupt_<R, E, A, R1>(
   ma: IO<R, E, A>,
   cleanup: (interruptors: HashSet<FiberId>) => IO<R1, never, any>,
+  __tsplusTrace?: string,
 ): IO<R | R1, E, A> {
   return uninterruptibleMask(({ restore }) =>
     restore(ma).matchCauseIO(
@@ -116,6 +123,7 @@ export function onInterrupt_<R, E, A, R1>(
 export function onInterruptExtended_<R, E, A, R2, E2>(
   self: IO<R, E, A>,
   cleanup: Lazy<IO<R2, E2, any>>,
+  __tsplusTrace?: string,
 ): IO<R | R2, E | E2, A> {
   return uninterruptibleMask(({ restore }) =>
     restore(self).matchCauseIO(

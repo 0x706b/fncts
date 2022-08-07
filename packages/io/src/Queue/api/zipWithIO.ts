@@ -64,6 +64,7 @@ export function zipWithIO_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, 
   fa: PQueue<RA, RB, EA, EB, A, B>,
   fb: PQueue<RA1, RB1, EA1, EB1, A1, C>,
   f: (b: B, c: C) => IO<R3, E3, D>,
+  __tsplusTrace?: string,
 ): PQueue<RA | RA1, RB | RB1 | R3, EA | EA1, E3 | EB | EB1, A1, D> {
   concrete(fa);
   concrete(fb);
@@ -79,6 +80,7 @@ export function zipWith_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B,
   queue: PQueue<RA, RB, EA, EB, A, B>,
   that: PQueue<RA1, RB1, EA1, EB1, A1, C>,
   f: (b: B, c: C) => D,
+  __tsplusTrace?: string,
 ): PQueue<RA | RA1, RB | RB1, EA | EA1, EB | EB1, A1, D> {
   return zipWithIO_(queue, that, (b, c) => IO.succeedNow(f(b, c)));
 }
@@ -91,6 +93,7 @@ export function zipWith_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B,
 export function zip_<RA, RB, EA, EB, RA1, RB1, EA1, EB1, A1 extends A, C, B, A>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   that: PQueue<RA1, RB1, EA1, EB1, A1, C>,
+  __tsplusTrace?: string,
 ): PQueue<RA | RA1, RB | RB1, EA | EA1, EB | EB1, A1, readonly [B, C]> {
   return zipWith_(queue, that, tuple);
 }

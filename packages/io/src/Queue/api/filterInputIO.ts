@@ -54,6 +54,7 @@ export class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends Q
 export function filterInputIO_<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (_: A1) => IO<R2, E2, boolean>,
+  __tsplusTrace?: string,
 ): PQueue<RA | R2, RB, EA | E2, EB, A1, B> {
   concrete(queue);
   return new FilterInputIO(queue, f);
@@ -68,6 +69,7 @@ export function filterInputIO_<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>(
 export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (_: A1) => boolean,
+  __tsplusTrace?: string,
 ): PQueue<RA, RB, EA, EB, A1, B> {
   return queue.filterInputIO((a) => IO.succeedNow(f(a)));
 }

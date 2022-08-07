@@ -7,27 +7,27 @@ import { BackPressureStrategy, DroppingStrategy, SlidingStrategy } from "@fncts/
 /**
  * @tsplus static fncts.io.QueueOps makeSliding
  */
-export function makeSliding<A>(capacity: number): UIO<Queue<A>> {
+export function makeSliding<A>(capacity: number, __tsplusTrace?: string): UIO<Queue<A>> {
   return IO.succeed(bounded<A>(capacity)).flatMap(_makeQueue(new SlidingStrategy()));
 }
 
 /**
  * @tsplus static fncts.io.QueueOps makeUnbounded
  */
-export function makeUnbounded<A>(): UIO<Queue<A>> {
+export function makeUnbounded<A>(__tsplusTrace?: string): UIO<Queue<A>> {
   return IO.succeed(unbounded<A>()).flatMap(_makeQueue(new DroppingStrategy()));
 }
 
 /**
  * @tsplus static fncts.io.QueueOps makeDropping
  */
-export function makeDropping<A>(capacity: number): UIO<Queue<A>> {
+export function makeDropping<A>(capacity: number, __tsplusTrace?: string): UIO<Queue<A>> {
   return IO.succeed(bounded<A>(capacity)).flatMap(_makeQueue(new DroppingStrategy()));
 }
 
 /**
  * @tsplus static fncts.io.QueueOps makeBounded
  */
-export function makeBounded<A>(capacity: number): UIO<Queue<A>> {
+export function makeBounded<A>(capacity: number, __tsplusTrace?: string): UIO<Queue<A>> {
   return IO.succeed(bounded<A>(capacity)).flatMap(_makeQueue(new BackPressureStrategy()));
 }

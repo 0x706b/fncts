@@ -6,7 +6,10 @@ import { SyntheticFiber } from "@fncts/io/Fiber/definition";
  *
  * @tsplus static fncts.io.FiberOps sequenceIterable
  */
-export function sequenceIterable<E, A>(fibers: Iterable<Fiber<E, A>>): Fiber.Synthetic<E, Conc<A>> {
+export function sequenceIterable<E, A>(
+  fibers: Iterable<Fiber<E, A>>,
+  __tsplusTrace?: string,
+): Fiber.Synthetic<E, Conc<A>> {
   return new SyntheticFiber(
     fibers.foldLeft(FiberId.none as FiberId, (b, a) => b.combine(a.id)),
     Fiber.awaitAll(fibers),

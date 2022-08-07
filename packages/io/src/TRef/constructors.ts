@@ -13,7 +13,7 @@ import { Atomic } from "./definition.js";
  *
  * @tsplus static fncts.io.TRefOps makeNow
  */
-export function makeNow<A>(a: A): STM<never, never, UTRef<A>> {
+export function makeNow<A>(a: A, __tsplusTrace?: string): STM<never, never, UTRef<A>> {
   return new Effect((journal) => {
     const value     = a;
     const versioned = new Versioned(value);
@@ -29,7 +29,7 @@ export function makeNow<A>(a: A): STM<never, never, UTRef<A>> {
  *
  * @tsplus static fncts.io.TRefOps make
  */
-export function make<A>(a: Lazy<A>): STM<never, never, UTRef<A>> {
+export function make<A>(a: Lazy<A>, __tsplusTrace?: string): STM<never, never, UTRef<A>> {
   return new Effect((journal) => {
     const value     = a();
     const versioned = new Versioned(value);
@@ -57,13 +57,13 @@ export function unsafeMake<A>(a: A): UTRef<A> {
  *
  * @tsplus static fncts.io.TRefOps makeCommit
  */
-export function makeCommit<A>(a: Lazy<A>): UIO<UTRef<A>> {
+export function makeCommit<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<UTRef<A>> {
   return make(a).commit;
 }
 
 /**
  * Makes a new `TRef` that is initialized to the specified value.
  */
-export function makeCommitNow<A>(a: A): UIO<UTRef<A>> {
+export function makeCommitNow<A>(a: A, __tsplusTrace?: string): UIO<UTRef<A>> {
   return makeNow(a).commit;
 }

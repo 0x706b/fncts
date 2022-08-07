@@ -8,6 +8,6 @@ export function show(...data: unknown[]): UIO<void> {
 /**
  * @tsplus static fncts.io.ConsoleOps print
  */
-export function print(line: string): UIO<void> {
+export function print(line: string, __tsplusTrace?: string): UIO<void> {
   return IO.consoleWith((console) => console.print(line));
 }

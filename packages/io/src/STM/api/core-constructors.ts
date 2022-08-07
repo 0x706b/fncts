@@ -5,7 +5,7 @@ import { Effect, FailException, InterruptException, RetryException, Succeed, Suc
  *
  * @tsplus static fncts.io.STMOps failNow
  */
-export function failNow<E>(e: E): STM<never, E, never> {
+export function failNow<E>(e: E, __tsplusTrace?: string): STM<never, E, never> {
   return fail(e);
 }
 
@@ -14,7 +14,7 @@ export function failNow<E>(e: E): STM<never, E, never> {
  *
  * @tsplus static fncts.io.STMOps fail
  */
-export function fail<E>(e: Lazy<E>): STM<never, E, never> {
+export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): STM<never, E, never> {
   return new Effect(() => {
     throw new FailException(e());
   });
@@ -32,7 +32,7 @@ export const fiberId: STM<never, never, FiberId> = new Effect((_, fiberId) => fi
  *
  * @tsplus static fncts.io.STMOps interruptAs
  */
-export function interruptAs(fiberId: FiberId): STM<never, never, never> {
+export function interruptAs(fiberId: FiberId, __tsplusTrace?: string): STM<never, never, never> {
   return new Effect(() => {
     throw new InterruptException(fiberId);
   });
@@ -51,7 +51,7 @@ export const retry: STM<never, never, never> = new Effect(() => {
  * @tsplus static fncts.io.STMOps succeed
  * @tsplus static fncts.io.STMOps __call
  */
-export function succeed<A>(effect: Lazy<A>): STM<never, never, A> {
+export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): STM<never, never, A> {
   return new Succeed(effect);
 }
 
@@ -60,6 +60,6 @@ export function succeed<A>(effect: Lazy<A>): STM<never, never, A> {
  *
  * @tsplus static fncts.io.STMOps succeedNow
  */
-export function succeedNow<A>(a: A): STM<never, never, A> {
+export function succeedNow<A>(a: A, __tsplusTrace?: string): STM<never, never, A> {
   return new SucceedNow(a);
 }

@@ -16,7 +16,11 @@ import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
  * @tsplus static fncts.io.IOOps foreachDiscardC
  * @tsplus fluent fncts.Iterable traverseIODiscardC
  */
-export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
+export function foreachDiscardC_<R, E, A>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, any>,
+  __tsplusTrace?: string,
+): IO<R, E, void> {
   return IO.concurrencyWith((conc) =>
     conc.match(
       () => foreachConcurrentUnboundedDiscard(as, f),
@@ -34,7 +38,11 @@ export function foreachDiscardC_<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E,
  * @tsplus static fncts.io.IOOps foreachC
  * @tsplus fluent fncts.Iterable traverseIOC
  */
-export function foreachC_<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
+export function foreachC_<R, E, A, B>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, B>,
+  __tsplusTrace?: string,
+): IO<R, E, Conc<B>> {
   return IO.concurrencyWith((conc) =>
     conc.match(
       () => foreachConcurrentUnbounded(as, f),
@@ -43,7 +51,11 @@ export function foreachC_<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>)
   );
 }
 
-function foreachConcurrentUnboundedDiscard<R, E, A>(as: Iterable<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
+function foreachConcurrentUnboundedDiscard<R, E, A>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, any>,
+  __tsplusTrace?: string,
+): IO<R, E, void> {
   return IO.defer(() => {
     const arr  = Array.from(as);
     const size = arr.length;
@@ -91,7 +103,11 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(as: Iterable<A>, f: (a: A) =
   });
 }
 
-function foreachConcurrentUnbounded<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
+function foreachConcurrentUnbounded<R, E, A, B>(
+  as: Iterable<A>,
+  f: (a: A) => IO<R, E, B>,
+  __tsplusTrace?: string,
+): IO<R, E, Conc<B>> {
   return IO.succeed<B[]>([])
     .flatMap((array) =>
       foreachConcurrentUnboundedDiscard(as.zipWithIndex, ([n, a]) =>
@@ -105,7 +121,11 @@ function foreachConcurrentUnbounded<R, E, A, B>(as: Iterable<A>, f: (a: A) => IO
     .map(Conc.from);
 }
 
-function foreachConcurrentBoundedDiscardWorker<R, E, A>(queue: Queue<A>, f: (a: A) => IO<R, E, any>): IO<R, E, void> {
+function foreachConcurrentBoundedDiscardWorker<R, E, A>(
+  queue: Queue<A>,
+  f: (a: A) => IO<R, E, any>,
+  __tsplusTrace?: string,
+): IO<R, E, void> {
   return queue.poll.flatMap((ma) =>
     ma.match(
       () => IO.unit,
@@ -118,6 +138,7 @@ function foreachConcurrentBoundedDiscard<R, E, A>(
   as: Iterable<A>,
   n: number,
   f: (a: A) => IO<R, E, any>,
+  __tsplusTrace?: string,
 ): IO<R, E, void> {
   return IO.defer(() => {
     const size =
@@ -141,6 +162,7 @@ function foreachConcurrentBoundedWorker<R, E, A, B>(
   queue: Queue<readonly [number, A]>,
   array: Array<any>,
   f: (a: A) => IO<R, E, B>,
+  __tsplusTrace?: string,
 ): IO<R, E, void> {
   return queue.poll.flatMap((ma) =>
     ma.match(
@@ -157,7 +179,12 @@ function foreachConcurrentBoundedWorker<R, E, A, B>(
   );
 }
 
-function foreachConcurrentBounded<R, E, A, B>(as: Iterable<A>, n: number, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {
+function foreachConcurrentBounded<R, E, A, B>(
+  as: Iterable<A>,
+  n: number,
+  f: (a: A) => IO<R, E, B>,
+  __tsplusTrace?: string,
+): IO<R, E, Conc<B>> {
   return IO.defer(() => {
     const size =
       "length" in as && typeof (as as Iterable<A> & { length: unknown })["length"] === "number"

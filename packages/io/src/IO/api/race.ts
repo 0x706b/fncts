@@ -1,4 +1,4 @@
-function maybeDisconnect<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
+function maybeDisconnect<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.uninterruptibleMask((restore) => restore.force(io));
 }
 
@@ -13,7 +13,11 @@ function maybeDisconnect<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
  *
  * @tsplus fluent fncts.io.IO race
  */
-export function race_<R, E, A, R1, E1, A1>(io: IO<R, E, A>, that: IO<R1, E1, A1>): IO<R | R1, E | E1, A | A1> {
+export function race_<R, E, A, R1, E1, A1>(
+  io: IO<R, E, A>,
+  that: IO<R1, E1, A1>,
+  __tsplusTrace?: string,
+): IO<R | R1, E | E1, A | A1> {
   return IO.descriptorWith((descriptor) =>
     maybeDisconnect(io).raceWith(
       maybeDisconnect(that),

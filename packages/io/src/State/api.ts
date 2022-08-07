@@ -14,7 +14,7 @@ export function get_<S>(self: State<S>, __tsplusTrace?: string): UIO<S> {
 /**
  * @tsplus static fncts.io.StateOps initial
  */
-export function initial<S>(s: S, tag: Tag<State<S>>): Layer<never, never, State<S>> {
+export function initial<S>(s: S, tag: Tag<State<S>>, __tsplusTrace?: string): Layer<never, never, State<S>> {
   return Layer.scoped(
     FiberRef.make(s).map(
       (ref) =>

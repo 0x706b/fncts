@@ -10,8 +10,9 @@ import { DecisionTag } from "@fncts/io/Schedule";
 export function and_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<RIn1, E1, ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E | E1, ROut | ROut1> {
-  return new ZipWithC(self, that, (a, b) => a.union(b));
+  return new ZipWithC(self, that, (a, b) => a.union(b), __tsplusTrace);
 }
 
 /**
@@ -24,6 +25,7 @@ export function and_<RIn, E, ROut, RIn1, E1, ROut1>(
 export function andTo_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<RIn1, E1, ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut | ROut1> {
   return self.and(self.to(that));
 }
@@ -38,6 +40,7 @@ export function andTo_<RIn, E, ROut, RIn1, E1, ROut1>(
 export function andUsing_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn1, E1, ROut1>,
   that: Layer<RIn, E, ROut>,
+  __tsplusTrace?: string,
 ): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut | ROut1> {
   return that.and(that.to(self));
 }
@@ -48,6 +51,7 @@ export function andUsing_<RIn, E, ROut, RIn1, E1, ROut1>(
 export function catchAll_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   f: (e: E) => Layer<RIn1, E1, ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E1, ROut | ROut1> {
   return self.matchLayer(f, Layer.succeedEnvironmentNow);
 }
@@ -58,6 +62,7 @@ export function catchAll_<RIn, E, ROut, RIn1, E1, ROut1>(
 export function flatMap_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   f: (r: Environment<ROut>) => Layer<RIn1, E1, ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E | E1, ROut1> {
   return self.matchLayer(Layer.failNow, f);
 }
@@ -68,42 +73,43 @@ export function flatMap_<RIn, E, ROut, RIn1, E1, ROut1>(
 export function compose_<RIn, E, ROut, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<ROut, E1, ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn, E | E1, ROut1> {
-  return new To(self, that);
+  return new To(self, that, __tsplusTrace);
 }
 
 /**
  * @tsplus static fncts.io.LayerOps environment
  */
-export function environment<RIn>(): Layer<RIn, never, RIn> {
+export function environment<RIn>(__tsplusTrace?: string): Layer<RIn, never, RIn> {
   return Layer(IO.environment<RIn>());
 }
 
 /**
  * @tsplus static fncts.io.LayerOps fail
  */
-export function fail<E>(e: Lazy<E>): Layer<never, E, never> {
+export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Layer<never, E, never> {
   return Layer(IO.fail(e));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps failCause
  */
-export function failCause<E>(cause: Lazy<Cause<E>>): Layer<never, E, never> {
+export function failCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): Layer<never, E, never> {
   return Layer(IO.failCause(cause));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps failCauseNow
  */
-export function failCauseNow<E>(cause: Cause<E>): Layer<never, E, never> {
+export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Layer<never, E, never> {
   return Layer(IO.failCauseNow(cause));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps failNow
  */
-export function failNow<E>(e: E): Layer<never, E, never> {
+export function failNow<E>(e: E, __tsplusTrace?: string): Layer<never, E, never> {
   return Layer(IO.failNow(e));
 }
 
@@ -113,6 +119,7 @@ export function failNow<E>(e: E): Layer<never, E, never> {
 export function flatten<RIn, E, RIn1, E1, ROut>(
   self: Layer<RIn, E, Layer<RIn1, E1, ROut>>,
   tag: Tag<Layer<RIn1, E1, ROut>>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E | E1, ROut> {
   return self.flatMap((environment) => environment.get(tag));
 }
@@ -120,7 +127,7 @@ export function flatten<RIn, E, RIn1, E1, ROut>(
 /**
  * @tsplus getter fncts.io.Layer fresh
  */
-export function fresh<R, E, A>(self: Layer<R, E, A>): Layer<R, E, A> {
+export function fresh<R, E, A>(self: Layer<R, E, A>, __tsplusTrace?: string): Layer<R, E, A> {
   return new Fresh(self);
 }
 
@@ -131,6 +138,7 @@ export function fromFunction<R, A>(
   f: (r: R) => A,
   /** @tsplus implicit local */ tagR: Tag<R>,
   /** @tsplus implicit local */ tagA: Tag<A>,
+  __tsplusTrace?: string,
 ): Layer<R, never, A> {
   return Layer.fromIOEnvironment(IO.serviceWith((service) => Environment.empty.add(f(service), Derive()), Derive()));
 }
@@ -142,6 +150,7 @@ export function fromFunctionIO<R, E, A, R1>(
   f: (r: R) => IO<R1, E, A>,
   tagR: Tag<R>,
   tagA: Tag<A>,
+  __tsplusTrace?: string,
 ): Layer<R1 | R, E, A> {
   return Layer.fromIOEnvironment(
     IO.serviceWithIO((service) => f(service).map((a) => Environment.empty.add(a, tagA)), tagR),
@@ -153,34 +162,34 @@ export function fromFunctionIO<R, E, A, R1>(
  * @tsplus static fncts.io.LayerOps __call
  */
 export function fromIOEnvironment<R, E, A>(io: IO<R, E, Environment<A>>, __tsplusTrace?: string): Layer<R, E, A> {
-  return new FromScoped(io);
+  return new FromScoped(io, __tsplusTrace);
 }
 
 /**
  * @tsplus static fncts.io.LayerOps fromIO
  */
-export function fromIO<R, E, A>(resource: IO<R, E, A>, tag: Tag<A>): Layer<R, E, A> {
+export function fromIO<R, E, A>(resource: IO<R, E, A>, tag: Tag<A>, __tsplusTrace?: string): Layer<R, E, A> {
   return Layer.fromIOEnvironment(resource.map((a) => Environment().add(a, tag)));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps fromValue
  */
-export function fromValue<A>(value: Lazy<A>, tag: Tag<A>): Layer<never, never, A> {
+export function fromValue<A>(value: Lazy<A>, tag: Tag<A>, __tsplusTrace?: string): Layer<never, never, A> {
   return Layer.fromIO(IO.succeed(value), tag);
 }
 
 /**
  * @tsplus static fncts.io.LayerOps halt
  */
-export function halt(defect: Lazy<unknown>): Layer<never, never, never> {
+export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Layer<never, never, never> {
   return Layer(IO.halt(defect));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps haltNow
  */
-export function haltNow(defect: unknown): Layer<never, never, never> {
+export function haltNow(defect: unknown, __tsplusTrace?: string): Layer<never, never, never> {
   return Layer(IO.haltNow(defect));
 }
 
@@ -191,8 +200,9 @@ export function matchCauseLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>
   self: Layer<RIn, E, ROut>,
   failure: (cause: Cause<E>) => Layer<RIn1, E1, ROut1>,
   success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1 | RIn2, E1 | E2, ROut1 | ROut2> {
-  return new Fold(self, failure, success);
+  return new Fold(self, failure, success, __tsplusTrace);
 }
 
 /**
@@ -202,6 +212,7 @@ export function matchLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
   self: Layer<RIn, E, ROut>,
   failure: (e: E) => Layer<RIn1, E1, ROut1>,
   success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1 | RIn2, E1 | E2, ROut1 | ROut2> {
   return self.matchCauseLayer((cause) => cause.failureOrCause.match(failure, Layer.failCauseNow), success);
 }
@@ -212,6 +223,7 @@ export function matchLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
 export function map_<RIn, E, ROut, ROut1>(
   self: Layer<RIn, E, ROut>,
   f: (r: Environment<ROut>) => Environment<ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn, E, ROut1> {
   return self.flatMap((a) => Layer.succeedEnvironmentNow(f(a)));
 }
@@ -219,14 +231,21 @@ export function map_<RIn, E, ROut, ROut1>(
 /**
  * @tsplus fluent fncts.io.Layer mapError
  */
-export function mapError_<RIn, E, ROut, E1>(self: Layer<RIn, E, ROut>, f: (e: E) => E1): Layer<RIn, E1, ROut> {
+export function mapError_<RIn, E, ROut, E1>(
+  self: Layer<RIn, E, ROut>,
+  f: (e: E) => E1,
+  __tsplusTrace?: string,
+): Layer<RIn, E1, ROut> {
   return self.catchAll((e) => Layer.failNow(f(e)));
 }
 
 /**
  * @tsplus getter fncts.io.Layer memoize
  */
-export function memoize<RIn, E, ROut>(self: Layer<RIn, E, ROut>): URIO<Scope, Layer<RIn, E, ROut>> {
+export function memoize<RIn, E, ROut>(
+  self: Layer<RIn, E, ROut>,
+  __tsplusTrace?: string,
+): URIO<Scope, Layer<RIn, E, ROut>> {
   return IO.serviceWithIO((scope: Scope) => self.build(scope), Scope.Tag).memoize.map((_) => new FromScoped(_));
 }
 
@@ -236,6 +255,7 @@ export function memoize<RIn, E, ROut>(self: Layer<RIn, E, ROut>): URIO<Scope, La
 export function orElse_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<RIn1, E1, ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E | E1, ROut | ROut1> {
   return self.catchAll(() => that);
 }
@@ -243,7 +263,7 @@ export function orElse_<RIn, E, ROut, RIn1, E1, ROut1>(
 /**
  * @tsplus getter fncts.io.Layer orHalt
  */
-export function orHalt<RIn, E, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn, never, ROut> {
+export function orHalt<RIn, E, ROut>(self: Layer<RIn, E, ROut>, __tsplusTrace?: string): Layer<RIn, never, ROut> {
   return self.catchAll(Layer.haltNow);
 }
 
@@ -252,6 +272,7 @@ export function orHalt<RIn, E, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn, neve
  */
 export function passthrough<RIn extends Spreadable, E, ROut extends Spreadable>(
   self: Layer<RIn, E, ROut>,
+  __tsplusTrace?: string,
 ): Layer<RIn, E, RIn & ROut> {
   return Layer.environment<RIn>().and(self);
 }
@@ -262,6 +283,7 @@ export function passthrough<RIn extends Spreadable, E, ROut extends Spreadable>(
 export function retry_<RIn, E, ROut, S, RIn1>(
   self: Layer<RIn, E, ROut>,
   schedule: Schedule.WithState<S, RIn1, E, any>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E, ROut> {
   const tag = Tag<{ readonly state: S }>();
   return Layer.succeedNow({ state: schedule.initial }, tag).flatMap((environment) =>
@@ -274,6 +296,7 @@ function retryUpdate<S, RIn, E, X>(
   e: E,
   s: S,
   tag: Tag<{ readonly state: S }>,
+  __tsplusTrace?: string,
 ): Layer<RIn, E, { readonly state: S }> {
   return Layer.fromIO(
     Clock.currentTime.flatMap((now) =>
@@ -294,6 +317,7 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
   schedule: Schedule.WithState<S, RIn1, E, X>,
   s: S,
   tag: Tag<{ readonly state: S }>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E, ROut> {
   return self.catchAll((e) =>
     retryUpdate(schedule, e, s, tag).flatMap((env) => retryLoop(self, schedule, env.get(tag).state, tag).fresh),
@@ -303,49 +327,56 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
 /**
  * @tsplus static fncts.io.LayerOps scoped
  */
-export function scoped<R, E, A>(io: Lazy<IO<R, E, A>>, tag: Tag<A>): Layer<Exclude<R, Scope>, E, A> {
+export function scoped<R, E, A>(
+  io: Lazy<IO<R, E, A>>,
+  tag: Tag<A>,
+  __tsplusTrace?: string,
+): Layer<Exclude<R, Scope>, E, A> {
   return Layer.scopedEnvironment(io().map((a) => Environment.empty.add(a, tag)));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps scopedEnvironment
  */
-export function scopedEnvironment<R, E, A>(io: Lazy<IO<R, E, Environment<A>>>): Layer<Exclude<R, Scope>, E, A> {
-  return new FromScoped(IO.defer(io));
+export function scopedEnvironment<R, E, A>(
+  io: Lazy<IO<R, E, Environment<A>>>,
+  __tsplusTrace?: string,
+): Layer<Exclude<R, Scope>, E, A> {
+  return new FromScoped(IO.defer(io), __tsplusTrace);
 }
 
 /**
  * @tsplus static fncts.io.LayerOps service
  */
-export function service<A>(tag: Tag<A>): Layer<A, never, A> {
+export function service<A>(tag: Tag<A>, __tsplusTrace?: string): Layer<A, never, A> {
   return Layer.fromIO(IO.service(tag), tag);
 }
 
 /**
  * @tsplus static fncts.io.LayerOps succeed
  */
-export function succeed<A>(resource: Lazy<A>, tag: Tag<A>): Layer<never, never, A> {
+export function succeed<A>(resource: Lazy<A>, tag: Tag<A>, __tsplusTrace?: string): Layer<never, never, A> {
   return Layer.fromIOEnvironment(IO.succeed(Environment.empty.add(resource(), tag)));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps succeedEnvironment
  */
-export function succeedEnvironment<A>(a: Lazy<Environment<A>>): Layer<never, never, A> {
+export function succeedEnvironment<A>(a: Lazy<Environment<A>>, __tsplusTrace?: string): Layer<never, never, A> {
   return Layer.fromIOEnvironment(IO.succeed(a));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps succeedEnvironmentNow
  */
-export function succeedEnvironmentNow<A>(a: Environment<A>): Layer<never, never, A> {
+export function succeedEnvironmentNow<A>(a: Environment<A>, __tsplusTrace?: string): Layer<never, never, A> {
   return Layer.fromIOEnvironment(IO.succeedNow(a));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps succeedNow
  */
-export function succeedNow<A>(resource: A, tag: Tag<A>): Layer<never, never, A> {
+export function succeedNow<A>(resource: A, tag: Tag<A>, __tsplusTrace?: string): Layer<never, never, A> {
   return Layer.fromIOEnvironment(IO.succeedNow(Environment.empty.add(resource, tag)));
 }
 
@@ -359,8 +390,9 @@ export function to_<RIn, E, ROut, RIn1, E1, ROut1>(
 export function to_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<RIn, E, ROut>,
   that: Layer<ROut | RIn1, E1, ROut1>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E | E1, ROut1> {
-  return new To(Layer(IO.environment<RIn1>()).and(self), that);
+  return new To(Layer(IO.environment<RIn1>(), __tsplusTrace).and(self), that);
 }
 
 /**
@@ -373,6 +405,7 @@ export function using_<RIn, E, ROut, RIn1, E1, ROut1>(
 export function using_<RIn, E, ROut, RIn1, E1, ROut1>(
   self: Layer<ROut | RIn1, E1, ROut1>,
   that: Layer<RIn, E, ROut>,
+  __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E | E1, ROut1> {
-  return new To(Layer(IO.environment<RIn1>()).and(that), self);
+  return new To(Layer(IO.environment<RIn1>(), __tsplusTrace).and(that), self);
 }

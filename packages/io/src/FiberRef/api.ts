@@ -20,35 +20,35 @@ export function update_<A>(fiberRef: FiberRef<A>, f: (a: A) => A, __tsplusTrace?
 /**
  * @tsplus fluent fncts.io.FiberRef set
  */
-export function set_<A>(fiberRef: FiberRef<A>, a: A): UIO<void> {
+export function set_<A>(fiberRef: FiberRef<A>, a: A, __tsplusTrace?: string): UIO<void> {
   return fiberRef.modify(() => [undefined, a]);
 }
 
 /**
  * @tsplus getter fncts.io.FiberRef get
  */
-export function get<A>(fiberRef: FiberRef<A>): UIO<A> {
+export function get<A>(fiberRef: FiberRef<A>, __tsplusTrace?: string): UIO<A> {
   return fiberRef.modify((a) => [a, a]);
 }
 
 /**
  * @tsplus fluent fncts.io.FiberRef getAndSet
  */
-export function getAndSet_<A>(fiberRef: FiberRef<A>, a: A): UIO<A> {
+export function getAndSet_<A>(fiberRef: FiberRef<A>, a: A, __tsplusTrace?: string): UIO<A> {
   return fiberRef.modify((v) => [v, a]);
 }
 
 /**
  * @tsplus fluent fncts.io.FiberRef getAndUpdate
  */
-export function getAndUpdate_<A>(fiberRef: FiberRef<A>, f: (a: A) => A): UIO<A> {
+export function getAndUpdate_<A>(fiberRef: FiberRef<A>, f: (a: A) => A, __tsplusTrace?: string): UIO<A> {
   return fiberRef.modify((a) => [a, f(a)]);
 }
 
 /**
  * @tsplus fluent fncts.io.FiberRef getAndUpdateJust
  */
-export function getAndUpdateJust_<A>(fiberRef: FiberRef<A>, f: (a: A) => Maybe<A>): UIO<A> {
+export function getAndUpdateJust_<A>(fiberRef: FiberRef<A>, f: (a: A) => Maybe<A>, __tsplusTrace?: string): UIO<A> {
   return fiberRef.modify((a) => [a, f(a).getOrElse(a)]);
 }
 
@@ -59,7 +59,7 @@ export function getAndUpdateJust_<A>(fiberRef: FiberRef<A>, f: (a: A) => Maybe<A
  *
  * @tsplus fluent fncts.io.FiberRef locally
  */
-export function locally_<A>(fiberRef: FiberRef<A>, value: A) {
+export function locally_<A>(fiberRef: FiberRef<A>, value: A, __tsplusTrace?: string) {
   return <R1, E1, B>(use: IO<R1, E1, B>): IO<R1, E1, B> => {
     return new FiberRefLocally(value, fiberRef, use);
   };
@@ -72,7 +72,7 @@ export function locally_<A>(fiberRef: FiberRef<A>, value: A) {
  *
  * @tsplus fluent fncts.io.FiberRef locallyWith
  */
-export function locallyWith_<A>(self: FiberRef<A>, f: (a: A) => A) {
+export function locallyWith_<A>(self: FiberRef<A>, f: (a: A) => A, __tsplusTrace?: string) {
   return <R1, E1, B>(use: IO<R1, E1, B>): IO<R1, E1, B> => self.getWith((a) => self.locally(f(a))(use));
 }
 

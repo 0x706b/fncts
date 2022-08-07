@@ -29,6 +29,7 @@ export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTra
  */
 export function manual<R, Error, Resource>(
   acquire: IO<R, Error, Resource>,
+  __tsplusTrace?: string,
 ): IO<R | Scope, never, Cached<Error, Resource>> {
   return Do((Δ) => {
     const env = Δ(IO.environment<R>());

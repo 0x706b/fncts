@@ -6,6 +6,7 @@ import { Decision, DecisionTag } from "./Decision.js";
 export function make<State, Env, In, Out>(
   initial: State,
   step: (now: number, inp: In, state: State, __tsplusTrace?: string) => IO<Env, never, readonly [State, Out, Decision]>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env, In, Out> {
   return new (class extends Schedule<Env, In, Out> {
     readonly _State!: State;
@@ -20,6 +21,7 @@ export function make<State, Env, In, Out>(
 export function addDelay_<State, Env, In, Out>(
   self: Schedule.WithState<State, Env, In, Out>,
   f: (out: Out) => number,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env, In, Out> {
   return self.addDelayIO((out) => IO.succeed(f(out)));
 }
@@ -30,6 +32,7 @@ export function addDelay_<State, Env, In, Out>(
 export function addDelayIO_<State, Env, In, Out, Env1>(
   self: Schedule.WithState<State, Env, In, Out>,
   f: (out: Out) => URIO<Env1, number>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env | Env1, In, Out> {
   return self.modifyDelayIO((out, duration) => f(out).map((d) => duration + d));
 }
@@ -40,6 +43,7 @@ export function addDelayIO_<State, Env, In, Out, Env1>(
 export function andThen<State, Env, In, Out, State1, Env1, In1, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
   that: Schedule.WithState<State1, Env1, In1, Out1>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [State, State1, boolean], Env | Env1, In & In1, Out | Out1> {
   return self.andThenEither(that).map((out) => out.value);
 }
@@ -50,6 +54,7 @@ export function andThen<State, Env, In, Out, State1, Env1, In1, Out1>(
 export function andThenEither_<State, Env, In, Out, State1, Env1, In1, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
   that: Schedule.WithState<State1, Env1, In1, Out1>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [State, State1, boolean], Env | Env1, In & In1, Either<Out, Out1>> {
   return Schedule<readonly [State, State1, boolean], Env | Env1, In & In1, Either<Out, Out1>>(
     [self.initial, that.initial, true],
@@ -79,6 +84,7 @@ export function andThenEither_<State, Env, In, Out, State1, Env1, In1, Out1>(
 export function as_<State, Env, In, Out, Out2>(
   self: Schedule.WithState<State, Env, In, Out>,
   out2: Lazy<Out2>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env, In, Out2> {
   return self.map(() => out2());
 }
@@ -89,6 +95,7 @@ export function as_<State, Env, In, Out, Out2>(
 export function check_<State, Env, In, Out>(
   self: Schedule.WithState<State, Env, In, Out>,
   test: (inp: In, out: Out) => boolean,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env, In, Out> {
   return self.checkIO((inp, out) => IO.succeed(test(inp, out)));
 }
@@ -99,6 +106,7 @@ export function check_<State, Env, In, Out>(
 export function checkIO_<State, Env, In, Out, Env1>(
   self: Schedule.WithState<State, Env, In, Out>,
   test: (inp: In, out: Out) => URIO<Env1, boolean>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env | Env1, In, Out> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, out, decision]) =>
@@ -117,6 +125,7 @@ export function checkIO_<State, Env, In, Out, Env1>(
 export function compose_<S, R, I, O, S1, R1, O2>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, O, O2>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I, O2> {
   return Schedule([self.initial, that.initial], (now, inp, state) =>
     self.step(now, inp, state[0]).flatMap(([lState, out, decision]) =>
@@ -140,6 +149,7 @@ export function compose_<S, R, I, O, S1, R1, O2>(
 export function contramap_<S, R, I, O, I2>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I2) => I,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I2, O> {
   return self.contramapIO((inp2) => IO.succeed(f(inp2)));
 }
@@ -150,6 +160,7 @@ export function contramap_<S, R, I, O, I2>(
 export function contramapEnvironment_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (env: Environment<R1>) => Environment<R>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R1, I, O> {
   return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).contramapEnvironment(f));
 }
@@ -160,6 +171,7 @@ export function contramapEnvironment_<S, R, I, O, R1>(
 export function contramapIO_<S, R, I, O, R1, I2>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I2) => URIO<R1, I>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I2, O> {
   return Schedule(self.initial, (now, inp2, state) => f(inp2).flatMap((inp) => self.step(now, inp, state)));
 }
@@ -167,7 +179,10 @@ export function contramapIO_<S, R, I, O, R1, I2>(
 /**
  * @tsplus static fncts.io.ScheduleOps delayed
  */
-export function delayed<S, R, I>(schedule: Schedule.WithState<S, R, I, number>): Schedule.WithState<S, R, I, number> {
+export function delayed<S, R, I>(
+  schedule: Schedule.WithState<S, R, I, number>,
+  __tsplusTrace?: string,
+): Schedule.WithState<S, R, I, number> {
   return schedule.addDelay((x) => x);
 }
 
@@ -177,6 +192,7 @@ export function delayed<S, R, I>(schedule: Schedule.WithState<S, R, I, number>):
 export function delayedSelf_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   f: (delay: number) => number,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O> {
   return self.delayedIO((delay) => IO.succeed(f(delay)));
 }
@@ -187,6 +203,7 @@ export function delayedSelf_<S, R, I, O>(
 export function delayedIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (delay: number) => URIO<R1, number>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return self.modifyDelayIO((_, delay) => f(delay));
 }
@@ -194,7 +211,10 @@ export function delayedIO_<S, R, I, O, R1>(
 /**
  * @tsplus getter fncts.io.Schedule delays
  */
-export function delays<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, number> {
+export function delays<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  __tsplusTrace?: string,
+): Schedule.WithState<S, R, I, number> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, _, decision]) =>
       decision.match(
@@ -215,6 +235,7 @@ export function dimap_<S, R, I, O, I2, O2>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp2: I2) => I,
   g: (out: O) => O2,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I2, O2> {
   return self.contramap(f).map(g);
 }
@@ -226,6 +247,7 @@ export function dimapIO_<S, R, I, O, R1, I2, R2, O2>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp2: I2) => URIO<R1, I>,
   g: (out: O) => URIO<R2, O2>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1 | R2, I2, O2> {
   return self.contramapIO(f).mapIO(g);
 }
@@ -233,7 +255,10 @@ export function dimapIO_<S, R, I, O, R1, I2, R2, O2>(
 /**
  * @tsplus static fncts.io.ScheduleOps duration
  */
-export function duration(duration: number): Schedule.WithState<boolean, never, unknown, number> {
+export function duration(
+  duration: number,
+  __tsplusTrace?: string,
+): Schedule.WithState<boolean, never, unknown, number> {
   return Schedule<boolean, never, unknown, number>(true, (now, _, state) =>
     IO.succeed(() => {
       if (state) {
@@ -253,6 +278,7 @@ export function duration(duration: number): Schedule.WithState<boolean, never, u
 export function either<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, readonly [O, O1]> {
   return self.unionWith(that, (interval1, interval2) => interval1 || interval2);
 }
@@ -264,6 +290,7 @@ export function eitherWith<S, R, I, O, S1, R1, I1, O1, O2>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
   f: (out1: O, out2: O1) => O2,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, O2> {
   return (self || that).map(f.tupled);
 }
@@ -289,6 +316,7 @@ export const elapsed: Schedule.WithState<Maybe<number>, never, unknown, number> 
 export function ensuring_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   finalizer: UIO<any>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, out, decision]) =>
@@ -303,7 +331,11 @@ export function ensuring_<S, R, I, O>(
 /**
  * @tsplus static fncts.io.ScheduleOps exponential
  */
-export function exponential(base: number, factor = 2): Schedule.WithState<number, never, unknown, number> {
+export function exponential(
+  base: number,
+  factor = 2,
+  __tsplusTrace?: string,
+): Schedule.WithState<number, never, unknown, number> {
   return Schedule.delayed(Schedule.forever.map((i) => base * Math.pow(factor, i)));
 }
 
@@ -323,6 +355,7 @@ export function exponential(base: number, factor = 2): Schedule.WithState<number
  */
 export function fixed(
   interval: number,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [Maybe<readonly [number, number]>, number], never, unknown, number> {
   return Schedule([Nothing(), 0], (now, inp, [ms, n]) =>
     IO.succeed(
@@ -350,6 +383,7 @@ export function fold_<S, R, I, O, Z>(
   self: Schedule.WithState<S, R, I, O>,
   z: Z,
   f: (z: Z, out: O) => Z,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, Z], R, I, Z> {
   return self.foldIO(z, (z, out) => IO.succeed(f(z, out)));
 }
@@ -361,6 +395,7 @@ export function foldIO_<S, R, I, O, Z, R1>(
   self: Schedule.WithState<S, R, I, O>,
   z: Z,
   f: (z: Z, out: O) => URIO<R1, Z>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, Z], R | R1, I, Z> {
   return Schedule([self.initial, z], (now, inp, [s, z]) =>
     self.step(now, inp, s).flatMap(([s, out, decision]) =>
@@ -375,7 +410,10 @@ export function foldIO_<S, R, I, O, Z, R1>(
 /**
  * @tsplus getter fncts.io.Schedule forever
  */
-export function foreverSelf<S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, O> {
+export function foreverSelf<S, R, I, O>(
+  self: Schedule.WithState<S, R, I, O>,
+  __tsplusTrace?: string,
+): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, out, decision]) =>
       decision.match(
@@ -394,7 +432,7 @@ export const forever = Schedule.unfold(0, (n) => n + 1);
 /**
  * @tsplus static fncts.io.ScheduleOps identity
  */
-export function identity<A>(): Schedule.WithState<void, never, A, A> {
+export function identity<A>(__tsplusTrace?: string): Schedule.WithState<void, never, A, A> {
   return Schedule(undefined, (now, inp, state) => IO.succeed([state, inp, Decision.continueWith(Interval.after(now))]));
 }
 
@@ -409,6 +447,7 @@ function intersectWithLoop<S, R, I, O, S1, R1, I1, O1>(
   out2: O1,
   rInterval: Intervals,
   f: (lInterval: Intervals, rInterval: Intervals) => Intervals,
+  __tsplusTrace?: string,
 ): IO<R | R1, never, readonly [readonly [S, S1], readonly [O, O1], Decision]> {
   const combined = f(lInterval, rInterval);
   if (combined.isNonEmpty) {
@@ -437,6 +476,7 @@ export function intersectWith_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
   f: (int1: Intervals, int2: Intervals) => Intervals,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, readonly [O, O1]> {
   return Schedule([self.initial, that.initial] as const, (now, inp, state) => {
     const left  = self.step(now, inp, state[0]);
@@ -455,7 +495,7 @@ export function intersectWith_<S, R, I, O, S1, R1, I1, O1>(
 /**
  * @tsplus static fncts.io.Schedule linear
  */
-export function linear(base: number): Schedule.WithState<number, never, unknown, number> {
+export function linear(base: number, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, number> {
   return Schedule.delayed(Schedule.forever.map((i) => base * (i + 1)));
 }
 
@@ -465,6 +505,7 @@ export function linear(base: number): Schedule.WithState<number, never, unknown,
 export function map_<State, Env, In, Out, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
   f: (out: Out) => Out1,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env, In, Out1> {
   return self.mapIO((out) => IO.succeedNow(f(out)));
 }
@@ -475,6 +516,7 @@ export function map_<State, Env, In, Out, Out1>(
 export function mapIO_<State, Env, In, Out, Env1, Out1>(
   self: Schedule.WithState<State, Env, In, Out>,
   f: (out: Out) => URIO<Env1, Out1>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env | Env1, In, Out1> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, out, decision]) => f(out).map((out1) => [state, out1, decision])),
@@ -487,6 +529,7 @@ export function mapIO_<State, Env, In, Out, Env1, Out1>(
 export function modifyDelayIO_<State, Env, In, Out, Env1>(
   self: Schedule.WithState<State, Env, In, Out>,
   f: (out: Out, duration: number) => URIO<Env1, number>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<State, Env | Env1, In, Out> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, out, decision]) =>
@@ -515,6 +558,7 @@ export function modifyDelayIO_<State, Env, In, Out, Env1>(
 export function onDecision_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (state: S, out: O, decision: Decision) => URIO<R1, any>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, out, decision]) => f(state, out, decision).as([state, out, decision])),
@@ -527,6 +571,7 @@ export function onDecision_<S, R, I, O, R1>(
 export function provideEnvironment_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   env: Environment<R>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, never, I, O> {
   return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).provideEnvironment(env));
 }
@@ -537,6 +582,7 @@ export function provideEnvironment_<S, R, I, O>(
 export function reconsider_<S, R, I, O, O2>(
   self: Schedule.WithState<S, R, I, O>,
   f: (state: S, out: O, decision: Decision) => Either<O2, readonly [O2, Interval]>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O2> {
   return self.reconsiderIO((state, out, decision) => IO.succeed(f(state, out, decision)));
 }
@@ -547,6 +593,7 @@ export function reconsider_<S, R, I, O, O2>(
 export function reconsiderIO_<S, R, I, O, R1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (state: S, out: O, decision: Decision) => URIO<R1, Either<O1, readonly [O1, Interval]>>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O1> {
   return Schedule(self.initial, (now, inp, state) =>
     self.step(now, inp, state).flatMap(([state, out, decision]) =>
@@ -573,49 +620,55 @@ export function reconsiderIO_<S, R, I, O, R1, O1>(
 /**
  * @tsplus static fncts.io.Schedule recurs
  */
-export function recurs(n: number): Schedule.WithState<number, never, unknown, number> {
+export function recurs(n: number, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, number> {
   return Schedule.forever.whileOutput((_) => _ < n);
 }
 
 /**
  * @tsplus static fncts.io.Schedule recurWhile
  */
-export function recurWhile<A>(f: (a: A) => boolean): Schedule.WithState<void, never, A, A> {
+export function recurWhile<A>(f: (a: A) => boolean, __tsplusTrace?: string): Schedule.WithState<void, never, A, A> {
   return identity<A>().whileInput(f);
 }
 
 /**
  * @tsplus static fncts.io.Schedule recurWhileIO
  */
-export function recurWhileIO<R, A>(f: (a: A) => URIO<R, boolean>): Schedule.WithState<void, R, A, A> {
+export function recurWhileIO<R, A>(
+  f: (a: A) => URIO<R, boolean>,
+  __tsplusTrace?: string,
+): Schedule.WithState<void, R, A, A> {
   return identity<A>().whileInputIO(f);
 }
 
 /**
  * @tsplus static fncts.io.Schedule recurWhileEquals
  */
-export function recurWhileEquals<A>(value: Lazy<A>): Schedule.WithState<void, never, A, A> {
+export function recurWhileEquals<A>(value: Lazy<A>, __tsplusTrace?: string): Schedule.WithState<void, never, A, A> {
   return identity<A>().whileInput((a) => Equatable.strictEquals(a, value()));
 }
 
 /**
  * @tsplus static fncts.io.Schedule recurUntil
  */
-export function recurUntil<A>(f: (a: A) => boolean): Schedule.WithState<void, never, A, A> {
+export function recurUntil<A>(f: (a: A) => boolean, __tsplusTrace?: string): Schedule.WithState<void, never, A, A> {
   return identity<A>().untilInput(f);
 }
 
 /**
  * @tsplus static fncts.io.Schedule recurUntilIO
  */
-export function recurUntilIO<R, A>(f: (a: A) => URIO<R, boolean>): Schedule.WithState<void, R, A, A> {
+export function recurUntilIO<R, A>(
+  f: (a: A) => URIO<R, boolean>,
+  __tsplusTrace?: string,
+): Schedule.WithState<void, R, A, A> {
   return identity<A>().untilInputIO(f);
 }
 
 /**
  * @tsplus static fncts.io.Schedule recurUntilEquals
  */
-export function recurUntilEquals<A>(value: Lazy<A>): Schedule.WithState<void, never, A, A> {
+export function recurUntilEquals<A>(value: Lazy<A>, __tsplusTrace?: string): Schedule.WithState<void, never, A, A> {
   return identity<A>().untilInput((a) => Equatable.strictEquals(a, value()));
 }
 
@@ -624,6 +677,7 @@ export function recurUntilEquals<A>(value: Lazy<A>): Schedule.WithState<void, ne
  */
 export function repetitions<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, number], R, I, number> {
   return self.fold(0, (n, _) => n + 1);
 }
@@ -634,6 +688,7 @@ export function repetitions<S, R, I, O>(
 export function resetAfter_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   duration: number,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, Maybe<number>], R, I, O> {
   return self
     .zip(Schedule.elapsed)
@@ -647,6 +702,7 @@ export function resetAfter_<S, R, I, O>(
 export function resetWhen_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   f: (out: O) => boolean,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O> {
   return Schedule(self.initial, (now, inp, state) =>
     self
@@ -664,6 +720,7 @@ export function run_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   now: number,
   input: Iterable<I>,
+  __tsplusTrace?: string,
 ): URIO<R, Conc<O>> {
   const loop = (now: number, xs: List<I>, state: S, acc: Conc<O>): URIO<R, Conc<O>> => {
     if (xs.isEmpty()) {
@@ -683,14 +740,14 @@ export function run_<S, R, I, O>(
 /**
  * @tsplus static fncts.io.Schedule spaced
  */
-export function spaced(duration: number): Schedule.WithState<number, never, unknown, number> {
+export function spaced(duration: number, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, number> {
   return Schedule.forever.addDelay(() => duration);
 }
 
 /**
  * @tsplus static fncts.io.Schedule succeed
  */
-export function succeed<A>(a: Lazy<A>): Schedule.WithState<number, never, unknown, A> {
+export function succeed<A>(a: Lazy<A>, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, A> {
   return Schedule.forever.as(a);
 }
 
@@ -700,6 +757,7 @@ export function succeed<A>(a: Lazy<A>): Schedule.WithState<number, never, unknow
 export function tapInput_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I) => URIO<R1, any>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return Schedule(self.initial, (now, inp, state) => f(inp).apSecond(self.step(now, inp, state)));
 }
@@ -710,6 +768,7 @@ export function tapInput_<S, R, I, O, R1>(
 export function tapOutput_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (out: O) => URIO<R1, any>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return Schedule(self.initial, (now, inp, state) => self.step(now, inp, state).tap(([_, out]) => f(out)));
 }
@@ -721,6 +780,7 @@ export function unionWith_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
   f: (int1: Intervals, int2: Intervals) => Intervals,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, readonly [O, O1]> {
   return Schedule([self.initial, that.initial], (now, inp, state) => {
     const left  = self.step(now, inp, state[0]);
@@ -749,7 +809,11 @@ export function unionWith_<S, R, I, O, S1, R1, I1, O1>(
 /**
  * @tsplus static fncts.io.ScheduleOps unfold
  */
-export function unfold<A>(a: Lazy<A>, f: (a: A) => A): Schedule.WithState<A, never, unknown, A> {
+export function unfold<A>(
+  a: Lazy<A>,
+  f: (a: A) => A,
+  __tsplusTrace?: string,
+): Schedule.WithState<A, never, unknown, A> {
   return Schedule<A, never, unknown, A>(a(), (now, inp, state) =>
     IO.succeed([f(state), state, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))]),
   );
@@ -761,6 +825,7 @@ export function unfold<A>(a: Lazy<A>, f: (a: A) => A): Schedule.WithState<A, nev
 export function untilInput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I) => boolean,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O> {
   return self.check((inp) => !f(inp));
 }
@@ -771,6 +836,7 @@ export function untilInput_<S, R, I, O>(
 export function untilInputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I) => URIO<R1, boolean>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return self.checkIO((inp) => f(inp).map((b) => !b));
 }
@@ -781,6 +847,7 @@ export function untilInputIO_<S, R, I, O, R1>(
 export function untilOutput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   f: (out: O) => boolean,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O> {
   return self.check((_, out) => !f(out));
 }
@@ -791,6 +858,7 @@ export function untilOutput_<S, R, I, O>(
 export function untilOutputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (out: O) => URIO<R1, boolean>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return self.checkIO((_, out) => f(out).map((b) => !b));
 }
@@ -798,7 +866,10 @@ export function untilOutputIO_<S, R, I, O, R1>(
 /**
  * @tsplus static fncts.io.Schedule upTo
  */
-export function upTo(duration: number): Schedule.WithState<Maybe<number>, never, unknown, number> {
+export function upTo(
+  duration: number,
+  __tsplusTrace?: string,
+): Schedule.WithState<Maybe<number>, never, unknown, number> {
   return Schedule.elapsed.whileOutput((n) => n < duration);
 }
 
@@ -808,6 +879,7 @@ export function upTo(duration: number): Schedule.WithState<Maybe<number>, never,
 export function whileInput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I) => boolean,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O> {
   return self.check((inp) => f(inp));
 }
@@ -818,6 +890,7 @@ export function whileInput_<S, R, I, O>(
 export function whileInputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (inp: I) => URIO<R1, boolean>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return self.checkIO((inp) => f(inp));
 }
@@ -828,6 +901,7 @@ export function whileInputIO_<S, R, I, O, R1>(
 export function whileOutput_<S, R, I, O>(
   self: Schedule.WithState<S, R, I, O>,
   f: (out: O) => boolean,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R, I, O> {
   return self.check((_, out) => f(out));
 }
@@ -838,6 +912,7 @@ export function whileOutput_<S, R, I, O>(
 export function whileOutputIO_<S, R, I, O, R1>(
   self: Schedule.WithState<S, R, I, O>,
   f: (out: O) => URIO<R1, boolean>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<S, R | R1, I, O> {
   return self.checkIO((_, out) => f(out));
 }
@@ -847,6 +922,7 @@ export function whileOutputIO_<S, R, I, O, R1>(
  */
 export function windowed(
   interval: number,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [Maybe<number>, number], never, unknown, number> {
   return Schedule([Nothing(), 0], (now, inp, [m, n]) =>
     IO.succeed(() =>
@@ -868,6 +944,7 @@ export function windowed(
 export function zip_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, readonly [O, O1]> {
   return self.intersectWith(that, (lInterval, rInterval) => lInterval.intersect(rInterval));
 }
@@ -878,6 +955,7 @@ export function zip_<S, R, I, O, S1, R1, I1, O1>(
 export function zipLeft_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, O> {
   return self.zip(that).map(([out]) => out);
 }
@@ -888,6 +966,7 @@ export function zipLeft_<S, R, I, O, S1, R1, I1, O1>(
 export function zipRight_<S, R, I, O, S1, R1, I1, O1>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O1>,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, O1> {
   return self.zip(that).map(([_, out1]) => out1);
 }
@@ -899,6 +978,7 @@ export function zipWith_<S, R, I, O, S1, R1, I1, O2, O3>(
   self: Schedule.WithState<S, R, I, O>,
   that: Schedule.WithState<S1, R1, I1, O2>,
   f: (out1: O, out2: O2) => O3,
+  __tsplusTrace?: string,
 ): Schedule.WithState<readonly [S, S1], R | R1, I & I1, O3> {
   return self.zip(that).map(([out1, out2]) => f(out1, out2));
 }

@@ -23,7 +23,7 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
 
   isShutdown: UIO<boolean> = IO.succeed(this.shutdownFlag.get);
 
-  offer(a: A): IO<never, never, boolean> {
+  offer(a: A, __tsplusTrace?: string): IO<never, never, boolean> {
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -46,7 +46,7 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
     });
   }
 
-  offerAll(as: Iterable<A>): IO<never, never, boolean> {
+  offerAll(as: Iterable<A>, __tsplusTrace?: string): IO<never, never, boolean> {
     const arr = Conc.from(as);
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
@@ -130,7 +130,7 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
     }
   });
 
-  takeUpTo(max: number): IO<never, never, Conc<A>> {
+  takeUpTo(max: number, __tsplusTrace?: string): IO<never, never, Conc<A>> {
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;

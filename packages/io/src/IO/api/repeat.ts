@@ -1,7 +1,7 @@
 /**
  * @tsplus getter fncts.io.IO repeat
  */
-export function repeat_<R, E, A>(self: IO<R, E, A>) {
+export function repeat_<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
   return <R1, B>(schedule0: Lazy<Schedule<R1, A, B>>, __tsplusTrace?: string): IO<R | R1, E, B> =>
     self.repeatOrElse(schedule0, (e, _) => IO.fail(e));
 }
@@ -9,7 +9,7 @@ export function repeat_<R, E, A>(self: IO<R, E, A>) {
 /**
  * @tsplus getter fncts.io.IO repeatOrElse
  */
-export function repeatOrElse_<R, E, A>(self: IO<R, E, A>) {
+export function repeatOrElse_<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
   return <R1, B, R2, E2>(
     schedule0: Lazy<Schedule<R1, A, B>>,
     orElse: (e: E, out: Maybe<B>) => IO<R2, E2, B>,
@@ -20,7 +20,7 @@ export function repeatOrElse_<R, E, A>(self: IO<R, E, A>) {
 /**
  * @tsplus getter fncts.io.IO repeatOrElseEither
  */
-export function repeatOrElseEither_<R, E, A>(self: IO<R, E, A>) {
+export function repeatOrElseEither_<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
   return <R1, B, R2, E2, C>(
     schedule0: Lazy<Schedule<R1, A, B>>,
     orElse: (e: E, out: Maybe<B>) => IO<R2, E2, C>,

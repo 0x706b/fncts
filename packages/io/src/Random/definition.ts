@@ -13,9 +13,9 @@ export abstract class Random {
   abstract readonly nextDouble: UIO<number>;
   abstract readonly nextBoolean: UIO<boolean>;
   abstract readonly nextInt: UIO<number>;
-  abstract nextRange(low: number, high: number): UIO<number>;
-  abstract nextIntBetween(low: number, high: number): UIO<number>;
-  abstract nextBigIntBetween(low: bigint, high: bigint): UIO<bigint>;
-  abstract nextArrayIntBetween(low: ArrayInt, high: ArrayInt): UIO<ArrayInt>;
-  abstract setSeed(seed: number): UIO<void>;
+  abstract nextRange(low: number, high: number, __tsplusTrace?: string): UIO<number>;
+  abstract nextIntBetween(low: number, high: number, __tsplusTrace?: string): UIO<number>;
+  abstract nextBigIntBetween(low: bigint, high: bigint, __tsplusTrace?: string): UIO<bigint>;
+  abstract nextArrayIntBetween(low: ArrayInt, high: ArrayInt, __tsplusTrace?: string): UIO<ArrayInt>;
+  abstract setSeed(seed: number, __tsplusTrace?: string): UIO<void>;
 }

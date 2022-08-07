@@ -12,7 +12,7 @@ export const emptyReadLock: ReadLock = new ReadLock(HashMap.makeDefault());
 /**
  * @tsplus static fncts.io.TReentrantLock.ReadLockOps __call
  */
-export function makeReadLock(fiberId: FiberId, count: number): ReadLock {
+export function makeReadLock(fiberId: FiberId, count: number, __tsplusTrace?: string): ReadLock {
   return count <= 0 ? ReadLock.empty : new ReadLock(HashMap.makeDefault<FiberId, number>().set(fiberId, count));
 }
 
@@ -20,21 +20,21 @@ export function makeReadLock(fiberId: FiberId, count: number): ReadLock {
  * @tsplus static fncts.io.TReentrantLockOps make
  * @tsplus static fncts.io.TReentrantLockOps __call
  */
-export function make(): USTM<TReentrantLock> {
+export function make(__tsplusTrace?: string): USTM<TReentrantLock> {
   return TRef.make<LockState>(new ReadLock(HashMap.makeDefault())).map((ref) => new TReentrantLock(ref));
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock acquireRead
  */
-export function acquireRead(self: TReentrantLock): USTM<number> {
+export function acquireRead(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return adjustRead(self, 1);
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock acquireWrite
  */
-export function acquireWrite(self: TReentrantLock): USTM<number> {
+export function acquireWrite(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return STM.Effect((journal, fiberId, _) => {
     const lockState = self.data.unsafeGet(journal);
     switch (lockState._tag) {
@@ -59,14 +59,14 @@ export function acquireWrite(self: TReentrantLock): USTM<number> {
 /**
  * @tsplus getter fncts.io.TReentrantLock releaseRead
  */
-export function releaseRead(self: TReentrantLock): USTM<number> {
+export function releaseRead(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return adjustRead(self, -1);
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock releaseWrite
  */
-export function releaseWrite(self: TReentrantLock): USTM<number> {
+export function releaseWrite(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return STM.Effect((journal, fiberId) => {
     const lockState: LockState = self.data.unsafeGet(journal);
     let res: LockState | undefined;
@@ -89,7 +89,7 @@ export function releaseWrite(self: TReentrantLock): USTM<number> {
 /**
  * @tsplus fluent fncts.io.TReentrantLock withReadLock
  */
-export function withReadLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>): IO<R, E, A> {
+export function withReadLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.uninterruptibleMask(
     ({ restore }) => restore(self.acquireRead.commit) > restore(io).ensuring(self.releaseRead.commit),
   );
@@ -98,7 +98,7 @@ export function withReadLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>): IO
 /**
  * @tsplus fluent fncts.io.TReentrantLock withWriteLock
  */
-export function withWriteLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>): IO<R, E, A> {
+export function withWriteLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.uninterruptibleMask(
     ({ restore }) => restore(self.acquireWrite.commit) > restore(io).ensuring(self.releaseWrite.commit),
   );
@@ -121,53 +121,53 @@ export function writeLock(self: TReentrantLock, __tsplusTrace?: string): IO<Scop
 /**
  * @tsplus getter fncts.io.TReentrantLock readLocked
  */
-export function readLocked(self: TReentrantLock): USTM<boolean> {
+export function readLocked(self: TReentrantLock, __tsplusTrace?: string): USTM<boolean> {
   return self.data.get.map((state) => state.readLocks > 0);
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock writeLocked
  */
-export function writeLocked(self: TReentrantLock): USTM<boolean> {
+export function writeLocked(self: TReentrantLock, __tsplusTrace?: string): USTM<boolean> {
   return self.data.get.map((state) => state.writeLocks > 0);
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock locked
  */
-export function locked(self: TReentrantLock): USTM<boolean> {
+export function locked(self: TReentrantLock, __tsplusTrace?: string): USTM<boolean> {
   return self.readLocked.zipWith(self.writeLocked, (a, b) => a || b);
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock fiberReadLocks
  */
-export function fiberReadLocks(self: TReentrantLock): USTM<number> {
+export function fiberReadLocks(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return STM.Effect((journal, fiberId) => self.data.unsafeGet(journal).readLocksHeld(fiberId));
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock fiberWriteLocks
  */
-export function fiberWriteLocks(self: TReentrantLock): USTM<number> {
+export function fiberWriteLocks(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return STM.Effect((journal, fiberId) => self.data.unsafeGet(journal).writeLocksHeld(fiberId));
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock writeLocks
  */
-export function writeLocks(self: TReentrantLock): USTM<number> {
+export function writeLocks(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return self.data.get.map((state) => state.writeLocks);
 }
 
 /**
  * @tsplus getter fncts.io.TReentrantLock readLocks
  */
-export function readLocks(self: TReentrantLock): USTM<number> {
+export function readLocks(self: TReentrantLock, __tsplusTrace?: string): USTM<number> {
   return self.data.get.map((state) => state.readLocks);
 }
 
-function adjustRead(self: TReentrantLock, delta: number): USTM<number> {
+function adjustRead(self: TReentrantLock, delta: number, __tsplusTrace?: string): USTM<number> {
   return STM.Effect((journal, fiberId, _) => {
     const lockState = self.data.unsafeGet(journal);
     switch (lockState._tag) {

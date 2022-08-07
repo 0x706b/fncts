@@ -16,7 +16,10 @@ import { QueueInternal } from "@fncts/io/Queue";
  *
  * @tsplus getter fncts.io.Hub awaitShutdown
  */
-export function awaitShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<void> {
+export function awaitShutdown<RA, RB, EA, EB, A, B>(
+  self: PHub<RA, RB, EA, EB, A, B>,
+  __tsplusTrace?: string,
+): UIO<void> {
   concrete(self);
   return self.awaitShutdown;
 }
@@ -26,7 +29,7 @@ export function awaitShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A
  *
  * @tsplus getter fncts.io.Hub capacity
  */
-export function capacity<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): number {
+export function capacity<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, __tsplusTrace?: string): number {
   concrete(self);
   return self.capacity;
 }
@@ -40,6 +43,7 @@ export function capacity<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>)
 export function contramapIO_<RA, RB, RC, EA, EB, EC, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
+  __tsplusTrace?: string,
 ): PHub<RC | RA, RB, EA | EC, EB, C, B> {
   return self.dimapIO(f, IO.succeedNow);
 }
@@ -79,6 +83,7 @@ export function dimap_<RA, RB, EA, EB, A, B, C, D>(
   self: PHub<RA, RB, EA, EB, A, B>,
   f: (c: C) => A,
   g: (b: B) => D,
+  __tsplusTrace?: string,
 ): PHub<RA, RB, EA, EB, C, D> {
   return self.dimapIO(
     (c) => IO.succeedNow(f(c)),
@@ -96,6 +101,7 @@ export function dimapIO_<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D>(
   source: PHub<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
   g: (b: B) => IO<RD, ED, D>,
+  __tsplusTrace?: string,
 ): PHub<RC | RA, RD | RB, EA | EC, EB | ED, C, D> {
   concrete(source);
   return new DimapIO(source, f, g);
@@ -125,6 +131,7 @@ class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA | RA
 export function filterInputIO_<RA, RA1, RB, EA, EA1, EB, A, B>(
   source: PHub<RA, RB, EA, EB, A, B>,
   f: (a: A) => IO<RA1, EA1, boolean>,
+  __tsplusTrace?: string,
 ): PHub<RA | RA1, RB, EA | EA1, EB, A, B> {
   concrete(source);
   return new FilterInputIO(source, f);
@@ -135,7 +142,11 @@ export function filterInputIO_<RA, RA1, RB, EA, EA1, EB, A, B>(
  *
  * @tsplus fluent fncts.io.Hub filterInput
  */
-export function filterInput_<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, f: (a: A) => boolean) {
+export function filterInput_<RA, RB, EA, EB, A, B>(
+  self: PHub<RA, RB, EA, EB, A, B>,
+  f: (a: A) => boolean,
+  __tsplusTrace?: string,
+) {
   return self.filterInputIO((a) => IO.succeedNow(f(a)));
 }
 
@@ -162,6 +173,7 @@ class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB
 export function filterOutputIO_<RA, RB, RB1, EA, EB, EB1, A, B>(
   source: PHub<RA, RB, EA, EB, A, B>,
   f: (a: B) => IO<RB1, EB1, boolean>,
+  __tsplusTrace?: string,
 ): PHub<RA, RB | RB1, EA, EB | EB1, A, B> {
   concrete(source);
   return new FilterOutputIO(source, f);
@@ -175,6 +187,7 @@ export function filterOutputIO_<RA, RB, RB1, EA, EB, EB1, A, B>(
 export function filterOutput_<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
   f: (b: B) => boolean,
+  __tsplusTrace?: string,
 ): PHub<RA, RB, EA, EB, A, B> {
   return self.filterOutputIO((b) => IO.succeedNow(f(b)));
 }
@@ -184,7 +197,10 @@ export function filterOutput_<RA, RB, EA, EB, A, B>(
  *
  * @tsplus getter fncts.io.Hub isShutdown
  */
-export function isShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<boolean> {
+export function isShutdown<RA, RB, EA, EB, A, B>(
+  self: PHub<RA, RB, EA, EB, A, B>,
+  __tsplusTrace?: string,
+): UIO<boolean> {
   concrete(self);
   return self.isShutdown;
 }
@@ -198,7 +214,7 @@ export function isShutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B
  *
  * @tsplus static fncts.io.HubOps makeBounded
  */
-export function makeBounded<A>(requestedCapacity: number): UIO<Hub<A>> {
+export function makeBounded<A>(requestedCapacity: number, __tsplusTrace?: string): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) =>
     makeHubInternal(hub, new BackPressure()),
   );
@@ -212,7 +228,7 @@ export function makeBounded<A>(requestedCapacity: number): UIO<Hub<A>> {
  *
  * @tsplus static fncts.io.HubOps makeDropping
  */
-export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
+export function makeDropping<A>(requestedCapacity: number, __tsplusTrace?: string): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) =>
     makeHubInternal(hub, new Dropping()),
   );
@@ -226,7 +242,7 @@ export function makeDropping<A>(requestedCapacity: number): UIO<Hub<A>> {
  *
  * @tsplus static fncts.io.HubOps makeSliding
  */
-export function makeSliding<A>(requestedCapacity: number): UIO<Hub<A>> {
+export function makeSliding<A>(requestedCapacity: number, __tsplusTrace?: string): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeBounded<A>(requestedCapacity)).flatMap((hub) =>
     makeHubInternal(hub, new Sliding()),
   );
@@ -237,7 +253,7 @@ export function makeSliding<A>(requestedCapacity: number): UIO<Hub<A>> {
  *
  * @tsplus static fncts.io.HubOps makeUnbounded
  */
-export function makeUnbounded<A>(): UIO<Hub<A>> {
+export function makeUnbounded<A>(__tsplusTrace?: string): UIO<Hub<A>> {
   return IO.succeed(HubInternal.makeUnbounded<A>()).flatMap((hub) => makeHubInternal(hub, new Dropping()));
 }
 
@@ -249,6 +265,7 @@ export function makeUnbounded<A>(): UIO<Hub<A>> {
 export function map_<RA, RB, EA, EB, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
   f: (b: B) => C,
+  __tsplusTrace?: string,
 ): PHub<RA, RB, EA, EB, A, C> {
   return self.mapIO((b) => IO.succeedNow(f(b)));
 }
@@ -262,6 +279,7 @@ export function map_<RA, RB, EA, EB, A, B, C>(
 export function mapIO_<RA, RB, RC, EA, EB, EC, A, B, C>(
   self: PHub<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<RC, EC, C>,
+  __tsplusTrace?: string,
 ): PHub<RA, RC | RB, EA, EB | EC, A, C> {
   return self.dimapIO(IO.succeedNow, f);
 }
@@ -288,7 +306,11 @@ class ToQueue<RA, RB, EA, EB, A, B> extends QueueInternal<RA, never, EA, unknown
  *
  * @tsplus fluent fncts.io.Hub publish
  */
-export function publish_<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, a: A): IO<RA, EA, boolean> {
+export function publish_<RA, RB, EA, EB, A, B>(
+  self: PHub<RA, RB, EA, EB, A, B>,
+  a: A,
+  __tsplusTrace?: string,
+): IO<RA, EA, boolean> {
   concrete(self);
   return self.publish(a);
 }
@@ -302,6 +324,7 @@ export function publish_<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>,
 export function publishAll_<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
   as: Iterable<A>,
+  __tsplusTrace?: string,
 ): IO<RA, EA, boolean> {
   concrete(self);
   return self.publishAll(as);
@@ -312,7 +335,7 @@ export function publishAll_<RA, RB, EA, EB, A, B>(
  *
  * @tsplus getter fncts.io.Hub shutdown
  */
-export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<void> {
+export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, __tsplusTrace?: string): UIO<void> {
   concrete(self);
   return self.shutdown;
 }
@@ -326,6 +349,7 @@ export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>)
  */
 export function subscribe<RA, RB, EA, EB, A, B>(
   self: PHub<RA, RB, EA, EB, A, B>,
+  __tsplusTrace?: string,
 ): IO<Scope, never, Hub.Dequeue<RB, EB, B>> {
   concrete(self);
   return self.subscribe;
@@ -336,7 +360,7 @@ export function subscribe<RA, RB, EA, EB, A, B>(
  *
  * @tsplus getter fncts.io.Hub size
  */
-export function size<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UIO<number> {
+export function size<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, __tsplusTrace?: string): UIO<number> {
   concrete(self);
   return self.size;
 }
@@ -346,7 +370,10 @@ export function size<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>): UI
  *
  * @tsplus getter fncts.io.Hub toQueue
  */
-export function toQueue<RA, RB, EA, EB, A, B>(source: PHub<RA, RB, EA, EB, A, B>): Hub.Enqueue<RA, EA, A> {
+export function toQueue<RA, RB, EA, EB, A, B>(
+  source: PHub<RA, RB, EA, EB, A, B>,
+  __tsplusTrace?: string,
+): Hub.Enqueue<RA, EA, A> {
   concrete(source);
   return new ToQueue(source);
 }

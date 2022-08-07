@@ -10,6 +10,7 @@ export function foreachExec_<R, E, A, B>(
   as: Iterable<A>,
   es: ExecutionStrategy,
   f: (a: A) => IO<R, E, B>,
+  __tsplusTrace?: string,
 ): IO<R, E, Conc<B>> {
   return es.match(
     () => IO.foreach(as, f),

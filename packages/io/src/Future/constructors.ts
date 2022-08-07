@@ -5,7 +5,7 @@ import { Future, Pending } from "@fncts/io/Future/definition";
  *
  * @tsplus static fncts.io.FutureOps make
  */
-export function make<E, A>(): IO<never, never, Future<E, A>> {
+export function make<E, A>(__tsplusTrace?: string): IO<never, never, Future<E, A>> {
   return IO.fiberId.flatMap((id) => Future.makeAs<E, A>(id));
 }
 
@@ -14,7 +14,7 @@ export function make<E, A>(): IO<never, never, Future<E, A>> {
  *
  * @tsplus static fncts.io.FutureOps makeAs
  */
-export function makeAs<E, A>(fiberId: FiberId) {
+export function makeAs<E, A>(fiberId: FiberId, __tsplusTrace?: string) {
   return IO.succeed(unsafeMake<E, A>(fiberId));
 }
 

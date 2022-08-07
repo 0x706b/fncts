@@ -1,7 +1,10 @@
 /**
  * @tsplus static fncts.io.IOOps addFinalizerExit
  */
-export function addFinalizerExit<R>(finalizer: (exit: Exit<any, any>) => URIO<R, any>): IO<R | Scope, never, void> {
+export function addFinalizerExit<R>(
+  finalizer: (exit: Exit<any, any>) => URIO<R, any>,
+  __tsplusTrace?: string,
+): IO<R | Scope, never, void> {
   return Do((_) => {
     const environment = _(IO.environment<R>());
     const scope       = _(IO.scope);

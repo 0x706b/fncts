@@ -87,7 +87,7 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, 
    * Writes a new value to the `Ref`, with a guarantee of immediate
    * consistency (at some cost to performance).
    */
-  abstract set(a: A): IO<RA, EA, void>;
+  abstract set(a: A, __tsplusTrace?: string): IO<RA, EA, void>;
 }
 
 /**

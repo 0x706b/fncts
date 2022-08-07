@@ -13,6 +13,7 @@ import { identity } from "@fncts/base/data/function";
 export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: A1) => boolean,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, Maybe<EA>, EB, A1, B> {
   return ref.match(Maybe.just, identity, (a) => (f(a) ? Either.right(a) : Either.left(Nothing())), Either.right);
 }
@@ -28,6 +29,7 @@ export function filterInput_<RA, RB, EA, EB, B, A, A1 extends A>(
 export function filterOutput_<RA, RB, EA, EB, A, B>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: B) => boolean,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EA, Maybe<EB>, A, B> {
   return ref.match(identity, Maybe.just, Either.right, (b) => (f(b) ? Either.right(b) : Either.left(Nothing())));
 }

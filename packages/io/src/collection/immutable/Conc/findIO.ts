@@ -6,6 +6,7 @@ function findIOLoop_<R, E, A>(
   array: ArrayLike<A>,
   i: number,
   length: number,
+  __tsplusTrace?: string,
 ): IO<R, E, Maybe<A>> {
   if (i < length) {
     const a = array[i]!;
@@ -23,7 +24,11 @@ function findIOLoop_<R, E, A>(
 /**
  * @tsplus fluent fncts.Conc findIO
  */
-export function findIO_<R, E, A>(as: Conc<A>, f: (a: A) => IO<R, E, boolean>): IO<R, E, Maybe<A>> {
+export function findIO_<R, E, A>(
+  as: Conc<A>,
+  f: (a: A) => IO<R, E, boolean>,
+  __tsplusTrace?: string,
+): IO<R, E, Maybe<A>> {
   concrete(as);
   const iterator = as.arrayIterator();
   let result;

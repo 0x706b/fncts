@@ -3,7 +3,7 @@ import type { Atomic } from "./Atomic.js";
 /**
  * @tsplus fluent fncts.io.Ref.Atomic getAndSet
  */
-export function getAndSet<A>(self: Atomic<A>, a: A): UIO<A> {
+export function getAndSet<A>(self: Atomic<A>, a: A, __tsplusTrace?: string): UIO<A> {
   return IO.succeed(() => {
     const v = self.unsafeGet;
     self.unsafeSet(a);
@@ -14,7 +14,7 @@ export function getAndSet<A>(self: Atomic<A>, a: A): UIO<A> {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic getAndUpdate
  */
-export function getAndUpdate<A>(self: Atomic<A>, f: (a: A) => A) {
+export function getAndUpdate<A>(self: Atomic<A>, f: (a: A) => A, __tsplusTrace?: string) {
   return IO.succeed(() => {
     const v = self.unsafeGet;
     self.unsafeSet(f(v));
@@ -25,7 +25,7 @@ export function getAndUpdate<A>(self: Atomic<A>, f: (a: A) => A) {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic getAndUpdateJust
  */
-export function getAndUpdateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
+export function getAndUpdateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
   return IO.succeed(() => {
     const v = self.unsafeGet;
     const o = f(v);
@@ -40,7 +40,7 @@ export function getAndUpdateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic modify
  */
-export function modify<A, B>(self: Atomic<A>, f: (a: A) => readonly [B, A]) {
+export function modify<A, B>(self: Atomic<A>, f: (a: A) => readonly [B, A], __tsplusTrace?: string) {
   return IO.succeed(() => {
     const v = self.unsafeGet;
     const o = f(v);
@@ -52,7 +52,7 @@ export function modify<A, B>(self: Atomic<A>, f: (a: A) => readonly [B, A]) {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic modifyJust
  */
-export function modifyJust<A, B>(self: Atomic<A>, def: B, f: (a: A) => Maybe<readonly [B, A]>) {
+export function modifyJust<A, B>(self: Atomic<A>, def: B, f: (a: A) => Maybe<readonly [B, A]>, __tsplusTrace?: string) {
   return IO.succeed(() => {
     const v = self.unsafeGet;
     const o = f(v);
@@ -70,7 +70,7 @@ export function modifyJust<A, B>(self: Atomic<A>, def: B, f: (a: A) => Maybe<rea
 /**
  * @tsplus fluent fncts.io.Ref.Atomic update
  */
-export function update<A>(self: Atomic<A>, f: (a: A) => A) {
+export function update<A>(self: Atomic<A>, f: (a: A) => A, __tsplusTrace?: string) {
   return IO.succeed(() => {
     self.unsafeSet(f(self.unsafeGet));
   });
@@ -79,7 +79,7 @@ export function update<A>(self: Atomic<A>, f: (a: A) => A) {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic updateAndGet
  */
-export function updateAndGet<A>(self: Atomic<A>, f: (a: A) => A) {
+export function updateAndGet<A>(self: Atomic<A>, f: (a: A) => A, __tsplusTrace?: string) {
   return IO.succeed(() => {
     self.unsafeSet(f(self.unsafeGet));
     return self.unsafeGet;
@@ -89,7 +89,7 @@ export function updateAndGet<A>(self: Atomic<A>, f: (a: A) => A) {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic updateJust
  */
-export function updateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
+export function updateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
   return IO.succeed(() => {
     const o = f(self.unsafeGet);
 
@@ -103,7 +103,7 @@ export function updateJust<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic updateJustAndGet
  */
-export function updateJustAndGet<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
+export function updateJustAndGet<A>(self: Atomic<A>, f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
   return IO.succeed(() => {
     const o = f(self.unsafeGet);
 
@@ -119,6 +119,6 @@ export function updateJustAndGet<A>(self: Atomic<A>, f: (a: A) => Maybe<A>) {
 /**
  * @tsplus fluent fncts.io.Ref.Atomic unsafeUpdate
  */
-export function unsafeUpdate<A>(self: Atomic<A>, f: (a: A) => A) {
+export function unsafeUpdate<A>(self: Atomic<A>, f: (a: A) => A, __tsplusTrace?: string) {
   return self.unsafeSet(f(self.unsafeGet));
 }

@@ -4,7 +4,8 @@
   "version": "0.0.10",
   "type": "module",
   "bin": {
-    "fncts-pack": "./bin/fncts-pack.js"
+    "fncts-pack": "./bin/fncts-pack.js",
+    "fncts-transform": "./bin/fncts-transform.js"
   },
   "exports": {
     "./*": "./build/esm/*.js",
@@ -17,11 +18,16 @@
     "clean": "rm -rf ./build"
   },
   "devDependencies": {
+    "@babel/plugin-syntax-class-properties": "^7.12.13",
+    "@babel/plugin-syntax-typescript": "^7.18.6",
+    "@babel/types": "^7.18.10",
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
+    "@types/babel__core": "^7.1.19",
     "@yarnpkg/cli": "4.0.0-rc.12",
     "@yarnpkg/core": "4.0.0-rc.12",
     "madge": "^5.0.1",
+    "recast": "^0.21.2",
     "typescript": "^4.7.4"
   }
 }

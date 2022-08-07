@@ -4,14 +4,14 @@ import { ReleaseMap } from "./ReleaseMap.js";
 /**
  * @tsplus fluent fncts.io.Scope addFinalizer
  */
-export function addFinalizer_(self: Scope, finalizer: Lazy<UIO<any>>): UIO<void> {
+export function addFinalizer_(self: Scope, finalizer: Lazy<UIO<any>>, __tsplusTrace?: string): UIO<void> {
   return self.addFinalizerExit(Finalizer.get(() => finalizer()));
 }
 
 /**
  * @tsplus static fncts.io.ScopeOps addFinalizer
  */
-export function addFinalizer(finalizer: Lazy<UIO<void>>): IO<Scope, never, void> {
+export function addFinalizer(finalizer: Lazy<UIO<void>>, __tsplusTrace?: string): IO<Scope, never, void> {
   return IO.serviceWithIO((scope) => scope.addFinalizer(finalizer), Scope.Tag);
 }
 
@@ -24,7 +24,11 @@ export const concurrent: UIO<Scope.Closeable> = makeWith(ExecutionStrategy.concu
 /**
  * @tsplus fluent fncts.io.Scope extend
  */
-export function extend_<R, E, A>(self: Scope, io: Lazy<IO<R, E, A>>): IO<Exclude<R, Scope>, E, A> {
+export function extend_<R, E, A>(
+  self: Scope,
+  io: Lazy<IO<R, E, A>>,
+  __tsplusTrace?: string,
+): IO<Exclude<R, Scope>, E, A> {
   return IO.defer(io).contramapEnvironment((r) => r.union(Environment.empty.add(self, Scope.Tag)));
 }
 
@@ -53,7 +57,7 @@ export const make: UIO<Scope.Closeable> = makeWith(ExecutionStrategy.sequential)
  * @tsplus static fncts.io.ScopeOps makeWith
  * @tsplus static fncts.io.Scope.CloseableOps makeWith
  */
-export function makeWith(executionStrategy: Lazy<ExecutionStrategy>): UIO<Scope.Closeable> {
+export function makeWith(executionStrategy: Lazy<ExecutionStrategy>, __tsplusTrace?: string): UIO<Scope.Closeable> {
   return ReleaseMap.make.map(
     (releaseMap) =>
       new (class extends Closeable {
@@ -80,14 +84,14 @@ export function makeWith(executionStrategy: Lazy<ExecutionStrategy>): UIO<Scope.
 /**
  * @tsplus static fncts.io.ScopeOps unsafeMake
  */
-export function unsafeMake() {
+export function unsafeMake(__tsplusTrace?: string) {
   return unsafeMakeWith(ExecutionStrategy.sequential);
 }
 
 /**
  * @tsplus static fncts.io.ScopeOps unsafeMakeWith
  */
-export function unsafeMakeWith(executionStrategy: ExecutionStrategy): Scope.Closeable {
+export function unsafeMakeWith(executionStrategy: ExecutionStrategy, __tsplusTrace?: string): Scope.Closeable {
   const releaseMap = ReleaseMap.unsafeMake();
   return new (class extends Closeable {
     addFinalizerExit(finalizer: Finalizer): UIO<void> {
@@ -112,6 +116,10 @@ export function unsafeMakeWith(executionStrategy: ExecutionStrategy): Scope.Clos
 /**
  * @tsplus fluent fncts.io.Scope.Closeable use
  */
-export function use_<R, E, A>(self: Scope.Closeable, io: Lazy<IO<R, E, A>>): IO<Exclude<R, Scope>, E, A> {
+export function use_<R, E, A>(
+  self: Scope.Closeable,
+  io: Lazy<IO<R, E, A>>,
+  __tsplusTrace?: string,
+): IO<Exclude<R, Scope>, E, A> {
   return self.extend(io).onExit((exit) => self.close(exit));
 }

@@ -25,9 +25,7 @@ export function failCauseNow<E>(result: Cause<E>): Channel<never, unknown, unkno
  *
  * @tsplus static fncts.io.ChannelOps end
  */
-export function end<OutDone>(
-  result: Lazy<OutDone>,
-): Channel<never, unknown, unknown, unknown, never, never, OutDone> {
+export function end<OutDone>(result: Lazy<OutDone>): Channel<never, unknown, unknown, unknown, never, never, OutDone> {
   return new Done(result);
 }
 

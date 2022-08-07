@@ -15,6 +15,7 @@ import { concrete } from "../definition.js";
 export function modify_<RA, RB, EA, EB, B, A>(
   ref: PRef<RA, RB, EA, EB, A, A>,
   f: (a: A) => readonly [B, A],
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, B> {
   concrete(ref);
   switch (ref._tag) {
@@ -70,6 +71,7 @@ export function modifyJust_<RA, RB, EA, EB, A, B>(
   self: PRef<RA, RB, EA, EB, A, A>,
   def: B,
   f: (a: A) => Maybe<readonly [B, A]>,
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, B> {
   concrete(self);
   switch (self._tag) {
@@ -87,7 +89,11 @@ export function modifyJust_<RA, RB, EA, EB, A, B>(
  * @tsplus fluent fncts.io.Ref getAndSet
  * @tsplus fluent fncts.io.Ref.Synchronized getAndSet
  */
-export function getAndSet_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, a: A): IO<RA | RB, EA | EB, A> {
+export function getAndSet_<RA, RB, EA, EB, A>(
+  self: PRef<RA, RB, EA, EB, A, A>,
+  a: A,
+  __tsplusTrace?: string,
+): IO<RA | RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -107,6 +113,7 @@ export function getAndSet_<RA, RB, EA, EB, A>(self: PRef<RA, RB, EA, EB, A, A>, 
 export function getAndUpdate_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
   f: (a: A) => A,
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
@@ -128,6 +135,7 @@ export function getAndUpdate_<RA, RB, EA, EB, A>(
 export function getAndUpdateJust_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
   f: (a: A) => Maybe<A>,
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
@@ -147,6 +155,7 @@ export function getAndUpdateJust_<RA, RB, EA, EB, A>(
 export function update_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
   f: (a: A) => A,
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, void> {
   concrete(self);
   switch (self._tag) {
@@ -167,6 +176,7 @@ export function update_<RA, RB, EA, EB, A>(
 export function updateAndGet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
   f: (a: A) => A,
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {
@@ -190,6 +200,7 @@ export function updateAndGet_<RA, RB, EA, EB, A>(
 export function updateJust_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
   f: (a: A) => Maybe<A>,
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, void> {
   concrete(self);
   switch (self._tag) {
@@ -211,6 +222,7 @@ export function updateJust_<RA, RB, EA, EB, A>(
 export function updateJustAndGet_<RA, RB, EA, EB, A>(
   self: PRef<RA, RB, EA, EB, A, A>,
   f: (a: A) => Maybe<A>,
+  __tsplusTrace?: string,
 ): IO<RA | RB, EA | EB, A> {
   concrete(self);
   switch (self._tag) {

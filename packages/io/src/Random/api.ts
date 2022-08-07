@@ -18,34 +18,34 @@ export const nextInt = IO.randomWith((random) => random.nextInt);
 /**
  * @tsplus static fncts.io.RandomOps nextRange
  */
-export function nextRange(low: number, high: number): IO<never, never, number> {
+export function nextRange(low: number, high: number, __tsplusTrace?: string): IO<never, never, number> {
   return IO.randomWith((random) => random.nextRange(low, high));
 }
 
 /**
  * @tsplus static fncts.io.RandomOps nextIntBetween
  */
-export function nextIntBetween(low: number, high: number): UIO<number> {
+export function nextIntBetween(low: number, high: number, __tsplusTrace?: string): UIO<number> {
   return IO.randomWith((random) => random.nextIntBetween(low, high));
 }
 
 /**
  * @tsplus static fncts.io.RandomOps nextBigIntBetween
  */
-export function nextBigIntBetween(low: bigint, high: bigint): UIO<bigint> {
+export function nextBigIntBetween(low: bigint, high: bigint, __tsplusTrace?: string): UIO<bigint> {
   return IO.randomWith((random) => random.nextBigIntBetween(low, high));
 }
 
 /**
  * @tsplus static fncts.io.RandomOps nextArrayIntBetween
  */
-export function nextArrayIntBetween(low: ArrayInt, high: ArrayInt): UIO<ArrayInt> {
+export function nextArrayIntBetween(low: ArrayInt, high: ArrayInt, __tsplusTrace?: string): UIO<ArrayInt> {
   return IO.randomWith((random) => random.nextArrayIntBetween(low, high));
 }
 
 /**
  * @tsplus static fncts.io.RandomOps setSeed
  */
-export function setSeed(seed: number): UIO<void> {
+export function setSeed(seed: number, __tsplusTrace?: string): UIO<void> {
   return IO.randomWith((random) => random.setSeed(seed));
 }

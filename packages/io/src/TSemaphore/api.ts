@@ -5,14 +5,14 @@ import { Effect, RetryException } from "../STM/definition.js";
 /**
  * @tsplus getter fncts.io.TSemaphore acquire
  */
-export function acquire(self: TSemaphore): USTM<void> {
+export function acquire(self: TSemaphore, __tsplusTrace?: string): USTM<void> {
   return self.acquireN(1);
 }
 
 /**
  * @tsplus fluent fncts.io.TSemaphore acquireN
  */
-export function acquireN_(self: TSemaphore, n: number): USTM<void> {
+export function acquireN_(self: TSemaphore, n: number, __tsplusTrace?: string): USTM<void> {
   return new Effect((journal) => {
     assert(n >= 0, "Negative permits given to TSemaphore#acquire");
 
@@ -26,21 +26,21 @@ export function acquireN_(self: TSemaphore, n: number): USTM<void> {
 /**
  * @tsplus getter fncts.io.TSemaphore available
  */
-export function available(self: TSemaphore): USTM<number> {
+export function available(self: TSemaphore, __tsplusTrace?: string): USTM<number> {
   return TSemaphore.reverseGet(self).get;
 }
 
 /**
  * @tsplus getter fncts.io.TSemaphore release
  */
-export function release(self: TSemaphore): USTM<void> {
+export function release(self: TSemaphore, __tsplusTrace?: string): USTM<void> {
   return self.releaseN(1);
 }
 
 /**
  * @tsplus fluent fncts.io.TSemaphore releaseN
  */
-export function releaseN_(self: TSemaphore, n: number): USTM<void> {
+export function releaseN_(self: TSemaphore, n: number, __tsplusTrace?: string): USTM<void> {
   return new Effect((journal) => {
     assert(n >= 0, "Negative permits given to TSemaphore#releaseN");
 
@@ -52,7 +52,7 @@ export function releaseN_(self: TSemaphore, n: number): USTM<void> {
 /**
  * @tsplus getter fncts.io.TSemaphore withPermits
  */
-export function withPermits(self: TSemaphore) {
+export function withPermits(self: TSemaphore, __tsplusTrace?: string) {
   return (n: number) =>
     <R, E, A>(io: IO<R, E, A>) =>
       IO.uninterruptibleMask(({ restore }) =>
@@ -63,6 +63,6 @@ export function withPermits(self: TSemaphore) {
 /**
  * @tsplus getter fncts.io.TSemaphore withPermit
  */
-export function withPermit(self: TSemaphore) {
+export function withPermit(self: TSemaphore, __tsplusTrace?: string) {
   return <R, E, A>(io: IO<R, E, A>) => self.withPermits(1)(io);
 }

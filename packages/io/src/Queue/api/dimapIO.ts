@@ -49,7 +49,12 @@ class DimapIO<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D> extends QueueInternal<
  *
  * @tsplus fluent fncts.io.Queue dimap
  */
-export function dimap_<RA, RB, EA, EB, A, B, C, D>(self: PQueue<RA, RB, EA, EB, A, B>, f: (c: C) => A, g: (b: B) => D) {
+export function dimap_<RA, RB, EA, EB, A, B, C, D>(
+  self: PQueue<RA, RB, EA, EB, A, B>,
+  f: (c: C) => A,
+  g: (b: B) => D,
+  __tsplusTrace?: string,
+) {
   return self.dimapIO(
     (c: C) => IO.succeedNow(f(c)),
     (b) => IO.succeedNow(g(b)),
@@ -66,6 +71,7 @@ export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
   g: (b: B) => IO<RD, ED, D>,
+  __tsplusTrace?: string,
 ): PQueue<RC | RA, RD | RB, EC | EA, ED | EB, C, D> {
   concrete(queue);
   return new DimapIO(queue, f, g);
@@ -79,6 +85,7 @@ export function dimapIO_<RA, RB, EA, EB, A, B, C, RC, EC, RD, ED, D>(
 export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => IO<RC, EC, A>,
+  __tsplusTrace?: string,
 ): PQueue<RA | RC, RB, EA | EC, EB, C, B> {
   return queue.dimapIO(f, IO.succeedNow);
 }
@@ -91,6 +98,7 @@ export function contramapIO_<RA, RB, EA, EB, A, B, RC, EC, C>(
 export function contramap_<RA, RB, EA, EB, A, B, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (c: C) => A,
+  __tsplusTrace?: string,
 ): PQueue<RA, RB, EA, EB, C, B> {
   return queue.contramapIO((c) => IO.succeedNow(f(c)));
 }
@@ -103,6 +111,7 @@ export function contramap_<RA, RB, EA, EB, A, B, C>(
 export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<R2, E2, C>,
+  __tsplusTrace?: string,
 ): PQueue<RA, R2 | RB, EA, EB | E2, A, C> {
   return queue.dimapIO(IO.succeedNow, f);
 }
@@ -115,6 +124,7 @@ export function mapIO_<RA, RB, EA, EB, A, B, R2, E2, C>(
 export function map_<RA, RB, EA, EB, A, B, C>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => C,
+  __tsplusTrace?: string,
 ): PQueue<RA, RB, EA, EB, A, C> {
   return queue.mapIO((b) => IO.succeedNow(f(b)));
 }

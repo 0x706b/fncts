@@ -11,6 +11,7 @@ export function zipAllWith_<R, E, A, R1, E1, B, C, D, F>(
   left: (a: A) => C,
   right: (b: B) => D,
   both: (a: A, b: B) => F,
+  __tsplusTrace?: string,
 ): Stream<R | R1, E | E1, C | D | F> {
   return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) => pull(s, l, r, left, right, both));
 }
@@ -46,6 +47,7 @@ function pull<R, E, A, R1, E1, B, C, D, F>(
   left: (a: A) => C,
   right: (b: B) => D,
   both: (a: A, b: B) => F,
+  __tsplusTrace?: string,
 ): IO<R | R1, never, Exit<Maybe<E | E1>, readonly [Conc<C | D | F>, State<A, B>]>> {
   switch (state._tag) {
     case "DrainLeft":
@@ -126,6 +128,7 @@ function zipWithChunks<A, B, C>(
   leftChunk: Conc<A>,
   rightChunk: Conc<B>,
   f: (a: A, b: B) => C,
+  __tsplusTrace?: string,
 ): readonly [Conc<C>, State<A, B>] {
   const [out, r] = zipChunks(leftChunk, rightChunk, f);
   return r.match(

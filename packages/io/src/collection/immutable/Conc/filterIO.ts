@@ -1,7 +1,11 @@
 /**
  * @tsplus fluent fncts.Conc filterIO
  */
-export function filterIO<A, R, E>(self: Conc<A>, p: (a: A) => IO<R, E, boolean>): IO<R, E, Conc<A>> {
+export function filterIO<A, R, E>(
+  self: Conc<A>,
+  p: (a: A) => IO<R, E, boolean>,
+  __tsplusTrace?: string,
+): IO<R, E, Conc<A>> {
   return IO.defer(() => {
     const builder = new ConcBuilder<A>();
     let dest: IO<R, E, ConcBuilder<A>> = IO.succeedNow(builder);

@@ -58,6 +58,7 @@ export class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInterna
 export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   f: (b: B) => IO<RB1, EB1, boolean>,
+  __tsplusTrace?: string,
 ): PQueue<RA, RB | RB1, EA, EB | EB1, A, B> {
   concrete(queue);
   return new FilterOutputIO(queue, f);
@@ -69,6 +70,7 @@ export function filterOutputIO_<RA, RB, EA, EB, A, B, RB1, EB1>(
 export function filterOutput_<RA, RB, EA, EB, A, B>(
   queue: PQueue<RA, RB, EA, EB, A, B>,
   p: Predicate<B>,
+  __tsplusTrace?: string,
 ): PQueue<RA, RB, EA, EB, A, B> {
   return queue.filterOutputIO((b) => IO.succeedNow(p(b)));
 }

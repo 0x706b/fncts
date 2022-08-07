@@ -4,7 +4,11 @@
  *
  * @tsplus fluent fncts.io.IO withRuntimeConfig
  */
-export function withRuntimeConfig_<R, E, A>(self: IO<R, E, A>, runtimeConfig: Lazy<RuntimeConfig>): IO<R, E, A> {
+export function withRuntimeConfig_<R, E, A>(
+  self: IO<R, E, A>,
+  runtimeConfig: Lazy<RuntimeConfig>,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
   return IO.runtimeConfig.flatMap((currentRuntimeConfig) =>
     IO.setRuntimeConfig(runtimeConfig)
       .apSecond(IO.yieldNow)

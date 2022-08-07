@@ -108,7 +108,7 @@ export function service<T>(tag: Tag<T>, __tsplusTrace?: string): IO<T, never, T>
 /**
  * @tsplus static fncts.io.IOOps serviceWith
  */
-export function serviceWith<S, A>(f: (service: S) => A, tag: Tag<S>): IO<S, never, A> {
+export function serviceWith<S, A>(f: (service: S) => A, tag: Tag<S>, __tsplusTrace?: string): IO<S, never, A> {
   return IO.serviceWithIO((s) => IO.succeedNow(f(s)), tag);
 }
 

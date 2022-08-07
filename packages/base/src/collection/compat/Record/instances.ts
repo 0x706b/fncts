@@ -100,4 +100,3 @@ export function deriveDecoder<A extends Record<string, any>>(
     return These.right(res as A);
   }, `Record<string, ${valueDecoder.label}>`);
 }
-

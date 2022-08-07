@@ -16,16 +16,16 @@ export class LiveRandom implements Random {
   nextDouble  = IO.succeed(() => this.prng.nextDouble());
   nextInt     = IO.succeed(() => this.prng.nextInt());
   nextBoolean = this.nextDouble.flatMap((n) => IO.succeedNow(n > 0.5));
-  nextRange(low: number, high: number): UIO<number> {
+  nextRange(low: number, high: number, __tsplusTrace?: string): UIO<number> {
     return this.nextDouble.flatMap((n) => IO.succeedNow((high - low) * n + low));
   }
-  nextIntBetween(low: number, high: number): UIO<number> {
+  nextIntBetween(low: number, high: number, __tsplusTrace?: string): UIO<number> {
     return IO.succeed(this.prng.nextInt(low, high));
   }
-  nextBigIntBetween(low: bigint, high: bigint): UIO<bigint> {
+  nextBigIntBetween(low: bigint, high: bigint, __tsplusTrace?: string): UIO<bigint> {
     return IO.succeed(this.prng.nextBigInt(low, high));
   }
-  nextArrayIntBetween(low: ArrayInt, high: ArrayInt): UIO<ArrayInt> {
+  nextArrayIntBetween(low: ArrayInt, high: ArrayInt, __tsplusTrace?: string): UIO<ArrayInt> {
     return IO.succeed(this.prng.nextArrayInt(low, high));
   }
 }

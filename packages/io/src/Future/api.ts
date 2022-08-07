@@ -8,7 +8,7 @@ import { Done, FutureStateTag, Pending } from "@fncts/io/Future/definition";
  *
  * @tsplus fluent fncts.io.Future done
  */
-export function done_<E, A>(future: Future<E, A>, exit: Exit<E, A>): UIO<boolean> {
+export function done_<E, A>(future: Future<E, A>, exit: Exit<E, A>, __tsplusTrace?: string): UIO<boolean> {
   return future.fulfillWith(IO.fromExitNow(exit));
 }
 
@@ -18,7 +18,7 @@ export function done_<E, A>(future: Future<E, A>, exit: Exit<E, A>): UIO<boolean
  *
  * @tsplus fluent fncts.io.Future fail
  */
-export function fail_<E, A>(future: Future<E, A>, e: E): UIO<boolean> {
+export function fail_<E, A>(future: Future<E, A>, e: E, __tsplusTrace?: string): UIO<boolean> {
   return future.fulfillWith(IO.failNow(e));
 }
 
@@ -28,7 +28,7 @@ export function fail_<E, A>(future: Future<E, A>, e: E): UIO<boolean> {
  *
  * @tsplus fluent fncts.io.Future failCause
  */
-export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>): UIO<boolean> {
+export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>, __tsplusTrace?: string): UIO<boolean> {
   return future.fulfillWith(IO.failCauseNow(cause));
 }
 
@@ -41,7 +41,11 @@ export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>): UIO<boo
  *
  * @tsplus fluent fncts.io.Future fulfill
  */
-export function fulfill_<R, E, A>(future: Future<E, A>, io: IO<R, E, A>): IO<R, never, boolean> {
+export function fulfill_<R, E, A>(
+  future: Future<E, A>,
+  io: IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, never, boolean> {
   return IO.uninterruptibleMask(({ restore }) => restore(io).result.flatMap((exit) => future.done(exit)));
 }
 
@@ -60,7 +64,7 @@ export function fulfill_<R, E, A>(future: Future<E, A>, io: IO<R, E, A>): IO<R, 
  *
  * @tsplus fluent fncts.io.Future fulfillWith
  */
-export function fulfillWith_<E, A>(future: Future<E, A>, io: FIO<E, A>): UIO<boolean> {
+export function fulfillWith_<E, A>(future: Future<E, A>, io: FIO<E, A>, __tsplusTrace?: string): UIO<boolean> {
   return IO.succeed(() => {
     switch (future.state._tag) {
       case FutureStateTag.Done: {
@@ -84,7 +88,7 @@ export function fulfillWith_<E, A>(future: Future<E, A>, io: FIO<E, A>): UIO<boo
  *
  * @tsplus fluent fncts.io.Future halt
  */
-export function halt_<E, A>(future: Future<E, A>, defect: unknown): UIO<boolean> {
+export function halt_<E, A>(future: Future<E, A>, defect: unknown, __tsplusTrace?: string): UIO<boolean> {
   return future.fulfillWith(IO.haltNow(defect));
 }
 
@@ -94,7 +98,7 @@ export function halt_<E, A>(future: Future<E, A>, defect: unknown): UIO<boolean>
  *
  * @tsplus getter fncts.io.Future interrupt
  */
-export function interrupt<E, A>(future: Future<E, A>): UIO<boolean> {
+export function interrupt<E, A>(future: Future<E, A>, __tsplusTrace?: string): UIO<boolean> {
   return IO.fiberId.flatMap((id) => future.fulfillWith(IO.interruptAs(id)));
 }
 
@@ -104,7 +108,7 @@ export function interrupt<E, A>(future: Future<E, A>): UIO<boolean> {
  *
  * @tsplus fluent fncts.io.Future interruptAs
  */
-export function interruptAs_<E, A>(future: Future<E, A>, id: FiberId): UIO<boolean> {
+export function interruptAs_<E, A>(future: Future<E, A>, id: FiberId, __tsplusTrace?: string): UIO<boolean> {
   return future.fulfillWith(IO.interruptAs(id));
 }
 
@@ -114,7 +118,7 @@ export function interruptAs_<E, A>(future: Future<E, A>, id: FiberId): UIO<boole
  *
  * @tsplus getter fncts.io.Future isDone
  */
-export function isDone<E, A>(future: Future<E, A>): UIO<boolean> {
+export function isDone<E, A>(future: Future<E, A>, __tsplusTrace?: string): UIO<boolean> {
   return IO.succeed(future.state._tag === FutureStateTag.Done);
 }
 
@@ -124,7 +128,7 @@ export function isDone<E, A>(future: Future<E, A>): UIO<boolean> {
  *
  * @tsplus getter fncts.io.Future poll
  */
-export function poll<E, A>(future: Future<E, A>): UIO<Maybe<FIO<E, A>>> {
+export function poll<E, A>(future: Future<E, A>, __tsplusTrace?: string): UIO<Maybe<FIO<E, A>>> {
   return IO.succeed(() => {
     switch (future.state._tag) {
       case FutureStateTag.Done: {
@@ -142,7 +146,7 @@ export function poll<E, A>(future: Future<E, A>): UIO<Maybe<FIO<E, A>>> {
  *
  * @tsplus fluent fncts.io.Future succeed
  */
-export function succeed_<A, E>(future: Future<E, A>, a: A) {
+export function succeed_<A, E>(future: Future<E, A>, a: A, __tsplusTrace?: string) {
   return future.fulfillWith(IO.succeedNow(a));
 }
 
@@ -152,7 +156,7 @@ export function succeed_<A, E>(future: Future<E, A>, a: A) {
  *
  * @tsplus fluent fncts.io.Future unsafeDone
  */
-export function unsafeDone_<E, A>(future: Future<E, A>, io: FIO<E, A>) {
+export function unsafeDone_<E, A>(future: Future<E, A>, io: FIO<E, A>, __tsplusTrace?: string) {
   if (future.state._tag === FutureStateTag.Pending) {
     const state  = future.state;
     future.state = new Done(io);
@@ -165,7 +169,7 @@ export function unsafeDone_<E, A>(future: Future<E, A>, io: FIO<E, A>) {
 /**
  * @tsplus fluent fncts.io.Future unsafeSucceed
  */
-export function unsafeSucceed_<A>(future: Future<never, A>, a: A): void {
+export function unsafeSucceed_<A>(future: Future<never, A>, a: A, __tsplusTrace?: string): void {
   future.unsafeDone(IO.succeedNow(a));
 }
 
@@ -175,7 +179,7 @@ export function unsafeSucceed_<A>(future: Future<never, A>, a: A): void {
  *
  * @tsplus getter fncts.io.Future await
  */
-export function wait<E, A>(future: Future<E, A>): IO<never, E, A> {
+export function wait<E, A>(future: Future<E, A>, __tsplusTrace?: string): IO<never, E, A> {
   return IO.asyncInterrupt<never, E, A>((k) => {
     switch (future.state._tag) {
       case FutureStateTag.Done: {
@@ -189,7 +193,11 @@ export function wait<E, A>(future: Future<E, A>): IO<never, E, A> {
   }, future.blockingOn);
 }
 
-function interruptJoiner<E, A>(future: Future<E, A>, joiner: (a: FIO<E, A>) => void): Canceler<never> {
+function interruptJoiner<E, A>(
+  future: Future<E, A>,
+  joiner: (a: FIO<E, A>) => void,
+  __tsplusTrace?: string,
+): Canceler<never> {
   return IO.succeed(() => {
     switch (future.state._tag) {
       case FutureStateTag.Pending: {

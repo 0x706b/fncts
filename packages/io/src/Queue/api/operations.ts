@@ -7,7 +7,10 @@ import { concrete } from "@fncts/io/Queue/definition";
  *
  * @tsplus getter fncts.io.Queue awaitShutdown
  */
-export function awaitShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): UIO<void> {
+export function awaitShutdown<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>,
+  __tsplusTrace?: string,
+): UIO<void> {
   concrete(queue);
   return queue.awaitShutdown;
 }
@@ -17,7 +20,7 @@ export function awaitShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB
  *
  * @tsplus getter fncts.io.Queue capacity
  */
-export function capacity<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): number {
+export function capacity<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, __tsplusTrace?: string): number {
   concrete(queue);
   return queue.capacity;
 }
@@ -27,7 +30,10 @@ export function capacity<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, 
  *
  * @tsplus getter fncts.io.Queue isShutdown
  */
-export function isShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): UIO<boolean> {
+export function isShutdown<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>,
+  __tsplusTrace?: string,
+): UIO<boolean> {
   concrete(queue);
   return queue.isShutdown;
 }
@@ -37,7 +43,11 @@ export function isShutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A
  *
  * @tsplus fluent fncts.io.Queue offer
  */
-export function offer_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, a: A): IO<RA, EA, boolean> {
+export function offer_<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>,
+  a: A,
+  __tsplusTrace?: string,
+): IO<RA, EA, boolean> {
   concrete(queue);
   return queue.offer(a);
 }
@@ -60,7 +70,11 @@ export function offer_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>
  *
  * @tsplus fluent fncts.io.Queue offerAll
  */
-export function offerAll_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, as: Iterable<A>) {
+export function offerAll_<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>,
+  as: Iterable<A>,
+  __tsplusTrace?: string,
+) {
   concrete(queue);
   return queue.offerAll(as);
 }
@@ -71,7 +85,7 @@ export function offerAll_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A,
  *
  * @tsplus getter fncts.io.Queue shutdown
  */
-export function shutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
+export function shutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, __tsplusTrace?: string) {
   concrete(queue);
   return queue.shutdown;
 }
@@ -83,7 +97,7 @@ export function shutdown<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, 
  *
  * @tsplus getter fncts.io.Queue size
  */
-export function size<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
+export function size<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, __tsplusTrace?: string) {
   concrete(queue);
   return queue.size;
 }
@@ -94,7 +108,7 @@ export function size<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) 
  *
  * @tsplus getter fncts.io.Queue take
  */
-export function take<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>): IO<RB, EB, B> {
+export function take<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, __tsplusTrace?: string): IO<RB, EB, B> {
   concrete(queue);
   return queue.take;
 }
@@ -105,7 +119,7 @@ export function take<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>):
  *
  * @tsplus getter fncts.io.Queue takeAll
  */
-export function takeAll<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) {
+export function takeAll<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, __tsplusTrace?: string) {
   concrete(queue);
   return queue.takeAll;
 }
@@ -115,7 +129,11 @@ export function takeAll<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B
  *
  * @tsplus fluent fncts.io.Queue takeAllUpTo
  */
-export function takeAllUpTo_<RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>, n: number) {
+export function takeAllUpTo_<RA, RB, EA, EB, A, B>(
+  queue: PQueue<RA, RB, EA, EB, A, B>,
+  n: number,
+  __tsplusTrace?: string,
+) {
   concrete(queue);
   return queue.takeUpTo(n);
 }

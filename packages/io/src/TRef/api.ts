@@ -5,7 +5,7 @@ import { Effect } from "../STM/definition.js";
 import { Entry } from "../STM/internal/Entry.js";
 import { concrete } from "../TRef/definition.js";
 
-function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal): Entry {
+function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal, __tsplusTrace?: string): Entry {
   if (journal.has(self)) {
     return journal.get(self)!;
   }
@@ -19,7 +19,7 @@ function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal): Entry {
  *
  * @tsplus getter fncts.io.TRef get
  */
-export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<never, EB, B> {
+export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>, __tsplusTrace?: string): STM<never, EB, B> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -47,7 +47,11 @@ export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>): STM<never, EB, B> {
  *
  * @tsplus fluent fncts.io.TRef modify
  */
-export function modify_<E, A, B>(self: TRef<E, E, A, A>, f: (a: A) => readonly [B, A]): STM<never, E, B> {
+export function modify_<E, A, B>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => readonly [B, A],
+  __tsplusTrace?: string,
+): STM<never, E, B> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -99,7 +103,7 @@ export function modify_<E, A, B>(self: TRef<E, E, A, A>, f: (a: A) => readonly [
  *
  * @tsplus fluent fncts.io.TRef set
  */
-export function set_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, a: A): STM<never, EA, void> {
+export function set_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, a: A, __tsplusTrace?: string): STM<never, EA, void> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -131,7 +135,7 @@ export function set_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, a: A): STM<never, E
  *
  * @tsplus fluent fncts.io.TRef unsafeGet
  */
-export function unsafeGet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Journal): A {
+export function unsafeGet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Journal, __tsplusTrace?: string): A {
   concrete(self);
   switch (self._tag) {
     case "Atomic":
@@ -153,6 +157,7 @@ export function modifyJust_<E, A, B>(
   self: TRef<E, E, A, A>,
   b: B,
   f: (a: A) => Maybe<readonly [B, A]>,
+  __tsplusTrace?: string,
 ): STM<never, E, B> {
   return self.modify((a) => f(a).getOrElse([b, a]));
 }
@@ -162,7 +167,7 @@ export function modifyJust_<E, A, B>(
  *
  * @tsplus fluent fncts.io.TRef getAndSet
  */
-export function getAndSet_<E, A>(self: TRef<E, E, A, A>, a: A): STM<never, E, A> {
+export function getAndSet_<E, A>(self: TRef<E, E, A, A>, a: A, __tsplusTrace?: string): STM<never, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -184,7 +189,7 @@ export function getAndSet_<E, A>(self: TRef<E, E, A, A>, a: A): STM<never, E, A>
  *
  * @tsplus fluent fncts.io.TRef getAndUpdate
  */
-export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<never, E, A> {
+export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A, __tsplusTrace?: string): STM<never, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -207,7 +212,11 @@ export function getAndUpdate_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
  *
  * @tsplus fluent fncts.io.TRef getAndUpdateJust
  */
-export function getAndUpdateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<never, E, A> {
+export function getAndUpdateJust_<E, A>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => Maybe<A>,
+  __tsplusTrace?: string,
+): STM<never, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -237,7 +246,7 @@ export function getAndUpdateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => May
  *
  * @tsplus fluent fncts.io.TRef update
  */
-export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<never, E, void> {
+export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A, __tsplusTrace?: string): STM<never, E, void> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -257,7 +266,11 @@ export function update_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<never
  *
  * @tsplus fluent fncts.io.TRef updateJust
  */
-export function updateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<never, E, void> {
+export function updateJust_<E, A>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => Maybe<A>,
+  __tsplusTrace?: string,
+): STM<never, E, void> {
   return self.update((a) => f(a).getOrElse(a));
 }
 
@@ -266,7 +279,7 @@ export function updateJust_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>)
  *
  * @tsplus fluent fncts.io.TRef updateAndGet
  */
-export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM<never, E, A> {
+export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A, __tsplusTrace?: string): STM<never, E, A> {
   concrete(self);
   switch (self._tag) {
     case "Atomic": {
@@ -292,14 +305,23 @@ export function updateAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => A): STM
  *
  * @tsplus fluent fncts.io.TRef updateJustAndGet
  */
-export function updateJustAndGet_<E, A>(self: TRef<E, E, A, A>, f: (a: A) => Maybe<A>): STM<never, E, A> {
+export function updateJustAndGet_<E, A>(
+  self: TRef<E, E, A, A>,
+  f: (a: A) => Maybe<A>,
+  __tsplusTrace?: string,
+): STM<never, E, A> {
   return self.updateAndGet((a) => f(a).getOrElse(a));
 }
 
 /**
  * @tsplus fluent fncts.io.TRef unsafeSet
  */
-export function unsafeSet_<EA, EB, A, B>(self: TRef<EA, EB, A, B>, journal: Journal, a: A): void {
+export function unsafeSet_<EA, EB, A, B>(
+  self: TRef<EA, EB, A, B>,
+  journal: Journal,
+  a: A,
+  __tsplusTrace?: string,
+): void {
   concrete(self);
   switch (self._tag) {
     case "Atomic":

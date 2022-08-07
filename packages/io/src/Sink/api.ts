@@ -10,6 +10,7 @@ import { MergeDecision } from "../Channel/internal/MergeDecision.js";
 export function apFirst<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
+  __tsplusTrace?: string,
 ): Sink<R | R1, E | E1, In & In1, L | L1, Z> {
   return self.zipWith(that, (z, _) => z);
 }
@@ -22,6 +23,7 @@ export function apFirst<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1
 export function apFirstC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
   self: Sink<R, E, In, L, Z>,
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
+  __tsplusTrace?: string,
 ): Sink<R | R1, E | E1, In & In1, L | L1, Z> {
   return self.zipWithC(that, (z, _) => z);
 }
@@ -103,7 +105,7 @@ export function collectAllWhileWith<R, E, In extends L, L, Z, S>(
         (x) => Channel.fromIO(upstreamDoneRef.set(true)).as(x),
       );
 
-      function loop(currentResult: S): Channel<R, never, Conc<In>, unknown, E, Conc<L>, S> {
+      function loop(currentResult: S, __tsplusTrace?: string): Channel<R, never, Conc<In>, unknown, E, Conc<L>, S> {
         return self.channel.collectElements.matchChannel(Channel.failNow, ([leftovers, doneValue]) => {
           if (p(doneValue)) {
             return (
@@ -551,6 +553,7 @@ export function flatMap<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1>(
  */
 export function fromChannel<R, E, In, L, Z>(
   channel: Channel<R, never, Conc<In>, unknown, E, Conc<L>, Z>,
+  __tsplusTrace?: string,
 ): Sink<R, E, In, L, Z> {
   return new Sink(channel);
 }
@@ -569,6 +572,7 @@ export function fromPush<R, E, In, L, Z, R1>(
 
 function fromPushPull<R, E, In, L, Z>(
   push: (_: Maybe<Conc<In>>) => IO<R, readonly [Either<E, Z>, Conc<L>], void>,
+  __tsplusTrace?: string,
 ): Channel<R, never, Conc<In>, unknown, E, Conc<L>, Z> {
   return Channel.readWith(
     (inp: Conc<In>) =>
@@ -733,11 +737,14 @@ export function log(message: Lazy<string>, __tsplusTrace?: string): Sink<never, 
  *
  * @tsplus static fncts.io.SinkOps collectAll
  */
-export function makeCollectAll<In>(): Sink<never, never, In, never, Conc<In>> {
+export function makeCollectAll<In>(__tsplusTrace?: string): Sink<never, never, In, never, Conc<In>> {
   return new Sink(collectLoop<In>(Conc.empty()));
 }
 
-function collectLoop<A>(state: Conc<A>): Channel<never, never, Conc<A>, unknown, never, Conc<never>, Conc<A>> {
+function collectLoop<A>(
+  state: Conc<A>,
+  __tsplusTrace?: string,
+): Channel<never, never, Conc<A>, unknown, never, Conc<never>, Conc<A>> {
   return Channel.readWithCause(
     (inp: Conc<A>) => collectLoop(state.concat(inp)),
     Channel.failCauseNow,
@@ -751,7 +758,7 @@ function collectLoop<A>(state: Conc<A>): Channel<never, never, Conc<A>, unknown,
  *
  * @tsplus static fncts.io.SinkOps collectAllN
  */
-export function makeCollectAllN<In>(n: Lazy<number>): Sink<never, never, In, In, Conc<In>> {
+export function makeCollectAllN<In>(n: Lazy<number>, __tsplusTrace?: string): Sink<never, never, In, In, Conc<In>> {
   return Sink.fromIO(IO.succeed(new ConcBuilder<In>())).flatMap((builder) =>
     Sink.foldUntil<In, ConcBuilder<In>>(builder, n, (builder, inp) => builder.append(inp)).map((builder) =>
       builder.result(),
@@ -814,6 +821,7 @@ function foreachWhileLoop<R, Err, In>(
   idx: number,
   len: number,
   cont: Channel<R, Err, Conc<In>, unknown, Err, Conc<In>, void>,
+  __tsplusTrace?: string,
 ): Channel<R, Err, Conc<In>, unknown, Err, Conc<In>, void> {
   if (idx === len) {
     return cont;
@@ -867,6 +875,7 @@ function foldChunkSplit<S, In>(
   chunk: Conc<In>,
   idx: number,
   len: number,
+  __tsplusTrace?: string,
 ): readonly [S, Conc<In>] {
   if (idx === len) {
     return [s, Conc.empty()];
@@ -884,6 +893,7 @@ function foldReader<S, In>(
   s: S,
   contFn: Predicate<S>,
   f: (s: S, inp: In) => S,
+  __tsplusTrace?: string,
 ): Channel<never, never, Conc<In>, any, never, Conc<In>, S> {
   if (!contFn(s)) {
     return Channel.succeedNow(s);
@@ -949,6 +959,7 @@ function foldChunksReader<In, S>(
   s: S,
   contFn: Predicate<S>,
   f: (s: S, inp: Conc<In>) => S,
+  __tsplusTrace?: string,
 ): Channel<never, never, Conc<In>, unknown, never, never, S> {
   if (!contFn(s)) {
     return Channel.succeedNow(s);
@@ -985,6 +996,7 @@ function foldChunksIOReader<Env, Err, In, S>(
   s: S,
   contFn: Predicate<S>,
   f: (s: S, inp: Conc<In>) => IO<Env, Err, S>,
+  __tsplusTrace?: string,
 ): Channel<Env, Err, Conc<In>, unknown, Err, never, S> {
   if (!contFn(s)) {
     return Channel.succeedNow(s);
@@ -1002,7 +1014,11 @@ function foldChunksIOReader<Env, Err, In, S>(
  *
  * @tsplus static fncts.io.SinkOps foldLeft
  */
-export function makeFoldLeft<In, S>(z: Lazy<S>, f: (s: S, inp: In) => S): Sink<never, never, In, never, S> {
+export function makeFoldLeft<In, S>(
+  z: Lazy<S>,
+  f: (s: S, inp: In) => S,
+  __tsplusTrace?: string,
+): Sink<never, never, In, never, S> {
   return Sink.fold(z, () => true, f).ignoreLeftover;
 }
 
@@ -1012,7 +1028,11 @@ export function makeFoldLeft<In, S>(z: Lazy<S>, f: (s: S, inp: In) => S): Sink<n
  *
  * @tsplus static fncts.io.SinkOps foldLeftChunks
  */
-export function makeFoldLeftChunks<In, S>(z: Lazy<S>, f: (s: S, inp: Conc<In>) => S): Sink<never, never, In, never, S> {
+export function makeFoldLeftChunks<In, S>(
+  z: Lazy<S>,
+  f: (s: S, inp: Conc<In>) => S,
+  __tsplusTrace?: string,
+): Sink<never, never, In, never, S> {
   return Sink.foldChunks(z, () => true, f).ignoreLeftover;
 }
 
@@ -1054,6 +1074,7 @@ export function makeFoldIO<R, E, In, S>(
   z: Lazy<S>,
   contFn: Predicate<S>,
   f: (s: S, inp: In) => IO<R, E, S>,
+  __tsplusTrace?: string,
 ): Sink<R, E, In, In, S> {
   return Sink.defer(new Sink(foldIOReader(z(), contFn, f)));
 }
@@ -1065,6 +1086,7 @@ function foldChunkSplitIO<R, E, In, S>(
   chunk: Conc<In>,
   idx: number,
   len: number,
+  __tsplusTrace?: string,
 ): IO<R, E, readonly [S, Maybe<Conc<In>>]> {
   if (idx === len) {
     return IO.succeedNow([s, Nothing()]);
@@ -1083,6 +1105,7 @@ function foldIOReader<R, E, In, S>(
   s: S,
   contFn: (s: S) => boolean,
   f: (s: S, inp: In) => IO<R, E, S>,
+  __tsplusTrace?: string,
 ): Channel<R, E, Conc<In>, unknown, E, Conc<In>, S> {
   if (!contFn(s)) {
     return Channel.succeedNow(s);
@@ -1160,6 +1183,7 @@ export function makeFoldWeightedDecompose<In, S>(
       dirty: boolean,
       cost: number,
       idx: number,
+      __tsplusTrace?: string,
     ): readonly [S, number, boolean, Conc<In>] {
       if (idx === inp.length) {
         return [s, cost, dirty, Conc.empty()];
@@ -1187,6 +1211,7 @@ export function makeFoldWeightedDecompose<In, S>(
       cost: number,
       dirty: boolean,
       max: number,
+      __tsplusTrace?: string,
     ): Channel<never, never, Conc<In>, unknown, never, Conc<In>, S> {
       return Channel.readWith(
         (inp: Conc<In>) => {
@@ -1239,6 +1264,7 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
       dirty: boolean,
       cost: number,
       idx: number,
+      __tsplusTrace?: string,
     ): IO<R | R1 | R2, E | E1 | E2, readonly [S, number, boolean, Conc<In>]> {
       if (idx === inp.length) {
         return IO.succeedNow([s, cost, dirty, Conc.empty()]);
@@ -1268,6 +1294,7 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
       cost: number,
       dirty: boolean,
       max: number,
+      __tsplusTrace?: string,
     ): Channel<R | R1 | R2, E | E1 | E2, Conc<In>, unknown, E | E1 | E2, Conc<In>, S> {
       return Channel.readWith(
         (inp: Conc<In>) =>
@@ -1585,6 +1612,7 @@ function splitter<R, E, In>(
   p: Predicate<In>,
   written: boolean,
   leftovers: Ref<Conc<In>>,
+  __tsplusTrace?: string,
 ): Channel<R, never, Conc<In>, unknown, E, Conc<In>, unknown> {
   return Channel.readWithCause(
     (inp) => {
@@ -1671,6 +1699,7 @@ export function timed<R, E, In, L, Z>(
  */
 export function unwrap<R, E, R1, E1, In, L, Z>(
   io: Lazy<IO<R, E, Sink<R1, E1, In, L, Z>>>,
+  __tsplusTrace?: string,
 ): Sink<R | R1, E | E1, In, L, Z> {
   return new Sink(Channel.unwrap(io().map((sink) => sink.channel)));
 }

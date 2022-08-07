@@ -5,6 +5,7 @@ export function scheduleFrom<R, E, A extends A1, R1, A1, B>(
   self: IO<R, E, A>,
   a: Lazy<A>,
   schedule0: Lazy<Schedule<R1, A1, B>>,
+  __tsplusTrace?: string,
 ): IO<R | R1, E, B> {
   return IO.defer(() => {
     const schedule = schedule0();

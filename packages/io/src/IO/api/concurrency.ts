@@ -17,7 +17,10 @@ export const concurrency: UIO<Maybe<number>> = Concurrency.get;
  *
  * @tsplus static fncts.io.IOOps concurrencyWith
  */
-export function concurrencyWith<R, E, A>(f: (concurrency: Maybe<number>) => IO<R, E, A>): IO<R, E, A> {
+export function concurrencyWith<R, E, A>(
+  f: (concurrency: Maybe<number>) => IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
   return Concurrency.getWith(f);
 }
 
@@ -27,7 +30,7 @@ export function concurrencyWith<R, E, A>(f: (concurrency: Maybe<number>) => IO<R
  *
  * @tsplus fluent fncts.io.IO withConcurrency
  */
-export function withConcurrency_<R, E, A>(ma: IO<R, E, A>, n: number): IO<R, E, A> {
+export function withConcurrency_<R, E, A>(ma: IO<R, E, A>, n: number, __tsplusTrace?: string): IO<R, E, A> {
   return IO.defer(Concurrency.locally(Just(n))(ma));
 }
 
@@ -37,6 +40,6 @@ export function withConcurrency_<R, E, A>(ma: IO<R, E, A>, n: number): IO<R, E, 
  *
  * @tsplus getter fncts.io.IO withConcurrencyUnbounded
  */
-export function withConcurrencyUnbounded<R, E, A>(ma: IO<R, E, A>): IO<R, E, A> {
+export function withConcurrencyUnbounded<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.defer(Concurrency.locally(Nothing())(ma));
 }

@@ -8,6 +8,7 @@ export function evalOnIO_<E, A, R1, E1, B, R2, E2, C>(
   fiber: Fiber<E, A>,
   effect: IO<R1, E1, B>,
   orElse: IO<R2, E2, C>,
+  __tsplusTrace?: string,
 ): IO<R1 | R2, E1 | E2, B | C> {
   return Do((Δ) => {
     const r = Δ(IO.environment<R1 & R2>());

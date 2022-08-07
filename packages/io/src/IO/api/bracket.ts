@@ -25,6 +25,7 @@ export function bracket_<R, E, A, R1, E1, A1, R2, E2, A2>(
   acquire: Lazy<IO<R, E, A>>,
   use: (a: A) => IO<R1, E1, A1>,
   release: (a: A) => IO<R2, E2, A2>,
+  __tsplusTrace?: string,
 ): IO<R | R1 | R2, E | E1 | E2, A1> {
   return IO.bracketExit(acquire, use, release);
 }

@@ -5,6 +5,6 @@
  *
  * @tsplus fluent fncts.io.IO fulfill
  */
-export function fulfill_<R, E, A>(effect: IO<R, E, A>, p: Future<E, A>): IO<R, never, boolean> {
+export function fulfill_<R, E, A>(effect: IO<R, E, A>, p: Future<E, A>, __tsplusTrace?: string): IO<R, never, boolean> {
   return IO.uninterruptibleMask(({ restore }) => restore(effect).result.flatMap((exit) => p.done(exit)));
 }

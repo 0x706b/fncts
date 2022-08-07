@@ -63,7 +63,7 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, 
   /**
    * Places one value in the queue.
    */
-  abstract offer(a: A): IO<RA, EA, boolean>;
+  abstract offer(a: A, __tsplusTrace?: string): IO<RA, EA, boolean>;
   /**
    * For Bounded Queue: uses the `BackPressure` Strategy, places the values in the queue and always returns true.
    * If the queue has reached capacity, then
@@ -81,7 +81,7 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, 
    * It places the values in the queue but if there is no room it will not enqueue them and return false.
    *
    */
-  abstract offerAll(as: Iterable<A>): IO<RA, EA, boolean>;
+  abstract offerAll(as: Iterable<A>, __tsplusTrace?: string): IO<RA, EA, boolean>;
   /**
    * Interrupts any fibers that are suspended on `offer` or `take`.
    * Future calls to `offer*` and `take*` will be interrupted immediately.
@@ -106,7 +106,7 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B> implements PQueue<RA, 
   /**
    * Takes up to max number of values in the queue.
    */
-  abstract takeUpTo(n: number): IO<RB, EB, Conc<B>>;
+  abstract takeUpTo(n: number, __tsplusTrace?: string): IO<RB, EB, Conc<B>>;
 }
 
 /**

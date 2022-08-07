@@ -15,9 +15,14 @@ export interface Strategy<A> {
     queue: MutableQueue<A>,
     takers: MutableQueue<Future<never, A>>,
     isShutdown: AtomicBoolean,
+    __tsplusTrace?: string,
   ) => UIO<boolean>;
 
-  readonly unsafeOnQueueEmptySpace: (queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>) => void;
+  readonly unsafeOnQueueEmptySpace: (
+    queue: MutableQueue<A>,
+    takers: MutableQueue<Future<never, A>>,
+    __tsplusTrace?: string,
+  ) => void;
 
   readonly surplusSize: number;
 
@@ -32,6 +37,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     queue: MutableQueue<A>,
     takers: MutableQueue<Future<never, A>>,
     isShutdown: AtomicBoolean,
+    __tsplusTrace?: string,
   ): UIO<boolean> {
     return IO.descriptorWith((d) =>
       IO.defer(() => {
@@ -51,14 +57,14 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     );
   }
 
-  unsafeRemove(p: Future<never, boolean>) {
+  unsafeRemove(p: Future<never, boolean>, __tsplusTrace?: string) {
     _unsafeOfferAll(
       this.putters,
       _unsafePollAll(this.putters).filter(([_, __]) => __ !== p),
     );
   }
 
-  unsafeOffer(as: Conc<A>, p: Future<never, boolean>) {
+  unsafeOffer(as: Conc<A>, p: Future<never, boolean>, __tsplusTrace?: string) {
     let bs = as;
 
     while (bs.length > 0) {
@@ -74,7 +80,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     }
   }
 
-  unsafeOnQueueEmptySpace(queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>) {
+  unsafeOnQueueEmptySpace(queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>, __tsplusTrace?: string) {
     let keepPolling = true;
 
     while (keepPolling && !queue.isFull) {
@@ -116,11 +122,12 @@ export class DroppingStrategy<A> implements Strategy<A> {
     _queue: MutableQueue<A>,
     _takers: MutableQueue<Future<never, A>>,
     _isShutdown: AtomicBoolean,
+    __tsplusTrace?: string,
   ): UIO<boolean> {
     return IO.succeedNow(false);
   }
 
-  unsafeOnQueueEmptySpace(_queue: MutableQueue<A>) {
+  unsafeOnQueueEmptySpace(_queue: MutableQueue<A>, _takers: MutableQueue<Future<never, A>>, __tsplusTrace?: string) {
     //
   }
 
@@ -139,6 +146,7 @@ export class SlidingStrategy<A> implements Strategy<A> {
     queue: MutableQueue<A>,
     takers: MutableQueue<Future<never, A>>,
     _isShutdown: AtomicBoolean,
+    __tsplusTrace?: string,
   ): UIO<boolean> {
     return IO.succeed(() => {
       this.unsafeSlidingOffer(queue, as);
@@ -147,7 +155,7 @@ export class SlidingStrategy<A> implements Strategy<A> {
     });
   }
 
-  unsafeOnQueueEmptySpace(_queue: MutableQueue<A>) {
+  unsafeOnQueueEmptySpace(_queue: MutableQueue<A>, _takers: MutableQueue<Future<never, A>>, __tsplusTrace?: string) {
     //
   }
 

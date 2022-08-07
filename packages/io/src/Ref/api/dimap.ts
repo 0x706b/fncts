@@ -9,6 +9,7 @@ import type { PRef } from "../definition.js";
 export function contramap_<RA, RB, EA, EB, B, A, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: C) => A,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EA, EB, C, B> {
   return ref.contramapEither((c) => Either.right(f(c)));
 }
@@ -23,6 +24,7 @@ export function contramap_<RA, RB, EA, EB, B, A, C>(
 export function contramapEither_<RA, RB, EA, EB, A, B, EC, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: C) => Either<EC, A>,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EC | EA, EB, C, B> {
   return ref.dimapEither(f, Either.right);
 }
@@ -38,6 +40,7 @@ export function dimap_<RA, RB, EA, EB, A, B, C, D>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: C) => A,
   g: (_: B) => D,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EA, EB, C, D> {
   return ref.dimapEither(
     (c) => Either.right(f(c)),
@@ -56,6 +59,7 @@ export function dimapEither_<RA, RB, EA, EB, A, B, C, EC, D, ED>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: C) => Either<EC, A>,
   g: (_: B) => Either<ED, D>,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EC | EA, ED | EB, C, D> {
   return ref.match(
     (ea: EA | EC) => ea,
@@ -76,6 +80,7 @@ export function dimapError_<RA, RB, EA, EB, A, B, EC, ED>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: EA) => EC,
   g: (_: EB) => ED,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EC, ED, A, B> {
   return ref.match(f, g, Either.right, Either.right);
 }
@@ -90,6 +95,7 @@ export function dimapError_<RA, RB, EA, EB, A, B, EC, ED>(
 export function mapEither_<RA, RB, EA, EB, A, B, EC, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: B) => Either<EC, C>,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EA, EC | EB, A, C> {
   return ref.dimapEither(Either.right, f);
 }
@@ -103,6 +109,7 @@ export function mapEither_<RA, RB, EA, EB, A, B, EC, C>(
 export function map_<RA, RB, EA, EB, A, B, C>(
   ref: PRef<RA, RB, EA, EB, A, B>,
   f: (_: B) => C,
+  __tsplusTrace?: string,
 ): PRef<RA, RB, EA, EB, A, C> {
   return ref.mapEither((b) => Either.right(f(b)));
 }

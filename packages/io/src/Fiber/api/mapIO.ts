@@ -5,7 +5,11 @@ import { SyntheticFiber } from "@fncts/io/Fiber/definition";
  *
  * @tsplus fluent fncts.io.Fiber mapIO
  */
-export function mapIO_<E, E1, A, B>(fiber: Fiber<E, A>, f: (a: A) => FIO<E1, B>): Fiber<E | E1, B> {
+export function mapIO_<E, E1, A, B>(
+  fiber: Fiber<E, A>,
+  f: (a: A) => FIO<E1, B>,
+  __tsplusTrace?: string,
+): Fiber<E | E1, B> {
   return new SyntheticFiber(
     fiber.id,
     fiber.await.flatMap((_) => _.foreachIO(f)),
@@ -26,6 +30,6 @@ export function mapIO_<E, E1, A, B>(fiber: Fiber<E, A>, f: (a: A) => FIO<E1, B>)
  *
  * @tsplus fluent fncts.io.Fiber map
  */
-export function map_<E, A, B>(fa: Fiber<E, A>, f: (a: A) => B): Fiber<E, B> {
+export function map_<E, A, B>(fa: Fiber<E, A>, f: (a: A) => B, __tsplusTrace?: string): Fiber<E, B> {
   return fa.mapIO((a) => IO.succeedNow(f(a)));
 }

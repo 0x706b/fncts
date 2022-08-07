@@ -11,6 +11,7 @@ export function zipWith_<E, A, E1, B, C>(
   self: Fiber<E, A>,
   that: Fiber<E1, B>,
   f: (a: A, b: B) => C,
+  __tsplusTrace?: string,
 ): Fiber<E | E1, C> {
   return new SyntheticFiber(
     self.id,

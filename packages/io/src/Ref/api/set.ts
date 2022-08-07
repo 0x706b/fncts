@@ -9,7 +9,11 @@ import { concrete } from "../definition.js";
  * @tsplus fluent fncts.io.Ref set
  * @tsplus fluent fncts.io.Ref.Synchronized set
  */
-export function set_<RA, RB, EA, EB, A, B>(self: PRef<RA, RB, EA, EB, A, B>, a: A): IO<RA | RB, EA | EB, void> {
+export function set_<RA, RB, EA, EB, A, B>(
+  self: PRef<RA, RB, EA, EB, A, B>,
+  a: A,
+  __tsplusTrace?: string,
+): IO<RA | RB, EA | EB, void> {
   concrete(self);
   return self.set(a);
 }

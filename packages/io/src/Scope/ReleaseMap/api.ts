@@ -3,7 +3,7 @@ import { Exited, ReleaseMap, Running } from "./definition.js";
 /**
  * @tsplus fluent fncts.io.Scope.ReleaseMap addIfOpen
  */
-export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Maybe<number>> {
+export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer, __tsplusTrace?: string): UIO<Maybe<number>> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited":
@@ -23,7 +23,12 @@ export function addIfOpen_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Ma
 /**
  * @tsplus fluent fncts.io.Scope.ReleaseMap release
  */
-export function release_(releaseMap: ReleaseMap, key: number, exit: Exit<any, any>): IO<never, never, any> {
+export function release_(
+  releaseMap: ReleaseMap,
+  key: number,
+  exit: Exit<any, any>,
+  __tsplusTrace?: string,
+): IO<never, never, any> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited": {
@@ -45,7 +50,7 @@ export function release_(releaseMap: ReleaseMap, key: number, exit: Exit<any, an
 /**
  * @tsplus fluent fncts.io.Scope.ReleaseMap add
  */
-export function add_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Finalizer> {
+export function add_(releaseMap: ReleaseMap, finalizer: Finalizer, __tsplusTrace?: string): UIO<Finalizer> {
   return releaseMap.addIfOpen(finalizer).map((key) =>
     key.match(
       (): Finalizer => Finalizer.get(() => IO.unit),
@@ -57,7 +62,12 @@ export function add_(releaseMap: ReleaseMap, finalizer: Finalizer): UIO<Finalize
 /**
  * @tsplus fluent fncts.io.Scope.ReleaseMap replace
  */
-export function replace_(releaseMap: ReleaseMap, key: number, finalizer: Finalizer): UIO<Maybe<Finalizer>> {
+export function replace_(
+  releaseMap: ReleaseMap,
+  key: number,
+  finalizer: Finalizer,
+  __tsplusTrace?: string,
+): UIO<Maybe<Finalizer>> {
   return ReleaseMap.reverseGet(releaseMap).modify((s) => {
     switch (s._tag) {
       case "Exited":
@@ -74,7 +84,7 @@ export function replace_(releaseMap: ReleaseMap, key: number, finalizer: Finaliz
 /**
  * @tsplus fluent fncts.io.Scope.ReleaseMap updateAll
  */
-export function updateAll_(releaseMap: ReleaseMap, f: (_: Finalizer) => Finalizer): UIO<void> {
+export function updateAll_(releaseMap: ReleaseMap, f: (_: Finalizer) => Finalizer, __tsplusTrace?: string): UIO<void> {
   return ReleaseMap.reverseGet(releaseMap).update((s) => {
     switch (s._tag) {
       case "Exited":

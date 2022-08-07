@@ -1,7 +1,7 @@
 /**
  * @tsplus getter fncts.io.IO retry
  */
-export function retry<R, E, A>(self: IO<R, E, A>) {
+export function retry<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
   return <R1, O>(schedule0: Lazy<Schedule<R1, E, O>>, __tsplusTrace?: string): IO<R | R1, E, A> =>
     self.retryOrElse(schedule0, (e, _) => IO.fail(e));
 }
@@ -9,7 +9,7 @@ export function retry<R, E, A>(self: IO<R, E, A>) {
 /**
  * @tsplus getter fncts.io.IO retryOrElse
  */
-export function retryOrElse<R, E, A>(self: IO<R, E, A>) {
+export function retryOrElse<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
   return <R1, O, R2, E2>(
     schedule0: Lazy<Schedule<R1, E, O>>,
     orElse: (e: E, out: O) => IO<R2, E2, A>,
@@ -20,7 +20,7 @@ export function retryOrElse<R, E, A>(self: IO<R, E, A>) {
 /**
  * @tsplus getter fncts.io.IO retryOrElseEither
  */
-export function retryOrElseEither_<R, E, A>(self: IO<R, E, A>) {
+export function retryOrElseEither_<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
   return <R1, O, R2, E2, B>(
     schedule0: Lazy<Schedule<R1, E, O>>,
     orElse: (e: E, out: O) => IO<R2, E2, B>,
