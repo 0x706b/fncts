@@ -7,8 +7,8 @@ export function allocWithHead<A>(head: A, length: number): Array<A> & { 0: A } {
 }
 
 /**
- * @tsplus getter fncts.base.ReadonlyArray unsafeAsNonEmptyArray
- * @tsplus getter fncts.base.Array unsafeAsNonEmptyArray
+ * @tsplus getter fncts.ReadonlyArray unsafeAsNonEmptyArray
+ * @tsplus getter fncts.Array unsafeAsNonEmptyArray
  */
 export function unsafeAsNonEmptyArray<A>(self: ReadonlyArray<A>): ImmutableNonEmptyArray<A> {
   if (self.length === 0) {

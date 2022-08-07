@@ -53,7 +53,7 @@ export class Vector<A> implements Iterable<A> {
 }
 
 /**
- * @tsplus type fncts.base.MutableVector
+ * @tsplus type fncts.MutableVector
  */
 export interface MutableVector<A> {
   readonly _typeId: VectorTypeId;

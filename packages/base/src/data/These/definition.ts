@@ -4,7 +4,7 @@ export const enum TheseTag {
   Both = "Both",
 }
 
-export const TheseTypeId = Symbol.for("fncts.base.data.These");
+export const TheseTypeId = Symbol.for("fncts.data.These");
 export type TheseTypeId = typeof TheseTypeId;
 
 /**

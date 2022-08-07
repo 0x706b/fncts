@@ -20,14 +20,14 @@ export class ImmutableNonEmptyArray<A> extends ImmutableArray<A> {
 }
 
 /**
- * @tsplus type fncts.base.NonEmptyArray
+ * @tsplus type fncts.NonEmptyArray
  */
 export interface NonEmptyArray<T> extends Array<T> {
   0: T;
 }
 
 /**
- * @tsplus type fncts.base.ReadonlyNonEmptyArray
+ * @tsplus type fncts.ReadonlyNonEmptyArray
  */
 export interface ReadonlyNonEmptyArray<T> extends ReadonlyArray<T> {
   readonly 0: T;

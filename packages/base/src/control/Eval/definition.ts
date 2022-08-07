@@ -1,4 +1,4 @@
-export const EvalTypeId = Symbol.for("@fncts.base/control/Eval");
+export const EvalTypeId = Symbol.for("@fncts/control/Eval");
 export type EvalTypeId = typeof EvalTypeId;
 
 export interface EvalF extends HKT {

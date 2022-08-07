@@ -1,5 +1,7 @@
 import type { ImmutableArrayF } from "@fncts/base/collection/immutable/ImmutableArray/definition";
+import type { DecodeError } from "@fncts/base/data/DecodeError";
 import type * as P from "@fncts/base/typeclass";
+import type { Check } from "@fncts/typelevel/Check";
 
 import {
   alignWith_,
@@ -29,6 +31,9 @@ import {
   witherWithIndex,
 } from "@fncts/base/collection/immutable/ImmutableArray/api";
 import { empty } from "@fncts/base/collection/immutable/ImmutableArray/constructors";
+import { isImmutableArray } from "@fncts/base/collection/immutable/ImmutableArray/definition";
+import { CompoundError, OptionalIndexError, PrimitiveError } from "@fncts/base/data/DecodeError";
+import { Decoder } from "@fncts/base/data/Decoder";
 
 /**
  * @tsplus implicit
@@ -188,3 +193,56 @@ export const WitherableWithIndex = HKT.instance<P.WitherableWithIndex<ImmutableA
   witherWithIndex,
   wiltWithIndex,
 });
+
+/**
+ * @tsplus derive Guard[fncts.ImmutableArray]<_> 10
+ */
+export function deriveGuard<A extends ImmutableArray<any>>(
+  ...[element]: [A] extends [ImmutableArray<infer A>] ? [element: Guard<A>] : never
+): Guard<A> {
+  return Guard((u): u is A => {
+    if (isImmutableArray(u)) {
+      return u._array.every(element.is);
+    }
+    return false;
+  });
+}
+
+/**
+ * @tsplus derive Decoder[fncts.ImmutableArray]<_> 10
+ */
+export function deriveDecoder<A extends ImmutableArray<any>>(
+  ...[elem]: [A] extends [ImmutableArray<infer _A>] ? [elem: Decoder<_A>] : never
+): Decoder<A> {
+  return Decoder((u) => {
+    if (isImmutableArray(u)) {
+      const errors = Vector.emptyPushable<DecodeError>();
+      let failed   = false;
+      const array  = u._array;
+      const out    = Array(array.length);
+      for (let i = 0; i < array.length; i++) {
+        const decoded = elem.decode(array[i]!);
+        decoded.match2(
+          (err) => {
+            failed = true;
+            errors.push(new OptionalIndexError(i, err));
+          },
+          (warning, value) => {
+            out[i] = value;
+            if (warning.isJust()) {
+              errors.push(warning.value);
+            }
+          },
+        );
+      }
+      if (failed) {
+        return These.left(new CompoundError("ImmutableArray", errors));
+      }
+      return These.rightOrBoth(
+        errors.length > 0 ? Just(new CompoundError("ImmutableArray", errors)) : Nothing(),
+        new ImmutableArray(out) as A,
+      );
+    }
+    return These.left(new PrimitiveError(u, "ImmutableArray"));
+  }, `ImmutableArray<${elem.label}>`);
+}

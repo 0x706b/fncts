@@ -538,7 +538,7 @@ export function findLastMapWithIndex_<A, B>(as: ImmutableArray<A>, f: (i: number
 
 /**
  * @tsplus fluent fncts.ImmutableArray foldLeftWithIndex
- * @tsplus fluent fncts.base.MutableArray foldLeftWithIndex
+ * @tsplus fluent fncts.MutableArray foldLeftWithIndex
  */
 export function foldLeftWithIndex_<A, B>(self: ImmutableArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
   const len = self.length;
@@ -551,7 +551,7 @@ export function foldLeftWithIndex_<A, B>(self: ImmutableArray<A>, b: B, f: (i: n
 
 /**
  * @tsplus fluent fncts.ImmutableArray foldLeft
- * @tsplus fluent fncts.base.MutableArray foldLeft
+ * @tsplus fluent fncts.MutableArray foldLeft
  */
 export function foldLeft_<A, B>(self: ImmutableArray<A>, b: B, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
@@ -559,7 +559,7 @@ export function foldLeft_<A, B>(self: ImmutableArray<A>, b: B, f: (b: B, a: A) =
 
 /**
  * @tsplus fluent fncts.ImmutableArray foldLeftWhile
- * @tsplus fluent fncts.base.MutableArray foldLeftWhile
+ * @tsplus fluent fncts.MutableArray foldLeftWhile
  */
 export function foldLeftWhile_<A, B>(self: ImmutableArray<A>, b: B, p: Predicate<B>, f: (b: B, a: A) => B): B {
   return self.foldLeftWithIndexWhile(b, p, (_, b, a) => f(b, a));
@@ -567,7 +567,7 @@ export function foldLeftWhile_<A, B>(self: ImmutableArray<A>, b: B, p: Predicate
 
 /**
  * @tsplus fluent fncts.ImmutableArray foldLeftWithIndexWhile
- * @tsplus fluent fncts.base.MutableArray foldLeftWithIndexWhile
+ * @tsplus fluent fncts.MutableArray foldLeftWithIndexWhile
  */
 export function foldLeftWithIndexWhile_<A, B>(
   self: ImmutableArray<A>,
@@ -661,7 +661,7 @@ export function forEach_<A, B>(self: ImmutableArray<A>, f: (a: A) => B): void {
 
 /**
  * @tsplus fluent fncts.ImmutableArray get
- * @tsplus fluent fncts.base.MutableArray get
+ * @tsplus fluent fncts.MutableArray get
  */
 export function get_<A>(self: ImmutableArray<A>, i: number): Maybe<A> {
   return self.isOutOfBound(i) ? Nothing() : Just(self._array[i]!);
@@ -954,7 +954,7 @@ export function prepend_<A, B>(self: ImmutableArray<A>, head: B): ImmutableArray
 
 /**
  * @tsplus fluent fncts.ImmutableArray prependAll
- * @tsplus fluent fncts.base.MutableArray prependAll
+ * @tsplus fluent fncts.MutableArray prependAll
  */
 export function prependAll_<A>(self: ImmutableArray<A>, a: A): ImmutableArray<A> {
   const out: Array<A> = [];

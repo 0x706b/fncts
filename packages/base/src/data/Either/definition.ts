@@ -3,7 +3,7 @@ export const enum EitherTag {
   Right = "Right",
 }
 
-export const EitherTypeId = Symbol.for("fncts.base.data.Either");
+export const EitherTypeId = Symbol.for("fncts.data.Either");
 export type EitherTypeId = typeof EitherTypeId;
 
 export interface EitherF extends HKT {

@@ -1,6 +1,6 @@
 /**
- * @tsplus getter fncts.base.ReadonlyArray asImmutableArray
- * @tsplus getter fncts.base.Array asImmutableArray
+ * @tsplus getter fncts.ReadonlyArray asImmutableArray
+ * @tsplus getter fncts.Array asImmutableArray
  */
 export function asImmutableArray<A>(self: ReadonlyArray<A>): ImmutableArray<A> {
   return new ImmutableArray(self);

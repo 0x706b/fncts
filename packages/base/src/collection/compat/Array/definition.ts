@@ -1,16 +1,16 @@
 declare global {
   /**
-   * @tsplus type fncts.base.ReadonlyArray
+   * @tsplus type fncts.ReadonlyArray
    */
   export interface ReadonlyArray<T> {}
 
   /**
-   * @tsplus type fncts.base.Array
+   * @tsplus type fncts.Array
    */
   export interface Array<T> {}
 
   /**
-   * @tsplus type fncts.base.ArrayOps
+   * @tsplus type fncts.ArrayOps
    */
   export interface ArrayConstructor {}
 }
