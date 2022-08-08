@@ -2,6 +2,7 @@
 export * from "./Conc/api.js";
 export * from "./Conc/constructors.js";
 export * from "./Conc/definition.js";
+export * from "./Conc/derivations.js";
 // codegen:end
 
 // codegen:start { preset: barrel, include: ./Conc/api/*.ts }

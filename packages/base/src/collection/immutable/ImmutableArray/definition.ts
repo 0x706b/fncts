@@ -35,6 +35,9 @@ export class ImmutableArray<A> implements Equatable, Hashable, Iterable<A> {
   }
 }
 
+/**
+ * @tsplus static fncts.ImmutableArrayOps is
+ */
 export function isImmutableArray(u: unknown): u is ImmutableArray<unknown> {
   return hasTypeId(u, ImmutableArrayTypeId);
 }

@@ -43,7 +43,7 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
   }
 
   [Symbol.equals](that: unknown): boolean {
-    return Conc.isConc(that) && (this as Conc<A>).corresponds(that, Equatable.strictEquals);
+    return Conc.is(that) && (this as Conc<A>).corresponds(that, Equatable.strictEquals);
   }
 }
 
@@ -55,7 +55,7 @@ abstract class ConcImplementation<A> implements Iterable<A> {
   }
 
   [Symbol.equals](that: unknown): boolean {
-    return Conc.isConc(that) && (this as Conc<A>).corresponds(that, Equatable.strictEquals);
+    return Conc.is(that) && (this as Conc<A>).corresponds(that, Equatable.strictEquals);
   }
 
   abstract readonly length: number;
@@ -729,7 +729,7 @@ export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
 }
 
 /**
- * @tsplus static fncts.ConcOps isConc
+ * @tsplus static fncts.ConcOps is
  */
 export function isConc<A>(u: Iterable<A>): u is Conc<A>;
 export function isConc(u: unknown): u is Conc<unknown>;

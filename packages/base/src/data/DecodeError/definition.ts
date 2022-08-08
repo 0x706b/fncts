@@ -225,3 +225,11 @@ export class UnionError extends DecodeError {
       .map((errors) => RoseTree(`${this.errors.length} error(s) found while decoding ${this.label}`, errors)),
   );
 }
+
+export class EmptyError extends DecodeError {
+  readonly _tag = "EmptyError";
+  constructor(readonly actual: unknown) {
+    super();
+  }
+  render = Eval(RoseTree(cannotDecode(this.actual, "a collection containing at least one element")));
+}
