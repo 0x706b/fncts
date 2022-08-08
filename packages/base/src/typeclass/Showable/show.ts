@@ -240,7 +240,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
 
   if (value[Symbol.iterator as keyof typeof value] || constructor === null) {
     noIterator = false;
-    if (Conc.isConc(value)) {
+    if (Conc.is(value)) {
       braces = [`Chunk (${(value as Conc<unknown>).length}) [`, "]"];
       if ((value as Conc<unknown>).length == 0) {
         return inspectionEarlyReturn(`${braces[0]}]`);
