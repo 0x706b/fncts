@@ -17,10 +17,17 @@
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/src/*"],
       "@fncts/base/*": ["../base/src/*"],
+      "@fncts/base": ["../base/src/index"],
       "@fncts/test/*": ["../test/src/*"],
+      "@fncts/test": ["../test/src/index"],
       "@fncts/io/*": ["../io/src/*"],
+      "@fncts/io": ["../io/src/index"],
       "@fncts/observable/*": ["../observable/src/*"],
-      "@fncts/observable": ["../observable/src/index"]
+      "@fncts/observable": ["../observable/src/index"],
+      "@fncts/node/*": ["../node/src/*"],
+      "@fncts/node": ["../node/src/index"],
+      "@fncts/express/*": ["../express/src/*"],
+      "@fncts/express": ["../express/src/index"]
     }
   },
   "exclude": ["node_modules", "build"],

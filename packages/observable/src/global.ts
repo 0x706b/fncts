@@ -1,37 +1,12 @@
-import "@fncts/observable";
+/**
+ * @tsplus global
+ */
+import type {} from "@fncts/io/global";
+/**
+ * @tsplus global
+ */
+import type {} from "@fncts/observable";
 
-/**
- * @tsplus global
- */
-import { HashSet } from "@fncts/base/collection/immutable/HashSet";
-/**
- * @tsplus global
- */
-import { Cause } from "@fncts/base/data/Cause";
-/**
- * @tsplus global
- */
-import { Either } from "@fncts/base/data/Either";
-/**
- * @tsplus global
- */
-import { Exit } from "@fncts/base/data/Exit";
-/**
- * @tsplus global
- */
-import { Lazy } from "@fncts/base/data/function";
-/**
- * @tsplus global
- */
-import { Just, Maybe, Nothing } from "@fncts/base/data/Maybe";
-/**
- * @tsplus global
- */
-import { Predicate, PredicateWithIndex } from "@fncts/base/data/Predicate";
-/**
- * @tsplus global
- */
-import { Refinement, RefinementWithIndex } from "@fncts/base/data/Refinement";
 /**
  * @tsplus global
  */
@@ -43,27 +18,11 @@ import { isDate, isFunction, isIterable, isObject, isPlain } from "@fncts/base/u
 /**
  * @tsplus global
  */
-import { Clock } from "@fncts/io/Clock";
+import { FiberContext } from "@fncts/io/Fiber";
 /**
  * @tsplus global
  */
-import { Console } from "@fncts/io/Console";
-/**
- * @tsplus global
- */
-import { Fiber, FiberContext } from "@fncts/io/Fiber";
-/**
- * @tsplus global
- */
-import { IO, isIO, UIO } from "@fncts/io/IO";
-/**
- * @tsplus global
- */
-import { IOEnv } from "@fncts/io/IOEnv";
-/**
- * @tsplus global
- */
-import { Random } from "@fncts/io/Random";
+import { isIO } from "@fncts/io/IO";
 /**
  * @tsplus global
  */

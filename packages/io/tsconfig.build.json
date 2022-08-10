@@ -10,7 +10,6 @@
     "tsBuildInfoFile": "build/tsbuildinfo/esm.tsbuildinfo"
   },
   "include": ["./src/**/*"],
-  "files": ["./prelude.d.ts"],
   "references": [
     {
       "path": "../typelevel/tsconfig.build.json"

@@ -23,9 +23,7 @@ module.exports = {
     "@0x706b/module-specifier-extensions/module-specifier-extensions": [
       "error",
       {
-        "remove": [
-          "^@fncts.*$"
-        ]
+        remove: ["^@fncts.*$"],
       },
     ],
     "@typescript-eslint/consistent-type-imports": "warn",
@@ -51,6 +49,7 @@ module.exports = {
         presets: {
           pipeable: require("../codegen/build/cjs/pipeable"),
           barrel: require("../codegen/build/cjs/barrel"),
+          "type-barrel": require("../codegen/build/cjs/type-barrel"),
         },
       },
     ],

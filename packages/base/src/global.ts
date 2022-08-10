@@ -1,3 +1,11 @@
+/**
+ * @tsplus global
+ */
+import type {} from "@fncts/base";
+
+/**
+ * @tsplus global
+ */
 import {} from "@fncts/base/collection/compat/Array";
 /**
  * @tsplus global
@@ -34,7 +42,7 @@ import { Cons, List, Nil } from "@fncts/base/collection/immutable/List/definitio
 /**
  * @tsplus global
  */
-import { ImmutableQueue } from "@fncts/base/collection/immutable/Queue/definition";
+import { Queue as ImmutableQueue } from "@fncts/base/collection/immutable/Queue/definition";
 /**
  * @tsplus global
  */
@@ -67,6 +75,10 @@ import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
  * @tsplus global
  */
 import { Eval } from "@fncts/base/control/Eval/definition";
+/**
+ * @tsplus global
+ */
+import { LazyValue } from "@fncts/base/control/LazyValue";
 /**
  * @tsplus global
  */
@@ -153,6 +165,10 @@ import { Identity } from "@fncts/base/data/Identity/definition";
  * @tsplus global
  */
 import { Interval } from "@fncts/base/data/Interval";
+/**
+ * @tsplus global
+ */
+import { Intervals } from "@fncts/base/data/Intervals";
 /**
  * @tsplus global
  */

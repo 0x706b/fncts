@@ -1,6 +1,11 @@
 /**
  * @tsplus global
  */
+import type {} from '@fncts/io/global'
+
+/**
+ * @tsplus global
+ */
 import { Clock } from "@fncts/io/Clock";
 /**
  * @tsplus global
