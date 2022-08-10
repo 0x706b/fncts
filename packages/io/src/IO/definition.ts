@@ -40,9 +40,9 @@ export const IOAspects: IOAspects = {};
 export function unifyIO<X extends IO<any, any, any>>(
   self: X,
 ): IO<
-  [X] extends [IO<infer R, any, any>] ? R : never,
-  [X] extends [IO<any, infer E, any>] ? E : never,
-  [X] extends [IO<any, any, infer A>] ? A : never
+  [X] extends [{ _R: () => infer R }] ? R : never,
+  [X] extends [{ _E: () => infer E }] ? E : never,
+  [X] extends [{ _A: () => infer A }] ? A : never
 > {
   return self;
 }

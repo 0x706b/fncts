@@ -37,13 +37,13 @@ export function combine_<R, E, T, R1, E1, T1>(
   that: PSpec<R1, E1, T1>,
 ): PSpec<R | R1, E | E1, T | T1> {
   if (self.caseValue.isMultiple() && that.caseValue.isMultiple()) {
-    return MultipleCase(self.caseValue.specs.concat(that.caseValue.specs));
+    return MultipleCase<R | R1, E | E1, T | T1>(self.caseValue.specs.concat(that.caseValue.specs));
   }
   if (self.caseValue.isMultiple()) {
-    return MultipleCase(self.caseValue.specs.append(that));
+    return MultipleCase<R | R1, E | E1, T | T1>(self.caseValue.specs.append(that));
   }
   if (that.caseValue.isMultiple()) {
-    return MultipleCase(that.caseValue.specs.prepend(self));
+    return MultipleCase<R | R1, E | E1, T | T1>(that.caseValue.specs.prepend(self));
   }
   return MultipleCase(Conc<PSpec<R | R1, E | E1, T | T1>>(self, that));
 }

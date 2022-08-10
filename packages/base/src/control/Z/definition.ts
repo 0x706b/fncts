@@ -32,7 +32,7 @@ export abstract class Z<W, S1, S2, R, E, A> {
   readonly _W!: () => W;
   readonly _S1!: (_: S1) => void;
   readonly _S2!: () => S2;
-  readonly _R!: (_: R) => void;
+  readonly _R!: () => R;
   readonly _E!: () => E;
   readonly _A!: () => A;
 }
@@ -75,14 +75,14 @@ export const enum ZTag {
   MapLog = "MapLog",
 }
 
-export class SucceedNow<A> extends Z<never, unknown, never, unknown, never, A> {
+export class SucceedNow<A> extends Z<never, unknown, never, never, never, A> {
   readonly _tag = ZTag.SucceedNow;
   constructor(readonly value: A) {
     super();
   }
 }
 
-export class Succeed<A> extends Z<never, unknown, never, unknown, never, A> {
+export class Succeed<A> extends Z<never, unknown, never, never, never, A> {
   readonly _tag = ZTag.Succeed;
   constructor(readonly effect: () => A) {
     super();
@@ -96,14 +96,14 @@ export class Defer<W, S1, S2, R, E, A> extends Z<W, S1, S2, R, E, A> {
   }
 }
 
-export class Fail<E> extends Z<never, unknown, never, unknown, E, never> {
+export class Fail<E> extends Z<never, unknown, never, never, E, never> {
   readonly _tag = ZTag.Fail;
   constructor(readonly cause: Cause<E>) {
     super();
   }
 }
 
-export class Modify<S1, S2, A> extends Z<never, S1, S2, unknown, never, A> {
+export class Modify<S1, S2, A> extends Z<never, S1, S2, never, never, A> {
   readonly _tag = ZTag.Modify;
   constructor(readonly run: (s1: S1) => readonly [A, S2]) {
     super();
@@ -149,7 +149,7 @@ export class Provide<W, S1, S2, R, E, A> extends Z<W, S1, S2, never, E, A> {
   }
 }
 
-export class Tell<W> extends Z<W, unknown, never, unknown, never, void> {
+export class Tell<W> extends Z<W, unknown, never, never, never, void> {
   readonly _tag = ZTag.Tell;
   constructor(readonly log: Conc<W>) {
     super();
@@ -179,7 +179,6 @@ export type Concrete =
 /**
  * @tsplus static fncts.control.ZOps concrete
  */
-// @ts-expect-error
 export function concrete(_: Z<any, any, any, any, any, any>): asserts _ is Concrete {
   //
 }

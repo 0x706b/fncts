@@ -32,7 +32,7 @@ export interface ConcF extends HKT {
  * @tsplus companion fncts.ConcOps
  */
 export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
-  readonly _A!: () => A;
+  declare _A: () => A;
 
   readonly _typeId: ConcTypeId = ConcTypeId;
   abstract readonly length: number;
@@ -49,7 +49,7 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
 
 abstract class ConcImplementation<A> implements Iterable<A> {
   readonly _typeId: ConcTypeId = ConcTypeId;
-  readonly _A!: () => A;
+  declare _A: () => A;
   get [Symbol.hash](): number {
     return Hashable.iterator(this[Symbol.iterator]());
   }
@@ -108,8 +108,8 @@ abstract class ConcImplementation<A> implements Iterable<A> {
   }
 
   concat<B>(that: ConcImplementation<B>): ConcImplementation<A | B> {
-    concrete<A>(this);
-    concrete<B>(that);
+    concrete(this);
+    concrete(that);
     if (this._tag === ConcTag.Empty) {
       return that;
     }
@@ -126,7 +126,7 @@ abstract class ConcImplementation<A> implements Iterable<A> {
     }
     const diff = that.depth - this.depth;
     if (Math.abs(diff) <= 1) {
-      return new Concat(this, that);
+      return new Concat<A | B>(this, that);
     } else if (diff < -1) {
       if (this.left.depth >= this.right.depth) {
         const nr = this.right.concat(that);
@@ -165,7 +165,7 @@ abstract class ConcImplementation<A> implements Iterable<A> {
     } else if (n >= this.length) {
       return this;
     } else {
-      concrete<A>(this);
+      concrete(this);
       switch (this._tag) {
         case ConcTag.Empty:
           return _Empty;
@@ -267,9 +267,10 @@ export class Empty<A> extends ConcImplementation<A> {
   }
 }
 
-export const _Empty = new Empty<any>();
+export const _Empty = new Empty<never>();
 
 export class Concat<A> extends ConcImplementation<A> {
+  declare _A: () => A;
   readonly _tag = ConcTag.Concat;
 
   length = this.left.length + this.right.length;

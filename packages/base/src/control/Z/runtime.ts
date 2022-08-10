@@ -246,7 +246,7 @@ export function unsafeRunReader_<W, R, A>(ma: Z<W, unknown, never, R, never, A>,
  *
  * @tsplus fluent fncts.control.Z unsafeRunState
  */
-export function unsafeRunState_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, never, A>, s: S1): S2 {
+export function unsafeRunState_<W, S1, S2, A>(ma: Z<W, S1, S2, never, never, A>, s: S1): S2 {
   return ma.unsafeRun(s)[0];
 }
 
@@ -256,7 +256,7 @@ export function unsafeRunState_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, never, A
  *
  * @tsplus fluent fncts.control.Z unsafeRunStateResult
  */
-export function unsafeRunStateResult_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, never, A>, s: S1): A {
+export function unsafeRunStateResult_<W, S1, S2, A>(ma: Z<W, S1, S2, never, never, A>, s: S1): A {
   return ma.unsafeRunAll(s)[1].match(
     (cause) => {
       // throw cause.squash
@@ -271,7 +271,7 @@ export function unsafeRunStateResult_<W, S1, S2, A>(ma: Z<W, S1, S2, unknown, ne
  *
  * @tsplus getter fncts.control.Z unsafeRunExit
  */
-export function unsafeRunExit<E, A>(ma: Z<never, unknown, unknown, unknown, E, A>): Exit<E, A> {
+export function unsafeRunExit<E, A>(ma: Z<never, unknown, unknown, never, E, A>): Exit<E, A> {
   return ma.unsafeRunAll({} as never)[1].map(([_, a]) => a);
 }
 
@@ -279,7 +279,7 @@ export function unsafeRunExit<E, A>(ma: Z<never, unknown, unknown, unknown, E, A
  *
  * @tsplus getter fncts.control.Z unsafeRunWriter
  */
-export function unsafeRunWriter<W, A>(ma: Z<W, unknown, unknown, unknown, never, A>): readonly [Conc<W>, A] {
+export function unsafeRunWriter<W, A>(ma: Z<W, unknown, unknown, never, never, A>): readonly [Conc<W>, A] {
   const [w, exit] = ma.unsafeRunAll({});
   return exit.match(
     () => {

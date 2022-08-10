@@ -3235,7 +3235,8 @@ export function zipWithLatest_<R, E, A, R1, E1, B, C>(
         Stream.fromIOMaybe(
           left.raceWith(
             right,
-            (leftDone, rightFiber) => IO.fromExitNow(leftDone).zipWith(rightFiber.join, (l, r) => tuple(l, r, true)),
+            (leftDone: Exit<Maybe<E | E1>, Conc<A>>, rightFiber) =>
+              IO.fromExitNow(leftDone).zipWith(rightFiber.join, (l, r) => tuple(l, r, true)),
             (rightDone, leftFiber) => IO.fromExitNow(rightDone).zipWith(leftFiber.join, (r, l) => tuple(l, r, false)),
           ),
         ).flatMap(([l, r, leftFirst]) =>

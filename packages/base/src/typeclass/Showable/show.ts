@@ -72,7 +72,7 @@ export interface ShowOptions {
 
 export class ShowContext extends CaseClass<ShowContextArgs> {}
 
-export type ShowComputationZ<A> = Z<never, ShowContext, ShowContext, unknown, never, A>;
+export type ShowComputationZ<A> = Z<never, ShowContext, ShowContext, never, never, A>;
 export type ShowComputation = ShowComputationZ<string>;
 export type ShowComputationChunk = ShowComputationZ<Conc<string>>;
 

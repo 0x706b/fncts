@@ -291,7 +291,7 @@ export function catchJustDefect_<R, E, A, R1, E1, A1>(
   f: (_: unknown) => Maybe<IO<R1, E1, A1>>,
   __tsplusTrace?: string,
 ): IO<R | R1, E | E1, A | A1> {
-  return ma.unrefineWith(f, IO.failNow).catchAll(identity);
+  return ma.unrefineWith(f, IO.failNow).catchAll((a) => a as IO<R | R1, E | E1, A | A1>);
 }
 
 /**

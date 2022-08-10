@@ -17,5 +17,5 @@ export function raceFirst_<R, E, A, R1, E1, A1>(
   that: IO<R1, E1, A1>,
   __tsplusTrace?: string,
 ): IO<R | R1, E | E1, A | A1> {
-  return ma.result.race(that.result).flatMap(IO.fromExitNow);
+  return ma.result.race(that.result).flatMap((exit) => IO.fromExitNow<E | E1, A | A1>(exit));
 }
