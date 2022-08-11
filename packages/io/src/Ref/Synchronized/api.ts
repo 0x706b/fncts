@@ -75,7 +75,7 @@ export function filterInputIO_<RA, RB, EA, EB, B, A, RC, EC, A1 extends A = A>(
   __tsplusTrace?: string,
 ): PRef.Synchronized<RA | RC, RB, Maybe<EC | EA>, EB, A1, B> {
   return ref.matchIO(
-    (ea) => Just(ea),
+    (ea): Maybe<EC | EA> => Just(ea),
     identity,
     (a) => f(a).asJustError.ifIO(IO.failNow(Nothing()), IO.succeedNow(a)),
     IO.succeedNow,
@@ -94,8 +94,11 @@ export function filterOutputIO_<RA, RB, EA, EB, A, B, RC, EC>(
   f: (b: B) => IO<RC, EC, boolean>,
   __tsplusTrace?: string,
 ): PRef.Synchronized<RA, RB | RC, EA, Maybe<EC | EB>, A, B> {
-  return ref.matchIO(identity, Maybe.just, IO.succeedNow, (b) =>
-    f(b).asJustError.ifIO(IO.succeedNow(b), IO.failNow(Nothing())),
+  return ref.matchIO(
+    identity,
+    (eb): Maybe<EC | EB> => Maybe.just(eb),
+    IO.succeedNow,
+    (b) => f(b).asJustError.ifIO(IO.succeedNow(b), IO.failNow(Nothing())),
   );
 }
 

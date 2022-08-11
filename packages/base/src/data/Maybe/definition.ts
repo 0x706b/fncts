@@ -23,7 +23,7 @@ const _nothingHash = Hashable.string("fncts.Nothing");
  * @tsplus companion fncts.MaybeOps
  */
 export class Maybe<A> {
-  readonly _A!: () => A;
+  declare _A: () => A;
   readonly _typeId: MaybeTypdId = MaybeTypeId;
 }
 
@@ -61,7 +61,7 @@ export class Nothing extends Maybe<never> {
 /**
  * @tsplus unify fncts.Maybe
  */
-export function unifyMaybe<X extends Maybe<any>>(self: X): Maybe<[X] extends [Maybe<infer A>] ? A : never> {
+export function unifyMaybe<X extends Maybe<any>>(self: X): Maybe<[X] extends [{ _A: () => infer A }] ? A : never> {
   return self;
 }
 

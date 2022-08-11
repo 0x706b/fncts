@@ -120,14 +120,14 @@ export function buffer<InElem, InErr, InDone>(
       if (isEmpty(v)) {
         return tuple(
           readWith(
-            (_in) => Channel.writeNow(_in).apSecond(Channel.buffer(empty, isEmpty, ref)),
-            Channel.failNow,
-            Channel.endNow,
+            (_in: InElem) => Channel.writeNow(_in).apSecond(Channel.buffer<InElem, InErr, InDone>(empty, isEmpty, ref)),
+            (err: InErr) => Channel.failNow(err),
+            (done: InDone) => Channel.endNow(done),
           ),
           v,
         );
       } else {
-        return tuple(Channel.writeNow(v).apSecond(Channel.buffer(empty, isEmpty, ref)), empty);
+        return tuple(Channel.writeNow(v).apSecond(Channel.buffer<InElem, InErr, InDone>(empty, isEmpty, ref)), empty);
       }
     }),
   );

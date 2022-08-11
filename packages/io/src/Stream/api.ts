@@ -1275,7 +1275,7 @@ function endWhenWriter<E, A, E1>(
       maybeExit.match(
         () =>
           Channel.readWith(
-            (inp: Conc<A>) => Channel.writeNow(inp).apSecond(endWhenWriter(fiber)),
+            (inp: Conc<A>) => Channel.writeNow(inp).apSecond(endWhenWriter<E, A, E1>(fiber)),
             Channel.failNow,
             () => Channel.unit,
           ),
@@ -1476,7 +1476,7 @@ function filterMapIOLoop<R, E, A, R1, E1, B>(
     return Channel.unwrap(
       f(next.value).map((b) =>
         b.match(
-          () => filterMapIOLoop(iterator, f),
+          () => filterMapIOLoop<R, E, A, R1, E1, B>(iterator, f),
           (b) => Channel.writeNow(Conc.single(b)) > filterMapIOLoop<R, E, A, R1, E1, B>(iterator, f),
         ),
       ),
@@ -2083,7 +2083,7 @@ function mapAccumIOAccumulator<R, E, A, R1, E1, S, B>(
                 ? Channel.writeNow(partialResult).apSecond(Channel.failNow(e))
                 : Channel.failNow(e);
             },
-            (s) => Channel.writeNow(outputChunk.result()).apSecond(mapAccumIOAccumulator(s, f)),
+            (s) => Channel.writeNow(outputChunk.result()).apSecond(mapAccumIOAccumulator<R, E, A, R1, E1, S, B>(s, f)),
           );
         }),
       ),
@@ -2954,9 +2954,9 @@ function throttleEnforceIOLoop<E, A, R1, E1>(
 
           return weight <= available
             ? Channel.writeNow(inp).apSecond(
-                throttleEnforceIOLoop(costFn, units, duration, burst, available - weight, current),
+                throttleEnforceIOLoop<E, A, R1, E1>(costFn, units, duration, burst, available - weight, current),
               )
-            : throttleEnforceIOLoop(costFn, units, duration, burst, available - weight, current);
+            : throttleEnforceIOLoop<E, A, R1, E1>(costFn, units, duration, burst, available - weight, current);
         }),
       ),
     Channel.failNow,

@@ -41,13 +41,13 @@ export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDo
 export function unifyChannel<X extends Channel<any, any, any, any, any, any, any>>(
   _: X,
 ): Channel<
-  [X] extends [Channel<infer Env, any, any, any, any, any, any>] ? Env : never,
-  [X] extends [Channel<any, infer InErr, any, any, any, any, any>] ? InErr : never,
-  [X] extends [Channel<any, any, infer InElem, any, any, any, any>] ? InElem : never,
-  [X] extends [Channel<any, any, any, infer InDone, any, any, any>] ? InDone : never,
-  [X] extends [Channel<any, any, any, any, infer OutErr, any, any>] ? OutErr : never,
-  [X] extends [Channel<any, any, any, any, any, infer OutElem, any>] ? OutElem : never,
-  [X] extends [Channel<any, any, any, any, any, any, infer OutDone>] ? OutDone : never
+  [X] extends [{ _Env: () => infer Env }] ? Env : never,
+  [X] extends [{ _InErr: (_: infer InErr) => void }] ? InErr : never,
+  [X] extends [{ _InElem: (_: infer InElem) => void }] ? InElem : never,
+  [X] extends [{ _InDone: (_: infer InDone) => void }] ? InDone : never,
+  [X] extends [{ _OutErr: () => infer OutErr }] ? OutErr : never,
+  [X] extends [{ _OutElem: () => infer OutElem }] ? OutElem : never,
+  [X] extends [{ _OutDone: () => infer OutDone }] ? OutDone : never
 > {
   return _;
 }

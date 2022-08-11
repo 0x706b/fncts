@@ -606,7 +606,7 @@ export function fromQueue<In>(
   queue: Lazy<Queue.Enqueue<In>>,
   __tsplusTrace?: string,
 ): Sink<never, never, In, never, void> {
-  return Sink.unwrap(IO.succeed(queue).map((queue) => Sink.foreachChunk((inp) => queue.offerAll(inp))));
+  return Sink.unwrap(IO.succeed(queue).map((queue) => Sink.foreachChunk((inp: Conc<In>) => queue.offerAll(inp))));
 }
 
 /**
@@ -682,7 +682,7 @@ export function haltNow(defect: unknown, __tsplusTrace?: string): Sink<never, ne
  */
 export function head<In>(__tsplusTrace?: string): Sink<never, never, In, In, Maybe<In>> {
   return Sink.fold(
-    Nothing(),
+    Nothing<In>(),
     (elem) => elem.isNothing(),
     (s, inp) =>
       s.match(
@@ -710,7 +710,7 @@ export function ignoreLeftover<R, E, In, L, Z>(
  * @tsplus static fncts.io.SinkOps last
  */
 export function last<In>(__tsplusTrace?: string): Sink<never, never, In, In, Maybe<In>> {
-  return Sink.foldLeft(Nothing(), (_, inp) => Just(inp));
+  return Sink.foldLeft(Nothing<In>(), (_, inp) => Just(inp));
 }
 
 /**
@@ -1675,7 +1675,7 @@ export function summarized<R, E, In, L, Z, R1, E1, B, C>(
     Channel.unwrap(
       IO.succeed(summary).map((summary) =>
         Channel.fromIO(summary).flatMap((start) =>
-          self.channel.flatMap((done) => Channel.fromIO(summary).map((end) => [done, f(start, end)])),
+          self.channel.flatMap((done) => Channel.fromIO(summary).map((end) => Function.tuple(done, f(start, end)))),
         ),
       ),
     ),

@@ -1593,9 +1593,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.132":
-  version: 0.0.132
-  resolution: "@tsplus/installer@npm:0.0.132"
+"@tsplus/installer@npm:0.0.133":
+  version: 0.0.133
+  resolution: "@tsplus/installer@npm:0.0.133"
   dependencies:
     mkdirp: "npm:^1.0.4"
     rimraf: "npm:^3.0.2"
@@ -1604,7 +1604,7 @@ __metadata:
     zlib: "npm:^1.0.5"
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: b9a10f219e7f06ed3e56e483737b7448a63eac638ec283185ef1f288e287972da42f99898ebd4d33f4a40c28dd5c17b4b44f6852269c780fd4e55650a80855a6
+  checksum: ded9a99af82b6207bfe4821b48ec8b7d830d836af97dfe9b1d3367a5e3c66a1ccea04caeb6c0d032282ba25bd519d007e3b83fcf1f429e501f36d6ead217f477
   languageName: node
   linkType: hard
 
@@ -4791,7 +4791,7 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.18.6"
     "@changesets/changelog-git": "npm:^0.1.12"
     "@changesets/cli": "npm:^2.24.2"
-    "@tsplus/installer": "npm:0.0.132"
+    "@tsplus/installer": "npm:0.0.133"
     "@types/benchmark": "npm:^2.1.1"
     "@typescript-eslint/eslint-plugin": "npm:^5.33.0"
     "@typescript-eslint/experimental-utils": "npm:^5.33.0"
