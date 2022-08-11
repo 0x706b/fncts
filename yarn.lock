@@ -1224,7 +1224,7 @@ __metadata:
     "@fncts/io": "workspace:*"
     "@fncts/scripts": "workspace:*"
     "@types/express": "npm:^4.17.13"
-    "@types/node": "npm:^18.6.5"
+    "@types/node": "npm:^18.7.1"
     express: "npm:^4.18.1"
     madge: "npm:^5.0.1"
     typescript: "npm:^4.7.4"
@@ -1593,9 +1593,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.133":
-  version: 0.0.133
-  resolution: "@tsplus/installer@npm:0.0.133"
+"@tsplus/installer@npm:0.0.135":
+  version: 0.0.135
+  resolution: "@tsplus/installer@npm:0.0.135"
   dependencies:
     mkdirp: "npm:^1.0.4"
     rimraf: "npm:^3.0.2"
@@ -1604,7 +1604,7 @@ __metadata:
     zlib: "npm:^1.0.5"
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: ded9a99af82b6207bfe4821b48ec8b7d830d836af97dfe9b1d3367a5e3c66a1ccea04caeb6c0d032282ba25bd519d007e3b83fcf1f429e501f36d6ead217f477
+  checksum: 41e310c195392cb0ca80733339bc50ece1b9d9bad9779443dff116018854ded52794d99c70848684bec1fe4cdb03eab249e036d84da750d2c6be35ddcb313e1a
   languageName: node
   linkType: hard
 
@@ -1847,10 +1847,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.6.5":
-  version: 18.6.5
-  resolution: "@types/node@npm:18.6.5"
-  checksum: c3ab2fe90e95ea345ff53b8a336a6b9cd5a542fe98e3a066eb9be3a353bd394ab480898d31d003cec224fa9d49b6f5499b1a006e3d0b54c1ced313a6de668f35
+"@types/node@npm:^18.7.1":
+  version: 18.7.1
+  resolution: "@types/node@npm:18.7.1"
+  checksum: f53d217db982c3855765a422a3a7fb375a5584cfcbd8ace601dafc3c093c552e2a3f4123d5290797f9b198a91871d8517c58ddc6b54ac6ed1581d93bb4ad7bca
   languageName: node
   linkType: hard
 
@@ -4791,7 +4791,7 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.18.6"
     "@changesets/changelog-git": "npm:^0.1.12"
     "@changesets/cli": "npm:^2.24.2"
-    "@tsplus/installer": "npm:0.0.133"
+    "@tsplus/installer": "npm:0.0.135"
     "@types/benchmark": "npm:^2.1.1"
     "@typescript-eslint/eslint-plugin": "npm:^5.33.0"
     "@typescript-eslint/experimental-utils": "npm:^5.33.0"
