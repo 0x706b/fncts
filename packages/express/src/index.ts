@@ -78,8 +78,8 @@ export function match(method: Methods): {
 export function use<Handlers extends Array<RequestHandlerRouteIO>>(
   ...handlers: Handlers
 ): URIO<
-  ExpressEnv &
-    _R<
+  | ExpressEnv
+  | _R<
       {
         [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
       }[number]
@@ -144,8 +144,8 @@ export const unsubscribe = match("unsubscribe");
 /**
  * Lift an express requestHandler into an effectified variant
  */
-export function classic(_: NextHandleFunction): RequestHandlerIO<unknown, any>;
-export function classic(_: RequestHandler): RequestHandlerIO<unknown, any>;
-export function classic(_: RequestHandler | NextHandleFunction): RequestHandlerIO<unknown, any> {
+export function classic(_: NextHandleFunction): RequestHandlerIO<never, any>;
+export function classic(_: RequestHandler): RequestHandlerIO<never, any>;
+export function classic(_: RequestHandler | NextHandleFunction): RequestHandlerIO<never, any> {
   return (req, res, next) => IO.succeed(() => _(req, res, next));
 }
