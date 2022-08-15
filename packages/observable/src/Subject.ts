@@ -2,7 +2,7 @@ import { arrayRemove } from "@fncts/observable/internal/util";
 
 export interface SubjectLike<E, A> extends Observer<E, A>, Subscribable<E, A> {}
 
-export class Subject<E, A> extends Observable<E, A> implements SubscriptionLike {
+export class Subject<R, E, A> extends Observable<R, E, A> implements SubscriptionLike {
   closed = false;
   protected observers: Array<Observer<E, A>> = [];
   protected isStopped             = false;
@@ -13,7 +13,7 @@ export class Subject<E, A> extends Observable<E, A> implements SubscriptionLike 
     super();
   }
 
-  lift<E1, B>(operator: Operator<E1, B>): Observable<E1, B> {
+  lift<R1, E1, B>(operator: Operator<E1, B>): Observable<R1, E1, B> {
     const subject    = new AnonymousSubject(this, this);
     subject.operator = operator as any;
     return subject as any;
@@ -67,9 +67,9 @@ export class Subject<E, A> extends Observable<E, A> implements SubscriptionLike 
     }
   }
 
-  protected trySubscribe(subscriber: Subscriber<E, A>): Finalizer {
+  protected trySubscribe(subscriber: Subscriber<E, A>, environment: Environment<R>): Finalizer {
     this.throwIfClosed();
-    return super.trySubscribe(subscriber);
+    return super.trySubscribe(subscriber, environment);
   }
 
   protected subscribeInternal(subscriber: Subscriber<E, A>): Subscription {
@@ -94,15 +94,15 @@ export class Subject<E, A> extends Observable<E, A> implements SubscriptionLike 
     }
   }
 
-  asObservable(): Observable<E, A> {
-    const observable: any = new Observable<E, A>();
+  asObservable(): Observable<R, E, A> {
+    const observable: any = new Observable<R, E, A>();
     observable.source     = this;
     return observable;
   }
 }
 
-export class AnonymousSubject<E, A> extends Subject<E, A> {
-  constructor(protected destination?: Observer<E, A>, source?: Observable<E, A>) {
+export class AnonymousSubject<R, E, A> extends Subject<R, E, A> {
+  constructor(protected destination?: Observer<E, A>, source?: Observable<R, E, A>) {
     super();
     this.source = source;
   }
@@ -122,7 +122,7 @@ export class AnonymousSubject<E, A> extends Subject<E, A> {
   }
 }
 
-export class AsyncSubject<E, A> extends Subject<E, A> {
+export class AsyncSubject<R, E, A> extends Subject<R, E, A> {
   private value: Either<Cause<E>, A> | null = null;
   private hasValue   = false;
   private isComplete = false;

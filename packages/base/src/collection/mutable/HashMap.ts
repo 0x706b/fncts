@@ -56,6 +56,10 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     return this.findNode(key) !== undefined;
   }
 
+  unsafeGet(key: K): V | undefined {
+    return this.findNode(key)?.value;
+  }
+
   get(key: K): Maybe<V> {
     const n = this.findNode(key);
     return n ? Just(n.value) : Nothing();

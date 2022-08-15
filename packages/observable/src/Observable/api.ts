@@ -1,40 +1,34 @@
 import { popNumber } from "@fncts/observable/internal/args";
 import { arrayOrObject, arrayRemove, readableStreamToAsyncGenerator } from "@fncts/observable/internal/util";
 import { Notification } from "@fncts/observable/Notification";
-import { EMPTY } from "@fncts/observable/Observable/definition";
+import { EMPTY, EnvironmentWith, Observable } from "@fncts/observable/Observable/definition";
 import { caughtSchedule } from "@fncts/observable/Scheduler";
 
 export interface Subscribable<E, A> {
   subscribe(observer: Partial<Observer<E, A>>): Unsubscribable;
 }
 
-export type ObservableInput<E = never, A = never> =
-  | Observable<E, A>
+export type ObservableInput<R = never, E = never, A = never> =
+  | Observable<R, E, A>
   | Subscribable<E, A>
   | AsyncIterable<A>
   | PromiseLike<A>
   | ArrayLike<A>
   | Iterable<A>
   | ReadableStreamLike<A>
-  | IO<never, E, A>;
-
-/*
- * -------------------------------------------------------------------------------------------------
- * constructors
- * -------------------------------------------------------------------------------------------------
- */
+  | IO<R, E, A>;
 
 /**
  * @tsplus static fncts.observable.ObservableOps halt
  */
-export function halt(defect: unknown): Observable<never, never> {
+export function halt(defect: unknown): Observable<never, never, never> {
   return new Observable((s) => s.error(Cause.halt(defect)));
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps defer
  */
-export function defer<E, A>(observable: Lazy<ObservableInput<E, A>>): Observable<E, A> {
+export function defer<R, E, A>(observable: Lazy<ObservableInput<R, E, A>>): Observable<R, E, A> {
   return new Observable((s) => {
     from(observable()).subscribe(s);
   });
@@ -43,28 +37,37 @@ export function defer<E, A>(observable: Lazy<ObservableInput<E, A>>): Observable
 /**
  * @tsplus static fncts.observable.ObservableOps empty
  */
-export function empty<A>(): Observable<never, A> {
+export function empty<A>(): Observable<never, never, A> {
   return EMPTY;
+}
+
+/**
+ * @tsplus static fncts.observable.ObservableOps environmentWithObservable
+ */
+export function environmentWithObservable<R0, R, E, A>(
+  f: (environment: Environment<R0>) => Observable<R, E, A>,
+): Observable<R0 | R, E, A> {
+  return new EnvironmentWith(f);
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps failCause
  */
-export function failCause<E>(cause: Cause<E>): Observable<E, never> {
+export function failCause<E>(cause: Cause<E>): Observable<never, E, never> {
   return new Observable((s) => s.error(cause));
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps fail
  */
-export function fail<E>(e: E): Observable<E, never> {
+export function fail<E>(e: E): Observable<never, E, never> {
   return new Observable((s) => s.error(Cause.fail(e)));
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps from
  */
-export function from<E = never, A = never>(input: ObservableInput<E, A>): Observable<E, A> {
+export function from<R = never, E = never, A = never>(input: ObservableInput<R, E, A>): Observable<R, E, A> {
   if (input instanceof Observable) {
     return input;
   }
@@ -92,7 +95,7 @@ export function from<E = never, A = never>(input: ObservableInput<E, A>): Observ
   throw new TypeError("Invalid Observable input");
 }
 
-export function fromArrayLike<A>(input: ArrayLike<A>): Observable<never, A> {
+export function fromArrayLike<A>(input: ArrayLike<A>): Observable<never, never, A> {
   return new Observable((s) => {
     for (let i = 0; i < input.length && !s.closed; i++) {
       s.next(input[i]!);
@@ -101,13 +104,13 @@ export function fromArrayLike<A>(input: ArrayLike<A>): Observable<never, A> {
   });
 }
 
-export function fromAsyncIterable<A>(asyncIterable: AsyncIterable<A>): Observable<never, A> {
+export function fromAsyncIterable<A>(asyncIterable: AsyncIterable<A>): Observable<never, never, A> {
   return new Observable((s) => {
     process(asyncIterable, s).catch((err) => s.error(Cause.halt(err)));
   });
 }
 
-export function fromIterable<A>(iterable: Iterable<A>): Observable<never, A> {
+export function fromIterable<A>(iterable: Iterable<A>): Observable<never, never, A> {
   return new Observable((s) => {
     for (const value of iterable) {
       s.next(value);
@@ -119,7 +122,7 @@ export function fromIterable<A>(iterable: Iterable<A>): Observable<never, A> {
   });
 }
 
-export function fromPromise<A>(promise: PromiseLike<A>): Observable<never, A> {
+export function fromPromise<A>(promise: PromiseLike<A>): Observable<never, never, A> {
   return new Observable((s) => {
     promise
       .then(
@@ -135,14 +138,14 @@ export function fromPromise<A>(promise: PromiseLike<A>): Observable<never, A> {
   });
 }
 
-export function fromReadableStreamLike<A>(readableStream: ReadableStreamLike<A>): Observable<never, A> {
+export function fromReadableStreamLike<A>(readableStream: ReadableStreamLike<A>): Observable<never, never, A> {
   return fromAsyncIterable(readableStreamToAsyncGenerator(readableStream));
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps fromSubscribable
  */
-export function fromSubscribable<E, A>(subscribable: Subscribable<E, A>): Observable<E, A> {
+export function fromSubscribable<E, A>(subscribable: Subscribable<E, A>): Observable<never, E, A> {
   return new Observable((subscriber) => subscribable.subscribe(subscriber));
 }
 
@@ -152,7 +155,7 @@ export function fromInterop<A>(subscribable: {
     error: (err: unknown) => void;
     complete: () => void;
   }) => Unsubscribable;
-}): Observable<unknown, A> {
+}): Observable<never, unknown, A> {
   return new Observable((subscriber) =>
     subscribable.subscribe({
       next: (value) => subscriber.next(value),
@@ -162,12 +165,12 @@ export function fromInterop<A>(subscribable: {
   );
 }
 
-function _if<E, A, E1, B>(
+function _if<R, E, A, R1, E1, B>(
   condition: () => boolean,
-  onTrue: ObservableInput<E, A>,
-  onFalse: ObservableInput<E1, B>,
-): Observable<E | E1, A | B> {
-  return defer<E | E1, A | B>(() => (condition() ? onTrue : onFalse));
+  onTrue: ObservableInput<R, E, A>,
+  onFalse: ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, A | B> {
+  return defer<R | R1, E | E1, A | B>(() => (condition() ? onTrue : onFalse));
 }
 
 export { _if as if };
@@ -179,7 +182,7 @@ export interface IterateOptions<S> {
   readonly scheduler?: SchedulerLike;
 }
 
-export function iterate<S>(options: IterateOptions<S>): Observable<never, S> {
+export function iterate<S>(options: IterateOptions<S>): Observable<never, never, S> {
   const { initialState, cont, iterate, scheduler } = options;
 
   function* gen() {
@@ -204,7 +207,7 @@ async function process<A>(asyncIterable: AsyncIterable<A>, subscriber: Subscribe
 /**
  * @tsplus static fncts.obervable.ObservableOps interval
  */
-export function interval(period = 0, scheduler: SchedulerLike = asyncScheduler): Observable<never, number> {
+export function interval(period = 0, scheduler: SchedulerLike = asyncScheduler): Observable<never, never, number> {
   if (period < 0) {
     // eslint-disable-next-line no-param-reassign
     period = 0;
@@ -218,13 +221,13 @@ export function interval(period = 0, scheduler: SchedulerLike = asyncScheduler):
  */
 export function merge<O extends ReadonlyArray<ObservableInput<any, any>>>(
   ...sources: O
-): Observable<Observable.ErrorOf<O[number]>, Observable.TypeOf<O[number]>>;
+): Observable<Observable.EnvironmentOf<O[number]>, Observable.ErrorOf<O[number]>, Observable.TypeOf<O[number]>>;
 export function merge<O extends ReadonlyArray<ObservableInput<any, any>>>(
   ...sources: [...O, number?]
-): Observable<Observable.ErrorOf<O[number]>, Observable.TypeOf<O[number]>>;
+): Observable<Observable.EnvironmentOf<O[number]>, Observable.ErrorOf<O[number]>, Observable.TypeOf<O[number]>>;
 export function merge<O extends ReadonlyArray<ObservableInput<any, any>>>(
   ...sources: [...O, number?]
-): Observable<Observable.ErrorOf<O[number]>, Observable.TypeOf<O[number]>> {
+): Observable<Observable.EnvironmentOf<O[number]>, Observable.ErrorOf<O[number]>, Observable.TypeOf<O[number]>> {
   const concurrency = popNumber(sources, Infinity);
   return !sources.length
     ? empty()
@@ -236,14 +239,14 @@ export function merge<O extends ReadonlyArray<ObservableInput<any, any>>>(
 /**
  * @tsplus static fncts.observable.ObservableOps of
  */
-export function of<A>(...items: ReadonlyArray<A>): Observable<never, A> {
+export function of<A>(...items: ReadonlyArray<A>): Observable<never, never, A> {
   return fromArrayLike(items);
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps single
  */
-export function single<A>(a: A): Observable<never, A> {
+export function single<A>(a: A): Observable<never, never, A> {
   return new Observable((s) => {
     s.next(a);
     s.complete();
@@ -254,7 +257,7 @@ export function single<A>(a: A): Observable<never, A> {
  * @tsplus fluent fncts.observable.Observable scheduled
  * @tsplus static fncts.observable.ObservableOps scheduled
  */
-export function scheduled<E, A>(input: ObservableInput<E, A>, scheduler: SchedulerLike): Observable<E, A> {
+export function scheduled<R, E, A>(input: ObservableInput<R, E, A>, scheduler: SchedulerLike): Observable<R, E, A> {
   if (isArrayLike(input)) {
     return scheduleArray(input, scheduler);
   }
@@ -273,8 +276,8 @@ export function scheduled<E, A>(input: ObservableInput<E, A>, scheduler: Schedul
   return scheduleObservable(from(input), scheduler);
 }
 
-export function scheduleArray<A>(input: ArrayLike<A>, scheduler: SchedulerLike): Observable<never, A> {
-  return new Observable<never, A>((s) => {
+export function scheduleArray<A>(input: ArrayLike<A>, scheduler: SchedulerLike): Observable<never, never, A> {
+  return new Observable<never, never, A>((s) => {
     let i = 0;
     return scheduler.schedule(function () {
       if (i === input.length) {
@@ -289,7 +292,10 @@ export function scheduleArray<A>(input: ArrayLike<A>, scheduler: SchedulerLike):
   });
 }
 
-export function scheduleAsyncIterable<A>(input: AsyncIterable<A>, scheduler: SchedulerLike): Observable<never, A> {
+export function scheduleAsyncIterable<A>(
+  input: AsyncIterable<A>,
+  scheduler: SchedulerLike,
+): Observable<never, never, A> {
   return new Observable((subscriber) => {
     const sub = new Subscription();
     sub.add(
@@ -313,7 +319,7 @@ export function scheduleAsyncIterable<A>(input: AsyncIterable<A>, scheduler: Sch
   });
 }
 
-export function scheduleIterable<A>(input: Iterable<A>, scheduler: SchedulerLike): Observable<never, A> {
+export function scheduleIterable<A>(input: Iterable<A>, scheduler: SchedulerLike): Observable<never, never, A> {
   return new Observable((s) => {
     let iterator: Iterator<A, A>;
     s.add(
@@ -335,7 +341,7 @@ export function scheduleIterable<A>(input: Iterable<A>, scheduler: SchedulerLike
   });
 }
 
-export function scheduleObservable<E, A>(input: Observable<E, A>, scheduler: SchedulerLike): Observable<E, A> {
+export function scheduleObservable<R, E, A>(input: Observable<R, E, A>, scheduler: SchedulerLike): Observable<R, E, A> {
   return new Observable((subscriber) => {
     const sub = new Subscription();
     sub.add(
@@ -358,7 +364,7 @@ export function scheduleObservable<E, A>(input: Observable<E, A>, scheduler: Sch
   });
 }
 
-export function schedulePromise<A>(input: PromiseLike<A>, scheduler: SchedulerLike): Observable<never, A> {
+export function schedulePromise<A>(input: PromiseLike<A>, scheduler: SchedulerLike): Observable<never, never, A> {
   return new Observable((subscriber) => {
     return scheduler.schedule(() => {
       input.then(
@@ -381,20 +387,24 @@ export function schedulePromise<A>(input: PromiseLike<A>, scheduler: SchedulerLi
 export function scheduleReadableStreamLike<A>(
   input: ReadableStreamLike<A>,
   scheduler: SchedulerLike,
-): Observable<never, A> {
+): Observable<never, never, A> {
   return scheduleAsyncIterable(readableStreamToAsyncGenerator(input), scheduler);
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps timer
  */
-export function timer(time: number | Date, interval?: number, scheduler?: SchedulerLike): Observable<never, number>;
-export function timer(time: number | Date, scheduler?: SchedulerLike): Observable<never, number>;
+export function timer(
+  time: number | Date,
+  interval?: number,
+  scheduler?: SchedulerLike,
+): Observable<never, never, number>;
+export function timer(time: number | Date, scheduler?: SchedulerLike): Observable<never, never, number>;
 export function timer(
   time: number | Date = 0,
   intervalOrScheduler?: number | SchedulerLike,
   scheduler: SchedulerLike = asyncScheduler,
-): Observable<never, number> {
+): Observable<never, never, number> {
   let intervalDuration = -1;
   if (intervalOrScheduler != null) {
     if (isScheduler(intervalOrScheduler)) {
@@ -428,7 +438,11 @@ export function timer(
  */
 export function makeZip<O extends ReadonlyArray<ObservableInput<any, any>>>(
   ...sources: O
-): Observable<Observable.ErrorOf<O[number]>, { [K in keyof O]: Observable.TypeOf<O[K]> }> {
+): Observable<
+  Observable.EnvironmentOf<O[number]>,
+  Observable.ErrorOf<O[number]>,
+  { [K in keyof O]: Observable.TypeOf<O[K]> }
+> {
   return sources.length
     ? new Observable((subscriber) => {
         let buffers: unknown[][] = sources.map(() => []);
@@ -466,11 +480,11 @@ export function makeZip<O extends ReadonlyArray<ObservableInput<any, any>>>(
 /**
  * @tsplus static fncts.observable.ObservableOps fromIO
  */
-export function fromIO<E, A>(io: IO<never, E, A>, scheduler: SchedulerLike = asyncScheduler): Observable<E, A> {
-  return new Observable((s) => {
+export function fromIO<R, E, A>(io: IO<R, E, A>, scheduler: SchedulerLike = asyncScheduler): Observable<R, E, A> {
+  return new Observable((s, env) => {
     let fiber: FiberContext<E, A>;
     const scheduled = scheduler.schedule(() => {
-      fiber = io.unsafeRunFiber();
+      fiber = io.provideEnvironment(env).unsafeRunFiber();
       fiber.unsafeOnDone((exit) => {
         if (!s.closed) {
           exit.flatten.match(
@@ -488,58 +502,46 @@ export function fromIO<E, A>(io: IO<never, E, A>, scheduler: SchedulerLike = asy
   });
 }
 
-/*
- * -------------------------------------------------------------------------------------------------
- * Applicative
- * -------------------------------------------------------------------------------------------------
- */
-
 /**
  * @tsplus static fncts.observable.ObservableOps unit
  */
-export const unit: Observable<never, void> = Observable.single(undefined);
-
-/*
- * -------------------------------------------------------------------------------------------------
- * Apply
- * -------------------------------------------------------------------------------------------------
- */
+export const unit: Observable<never, never, void> = Observable.single(undefined);
 
 /**
  * @tsplus fluent fncts.observable.Observable zipWith
  */
-export function zipWith<E, A, E1, B, C>(
-  fa: Observable<E, A>,
-  fb: Observable<E1, B>,
+export function zipWith<R, E, A, R1, E1, B, C>(
+  fa: Observable<R, E, A>,
+  fb: Observable<R1, E1, B>,
   f: (a: A, b: B) => C,
-): Observable<E | E1, C> {
+): Observable<R | R1, E | E1, C> {
   return fa.mergeMap((a) => fb.map((b) => f(a, b)));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable zip
  */
-export function zip<E, A, E1, B>(fa: Observable<E, A>, fb: Observable<E1, B>): Observable<E | E1, readonly [A, B]> {
+export function zip<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
+  fb: Observable<R1, E1, B>,
+): Observable<R | R1, E | E1, readonly [A, B]> {
   return zipWith(fa, fb, Function.tuple);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable ap
  */
-export function ap<E, A, E1, B>(fab: Observable<E, (a: A) => B>, fa: Observable<E1, A>): Observable<E | E1, B> {
+export function ap<R, E, A, R1, E1, B>(
+  fab: Observable<R, E, (a: A) => B>,
+  fa: Observable<R1, E1, A>,
+): Observable<R | R1, E | E1, B> {
   return zipWith(fab, fa, (f, a) => f(a));
 }
-
-/*
- * -------------------------------------------------------------------------------------------------
- * Functor
- * -------------------------------------------------------------------------------------------------
- */
 
 /**
  * @tsplus fluent fncts.observable.Observable mapWithIndex
  */
-export function mapWithIndex<E, A, B>(fa: Observable<E, A>, f: (i: number, a: A) => B): Observable<E, B> {
+export function mapWithIndex<R, E, A, B>(fa: Observable<R, E, A>, f: (i: number, a: A) => B): Observable<R, E, B> {
   return fa.operate((source, subscriber) => {
     let i = 0;
     source.subscribe(
@@ -555,27 +557,21 @@ export function mapWithIndex<E, A, B>(fa: Observable<E, A>, f: (i: number, a: A)
 /**
  * @tsplus fluent fncts.observable.Observable map
  */
-export function map_<E, A, B>(fa: Observable<E, A>, f: (a: A) => B): Observable<E, B> {
+export function map_<R, E, A, B>(fa: Observable<R, E, A>, f: (a: A) => B): Observable<R, E, B> {
   return fa.mapWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable as
  */
-export function as_<E, A, B>(fa: Observable<E, A>, b: Lazy<B>): Observable<E, B> {
+export function as_<R, E, A, B>(fa: Observable<R, E, A>, b: Lazy<B>): Observable<R, E, B> {
   return map_(fa, b);
 }
-
-/*
- * -------------------------------------------------------------------------------------------------
- * Bifunctor
- * -------------------------------------------------------------------------------------------------
- */
 
 /**
  * @tsplus fluent fncts.observable.Observable mapError
  */
-export function mapError_<E, A, E1>(fa: Observable<E, A>, f: (e: E) => E1): Observable<E1, A> {
+export function mapError_<R, E, A, E1>(fa: Observable<R, E, A>, f: (e: E) => E1): Observable<R, E1, A> {
   return fa.operate((source, subscriber) => {
     source.subscribe(
       new OperatorSubscriber(subscriber, {
@@ -590,7 +586,7 @@ export function mapError_<E, A, E1>(fa: Observable<E, A>, f: (e: E) => E1): Obse
 /**
  * @tsplus getter fncts.observable.Observable swap
  */
-export function swap<E, A>(fa: Observable<E, A>): Observable<A, E> {
+export function swap<R, E, A>(fa: Observable<R, E, A>): Observable<R, A, E> {
   return operate_(fa, (source, subscriber) => {
     source.subscribe(
       new OperatorSubscriber(subscriber, {
@@ -612,27 +608,21 @@ export function swap<E, A>(fa: Observable<E, A>): Observable<A, E> {
   });
 }
 
-/*
- * -------------------------------------------------------------------------------------------------
- * Filterable
- * -------------------------------------------------------------------------------------------------
- */
-
 /**
  * @tsplus fluent fncts.observable.Observable filterWithIndex
  */
-export function filterWithIndex_<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function filterWithIndex_<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: RefinementWithIndex<number, A, B>,
-): Observable<E, B>;
-export function filterWithIndex_<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, B>;
+export function filterWithIndex_<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): Observable<E, A>;
-export function filterWithIndex_<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, A>;
+export function filterWithIndex_<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): Observable<E, A> {
+): Observable<R, E, A> {
   return operate_(fa, (source, subscriber) => {
     let index = 0;
     source.subscribe(
@@ -644,16 +634,22 @@ export function filterWithIndex_<E, A>(
 /**
  * @tsplus fluent fncts.observable.Observable filter
  */
-export function filter_<E, A, B extends A>(fa: Observable<E, A>, refinement: Refinement<A, B>): Observable<E, B>;
-export function filter_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>): Observable<E, A>;
-export function filter_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>): Observable<E, A> {
+export function filter_<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
+  refinement: Refinement<A, B>,
+): Observable<R, E, B>;
+export function filter_<R, E, A>(fa: Observable<R, E, A>, predicate: Predicate<A>): Observable<R, E, A>;
+export function filter_<R, E, A>(fa: Observable<R, E, A>, predicate: Predicate<A>): Observable<R, E, A> {
   return fa.filterWithIndex((_, a) => predicate(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable filterMapWithIndex
  */
-export function filterMapWithIndex<E, A, B>(fa: Observable<E, A>, f: (i: number, a: A) => Maybe<B>): Observable<E, B> {
+export function filterMapWithIndex<R, E, A, B>(
+  fa: Observable<R, E, A>,
+  f: (i: number, a: A) => Maybe<B>,
+): Observable<R, E, B> {
   return operate_(fa, (source, subscriber) => {
     let index = 0;
     source.subscribe(
@@ -671,53 +667,53 @@ export function filterMapWithIndex<E, A, B>(fa: Observable<E, A>, f: (i: number,
 /**
  * @tsplus fluent fncts.observable.Observable filterMap
  */
-export function filterMap_<E, A, B>(fa: Observable<E, A>, f: (a: A) => Maybe<B>): Observable<E, B> {
+export function filterMap_<R, E, A, B>(fa: Observable<R, E, A>, f: (a: A) => Maybe<B>): Observable<R, E, B> {
   return fa.filterMapWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable partitionWithIndex
  */
-export function partitionWithIndex<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function partitionWithIndex<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: RefinementWithIndex<number, A, B>,
-): readonly [Observable<E, Exclude<A, B>>, Observable<E, B>];
-export function partitionWithIndex<E, A>(
-  fa: Observable<E, A>,
+): readonly [Observable<R, E, Exclude<A, B>>, Observable<R, E, B>];
+export function partitionWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): readonly [Observable<E, A>, Observable<E, A>];
-export function partitionWithIndex<E, A>(
-  fa: Observable<E, A>,
+): readonly [Observable<R, E, A>, Observable<R, E, A>];
+export function partitionWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): readonly [Observable<E, A>, Observable<E, A>] {
+): readonly [Observable<R, E, A>, Observable<R, E, A>] {
   return [fa.filterWithIndex((i, a) => !predicate(i, a)), fa.filterWithIndex(predicate)];
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable partition
  */
-export function partition_<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function partition_<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: Refinement<A, B>,
-): readonly [Observable<E, Exclude<A, B>>, Observable<E, B>];
-export function partition_<E, A>(
-  fa: Observable<E, A>,
+): readonly [Observable<R, E, Exclude<A, B>>, Observable<R, E, B>];
+export function partition_<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: Predicate<A>,
-): readonly [Observable<E, A>, Observable<E, A>];
-export function partition_<E, A>(
-  fa: Observable<E, A>,
+): readonly [Observable<R, E, A>, Observable<R, E, A>];
+export function partition_<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: Predicate<A>,
-): readonly [Observable<E, A>, Observable<E, A>] {
+): readonly [Observable<R, E, A>, Observable<R, E, A>] {
   return fa.partitionWithIndex((_, a) => predicate(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable partitionMapWithIndex
  */
-export function partitionMapWithIndex_<E, A, B, C>(
-  fa: Observable<E, A>,
+export function partitionMapWithIndex_<R, E, A, B, C>(
+  fa: Observable<R, E, A>,
   f: (i: number, a: A) => Either<B, C>,
-): readonly [Observable<E, B>, Observable<E, C>] {
+): readonly [Observable<R, E, B>, Observable<R, E, C>] {
   return [
     operate_(fa, (source, subscriber) => {
       let index = 0;
@@ -745,102 +741,119 @@ export function partitionMapWithIndex_<E, A, B, C>(
 /**
  * @tsplus fluent fncts.observable.Observable partitionMap
  */
-export function partitionMap_<E, A, B, C>(
-  fa: Observable<E, A>,
+export function partitionMap_<R, E, A, B, C>(
+  fa: Observable<R, E, A>,
   f: (a: A) => Either<B, C>,
-): readonly [Observable<E, B>, Observable<E, C>] {
+): readonly [Observable<R, E, B>, Observable<R, E, C>] {
   return fa.partitionMapWithIndex((_, a) => f(a));
 }
 
-/*
- * -------------------------------------------------------------------------------------------------
- * Monad
- * -------------------------------------------------------------------------------------------------
+/**
+ * @tsplus fluent fncts.observable.Observable provideEnvironment
  */
+export function provideEnvironment<R, E, A>(
+  self: Observable<R, E, A>,
+  environment: Environment<R>,
+): Observable<never, E, A> {
+  return self.provide(environment);
+}
+
+/**
+ * @tsplus fluent fncts.observable.Observable provideService
+ */
+export function provideService<R, E, A, S>(
+  self: Observable<R, E, A>,
+  service: S,
+  /** @tsplus auto */ tag: Tag<S>,
+): Observable<Exclude<R, S>, E, A> {
+  return self.contramapEnvironment((environment) => environment.add(service, tag) as Environment<R>);
+}
 
 /**
  * @tsplus fluent fncts.observable.Observable mergeMapWithIndex
  */
-export function mergeMapWithIndex<E, A, E1, B>(
-  ma: Observable<E, A>,
-  f: (i: number, a: A) => ObservableInput<E1, B>,
+export function mergeMapWithIndex<R, E, A, R1, E1, B>(
+  ma: Observable<R, E, A>,
+  f: (i: number, a: A) => ObservableInput<R1, E1, B>,
   concurrent = Infinity,
-): Observable<E | E1, B> {
+): Observable<R | R1, E | E1, B> {
   return operate_(ma, (source, sub) => mergeInternal(source, sub, f, concurrent));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable mergeMap
  */
-export function mergeMap_<E, A, E1, B>(
-  ma: Observable<E, A>,
-  f: (a: A) => ObservableInput<E1, B>,
+export function mergeMap_<R, E, A, R1, E1, B>(
+  ma: Observable<R, E, A>,
+  f: (a: A) => ObservableInput<R1, E1, B>,
   concurrent = Infinity,
-): Observable<E | E1, B> {
+): Observable<R | R1, E | E1, B> {
   return ma.mergeMapWithIndex((_, a) => f(a), concurrent);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable concatMapWithIndex
  */
-export function concatMapWithIndex<E, A, E1, B>(
-  ma: Observable<E, A>,
-  f: (i: number, a: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+export function concatMapWithIndex<R, E, A, R1, E1, B>(
+  ma: Observable<R, E, A>,
+  f: (i: number, a: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return ma.mergeMapWithIndex(f, 1);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable concatMap
  */
-export function concatMap_<E, A, E1, B>(
-  ma: Observable<E, A>,
-  f: (a: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+export function concatMap_<R, E, A, R1, E1, B>(
+  ma: Observable<R, E, A>,
+  f: (a: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return ma.mergeMapWithIndex((_, a) => f(a), 1);
+}
+
+/**
+ * @tsplus fluent fncts.observable.Observable contramapEnvironment
+ */
+export function contramapEnvironment<R, E, A, R0>(
+  self: Observable<R, E, A>,
+  f: (r0: Environment<R0>) => Environment<R>,
+): Observable<R0, E, A> {
+  return Observable.environmentWithObservable((environment) => self.provide(f(environment)));
 }
 
 /**
  * @tsplus getter fncts.observable.Observable flatten
  */
-export function flatten<E, E1, A>(mma: Observable<E, Observable<E1, A>>): Observable<E | E1, A> {
+export function flatten<R, E, R1, E1, A>(mma: Observable<R, E, Observable<R1, E1, A>>): Observable<R | R1, E | E1, A> {
   return mma.concatAll;
 }
-
-/*
- * -------------------------------------------------------------------------------------------------
- * Foldable
- * -------------------------------------------------------------------------------------------------
- */
 
 /**
  * @tsplus fluent fncts.observable.Observable foldLeftWithIndex
  */
-export function foldLeftWithIndex<E, A, B>(
-  fa: Observable<E, A>,
+export function foldLeftWithIndex<R, E, A, B>(
+  fa: Observable<R, E, A>,
   initial: B,
   f: (index: number, acc: B, value: A) => B,
-): Observable<E, B> {
+): Observable<R, E, B> {
   return fa.operate(scanInternal(f, initial, true, false, true));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable foldLeft
  */
-export function foldLeft<E, A, B>(fa: Observable<E, A>, initial: B, f: (acc: B, value: A) => B): Observable<E, B> {
+export function foldLeft<R, E, A, B>(
+  fa: Observable<R, E, A>,
+  initial: B,
+  f: (acc: B, value: A) => B,
+): Observable<R, E, B> {
   return fa.foldLeftWithIndex(initial, (_, b, a) => f(b, a));
 }
-
-/*
- * -------------------------------------------------------------------------------------------------
- * combinators
- * -------------------------------------------------------------------------------------------------
- */
 
 /**
  * @tsplus fluent fncts.observable.Observable at
  */
-export function at_<E, A>(fa: Observable<E, A>, index: number): Observable<E, Maybe<A>> {
+export function at_<R, E, A>(fa: Observable<R, E, A>, index: number): Observable<R, E, Maybe<A>> {
   return fa
     .filterWithIndex((i) => i === index)
     .take(1)
@@ -851,10 +864,10 @@ export function at_<E, A>(fa: Observable<E, A>, index: number): Observable<E, Ma
 /**
  * @tsplus fluent fncts.observable.Observable audit
  */
-export function audit_<E, A, E1>(
-  fa: Observable<E, A>,
-  durationSelector: (value: A) => ObservableInput<E1, any>,
-): Observable<E | E1, A> {
+export function audit_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  durationSelector: (value: A) => ObservableInput<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.operate((source, subscriber) => {
     let lastValue: Maybe<A> = Nothing();
     let durationSubscriber: Subscriber<any, any> | null = null;
@@ -897,21 +910,21 @@ export function audit_<E, A, E1>(
 /**
  * @tsplus fluent fncts.observable.Observable auditTime
  */
-export function auditTime_<E, A>(
-  fa: Observable<E, A>,
+export function auditTime_<R, E, A>(
+  fa: Observable<R, E, A>,
   duration: number,
   scheduler: SchedulerLike = asyncScheduler,
-): Observable<E, A> {
+): Observable<R, E, A> {
   return fa.audit(() => timer(duration, scheduler));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable buffer
  */
-export function buffer_<E, A, E1>(
-  fa: Observable<E, A>,
-  closingNotifier: Observable<E1, any>,
-): Observable<E | E1, ReadonlyArray<A>> {
+export function buffer_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  closingNotifier: Observable<R1, E1, any>,
+): Observable<R | R1, E | E1, ReadonlyArray<A>> {
   return fa.operate((source, subscriber) => {
     let buffer: A[] = [];
     source.subscribe(
@@ -942,11 +955,11 @@ export function buffer_<E, A, E1>(
 /**
  * @tsplus fluent fncts.observable.Observable bufferCount
  */
-export function bufferCount_<E, A>(
-  fa: Observable<E, A>,
+export function bufferCount_<R, E, A>(
+  fa: Observable<R, E, A>,
   bufferSize: number,
   startBufferEvery?: number,
-): Observable<E, ReadonlyArray<A>> {
+): Observable<R, E, ReadonlyArray<A>> {
   // eslint-disable-next-line no-param-reassign
   startBufferEvery = startBufferEvery ?? bufferSize;
   return fa.operate((source, subscriber) => {
@@ -1000,7 +1013,10 @@ export interface BufferTimeConfig {
 /**
  * @tsplus fluent fncts.observable.Observable bufferTime
  */
-export function bufferTime_<E, A>(fa: Observable<E, A>, config: BufferTimeConfig): Observable<E, ReadonlyArray<A>> {
+export function bufferTime_<R, E, A>(
+  fa: Observable<R, E, A>,
+  config: BufferTimeConfig,
+): Observable<R, E, ReadonlyArray<A>> {
   const {
     bufferTimeSpan,
     bufferCreationInterval = null,
@@ -1068,11 +1084,11 @@ export function bufferTime_<E, A>(fa: Observable<E, A>, config: BufferTimeConfig
 /**
  * @tsplus fluent fncts.observable.Observable bufferToggle
  */
-export function bufferToggle_<E, A, E1, B, E2>(
-  fa: Observable<E, A>,
-  openings: ObservableInput<E1, B>,
-  closingSelector: (value: B) => ObservableInput<E2, any>,
-): Observable<E | E1 | E2, ReadonlyArray<A>> {
+export function bufferToggle_<R, E, A, R1, E1, B, R2, E2>(
+  fa: Observable<R, E, A>,
+  openings: ObservableInput<R1, E1, B>,
+  closingSelector: (value: B) => ObservableInput<R2, E2, any>,
+): Observable<R | R1 | R2, E | E1 | E2, ReadonlyArray<A>> {
   return fa.operate((source, subscriber) => {
     const buffers: A[][] = [];
     from(openings).subscribe(
@@ -1116,10 +1132,10 @@ export function bufferToggle_<E, A, E1, B, E2>(
 /**
  * @tsplus fluent fncts.observable.Observable bufferWhen
  */
-export function bufferWhen_<E, A, E1>(
-  fa: Observable<E, A>,
-  closingSelector: () => ObservableInput<E1, any>,
-): Observable<E | E1, ReadonlyArray<A>> {
+export function bufferWhen_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  closingSelector: () => ObservableInput<R1, E1, any>,
+): Observable<R | R1, E | E1, ReadonlyArray<A>> {
   return fa.operate((source, subscriber) => {
     let buffer: A[] | null = null;
     let closingSubscriber: Subscriber<E | E1, A> | null = null;
@@ -1149,23 +1165,17 @@ export function bufferWhen_<E, A, E1>(
   });
 }
 
-export function bufferWhen<E1>(
-  closingSelector: () => ObservableInput<E1, any>,
-): <E, A>(fa: Observable<E, A>) => Observable<E | E1, ReadonlyArray<A>> {
-  return (fa) => bufferWhen_(fa, closingSelector);
-}
-
 /**
  * @tsplus fluent fncts.observable.Observable catchAllCause
  */
-export function catchAllCause<E, A, E1, B>(
-  self: Observable<E, A>,
-  f: (cause: Cause<E>, caught: Observable<E | E1, A | B>) => ObservableInput<E1, B>,
-): Observable<E1, A | B> {
+export function catchAllCause<R, E, A, R1, E1, B>(
+  self: Observable<R, E, A>,
+  f: (cause: Cause<E>, caught: Observable<R | R1, E | E1, A | B>) => ObservableInput<R | R1, E1, B>,
+): Observable<R | R1, E1, A | B> {
   return self.operate((source, subscriber) => {
     let innerSub: Subscription | null = null;
     let syncUnsub                     = false;
-    let handledResult: Observable<E1, B>;
+    let handledResult: Observable<R | R1, E1, B>;
     innerSub                          = source.subscribe(
       operatorSubscriber(subscriber, {
         error: (cause) => {
@@ -1191,17 +1201,23 @@ export function catchAllCause<E, A, E1, B>(
 /**
  * @tsplus getter fncts.observable.Observable concatAll
  */
-export function concatAll<E, E1, A>(ffa: Observable<E, ObservableInput<E1, A>>): Observable<E | E1, A> {
+export function concatAll<R, E, R1, E1, A>(
+  ffa: Observable<R, E, ObservableInput<R1, E1, A>>,
+): Observable<R | R1, E | E1, A> {
   return mergeAll_(ffa, 1);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable concat
  */
-export function concat_<E, A, O extends ReadonlyArray<ObservableInput<any, any>>>(
-  fa: Observable<E, A>,
+export function concat_<R, E, A, O extends ReadonlyArray<ObservableInput<any, any>>>(
+  fa: Observable<R, E, A>,
   ...sources: O
-): Observable<E | Observable.ErrorOf<O[number]>, A | Observable.TypeOf<O[number]>> {
+): Observable<
+  R | Observable.EnvironmentOf<O[number]>,
+  E | Observable.ErrorOf<O[number]>,
+  A | Observable.TypeOf<O[number]>
+> {
   return fa.operate((source, subscriber) => {
     fromArrayLike([source, ...sources]).concatAll.subscribe(subscriber);
   });
@@ -1210,33 +1226,33 @@ export function concat_<E, A, O extends ReadonlyArray<ObservableInput<any, any>>
 /**
  * @tsplus getter fncts.observable.Observable count
  */
-export function count<E, A>(fa: Observable<E, A>): Observable<E, number> {
+export function count<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, number> {
   return fa.foldLeft(0, (total, _) => total + 1);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable countWithIndex
  */
-export function countWithIndex<E, A>(
-  fa: Observable<E, A>,
+export function countWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): Observable<E, number> {
+): Observable<R, E, number> {
   return fa.foldLeftWithIndex(0, (i, total, v) => (predicate(i, v) ? total + 1 : total));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable countWith
  */
-export function countWith_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>): Observable<E, number> {
+export function countWith_<R, E, A>(fa: Observable<R, E, A>, predicate: Predicate<A>): Observable<R, E, number> {
   return fa.countWithIndex((_, a) => predicate(a));
 }
 
 /**
  * @tsplus getter fncts.observable.Observable combineLatestAll
  */
-export function combineLatestAll<E, E1, A>(
-  fa: Observable<E, ObservableInput<E1, A>>,
-): Observable<E | E1, ReadonlyArray<A>> {
+export function combineLatestAll<R, E, R1, E1, A>(
+  fa: Observable<R, E, ObservableInput<R1, E1, A>>,
+): Observable<R | R1, E | E1, ReadonlyArray<A>> {
   return joinAllInternal(fa, (sources) =>
     !sources.length ? empty() : (combineLatest_(sources[0]!, ...sources.slice(1)) as any),
   );
@@ -1245,10 +1261,14 @@ export function combineLatestAll<E, E1, A>(
 /**
  * @tsplus fluent fncts.observable.Observable combineLatest
  */
-export function combineLatest_<E, A, O extends ReadonlyArray<ObservableInput<any, any>>>(
-  self: ObservableInput<E, A>,
+export function combineLatest_<R, E, A, O extends ReadonlyArray<ObservableInput<any, any, any>>>(
+  self: ObservableInput<R, E, A>,
   ...sources: O
-): Observable<E | Observable.ErrorOf<O[number]>, [A, ...{ [K in keyof O]: Observable.TypeOf<O[K]> }]> {
+): Observable<
+  R | Observable.EnvironmentOf<O[number]>,
+  E | Observable.ErrorOf<O[number]>,
+  [A, ...{ [K in keyof O]: Observable.TypeOf<O[K]> }]
+> {
   if (!sources.length) {
     return from(self).unsafeCoerce();
   }
@@ -1260,10 +1280,10 @@ export function combineLatest_<E, A, O extends ReadonlyArray<ObservableInput<any
 /**
  * @tsplus fluent fncts.observable.Observable debounceWith
  */
-export function debounceWith_<E, A, E1>(
-  fa: Observable<E, A>,
-  durationSelector: (value: A) => ObservableInput<E1, any>,
-): Observable<E | E1, A> {
+export function debounceWith_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  durationSelector: (value: A) => ObservableInput<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.operate((source, subscriber) => {
     let lastValue: Maybe<A> = Nothing();
     let durationSubscriber: Subscriber<E1, any> | null = null;
@@ -1302,11 +1322,11 @@ export function debounceWith_<E, A, E1>(
 /**
  * @tsplus fluent fncts.observable.Observable debounce
  */
-export function debounce_<E, A>(
-  fa: Observable<E, A>,
+export function debounce_<R, E, A>(
+  fa: Observable<R, E, A>,
   dueTime: number,
   scheduler: SchedulerLike = asyncScheduler,
-): Observable<E, A> {
+): Observable<R, E, A> {
   return fa.operate((source, subscriber) => {
     let activeTask: Subscription | null = null;
     let lastValue: A | null             = null;
@@ -1359,7 +1379,7 @@ export function debounce_<E, A>(
 /**
  * @tsplus getter fncts.observable.Observable either
  */
-export function either<E, A>(fa: Observable<E, A>): Observable<never, Either<E, A>> {
+export function either<R, E, A>(fa: Observable<R, E, A>): Observable<R, never, Either<E, A>> {
   return fa.operate((source, subscriber) => {
     source.subscribe(
       operatorSubscriber(subscriber, {
@@ -1380,31 +1400,31 @@ export function either<E, A>(fa: Observable<E, A>): Observable<never, Either<E, 
 /**
  * @tsplus fluent fncts.observable.Observable delayWithIndex
  */
-export function delayWithIndex<E, A, E1>(
-  fa: Observable<E, A>,
-  f: (index: number, value: A) => Observable<E1, any>,
-): Observable<E | E1, A> {
+export function delayWithIndex<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  f: (index: number, value: A) => Observable<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.mergeMapWithIndex((i, a) => f(i, a).take(1).as(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable delayWith
  */
-export function delayWith_<E, A, E1>(
-  fa: Observable<E, A>,
-  f: (value: A) => Observable<E1, any>,
-): Observable<E | E1, A> {
+export function delayWith_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  f: (value: A) => Observable<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.delayWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable delay
  */
-export function delay_<E, A>(
-  fa: Observable<E, A>,
+export function delay_<R, E, A>(
+  fa: Observable<R, E, A>,
   due: number | Date,
   scheduler: SchedulerLike = asyncScheduler,
-): Observable<E, A> {
+): Observable<R, E, A> {
   const duration = timer(due, scheduler);
   return delayWith_(fa, () => duration);
 }
@@ -1412,7 +1432,7 @@ export function delay_<E, A>(
 /**
  * @tsplus getter fncts.observable.Observable dematerialize
  */
-export function dematerialize<E, E1, A>(fa: Observable<E, Notification<E1, A>>): Observable<E | E1, A> {
+export function dematerialize<R, E, E1, A>(fa: Observable<R, E, Notification<E1, A>>): Observable<R, E | E1, A> {
   return fa.operate((source, subscriber) => {
     source.subscribe(operatorSubscriber(subscriber, { next: (notification) => notification.observe(subscriber) }));
   });
@@ -1421,7 +1441,7 @@ export function dematerialize<E, E1, A>(fa: Observable<E, Notification<E1, A>>):
 /**
  * @tsplus fluent fncts.observable.Observable ensuring
  */
-export function ensuring_<E, A>(fa: Observable<E, A>, finalizer: () => void): Observable<E, A> {
+export function ensuring_<R, E, A>(fa: Observable<R, E, A>, finalizer: () => void): Observable<R, E, A> {
   return fa.operate((source, subscriber) => {
     source.subscribe(subscriber);
     subscriber.add(finalizer);
@@ -1431,7 +1451,9 @@ export function ensuring_<E, A>(fa: Observable<E, A>, finalizer: () => void): Ob
 /**
  * @tsplus getter fncts.observable.Observable exhaustAll
  */
-export function exhaustAll<E, E1, A>(ffa: Observable<E, ObservableInput<E1, A>>): Observable<E | E1, A> {
+export function exhaustAll<R, E, R1, E1, A>(
+  ffa: Observable<R, E, ObservableInput<R1, E1, A>>,
+): Observable<R | R1, E | E1, A> {
   return ffa.operate((source, subscriber) => {
     let isComplete                    = false;
     let innerSub: Subscription | null = null;
@@ -1461,10 +1483,10 @@ export function exhaustAll<E, E1, A>(ffa: Observable<E, ObservableInput<E1, A>>)
 /**
  * @tsplus fluent fncts.observable.Observable exhaustMapWithIndex
  */
-export function exhaustMapWithIndex<E, A, E1, B>(
-  self: Observable<E, A>,
-  f: (i: number, a: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+export function exhaustMapWithIndex<R, E, A, R1, E1, B>(
+  self: Observable<R, E, A>,
+  f: (i: number, a: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return self.operate((source, subscriber) => {
     let index = 0;
     let innerSub: Subscriber<E1, B> | null = null;
@@ -1494,21 +1516,21 @@ export function exhaustMapWithIndex<E, A, E1, B>(
 /**
  * @tsplus fluent fncts.observable.Observable exhaustMap
  */
-export function exhaustMap_<E, A, E1, B>(
-  self: Observable<E, A>,
-  f: (a: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+export function exhaustMap_<R, E, A, R1, E1, B>(
+  self: Observable<R, E, A>,
+  f: (a: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return self.exhaustMapWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable expandWithIndex
  */
-export function expandWithIndex<E, A, E1, B>(
-  fa: Observable<E, A>,
-  f: (i: number, a: A) => ObservableInput<E1, B>,
+export function expandWithIndex<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
+  f: (i: number, a: A) => ObservableInput<R1, E1, B>,
   concurrent = Infinity,
-): Observable<E | E1, B> {
+): Observable<R | R1, E | E1, B> {
   // eslint-disable-next-line no-param-reassign
   concurrent = (concurrent || 0) < 1 ? Infinity : concurrent;
   return fa.operate((source, subscriber) => mergeInternal(source, subscriber, f, concurrent, undefined, true));
@@ -1517,68 +1539,71 @@ export function expandWithIndex<E, A, E1, B>(
 /**
  * @tsplus fluent fncts.observable.Observable expand
  */
-export function expand_<E, A, E1, B>(
-  fa: Observable<E, A>,
-  f: (a: A) => ObservableInput<E1, B>,
+export function expand_<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
+  f: (a: A) => ObservableInput<R1, E1, B>,
   concurrent = Infinity,
-): Observable<E | E1, B> {
+): Observable<R | R1, E | E1, B> {
   return fa.expandWithIndex((_, a) => f(a), concurrent);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable findWithIndex
  */
-export function findWithIndex<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function findWithIndex<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: RefinementWithIndex<number, A, B>,
-): Observable<E, Maybe<B>>;
-export function findWithIndex<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, Maybe<B>>;
+export function findWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): Observable<E, Maybe<A>>;
-export function findWithIndex<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, Maybe<A>>;
+export function findWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): Observable<E, Maybe<A>> {
+): Observable<R, E, Maybe<A>> {
   return fa.operate(findInternal(predicate, "value"));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable find
  */
-export function find_<E, A, B extends A>(fa: Observable<E, A>, refinement: Refinement<A, B>): Observable<E, Maybe<B>>;
-export function find_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>): Observable<E, Maybe<A>>;
-export function find_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>): Observable<E, Maybe<A>> {
+export function find_<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
+  refinement: Refinement<A, B>,
+): Observable<R, E, Maybe<B>>;
+export function find_<R, E, A>(fa: Observable<R, E, A>, predicate: Predicate<A>): Observable<R, E, Maybe<A>>;
+export function find_<R, E, A>(fa: Observable<R, E, A>, predicate: Predicate<A>): Observable<R, E, Maybe<A>> {
   return fa.findWithIndex((_, a) => predicate(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable findIndexWithIndex
  */
-export function findIndexWithIndex<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function findIndexWithIndex<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: RefinementWithIndex<number, A, B>,
-): Observable<E, number>;
-export function findIndexWithIndex<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, number>;
+export function findIndexWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): Observable<E, number>;
-export function findIndexWithIndex<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, number>;
+export function findIndexWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
-): Observable<E, number> {
+): Observable<R, E, number> {
   return fa.operate(findInternal(predicate, "index"));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable findIndex
  */
-export function findIndex_<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function findIndex_<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: Refinement<A, B>,
-): Observable<E, number>;
-export function findIndex_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>): Observable<E, number>;
-export function findIndex_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>): Observable<E, number> {
+): Observable<R, E, number>;
+export function findIndex_<R, E, A>(fa: Observable<R, E, A>, predicate: Predicate<A>): Observable<R, E, number>;
+export function findIndex_<R, E, A>(fa: Observable<R, E, A>, predicate: Predicate<A>): Observable<R, E, number> {
   return findIndexWithIndex(fa, (_, a) => predicate(a));
 }
 
@@ -1587,11 +1612,19 @@ export function findIndex_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>):
  */
 export function forkJoin<S extends Record<string, ObservableInput<any, any>>>(
   sources: S,
-): Observable<Observable.ErrorOf<S[keyof S]>, { [K in keyof S]: Observable.TypeOf<S[K]> }>;
+): Observable<
+  Observable.EnvironmentOf<S[keyof S]>,
+  Observable.ErrorOf<S[keyof S]>,
+  { [K in keyof S]: Observable.TypeOf<S[K]> }
+>;
 export function forkJoin<A extends ReadonlyArray<ObservableInput<any, any>>>(
   ...sources: A
-): Observable<Observable.ErrorOf<A[number]>, { [K in keyof A]: Observable.TypeOf<A[K]> }>;
-export function forkJoin(...args: any[]): Observable<any, any> {
+): Observable<
+  Observable.EnvironmentOf<A[number]>,
+  Observable.ErrorOf<A[number]>,
+  { [K in keyof A]: Observable.TypeOf<A[K]> }
+>;
+export function forkJoin(...args: any[]): Observable<any, any, any> {
   const { args: sources, keys } = arrayOrObject(args);
   return new Observable((s) => {
     const length = sources.length;
@@ -1637,7 +1670,7 @@ export function forkJoin(...args: any[]): Observable<any, any> {
 /**
  * @tsplus getter fncts.observable.Observable ignore
  */
-export function ignore<E, A>(fa: Observable<E, A>): Observable<E, never> {
+export function ignore<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, never> {
   return fa.operate((source, subscriber) => {
     source.subscribe(
       operatorSubscriber(subscriber, {
@@ -1650,7 +1683,7 @@ export function ignore<E, A>(fa: Observable<E, A>): Observable<E, never> {
 /**
  * @tsplus getter fncts.observable.Observable isEmpty
  */
-export function isEmpty<E, A>(fa: Observable<E, A>): Observable<E, boolean> {
+export function isEmpty<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, boolean> {
   return fa.operate((source, subscriber) => {
     source.subscribe(
       operatorSubscriber(subscriber, {
@@ -1670,7 +1703,7 @@ export function isEmpty<E, A>(fa: Observable<E, A>): Observable<E, boolean> {
 /**
  * @tsplus getter fncts.observable.Observable materialize
  */
-export function materialize<E, A>(fa: Observable<E, A>): Observable<never, Notification<E, A>> {
+export function materialize<R, E, A>(fa: Observable<R, E, A>): Observable<R, never, Notification<E, A>> {
   return fa.operate((source, subscriber) => {
     source.subscribe(
       operatorSubscriber(subscriber, {
@@ -1691,22 +1724,22 @@ export function materialize<E, A>(fa: Observable<E, A>): Observable<never, Notif
 /**
  * @tsplus fluent fncts.observable.Observable mergeAll
  */
-export function mergeAll_<E, E1, A>(
-  self: Observable<E, ObservableInput<E1, A>>,
+export function mergeAll_<R, E, R1, E1, A>(
+  self: Observable<R, E, ObservableInput<R1, E1, A>>,
   concurrent = Infinity,
-): Observable<E | E1, A> {
+): Observable<R | R1, E | E1, A> {
   return self.mergeMap(Function.identity, concurrent);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable mergeScanWithIndex
  */
-export function mergeScanWithIndex<E, A, E1, B>(
-  fa: Observable<E, A>,
+export function mergeScanWithIndex<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
   initial: B,
-  f: (index: number, acc: B, value: A) => ObservableInput<E1, B>,
+  f: (index: number, acc: B, value: A) => ObservableInput<R1, E1, B>,
   concurrent = Infinity,
-): Observable<E | E1, B> {
+): Observable<R | R1, E | E1, B> {
   return fa.operate((source, subscriber) => {
     let state = initial;
     return mergeInternal(
@@ -1727,25 +1760,33 @@ export function mergeScanWithIndex<E, A, E1, B>(
 /**
  * @tsplus fluent fncts.observable.Observable mergeScan
  */
-export function mergeScan_<E, A, E1, B>(
-  fa: Observable<E, A>,
+export function mergeScan_<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
   initial: B,
-  f: (acc: B, value: A) => ObservableInput<E1, B>,
+  f: (acc: B, value: A) => ObservableInput<R1, E1, B>,
   concurrent = Infinity,
-): Observable<E | E1, B> {
+): Observable<R | R1, E | E1, B> {
   return fa.mergeScanWithIndex(initial, (_, b, a) => f(b, a), concurrent);
 }
 
-export function onErrorResumeNext<E, A, O extends ReadonlyArray<ObservableInput<any, any>>>(
-  fa: Observable<E, A>,
+export function onErrorResumeNext<R, E, A, O extends ReadonlyArray<ObservableInput<any, any>>>(
+  fa: Observable<R, E, A>,
   ...sources: O
-): Observable<E | Observable.ErrorOf<O[number]>, A | Observable.TypeOf<O[number]>> {
+): Observable<
+  R | Observable.EnvironmentOf<O[number]>,
+  E | Observable.ErrorOf<O[number]>,
+  A | Observable.TypeOf<O[number]>
+> {
   return fa.operate((source, subscriber) => {
     const remaining     = [source, ...sources];
     const subscribeNext = () => {
       if (!subscriber.closed) {
         if (remaining.length > 0) {
-          let nextSource: Observable<E | Observable.ErrorOf<O[number]>, A | Observable.TypeOf<O[number]>>;
+          let nextSource: Observable<
+            R | Observable.EnvironmentOf<O[number]>,
+            E | Observable.ErrorOf<O[number]>,
+            A | Observable.TypeOf<O[number]>
+          >;
           try {
             nextSource = from(remaining.shift()!);
           } catch (err) {
@@ -1767,7 +1808,7 @@ export function onErrorResumeNext<E, A, O extends ReadonlyArray<ObservableInput<
 /**
  * @tsplus fluent fncts.observable.Observable onEmpty
  */
-export function onEmpty_<E, A, B>(fa: Observable<E, A>, f: Lazy<B>): Observable<E, A | B> {
+export function onEmpty_<R, E, A, B>(fa: Observable<R, E, A>, f: Lazy<B>): Observable<R, E, A | B> {
   return fa.operate((source, subscriber) => {
     let hasValue = false;
     source.subscribe(
@@ -1790,7 +1831,7 @@ export function onEmpty_<E, A, B>(fa: Observable<E, A>, f: Lazy<B>): Observable<
 /**
  * @tsplus fluent fncts.observable.Observable repeat
  */
-export function repeat_<E, A>(fa: Observable<E, A>, count = Infinity): Observable<E, A> {
+export function repeat_<R, E, A>(fa: Observable<R, E, A>, count = Infinity): Observable<R, E, A> {
   return count <= 0
     ? empty()
     : fa.operate((source, subscriber) => {
@@ -1834,9 +1875,12 @@ export interface RetryConfig {
 /**
  * @tsplus fluent fncts.observable.Observable retry
  */
-export function retry_<E, A>(fa: Observable<E, A>, count?: number): Observable<E, A>;
-export function retry_<E, A>(fa: Observable<E, A>, config: RetryConfig): Observable<E, A>;
-export function retry_<E, A>(fa: Observable<E, A>, configOrCount: number | RetryConfig = Infinity): Observable<E, A> {
+export function retry_<R, E, A>(fa: Observable<R, E, A>, count?: number): Observable<R, E, A>;
+export function retry_<R, E, A>(fa: Observable<R, E, A>, config: RetryConfig): Observable<R, E, A>;
+export function retry_<R, E, A>(
+  fa: Observable<R, E, A>,
+  configOrCount: number | RetryConfig = Infinity,
+): Observable<R, E, A> {
   let config: RetryConfig;
   if (configOrCount && typeof configOrCount === "object") {
     config = configOrCount;
@@ -1891,7 +1935,10 @@ export function retry_<E, A>(fa: Observable<E, A>, configOrCount: number | Retry
 /**
  * @tsplus fluent fncts.observable.Observable sample
  */
-export function sample_<E, A, E1>(fa: Observable<E, A>, notifier: Observable<E1, any>): Observable<E | E1, A> {
+export function sample_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  notifier: Observable<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.operate((source, subscriber) => {
     let hasValue            = false;
     let lastValue: A | null = null;
@@ -1918,43 +1965,71 @@ export function sample_<E, A, E1>(fa: Observable<E, A>, notifier: Observable<E1,
 /**
  * @tsplus fluent fncts.observable.Observable sampleTime
  */
-export function sampleTime_<E, A>(
-  fa: Observable<E, A>,
+export function sampleTime_<R, E, A>(
+  fa: Observable<R, E, A>,
   period: number,
   scheduler: SchedulerLike = asyncScheduler,
-): Observable<E, A> {
+): Observable<R, E, A> {
   return sample_(fa, interval(period, scheduler));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable scanLeftWithIndex
  */
-export function scanLeftWithIndex<E, A, B>(
-  fa: Observable<E, A>,
+export function scanLeftWithIndex<R, E, A, B>(
+  fa: Observable<R, E, A>,
   initial: B,
   f: (index: number, acc: B, value: A) => B,
-): Observable<E, B> {
+): Observable<R, E, B> {
   return fa.operate(scanInternal(f, initial, true, true));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable scanLeft
  */
-export function scanLeft<E, A, B>(fa: Observable<E, A>, initial: B, f: (acc: B, value: A) => B): Observable<E, B> {
+export function scanLeft<R, E, A, B>(
+  fa: Observable<R, E, A>,
+  initial: B,
+  f: (acc: B, value: A) => B,
+): Observable<R, E, B> {
   return fa.scanLeftWithIndex(initial, (_, b, a) => f(b, a));
+}
+
+/**
+ * @tsplus static fncts.observable.ObservableOps service
+ */
+export function service<S>(/** @tsplus auto */ tag: Tag<S>): Observable<S, never, S> {
+  return Observable.serviceWithObservable((service) => Observable.of(service), tag);
+}
+
+/**
+ * @tsplus static fncts.observable.ObservableOps serviceWith
+ */
+export function serviceWith<S, A>(f: (service: S) => A, /** @tsplus auto */ tag: Tag<S>): Observable<S, never, A> {
+  return Observable.serviceWithObservable((service) => Observable.of(f(service)), tag);
+}
+
+/**
+ * @tsplus static fncts.observable.ObservableOps serviceWithObservable
+ */
+export function serviceWithObservable<S, R, E, A>(
+  f: (service: S) => Observable<R, E, A>,
+  /** @tsplus auto */ tag: Tag<S>,
+): Observable<S | R, E, A> {
+  return Observable.environmentWithObservable((environment) => f(environment.unsafeGet(tag)));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable skip
  */
-export function skip_<E, A>(fa: Observable<E, A>, count: number): Observable<E, A> {
+export function skip_<R, E, A>(fa: Observable<R, E, A>, count: number): Observable<R, E, A> {
   return fa.filterWithIndex((index, _) => count <= index);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable skipLast
  */
-export function skipLast_<E, A>(fa: Observable<E, A>, skipCount: number): Observable<E, A> {
+export function skipLast_<R, E, A>(fa: Observable<R, E, A>, skipCount: number): Observable<R, E, A> {
   return skipCount <= 0
     ? fa
     : fa.operate((source, subscriber) => {
@@ -1985,7 +2060,10 @@ export function skipLast_<E, A>(fa: Observable<E, A>, skipCount: number): Observ
 /**
  * @tsplus fluent fncts.observable.Observable skipUntil
  */
-export function skipUntil_<E, A, E1>(fa: Observable<E, A>, notifier: Observable<E1, any>): Observable<E | E1, A> {
+export function skipUntil_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  notifier: Observable<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.operate((source, subscriber) => {
     let taking           = false;
     const skipSubscriber = operatorSubscriber(subscriber, {
@@ -2009,7 +2087,10 @@ export function skipUntil_<E, A, E1>(fa: Observable<E, A>, notifier: Observable<
 /**
  * @tsplus fluent fncts.observable.Observable skipWhile
  */
-export function skipWhile_<E, A>(fa: Observable<E, A>, predicate: PredicateWithIndex<number, A>): Observable<E, A> {
+export function skipWhile_<R, E, A>(
+  fa: Observable<R, E, A>,
+  predicate: PredicateWithIndex<number, A>,
+): Observable<R, E, A> {
   return fa.operate((source, subscriber) => {
     let taking = false;
     let index  = 0;
@@ -2024,11 +2105,11 @@ export function skipWhile_<E, A>(fa: Observable<E, A>, predicate: PredicateWithI
 /**
  * @tsplus fluent fncts.observable.Observable startWith
  */
-export function startWith_<E, A, B extends ReadonlyArray<unknown>>(
-  fa: Observable<E, A>,
+export function startWith_<R, E, A, B extends ReadonlyArray<unknown>>(
+  fa: Observable<R, E, A>,
   ...values: B
-): Observable<E, A | B[number]> {
-  return operate_(fa, (source, subscriber) => {
+): Observable<R, E, A | B[number]> {
+  return fa.operate((source, subscriber) => {
     // @ts-expect-error
     source.concat(values).subscribe(subscriber);
   });
@@ -2037,7 +2118,11 @@ export function startWith_<E, A, B extends ReadonlyArray<unknown>>(
 /**
  * @tsplus fluent fncts.observable.Observable subscribeOn
  */
-export function subscribeOn_<E, A>(fa: Observable<E, A>, scheduler: SchedulerLike, delay = 0): Observable<E, A> {
+export function subscribeOn_<R, E, A>(
+  fa: Observable<R, E, A>,
+  scheduler: SchedulerLike,
+  delay = 0,
+): Observable<R, E, A> {
   return fa.operate((source, subscriber) => {
     subscriber.add(scheduler.schedule(() => source.subscribe(subscriber), delay));
   });
@@ -2046,17 +2131,19 @@ export function subscribeOn_<E, A>(fa: Observable<E, A>, scheduler: SchedulerLik
 /**
  * @tsplus getter fncts.observable.Observable switchAll
  */
-export function switchAll<E, E1, A>(ffa: Observable<E, ObservableInput<E1, A>>): Observable<E | E1, A> {
+export function switchAll<R, E, R1, E1, A>(
+  ffa: Observable<R, E, ObservableInput<R1, E1, A>>,
+): Observable<R | R1, E | E1, A> {
   return switchMap_(ffa, Function.identity);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable switchMapWithIndex
  */
-export function switchMapWithIndex<E, A, E1, B>(
-  fa: Observable<E, A>,
-  f: (index: number, value: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+export function switchMapWithIndex<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
+  f: (index: number, value: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return operate_(fa, (source, subscriber) => {
     let innerSubscriber: Subscriber<E | E1, B> | null = null;
     let index      = 0;
@@ -2094,21 +2181,21 @@ export function switchMapWithIndex<E, A, E1, B>(
 /**
  * @tsplus fluent fncts.observable.Observable switchMap
  */
-export function switchMap_<E, A, E1, B>(
-  fa: Observable<E, A>,
-  f: (value: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+export function switchMap_<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
+  f: (value: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return fa.switchMapWithIndex((_, a) => f(a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable switchScanWithIndex
  */
-export function switchScanWithIndex<E, A, E1, B>(
-  fa: Observable<E, A>,
+export function switchScanWithIndex<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
   initial: B,
-  f: (index: number, acc: B, value: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+  f: (index: number, acc: B, value: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return operate_(fa, (source, subscriber) => {
     let state = initial;
     switchMapWithIndex(source, (index, value) => from(f(index, state, value)).map((b) => ((state = b), b))).subscribe(
@@ -2123,18 +2210,18 @@ export function switchScanWithIndex<E, A, E1, B>(
 /**
  * @tsplus fluent fncts.observable.Observable switchScan
  */
-export function switchScan_<E, A, E1, B>(
-  fa: Observable<E, A>,
+export function switchScan_<R, E, A, R1, E1, B>(
+  fa: Observable<R, E, A>,
   initial: B,
-  f: (acc: B, value: A) => ObservableInput<E1, B>,
-): Observable<E | E1, B> {
+  f: (acc: B, value: A) => ObservableInput<R1, E1, B>,
+): Observable<R | R1, E | E1, B> {
   return fa.switchScanWithIndex(initial, (_, b, a) => f(b, a));
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable take
  */
-export function take_<E, A>(fa: Observable<E, A>, count: number): Observable<E, A> {
+export function take_<R, E, A>(fa: Observable<R, E, A>, count: number): Observable<R, E, A> {
   return count <= 0
     ? empty()
     : fa.operate((source, sub) => {
@@ -2157,7 +2244,7 @@ export function take_<E, A>(fa: Observable<E, A>, count: number): Observable<E, 
 /**
  * @tsplus fluent fncts.observable.Observable takeLast
  */
-export function takeLast_<E, A>(fa: Observable<E, A>, count: number): Observable<E, A> {
+export function takeLast_<R, E, A>(fa: Observable<R, E, A>, count: number): Observable<R, E, A> {
   return count <= 0
     ? empty()
     : fa.operate((source, subscriber) => {
@@ -2188,7 +2275,10 @@ export function takeLast_<E, A>(fa: Observable<E, A>, count: number): Observable
 /**
  * @tsplus fluent fncts.observable.Observable takeUntil
  */
-export function takeUntil_<E, A, E1>(fa: Observable<E, A>, notifier: ObservableInput<E1, any>): Observable<E | E1, A> {
+export function takeUntil_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  notifier: ObservableInput<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.operate((source, subscriber) => {
     from(notifier).subscribe(operatorSubscriber(subscriber, { next: () => subscriber.complete(), complete: noop }));
     !subscriber.closed && source.subscribe(subscriber);
@@ -2198,21 +2288,21 @@ export function takeUntil_<E, A, E1>(fa: Observable<E, A>, notifier: ObservableI
 /**
  * @tsplus fluent fncts.observable.Observable takeWhileWithIndex
  */
-export function takeWhileWithIndex<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function takeWhileWithIndex<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: RefinementWithIndex<number, A, B>,
   inclusive?: boolean,
-): Observable<E, B>;
-export function takeWhileWithIndex<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, B>;
+export function takeWhileWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
   inclusive?: boolean,
-): Observable<E, A>;
-export function takeWhileWithIndex<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, A>;
+export function takeWhileWithIndex<R, E, A>(
+  fa: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
   inclusive?: boolean,
-): Observable<E, A> {
+): Observable<R, E, A> {
   return fa.operate((source, subscriber) => {
     let index = 0;
     source.subscribe(
@@ -2230,20 +2320,28 @@ export function takeWhileWithIndex<E, A>(
 /**
  * @tsplus fluent fncts.observable.Observable takeWhile
  */
-export function takeWhile_<E, A, B extends A>(
-  fa: Observable<E, A>,
+export function takeWhile_<R, E, A, B extends A>(
+  fa: Observable<R, E, A>,
   refinement: Refinement<A, B>,
   inclusive?: boolean,
-): Observable<E, B>;
-export function takeWhile_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>, inclusive?: boolean): Observable<E, A>;
-export function takeWhile_<E, A>(fa: Observable<E, A>, predicate: Predicate<A>, inclusive?: boolean): Observable<E, A> {
+): Observable<R, E, B>;
+export function takeWhile_<R, E, A>(
+  fa: Observable<R, E, A>,
+  predicate: Predicate<A>,
+  inclusive?: boolean,
+): Observable<R, E, A>;
+export function takeWhile_<R, E, A>(
+  fa: Observable<R, E, A>,
+  predicate: Predicate<A>,
+  inclusive?: boolean,
+): Observable<R, E, A> {
   return fa.takeWhileWithIndex((_, a) => predicate(a), inclusive);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable tap
  */
-export function tap_<E, A>(fa: Observable<E, A>, observer: Partial<Observer<E, A>>): Observable<E, A> {
+export function tap_<R, E, A>(fa: Observable<R, E, A>, observer: Partial<Observer<E, A>>): Observable<R, E, A> {
   return fa.operate((source, subscriber) => {
     source.subscribe(
       operatorSubscriber(subscriber, {
@@ -2277,11 +2375,11 @@ export const defaultThrottleConfig: ThrottleConfig = {
 /**
  * @tsplus fluent fncts.observable.Observable throttle
  */
-export function throttle_<E, A, E1>(
-  fa: Observable<E, A>,
-  durationSelector: (a: A) => ObservableInput<E1, any>,
+export function throttle_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  durationSelector: (a: A) => ObservableInput<R1, E1, any>,
   { leading, trailing }: ThrottleConfig = defaultThrottleConfig,
-): Observable<E | E1, A> {
+): Observable<R | R1, E | E1, A> {
   return fa.operate((source, subscriber) => {
     let sendValue: Maybe<A>            = Nothing();
     let throttled: Subscription | null = null;
@@ -2333,22 +2431,22 @@ export function throttle_<E, A, E1>(
 /**
  * @tsplus fluent fncts.observable.Observable throttleTime
  */
-export function throttleTime_<E, A>(
-  fa: Observable<E, A>,
+export function throttleTime_<R, E, A>(
+  fa: Observable<R, E, A>,
   duration: number,
   scheduler: SchedulerLike = asyncScheduler,
   config = defaultThrottleConfig,
-): Observable<E, A> {
+): Observable<R, E, A> {
   const duration$ = timer(duration, scheduler);
   return throttle_(fa, () => duration$, config);
 }
 
-export type TimeoutConfig<A, E, B, M = unknown> = (
+export type TimeoutConfig<R, E, A, B, M = unknown> = (
   | { readonly each: number; readonly first?: number | Date }
   | { readonly each?: number; readonly first: number | Date }
 ) & {
   readonly scheduler?: SchedulerLike;
-  readonly with?: (info: TimeoutInfo<A, M>) => ObservableInput<E, B>;
+  readonly with?: (info: TimeoutInfo<A, M>) => ObservableInput<R, E, B>;
   meta?: M;
 };
 
@@ -2368,25 +2466,25 @@ export class TimeoutError<A, M> extends Error {
 /**
  * @tsplus fluent fncts.observable.Observable timeout
  */
-export function timeout_<E, A, E1, B, M = unknown>(
-  fa: Observable<E, A>,
-  config: TimeoutConfig<A, E1, B, M> & { readonly with: (info: TimeoutInfo<A, M>) => ObservableInput<E1, B> },
-): Observable<E | E1, A | B>;
-export function timeout_<E, A, M = unknown>(
-  fa: Observable<E, A>,
-  config: Omit<TimeoutConfig<A, never, any, M>, "with">,
-): Observable<E | TimeoutError<A, M>, A>;
-export function timeout_<E, A, E1, B, M = unknown>(
-  fa: Observable<E, A>,
+export function timeout_<R, E, A, R1, E1, B, M = unknown>(
+  fa: Observable<R, E, A>,
+  config: TimeoutConfig<R1, E1, A, B, M> & { readonly with: (info: TimeoutInfo<A, M>) => ObservableInput<R1, E1, B> },
+): Observable<R | R1, E | E1, A | B>;
+export function timeout_<R, E, A, M = unknown>(
+  fa: Observable<R, E, A>,
+  config: Omit<TimeoutConfig<never, never, A, any, M>, "with">,
+): Observable<R, E | TimeoutError<A, M>, A>;
+export function timeout_<R, E, A, R1, E1, B, M = unknown>(
+  fa: Observable<R, E, A>,
   config: any,
-): Observable<E | E1 | TimeoutError<A, M>, A | B> {
+): Observable<R | R1, E | E1 | TimeoutError<A, M>, A | B> {
   const {
     first,
     each,
     with: _with = timeoutError,
     scheduler = asyncScheduler,
     meta = null!,
-  } = config as TimeoutConfig<A, E1, B, M>;
+  } = config as TimeoutConfig<R, E1, A, B, M>;
   return operate_(fa, (source, subscriber) => {
     // eslint-disable-next-line prefer-const
     let originalSourceSubscription: Subscription;
@@ -2399,7 +2497,7 @@ export function timeout_<E, A, E1, B, M = unknown>(
         scheduler,
         () => {
           originalSourceSubscription.unsubscribe();
-          from<E1 | TimeoutError<A, M>, B>(
+          from<R | R1, E1 | TimeoutError<A, M>, B>(
             _with({
               meta,
               lastValue,
@@ -2436,7 +2534,7 @@ export function timeout_<E, A, E1, B, M = unknown>(
   });
 }
 
-function timeoutError<A, M>(info: TimeoutInfo<A, M>): Observable<TimeoutError<A, M>, never> {
+function timeoutError<R, A, M>(info: TimeoutInfo<A, M>): Observable<R, TimeoutError<A, M>, never> {
   return fail(new TimeoutError(info));
 }
 
@@ -2447,7 +2545,7 @@ function toArrayAccumulator(arr: any[], value: any) {
 /**
  * @tsplus getter fncts.observable.Observable toArray
  */
-export function toArray<E, A>(fa: Observable<E, A>): Observable<E, ReadonlyArray<A>> {
+export function toArray<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, ReadonlyArray<A>> {
   return operate_(fa, (source, subscriber) => {
     source.foldLeft([] as A[], toArrayAccumulator).subscribe(subscriber);
   });
@@ -2456,11 +2554,11 @@ export function toArray<E, A>(fa: Observable<E, A>): Observable<E, ReadonlyArray
 /**
  * @tsplus fluent fncts.observable.Observable unique
  */
-export function unique_<E, A, K, E1 = never>(
-  fa: Observable<E, A>,
+export function unique_<R, E, A, K, R1, E1 = never>(
+  fa: Observable<R, E, A>,
   toKey?: (value: A) => K,
-  flushes?: Observable<E1, any>,
-): Observable<E | E1, A> {
+  flushes?: Observable<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return operate_(fa, (source, subscriber) => {
     let distinctKeys = HashSet.makeDefault<A | K>();
     source.subscribe(
@@ -2483,23 +2581,26 @@ export function unique_<E, A, K, E1 = never>(
 /**
  * @tsplus fluent fncts.observable.Observable uniqueUntilChanged
  */
-export function uniqueUntilChanged_<E, A, K>(
-  fa: Observable<E, A>,
+export function uniqueUntilChanged_<R, E, A, K>(
+  fa: Observable<R, E, A>,
   E: Eq<K>,
   keySelector: (value: A) => K,
-): Observable<E, A>;
-export function uniqueUntilChanged_<E, A, K>(
-  fa: Observable<E, A>,
+): Observable<R, E, A>;
+export function uniqueUntilChanged_<R, E, A, K>(
+  fa: Observable<R, E, A>,
   equals: (x: K, y: K) => boolean,
   keySelector: (value: A) => K,
-): Observable<E, A>;
-export function uniqueUntilChanged_<E, A>(fa: Observable<E, A>, E: Eq<A>): Observable<E, A>;
-export function uniqueUntilChanged_<E, A>(fa: Observable<E, A>, equals: (x: A, y: A) => boolean): Observable<E, A>;
-export function uniqueUntilChanged_<E, A, K = A>(
-  fa: Observable<E, A>,
+): Observable<R, E, A>;
+export function uniqueUntilChanged_<R, E, A>(fa: Observable<R, E, A>, E: Eq<A>): Observable<R, E, A>;
+export function uniqueUntilChanged_<R, E, A>(
+  fa: Observable<R, E, A>,
+  equals: (x: A, y: A) => boolean,
+): Observable<R, E, A>;
+export function uniqueUntilChanged_<R, E, A, K = A>(
+  fa: Observable<R, E, A>,
   E: Eq<K> | ((x: K, y: K) => boolean),
   keySelector: (value: A) => K = Function.identity as (_: A) => K,
-): Observable<E, A> {
+): Observable<R, E, A> {
   const compare = "equals" in E ? E.equals : E;
   return fa.operate((source, subscriber) => {
     let previousKey: K;
@@ -2522,34 +2623,28 @@ export function uniqueUntilChanged_<E, A, K = A>(
 /**
  * @tsplus fluent fncts.observable.Observable uniqueUntilKeyChanged
  */
-export function uniqueUntilKeyChanged_<E, A, K extends keyof A>(
-  fa: Observable<E, A>,
+export function uniqueUntilKeyChanged_<R, E, A, K extends keyof A>(
+  fa: Observable<R, E, A>,
   key: K,
   E: Eq<A[K]>,
-): Observable<E, A>;
-export function uniqueUntilKeyChanged_<E, A, K extends keyof A>(
-  fa: Observable<E, A>,
+): Observable<R, E, A>;
+export function uniqueUntilKeyChanged_<R, E, A, K extends keyof A>(
+  fa: Observable<R, E, A>,
   key: K,
   equals: (x: A[K], y: A[K]) => boolean,
-): Observable<E, A>;
-export function uniqueUntilKeyChanged_<E, A, K extends keyof A>(
-  fa: Observable<E, A>,
+): Observable<R, E, A>;
+export function uniqueUntilKeyChanged_<R, E, A, K extends keyof A>(
+  fa: Observable<R, E, A>,
   key: K,
   equals: Eq<A[K]> | ((x: A[K], y: A[K]) => boolean),
-): Observable<E, A> {
+): Observable<R, E, A> {
   const compare = "equals" in equals ? equals.equals : equals;
   return fa.uniqueUntilChanged((x, y) => compare(x[key], y[key]));
 }
 
-/*
- * -------------------------------------------------------------------------------------------------
- * internal
- * -------------------------------------------------------------------------------------------------
- */
-
 function combineLatestInternal(
   subscriber: Subscriber<any, any>,
-  observables: ObservableInput<any, any>[],
+  observables: ObservableInput<any, any, any>[],
   scheduler?: SchedulerLike,
   valueTransform: (values: any[]) => any = Function.identity,
 ) {
@@ -2589,7 +2684,7 @@ function combineLatestInternal(
 function findInternal<A>(
   predicate: PredicateWithIndex<number, A>,
   emit: "value" | "index",
-): <E>(source: Observable<E, A>, subscriber: Subscriber<E, any>) => void {
+): <R, E>(source: Observable<R, E, A>, subscriber: Subscriber<E, any>) => void {
   const findIndex = emit === "index";
   return (source, subscriber) => {
     let index = 0;
@@ -2611,10 +2706,10 @@ function findInternal<A>(
   };
 }
 
-export function joinAllInternal<E, E1, A, E2, B>(
-  fa: Observable<E, ObservableInput<E1, A>>,
-  joiner: (sources: ReadonlyArray<ObservableInput<E1, A>>) => Observable<E2, B>,
-): Observable<E | E1 | E2, B> {
+export function joinAllInternal<R, E, R1, E1, A, R2, E2, B>(
+  fa: Observable<R, E, ObservableInput<R1, E1, A>>,
+  joiner: (sources: ReadonlyArray<ObservableInput<R1, E1, A>>) => Observable<R2, E2, B>,
+): Observable<R | R1 | R2, E | E1 | E2, B> {
   return fa.toArray.mergeMap(joiner);
 }
 
@@ -2626,10 +2721,10 @@ function maybeSchedule(subscription: Subscription, scheduler: SchedulerLike | un
   }
 }
 
-function mergeInternal<E, A, E1, B>(
-  source: Observable<E, A>,
+function mergeInternal<R, E, A, R1, E1, B>(
+  source: Observable<R, E, A>,
   subscriber: Subscriber<E | E1, B>,
-  f: (i: number, a: A) => ObservableInput<E1, B>,
+  f: (i: number, a: A) => ObservableInput<R1, E1, B>,
   concurrent: number,
   onBeforeNext?: (innerValue: B) => void,
   expand?: boolean,
@@ -2705,27 +2800,27 @@ function mergeInternal<E, A, E1, B>(
   };
 }
 
-export function scanInternal<E, A, B>(
+export function scanInternal<R, E, A, B>(
   f: (index: number, acc: A, value: A) => B,
   initial: B,
   hasInitial: false,
   emitOnNext: boolean,
   emitBeforeComplete?: undefined | true,
-): (source: Observable<E, A>, subscriber: Subscriber<any, any>) => void;
-export function scanInternal<E, A, B>(
+): (source: Observable<R, E, A>, subscriber: Subscriber<any, any>) => void;
+export function scanInternal<R, E, A, B>(
   f: (index: number, acc: B, value: A) => B,
   initial: B,
   hasInitial: true,
   emitOnNext: boolean,
   emitBeforeComplete?: undefined | true,
-): (source: Observable<E, A>, subscriber: Subscriber<any, any>) => void;
-export function scanInternal<E, A, B>(
+): (source: Observable<R, E, A>, subscriber: Subscriber<any, any>) => void;
+export function scanInternal<R, E, A, B>(
   f: (index: number, acc: A | B, value: A) => B,
   initial: B,
   hasInitial: boolean,
   emitOnNext: boolean,
   emitBeforeComplete?: undefined | true,
-): (source: Observable<E, A>, subscriber: Subscriber<any, any>) => void {
+): (source: Observable<R, E, A>, subscriber: Subscriber<any, any>) => void {
   return (source, subscriber) => {
     let hasState   = hasInitial;
     let state: any = initial;

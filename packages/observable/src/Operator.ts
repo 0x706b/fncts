@@ -1,5 +1,5 @@
 export interface Operator<E, A> {
-  call(subscriber: Subscriber<E, A>, source: any): Finalizer;
+  call(subscriber: Subscriber<E, A>, source: any, environment: Environment<any>): Finalizer;
 }
 
 export class OperatorSubscriber<E, A> extends Subscriber<E, A> {
@@ -59,11 +59,11 @@ export function operatorSubscriber<E, A, E1, A1>(
 /**
  * @tsplus fluent fncts.observable.Observable operate
  */
-export function operate_<E, A, E1, A1>(
-  source: Observable<E, A>,
-  f: (source: Observable<E, A>, subscriber: Subscriber<E1, A1>) => (() => void) | void,
-): Observable<E1, A1> {
-  return source.lift(function (this: Subscriber<E1, A1>, liftedSource: Observable<E, A>) {
+export function operate_<R, E, A, R1, E1, A1>(
+  source: Observable<R, E, A>,
+  f: (source: Observable<R, E, A>, subscriber: Subscriber<E1, A1>) => (() => void) | void,
+): Observable<R1, E1, A1> {
+  return source.lift(function (this: Subscriber<E1, A1>, liftedSource: Observable<R, E, A>) {
     try {
       f(liftedSource, this);
     } catch (err) {

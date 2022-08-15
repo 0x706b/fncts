@@ -1,15 +1,15 @@
 /**
  * @tsplus fluent fncts.observable.Observable windowCount
  */
-export function windowCount_<E, A>(
-  fa: Observable<E, A>,
+export function windowCount_<R, E, A>(
+  fa: Observable<R, E, A>,
   windowSize: number,
   startWindowEvery = 0,
-): Observable<E, Observable<E, A>> {
+): Observable<R, E, Observable<never, E, A>> {
   const startEvery = startWindowEvery > 0 ? startWindowEvery : windowSize;
 
   return operate_(fa, (source, subscriber) => {
-    let windows = [new Subject<E, A>()];
+    let windows = [new Subject<never, E, A>()];
     let count   = 0;
 
     subscriber.next(windows[0]!.asObservable());
@@ -29,7 +29,7 @@ export function windowCount_<E, A>(
             }
 
             if (++count && startEvery === 0) {
-              const window = new Subject<E, A>();
+              const window = new Subject<never, E, A>();
               windows.push(window);
               subscriber.next(window.asObservable());
             }

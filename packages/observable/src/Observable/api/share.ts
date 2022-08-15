@@ -1,19 +1,19 @@
-export interface ShareConfig<E, A, E1 = never, E2 = never, E3 = never> {
+export interface ShareConfig<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R3 = never, E3 = never> {
   readonly connector?: () => SubjectLike<E, A>;
-  readonly resetOnDefect?: boolean | ((err: unknown) => Observable<E1, any>);
-  readonly resetOnComplete?: boolean | (() => Observable<E2, any>);
-  readonly resetOnRefCountZero?: boolean | (() => Observable<E3, any>);
+  readonly resetOnDefect?: boolean | ((err: unknown) => Observable<R1, E1, any>);
+  readonly resetOnComplete?: boolean | (() => Observable<R2, E2, any>);
+  readonly resetOnRefCountZero?: boolean | (() => Observable<R3, E3, any>);
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable share
  */
-export function share_<E, A, E1 = never, E2 = never, E3 = never>(
-  fa: Observable<E, A>,
-  options: ShareConfig<E, A, E1, E2, E3> = {},
-): Observable<E | E1 | E2 | E3, A> {
+export function share_<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R3 = never, E3 = never>(
+  fa: Observable<R, E, A>,
+  options: ShareConfig<R, E, A, R1, E1, R2, E2, R3, E3> = {},
+): Observable<R | R1 | R2, E | E1 | E2 | E3, A> {
   const {
-    connector = () => new Subject<E, A>(),
+    connector = () => new Subject<R, E, A>(),
     resetOnDefect = true,
     resetOnComplete = true,
     resetOnRefCountZero = true,
@@ -81,15 +81,9 @@ export function share_<E, A, E1 = never, E2 = never, E3 = never>(
   });
 }
 
-export function share<E, A, E1, E2, E3>(
-  options: ShareConfig<E, A, E1, E2, E3> = {},
-): (fa: Observable<E, A>) => Observable<E | E1 | E2 | E3, A> {
-  return (fa) => share_(fa, options);
-}
-
 function handleReset<T extends unknown[] = never[]>(
   reset: () => void,
-  on: boolean | ((...args: T) => Observable<any, any>),
+  on: boolean | ((...args: T) => Observable<any, any, any>),
   ...args: T
 ): Subscription | null {
   if (on === true) {

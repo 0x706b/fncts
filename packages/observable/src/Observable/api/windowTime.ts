@@ -1,46 +1,46 @@
 import { popScheduler } from "@fncts/observable/internal/args";
 import { arrayRemove } from "@fncts/observable/internal/util";
 
-interface WindowRecord<E, A> {
+interface WindowRecord<R, E, A> {
   seen: number;
-  window: Subject<E, A>;
+  window: Subject<R, E, A>;
   subs: Subscription;
 }
 
 /**
  * @tsplus fluent fncts.observable.Observable windowTime
  */
-export function windowTime_<E, A>(
-  fa: Observable<E, A>,
+export function windowTime_<R, E, A>(
+  fa: Observable<R, E, A>,
   windowTimeSpan: number,
   scheduler?: SchedulerLike,
-): Observable<E, Observable<E, A>>;
-export function windowTime_<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, Observable<never, E, A>>;
+export function windowTime_<R, E, A>(
+  fa: Observable<R, E, A>,
   windowTimeSpan: number,
   windowCreationInterval: number,
   scheduler?: SchedulerLike,
-): Observable<E, Observable<E, A>>;
-export function windowTime_<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, Observable<never, E, A>>;
+export function windowTime_<R, E, A>(
+  fa: Observable<R, E, A>,
   windowTimeSpan: number,
   windowCreationInterval: number,
   maxWindowSize: number,
   scheduler?: SchedulerLike,
-): Observable<E, Observable<E, A>>;
-export function windowTime_<E, A>(
-  fa: Observable<E, A>,
+): Observable<R, E, Observable<never, E, A>>;
+export function windowTime_<R, E, A>(
+  fa: Observable<R, E, A>,
   windowTimeSpan: number,
   ...args: any[]
-): Observable<E, Observable<E, A>> {
+): Observable<R, E, Observable<never, E, A>> {
   const scheduler = popScheduler(args) ?? asyncScheduler;
   const windowCreationInterval: number | null = args[0] ?? null;
   const maxWindowSize: number                 = args[1] || Infinity;
 
   return operate_(fa, (source, subscriber) => {
-    let windowRecords: WindowRecord<E, A>[] | null = [];
+    let windowRecords: WindowRecord<never, E, A>[] | null = [];
     let restartOnClose = false;
-    const closeWindow  = (record: { window: Subject<E, A>; subs: Subscription }) => {
+    const closeWindow  = (record: { window: Subject<never, E, A>; subs: Subscription }) => {
       const { window, subs } = record;
       window.complete();
       subs.unsubscribe();
@@ -51,7 +51,7 @@ export function windowTime_<E, A>(
       if (windowRecords) {
         const subs = new Subscription();
         subscriber.add(subs);
-        const window = new Subject<E, A>();
+        const window = new Subject<never, E, A>();
         const record = {
           window,
           subs,
@@ -74,7 +74,7 @@ export function windowTime_<E, A>(
 
     startWindow();
 
-    const loop = (cb: (record: WindowRecord<E, A>) => void) => windowRecords!.slice().forEach(cb);
+    const loop = (cb: (record: WindowRecord<never, E, A>) => void) => windowRecords!.slice().forEach(cb);
 
     const terminate = (cb: (consumer: Observer<E, any>) => void) => {
       loop(({ window }) => cb(window));

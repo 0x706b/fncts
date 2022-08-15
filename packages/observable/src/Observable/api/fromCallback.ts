@@ -3,7 +3,7 @@
  */
 export function fromCallback<A extends ReadonlyArray<unknown>, R extends ReadonlyArray<unknown>>(
   callbackFunc: (...args: [...A, (...res: R) => void]) => void,
-): (...args: A) => Observable<unknown, R> {
+): (...args: A) => Observable<never, unknown, R> {
   // @ts-expect-error
   return fromCallbackInternal(false, callbackFunc);
 }
@@ -13,14 +13,17 @@ export function fromCallback<A extends ReadonlyArray<unknown>, R extends Readonl
  */
 export function fromNodeCallback<E, A extends ReadonlyArray<unknown>, R extends ReadonlyArray<unknown>>(
   callbackFunc: (...args: [...A, (err: E, ...res: R) => void]) => void,
-): (...args: A) => Observable<Exclude<E, null | undefined>, R extends [] ? void : R extends [any] ? R[0] : R> {
+): (...args: A) => Observable<never, Exclude<E, null | undefined>, R extends [] ? void : R extends [any] ? R[0] : R> {
   // @ts-expect-error
   return fromCallbackInternal(true, callbackFunc);
 }
 
-function fromCallbackInternal(isNodeStyle: boolean, callbackFunc: any): (...args: any[]) => Observable<unknown, any> {
-  return function (this: any, ...args: any[]): Observable<unknown, any> {
-    const subject     = new AsyncSubject<any, any>();
+function fromCallbackInternal(
+  isNodeStyle: boolean,
+  callbackFunc: any,
+): (...args: any[]) => Observable<never, unknown, any> {
+  return function (this: any, ...args: any[]): Observable<never, unknown, any> {
+    const subject     = new AsyncSubject<never, any, any>();
     let uninitialized = true;
     return new Observable((subscriber) => {
       const subs = subject.subscribe(subscriber);
