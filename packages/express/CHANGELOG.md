@@ -1,5 +1,11 @@
 # @fncts/express
 
+## 0.0.7
+
+### Patch Changes
+
+- bec0334: fix: express index export
+
 ## 0.0.6
 
 ### Patch Changes
