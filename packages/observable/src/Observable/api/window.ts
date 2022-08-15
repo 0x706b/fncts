@@ -1,12 +1,12 @@
 /**
  * @tsplus fluent fncts.observable.Observable window
  */
-export function window_<E, A>(
-  fa: Observable<E, A>,
-  windowBoundaries: Observable<never, any>,
-): Observable<E, Observable<E, A>> {
+export function window_<R, E, A>(
+  fa: Observable<R, E, A>,
+  windowBoundaries: Observable<never, never, any>,
+): Observable<R, E, Observable<never, E, A>> {
   return operate_(fa, (source, subscriber) => {
-    let windowSubject: Subject<E, A> = new Subject();
+    let windowSubject: Subject<never, E, A> = new Subject();
     subscriber.next(windowSubject.asObservable());
 
     const errorHandler = (err: Cause<E>) => {

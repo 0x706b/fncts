@@ -1,11 +1,11 @@
-export function repeatWhen_<E, A, E1>(
-  fa: Observable<E, A>,
-  notifier: (notifications: Observable<never, void>) => Observable<E1, any>,
-): Observable<E | E1, A> {
+export function repeatWhen_<R, E, A, R1, E1>(
+  fa: Observable<R, E, A>,
+  notifier: (notifications: Observable<never, never, void>) => Observable<R1, E1, any>,
+): Observable<R | R1, E | E1, A> {
   return fa.operate((source, subscriber) => {
     let innerSub: Subscription | null;
     let syncResub = false;
-    let completions$: Subject<never, void>;
+    let completions$: Subject<never, never, void>;
     let isNotifierComplete = false;
     let isMainComplete     = false;
 
@@ -56,8 +56,8 @@ export function repeatWhen_<E, A, E1>(
   });
 }
 
-export function repeatWhen<E1>(
-  notifier: (notifications: Observable<never, void>) => Observable<E1, any>,
-): <E, A>(fa: Observable<E, A>) => Observable<E | E1, A> {
+export function repeatWhen<R1, E1>(
+  notifier: (notifications: Observable<never, never, void>) => Observable<R1, E1, any>,
+): <R, E, A>(fa: Observable<R, E, A>) => Observable<R | R1, E | E1, A> {
   return (fa) => repeatWhen_(fa, notifier);
 }

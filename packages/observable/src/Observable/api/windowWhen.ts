@@ -1,12 +1,12 @@
 /**
  * @tsplus fluent fncts.observable.Observable windowWhen
  */
-export function windowWhen_<E, A>(
-  fa: Observable<E, A>,
-  closingSelector: () => ObservableInput<never, any>,
-): Observable<E, Observable<E, A>> {
+export function windowWhen_<R, E, A>(
+  fa: Observable<R, E, A>,
+  closingSelector: () => ObservableInput<never, never, any>,
+): Observable<R, E, Observable<never, E, A>> {
   return operate_(fa, (source, subscriber) => {
-    let window: Subject<E, A> | null;
+    let window: Subject<never, E, A> | null;
     let closingSubscriber: Subscriber<E, any> | undefined;
 
     const handleError = (err: Cause<E>) => {
@@ -19,7 +19,7 @@ export function windowWhen_<E, A>(
       window?.complete();
       window = new Subject();
       subscriber.next(window.asObservable());
-      let closingNotifier: Observable<never, any>;
+      let closingNotifier: Observable<never, never, any>;
       try {
         closingNotifier = Observable.from(closingSelector());
       } catch (err) {

@@ -1,4 +1,4 @@
-export interface ConnectableLike<E, A> extends Observable<E, A> {
+export interface ConnectableLike<R, E, A> extends Observable<R, E, A> {
   connect(): Subscription;
 }
 
@@ -12,13 +12,13 @@ const DEFAULT_CONFIG: ConnectableConfig<any, any> = {
   resetOnDisconnect: false,
 };
 
-export class Connectable<E, A> extends Observable<E, A> implements ConnectableLike<E, A> {
+export class Connectable<R, E, A> extends Observable<R, E, A> implements ConnectableLike<R, E, A> {
   protected connection: Subscription | null;
   protected connector: () => SubjectLike<E, A>;
   protected resetOnDisconnect: boolean;
-  protected source: Observable<E, A>;
+  protected source: Observable<R, E, A>;
   protected subject: SubjectLike<E, A>;
-  constructor(source: ObservableInput<E, A>, config: ConnectableConfig<E, A>) {
+  constructor(source: ObservableInput<R, E, A>, config: ConnectableConfig<E, A>) {
     const { connector, resetOnDisconnect = true } = config;
     const subject = connector();
     super((subscriber) => {
@@ -44,9 +44,9 @@ export class Connectable<E, A> extends Observable<E, A> implements ConnectableLi
 /**
  * @tsplus fluent fncts.observable.Observable connectable
  */
-export function connectable<E, A>(
-  source: ObservableInput<E, A>,
+export function connectable<R, E, A>(
+  source: ObservableInput<R, E, A>,
   config: ConnectableConfig<E, A> = DEFAULT_CONFIG,
-): Connectable<E, A> {
+): Connectable<R, E, A> {
   return new Connectable(source, config);
 }

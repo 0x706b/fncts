@@ -3,13 +3,13 @@ import { arrayRemove } from "@fncts/observable/internal/util";
 /**
  * @tsplus fluent fncts.observable.Observable windowToggle
  */
-export function windowToggle_<E, A, E1, B, E2>(
-  fa: Observable<E, A>,
-  openings: ObservableInput<E1, B>,
-  closingSelector: (openValue: B) => ObservableInput<E2, any>,
-): Observable<E | E1 | E2, Observable<E, A>> {
+export function windowToggle_<R, E, A, R1, E1, B, R2, E2>(
+  fa: Observable<R, E, A>,
+  openings: ObservableInput<R1, E1, B>,
+  closingSelector: (openValue: B) => ObservableInput<R2, E2, any>,
+): Observable<R | R1 | R2, E | E1 | E2, Observable<never, E, A>> {
   return operate_(fa, (source, subscriber) => {
-    const windows: Subject<E, A>[] = [];
+    const windows: Subject<never, E, A>[] = [];
 
     const handleError = (err: Cause<E>) => {
       while (0 < windows.length) {
@@ -21,7 +21,7 @@ export function windowToggle_<E, A, E1, B, E2>(
     Observable.from(openings).subscribe(
       operatorSubscriber(subscriber, {
         next: (openValue) => {
-          const window = new Subject<E, A>();
+          const window = new Subject<never, E, A>();
           windows.push(window);
           const closingSubscription = new Subscription();
           const closeWindow         = () => {
@@ -30,7 +30,7 @@ export function windowToggle_<E, A, E1, B, E2>(
             closingSubscription.unsubscribe();
           };
 
-          let closingNotifier: Observable<E2, any>;
+          let closingNotifier: Observable<R2, E2, any>;
 
           try {
             closingNotifier = Observable.from(closingSelector(openValue));

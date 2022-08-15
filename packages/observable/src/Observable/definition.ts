@@ -1,6 +1,7 @@
 export declare namespace Observable {
-  export type TypeOf<X> = X extends ObservableInput<any, infer A> ? A : never;
-  export type ErrorOf<X> = X extends ObservableInput<infer E, any> ? E : never;
+  export type TypeOf<X> = X extends ObservableInput<any, any, infer A> ? A : never;
+  export type ErrorOf<X> = X extends ObservableInput<any, infer E, any> ? E : never;
+  export type EnvironmentOf<X> = X extends ObservableInput<infer R, any, any> ? R : never;
 }
 
 export const ObservableTypeId = Symbol.for("@principia/observable/Observable");
@@ -10,16 +11,20 @@ export type ObservableTypeId = typeof ObservableTypeId;
  * @tsplus type fncts.observable.Observable
  * @tsplus companion fncts.observable.ObservableOps
  */
-export class Observable<E, A> implements Subscribable<E, A>, AsyncIterable<A> {
-  readonly _E!: () => E;
-  readonly _A!: () => A;
+export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A> {
+  declare _R: () => R;
+  declare _E: () => E;
+  declare _A: () => A;
 
   readonly [ObservableTypeId]: ObservableTypeId = ObservableTypeId;
 
-  protected source: Observable<any, any> | undefined;
+  protected source: Observable<any, any, any> | undefined;
   protected operator: Operator<E, A> | undefined;
+  protected environment: Environment<any> = Environment();
 
-  constructor(subscribe?: (this: Observable<E, A>, subscriber: Subscriber<E, A>) => Finalizer) {
+  constructor(
+    subscribe?: (this: Observable<R, E, A>, subscriber: Subscriber<E, A>, environment: Environment<R>) => Finalizer,
+  ) {
     if (subscribe) {
       this.subscribeInternal = subscribe;
     }
@@ -74,45 +79,64 @@ export class Observable<E, A> implements Subscribable<E, A>, AsyncIterable<A> {
     };
   }
 
-  lift<E1, A1>(operator: Operator<E1, A1>): Observable<E1, A1> {
-    const observable    = new Observable<E1, A1>();
+  lift<R1, E1, A1>(operator: Operator<E1, A1>): Observable<R1, E1, A1> {
+    const observable    = new Observable<R1, E1, A1>();
     observable.source   = this;
     observable.operator = operator;
     return observable;
   }
 
-  subscribe(observer?: Partial<Observer<E, A>>): Subscription;
-  subscribe(observer?: (value: A) => void): Subscription;
-  subscribe(observer?: Partial<Observer<E, A>> | ((value: A) => void)): Subscription {
+  provide(environment: Environment<R>): Observable<never, E, A> {
+    const observable       = new Observable<never, E, A>();
+    observable.source      = this;
+    observable.environment = environment;
+    return observable;
+  }
+
+  subscribe(observer?: Partial<Observer<E, A>>, environment?: Environment<R>): Subscription;
+  subscribe(observer?: (value: A) => void, environment?: Environment<R>): Subscription;
+  subscribe(observer?: Partial<Observer<E, A>> | ((value: A) => void), environment?: Environment<R>): Subscription {
     const subscriber: Subscriber<E, A> = isSubscriber(observer) ? observer : new SafeSubscriber(observer);
 
     subscriber.add(
       this.operator
-        ? this.operator.call(subscriber, this.source)
+        ? this.operator.call(subscriber, this.source, environment ?? this.environment)
         : this.source
-        ? this.subscribeInternal(subscriber)
-        : this.trySubscribe(subscriber),
+        ? this.subscribeInternal(subscriber, environment ?? this.environment)
+        : this.trySubscribe(subscriber, environment ?? this.environment),
     );
 
     return subscriber;
   }
 
-  protected trySubscribe(subscriber: Subscriber<E, A>): Finalizer {
+  protected trySubscribe(subscriber: Subscriber<E, A>, environment: Environment<R>): Finalizer {
     try {
-      return this.subscribeInternal(subscriber);
+      return this.subscribeInternal(subscriber, environment);
     } catch (err) {
       subscriber.error(Cause.halt(err));
       return noop;
     }
   }
 
-  protected subscribeInternal(subscriber: Subscriber<E, A>): Finalizer {
-    this.source?.subscribe(subscriber);
+  protected subscribeInternal(subscriber: Subscriber<E, A>, environment: Environment<R>): Finalizer {
+    this.source?.subscribe(subscriber, environment);
   }
 }
 
-export const EMPTY: Observable<never, never> = new Observable((subscriber) => subscriber.complete());
+export class EnvironmentWith<R0, R, E, A> extends Observable<R0 | R, E, A> {
+  private map: WeakMap<Environment<any>, Observable<any, any, any>> = new WeakMap();
+  constructor(f: (environment: Environment<R0>) => Observable<R, E, A>) {
+    super((subsciber, environment) => {
+      if (!this.map.has(environment)) {
+        this.map.set(environment, f(environment as Environment<R0>));
+      }
+      return this.map.get(environment)!.subscribe(subsciber);
+    });
+  }
+}
 
-export function isObservable(u: unknown): u is Observable<unknown, unknown> {
+export const EMPTY: Observable<never, never, never> = new Observable((subscriber) => subscriber.complete());
+
+export function isObservable(u: unknown): u is Observable<unknown, unknown, unknown> {
   return isObject(u) && ObservableTypeId in u;
 }

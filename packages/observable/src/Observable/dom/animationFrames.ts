@@ -3,13 +3,13 @@ import { performanceTimestampProvider } from "@fncts/observable/internal/perform
 
 export function animationFrames(
   timestampProvider?: TimestampProvider,
-): Observable<never, { timestamp: number; elapsed: number }> {
+): Observable<never, never, { timestamp: number; elapsed: number }> {
   return timestampProvider ? animationFramesInternal(timestampProvider) : DEFAULT_ANIMATION_FRAMES;
 }
 
 function animationFramesInternal(
   timestampProvider?: TimestampProvider,
-): Observable<never, { timestamp: number; elapsed: number }> {
+): Observable<never, never, { timestamp: number; elapsed: number }> {
   const { schedule } = animationFrameProvider;
   return new Observable((subscriber) => {
     const subscription = new Subscription();

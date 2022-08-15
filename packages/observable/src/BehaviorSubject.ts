@@ -1,4 +1,4 @@
-export class BehaviorSubject<E, A> extends Subject<E, A> {
+export class BehaviorSubject<R, E, A> extends Subject<R, E, A> {
   constructor(private _value: A) {
     super();
   }
