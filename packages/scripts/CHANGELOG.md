@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.11
+
+### Patch Changes
+
+- e71e991: refactor: add \_\_tsplusTrace to applicable functions
+
 ## 0.0.10
 
 ### Patch Changes

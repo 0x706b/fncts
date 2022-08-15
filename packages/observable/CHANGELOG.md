@@ -1,5 +1,14 @@
 # @fncts/pattern
 
+## 0.0.3
+
+### Patch Changes
+
+- 594b38f: feat: add environment to Observable
+- Updated dependencies [e71e991]
+- Updated dependencies [594b38f]
+  - @fncts/base@0.0.14
+
 ## 0.0.2
 
 ### Patch Changes

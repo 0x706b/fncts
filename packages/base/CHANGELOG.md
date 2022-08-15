@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.14
+
+### Patch Changes
+
+- e71e991: refactor: add \_\_tsplusTrace to applicable functions
+- 594b38f: feat: add environment to Observable
+  - @fncts/typelevel@0.0.11
+
 ## 0.0.13
 
 ### Patch Changes

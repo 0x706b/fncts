@@ -1,5 +1,17 @@
 # @fncts/io
 
+## 0.0.14
+
+### Patch Changes
+
+- 572757e: feat(Stream): add chunksWith
+- e71e991: refactor: add \_\_tsplusTrace to applicable functions
+- b43d044: fix: incorrect \_\_tsplusTrace casing
+- Updated dependencies [e71e991]
+- Updated dependencies [594b38f]
+  - @fncts/base@0.0.14
+  - @fncts/typelevel@0.0.11
+
 ## 0.0.13
 
 ### Patch Changes

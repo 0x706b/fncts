@@ -1,5 +1,18 @@
 # @fncts/test
 
+## 0.0.14
+
+### Patch Changes
+
+- b43d044: fix: incorrect \_\_tsplusTrace casing
+- Updated dependencies [572757e]
+- Updated dependencies [e71e991]
+- Updated dependencies [b43d044]
+- Updated dependencies [594b38f]
+  - @fncts/io@0.0.14
+  - @fncts/base@0.0.14
+  - @fncts/typelevel@0.0.11
+
 ## 0.0.13
 
 ### Patch Changes
