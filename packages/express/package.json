@@ -14,6 +14,7 @@
     "directory": "dist"
   },
   "exports": {
+    ".": "./build/esm/index.js",
     "./*": "./build/esm/*.js"
   },
   "scripts": {
