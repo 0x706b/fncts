@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.15
+
+### Patch Changes
+
+- 86d01b4: chore: update release
+- Updated dependencies [86d01b4]
+  - @fncts/typelevel@0.0.12
+
 ## 0.0.14
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.8
+
+### Patch Changes
+
+- 86d01b4: chore: update release
+- Updated dependencies [86d01b4]
+  - @fncts/io@0.0.15
+
 ## 0.0.7
 
 ### Patch Changes

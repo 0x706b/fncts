@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.12
+
+### Patch Changes
+
+- 86d01b4: chore: update release
+
 ## 0.0.11
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.13
+
+### Patch Changes
+
+- 86d01b4: chore: update release
+
 ## 0.0.12
 
 ### Patch Changes
