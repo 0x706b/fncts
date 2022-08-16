@@ -1,7 +1,7 @@
 {
   "name": "@fncts/scripts",
   "private": true,
-  "version": "0.0.11",
+  "version": "0.0.12",
   "type": "module",
   "bin": {
     "fncts-pack": "./bin/fncts-pack.js",

@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.12
+
+### Patch Changes
+
+- b70c73c: fix: add conditional export for package index
+
 ## 0.0.11
 
 ### Patch Changes
