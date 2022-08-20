@@ -9,7 +9,6 @@
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.7",
     "@fncts/codegen": "workspace:*",
-    "@fncts/config": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/experimental-utils": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
@@ -20,6 +19,9 @@
   },
   "peerDependencies": {
     "eslint": "^8.21.0"
+  },
+  "devDependencies": {
+    "@fncts/config": "workspace:*"
   },
   "exports": {
     ".": {
