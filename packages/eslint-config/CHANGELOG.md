@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.10
+
+### Patch Changes
+
+- 901580f: feat: publish eslint config
+- Updated dependencies [901580f]
+  - @fncts/codegen@0.0.12
+
 ## 0.0.9
 
 ### Patch Changes
