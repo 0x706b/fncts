@@ -1,6 +1,6 @@
 {
   "name": "@fncts/eslint-config",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "scripts": {
     "build": "rm -rf build && mkdir build && mkdir build/cjs && cp index.cjs build/cjs/index.cjs",
     "build-pack": "yarn build && yarn fncts-pack cjs"

@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.12
+
+### Patch Changes
+
+- cc490a1: feat: publish eslint config
+
 ## 0.0.11
 
 ### Patch Changes

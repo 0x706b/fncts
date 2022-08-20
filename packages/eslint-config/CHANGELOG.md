@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.10
+
+### Patch Changes
+
+- cc490a1: feat: publish eslint config
+- Updated dependencies [cc490a1]
+  - @fncts/codegen@0.0.12
+
 ## 0.0.9
 
 ### Patch Changes
