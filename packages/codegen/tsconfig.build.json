@@ -2,10 +2,9 @@
   "extends": "../config/tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "module": "commonjs",
-    "outDir": "build/cjs",
+    "outDir": "./build/esm",
     "tsPlusConfig": "../config/tsplus.config.json",
-    "tsBuildInfoFile": "build/tsbuildinfo/cjs.tsbuildinfo"
+    "tsBuildInfoFile": "build/tsbuildinfo/tsconfig.build.tsbuildinfo"
   },
   "include": [
     "src/**/*.ts"

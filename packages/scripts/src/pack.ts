@@ -1,5 +1,6 @@
 import type { Workspace } from "@yarnpkg/core";
 
+import { assertExpression } from "@babel/types";
 import { getPluginConfiguration } from "@yarnpkg/cli";
 import { Configuration, Project, structUtils } from "@yarnpkg/core";
 import { ppath } from "@yarnpkg/fslib";
@@ -8,6 +9,21 @@ import fs from "fs/promises";
 import glob from "glob";
 import { posix } from "path";
 import { promisify } from "util";
+
+import { convertWorkspaceDependencies } from "./convertWorkspaceDependencies.js";
+
+type Mode = "cjs" | "mjs" | "both";
+
+function getMode(): Mode {
+  const modeArg = process.argv[2];
+  if (!modeArg) {
+    return "both";
+  }
+  if (modeArg !== "cjs" && modeArg !== "mjs" && modeArg !== "both") {
+    throw new Error('Invalid mode, must be "cjs" | "mjs" | "both" | undefined');
+  }
+  return modeArg;
+}
 
 const exec = promisify(child_process.exec);
 
@@ -26,7 +42,7 @@ const DEPENDENCY_TYPE = ["dependencies", "peerDependencies"];
 
 const WORKSPACE_PROTOCOL = "workspace:";
 
-async function writePackageJson(project: Project, workspace: Workspace) {
+async function writePackageJson(project: Project, workspace: Workspace, mode: "cjs" | "mjs" | "both" = "both") {
   const originalManifest = await getPackageJson();
   const rawManifest: any = {};
 
@@ -40,51 +56,19 @@ async function writePackageJson(project: Project, workspace: Workspace) {
   carry("dependencies", originalManifest, rawManifest);
   carry("peerDependencies", originalManifest, rawManifest);
 
-  for (const dependencyType of DEPENDENCY_TYPE) {
-    for (const descriptor of workspace.manifest.getForScope(dependencyType).values()) {
-      const matchingWorkspace = project.tryWorkspaceByDescriptor(descriptor);
-      const range             = structUtils.parseRange(descriptor.range);
-      if (range.protocol !== WORKSPACE_PROTOCOL) {
-        continue;
-      }
-
-      if (matchingWorkspace === null) {
-        if (project.tryWorkspaceByIdent(descriptor) === null) {
-          throw new Error(`Workspace not found: ${structUtils.prettyDescriptor(project.configuration, descriptor)}`);
-        }
-      } else {
-        let versionToWrite: string;
-        if (
-          structUtils.areDescriptorsEqual(descriptor, matchingWorkspace.anchoredDescriptor) ||
-          range.selector === "*"
-        ) {
-          versionToWrite = matchingWorkspace.manifest.version ?? "0.0.0";
-        } else if (range.selector === "~" || range.selector === "^") {
-          versionToWrite = `${range.selector}${matchingWorkspace.manifest.version ?? "0.0.0"}`;
-        } else {
-          versionToWrite = range.selector;
-        }
-        const identDescriptor =
-          dependencyType === "dependencies" ? structUtils.makeDescriptor(descriptor, "unknown") : null;
-        const finalDependencyType =
-          identDescriptor !== null && workspace.manifest.ensureDependencyMeta(identDescriptor).optional
-            ? "optionalDependencies"
-            : dependencyType;
-
-        rawManifest[finalDependencyType][structUtils.stringifyIdent(descriptor)] = versionToWrite;
-      }
-    }
-  }
+  convertWorkspaceDependencies(rawManifest, project, workspace);
 
   const exports: any = {};
-  exports["./*"]     = {
-    import: "./_mjs/*.mjs",
-    require: "./_cjs/*.cjs",
-  };
-  exports["."] = {
-    import: "./_mjs/index.mjs",
-    require: "./_cjs/index.cjs",
-  };
+  exports["./*"]     = {};
+  exports["."]       = {};
+  if (mode === "mjs" || mode === "both") {
+    exports["./*"].import = "./_mjs/*.mjs";
+    exports["."].import   = "./_mjs/index.mjs";
+  }
+  if (mode === "cjs" || mode === "both") {
+    exports["./*"].require = "./_cjs/*.cjs";
+    exports["."].require   = "./_cjs/index.cjs";
+  }
   rawManifest.exports = exports;
 
   rawManifest.publishConfig = {
@@ -139,6 +123,8 @@ function getGlob(g: string): Promise<string[]> {
   });
 }
 
+const mode = getMode();
+
 const cwd = ppath.cwd();
 
 const yarnConfiguration = await Configuration.find(cwd, getPluginConfiguration());
@@ -167,7 +153,7 @@ if (await exists("./build/dts")) {
   await exec("cp -r ./build/dts/* ./dist");
 }
 
-await writePackageJson(project, workspace);
+await writePackageJson(project, workspace, mode);
 
 const sourceMapPaths = await getGlob("dist/**/*.map");
 
