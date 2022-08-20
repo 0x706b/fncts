@@ -1173,7 +1173,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fncts/codegen@workspace:packages/codegen":
+"@fncts/codegen@workspace:*, @fncts/codegen@workspace:packages/codegen":
   version: 0.0.0-use.local
   resolution: "@fncts/codegen@workspace:packages/codegen"
   dependencies:
@@ -1212,6 +1212,20 @@ __metadata:
 "@fncts/eslint-config@workspace:*, @fncts/eslint-config@workspace:packages/eslint-config":
   version: 0.0.0-use.local
   resolution: "@fncts/eslint-config@workspace:packages/eslint-config"
+  dependencies:
+    "@0x706b/eslint-plugin-align-assignments": "npm:^0.1.2"
+    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.7"
+    "@fncts/codegen": "workspace:*"
+    "@fncts/config": "workspace:*"
+    "@typescript-eslint/eslint-plugin": "npm:^5.33.0"
+    "@typescript-eslint/experimental-utils": "npm:^5.33.0"
+    "@typescript-eslint/parser": "npm:^5.33.0"
+    eslint-import-resolver-typescript: "npm:3.4.0"
+    eslint-plugin-codegen: "npm:^0.16.1"
+    eslint-plugin-import: "npm:^2.26.0"
+    eslint-plugin-simple-import-sort: "npm:^7.0.0"
+  peerDependencies:
+    eslint: ^8.21.0
   languageName: unknown
   linkType: soft
 

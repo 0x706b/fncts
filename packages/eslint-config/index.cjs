@@ -47,9 +47,9 @@ module.exports = {
       "error",
       {
         presets: {
-          pipeable: require("../codegen/build/cjs/pipeable"),
-          barrel: require("../codegen/build/cjs/barrel"),
-          "type-barrel": require("../codegen/build/cjs/type-barrel"),
+          pipeable: require("@fncts/codegen/pipeable"),
+          barrel: require("@fncts/codegen/barrel"),
+          "type-barrel": require("@fncts/codegen/type-barrel"),
         },
       },
     ],
