@@ -1,5 +1,11 @@
 # @fncts/eslint-config
 
+## 0.0.11
+
+### Patch Changes
+
+- e93bc94: fix: change @fncts/config to devDependency
+
 ## 0.0.10
 
 ### Patch Changes
