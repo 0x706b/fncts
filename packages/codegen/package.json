@@ -1,6 +1,6 @@
 {
   "name": "@fncts/codegen",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "scripts": {
     "build": "tsc -b",
     "build-mjs": "babel build/esm --config-file ./.babel.mjs.json --out-dir build/mjs --out-file-extension .mjs --source-maps",

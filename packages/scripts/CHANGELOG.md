@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.14
+
+### Patch Changes
+
+- 901580f: feat: publish eslint config
+
 ## 0.0.13
 
 ### Patch Changes
