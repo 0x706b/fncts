@@ -1,5 +1,14 @@
 # @fncts/test
 
+## 0.0.16
+
+### Patch Changes
+
+- 618c5ce: refactor: require explicit id for Tag
+- Updated dependencies [618c5ce]
+  - @fncts/base@0.0.16
+  - @fncts/io@0.0.16
+
 ## 0.0.15
 
 ### Patch Changes
