@@ -10,4 +10,4 @@ export abstract class Sized {
 /**
  * @tsplus static fncts.test.SizedOps Tag
  */
-export const SizedTag = Tag<Sized>();
+export const SizedTag = Tag<Sized>("fncts.test.Sized");

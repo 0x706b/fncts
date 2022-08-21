@@ -10,4 +10,4 @@ export abstract class Clock {
 /**
  * @tsplus static fncts.io.ClockOps Tag
  */
-export const ClockTag = Tag<Clock>();
+export const ClockTag = Tag<Clock>("fncts.io.Clock");

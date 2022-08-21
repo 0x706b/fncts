@@ -29,7 +29,7 @@ export interface ExpressApp {
   >;
 }
 
-export const ExpressAppTag = Tag<ExpressApp>();
+export const ExpressAppTag = Tag<ExpressApp>("fncts.express.ExpressApp");
 
 export const makeExpressApp: IO<Scope | ExpressAppConfig, never, ExpressApp> = Do((Δ) => {
   const open = Δ(IO.succeed(new AtomicBoolean(true)).acquireRelease((_) => IO.succeed(() => _.set(false))));

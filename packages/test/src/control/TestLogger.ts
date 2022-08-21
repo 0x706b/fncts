@@ -11,7 +11,7 @@ export abstract class TestLogger {
 /**
  * @tsplus static fncts.test.TestLoggerOps Tag
  */
-export const TestLoggerTag = Tag<TestLogger>();
+export const TestLoggerTag = Tag<TestLogger>("fncts.test.TestLogger");
 
 /**
  * @tsplus static fncts.test.TestLoggerOps fromConsole

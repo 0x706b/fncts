@@ -2,8 +2,7 @@
  * @tsplus fluent fncts.Environment add
  */
 export function add<R, H extends S, S = H>(self: Environment<R>, service: H, tag: Tag<S>): Environment<R | S> {
-  const self0 = self.index === Number.MAX_SAFE_INTEGER ? self.clean : self;
-  return new Environment(self0.map.set(tag, [service, self0.index]), self0.index + 1);
+  return new Environment(self.map.set(tag, service));
 }
 
 /**
@@ -31,7 +30,7 @@ export function getMaybe<R extends Has<S>, S>(self: Environment<R>, tag: Tag<S>)
  * @tsplus static fncts.EnvironmentOps __call
  */
 export function make(): Environment<never> {
-  return new Environment(HashMap.makeDefault(), 0, HashMap.makeDefault());
+  return new Environment(HashMap.makeDefault(), HashMap.makeDefault());
 }
 
 /**
@@ -39,10 +38,8 @@ export function make(): Environment<never> {
  * @tsplus fluent fncts.Environment union
  */
 export function union<R, R1>(self: Environment<R>, that: Environment<R1>): Environment<R & R1> {
-  const [self0, that0] = self.index + that.index < self.index ? [self.clean, that.clean] : [self, that];
   return new Environment(
-    self0.map.union(that0.map.map(([service, index]) => [service, self0.index + index] as const)),
-    self0.index + that0.index,
+    self.map.union(that.map),
   );
 }
 
@@ -51,13 +48,12 @@ export function union<R, R1>(self: Environment<R>, that: Environment<R1>): Envir
  */
 export function clean<R>(self: Environment<R>): Environment<R> {
   const [map, index] = self.map.toList
-    .sort(Number.Ord.contramap(([, [, idx]]) => idx))
     .foldLeft(
       [HashMap.makeDefault<Tag<unknown>, readonly [unknown, number]>(), 0],
-      ([map, index], [tag, [service]]) => [map.set(tag, [service, index] as const), index + 1],
+      ([map, index], [tag, service]) => [map.set(tag, [service, index] as const), index + 1],
     );
 
-  return new Environment(map, index);
+  return new Environment(map);
 }
 
 /**
@@ -66,14 +62,12 @@ export function clean<R>(self: Environment<R>): Environment<R> {
 export function unsafeGet<R, S>(self: Environment<R>, tag: Tag<S>): S {
   return self.cache.get(tag).match(
     () => {
-      let index      = -1;
       const iterator = self.map[Symbol.iterator]();
       let service: S = null!;
-      let r: IteratorResult<readonly [Tag<unknown>, readonly [unknown, number]]>;
+      let r: IteratorResult<readonly [Tag<unknown>, unknown]>;
       while (!(r = iterator.next()).done) {
-        const [curTag, [curService, curIndex]] = r.value;
-        if (curTag == tag && curIndex > index) {
-          index   = curIndex;
+        const [curTag, curService] = r.value;
+        if (curTag == tag) {
           service = curService as S;
         }
       }

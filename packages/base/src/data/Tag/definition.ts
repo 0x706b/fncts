@@ -15,10 +15,11 @@ export class Tag<in out T> implements Hashable, Equatable {
   declare _T: (_: T) => T;
   readonly _typeId: TagTypeId = TagTypeId;
   private static counter      = new AtomicNumber(0);
-  readonly id                 = Tag.counter.getAndIncrement();
+
+  constructor(readonly id: string) {}
 
   get [Symbol.hash](): number {
-    return Hashable.combine(_tagHash, Hashable.number(this.id));
+    return Hashable.combine(_tagHash, Hashable.string(this.id));
   }
 
   [Symbol.equals](that: unknown): boolean {

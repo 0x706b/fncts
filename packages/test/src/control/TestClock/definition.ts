@@ -43,7 +43,7 @@ const warning =
 /**
  * @tsplus static fncts.test.TestClockOps Tag
  */
-export const TestClockTag = Tag<TestClock>();
+export const TestClockTag = Tag<TestClock>("fncts.test.TestClock");
 
 /**
  * @tsplus type fncts.test.TestClock

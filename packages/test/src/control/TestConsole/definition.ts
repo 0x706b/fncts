@@ -58,4 +58,4 @@ export class TestConsole implements Console {
 /**
  * @tsplus static fncts.test.TestConsoleOps Tag
  */
-export const TestConsoleTag = Tag<TestConsole>();
+export const TestConsoleTag = Tag<TestConsole>("fncts.test.TestConsole");

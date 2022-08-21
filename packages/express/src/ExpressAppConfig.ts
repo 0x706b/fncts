@@ -6,7 +6,7 @@ export interface ExpressAppConfig {
   readonly exitHandler: ExitHandler<never>;
 }
 
-export const ExpressAppConfigTag = Tag<ExpressAppConfig>();
+export const ExpressAppConfigTag = Tag<ExpressAppConfig>("fncts.express.ExpressAppConfig");
 
 export function LiveExpressAppConfig<R>(
   host: string,

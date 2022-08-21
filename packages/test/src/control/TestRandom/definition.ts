@@ -5,7 +5,7 @@ import { IllegalArgumentError } from "@fncts/base/data/exceptions";
 /**
  * @tsplus static fncts.test.TestRandomOps Tag
  */
-export const TestRandomTag = Tag<TestRandom>();
+export const TestRandomTag = Tag<TestRandom>("fncts.test.TestRandom");
 
 /**
  * @tsplus type fncts.test.TestRandom

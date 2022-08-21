@@ -28,4 +28,4 @@ export declare namespace Scope {
 /**
  * @tsplus static fncts.io.ScopeOps Tag
  */
-export const ScopeTag = Tag<Scope>();
+export const ScopeTag = Tag<Scope>("fncts.io.Scope");

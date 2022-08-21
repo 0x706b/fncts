@@ -12,7 +12,7 @@ export abstract class TestConfig {
 /**
  * @tsplus static fncts.test.data.TestConfigOps Tag
  */
-export const TestConfigTag = Tag<TestConfig>();
+export const TestConfigTag = Tag<TestConfig>("fncts.test.TestConfig");
 
 /**
  * @tsplus static fncts.test.data.TestConfigOps Live

@@ -17,4 +17,4 @@ export abstract class Annotations {
 /**
  * @tsplus static fncts.test.AnnotationsOps Tag
  */
-export const AnnotationsTag = Tag<Annotations>();
+export const AnnotationsTag = Tag<Annotations>("fncts.test.Annotations");

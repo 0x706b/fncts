@@ -285,7 +285,7 @@ export function retry_<RIn, E, ROut, S, RIn1>(
   schedule: Schedule.WithState<S, RIn1, E, any>,
   __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E, ROut> {
-  const tag = Tag<{ readonly state: S }>();
+  const tag = Tag<{ readonly state: S }>("fncts.io.Layer.retryState");
   return Layer.succeedNow({ state: schedule.initial }, tag).flatMap((environment) =>
     retryLoop(self, schedule, environment.get(tag).state, tag),
   );

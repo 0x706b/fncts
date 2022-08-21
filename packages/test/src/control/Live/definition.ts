@@ -5,7 +5,7 @@ import { IOEnv } from "@fncts/io/IOEnv";
 /**
  * @tsplus static fncts.test.LiveOps Tag
  */
-export const LiveTag = Tag<Live>();
+export const LiveTag = Tag<Live>("fncts.test.Live");
 
 /**
  * @tsplus companion fncts.test.LiveOps
