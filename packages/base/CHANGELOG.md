@@ -1,5 +1,11 @@
 # @fncts/base
 
+## 0.0.16
+
+### Patch Changes
+
+- 618c5ce: refactor: require explicit id for Tag
+
 ## 0.0.15
 
 ### Patch Changes
