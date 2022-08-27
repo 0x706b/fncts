@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.17
+
+### Patch Changes
+
+- 9ed98be: feat: add tag transformer
+- Updated dependencies [9ed98be]
+  - @fncts/typelevel@0.0.13
+
 ## 0.0.16
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.12
+
+### Patch Changes
+
+- 9ed98be: feat: add tag transformer
+- Updated dependencies [9ed98be]
+  - @fncts/codegen@0.0.13
+
 ## 0.0.11
 
 ### Patch Changes
