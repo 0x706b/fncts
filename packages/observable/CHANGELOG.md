@@ -1,5 +1,13 @@
 # @fncts/pattern
 
+## 0.0.6
+
+### Patch Changes
+
+- 9ed98be: feat: add tag transformer
+- Updated dependencies [9ed98be]
+  - @fncts/base@0.0.17
+
 ## 0.0.5
 
 ### Patch Changes

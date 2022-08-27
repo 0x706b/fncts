@@ -1,5 +1,11 @@
 # @fncts/config
 
+## 0.0.11
+
+### Patch Changes
+
+- 9ed98be: feat: add tag transformer
+
 ## 0.0.10
 
 ### Patch Changes

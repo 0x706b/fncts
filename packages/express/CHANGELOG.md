@@ -1,5 +1,13 @@
 # @fncts/express
 
+## 0.0.10
+
+### Patch Changes
+
+- 9ed98be: feat: add tag transformer
+- Updated dependencies [9ed98be]
+  - @fncts/io@0.0.17
+
 ## 0.0.9
 
 ### Patch Changes

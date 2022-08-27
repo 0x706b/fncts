@@ -1,6 +1,6 @@
 {
   "name": "@fncts/codegen",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "scripts": {
     "build": "tsc -b && yarn build-cjs",
     "build-mjs": "yarn org:babel build/esm --config-file ./.babel.mjs.json --out-dir build/mjs --out-file-extension .mjs --source-maps",
