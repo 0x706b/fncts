@@ -51,6 +51,11 @@ export function unsafeMake<A>(
 }
 
 /**
+ * @tsplus static fncts.io.FiberRefOps interruptedCause
+ */
+export const interruptedCause = FiberRef.unsafeMake(Cause.empty<never>(), identity, (parent, _) => parent);
+
+/**
  * @tsplus static fncts.io.FiberRefOps forkScopeOverride
  */
 export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing(), () => Nothing());
@@ -84,3 +89,8 @@ export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>
  * @tsplus static fncts.io.FiberRefOps currentScheduler
  */
 export const currentScheduler = FiberRef.unsafeMake<Scheduler>(defaultScheduler);
+
+/**
+ * @tsplus static fncts.io.FiberRefOps currentSupervisor
+ */
+export const currentSupervisor = FiberRef.unsafeMake<Supervisor<any>>(Supervisor.none);

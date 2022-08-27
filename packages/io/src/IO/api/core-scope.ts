@@ -1,53 +1,57 @@
+import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
+
 import { ExitTag } from "@fncts/base/data/Exit";
+import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
+import { unsafeForkUnstarted } from "@fncts/io/IO/api/fork";
 
 import { FiberScope } from "../../FiberScope.js";
-import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";
+import { IO } from "../definition.js";
 
 /**
  * @tsplus getter fncts.io.IO daemonChildren
  */
 export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.defer(new OverrideForkScope(self, Just(FiberScope.global), __tsplusTrace));
+  return FiberRef.forkScopeOverride.locally(Just(FiberScope.global))(self);
 }
 
 /**
- * Retrieves the scope that will be used to supervise forked effects.
- *
- * @tsplus static fncts.io.IOOps forkScope
+ * @tsplus fluent fncts.io.IO raceFibersWith
  */
-export const forkScope: UIO<FiberScope> = new GetForkScope(IO.succeedNow);
-
-/**
- * Retrieves the scope that will be used to supervise forked effects.
- *
- * @tsplus static fncts.io.IOOps forkScopeWith
- */
-export function forkScopeWith<R, E, A>(f: (_: FiberScope) => IO<R, E, A>, __tsplusTrace?: string) {
-  return new GetForkScope(f, __tsplusTrace);
-}
-
-export class ForkScopeRestore {
-  constructor(private scope: FiberScope) {}
-
-  readonly restore = <R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> =>
-    new OverrideForkScope(ma, Just(this.scope), __tsplusTrace);
-}
-
-/**
- * Captures the fork scope, before overriding it with the specified new
- * scope, passing a function that allows restoring the fork scope to
- * what it was originally.
- *
- * @tsplus static fncts.io.IOOps forkScopeMask
- */
-export function forkScopeMask_<R, E, A>(
-  newScope: FiberScope,
-  f: (restore: ForkScopeRestore) => IO<R, E, A>,
+export function raceFibersWith<R, E, A, R1, E1, B, R2, E2, C, R3, E3, D>(
+  left: IO<R, E, A>,
+  right: Lazy<IO<R1, E1, B>>,
+  leftWins: (winner: FiberRuntime<E, A>, loser: FiberRuntime<E1, B>) => IO<R2, E2, C>,
+  rightWins: (winner: FiberRuntime<E1, B>, loser: FiberRuntime<E, A>) => IO<R3, E3, D>,
   __tsplusTrace?: string,
-): IO<R, E, A> {
-  return IO.forkScopeWith(
-    (scope) => new OverrideForkScope(f(new ForkScopeRestore(scope)), Just(newScope), __tsplusTrace),
-  );
+): IO<R | R1 | R2 | R3, E2 | E3, C | D> {
+  return IO.withFiberRuntime((parentState, parentStatus) => {
+    const right0             = right();
+    const parentRuntimeFlags = parentStatus.runtimeFlags;
+    function complete<E0, E1, A, B, R2, E2, C>(
+      winner: FiberRuntime<E0, A>,
+      loser: FiberRuntime<E1, B>,
+      cont: (winner: FiberRuntime<E0, A>, loser: FiberRuntime<E1, B>) => IO<R2, E2, C>,
+      ab: AtomicBoolean,
+      cb: (_: IO<R2, E2, C>) => any,
+    ): any {
+      if (ab.compareAndSet(true, false)) {
+        cb(cont(winner, loser));
+      }
+    }
+
+    const raceIndicator = new AtomicBoolean(true);
+    const leftFiber     = unsafeForkUnstarted(left, parentState, parentRuntimeFlags, __tsplusTrace);
+    const rightFiber    = unsafeForkUnstarted(right0, parentState, parentRuntimeFlags, __tsplusTrace);
+    leftFiber.setFiberRef(FiberRef.forkScopeOverride, Just(parentState.scope));
+    rightFiber.setFiberRef(FiberRef.forkScopeOverride, Just(parentState.scope));
+
+    return IO.async((cb) => {
+      leftFiber.addObserver(() => complete(leftFiber, rightFiber, leftWins, raceIndicator, cb));
+      rightFiber.addObserver(() => complete(rightFiber, leftFiber, rightWins, raceIndicator, cb));
+      leftFiber.startFork(left);
+      rightFiber.startFork(right0);
+    });
+  });
 }
 
 /**
@@ -63,30 +67,26 @@ export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
   rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
   __tsplusTrace?: string,
 ): IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> {
-  return IO.defer(
-    () =>
-      new Race(
-        left,
-        right(),
-        (winner, loser) =>
-          winner.await.flatMap((exit) => {
-            switch (exit._tag) {
-              case ExitTag.Success:
-                return winner.inheritRefs.flatMap(() => leftWins(exit, loser));
-              case ExitTag.Failure:
-                return leftWins(exit, loser);
-            }
-          }),
-        (winner, loser) =>
-          winner.await.flatMap((exit) => {
-            switch (exit._tag) {
-              case ExitTag.Success:
-                return winner.inheritRefs.flatMap(() => rightWins(exit, loser));
-              case ExitTag.Failure:
-                return rightWins(exit, loser);
-            }
-          }),
-      ),
+  return left.raceFibersWith(
+    right,
+    (winner, loser) =>
+      winner.await.flatMap((exit) => {
+        switch (exit._tag) {
+          case ExitTag.Success:
+            return winner.inheritAll.flatMap(() => leftWins(exit, loser));
+          case ExitTag.Failure:
+            return leftWins(exit, loser);
+        }
+      }),
+    (winner, loser) =>
+      winner.await.flatMap((exit) => {
+        switch (exit._tag) {
+          case ExitTag.Success:
+            return winner.inheritAll.flatMap(() => rightWins(exit, loser));
+          case ExitTag.Failure:
+            return rightWins(exit, loser);
+        }
+      }),
   );
 }
 
@@ -103,7 +103,11 @@ export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;
  * @tsplus static fncts.io.IOOps transplant
  */
 export function transplant<R, E, A>(f: (_: Grafter) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return forkScopeWith((scope) => f((e) => new OverrideForkScope(e, Just(scope))));
+  return IO.withFiberRuntime((fiberState) => {
+    const scopeOverride = fiberState.getFiberRef(FiberRef.forkScopeOverride);
+    const scope         = scopeOverride.getOrElse(fiberState.scope);
+    return f(FiberRef.forkScopeOverride.locally(Just(scope)));
+  });
 }
 
 /**
@@ -113,26 +117,6 @@ export function transplant<R, E, A>(f: (_: Grafter) => IO<R, E, A>, __tsplusTrac
  *
  * @tsplus getter fncts.io.IO forkDaemon
  */
-export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, Fiber.Runtime<E, A>> {
-  return new Fork(ma, Just(FiberScope.global), __tsplusTrace);
-}
-
-/**
- * Returns a new effect that will utilize the specified scope to supervise
- * any fibers forked within the original effect.
- *
- * @tsplus fluent fncts.io.IO overrideForkScope
- */
-export function overrideForkScope_<R, E, A>(ma: IO<R, E, A>, scope: FiberScope, __tsplusTrace?: string): IO<R, E, A> {
-  return new OverrideForkScope(ma, Just(scope), __tsplusTrace);
-}
-
-/**
- * Returns a new effect that will utilize the default scope (fiber scope) to
- * supervise any fibers forked within the original effect.
- *
- * @tsplus getter fncts.io.IO defaultForkScope
- */
-export function defaultForkScope<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return new OverrideForkScope(ma, Nothing(), __tsplusTrace);
+export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, FiberRuntime<E, A>> {
+  return ma.fork.daemonChildren;
 }

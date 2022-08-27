@@ -1,4 +1,6 @@
+import type { FiberId } from "@fncts/base/data/FiberId";
 import type { FiberStatus } from "@fncts/io/FiberStatus";
+import type { UIO } from "@fncts/io/IO/definition";
 
 export const FiberTypeId = Symbol.for("fncts.io.Fiber");
 export type FiberTypeId = typeof FiberTypeId;
@@ -37,14 +39,14 @@ export interface FiberCommon<E, A> extends Fiber<E, A> {
    * Inherits values from all {@link FiberRef} instances into current fiber.
    * This will resume immediately.
    */
-  readonly inheritRefs: UIO<void>;
+  readonly inheritAll: UIO<void>;
 
   /**
    * Interrupts the fiber as if interrupted from the specified fiber. If the
    * fiber has already exited, the returned effect will resume immediately.
    * Otherwise, the effect will resume when the fiber exits.
    */
-  readonly interruptAs: (fiberId: FiberId) => UIO<Exit<E, A>>;
+  readonly interruptAsFork: (fiberId: FiberId) => UIO<void>;
 
   /**
    * Tentatively observes the fiber, but returns immediately if it is not already done.
@@ -71,18 +73,8 @@ export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
   readonly location: TraceElement;
 
   /**
-   * Evaluates the specified effect on the fiber. If this is not possible,
-   * because the fiber has already ended life, then the specified alternate
-   * effect will be executed instead.
-   */
-  readonly evalOn: (effect: UIO<any>, orElse: UIO<any>) => UIO<void>;
-
-  readonly evalOnIO: <R1, E1, B, R2, E2, C>(
-    effect: IO<R1, E1, B>,
-    orElse: IO<R2, E2, C>,
-  ) => IO<R1 | R2, E1 | E2, B | C>;
-
-  /**
+=======
+>>>>>>> 1bb68eb (feat: FiberRuntime)
    * The status of the fiber.
    */
   readonly status: UIO<FiberStatus>;
@@ -105,9 +97,9 @@ export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
     readonly id: FiberId,
     wait: UIO<Exit<E, A>>,
     readonly children: UIO<Conc<Fiber.Runtime<any, any>>>,
-    readonly inheritRefs: UIO<void>,
+    readonly inheritAll: UIO<void>,
     readonly poll: UIO<Maybe<Exit<E, A>>>,
-    readonly interruptAs: (fiberId: FiberId) => UIO<Exit<E, A>>,
+    readonly interruptAsFork: (fiberId: FiberId) => UIO<void>,
   ) {
     this.await = wait;
   }

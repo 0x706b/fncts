@@ -1,13 +1,15 @@
-import { identity } from "@fncts/base/data/function";
 import { concrete } from "@fncts/io/FiberRef/definition";
-import { FiberRefDelete, FiberRefLocally, FiberRefModify, FiberRefWith } from "@fncts/io/IO/definition";
 
 /**
  * @tsplus fluent fncts.io.FiberRef modify
  */
 export function modify_<A, B>(self: FiberRef<A>, f: (a: A) => readonly [B, A], __tsplusTrace?: string): UIO<B> {
   concrete(self);
-  return new FiberRefModify(self, f, __tsplusTrace);
+  return IO.withFiberRuntime((fiberState) => {
+    const [b, a] = f(fiberState.getFiberRef(self));
+    fiberState.setFiberRef(self, a);
+    return IO.succeedNow(b);
+  });
 }
 
 /**
@@ -61,7 +63,11 @@ export function getAndUpdateJust_<A>(fiberRef: FiberRef<A>, f: (a: A) => Maybe<A
  */
 export function locally_<A>(fiberRef: FiberRef<A>, value: A, __tsplusTrace?: string) {
   return <R1, E1, B>(use: IO<R1, E1, B>): IO<R1, E1, B> => {
-    return new FiberRefLocally(value, fiberRef, use);
+    return IO.withFiberRuntime((fiberState) => {
+      const oldValue = fiberState.getFiberRef(fiberRef);
+      fiberState.setFiberRef(fiberRef, value);
+      return use.ensuring(IO.succeed(fiberState.setFiberRef(fiberRef, oldValue)));
+    });
   };
 }
 
@@ -84,14 +90,17 @@ export function getWith_<A, R, E, B>(
   f: (a: A) => IO<R, E, B>,
   __tsplusTrace?: string,
 ): IO<R, E, B> {
-  return new FiberRefWith(fiberRef, f, __tsplusTrace);
+  return fiberRef.get.flatMap(f);
 }
 
 /**
  * @tsplus getter fncts.io.FiberRef remove
  */
 export function remove<A>(self: FiberRef<A>, __tsplusTrace?: string): UIO<void> {
-  return new FiberRefDelete(self, __tsplusTrace);
+  return IO.withFiberRuntime((fiberState) => {
+    fiberState.deleteFiberRef(self);
+    return IO.unit;
+  });
 }
 
 /**

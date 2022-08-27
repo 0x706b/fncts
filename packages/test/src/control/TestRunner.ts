@@ -5,8 +5,6 @@ import type { Spec } from "@fncts/test/control/Spec";
 import type { TestExecutor } from "@fncts/test/control/TestExecutor";
 import type { ExecutedSpec } from "@fncts/test/data/ExecutedSpec";
 
-import { Console } from "@fncts/io/Console";
-import { defaultRuntimeConfig } from "@fncts/io/IO";
 import { DefaultTestReporter } from "@fncts/test/control/DefaultTestReporter";
 import { TestAnnotationRenderer } from "@fncts/test/control/TestAnnotationRenderer";
 import { TestLogger } from "@fncts/test/control/TestLogger";
@@ -17,7 +15,6 @@ export class TestRunner<R, E> {
   readonly bootstrap: Layer<never, never, TestLogger>;
   constructor(
     readonly executor: TestExecutor<R>,
-    readonly runtimeConfig: RuntimeConfig = defaultRuntimeConfig,
     reporter?: TestReporter<E>,
     bootstrap?: Layer<never, never, TestLogger>,
   ) {

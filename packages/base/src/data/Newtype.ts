@@ -64,3 +64,11 @@ export const newtype = <N extends NewtypeHKT>(): NewtypeIso<N> => ({
   get: unsafeCoerce,
   reverseGet: unsafeCoerce,
 });
+
+/**
+ * @tsplus getter fncts.Newtype reverseGet
+ * @tsplus macro identity
+ */
+export function reverseGet<N extends Newtype<any, any>>(self: N): N["_A"] {
+  return unsafeCoerce(self);
+}

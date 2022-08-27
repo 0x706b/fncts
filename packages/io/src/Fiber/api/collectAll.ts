@@ -27,9 +27,6 @@ export function sequenceIterable<E, A>(
         ),
       ),
     ),
-    (fiberId) =>
-      IO.foreach(fibers, (fiber) => fiber.interruptAs(fiberId)).map((exits) =>
-        exits.foldRight(Exit.succeed(Conc.empty()), (a, b) => a.zipWithCause(b, (a, b) => b.append(a), Cause.then)),
-      ),
+    (fiberId) => IO.foreach(fibers, (fiber) => fiber.interruptAsFork(fiberId)),
   );
 }

@@ -1,39 +1,18 @@
+import type { RuntimeFlags } from "../RuntimeFlags.js";
+
 export const enum FiberStatusTag {
-  Done = "Done",
-  Finishing = "Finishing",
-  Running = "Running",
-  Suspended = "Suspended",
+  Done,
+  Running,
+  Suspended,
 }
 
 /**
  * @tsplus companion fncts.FiberStatus.DoneOps
  */
 export class Done {
-  readonly _tag = FiberStatusTag.Done;
-
-  get isInterrupting() {
-    return false;
-  }
-
-  withInterrupting(): FiberStatus {
-    return this;
-  }
-}
-
-/**
- * @tsplus companion fncts.FiberStatus.FinishingOps
- */
-export class Finishing {
-  readonly _tag = FiberStatusTag.Finishing;
-  constructor(readonly interrupting: boolean) {}
-
-  get isInterrupting() {
-    return this.interrupting;
-  }
-
-  withInterrupting(newInterrupting: boolean): FiberStatus {
-    return new Finishing(newInterrupting);
-  }
+  readonly _tag       = FiberStatusTag.Done;
+  readonly trace      = Trace.none;
+  readonly isFinished = true;
 }
 
 /**
@@ -41,15 +20,8 @@ export class Finishing {
  */
 export class Running {
   readonly _tag = FiberStatusTag.Running;
-  constructor(readonly interrupting: boolean) {}
-
-  get isInterrupting() {
-    return this.interrupting;
-  }
-
-  withInterrupting(newInterrupting: boolean): FiberStatus {
-    return new Running(newInterrupting);
-  }
+  constructor(readonly runtimeFlags: RuntimeFlags, readonly trace?: string) {}
+  readonly isFinished = false;
 }
 
 /**
@@ -57,27 +29,14 @@ export class Running {
  */
 export class Suspended {
   readonly _tag = FiberStatusTag.Suspended;
-  constructor(
-    readonly interrupting: boolean,
-    readonly interruptible: boolean,
-    readonly epoch: number,
-    readonly blockingOn: FiberId,
-    readonly asyncTrace?: string,
-  ) {}
-
-  get isInterrupting() {
-    return this.interrupting;
-  }
-
-  withInterrupting(newInterrupting: boolean) {
-    return new Suspended(newInterrupting, this.interruptible, this.epoch, this.blockingOn, this.asyncTrace);
-  }
+  constructor(readonly runtimeFlags: RuntimeFlags, readonly blockingOn: FiberId, readonly trace?: string) {}
+  readonly isFinished = false;
 }
 
 /**
  * @tsplus type fncts.FiberStatus
  */
-export type FiberStatus = Done | Finishing | Running | Suspended;
+export type FiberStatus = Done | Running | Suspended;
 
 /**
  * @tsplus type fncts.FiberStatusOps

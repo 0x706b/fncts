@@ -94,7 +94,7 @@ import { PRef, Ref } from "@fncts/io/Ref";
 /**
  * @tsplus global
  */
-import { RuntimeConfig, RuntimeConfigFlag, RuntimeConfigFlags } from "@fncts/io/RuntimeConfig";
+import { RuntimeConfig, RuntimeConfigFlags } from "@fncts/io/RuntimeConfig";
 /**
  * @tsplus global
  */

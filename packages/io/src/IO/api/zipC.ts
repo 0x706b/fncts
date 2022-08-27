@@ -21,7 +21,7 @@ export function zipWithC_<R, E, A, R1, E1, B, C>(
   f: (a: A, b: B) => C,
   __tsplusTrace?: string,
 ): IO<R | R1, E | E1, C> {
-  return IO.descriptorWith((descriptor) =>
+  return IO.fiberId.flatMap((id) =>
     IO.uninterruptibleMask(({ restore }) => {
       const future = Future.unsafeMake<void, C>(FiberId.none);
       const ref    = new AtomicReference<Maybe<Either<A, B>>>(Nothing());
@@ -60,8 +60,8 @@ export function zipWithC_<R, E, A, R1, E1, B, C>(
             restore(future.await).matchCauseIO(
               (cause) =>
                 left
-                  .interruptAs(descriptor.id)
-                  .zipC(right.interruptAs(descriptor.id))
+                  .interruptAs(id)
+                  .zipC(right.interruptAs(id))
                   .flatMap(([left, right]) =>
                     left.zipC(right).match(IO.failCauseNow, () => IO.failCauseNow(cause.stripFailures)),
                   ),

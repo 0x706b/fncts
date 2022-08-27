@@ -49,10 +49,7 @@ export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>, __tsplusTrace?
 /**
  * @tsplus static fncts.io.STMOps Effect
  */
-export function makeEffect<R, E, A>(
-  f: (journal: Journal, fiberId: FiberId, r: Environment<R>) => A,
-  __tsplusTrace?: string,
-): STM<R, E, A> {
+export function makeEffect<R, E, A>(f: (journal: Journal, fiberId: FiberId, r: Environment<R>) => A): STM<R, E, A> {
   return new Effect(f);
 }
 
@@ -90,7 +87,7 @@ export function environmentWithSTM<R0, R, E, A>(f: (r: Environment<R0>) => STM<R
 export function atomically<R, E, A>(stm: STM<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.environmentWithIO((r: Environment<R>) =>
     FiberRef.currentScheduler.getWith((scheduler) =>
-      IO.deferWith((_, fiberId) => {
+      IO.fiberId.flatMap((fiberId) => {
         const result = tryCommitSync(fiberId, stm, r, scheduler);
         switch (result._tag) {
           case TryCommitTag.Done: {

@@ -2,7 +2,6 @@ import type { PHub } from "../Hub.js";
 import type { Canceler } from "../IO.js";
 import type { PQueue } from "../Queue.js";
 import type { SinkEndReason } from "./internal/SinkEndReason.js";
-import type { Erase } from "@fncts/typelevel/Intersection.js";
 
 import { constVoid, identity, tuple } from "@fncts/base/data/function";
 

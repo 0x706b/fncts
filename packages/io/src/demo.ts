@@ -1,0 +1,1 @@
+IO.never.fork.flatMap((f) => f.interrupt).unsafeRunAsync();
