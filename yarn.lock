@@ -1168,8 +1168,10 @@ __metadata:
     "@fncts/eslint-config": "workspace:*"
     "@fncts/scripts": "workspace:*"
     "@fncts/typelevel": "workspace:*"
+    "@types/uuid": "npm:^8"
     madge: "npm:^5.0.1"
     typescript: "npm:^4.7.4"
+    uuid: "npm:^8.3.2"
   languageName: unknown
   linkType: soft
 
@@ -1255,6 +1257,7 @@ __metadata:
     "@fncts/config": "workspace:*"
     "@fncts/eslint-config": "workspace:*"
     "@fncts/scripts": "workspace:*"
+    "@fncts/transformers": "workspace:*"
     "@fncts/typelevel": "workspace:*"
     madge: "npm:^5.0.1"
     ts-node: "npm:^10.9.1"
@@ -1334,6 +1337,21 @@ __metadata:
     "@fncts/typelevel": "workspace:*"
     madge: "npm:^5.0.1"
     typescript: "npm:^4.7.4"
+  languageName: unknown
+  linkType: soft
+
+"@fncts/transformers@workspace:*, @fncts/transformers@workspace:packages/transformers":
+  version: 0.0.0-use.local
+  resolution: "@fncts/transformers@workspace:packages/transformers"
+  dependencies:
+    "@fncts/config": "workspace:*"
+    "@fncts/eslint-config": "workspace:*"
+    "@fncts/scripts": "workspace:*"
+    "@fncts/typelevel": "workspace:*"
+    "@types/uuid": "npm:^8"
+    madge: "npm:^5.0.1"
+    typescript: "npm:^4.7.4"
+    uuid: "npm:^8.3.2"
   languageName: unknown
   linkType: soft
 
@@ -1607,9 +1625,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.135":
-  version: 0.0.135
-  resolution: "@tsplus/installer@npm:0.0.135"
+"@tsplus/installer@npm:0.0.138":
+  version: 0.0.138
+  resolution: "@tsplus/installer@npm:0.0.138"
   dependencies:
     mkdirp: "npm:^1.0.4"
     rimraf: "npm:^3.0.2"
@@ -1618,7 +1636,7 @@ __metadata:
     zlib: "npm:^1.0.5"
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: 41e310c195392cb0ca80733339bc50ece1b9d9bad9779443dff116018854ded52794d99c70848684bec1fe4cdb03eab249e036d84da750d2c6be35ddcb313e1a
+  checksum: 9a668779ed7eea9e90887a1acbf24621906144f691e32e4580179e3db997a99e5ef50c5a2b01f90c85adc9c24f894990be1a8da3e3ba90b897f219a9d88d2216
   languageName: node
   linkType: hard
 
@@ -1940,6 +1958,13 @@ __metadata:
   version: 1.0.0
   resolution: "@types/treeify@npm:1.0.0"
   checksum: 9a51bd33d129a578009e355039829a7d80a2100a881a5cda96befa0e7d59bdf0541728f07c3a2ddb26124c750792f6a9e8c1e12b202481c5196bed7b311a0a2d
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^8":
+  version: 8.3.4
+  resolution: "@types/uuid@npm:8.3.4"
+  checksum: 42fa6d1868c459444c257fe418f624067aabfbe550ce97d9c124c5759a16f03bc475dc82086eefee807571608830b2f955e688c0e63e40aad5eb29b573471492
   languageName: node
   linkType: hard
 
@@ -4805,7 +4830,7 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.18.6"
     "@changesets/changelog-git": "npm:^0.1.12"
     "@changesets/cli": "npm:^2.24.2"
-    "@tsplus/installer": "npm:0.0.135"
+    "@tsplus/installer": "npm:0.0.138"
     "@types/benchmark": "npm:^2.1.1"
     "@typescript-eslint/eslint-plugin": "npm:^5.33.0"
     "@typescript-eslint/experimental-utils": "npm:^5.33.0"
@@ -8764,12 +8789,12 @@ __metadata:
   linkType: hard
 
 "typescript@npm:^4.7.4":
-  version: 4.7.4
-  resolution: "typescript@npm:4.7.4"
+  version: 4.8.2
+  resolution: "typescript@npm:4.8.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 0cec8f1c0fb0c6a9b437ee4e17819510eb294aad85291e940188fc4542a5554ffe1f73e4bc396c77d0a4d7dd1c17fd795634d50938fc3558e34f32d8a682118b
+  checksum: 67ffddd3d17e9f998a184925725222bfb63aab9d786542879006cff335e897c3a386b9ee564c0a5dc65e5b97cd3c66914096b1b60b9e418171cde2894cc994a8
   languageName: node
   linkType: hard
 
@@ -8784,12 +8809,12 @@ __metadata:
   linkType: hard
 
 "typescript@patch:typescript@npm%3A^4.7.4#optional!builtin<compat/typescript>":
-  version: 4.7.4
-  resolution: "typescript@patch:typescript@npm%3A4.7.4#optional!builtin<compat/typescript>::version=4.7.4&hash=f456af"
+  version: 4.8.2
+  resolution: "typescript@patch:typescript@npm%3A4.8.2#optional!builtin<compat/typescript>::version=4.8.2&hash=f456af"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 19bcd9153bbacaabed753b39fbd6adb5417690230b07db63f02e22588865b444b7504da9b9fcdcca5b4ac34be19904271a266bfa54d75fcfb0f5d699cb1e2314
+  checksum: d632bd295ff5b56038e321adc47aff7b606ef25d6b0b19dd43dbd18f761f349e89f95fe1f567d0876417ccdbeb36daf5fb9dff2e32a34e404acea274b0b7c076
   languageName: node
   linkType: hard
 
@@ -8904,6 +8929,15 @@ __metadata:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: b72b8d7a0f7d63a9b1ced39a44b292994111c93cf9c4da8a561e4fe0d0232af7217a53d5aae3a950fb7ab6f423baf3e0d2d7c7c33dd6c4ec78d0a3c720ee6adb
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^8.3.2":
+  version: 8.3.2
+  resolution: "uuid@npm:8.3.2"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 236a12282c6fa32f326aa1b6d5699a843572e9ab7de84a1507a6b7c315fdcf55bf6ed333fd37d35c5c656f4cb96af998844e1c8cae281c442a1ec3b66df62962
   languageName: node
   linkType: hard
 

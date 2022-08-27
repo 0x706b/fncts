@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@fncts/base": "workspace:*",
+    "@fncts/transformers": "workspace:*",
     "@fncts/typelevel": "workspace:*"
   },
   "devDependencies": {
