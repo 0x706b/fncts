@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.13
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+- Updated dependencies [90ad430]
+  - @fncts/codegen@0.0.14
+
 ## 0.0.12
 
 ### Patch Changes

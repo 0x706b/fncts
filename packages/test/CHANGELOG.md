@@ -1,5 +1,16 @@
 # @fncts/test
 
+## 0.0.18
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+- Updated dependencies [90ad430]
+- Updated dependencies [fb9c8ed]
+  - @fncts/base@0.0.18
+  - @fncts/io@0.0.18
+  - @fncts/typelevel@0.0.14
+
 ## 0.0.17
 
 ### Patch Changes

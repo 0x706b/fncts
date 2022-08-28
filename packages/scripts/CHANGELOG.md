@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.16
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+
 ## 0.0.15
 
 ### Patch Changes
