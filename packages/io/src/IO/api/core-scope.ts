@@ -1,13 +1,13 @@
 import { ExitTag } from "@fncts/base/data/Exit";
 
 import { FiberScope } from "../../FiberScope.js";
-import { Fork, GetForkScope, IO, OverrideForkScope, Race } from "../definition.js";
+import { Fork, IO, Race } from "../definition.js";
 
 /**
  * @tsplus getter fncts.io.IO daemonChildren
  */
 export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.defer(new OverrideForkScope(self, Just(FiberScope.global), __tsplusTrace));
+  return IO.defer(FiberRef.forkScopeOverride.locally(Just(FiberScope.global))(self));
 }
 
 /**
@@ -15,7 +15,9 @@ export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: strin
  *
  * @tsplus static fncts.io.IOOps forkScope
  */
-export const forkScope: UIO<FiberScope> = new GetForkScope(IO.succeedNow);
+export const forkScope: UIO<FiberScope> = IO.withFiberContext((fiber) =>
+  IO(fiber.unsafeGetRef(FiberRef.forkScopeOverride).getOrElse(fiber.scope)),
+);
 
 /**
  * Retrieves the scope that will be used to supervise forked effects.
@@ -23,14 +25,14 @@ export const forkScope: UIO<FiberScope> = new GetForkScope(IO.succeedNow);
  * @tsplus static fncts.io.IOOps forkScopeWith
  */
 export function forkScopeWith<R, E, A>(f: (_: FiberScope) => IO<R, E, A>, __tsplusTrace?: string) {
-  return new GetForkScope(f, __tsplusTrace);
+  return forkScope.flatMap(f);
 }
 
 export class ForkScopeRestore {
   constructor(private scope: FiberScope) {}
 
   readonly restore = <R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> =>
-    new OverrideForkScope(ma, Just(this.scope), __tsplusTrace);
+    FiberRef.forkScopeOverride.locally(Just(this.scope))(ma);
 }
 
 /**
@@ -45,8 +47,8 @@ export function forkScopeMask_<R, E, A>(
   f: (restore: ForkScopeRestore) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return IO.forkScopeWith(
-    (scope) => new OverrideForkScope(f(new ForkScopeRestore(scope)), Just(newScope), __tsplusTrace),
+  return IO.forkScopeWith((scope) =>
+    FiberRef.forkScopeOverride.locally(Just(newScope))(f(new ForkScopeRestore(scope))),
   );
 }
 
@@ -103,7 +105,7 @@ export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;
  * @tsplus static fncts.io.IOOps transplant
  */
 export function transplant<R, E, A>(f: (_: Grafter) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return forkScopeWith((scope) => f((e) => new OverrideForkScope(e, Just(scope))));
+  return forkScopeWith((scope) => f((e) => FiberRef.forkScopeOverride.locally(Just(scope))(e)));
 }
 
 /**
@@ -124,7 +126,7 @@ export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): UR
  * @tsplus fluent fncts.io.IO overrideForkScope
  */
 export function overrideForkScope_<R, E, A>(ma: IO<R, E, A>, scope: FiberScope, __tsplusTrace?: string): IO<R, E, A> {
-  return new OverrideForkScope(ma, Just(scope), __tsplusTrace);
+  return FiberRef.forkScopeOverride.locally(Just(scope))(ma);
 }
 
 /**
@@ -134,5 +136,5 @@ export function overrideForkScope_<R, E, A>(ma: IO<R, E, A>, scope: FiberScope, 
  * @tsplus getter fncts.io.IO defaultForkScope
  */
 export function defaultForkScope<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return new OverrideForkScope(ma, Nothing(), __tsplusTrace);
+  return FiberRef.forkScopeOverride.locally(Nothing())(ma);
 }

@@ -1,28 +1,24 @@
+import type { FiberStatus } from "../FiberStatus.js";
 import type * as P from "@fncts/base/typeclass";
 import type { _E, _R } from "@fncts/base/types";
 import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
 import type { Canceler } from "@fncts/io/IO/definition";
 
 import { identity, pipe, tuple } from "@fncts/base/data/function";
+import { Stateful } from "@fncts/io/IO/definition";
 import {
   Async,
   Chain,
   Defer,
   DeferWith,
-  Ensuring,
   Fail,
-  FiberRefModifyAll,
   Fork,
-  GetDescriptor,
-  GetInterrupt,
   IO,
   IOError,
   Logged,
   Match,
-  SetRuntimeConfig,
   Succeed,
   SucceedNow,
-  Supervise,
   Yield,
 } from "@fncts/io/IO/definition";
 
@@ -358,7 +354,7 @@ export function checkInterruptible<R, E, A>(
   f: (i: InterruptStatus) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return new GetInterrupt(f, __tsplusTrace);
+  return IO.withFiberContext((fiber) => f(InterruptStatus.fromBoolean(fiber.unsafeIsInterruptible)));
 }
 
 /**
@@ -515,7 +511,7 @@ export const descriptor = descriptorWith(IO.succeedNow);
  * @tsplus static fncts.io.IOOps descriptorWith
  */
 export function descriptorWith<R, E, A>(f: (d: FiberDescriptor) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return new GetDescriptor(f, __tsplusTrace);
+  return IO.withFiberContext((fiber) => f(fiber.unsafeGetDescriptor()));
 }
 
 /**
@@ -535,7 +531,10 @@ export function ensuring_<R, E, A, R1>(
   finalizer: IO<R1, never, any>,
   __tsplusTrace?: string,
 ): IO<R | R1, E, A> {
-  return new Ensuring(self, finalizer, __tsplusTrace);
+  return IO.withFiberContext((fiber) => {
+    fiber.unsafeAddFinalizer(finalizer);
+    return self;
+  });
 }
 
 /**
@@ -1801,7 +1800,7 @@ export function sandboxWith_<R, E, A, E1>(
  * @tsplus static fncts.io.IOOps setRuntimeConfig
  */
 export function setRuntimeConfig(runtimeConfig: Lazy<RuntimeConfig>, __tsplusTrace?: string): UIO<void> {
-  return IO.defer(new SetRuntimeConfig(runtimeConfig(), __tsplusTrace));
+  return IO.withFiberContext((fiber) => IO((fiber.runtimeConfig = runtimeConfig())));
 }
 
 /**
@@ -1837,21 +1836,6 @@ export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<never, never
  */
 export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): UIO<A> {
   return new Succeed(effect, __tsplusTrace);
-}
-
-/**
- *
- * Returns an IO with the behavior of this one, but where all child
- * fibers forked in the effect are reported to the specified supervisor.
- *
- * @tsplus fluent fncts.io.IO supervised
- */
-export function supervised_<R, E, A>(
-  fa: IO<R, E, A>,
-  supervisor: Supervisor<any>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
-  return new Supervise(fa, supervisor);
 }
 
 /**
@@ -2051,7 +2035,22 @@ export function updateFiberRefs(
   f: (fiberId: FiberId.Runtime, fiberRefs: FiberRefs) => FiberRefs,
   __tsplusTrace?: string,
 ): UIO<void> {
-  return new FiberRefModifyAll((fiberId, fiberRefs) => [undefined, f(fiberId, fiberRefs)], __tsplusTrace);
+  return IO.withFiberContext((fiber) =>
+    IO(() => {
+      const newFiberRefs = f(fiber.fiberId, FiberRefs(fiber.fiberRefLocals.get));
+      fiber.fiberRefLocals.set(newFiberRefs.fiberRefLocals);
+    }),
+  );
+}
+
+/**
+ * @tsplus static fncts.io.IOOps withFiberContext
+ */
+export function withFiberContext<R, E, A>(
+  onState: (fiber: FiberContext<E, A>, status: FiberStatus) => IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
+  return new Stateful(onState, __tsplusTrace);
 }
 
 /**

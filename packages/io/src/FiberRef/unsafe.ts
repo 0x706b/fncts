@@ -84,3 +84,8 @@ export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>
  * @tsplus static fncts.io.FiberRefOps currentScheduler
  */
 export const currentScheduler = FiberRef.unsafeMake<Scheduler>(defaultScheduler);
+
+/**
+ * @tsplus static fncts.io.FiberRefOps currentSupervisor
+ */
+export const currentSupervisor = FiberRef.unsafeMake<Supervisor<any>>(Supervisor.none);

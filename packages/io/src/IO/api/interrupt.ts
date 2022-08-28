@@ -1,5 +1,3 @@
-import { SetInterrupt } from "../definition.js";
-
 /**
  * Returns an effect that is interrupted as if by the specified fiber.
  *
@@ -30,7 +28,14 @@ export function setInterruptStatus_<R, E, A>(
   flag: InterruptStatus,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return new SetInterrupt(self, flag, __tsplusTrace);
+  return IO.withFiberContext((fiber) => {
+    const b = flag.toBoolean;
+    if (fiber.unsafeIsInterruptible !== b) {
+      fiber.interruptStatus.push(b);
+      fiber.unsafeRestoreInterruptStatus();
+    }
+    return self;
+  });
 }
 
 /**

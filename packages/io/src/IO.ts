@@ -46,6 +46,7 @@ export * from "./IO/api/scopeWith.js";
 export * from "./IO/api/sequenceT.js";
 export * from "./IO/api/sleep.js";
 export * from "./IO/api/stateful.js";
+export * from "./IO/api/supervised.js";
 export * from "./IO/api/timeout.js";
 export * from "./IO/api/withChildren.js";
 export * from "./IO/api/withEarlyRelease.js";

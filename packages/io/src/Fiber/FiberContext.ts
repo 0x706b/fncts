@@ -8,7 +8,6 @@ import { CancellerState } from "@fncts/io/CancellerState";
 import { FiberTypeId, isFiber } from "@fncts/io/Fiber/definition";
 import { FiberState } from "@fncts/io/FiberState";
 import { FiberStatus, FiberStatusTag } from "@fncts/io/FiberStatus";
-import { defaultScheduler } from "@fncts/io/internal/Scheduler";
 import { StackTraceBuilder } from "@fncts/io/internal/StackTraceBuilder";
 import { concrete, IOTag, isIOError } from "@fncts/io/IO/definition";
 
@@ -73,16 +72,15 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   private asyncEpoch         = 0 | 0;
   private stack              = Stack<Frame>();
   nextIO: Instruction | null = null;
-  private currentSupervisor: Supervisor<any>;
 
   constructor(
-    protected readonly fiberId: FiberId.Runtime,
-    private runtimeConfig: RuntimeConfig,
-    private interruptStatus: Stack<boolean>,
-    private fiberRefLocals: FiberRefLocals,
+    readonly fiberId: FiberId.Runtime,
+    public runtimeConfig: RuntimeConfig,
+    public interruptStatus: Stack<boolean>,
+    public fiberRefLocals: FiberRefLocals,
     private readonly _children: Set<FiberContext<unknown, unknown>>,
   ) {
-    this.currentSupervisor = this.runtimeConfig.supervisor;
+    this.unsafeSetRef(FiberRef.currentSupervisor, this.runtimeConfig.supervisor);
   }
 
   get poll() {
@@ -310,24 +308,13 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     }
                     break;
                   }
+
                   case IOTag.Match: {
                     this.stack.push(current);
                     current = concrete(current.io);
                     break;
                   }
-                  case IOTag.SetInterrupt: {
-                    const boolFlag = current.flag.toBoolean;
-                    if (this.unsafeIsInterruptible !== boolFlag) {
-                      this.interruptStatus.push(current.flag.toBoolean);
-                      this.unsafeRestoreInterruptStatus();
-                    }
-                    current = concrete(current.io);
-                    break;
-                  }
-                  case IOTag.GetInterrupt: {
-                    current = concrete(current.f(InterruptStatus.fromBoolean(this.unsafeIsInterruptible)));
-                    break;
-                  }
+
                   case IOTag.Async: {
                     const trace = current.trace;
 
@@ -372,10 +359,6 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     );
                     break;
                   }
-                  case IOTag.GetDescriptor: {
-                    current = concrete(current.f(this.unsafeGetDescriptor()));
-                    break;
-                  }
                   case IOTag.Yield: {
                     current = null;
                     this.unsafeRunLater(concrete(IO.unit));
@@ -390,47 +373,8 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     break;
                   }
 
-                  case IOTag.FiberRefModifyAll: {
-                    const [result, newValue] = current.f(this.fiberId, FiberRefs(this.fiberRefLocals.get));
-                    this.fiberRefLocals.set(newValue.fiberRefLocals);
-                    current = this.unsafeNextEffect(result);
-                    break;
-                  }
-
-                  case IOTag.FiberRefModify: {
-                    const c                  = current;
-                    const [result, newValue] = current.f(this.unsafeGetRef(current.fiberRef));
-                    this.unsafeSetRef(c.fiberRef, newValue);
-                    current = this.unsafeNextEffect(result);
-                    break;
-                  }
-
-                  case IOTag.FiberRefLocally: {
-                    const oldValue = this.unsafeGetRef(current.fiberRef);
-                    const fiberRef = current.fiberRef;
-                    this.unsafeSetRef(fiberRef, current.localValue);
-                    this.unsafeAddFinalizer(
-                      IO.succeed(() => {
-                        this.unsafeSetRef(fiberRef, oldValue);
-                      }),
-                    );
-                    current = concrete(current.io);
-                    break;
-                  }
-
-                  case IOTag.FiberRefDelete: {
-                    this.unsafeDeleteRef(current.fiberRef);
-                    current = this.unsafeNextEffect(undefined);
-                    break;
-                  }
-
-                  case IOTag.FiberRefWith: {
-                    current = concrete(current.f(this.unsafeGetRef(current.fiberRef)));
-                    break;
-                  }
-
-                  case IOTag.GetRuntimeConfig: {
-                    current = concrete(current.f(this.runtimeConfig));
+                  case IOTag.Stateful: {
+                    current = concrete(current.onState(this, this.state.status));
                     break;
                   }
 
@@ -439,39 +383,6 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     break;
                   }
 
-                  case IOTag.Supervise: {
-                    const oldSupervisor    = this.currentSupervisor;
-                    this.currentSupervisor = current.supervisor.zip(oldSupervisor);
-                    this.unsafeAddFinalizer(
-                      IO.succeed(() => {
-                        this.currentSupervisor = oldSupervisor;
-                      }),
-                    );
-                    current = concrete(current.io);
-                    break;
-                  }
-
-                  case IOTag.GetForkScope: {
-                    current = concrete(current.f(this.unsafeGetRef(FiberRef.forkScopeOverride).getOrElse(this.scope)));
-                    break;
-                  }
-
-                  case IOTag.OverrideForkScope: {
-                    const oldForkScopeOverride = this.unsafeGetRef(FiberRef.forkScopeOverride);
-                    this.unsafeSetRef(FiberRef.forkScopeOverride, current.forkScope);
-                    this.unsafeAddFinalizer(
-                      IO.succeed(() => {
-                        this.unsafeSetRef(FiberRef.forkScopeOverride, oldForkScopeOverride);
-                      }),
-                    );
-                    current = concrete(current.io);
-                    break;
-                  }
-                  case IOTag.Ensuring: {
-                    this.unsafeAddFinalizer(current.finalizer);
-                    current = concrete(current.io);
-                    break;
-                  }
                   case IOTag.Logged: {
                     this.unsafeLogWith(
                       current.message,
@@ -483,11 +394,6 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     );
 
                     current = this.unsafeNextEffect(undefined);
-                    break;
-                  }
-                  case IOTag.SetRuntimeConfig: {
-                    this.runtimeConfig = current.runtimeConfig;
-                    current            = concrete(IO.unit);
                     break;
                   }
                   default: {
@@ -528,7 +434,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       }
     } finally {
       currentFiber.set(null);
-      this.currentSupervisor !== Supervisor.none && this.currentSupervisor.unsafeOnSuspend(this);
+      this.currentSupervisor.unsafeOnSuspend(this);
     }
   }
 
@@ -539,7 +445,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     });
   }
 
-  private unsafeGetRef<A>(ref: FiberRef<A>): A {
+  unsafeGetRef<A>(ref: FiberRef<A>): A {
     return this.fiberRefLocals.get
       .get(ref)
       .map((_) => _.head[1])
@@ -550,7 +456,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     return fiberRefLocals.get.map((stack) => stack.head[1]);
   }
 
-  private unsafeSetRef<A>(ref: FiberRef<A>, value: A): void {
+  unsafeSetRef<A>(ref: FiberRef<A>, value: A): void {
     const oldState = this.fiberRefLocals.get;
     const oldStack = oldState.get(ref).getOrElse(List.empty<readonly [FiberId.Runtime, unknown]>());
     let newStack: Cons<readonly [FiberId.Runtime, unknown]>;
@@ -565,7 +471,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     this.fiberRefLocals.set(newState);
   }
 
-  private unsafeDeleteRef<A>(ref: FiberRef<A>): void {
+  unsafeDeleteRef<A>(ref: FiberRef<A>): void {
     this.fiberRefLocals.set(this.fiberRefLocals.get.remove(ref));
   }
 
@@ -592,7 +498,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     }
   });
 
-  private unsafeAddFinalizer(finalizer: IO<any, never, any>): void {
+  unsafeAddFinalizer(finalizer: IO<any, never, any>): void {
     this.stack.push(
       new Finalizer(finalizer, (v) => {
         this.unsafeDisableInterruption();
@@ -602,7 +508,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     );
   }
 
-  private get unsafeIsInterruptible() {
+  get unsafeIsInterruptible() {
     return this.interruptStatus.hasNext ? this.interruptStatus.peek()! : true;
   }
 
@@ -622,7 +528,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     this.interruptStatus.push(false);
   }
 
-  private unsafeRestoreInterruptStatus(): void {
+  unsafeRestoreInterruptStatus(): void {
     this.stack.push(this.interruptExit);
   }
 
@@ -958,7 +864,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     }
   }
 
-  private unsafeGetDescriptor() {
+  unsafeGetDescriptor() {
     return new FiberDescriptor(
       this.fiberId,
       this.state.status,
@@ -1100,5 +1006,9 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       spans,
       annotations,
     );
+  }
+
+  get currentSupervisor(): Supervisor<any> {
+    return this.unsafeGetRef(FiberRef.currentSupervisor);
   }
 }

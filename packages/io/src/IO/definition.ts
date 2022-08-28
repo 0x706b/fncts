@@ -1,3 +1,4 @@
+import type { FiberStatus } from "../FiberStatus.js";
 import type { Trace as Trace_ } from "@fncts/base/data/Trace";
 import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
 
@@ -7,7 +8,7 @@ export type IOTypeId = typeof IOTypeId;
 export interface IOF extends HKT {
   type: IO<this["R"], this["E"], this["A"]>;
   variance: {
-    R: "-";
+    R: "+";
     E: "+";
     A: "+";
   };
@@ -66,22 +67,9 @@ export const enum IOTag {
   Fail = "Fail",
   Yield = "Yield",
   Race = "Race",
-  SetInterrupt = "SetInterrupt",
-  GetInterrupt = "GetInterrupt",
-  GetDescriptor = "GetDescriptor",
-  Supervise = "Supervise",
-  FiberRefModify = "FiberRefModify",
-  FiberRefLocally = "FiberRefLocally",
-  FiberRefDelete = "FiberRefDelete",
-  FiberRefWith = "FiberRefWith",
-  FiberRefModifyAll = "FiberRefModifyAll",
-  GetForkScope = "GetForkScope",
-  OverrideForkScope = "OverrideForkScope",
   Trace = "Trace",
-  GetRuntimeConfig = "GetRuntimeConfig",
-  Ensuring = "Ensuring",
   Logged = "Logged",
-  SetRuntimeConfig = "SetRuntimeConfig",
+  Stateful = "Stateful",
 }
 
 export function isIO(u: unknown): u is IO<any, any, any> {
@@ -236,130 +224,12 @@ export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<R | R1
   }
 }
 
-/**
- * @internal
- */
-export class SetInterrupt<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.SetInterrupt;
-
-  constructor(readonly io: IO<R, E, A>, readonly flag: InterruptStatus, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class GetInterrupt<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.GetInterrupt;
-
-  constructor(readonly f: (_: InterruptStatus) => IO<R, E, A>, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class GetDescriptor<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.GetDescriptor;
-
-  constructor(readonly f: (_: FiberDescriptor) => IO<R, E, A>, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class Supervise<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.Supervise;
-
-  constructor(readonly io: IO<R, E, A>, readonly supervisor: Supervisor<any>, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class FiberRefModify<A, B> extends IO<never, never, B> {
-  readonly _tag = IOTag.FiberRefModify;
-
-  constructor(readonly fiberRef: FiberRef<unknown>, readonly f: (a: A) => readonly [B, A], readonly trace?: string) {
-    super();
-  }
-}
-
-export class FiberRefLocally<V, R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.FiberRefLocally;
+export class Stateful<R, E, A> extends IO<R, E, A> {
+  readonly _tag = IOTag.Stateful;
   constructor(
-    readonly localValue: V,
-    readonly fiberRef: FiberRef<V>,
-    readonly io: IO<R, E, A>,
+    readonly onState: (fiber: FiberContext<E, A>, status: FiberStatus) => IO<R, E, A>,
     readonly trace?: string,
   ) {
-    super();
-  }
-}
-
-export class FiberRefDelete extends IO<never, never, void> {
-  readonly _tag = IOTag.FiberRefDelete;
-  constructor(readonly fiberRef: FiberRef<unknown>, readonly trace?: string) {
-    super();
-  }
-}
-
-export class FiberRefWith<A, P, R, E, B> extends IO<R, E, B> {
-  readonly _tag = IOTag.FiberRefWith;
-  constructor(readonly fiberRef: FiberRef<A>, readonly f: (a: A) => IO<R, E, B>, readonly trace?: string) {
-    super();
-  }
-}
-
-export class FiberRefModifyAll<A> extends IO<never, never, A> {
-  readonly _tag = IOTag.FiberRefModifyAll;
-  constructor(
-    readonly f: (fiberId: FiberId.Runtime, fiberRefs: FiberRefs) => readonly [A, FiberRefs],
-    readonly trace?: string,
-  ) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class GetForkScope<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.GetForkScope;
-
-  constructor(readonly f: (_: FiberScope) => IO<R, E, A>, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class OverrideForkScope<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.OverrideForkScope;
-
-  constructor(readonly io: IO<R, E, A>, readonly forkScope: Maybe<FiberScope>, readonly trace?: string) {
-    super();
-  }
-}
-
-export class GetRuntimeConfig<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.GetRuntimeConfig;
-
-  constructor(readonly f: (_: RuntimeConfig) => IO<R, E, A>, readonly trace?: string) {
-    super();
-  }
-}
-
-export class Ensuring<R, E, A, R1> extends IO<R | R1, E, A> {
-  readonly _tag = IOTag.Ensuring;
-  constructor(readonly io: IO<R, E, A>, readonly finalizer: IO<R1, never, any>, readonly trace?: string) {
     super();
   }
 }
@@ -378,13 +248,6 @@ export class Logged extends IO<never, never, void> {
   }
 }
 
-export class SetRuntimeConfig extends IO<never, never, void> {
-  readonly _tag = IOTag.SetRuntimeConfig;
-  constructor(readonly runtimeConfig: RuntimeConfig, readonly trace?: string) {
-    super();
-  }
-}
-
 export type Instruction =
   | Chain<any, any, any, any, any, any>
   | SucceedNow<any>
@@ -393,27 +256,14 @@ export type Instruction =
   | Async<any, any, any, any>
   | Match<any, any, any, any, any, any, any, any, any>
   | Fork<any, any, any>
-  | SetInterrupt<any, any, any>
-  | GetInterrupt<any, any, any>
   | Fail<any>
-  | GetDescriptor<any, any, any>
   | Yield
   | Defer<any, any, any>
   | DeferWith<any, any, any>
-  | FiberRefModify<any, any>
-  | FiberRefLocally<any, any, any, any>
-  | FiberRefDelete
-  | FiberRefWith<any, any, any, any, any>
-  | FiberRefModifyAll<any>
+  | Stateful<any, any, any>
   | Race<any, any, any, any, any, any, any, any, any, any, any, any>
-  | Supervise<any, any, any>
-  | GetForkScope<any, any, any>
-  | OverrideForkScope<any, any, any>
   | Trace
-  | GetRuntimeConfig<any, any, any>
-  | Ensuring<any, any, any, any>
-  | Logged
-  | SetRuntimeConfig;
+  | Logged;
 
 /**
  * @tsplus macro identity
