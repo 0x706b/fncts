@@ -67,9 +67,7 @@ export const enum IOTag {
   OnSuccess,
   OnFailure,
   UpdateRuntimeFlags,
-  Interruptible,
-  Uninterruptible,
-  Dynamic,
+  UpdateRuntimeFlagsWithin,
   GenerateStackTrace,
   Stateful,
   WhileLoop,
@@ -173,7 +171,7 @@ export class UpdateRuntimeFlags extends IO<never, never, void> {
 }
 
 export class Interruptible<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.Interruptible;
+  readonly _tag = IOTag.UpdateRuntimeFlagsWithin;
   constructor(readonly effect: IO<R, E, A>, readonly trace?: string) {
     super();
   }
@@ -185,7 +183,7 @@ export class Interruptible<R, E, A> extends IO<R, E, A> {
 }
 
 export class Uninterruptible<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.Uninterruptible;
+  readonly _tag = IOTag.UpdateRuntimeFlagsWithin;
   constructor(readonly effect: IO<R, E, A>, readonly trace?: string) {
     super();
   }
@@ -197,7 +195,7 @@ export class Uninterruptible<R, E, A> extends IO<R, E, A> {
 }
 
 export class Dynamic<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.Dynamic;
+  readonly _tag = IOTag.UpdateRuntimeFlagsWithin;
   constructor(
     readonly update: RuntimeFlagsPatch,
     readonly f: (oldRuntimeFlags: RuntimeFlags) => IO<R, E, A>,

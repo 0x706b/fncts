@@ -54,16 +54,17 @@ export function mkStateful(onFiber: (fiber: FiberRuntime<any, any>, status: Fibe
   return new Stateful(onFiber);
 }
 
-export interface Resume {
-  readonly _tag: FiberMessageTag.Resume;
+export class Resume {
+  readonly _tag = FiberMessageTag.Resume;
+  constructor(readonly cont: IO<any, any, any>) {}
 }
 
 /**
  * @tsplus static fncts.io.FiberMessageOps Resume
  */
-export const Resume: FiberMessage = {
-  _tag: FiberMessageTag.Resume,
-};
+export function mkResume(cont: IO<any, any, any>): FiberMessage {
+  return new Resume(cont);
+}
 
 export interface YieldNow {
   readonly _tag: FiberMessageTag.YieldNow;
