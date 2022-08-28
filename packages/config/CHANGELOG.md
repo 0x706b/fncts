@@ -1,5 +1,11 @@
 # @fncts/config
 
+## 0.0.12
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+
 ## 0.0.11
 
 ### Patch Changes

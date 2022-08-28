@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.10
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+
 ## 0.0.9
 
 ### Patch Changes

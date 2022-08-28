@@ -1,5 +1,16 @@
 # @fncts/io
 
+## 0.0.18
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+- fb9c8ed: refactor: simplify IO instructions
+- Updated dependencies [90ad430]
+  - @fncts/base@0.0.18
+  - @fncts/transformers@0.0.2
+  - @fncts/typelevel@0.0.14
+
 ## 0.0.17
 
 ### Patch Changes

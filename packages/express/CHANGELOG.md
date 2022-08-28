@@ -1,5 +1,14 @@
 # @fncts/express
 
+## 0.0.11
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+- Updated dependencies [90ad430]
+- Updated dependencies [fb9c8ed]
+  - @fncts/io@0.0.18
+
 ## 0.0.10
 
 ### Patch Changes

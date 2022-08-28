@@ -1,5 +1,13 @@
 # @fncts/pattern
 
+## 0.0.7
+
+### Patch Changes
+
+- 90ad430: chore: update tsplus
+- Updated dependencies [90ad430]
+  - @fncts/base@0.0.18
+
 ## 0.0.6
 
 ### Patch Changes
