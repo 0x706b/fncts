@@ -9,13 +9,13 @@
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.7",
     "@fncts/codegen": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^5.33.0",
-    "@typescript-eslint/experimental-utils": "^5.33.0",
-    "@typescript-eslint/parser": "^5.33.0",
-    "eslint-import-resolver-typescript": "3.4.0",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/experimental-utils": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
+    "eslint-import-resolver-typescript": "3.5.0",
     "eslint-plugin-codegen": "^0.16.1",
     "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0"
+    "eslint-plugin-simple-import-sort": "^8.0.0"
   },
   "peerDependencies": {
     "eslint": "^8.21.0"

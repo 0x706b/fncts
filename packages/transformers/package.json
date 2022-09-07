@@ -26,14 +26,14 @@
   },
   "dependencies": {
     "@fncts/typelevel": "workspace:*",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/uuid": "^8",
+    "@types/uuid": "^8.3.4",
     "madge": "^5.0.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.2"
   }
 }
