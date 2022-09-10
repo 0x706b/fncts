@@ -5,6 +5,7 @@ import { identity } from "@fncts/base/data/function";
 import { Patch } from "@fncts/base/data/Patch";
 import { defaultScheduler } from "@fncts/io/internal/Scheduler";
 
+import { IsFatal } from "../internal/IsFatal.js";
 import { FiberRefInternal } from "./definition.js";
 
 /**
@@ -89,3 +90,15 @@ export const currentScheduler = FiberRef.unsafeMake<Scheduler>(defaultScheduler)
  * @tsplus static fncts.io.FiberRefOps currentSupervisor
  */
 export const currentSupervisor = FiberRef.unsafeMake<Supervisor<any>>(Supervisor.none);
+
+/**
+ * @tsplus static fncts.io.FiberRefOps currentIsFatal
+ */
+export const currentIsFatal = FiberRef.unsafeMake<IsFatal>(IsFatal.empty);
+
+/**
+ * @tsplus static fncts.io.FiberRefOps currentReportFatal
+ */
+export const currentReportFatal = FiberRef.unsafeMake<(t: unknown) => never>((t) => {
+  throw t;
+});

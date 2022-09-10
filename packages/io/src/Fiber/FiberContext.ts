@@ -169,7 +169,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   }
 
   interruptAs(fiberId: FiberId): UIO<Exit<E, A>> {
-    return this.unsafeInterruptAs(fiberId);
+    return this.interruptAsFork(fiberId).apSecond(this.await);
   }
 
   evalOn(effect: UIO<any>, orElse: UIO<any>): UIO<void> {
@@ -426,6 +426,8 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                 current     = concrete(IO.failCauseNow(e.exit.cause, trace));
               }
             }
+          } else if (this.unsafeIsFatal(e)) {
+            this.unsafeHandleFatalError(e);
           } else {
             this.unsafeSetInterrupting(true);
             current = concrete(IO.haltNow(e));
@@ -630,9 +632,9 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     }
   }
 
-  private unsafeInterruptAs(fiberId: FiberId): UIO<Exit<E, A>> {
+  interruptAsFork(fiberId: FiberId): UIO<void> {
     const interruptedCause = Cause.interrupt(fiberId);
-    return IO.defer(() => {
+    return IO(() => {
       const oldState = this.state;
       if (
         this.state._tag === "Executing" &&
@@ -651,7 +653,6 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
         this.state.interruptors.add(fiberId);
         this.state.suppressed = newCause;
       }
-      return this.await;
     });
   }
 
@@ -1006,6 +1007,14 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       spans,
       annotations,
     );
+  }
+
+  private unsafeIsFatal(t: unknown): boolean {
+    return this.unsafeGetRef(FiberRef.currentIsFatal).apply(t);
+  }
+
+  private unsafeHandleFatalError(t: unknown): never {
+    return this.unsafeGetRef(FiberRef.currentReportFatal)(t);
   }
 
   get currentSupervisor(): Supervisor<any> {

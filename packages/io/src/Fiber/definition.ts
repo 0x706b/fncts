@@ -40,11 +40,9 @@ export interface FiberCommon<E, A> extends Fiber<E, A> {
   readonly inheritRefs: UIO<void>;
 
   /**
-   * Interrupts the fiber as if interrupted from the specified fiber. If the
-   * fiber has already exited, the returned effect will resume immediately.
-   * Otherwise, the effect will resume when the fiber exits.
+   * Interrupts the fiber as if interrupted from the specified fiber.
    */
-  readonly interruptAs: (fiberId: FiberId) => UIO<Exit<E, A>>;
+  readonly interruptAsFork: (fiberId: FiberId) => UIO<void>;
 
   /**
    * Tentatively observes the fiber, but returns immediately if it is not already done.
@@ -107,7 +105,7 @@ export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
     readonly children: UIO<Conc<Fiber.Runtime<any, any>>>,
     readonly inheritRefs: UIO<void>,
     readonly poll: UIO<Maybe<Exit<E, A>>>,
-    readonly interruptAs: (fiberId: FiberId) => UIO<Exit<E, A>>,
+    readonly interruptAsFork: (fiberId: FiberId) => UIO<void>,
   ) {
     this.await = wait;
   }

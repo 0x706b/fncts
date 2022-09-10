@@ -3,8 +3,8 @@
  *
  * @tsplus static fncts.io.FiberOps interruptAllAs
  */
-export function interruptAllAs_(fs: Iterable<Fiber<any, any>>, id: FiberId, __tsplusTrace?: string): UIO<void> {
-  return fs.foldLeft(IO.unit, (io, f) => io.flatMap(() => f.interruptAs(id).asUnit));
+export function interruptAllAs(fs: Iterable<Fiber<any, any>>, id: FiberId, __tsplusTrace?: string): UIO<void> {
+  return IO.foreachDiscard(fs, fiber => fiber.interruptAsFork(id)) > IO.foreachDiscard(fs, fiber => fiber.await)
 }
 
 /**
