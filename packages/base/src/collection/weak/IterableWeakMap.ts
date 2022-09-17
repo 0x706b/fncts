@@ -12,7 +12,7 @@ export class IterableWeakMap<K extends object, V> implements Iterable<readonly [
     set.delete(ref);
   }
 
-  constructor(iterable: Iterable<readonly [K, V]>) {
+  constructor(iterable: Iterable<readonly [K, V]> = Iterable.empty()) {
     for (const [key, value] of iterable) {
       this.set(key, value);
     }

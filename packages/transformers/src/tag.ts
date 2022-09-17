@@ -4,7 +4,7 @@ import { v4 } from "uuid";
 export default function transformTag(program: ts.Program, _config: {}): ts.TransformerFactory<ts.SourceFile> {
   const checker = program.getTypeChecker();
   return (context) => (sourceFile) => ts.visitEachChild(sourceFile, function visitor (node): ts.Node {
-    if (ts.isCallExpression(node)) {
+    if (ts.isCallExpression(node) && node.arguments.length === 0) {
       const originalNode = ts.getOriginalNode(node);
       const nodeLinks    = checker.getNodeLinks(originalNode);
       if (nodeLinks.tsPlusCallExtension) {
