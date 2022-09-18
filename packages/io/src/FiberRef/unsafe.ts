@@ -17,8 +17,9 @@ export function unsafeMakePatch<Value, Patch>(
   combine: (first: Patch, second: Patch) => Patch,
   patch: (patch: Patch) => (oldValue: Value) => Value,
   fork: Patch,
+  join: (oldValue: Value, newValue: Value) => Value = (_, newValue) => newValue,
 ): FiberRef.WithPatch<Value, Patch> {
-  return new FiberRefInternal(initial, diff, combine, patch, fork);
+  return new FiberRefInternal(initial, diff, combine, patch, fork, join);
 }
 
 /**
@@ -46,15 +47,20 @@ export function unsafeMake<A>(
     initial,
     (_, newValue) => () => newValue,
     (first, second) => (value) => second(first(value)),
-    (patch) => (value) => join(value, patch(value)),
+    (patch) => (value) => patch(value),
     fork,
+    join,
   );
 }
 
 /**
  * @tsplus static fncts.io.FiberRefOps forkScopeOverride
  */
-export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(Nothing(), () => Nothing());
+export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(
+  Nothing(),
+  () => Nothing(),
+  (parent, _) => parent,
+);
 
 /**
  * @tsplus static fncts.io.FiberRefOps currentEnvironment

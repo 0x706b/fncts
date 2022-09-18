@@ -33,6 +33,7 @@ export class FiberRefInternal<Value, Patch> extends FiberRef<Value> implements H
     readonly _combine: (first: Patch, second: Patch) => Patch,
     readonly _patch: (patch: Patch) => (oldValue: Value) => Value,
     readonly _fork: Patch,
+    readonly _join: (oldValue: Value, newValue: Value) => Value,
   ) {
     super();
   }

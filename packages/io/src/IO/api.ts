@@ -2037,8 +2037,8 @@ export function updateFiberRefs(
 ): UIO<void> {
   return IO.withFiberContext((fiber) =>
     IO(() => {
-      const newFiberRefs = f(fiber.fiberId, FiberRefs(fiber.fiberRefLocals.get));
-      fiber.fiberRefLocals.set(newFiberRefs.fiberRefLocals);
+      const newFiberRefs   = f(fiber.fiberId, fiber.fiberRefs);
+      fiber.fiberRefLocals = newFiberRefs.fiberRefLocals;
     }),
   );
 }

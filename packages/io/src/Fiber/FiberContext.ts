@@ -11,7 +11,7 @@ import { FiberStatus, FiberStatusTag } from "@fncts/io/FiberStatus";
 import { StackTraceBuilder } from "@fncts/io/internal/StackTraceBuilder";
 import { concrete, IOTag, isIOError } from "@fncts/io/IO/definition";
 
-export type FiberRefLocals = AtomicReference<HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>>;
+export type FiberRefLocals = HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>;
 
 type Erased = IO<any, any, any>;
 type ErasedCont = (a: any) => Erased;
@@ -89,7 +89,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
 
   get inheritRefs(): UIO<void> {
     return IO.defer(() => {
-      const childFiberRefLocals = this.fiberRefLocals.get;
+      const childFiberRefLocals = this.fiberRefLocals;
       if (childFiberRefLocals.isEmpty) {
         return IO.unit;
       } else {
@@ -138,6 +138,10 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       Δ(this.evalOn(effect.provideEnvironment(r).fulfill(p), orElse.provideEnvironment(r).fulfill(p)));
       return Δ(p.await);
     });
+  }
+
+  get fiberRefs(): FiberRefs {
+    return FiberRefs(this.fiberRefLocals);
   }
 
   get await(): UIO<Exit<E, A>> {
@@ -448,18 +452,18 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   }
 
   unsafeGetRef<A>(ref: FiberRef<A>): A {
-    return this.fiberRefLocals.get
+    return this.fiberRefLocals
       .get(ref)
       .map((_) => _.head[1])
       .getOrElse(ref.initial) as A;
   }
 
   private unsafeGetRefs(fiberRefLocals: FiberRefLocals): HashMap<FiberRef<unknown>, unknown> {
-    return fiberRefLocals.get.map((stack) => stack.head[1]);
+    return fiberRefLocals.map((stack) => stack.head[1]);
   }
 
   unsafeSetRef<A>(ref: FiberRef<A>, value: A): void {
-    const oldState = this.fiberRefLocals.get;
+    const oldState = this.fiberRefLocals;
     const oldStack = oldState.get(ref).getOrElse(List.empty<readonly [FiberId.Runtime, unknown]>());
     let newStack: Cons<readonly [FiberId.Runtime, unknown]>;
     if (oldStack.isEmpty()) {
@@ -469,12 +473,12 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     } else {
       newStack = Cons([this.fiberId, value], oldStack);
     }
-    const newState = oldState.set(ref, newStack);
-    this.fiberRefLocals.set(newState);
+    const newState      = oldState.set(ref, newStack);
+    this.fiberRefLocals = newState;
   }
 
   unsafeDeleteRef<A>(ref: FiberRef<A>): void {
-    this.fiberRefLocals.set(this.fiberRefLocals.get.remove(ref));
+    this.fiberRefLocals = this.fiberRefLocals.remove(ref);
   }
 
   unsafePoll() {
@@ -797,15 +801,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   ): FiberContext<any, any> {
     const childId = FiberId.unsafeMake(TraceElement.parse(trace));
 
-    const childFiberRefLocals = this.fiberRefLocals.get.mapWithIndex((fiberRef, stack) => {
-      const oldValue = stack.head[1];
-      const newValue = fiberRef.patch(fiberRef.fork)(oldValue);
-      if (oldValue === newValue) {
-        return stack;
-      } else {
-        return Cons([childId, newValue], stack);
-      }
-    });
+    const childFiberRefLocals = this.fiberRefs.forkAs(childId).fiberRefLocals;
 
     const parentScope: FiberScope = forkScope
       .orElse(this.unsafeGetRef(FiberRef.forkScopeOverride))
@@ -817,7 +813,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       childId,
       this.runtimeConfig,
       Stack.single(this.unsafeIsInterruptible),
-      new AtomicReference(childFiberRefLocals),
+      childFiberRefLocals,
       grandChildren,
     );
 
@@ -963,7 +959,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       logLevel,
       message,
       Cause.empty(),
-      this.fiberRefLocals.get,
+      this.fiberRefLocals,
       spans,
       annotations,
     );
@@ -994,7 +990,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
       }
       contextMap = map;
     } else {
-      contextMap = this.fiberRefLocals.get;
+      contextMap = this.fiberRefLocals;
     }
 
     this.runtimeConfig.logger.log(

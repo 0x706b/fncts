@@ -17,11 +17,9 @@ export class Runtime<R> {
       fiberId,
       this.runtimeConfig,
       Stack.single(InterruptStatus.interruptible.toBoolean),
-      new AtomicReference(
-        HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
-          [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
-          [IOEnv.services, Cons([fiberId, IOEnv.environment])],
-        ),
+      HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
+        [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
+        [IOEnv.services, Cons([fiberId, IOEnv.environment])],
       ),
       children,
     );
@@ -71,12 +69,10 @@ export class Runtime<R> {
       fiberId,
       this.runtimeConfig,
       Stack.single(InterruptStatus.interruptible.toBoolean),
-      new AtomicReference(
-        HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
-          [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
-          [IOEnv.services, Cons([fiberId, IOEnv.environment])],
-          [FiberRef.currentScheduler, Cons([fiberId, scheduler])],
-        ),
+      HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
+        [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
+        [IOEnv.services, Cons([fiberId, IOEnv.environment])],
+        [FiberRef.currentScheduler, Cons([fiberId, scheduler])],
       ),
       children,
     );

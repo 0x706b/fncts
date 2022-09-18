@@ -25,7 +25,7 @@ export function join(self: FiberRefs, fiberId: FiberId.Runtime, that: FiberRefs)
         const patch = ref.diff(ancestor, childValue);
 
         const oldValue = parentStack.head[1];
-        const newValue = ref.patch(patch)(oldValue);
+        const newValue = ref.join(oldValue, ref.patch(patch)(oldValue));
 
         if (oldValue === newValue) return parentFiberRefs;
 
