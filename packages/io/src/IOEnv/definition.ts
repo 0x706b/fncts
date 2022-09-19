@@ -1,5 +1,3 @@
-import type { Patch } from "@fncts/base/data/Patch";
-
 import { Console } from "@fncts/io/Console";
 
 export type IOEnv = Clock | Console | Random;
