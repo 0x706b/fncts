@@ -1,3 +1,5 @@
+import type { EnvironmentPatch } from "@fncts/base/data/EnvironmentPatch";
+
 /**
  * @tsplus static fncts.prelude.builtin.SymbolOps env
  */
@@ -24,6 +26,10 @@ export class Environment<R> implements Hashable, Equatable {
   [Symbol.equals](that: unknown): boolean {
     return isEnvironment(that) ? this.map == that.map : false;
   }
+}
+
+export declare namespace Environment {
+  type Patch<In, Out> = EnvironmentPatch<In, Out>;
 }
 
 export function isEnvironment(u: unknown): u is Environment<unknown> {

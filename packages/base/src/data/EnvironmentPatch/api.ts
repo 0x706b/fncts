@@ -1,14 +1,14 @@
 import { Cons } from "@fncts/base/collection/immutable/List";
-import { AddService, RemoveService, UpdateService } from "@fncts/base/data/Patch";
-import { Patch } from "@fncts/base/data/Patch/definition";
-import { Empty } from "@fncts/base/data/Patch/definition";
-import { Compose } from "@fncts/base/data/Patch/definition";
-import { concrete } from "@fncts/base/data/Patch/definition";
+import { AddService, RemoveService, UpdateService } from "@fncts/base/data/EnvironmentPatch";
+import { EnvironmentPatch } from "@fncts/base/data/EnvironmentPatch/definition";
+import { Empty } from "@fncts/base/data/EnvironmentPatch/definition";
+import { Compose } from "@fncts/base/data/EnvironmentPatch/definition";
+import { concrete } from "@fncts/base/data/EnvironmentPatch/definition";
 
 /**
  * @tsplus tailRec
  */
-function applyLoop(environment: Environment<any>, patches: List<Patch<any, any>>): Environment<any> {
+function applyLoop(environment: Environment<any>, patches: List<EnvironmentPatch<any, any>>): Environment<any> {
   if (patches.isEmpty()) {
     return environment;
   }
@@ -32,26 +32,27 @@ function applyLoop(environment: Environment<any>, patches: List<Patch<any, any>>
 /**
  * @tsplus fluent fncts.Environment.Patch __call
  */
-export function apply<In, Out>(patch: Patch<In, Out>, environment: Environment<In>): Environment<Out> {
+export function apply<In, Out>(patch: EnvironmentPatch<In, Out>, environment: Environment<In>): Environment<Out> {
   return applyLoop(environment, Cons(patch));
 }
 
 /**
  * @tsplus fluent fncts.Environment.Patch compose
  */
-export function compose<In, Out, Out2>(self: Patch<In, Out>, that: Patch<Out, Out2>): Patch<In, Out2> {
+export function compose<In, Out, Out2>(
+  self: EnvironmentPatch<In, Out>,
+  that: EnvironmentPatch<Out, Out2>,
+): EnvironmentPatch<In, Out2> {
   return new Compose(self, that);
 }
-
-const OrdEnvironmentMap = Number.Ord.contramap((_: readonly [Tag<unknown>, readonly [unknown, number]]) => _[1][1]);
 
 /**
  * @tsplus static fncts.Environment.PatchOps diff
  */
-export function diff<In, Out>(oldValue: Environment<In>, newValue: Environment<Out>): Patch<In, Out> {
+export function diff<In, Out>(oldValue: Environment<In>, newValue: Environment<Out>): EnvironmentPatch<In, Out> {
   const sorted                   = newValue.map.toArray;
   const [missingServices, patch] = sorted.foldLeft(
-    [oldValue.map.beginMutation, Patch.empty() as Patch<any, any>],
+    [oldValue.map.beginMutation, EnvironmentPatch.empty() as EnvironmentPatch<any, any>],
     ([map, patch], [tag, newService]) =>
       map.get(tag).match(
         () => [map.remove(tag), patch.compose(new AddService(newService, tag))],
@@ -70,6 +71,6 @@ export function diff<In, Out>(oldValue: Environment<In>, newValue: Environment<O
 /**
  * @tsplus static fncts.Environment.PatchOps empty
  */
-export function empty<A>(): Patch<A, A> {
+export function empty<A>(): EnvironmentPatch<A, A> {
   return new Empty();
 }

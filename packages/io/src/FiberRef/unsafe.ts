@@ -1,8 +1,9 @@
 import type { LogSpan } from "../LogSpan.js";
 import type { Scheduler } from "@fncts/io/internal/Scheduler.js";
 
+import { EnvironmentPatch } from "@fncts/base/data/EnvironmentPatch";
 import { identity } from "@fncts/base/data/function";
-import { Patch } from "@fncts/base/data/Patch";
+import { Differ } from "@fncts/io/Differ/definition";
 import { defaultScheduler } from "@fncts/io/internal/Scheduler";
 
 import { IsFatal } from "../internal/IsFatal.js";
@@ -13,26 +14,27 @@ import { FiberRefInternal } from "./definition.js";
  */
 export function unsafeMakePatch<Value, Patch>(
   initial: Value,
-  diff: (oldValue: Value, newValue: Value) => Patch,
-  combine: (first: Patch, second: Patch) => Patch,
-  patch: (patch: Patch) => (oldValue: Value) => Value,
+  differ: Differ<Value, Patch>,
   fork: Patch,
   join: (oldValue: Value, newValue: Value) => Value = (_, newValue) => newValue,
 ): FiberRef.WithPatch<Value, Patch> {
-  return new FiberRefInternal(initial, diff, combine, patch, fork, join);
+  return new FiberRefInternal(
+    initial,
+    (oldValue, newValue) => differ.diff(oldValue, newValue),
+    (first, second) => differ.combine(first, second),
+    (patch) => (oldValue) => differ.patch(patch)(oldValue),
+    fork,
+    join,
+  );
 }
 
 /**
  * @tsplus static fncts.io.FiberRefOps unsafeMakeEnvironment
  */
-export function unsafeMakeEnvironment<A>(initial: Environment<A>): FiberRef.WithPatch<Environment<A>, Patch<A, A>> {
-  return FiberRef.unsafeMakePatch(
-    initial,
-    Patch.diff,
-    (first, second) => first.compose(second),
-    (patch) => (value) => patch(value),
-    Patch.empty(),
-  );
+export function unsafeMakeEnvironment<A>(
+  initial: Environment<A>,
+): FiberRef.WithPatch<Environment<A>, Environment.Patch<A, A>> {
+  return FiberRef.unsafeMakePatch(initial, Differ.environment(), EnvironmentPatch.empty());
 }
 
 /**
@@ -43,14 +45,7 @@ export function unsafeMake<A>(
   fork: (a: A) => A = identity,
   join: (a0: A, a1: A) => A = (_, a) => a,
 ): FiberRef.WithPatch<A, (_: A) => A> {
-  return FiberRef.unsafeMakePatch(
-    initial,
-    (_, newValue) => () => newValue,
-    (first, second) => (value) => second(first(value)),
-    (patch) => (value) => patch(value),
-    fork,
-    join,
-  );
+  return FiberRef.unsafeMakePatch(initial, Differ.update(), fork, join);
 }
 
 /**

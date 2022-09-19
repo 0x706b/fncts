@@ -1,36 +1,40 @@
+import { concrete, SupervisorTag, Zip } from "@fncts/io/Supervisor/definition";
+
 /**
  * @tsplus fluent fncts.io.Supervisor zip
  */
 export function zip_<A, B>(fa: Supervisor<A>, fb: Supervisor<B>): Supervisor<readonly [A, B]> {
-  return new (class extends Supervisor<readonly [A, B]> {
-    value = fa.value.zip(fb.value);
-    unsafeOnStart<R, E, A>(
-      environment: Environment<R>,
-      effect: IO<R, E, A>,
-      parent: Maybe<Fiber.Runtime<any, any>>,
-      fiber: Fiber.Runtime<E, A>,
-    ) {
-      try {
-        fa.unsafeOnStart(environment, effect, parent, fiber);
-      } finally {
-        fb.unsafeOnStart(environment, effect, parent, fiber);
-      }
+  return new Zip(fa, fb);
+}
+
+/**
+ * @tsplus getter fncts.io.Supervisor toSet
+ */
+export function toSet(self: Supervisor<any>): HashSet<Supervisor<any>> {
+  concrete(self);
+  if (self === Supervisor.none) return HashSet.makeDefault();
+  else {
+    switch (self._tag) {
+      case SupervisorTag.Zip:
+        return self.first.toSet.union(self.second.toSet);
+      default:
+        return HashSet.makeDefault<Supervisor<any>>().add(self);
     }
-    unsafeOnEnd<E, A>(value: Exit<E, A>, fiber: Fiber.Runtime<E, A>) {
-      fa.unsafeOnEnd(value, fiber);
-      fb.unsafeOnEnd(value, fiber);
+  }
+}
+
+/**
+ * @tsplus fluent fncts.io.Supervisor removeSupervisor
+ */
+export function removeSupervisor(self: Supervisor<any>, that: Supervisor<any>): Supervisor<any> {
+  concrete(self);
+  if (self === that) return Supervisor.none;
+  else {
+    switch (self._tag) {
+      case SupervisorTag.Zip:
+        return self.first.removeSupervisor(that).zip(self.second.removeSupervisor(that));
+      default:
+        return self;
     }
-    unsafeOnEffect<E, A>(fiber: Fiber.Runtime<E, A>, effect: IO<any, any, any>) {
-      fa.unsafeOnEffect(fiber, effect);
-      fb.unsafeOnEffect(fiber, effect);
-    }
-    unsafeOnSuspend<E, A>(fiber: Fiber.Runtime<E, A>) {
-      fa.unsafeOnSuspend(fiber);
-      fb.unsafeOnSuspend(fiber);
-    }
-    unsafeOnResume<E, A>(fiber: Fiber.Runtime<E, A>) {
-      fa.unsafeOnResume(fiber);
-      fb.unsafeOnResume(fiber);
-    }
-  })();
+  }
 }
