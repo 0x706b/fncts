@@ -1,4 +1,4 @@
-import type { Brand, Branded } from "@fncts/base/data/Branded/definition";
+import type { Validation, Brand } from "@fncts/base/data/Branded/definition";
 import type { Check } from "@fncts/typelevel/Check";
 
 import { BrandedError, CompoundError } from "@fncts/base/data/DecodeError";
@@ -7,29 +7,29 @@ import { Decoder } from "@fncts/base/data/Decoder/definition";
 /**
  * @tsplus derive fncts.Guard<_> 10
  */
-export function deriveGuard<A extends Branded.Brand<any, any>>(
-  ...[base, brands]: Check<Branded.IsValidated<A>> extends Check.True
+export function deriveGuard<A extends Brand.Valid<any, any>>(
+  ...[base, brands]: Check<Brand.IsValidated<A>> extends Check.True
     ? [
-        base: Guard<Branded.Unbrand<A>>,
+        base: Guard<Brand.Unbranded<A>>,
         brands: {
-          [K in keyof A[Branded.Symbol] & string]: Brand<A[Branded.Symbol][K], K>;
+          [K in keyof A[Brand.valid] & string]: Validation<A[Brand.valid][K], K>;
         },
       ]
     : never
 ): Guard<A> {
-  const validations = Object.values(brands) as ReadonlyArray<Brand<A, any>>;
+  const validations = Object.values(brands) as ReadonlyArray<Validation<A, any>>;
   return Guard((u): u is A => base.is(u) && validations.every((brand) => brand.validate(u)));
 }
 
 /**
  * @tsplus derive fncts.Decoder<_> 10
  */
-export function deriveDecoder<A extends Branded.Brand<any, any>>(
-  ...[base, brands]: Check<Branded.IsValidated<A>> extends Check.True
+export function deriveDecoder<A extends Brand.Valid<any, any>>(
+  ...[base, brands]: Check<Brand.IsValidated<A>> extends Check.True
     ? [
-        base: Decoder<Branded.Unbrand<A>>,
+        base: Decoder<Brand.Unbranded<A>>,
         brands: {
-          [K in keyof A[Branded.Symbol] & string]: Brand<A[Branded.Symbol][K], K>;
+          [K in (keyof A[Brand.valid]) & string]: Validation<A[Brand.valid][K], K>;
         },
       ]
     : never

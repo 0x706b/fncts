@@ -17,7 +17,7 @@ import { Decoder } from "@fncts/base/data/Decoder/definition";
 /**
  * @tsplus fluent fncts.Decoder __call
  */
-export function decode<I, E, A>(self: Decoder<A>, input: unknown): These<DecodeError, A> {
+export function decode<A>(self: Decoder<A>, input: unknown): These<DecodeError, A> {
   return self.decode(input);
 }
 

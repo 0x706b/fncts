@@ -1,51 +1,54 @@
 import type { Union } from "@fncts/typelevel";
 
-type Brand_<A, K extends string> = Brand<A, K>;
+declare const validSym: unique symbol;
 
-export declare namespace Branded {
-  const Symbol: unique symbol;
-  export type Symbol = typeof Symbol;
+export declare namespace Brand {
+  export type valid = typeof validSym;
 
-  export interface Brand<A, K extends string> {
-    readonly [Branded.Symbol]: {
+  /**
+   * @tsplus derive nominal
+   */
+  export interface Valid<in out A, in out K extends string> {
+    [validSym]: {
       [_ in K]: A;
     };
   }
 
-  export type Type<A extends Brand_<any, any>> = [A] extends [Brand_<infer A, infer K>] ? Validated<A, K> : never;
+  export type Type<A extends Validation<any, any>> = A extends Validation<infer A, infer K> ? Validated<A, K> : never;
 
-  export type Validated<A, K extends string> = A & Brand<A, K>;
+  export type Validated<A, K extends string> = A & Brand.Valid<A, K>;
 
-  export type IsValidated<P extends Brand<any, any>> = {
-    [K in keyof P[Branded.Symbol]]: P extends P[Branded.Symbol][K] ? 0 : 1;
-  }[keyof P[Branded.Symbol]] extends 0
+  export type IsValidated<P extends Valid<any, any>> = {
+    [K in keyof P[Brand.valid]]: P extends P[Brand.valid][K] ? 0 : 1;
+  }[keyof P[Brand.valid]] extends 0
     ? unknown
     : never;
 
-  export type Unbrand<P extends Brand<any, any>> = P extends infer Q & Brands<P> ? Q : P;
+  export type Unbranded<P> = P extends infer Q & Brands<P> ? Q : P;
 
-  export type Brands<P extends Brand<any, any>> = Union.IntersectionOf<
+  export type Brands<P> = P extends Valid<any, any> ? Union.IntersectionOf<
     {
-      [K in keyof P[Branded.Symbol]]: P extends P[Branded.Symbol][K]
+      [K in keyof P[Brand.valid]]: P extends P[Brand.valid][K]
         ? K extends string
-          ? Brand<P[Branded.Symbol][K], K>
+          ? Valid<P[Brand.valid][K], K>
           : never
         : never;
-    }[keyof P[Branded.Symbol]]
-  >;
+    }[keyof P[Brand.valid]]
+  > : unknown;
 }
 
 /**
- * @tsplus type fncts.Brand
- * @tsplus companion fncts.BrandOps
+ * @tsplus type fncts.Validation
+ * @tsplus companion fncts.ValidationOps
+ * @tsplus derive nominal
  */
-export class Brand<A, K extends string> {
-  constructor(readonly validate: Refinement<A, A & Branded.Brand<A, K>>) {}
+export class Validation<in out A, in out K extends string> {
+  constructor(readonly validate: Refinement<A, A & Brand.Valid<A, K>>) {}
 }
 
 /**
- * @tsplus static fncts.BrandOps __call
+ * @tsplus static fncts.ValidationOps __call
  */
-export function makeBrand<A, K extends string>(p: Predicate<A>): Brand<A, K> {
-  return new Brand(p as Refinement<A, A & Branded.Brand<A, K>>);
+export function makeValidation<A, K extends string>(p: Predicate<A>): Validation<A, K> {
+  return new Validation(p as Refinement<A, A & Brand.Valid<A, K>>);
 }
