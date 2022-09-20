@@ -1,5 +1,13 @@
 # @fncts/io
 
+## 0.0.19
+
+### Patch Changes
+
+- d501ae1: fix: FiberRef join and forkScopeOverride (via ZIO)
+- Updated dependencies [3274975]
+  - @fncts/base@0.0.19
+
 ## 0.0.18
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @fncts/base
 
+## 0.0.19
+
+### Patch Changes
+
+- 3274975: fix: brand validation derivation
+
 ## 0.0.18
 
 ### Patch Changes

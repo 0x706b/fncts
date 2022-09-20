@@ -1,5 +1,14 @@
 # @fncts/test
 
+## 0.0.19
+
+### Patch Changes
+
+- Updated dependencies [3274975]
+- Updated dependencies [d501ae1]
+  - @fncts/base@0.0.19
+  - @fncts/io@0.0.19
+
 ## 0.0.18
 
 ### Patch Changes
