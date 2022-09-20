@@ -1,5 +1,12 @@
 # @fncts/base
 
+## 0.0.12
+
+### Patch Changes
+
+- Updated dependencies [d501ae1]
+  - @fncts/io@0.0.19
+
 ## 0.0.11
 
 ### Patch Changes
