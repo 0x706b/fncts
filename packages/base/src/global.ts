@@ -126,6 +126,10 @@ import { Environment } from "@fncts/base/data/Environment/definition";
 /**
  * @tsplus global
  */
+import { EnvironmentPatch } from "@fncts/base/data/EnvironmentPatch";
+/**
+ * @tsplus global
+ */
 import {
   ArrayIndexOutOfBoundsError,
   IllegalArgumentError,

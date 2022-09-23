@@ -1,3 +1,5 @@
+import type { SupervisorPatch } from "@fncts/io/SupervisorPatch";
+
 export const enum SupervisorTag {
   Const,
   Proxy,
@@ -26,6 +28,10 @@ export abstract class Supervisor<A> {
   unsafeOnResume<E, A>(_fiber: Fiber.Runtime<E, A>): void {
     return;
   }
+}
+
+export declare namespace Supervisor {
+  type Patch = SupervisorPatch;
 }
 
 export class ConstSupervisor<A> extends Supervisor<A> {

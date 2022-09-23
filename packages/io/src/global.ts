@@ -130,6 +130,10 @@ import { Supervisor } from "@fncts/io/Supervisor/definition";
 /**
  * @tsplus global
  */
+import { SupervisorPatch } from "@fncts/io/SupervisorPatch";
+/**
+ * @tsplus global
+ */
 import { TExit } from "@fncts/io/TExit/definition";
 /**
  * @tsplus global

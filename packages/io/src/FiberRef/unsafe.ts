@@ -38,6 +38,13 @@ export function unsafeMakeEnvironment<A>(
 }
 
 /**
+ * @tsplus static fncts.io.FiberRefOps unsafeMakeSupervisor
+ */
+export function unsafeMakeSupervisor(initial: Supervisor<any>): FiberRef.WithPatch<Supervisor<any>, SupervisorPatch> {
+  return FiberRef.unsafeMakePatch(initial, Differ.supervisor(), SupervisorPatch.empty);
+}
+
+/**
  * @tsplus static fncts.io.FiberRefOps unsafeMake
  */
 export function unsafeMake<A>(
@@ -90,7 +97,7 @@ export const currentScheduler = FiberRef.unsafeMake<Scheduler>(defaultScheduler)
 /**
  * @tsplus static fncts.io.FiberRefOps currentSupervisor
  */
-export const currentSupervisor = FiberRef.unsafeMake<Supervisor<any>>(Supervisor.none);
+export const currentSupervisor = FiberRef.unsafeMakeSupervisor(Supervisor.none);
 
 /**
  * @tsplus static fncts.io.FiberRefOps currentIsFatal
