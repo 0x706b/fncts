@@ -1,5 +1,13 @@
 # @fncts/io
 
+## 0.0.20
+
+### Patch Changes
+
+- 30c999b: feat: add Differ
+- Updated dependencies [30c999b]
+  - @fncts/base@0.0.20
+
 ## 0.0.19
 
 ### Patch Changes

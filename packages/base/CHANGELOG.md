@@ -1,5 +1,11 @@
 # @fncts/base
 
+## 0.0.20
+
+### Patch Changes
+
+- 30c999b: feat: add Differ
+
 ## 0.0.19
 
 ### Patch Changes
