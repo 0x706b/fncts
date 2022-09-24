@@ -53,7 +53,7 @@ export function lt_(self: Interval, that: Interval): boolean {
  * @tsplus static fncts.io.Schedule.IntervalOps __call
  */
 export function makeInterval(start: number, end: number): Interval {
-  if (start <= end) return Interval(start, end);
+  if (start <= end) return new Interval(start, end);
   else return Interval.empty;
 }
 

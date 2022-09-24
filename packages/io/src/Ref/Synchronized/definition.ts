@@ -5,7 +5,9 @@ import { RefInternal } from "../definition.js";
 /**
  * @tsplus type fncts.io.Ref.Synchronized
  */
-export interface PSynchronized<RA, RB, EA, EB, A, B> extends PRef<RA, RB, EA, EB, A, B> {}
+export interface PSynchronized<RA, RB, EA, EB, A, B> extends PRef<RA, RB, EA, EB, A, B> {
+  readonly _tag: "Synchronized";
+}
 
 /**
  * @tsplus type fncts.io.Ref.SynchronizedOps
@@ -23,7 +25,7 @@ export const Synchronized: PSynchronizedOps = {};
 export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA, RB, EA, EB, A, B> {
   readonly _tag = "Synchronized";
   constructor(
-    readonly semaphores: Set<TSemaphore>,
+    readonly semaphore: TSemaphore,
     readonly unsafeGet: IO<RB, EB, B>,
     readonly unsafeSet: (a: A) => IO<RA, EA, void>,
   ) {
@@ -31,15 +33,19 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
   }
 
   get get(): IO<RB, EB, B> {
-    if (this.semaphores.size === 1) {
-      return this.unsafeGet;
-    } else {
-      return this.withPermit(this.unsafeGet);
-    }
+    return this.withPermit(this.unsafeGet);
   }
 
   set(a: A, __tsplusTrace?: string): IO<RA, EA, void> {
     return this.withPermit(this.unsafeSet(a));
+  }
+
+  modifyIO<R1, E1, B>(
+    this: PSynchronizedInternal<RA, RB, EA, EB, A, A>,
+    f: (a: A) => IO<R1, E1, readonly [B, A]>,
+    __tsplusTrace?: string,
+  ): IO<RA | RB | R1, EA | EB | E1, B> {
+    return this.withPermit(this.unsafeGet.flatMap(f).flatMap(([b, a]) => this.unsafeSet(a).as(b)));
   }
 
   matchAllIO<RC, RD, EC, ED, C, D>(
@@ -51,7 +57,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
     __tsplusTrace?: string,
   ): PSynchronizedInternal<RA | RC | RB, RB | RD, EC, ED, C, D> {
     return new PSynchronizedInternal(
-      this.semaphores,
+      this.semaphore,
       this.get.matchIO((e) => IO.failNow(eb(e)), bd),
       (c) =>
         this.get.matchIO(
@@ -69,7 +75,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
     __tsplusTrace?: string,
   ): PSynchronizedInternal<RA | RC, RB | RD, EC, ED, C, D> {
     return new PSynchronizedInternal(
-      this.semaphores,
+      this.semaphore,
       this.unsafeGet.matchIO((e) => IO.failNow(eb(e)), bd),
       (c) => ca(c).flatMap((a) => this.unsafeSet(a).mapError(ea)),
     );
@@ -108,11 +114,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
   }
 
   withPermit<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-    return IO.uninterruptibleMask(({ restore }) =>
-      restore(STM.foreach(this.semaphores, (s) => s.acquire).commit).apSecond(
-        restore(io).ensuring(STM.foreach(this.semaphores, (s) => s.release).commit),
-      ),
-    );
+    return this.semaphore.withPermit(io);
   }
 }
 

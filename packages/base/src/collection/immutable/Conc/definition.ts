@@ -402,7 +402,10 @@ class PrependN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.buffer.asIterable.take(this.bufferUsed).concat(this.end)[Symbol.iterator]() as Iterator<A>;
+    return this.buffer
+      .slice(BUFFER_SIZE - this.bufferUsed, this.buffer.length)
+      .asIterable.concat(this.end)
+      [Symbol.iterator]() as Iterator<A>;
   }
 
   prepend<A1>(a: A1): ConcImplementation<A | A1> {

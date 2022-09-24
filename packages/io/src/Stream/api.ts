@@ -1632,8 +1632,8 @@ export function fromChunk<O>(c: Lazy<Conc<O>>, __tsplusTrace?: string): Stream<n
  *
  * @tsplus static fncts.io.StreamOps scoped
  */
-export function scoped<R, E, A>(stream: IO<R, E, A>, __tsplusTrace?: string): Stream<Exclude<R, Scope>, E, A> {
-  return new Stream(Channel.scoped(stream.map(Conc.single)));
+export function scoped<R, E, A>(stream: Lazy<IO<R, E, A>>, __tsplusTrace?: string): Stream<Exclude<R, Scope>, E, A> {
+  return new Stream(Channel.scoped(stream().map(Conc.single)));
 }
 
 /**
@@ -1788,6 +1788,28 @@ export function fromQueueWithShutdown<R, E, A>(
   __tsplusTrace?: string,
 ): Stream<R, E, A> {
   return Stream.fromQueue(queue, maxChunkSize).ensuring(queue.shutdown);
+}
+
+/**
+ * @tsplus static fncts.io.StreamOps fromHub
+ */
+export function fromHub<A>(
+  hub: Lazy<Hub<A>>,
+  maxChunkSize = DEFAULT_CHUNK_SIZE,
+  __tsplusTrace?: string,
+): Stream<never, never, A> {
+  return Stream.scoped(hub().subscribe).flatMap((queue) => Stream.fromQueueWithShutdown(queue, maxChunkSize));
+}
+
+/**
+ * @tsplus static fncts.io.StreamOps fromHubScoped
+ */
+export function fromHubScoped<A>(
+  hub: Lazy<Hub<A>>,
+  maxChunkSize = DEFAULT_CHUNK_SIZE,
+  __tsplusTrace?: string,
+): IO<Scope, never, Stream<never, never, A>> {
+  return IO.defer(hub().subscribe.map((queue) => Stream.fromQueueWithShutdown(queue, maxChunkSize)));
 }
 
 /**

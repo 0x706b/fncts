@@ -126,6 +126,10 @@ import { Stream } from "@fncts/io/Stream/definition";
 /**
  * @tsplus global
  */
+import { SubscriptionRef } from "@fncts/io/SubscriptionRef";
+/**
+ * @tsplus global
+ */
 import { Supervisor } from "@fncts/io/Supervisor/definition";
 /**
  * @tsplus global
