@@ -26,3 +26,16 @@ export function deriveDecoder<A extends ImmutableArray<any>>(
 ): Decoder<A> {
   return Decoder((u) => array.decode(u).map((as) => new ImmutableArray(as) as A), `ImmutableArray<${elem.label}>`);
 }
+
+/**
+ * @tsplus derive fncts.Encoder[fncts.ImmutableArray]<_> 10
+ */
+export function deriveEncoder<A extends ImmutableArray<any>>(
+  ...[element]: [A] extends [ImmutableArray<infer _A>]
+    ? Check<Check.IsEqual<A, ImmutableArray<_A>>> extends Check.True
+      ? [element: Encoder<_A>]
+      : never
+    : never
+): Encoder<A> {
+  return Encoder((inp) => inp._array.map((a) => element.encode(a)));
+}

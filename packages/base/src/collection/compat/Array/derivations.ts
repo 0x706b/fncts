@@ -83,3 +83,29 @@ export function deriveReadonlyArrayDecoder<A extends ReadonlyArray<any>>(
 ): Decoder<A> {
   return Decoder((u) => deriveDecoder(element).decode(u) as These<DecodeError, A>, `ReadonlyArray<${element.label}>`);
 }
+
+/**
+ * @tsplus derive fncts.Encoder[fncts.Array]<_> 10
+ */
+export function deriveEncoder<A extends Array<any>>(
+  ...[element]: [A] extends [Array<infer _A>]
+    ? Check<Check.IsEqual<A, Array<_A>>> extends Check.True
+      ? [element: Encoder<_A>]
+      : never
+    : never
+): Encoder<A> {
+  return Encoder((inp) => inp.map((a) => element.encode(a)));
+}
+
+/**
+ * @tsplus derive fncts.Encoder[fncts.ReadonlyArray]<_> 10
+ */
+export function deriveReadonlyArrayEncoder<A extends ReadonlyArray<any>>(
+  ...[element]: [A] extends [ReadonlyArray<infer _A>]
+    ? Check<Check.IsEqual<A, ReadonlyArray<_A>>> extends Check.True
+      ? [element: Encoder<_A>]
+      : never
+    : never
+): Encoder<A> {
+  return Encoder((inp) => inp.map((a) => element.encode(a)));
+}

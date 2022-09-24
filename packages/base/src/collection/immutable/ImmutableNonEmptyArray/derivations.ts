@@ -42,3 +42,16 @@ export function deriveDecoder<A extends ImmutableNonEmptyArray<any>>(
     `ImmutableNonEmptyArray<${elem.label}>`,
   );
 }
+
+/**
+ * @tsplus derive fncts.Encoder[fncts.ImmutableNonEmptyArray]<_> 10
+ */
+export function deriveEncoder<A extends ImmutableNonEmptyArray<any>>(
+  ...[element]: [A] extends [ImmutableNonEmptyArray<infer _A>]
+    ? Check<Check.IsEqual<A, ImmutableNonEmptyArray<_A>>> extends Check.True
+      ? [element: Encoder<_A>]
+      : never
+    : never
+): Encoder<A> {
+  return Encoder((inp) => inp._array.map((a) => element.encode(a)));
+}

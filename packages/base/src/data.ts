@@ -10,6 +10,7 @@ export type {} from "./data/DecodeError.js";
 export type {} from "./data/Decoder.js";
 export type {} from "./data/Duration.js";
 export type {} from "./data/Either.js";
+export type {} from "./data/Encoder.js";
 export type {} from "./data/Environment.js";
 export type {} from "./data/EnvironmentPatch.js";
 export type {} from "./data/exceptions.js";

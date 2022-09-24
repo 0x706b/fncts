@@ -26,3 +26,16 @@ export function deriveDecoder<A extends Conc<any>>(
 ): Decoder<A> {
   return Decoder((u) => array.decode(u).map((a) => Conc.from(a) as A), `Conc<${elem.label}>`);
 }
+
+/**
+ * @tsplus derive fncts.Encoder[fncts.Conc]<_> 10
+ */
+export function deriveEncoder<A extends Conc<any>>(
+  ...[element]: [A] extends [Conc<infer _A>]
+    ? Check<Check.IsEqual<A, Conc<_A>>> extends Check.True
+      ? [element: Encoder<_A>]
+      : never
+    : never
+): Encoder<A> {
+  return Encoder((inp) => Array.from(inp).map((a) => element.encode(a)));
+}

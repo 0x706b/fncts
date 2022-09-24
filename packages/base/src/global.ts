@@ -122,6 +122,10 @@ import { Either } from "@fncts/base/data/Either/definition";
 /**
  * @tsplus global
  */
+import { Encoder } from "@fncts/base/data/Encoder/definition";
+/**
+ * @tsplus global
+ */
 import { Environment } from "@fncts/base/data/Environment/definition";
 /**
  * @tsplus global

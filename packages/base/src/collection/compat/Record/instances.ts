@@ -100,3 +100,35 @@ export function deriveDecoder<A extends Record<string, any>>(
     return These.right(res as A);
   }, `Record<string, ${valueDecoder.label}>`);
 }
+
+/**
+ * @tsplus derive fncts.Encoder<_> 15
+ */
+export function deriveDictionaryEncoder<A extends Record<string, any>>(
+  ...[value]: Check<Check.IsDictionary<A>> extends Check.True ? [value: Encoder<A[keyof A]>] : never
+): Encoder<A> {
+  return Encoder((inp) => {
+    const encoded = {};
+    for (const k of Object.keys(inp)) {
+      encoded[k] = value.encode(inp[k]);
+    }
+    return encoded;
+  });
+}
+
+/**
+ * @tsplus derive fncts.Encoder<_> 15
+ */
+export function deriveEncoder<A extends Record<string, any>>(
+  ...[value, requiredKeys]: Check<Check.IsRecord<A>> extends Check.True
+    ? [value: Encoder<A[keyof A]>, requiredKeys: { [K in keyof A]: 0 }]
+    : never
+): Encoder<A> {
+  return Encoder((inp) => {
+    const encoded = {};
+    for (const k of Object.keys(requiredKeys)) {
+      encoded[k] = value.encode(inp[k]);
+    }
+    return encoded;
+  });
+}
