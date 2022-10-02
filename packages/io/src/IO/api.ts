@@ -209,7 +209,7 @@ export function catch_<N extends keyof E, K extends E[N] & string, R, E, A, R1, 
   __tsplusTrace?: string,
 ): IO<R | R1, Exclude<E, { [n in N]: K }> | E1, A | A1> {
   return ma.catchAll((e) => {
-    if (tag in e && e[tag] === k) {
+    if (isObject(e) && tag in e && e[tag] === k) {
       return f(e as any);
     }
     return IO.failNow(e as any);

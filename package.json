@@ -34,7 +34,7 @@
     "@babel/plugin-transform-modules-commonjs": "^7.18.6",
     "@changesets/changelog-git": "^0.1.12",
     "@changesets/cli": "^2.24.4",
-    "@tsplus/installer": "0.0.140",
+    "@tsplus/installer": "0.0.145",
     "@types/benchmark": "^2.1.2",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/experimental-utils": "^5.36.2",

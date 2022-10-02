@@ -54,7 +54,7 @@ import { Future } from "@fncts/io/Future";
 /**
  * @tsplus global
  */
-import { Hub, PHub } from "@fncts/io/Hub/definition";
+import { Hub } from "@fncts/io/Hub/definition";
 /**
  * @tsplus global
  */
@@ -82,7 +82,7 @@ import { LogLevel } from "@fncts/io/LogLevel";
 /**
  * @tsplus global
  */
-import { PQueue, Queue } from "@fncts/io/Queue/definition";
+import { Queue, Dequeue, Enqueue } from "@fncts/io/Queue/definition";
 /**
  * @tsplus global
  */
@@ -90,7 +90,7 @@ import { Random } from "@fncts/io/Random/definition";
 /**
  * @tsplus global
  */
-import { PRef, Ref } from "@fncts/io/Ref";
+import { Ref } from "@fncts/io/Ref";
 /**
  * @tsplus global
  */

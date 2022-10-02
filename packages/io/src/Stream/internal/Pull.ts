@@ -1,4 +1,3 @@
-import type { Queue } from "../../Queue.js";
 import type { Take } from "./Take.js";
 
 export type Pull<R, E, A> = IO<R, Maybe<E>, Conc<A>>;
@@ -27,7 +26,7 @@ export function emitChunk<A>(as: Conc<A>): UIO<Conc<A>> {
 /**
  * @tsplus static fncts.io.Stream.PullOps fromQueue
  */
-export function fromQueue<E, A>(d: Queue.Dequeue<Take<E, A>>): FIO<Maybe<E>, Conc<A>> {
+export function fromQueue<E, A>(d: Dequeue<Take<E, A>>): FIO<Maybe<E>, Conc<A>> {
   return d.take.flatMap((take) => take.done);
 }
 

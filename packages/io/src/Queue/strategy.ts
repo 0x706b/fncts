@@ -3,10 +3,10 @@ import type { MutableQueue } from "@fncts/io/internal/MutableQueue";
 
 import { unbounded } from "@fncts/io/internal/MutableQueue";
 import {
-  _unsafeCompletePromise,
-  _unsafeCompleteTakers,
-  _unsafeOfferAll,
-  _unsafePollAll,
+  unsafeCompletePromise,
+  unsafeCompleteTakers,
+  unsafeOfferAll,
+  unsafePollAll,
 } from "@fncts/io/Queue/internal";
 
 export interface Strategy<A> {
@@ -46,7 +46,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
         return IO.defer(() => {
           this.unsafeOffer(as, p);
           this.unsafeOnQueueEmptySpace(queue, takers);
-          _unsafeCompleteTakers(this, queue, takers);
+          unsafeCompleteTakers(this, queue, takers);
           if (isShutdown.get) {
             return IO.interrupt;
           } else {
@@ -58,9 +58,9 @@ export class BackPressureStrategy<A> implements Strategy<A> {
   }
 
   unsafeRemove(p: Future<never, boolean>, __tsplusTrace?: string) {
-    _unsafeOfferAll(
+    unsafeOfferAll(
       this.putters,
-      _unsafePollAll(this.putters).filter(([_, __]) => __ !== p),
+      unsafePollAll(this.putters).filter(([_, __]) => __ !== p),
     );
   }
 
@@ -90,11 +90,11 @@ export class BackPressureStrategy<A> implements Strategy<A> {
         const offered = queue.enqueue(putter[0]);
 
         if (offered && putter[2]) {
-          _unsafeCompletePromise(putter[1], true);
+          unsafeCompletePromise(putter[1], true);
         } else if (!offered) {
-          _unsafeOfferAll(this.putters, _unsafePollAll(this.putters).prepend(putter));
+          unsafeOfferAll(this.putters, unsafePollAll(this.putters).prepend(putter));
         }
-        _unsafeCompleteTakers(this, queue, takers);
+        unsafeCompleteTakers(this, queue, takers);
       } else {
         keepPolling = false;
       }
@@ -106,7 +106,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     const self = this;
     return Do((_) => {
       const fiberId = _(IO.fiberId);
-      const putters = _(IO.succeed(_unsafePollAll(self.putters)));
+      const putters = _(IO.succeed(unsafePollAll(self.putters)));
       _(IO.foreachC(putters, ([, p, lastItem]) => (lastItem ? p.interruptAs(fiberId).asUnit : IO.unit)));
     });
   }
@@ -150,7 +150,7 @@ export class SlidingStrategy<A> implements Strategy<A> {
   ): UIO<boolean> {
     return IO.succeed(() => {
       this.unsafeSlidingOffer(queue, as);
-      _unsafeCompleteTakers(this, queue, takers);
+      unsafeCompleteTakers(this, queue, takers);
       return true;
     });
   }

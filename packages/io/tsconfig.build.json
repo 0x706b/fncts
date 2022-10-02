@@ -10,7 +10,7 @@
     "tsBuildInfoFile": "build/tsbuildinfo/esm.tsbuildinfo",
     "transformers": [
       {
-        "name": "@fncts/transformers/tag",
+        "name": "@fncts/transformers/id",
         "position": "after"
       }
     ]

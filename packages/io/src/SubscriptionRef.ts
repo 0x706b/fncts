@@ -1,10 +1,10 @@
-import { PSynchronizedInternal } from "@fncts/io/Ref";
+import { SynchronizedInternal } from "@fncts/io/Ref";
 import { Stream } from "@fncts/io/Stream";
 
 export const SubscriptionRefTypeId = Symbol.for("fncts.io.SubscriptionRef");
 export type SubscriptionRefTypeId = typeof SubscriptionRefTypeId;
 
-export class SubscriptionRefInternal<A> extends PSynchronizedInternal<never, never, never, never, A, A> {
+export class SubscriptionRefInternal<A> extends SynchronizedInternal<A> {
   readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId = SubscriptionRefTypeId;
 
   constructor(readonly semaphore: TSemaphore, readonly hub: Hub<A>, readonly ref: Ref<A>) {
@@ -33,7 +33,7 @@ export class SubscriptionRefInternal<A> extends PSynchronizedInternal<never, nev
 /**
  * @tsplus type fncts.io.SubscriptionRef
  */
-export interface SubscriptionRef<A> extends PRef.Synchronized<never, never, never, never, A, A> {
+export interface SubscriptionRef<A> extends Ref.Synchronized<A> {
   readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId;
 }
 

@@ -1652,9 +1652,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.140":
-  version: 0.0.140
-  resolution: "@tsplus/installer@npm:0.0.140"
+"@tsplus/installer@npm:0.0.145":
+  version: 0.0.145
+  resolution: "@tsplus/installer@npm:0.0.145"
   dependencies:
     mkdirp: "npm:^1.0.4"
     rimraf: "npm:^3.0.2"
@@ -1663,7 +1663,7 @@ __metadata:
     zlib: "npm:^1.0.5"
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: fc104233b23642f905ee01fd3a515b6666b278d9fd2dacd8d2a93c3b8ff5bfaf9a2f0da5593444c0d31cd5c5c246dec98f62b67d4a988c99b41a20b527db7f36
+  checksum: 319dbb7752ba83b3858815eaae94e32fa3a263390236b0b8c7d4d628e3c130895c8bec98faa3311915c41136574a56bfd5af87528287aec164ce84c5f87837bc
   languageName: node
   linkType: hard
 
@@ -4831,7 +4831,7 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.18.6"
     "@changesets/changelog-git": "npm:^0.1.12"
     "@changesets/cli": "npm:^2.24.4"
-    "@tsplus/installer": "npm:0.0.140"
+    "@tsplus/installer": "npm:0.0.145"
     "@types/benchmark": "npm:^2.1.2"
     "@typescript-eslint/eslint-plugin": "npm:^5.36.2"
     "@typescript-eslint/experimental-utils": "npm:^5.36.2"
@@ -8781,12 +8781,12 @@ __metadata:
   linkType: hard
 
 "typescript@npm:^4.8.2":
-  version: 4.8.2
-  resolution: "typescript@npm:4.8.2"
+  version: 4.8.4
+  resolution: "typescript@npm:4.8.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 67ffddd3d17e9f998a184925725222bfb63aab9d786542879006cff335e897c3a386b9ee564c0a5dc65e5b97cd3c66914096b1b60b9e418171cde2894cc994a8
+  checksum: 008c336ed785130b6e13254adbfc4084f5dbbe62851df9bac3eaf62fc29e0a396839c00ce47e0d92db44fa9a08b9f7ba4d31304f2b10cf7d42a0817728e822a1
   languageName: node
   linkType: hard
 
@@ -8801,12 +8801,12 @@ __metadata:
   linkType: hard
 
 "typescript@patch:typescript@npm%3A^4.8.2#optional!builtin<compat/typescript>":
-  version: 4.8.2
-  resolution: "typescript@patch:typescript@npm%3A4.8.2#optional!builtin<compat/typescript>::version=4.8.2&hash=f456af"
+  version: 4.8.4
+  resolution: "typescript@patch:typescript@npm%3A4.8.4#optional!builtin<compat/typescript>::version=4.8.4&hash=f456af"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: d632bd295ff5b56038e321adc47aff7b606ef25d6b0b19dd43dbd18f761f349e89f95fe1f567d0876417ccdbeb36daf5fb9dff2e32a34e404acea274b0b7c076
+  checksum: 696783974850fa4a345b270a7629f37bbb5277504e7262a105e44d3e3776a4337f13b5f0a484ebb0b377449391a7fd270746c8c9f7492bfa389613477fb5ea6a
   languageName: node
   linkType: hard
 

@@ -150,7 +150,7 @@ export function catch_<N extends keyof E, K extends E[N] & string, E, R, A, R1, 
   __tsplusTrace?: string,
 ): STM<R | R1, Exclude<E, { [n in N]: K }> | E1, A | A1> {
   return stm.catchAll((e) => {
-    if (tag in e && e[tag] === k) {
+    if (isObject(e) && tag in e && e[tag] === k) {
       return f(e as any);
     }
     return STM.failNow(e as any);

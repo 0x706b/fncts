@@ -13,6 +13,9 @@
   "references": [
     {
       "path": "../typelevel/tsconfig.build.json"
+    },
+    {
+      "path": "../transformers/tsconfig.build.json"
     }
   ]
 }

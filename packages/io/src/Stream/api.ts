@@ -1,12 +1,11 @@
-import type { PHub } from "../Hub.js";
 import type { Canceler } from "../IO.js";
-import type { PQueue } from "../Queue.js";
 import type { SinkEndReason } from "./internal/SinkEndReason.js";
 import type { Erase } from "@fncts/typelevel/Intersection.js";
 
 import { constVoid, identity, tuple } from "@fncts/base/data/function";
 
 import { MergeDecision } from "../Channel/internal/MergeDecision.js";
+import { Hub } from "../Hub.js";
 import { Queue } from "../Queue.js";
 import { DEFAULT_CHUNK_SIZE, Stream } from "./definition.js";
 import { DebounceState } from "./internal/DebounceState.js";
@@ -443,7 +442,7 @@ export function broadcastedQueues_<R, E, A>(
   n: number,
   maximumLag: number,
   __tsplusTrace?: string,
-): IO<R | Scope, never, Conc<Hub.Dequeue<unknown, never, Take<E, A>>>> {
+): IO<R | Scope, never, Conc<Dequeue<Take<E, A>>>> {
   return Do((Δ) => {
     const hub    = Δ(Hub.makeBounded<Take<E, A>>(maximumLag));
     const queues = Δ(IO.sequenceIterable(Conc.replicate(n, hub.subscribe)));
@@ -464,7 +463,7 @@ export function broadcastedQueuesDynamic_<R, E, A>(
   stream: Stream<R, E, A>,
   maximumLag: number,
   __tsplusTrace?: string,
-): IO<R | Scope, never, IO<Scope, never, Hub.Dequeue<never, never, Take<E, A>>>> {
+): IO<R | Scope, never, IO<Scope, never, Dequeue<Take<E, A>>>> {
   return stream.toHub(maximumLag).map((hub) => hub.subscribe);
 }
 
@@ -1077,7 +1076,7 @@ export function distributedWith_<R, E, A>(
   maximumLag: number,
   decide: (_: A) => UIO<(_: number) => boolean>,
   __tsplusTrace?: string,
-): IO<R | Scope, never, Conc<Queue.Dequeue<Exit<Maybe<E>, A>>>> {
+): IO<R | Scope, never, Conc<Dequeue<Exit<Maybe<E>, A>>>> {
   return Future.make<never, (a: A) => UIO<(_: symbol) => boolean>>().flatMap((p) =>
     self
       .distributedWithDynamic(
@@ -1090,7 +1089,7 @@ export function distributedWith_<R, E, A>(
           Conc.range(0, n).map((id) => next.map(([key, queue]) => [[key, id], queue] as const)),
         ).flatMap((entries) => {
           const [mappings, queues] = entries.foldRight(
-            [HashMap.makeDefault<symbol, number>(), Conc.empty<Queue.Dequeue<Exit<Maybe<E>, A>>>()] as const,
+            [HashMap.makeDefault<symbol, number>(), Conc.empty<Dequeue<Exit<Maybe<E>, A>>>()] as const,
             ([mapping, queue], [mappings, queues]) => [mappings.set(mapping[0], mapping[1]), queues.append(queue)],
           );
           return p.succeed((a) => decide(a).map((f) => (key: symbol) => f(mappings.get(key).value!))).as(queues);
@@ -1115,7 +1114,7 @@ export function distributedWithDynamic_<R, E, A>(
   decide: (a: A) => UIO<(_: symbol) => boolean>,
   done: (exit: Exit<Maybe<E>, never>) => UIO<any> = () => IO.unit,
   __tsplusTrace?: string,
-): IO<R | Scope, never, UIO<readonly [symbol, Queue.Dequeue<Exit<Maybe<E>, A>>]>> {
+): IO<R | Scope, never, UIO<readonly [symbol, Dequeue<Exit<Maybe<E>, A>>]>> {
   const offer = (queuesRef: Ref<HashMap<symbol, Queue<Exit<Maybe<E>, A>>>>) => (a: A) =>
     Do((Δ) => {
       const shouldProcess = Δ(decide(a));
@@ -1759,10 +1758,10 @@ export function fromPull<R, E, A>(
  * @tsplus static fncts.io.StreamOps fromQueue
  */
 export function fromQueue_<R, E, O>(
-  queue: PQueue<never, R, unknown, E, never, O>,
+  queue: Dequeue<O>,
   maxChunkSize: number = DEFAULT_CHUNK_SIZE,
   __tsplusTrace?: string,
-): Stream<R, E, O> {
+): Stream<never, never, O> {
   return repeatIOChunkMaybe(
     queue
       .takeBetween(1, maxChunkSize)
@@ -1783,10 +1782,10 @@ export function fromQueue_<R, E, O>(
  * @tsplus static fncts.io.StreamOps fromQueueWithShutdown
  */
 export function fromQueueWithShutdown<R, E, A>(
-  queue: PQueue<never, R, unknown, E, never, A>,
+  queue: Dequeue<A>,
   maxChunkSize: number = DEFAULT_CHUNK_SIZE,
   __tsplusTrace?: string,
-): Stream<R, E, A> {
+): Stream<never, never, A> {
   return Stream.fromQueue(queue, maxChunkSize).ensuring(queue.shutdown);
 }
 
@@ -2681,16 +2680,16 @@ export function runForeachScoped_<R, E, A, R2, E2>(
  *
  * @tsplus fluent fncts.io.Stream runIntoElementsScoped
  */
-export function runIntoElementsScoped_<R, E, A, R1, E1>(
+export function runIntoElementsScoped_<R, E, A, E1>(
   stream: Stream<R, E, A>,
-  queue: PQueue<R1, unknown, never, never, Exit<Maybe<E | E1>, A>, unknown>,
+  queue: Queue<Exit<Maybe<E | E1>, A>>,
   __tsplusTrace?: string,
-): IO<R | R1 | Scope, E | E1, void> {
-  const writer: Channel<R | R1, E, Conc<A>, unknown, never, Exit<Maybe<E | E1>, A>, unknown> = Channel.readWith(
+): IO<R | Scope, E | E1, void> {
+  const writer: Channel<R, E, Conc<A>, unknown, never, Exit<Maybe<E | E1>, A>, unknown> = Channel.readWith(
     (inp: Conc<A>) =>
       inp
         .foldLeft(
-          Channel.unit as Channel<R1, unknown, unknown, unknown, never, Exit<Maybe<E | E1>, A>, unknown>,
+          Channel.unit as Channel<never, unknown, unknown, unknown, never, Exit<Maybe<E | E1>, A>, unknown>,
           (channel, a) => channel.apSecond(Channel.writeNow(Exit.succeed(a))),
         )
         .apSecond(writer),
@@ -2706,11 +2705,11 @@ export function runIntoElementsScoped_<R, E, A, R1, E1>(
  *
  * @tsplus fluent fncts.io.Stream runIntoQueueScoped
  */
-export function runIntoQueueScoped_<R, R1, E extends E1, E1, A>(
+export function runIntoQueueScoped_<R, E extends E1, E1, A>(
   stream: Stream<R, E, A>,
-  queue: PQueue<R1, never, never, unknown, Take<E1, A>, any>,
+  queue: Enqueue<Take<E1, A>>,
   __tsplusTrace?: string,
-): IO<R | R1 | Scope, E | E1, void> {
+): IO<R | Scope, E | E1, void> {
   const writer: Channel<R, E, Conc<A>, unknown, E, Take<E | E1, A>, any> = Channel.readWithCause(
     (inp) => Channel.writeNow(Take.chunk(inp)).apSecond(writer),
     (cause) => Channel.writeNow(Take.failCause(cause)),
@@ -2726,12 +2725,12 @@ export function runIntoQueueScoped_<R, R1, E extends E1, E1, A>(
  *
  * @tsplus fluent fncts.io.Stream runIntoHubScoped
  */
-export function runIntoHubScoped_<R, R1, E extends E1, E1, A>(
+export function runIntoHubScoped_<R, E extends E1, E1, A>(
   stream: Stream<R, E, A>,
-  hub: PHub<R1, never, never, unknown, Take<E1, A>, any>,
+  hub: Hub<Take<E1, A>>,
   __tsplusTrace?: string,
-): IO<R | R1 | Scope, E | E1, void> {
-  return stream.runIntoQueueScoped(hub.toQueue);
+): IO<R | Scope, E | E1, void> {
+  return stream.runIntoQueueScoped(hub);
 }
 
 /**
@@ -3051,7 +3050,7 @@ export function toQueue_<R, E, A>(
   stream: Stream<R, E, A>,
   capacity = 2,
   __tsplusTrace?: string,
-): IO<R | Scope, never, Queue<Take<E, A>>> {
+): IO<R | Scope, never, Dequeue<Take<E, A>>> {
   return Do((Δ) => {
     const queue = Δ(IO.acquireRelease(Queue.makeBounded<Take<E, A>>(capacity), (_) => _.shutdown));
     Δ(stream.runIntoQueueScoped(queue).fork);
@@ -3066,7 +3065,7 @@ export function toQueueDropping_<R, E, A>(
   stream: Stream<R, E, A>,
   capacity = 2,
   __tsplusTrace?: string,
-): IO<R | Scope, never, Queue.Dequeue<Take<E, A>>> {
+): IO<R | Scope, never, Dequeue<Take<E, A>>> {
   return Do((Δ) => {
     const queue = Δ(IO.acquireRelease(Queue.makeDropping<Take<E, A>>(capacity), (_) => _.shutdown));
     Δ(stream.runIntoQueueScoped(queue).fork);
@@ -3081,7 +3080,7 @@ export function toQueueOfElements_<R, E, A>(
   stream: Stream<R, E, A>,
   capacity = 2,
   __tsplusTrace?: string,
-): IO<R | Scope, never, Queue.Dequeue<Exit<Maybe<E>, A>>> {
+): IO<R | Scope, never, Dequeue<Exit<Maybe<E>, A>>> {
   return Do((Δ) => {
     const queue = Δ(IO.acquireRelease(Queue.makeBounded<Exit<Maybe<E>, A>>(capacity), (_) => _.shutdown));
     Δ(stream.runIntoElementsScoped(queue).fork);
@@ -3096,7 +3095,7 @@ export function toQueueSliding_<R, E, A>(
   stream: Stream<R, E, A>,
   capacity = 2,
   __tsplusTrace?: string,
-): IO<R | Scope, never, Queue.Dequeue<Take<E, A>>> {
+): IO<R | Scope, never, Dequeue<Take<E, A>>> {
   return Do((Δ) => {
     const queue = Δ(IO.acquireRelease(Queue.makeSliding<Take<E, A>>(capacity), (_) => _.shutdown));
     Δ(stream.runIntoQueueScoped(queue).fork);
