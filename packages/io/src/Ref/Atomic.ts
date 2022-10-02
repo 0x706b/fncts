@@ -1,9 +1,9 @@
-import { RefInternal } from "./definition.js";
+import { Ref } from "./definition.js";
 
 /**
  * @tsplus type fncts.io.Ref.Atomic
  */
-export class Atomic<A> extends RefInternal<A> {
+export class Atomic<A> extends Ref<A> {
   readonly _tag = "Atomic";
 
   constructor(private value: A) {

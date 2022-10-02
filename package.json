@@ -19,7 +19,7 @@
     "clean": "ultra -r clean",
     "test": "ultra -r test",
     "circular": "madge --ts-config ./tsconfig.madge.json --circular --warning packages/*/build/esm",
-    "postinstall": "tsplus-install",
+    "postinstall": "echo tsplus-install",
     "org:tsc": "cd $INIT_CWD && tsc",
     "org:babel": "cd $INIT_CWD && babel",
     "org:concurrently": "cd $INIT_CWD && concurrently"
@@ -52,5 +52,8 @@
     "prettier": "^2.7.1",
     "typescript": "^4.8.2",
     "ultra-runner": "^3.10.5"
+  },
+  "resolutions": {
+    "typescript": "https://github.com/0x706b/typescript/raw/98da2c15aa/typescript-4.9.0-tsplus.20221002.tgz"
   }
 }

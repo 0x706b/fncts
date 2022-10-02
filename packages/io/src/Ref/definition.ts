@@ -4,27 +4,17 @@ import type { Synchronized as Synchronized_ } from "./Synchronized.js";
 export const RefTypeId = Symbol.for("fncts.io.Ref");
 export type RefTypeId = typeof RefTypeId;
 
-/**
- * @tsplus type fncts.io.Ref
- */
-export interface Ref<A> extends RefInternal<A> {
-  readonly _typeId: RefTypeId;
-  readonly _A: (_: A) => A;
-}
-
 export declare namespace Ref {
   export type Atomic<A> = Atomic_<A>;
   export type Synchronized<A> = Synchronized_<A>;
 }
 
+
 /**
- * @tsplus type fncts.io.RefOps
+ * @tsplus type fncts.io.Ref
+ * @tsplus companion fncts.io.RefOps
  */
-export interface RefOps {}
-
-export const Ref: RefOps = {};
-
-export abstract class RefInternal<A> implements Ref<A> {
+export abstract class Ref<A> {
   readonly _typeId: RefTypeId = RefTypeId;
   declare _A: (_: A) => A;
 

@@ -14,7 +14,7 @@ export function acquire(self: TSemaphore, __tsplusTrace?: string): USTM<void> {
  */
 export function acquireN_(self: TSemaphore, n: number, __tsplusTrace?: string): USTM<void> {
   return new Effect((journal) => {
-    assert(n >= 0, "Negative permits given to TSemaphore#acquire");
+    assert(n >= 0, "Negative permits given to TSemaphore#acquireN");
 
     const value = TSemaphore.reverseGet(self).unsafeGet(journal);
 

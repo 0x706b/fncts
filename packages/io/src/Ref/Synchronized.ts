@@ -1,27 +1,13 @@
 import { IO } from "@fncts/io/IO";
 
-import { RefInternal } from "./definition.js";
+import { Ref } from "./definition.js";
 
 /**
  * @tsplus type fncts.io.Ref.Synchronized
- */
-export interface Synchronized<A> extends SynchronizedInternal<A> {}
-
-/**
- * @tsplus type fncts.io.Ref.SynchronizedOps
- */
-export interface SynchronizedOps {}
-
-/**
+ * @tsplus companion fncts.io.Ref.SynchronizedOps
  * @tsplus static fncts.io.RefOps Synchronized
  */
-export const Synchronized: SynchronizedOps = {};
-
-/**
- * @tsplus type fncts.io.Ref.Synchronized
- */
-export class SynchronizedInternal<A> extends RefInternal<A> {
-  readonly _tag = "Synchronized";
+export class Synchronized<A> extends Ref<A> {
   constructor(readonly semaphore: TSemaphore, readonly unsafeGet: UIO<A>, readonly unsafeSet: (a: A) => UIO<void>) {
     super();
   }

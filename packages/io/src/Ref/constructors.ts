@@ -1,4 +1,4 @@
-import { SynchronizedInternal } from "@fncts/io/Ref/Synchronized";
+import { Synchronized } from "@fncts/io/Ref/Synchronized";
 
 import { Atomic } from "./Atomic.js";
 
@@ -18,7 +18,7 @@ export function makeSynchronized<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<Ref
   return Do((_) => {
     const ref       = _(Ref.make(a));
     const semaphore = _(TSemaphore.make(1).commit);
-    return new SynchronizedInternal(semaphore, ref.get, (a: A) => ref.set(a));
+    return new Synchronized(semaphore, ref.get, (a: A) => ref.set(a));
   });
 }
 

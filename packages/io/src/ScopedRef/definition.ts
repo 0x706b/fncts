@@ -1,4 +1,4 @@
-export const ScopedRefTypeId = Symbol.for("fncts.base.control.ScopedRef");
+export const ScopedRefTypeId = Symbol.for("fncts.io.ScopedRef");
 export type ScopedRefTypeId = typeof ScopedRefTypeId;
 
 /**

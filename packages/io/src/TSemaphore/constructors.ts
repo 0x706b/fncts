@@ -7,6 +7,13 @@ export function make(permits: number, __tsplusTrace?: string): USTM<TSemaphore> 
 }
 
 /**
+ * @tsplus static fncts.io.TSemaphoreOps makeCommit
+ */
+export function makeCommit(permits: number, __tsplusTrace?: string): UIO<TSemaphore> {
+  return TSemaphore(permits).commit
+}
+
+/**
  * @tsplus static fncts.io.TSemaphoreOps unsafeMake
  */
 export function unsafeMake(permits: number): TSemaphore {
