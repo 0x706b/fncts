@@ -8,7 +8,7 @@ export function windowToggle_<R, E, A, R1, E1, B, R2, E2>(
   openings: ObservableInput<R1, E1, B>,
   closingSelector: (openValue: B) => ObservableInput<R2, E2, any>,
 ): Observable<R | R1 | R2, E | E1 | E2, Observable<never, E, A>> {
-  return operate_(fa, (source, subscriber) => {
+  return operate_(fa, (source, subscriber, environment) => {
     const windows: Subject<never, E, A>[] = [];
 
     const handleError = (err: Cause<E>) => {
@@ -18,44 +18,46 @@ export function windowToggle_<R, E, A, R1, E1, B, R2, E2>(
       subscriber.error(err);
     };
 
-    Observable.from(openings).subscribe(
-      operatorSubscriber(subscriber, {
-        next: (openValue) => {
-          const window = new Subject<never, E, A>();
-          windows.push(window);
-          const closingSubscription = new Subscription();
-          const closeWindow         = () => {
-            arrayRemove(windows, window);
-            window.complete();
-            closingSubscription.unsubscribe();
-          };
+    Observable.from(openings)
+      .provideEnvironment(environment)
+      .subscribe(
+        operatorSubscriber(subscriber, {
+          next: (openValue) => {
+            const window = new Subject<never, E, A>();
+            windows.push(window);
+            const closingSubscription = new Subscription();
+            const closeWindow         = () => {
+              arrayRemove(windows, window);
+              window.complete();
+              closingSubscription.unsubscribe();
+            };
 
-          let closingNotifier: Observable<R2, E2, any>;
+            let closingNotifier: Observable<R2, E2, any>;
 
-          try {
-            closingNotifier = Observable.from(closingSelector(openValue));
-          } catch (err) {
-            handleError(Cause.halt(err));
-            return;
-          }
+            try {
+              closingNotifier = Observable.from(closingSelector(openValue));
+            } catch (err) {
+              handleError(Cause.halt(err));
+              return;
+            }
 
-          subscriber.next(window.asObservable());
+            subscriber.next(window.asObservable());
 
-          closingSubscription.add(
-            closingNotifier.subscribe(
-              operatorSubscriber(subscriber, {
-                next: closeWindow,
-                complete: noop,
-                error: closeWindow,
-              }),
-            ),
-          );
-        },
-        complete: noop,
-      }),
-    );
+            closingSubscription.add(
+              closingNotifier.provideEnvironment(environment).subscribe(
+                operatorSubscriber(subscriber, {
+                  next: closeWindow,
+                  complete: noop,
+                  error: closeWindow,
+                }),
+              ),
+            );
+          },
+          complete: noop,
+        }),
+      );
 
-    source.subscribe(
+    source.provideEnvironment(environment).subscribe(
       operatorSubscriber(
         subscriber,
         {

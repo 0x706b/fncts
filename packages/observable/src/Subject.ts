@@ -118,7 +118,7 @@ export class AnonymousSubject<R, E, A> extends Subject<R, E, A> {
 
   /** @internal */
   protected subscribeInternal<E, A>(subscriber: Subscriber<E, A>) {
-    return this.source?.subscribe(subscriber) ?? Subscription.empty;
+    return this.source?.provideEnvironment(this.environment).subscribe(subscriber) ?? Subscription.empty;
   }
 }
 

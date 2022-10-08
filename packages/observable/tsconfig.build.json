@@ -8,15 +8,24 @@
     "declarationDir": "./build/dts",
     "sourceMap": true,
     "tsPlusConfig": "../config/tsplus.config.json",
-    "tsBuildInfoFile": "build/tsbuildinfo/esm.tsbuildinfo"
+    "tsBuildInfoFile": "build/tsbuildinfo/esm.tsbuildinfo",
+    "transformers": [
+      {
+        "name": "@fncts/transformers/id",
+        "position": "after"
+      }
+    ]
   },
   "include": ["./src/**/*"],
   "references": [
     {
-      "path": "../base"
+      "path": "../base/tsconfig.build.json"
     },
     {
-      "path": "../io"
+      "path": "../io/tsconfig.build.json"
+    },
+    {
+      "path": "../transformers/tsconfig.build.json"
     }
   ]
 }

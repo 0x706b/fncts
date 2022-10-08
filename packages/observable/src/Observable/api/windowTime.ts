@@ -37,7 +37,7 @@ export function windowTime_<R, E, A>(
   const windowCreationInterval: number | null = args[0] ?? null;
   const maxWindowSize: number                 = args[1] || Infinity;
 
-  return operate_(fa, (source, subscriber) => {
+  return operate_(fa, (source, subscriber, environment) => {
     let windowRecords: WindowRecord<never, E, A>[] | null = [];
     let restartOnClose = false;
     const closeWindow  = (record: { window: Subject<never, E, A>; subs: Subscription }) => {
@@ -82,7 +82,7 @@ export function windowTime_<R, E, A>(
       subscriber.unsubscribe();
     };
 
-    source.subscribe(
+    source.provideEnvironment(environment).subscribe(
       operatorSubscriber(subscriber, {
         next: (value) => {
           loop((record) => {

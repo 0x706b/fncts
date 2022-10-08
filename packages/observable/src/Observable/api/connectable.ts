@@ -32,7 +32,7 @@ export class Connectable<R, E, A> extends Observable<R, E, A> implements Connect
   }
   connect() {
     if (!this.connection || this.connection.closed) {
-      this.connection = Observable.defer(this.source).subscribe(this.subject);
+      this.connection = Observable.defer(this.source).provideEnvironment(this.environment).subscribe(this.subject);
       if (this.resetOnDisconnect) {
         this.connection.add(() => (this.subject = this.connector()));
       }

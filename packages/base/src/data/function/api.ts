@@ -42,6 +42,6 @@ export function tupled<A, B, C>(f: (a: A, b: B) => C): (_: readonly [A, B]) => C
  * @tsplus static fncts.FunctionOps unsafeCoerce
  * @tsplus macro identity
  */
-export function unsafeCoerce<A, B>(a: A): B {
+export function unsafeCoerce<B, A = unknown>(a: A): B {
   return a as unknown as B;
 }

@@ -30,7 +30,7 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
     }
   }
 
-  [Symbol.asyncIterator]() {
+  [Symbol.asyncIterator]<E, A>(this: Observable<never, E, A>) {
     let done         = false;
     const queue: A[] = [];
     let error: Cause<E>;
@@ -86,30 +86,36 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
     return observable;
   }
 
-  provide(environment: Environment<R>): Observable<never, E, A> {
-    const observable       = new Observable<never, E, A>();
-    observable.source      = this;
-    observable.environment = environment;
+  provideEnvironment(environment: Environment<R>): Observable<never, E, A>;
+  provideEnvironment<In>(environment: Environment<In>): Observable<Exclude<R, In>, E, A>;
+  provideEnvironment<In>(environment: Environment<In>): Observable<Exclude<R, In>, E, A> {
+    const observable       = new Observable<never, E, A>(this.subscribeInternal);
+    observable.source      = this.source;
+    observable.operator    = this.operator;
+    observable.environment = this.environment.union(environment);
     return observable;
   }
 
-  subscribe(observer?: Partial<Observer<E, A>>, environment?: Environment<R>): Subscription;
-  subscribe(observer?: (value: A) => void, environment?: Environment<R>): Subscription;
-  subscribe(observer?: Partial<Observer<E, A>> | ((value: A) => void), environment?: Environment<R>): Subscription {
+  subscribe<E, A>(this: Observable<never, E, A>, observer?: Partial<Observer<E, A>>): Subscription;
+  subscribe<E, A>(this: Observable<never, E, A>, observer?: (value: A) => void): Subscription;
+  subscribe<E, A>(
+    this: Observable<never, E, A>,
+    observer?: Partial<Observer<E, A>> | ((value: A) => void),
+  ): Subscription {
     const subscriber: Subscriber<E, A> = isSubscriber(observer) ? observer : new SafeSubscriber(observer);
 
     subscriber.add(
       this.operator
-        ? this.operator.call(subscriber, this.source, environment ?? this.environment)
+        ? this.operator.call(subscriber, this.source, this.environment)
         : this.source
-        ? this.subscribeInternal(subscriber, environment ?? this.environment)
-        : this.trySubscribe(subscriber, environment ?? this.environment),
+        ? this.subscribeInternal(subscriber, this.environment)
+        : this.trySubscribe(subscriber, this.environment),
     );
 
     return subscriber;
   }
 
-  protected trySubscribe(subscriber: Subscriber<E, A>, environment: Environment<R>): Finalizer {
+  protected trySubscribe(subscriber: Subscriber<E, A>, environment: Environment<any>): Finalizer {
     try {
       return this.subscribeInternal(subscriber, environment);
     } catch (err) {
@@ -118,8 +124,8 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
     }
   }
 
-  protected subscribeInternal(subscriber: Subscriber<E, A>, environment: Environment<R>): Finalizer {
-    this.source?.subscribe(subscriber, environment);
+  protected subscribeInternal(subscriber: Subscriber<E, A>, environment: Environment<any>): Finalizer {
+    this.source?.provideEnvironment(environment).subscribe(subscriber);
   }
 }
 
@@ -130,7 +136,7 @@ export class EnvironmentWith<R0, R, E, A> extends Observable<R0 | R, E, A> {
       if (!this.map.has(environment)) {
         this.map.set(environment, f(environment as Environment<R0>));
       }
-      return this.map.get(environment)!.subscribe(subsciber);
+      return this.map.get(environment)!.provideEnvironment(environment).subscribe(subsciber);
     });
   }
 }

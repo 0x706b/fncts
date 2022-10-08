@@ -61,11 +61,19 @@ export function operatorSubscriber<E, A, E1, A1>(
  */
 export function operate_<R, E, A, R1, E1, A1>(
   source: Observable<R, E, A>,
-  f: (source: Observable<R, E, A>, subscriber: Subscriber<E1, A1>) => (() => void) | void,
+  f: (
+    source: Observable<R, E, A>,
+    subscriber: Subscriber<E1, A1>,
+    environment: Environment<R | R1>,
+  ) => (() => void) | void,
 ): Observable<R1, E1, A1> {
-  return source.lift(function (this: Subscriber<E1, A1>, liftedSource: Observable<R, E, A>) {
+  return source.lift(function (
+    this: Subscriber<E1, A1>,
+    liftedSource: Observable<R, E, A>,
+    environment: Environment<R | R1>,
+  ) {
     try {
-      f(liftedSource, this);
+      f(liftedSource, this, environment);
     } catch (err) {
       this.error(Cause.halt(err));
     }

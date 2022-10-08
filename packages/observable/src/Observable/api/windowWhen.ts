@@ -5,7 +5,7 @@ export function windowWhen_<R, E, A>(
   fa: Observable<R, E, A>,
   closingSelector: () => ObservableInput<never, never, any>,
 ): Observable<R, E, Observable<never, E, A>> {
-  return operate_(fa, (source, subscriber) => {
+  return operate_(fa, (source, subscriber, environment) => {
     let window: Subject<never, E, A> | null;
     let closingSubscriber: Subscriber<E, any> | undefined;
 
@@ -38,7 +38,7 @@ export function windowWhen_<R, E, A>(
 
     openWindow();
 
-    source.subscribe(
+    source.provideEnvironment(environment).subscribe(
       operatorSubscriber(
         subscriber,
         {

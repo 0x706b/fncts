@@ -8,23 +8,25 @@ export function race<O extends ReadonlyArray<ObservableInput<any, any>>>(
 }
 
 export function raceInit<R, E, A>(sources: ReadonlyArray<ObservableInput<R, E, A>>) {
-  return (subscriber: Subscriber<E, A>) => {
+  return (subscriber: Subscriber<E, A>, environment: Environment<R>) => {
     let subscriptions: Subscription[] = [];
     for (let i = 0; subscriptions && !subscriber.closed && i < sources.length; i++) {
       subscriptions.push(
-        Observable.from(sources[i]!).subscribe(
-          operatorSubscriber(subscriber, {
-            next: (value) => {
-              if (subscriptions) {
-                for (let s = 0; s < subscriptions.length; s++) {
-                  s !== i && subscriptions[s]!.unsubscribe();
+        Observable.from(sources[i]!)
+          .provideEnvironment(environment)
+          .subscribe(
+            operatorSubscriber(subscriber, {
+              next: (value) => {
+                if (subscriptions) {
+                  for (let s = 0; s < subscriptions.length; s++) {
+                    s !== i && subscriptions[s]!.unsubscribe();
+                  }
+                  subscriptions = null!;
                 }
-                subscriptions = null!;
-              }
-              subscriber.next(value);
-            },
-          }),
-        ),
+                subscriber.next(value);
+              },
+            }),
+          ),
       );
     }
   };

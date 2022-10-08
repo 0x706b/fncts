@@ -5,7 +5,7 @@ export function window_<R, E, A>(
   fa: Observable<R, E, A>,
   windowBoundaries: Observable<never, never, any>,
 ): Observable<R, E, Observable<never, E, A>> {
-  return operate_(fa, (source, subscriber) => {
+  return operate_(fa, (source, subscriber, environment) => {
     let windowSubject: Subject<never, E, A> = new Subject();
     subscriber.next(windowSubject.asObservable());
 
@@ -14,7 +14,7 @@ export function window_<R, E, A>(
       subscriber.error(err);
     };
 
-    source.subscribe(
+    source.provideEnvironment(environment).subscribe(
       operatorSubscriber(subscriber, {
         next: (value) => windowSubject.next(value),
         error: errorHandler,

@@ -1,4 +1,4 @@
-export class BehaviorSubject<R, E, A> extends Subject<R, E, A> {
+export class BehaviorSubject<A> extends Subject<never, never, A> {
   constructor(private _value: A) {
     super();
   }
@@ -16,8 +16,8 @@ export class BehaviorSubject<R, E, A> extends Subject<R, E, A> {
     return _value;
   }
 
-  protected subscribeInternal(subscriber: Subscriber<E, A>) {
-    const subscription = super.subscribe(subscriber);
+  protected subscribeInternal(subscriber: Subscriber<never, A>) {
+    const subscription = super.subscribeInternal(subscriber);
     !subscription.closed && subscriber.next(this._value);
     return subscription;
   }

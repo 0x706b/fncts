@@ -8,13 +8,13 @@ export function windowCount_<R, E, A>(
 ): Observable<R, E, Observable<never, E, A>> {
   const startEvery = startWindowEvery > 0 ? startWindowEvery : windowSize;
 
-  return operate_(fa, (source, subscriber) => {
+  return operate_(fa, (source, subscriber, environment) => {
     let windows = [new Subject<never, E, A>()];
     let count   = 0;
 
     subscriber.next(windows[0]!.asObservable());
 
-    source.subscribe(
+    source.provideEnvironment(environment).subscribe(
       operatorSubscriber(
         subscriber,
         {

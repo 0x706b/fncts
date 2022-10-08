@@ -2,7 +2,7 @@ export function repeatWhen_<R, E, A, R1, E1>(
   fa: Observable<R, E, A>,
   notifier: (notifications: Observable<never, never, void>) => Observable<R1, E1, any>,
 ): Observable<R | R1, E | E1, A> {
-  return fa.operate((source, subscriber) => {
+  return fa.operate((source, subscriber, environment) => {
     let innerSub: Subscription | null;
     let syncResub = false;
     let completions$: Subject<never, never, void>;
@@ -14,28 +14,30 @@ export function repeatWhen_<R, E, A, R1, E1>(
     const getCompletionSubject = () => {
       if (!completions$) {
         completions$ = new Subject();
-        notifier(completions$).subscribe(
-          operatorSubscriber(subscriber, {
-            next: () => {
-              if (innerSub) {
-                loop();
-              } else {
-                syncResub = true;
-              }
-            },
-            complete: () => {
-              isNotifierComplete = true;
-              checkComplete();
-            },
-          }),
-        );
+        notifier(completions$)
+          .provideEnvironment(environment)
+          .subscribe(
+            operatorSubscriber(subscriber, {
+              next: () => {
+                if (innerSub) {
+                  loop();
+                } else {
+                  syncResub = true;
+                }
+              },
+              complete: () => {
+                isNotifierComplete = true;
+                checkComplete();
+              },
+            }),
+          );
       }
       return completions$;
     };
 
     const loop = () => {
       isMainComplete = false;
-      innerSub       = source.subscribe(
+      innerSub       = source.provideEnvironment(environment).subscribe(
         operatorSubscriber(subscriber, {
           complete: () => {
             isMainComplete = true;

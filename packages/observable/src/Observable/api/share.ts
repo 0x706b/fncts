@@ -1,5 +1,5 @@
 export interface ShareConfig<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R3 = never, E3 = never> {
-  readonly connector?: () => SubjectLike<E, A>;
+  readonly connector?: () => Subject<R, E, A>;
   readonly resetOnDefect?: boolean | ((err: unknown) => Observable<R1, E1, any>);
   readonly resetOnComplete?: boolean | (() => Observable<R2, E2, any>);
   readonly resetOnRefCountZero?: boolean | (() => Observable<R3, E3, any>);
@@ -21,7 +21,7 @@ export function share_<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, 
 
   let connection: SafeSubscriber<E, A> | null = null;
   let resetConnection: Subscription | null    = null;
-  let subject: SubjectLike<E, A> | null       = null;
+  let subject: Subject<R, E, A> | null        = null;
   let refCount     = 0;
   let hasCompleted = false;
   let hasErrored   = false;
@@ -43,7 +43,7 @@ export function share_<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, 
     conn?.unsubscribe();
   };
 
-  return operate_(fa, (source, subscriber) => {
+  return operate_(fa, (source, subscriber, environment) => {
     refCount++;
     if (!hasErrored && !hasCompleted) {
       cancelReset();
@@ -54,11 +54,11 @@ export function share_<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, 
     subscriber.add(() => {
       refCount--;
       if (refCount === 0 && !hasErrored && !hasCompleted) {
-        resetConnection = handleReset(resetAndUnsubscribe, resetOnRefCountZero);
+        resetConnection = handleReset(resetAndUnsubscribe, resetOnRefCountZero, environment);
       }
     });
 
-    dest.subscribe(subscriber);
+    dest.provideEnvironment(environment).subscribe(subscriber);
 
     if (!connection) {
       connection = new SafeSubscriber({
@@ -66,17 +66,17 @@ export function share_<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, 
         error: (defect) => {
           hasErrored = true;
           cancelReset();
-          resetConnection = handleReset(reset, resetOnDefect, defect);
+          resetConnection = handleReset(reset, resetOnDefect, environment, defect);
           dest.error(defect);
         },
         complete: () => {
           hasCompleted = true;
           cancelReset();
-          resetConnection = handleReset(reset, resetOnComplete);
+          resetConnection = handleReset(reset, resetOnComplete, environment);
           dest.complete();
         },
       });
-      Observable.from(source).subscribe(connection);
+      Observable.from(source).provideEnvironment(environment).subscribe(connection);
     }
   });
 }
@@ -84,6 +84,7 @@ export function share_<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, 
 function handleReset<T extends unknown[] = never[]>(
   reset: () => void,
   on: boolean | ((...args: T) => Observable<any, any, any>),
+  environment: Environment<any>,
   ...args: T
 ): Subscription | null {
   if (on === true) {
@@ -97,5 +98,6 @@ function handleReset<T extends unknown[] = never[]>(
 
   return on(...args)
     .take(1)
+    .provideEnvironment(environment)
     .subscribe({ next: () => reset() });
 }
