@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.17
+
+### Patch Changes
+
+- 02d4e7e: refactor: make everything pipeable
+
 ## 0.0.16
 
 ### Patch Changes
