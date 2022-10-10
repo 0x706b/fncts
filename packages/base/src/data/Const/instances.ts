@@ -8,9 +8,9 @@ import { Const } from "@fncts/base/data/Const/definition";
  */
 export function getApply<E>(S: P.Semigroup<E>) {
   return HKT.instance<P.Apply<ConstF, HKT.Fix<"E", E>>>({
-    map: (fa, f) => fa.map(f),
-    zip: (self, that) => Const(S.combine(self.getConst, that.getConst)),
-    zipWith: (self, that, _f) => Const(S.combine(self.getConst, that.getConst)),
+    map: (f) => (fa) => fa.map(f),
+    zip: (that) => (self) => Const(S.combine(self.getConst, that.getConst)),
+    zipWith: (that, _f) => (self) => Const(S.combine(self.getConst, that.getConst)),
   });
 }
 

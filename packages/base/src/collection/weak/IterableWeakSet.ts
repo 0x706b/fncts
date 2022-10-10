@@ -2,12 +2,17 @@
  * @tsplus type fncts.IterableWeakSet
  */
 export class IterableWeakSet<A extends object> implements Iterable<A>, Set<A> {
-  private weakMap           = new WeakMap<A, { ref: WeakRef<A> }>();
+  private weakMap = new WeakMap<
+    A,
+    {
+      ref: WeakRef<A>;
+    }
+  >();
   private refSet            = new Set<WeakRef<A>>();
-  private finalizationGroup = new FinalizationRegistry<{ ref: WeakRef<A>; set: Set<WeakRef<A>> }>(
-    IterableWeakSet.cleanup,
-  );
-
+  private finalizationGroup = new FinalizationRegistry<{
+    ref: WeakRef<A>;
+    set: Set<WeakRef<A>>;
+  }>(IterableWeakSet.cleanup);
   private static cleanup<A extends object>({ ref, set }: { ref: WeakRef<A>; set: Set<WeakRef<A>> }) {
     set.delete(ref);
   }

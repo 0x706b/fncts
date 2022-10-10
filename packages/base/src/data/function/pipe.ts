@@ -1,6 +1,14 @@
 /**
  * @tsplus macro pipe
- * @tsplus fluent fncts.global via
+ * @tsplus operator fncts.global >>
+ */
+export function pipeOperator<A, B>(a: A, f: (a: A) => B): B {
+  return f(a);
+}
+
+/**
+ * @tsplus macro pipe
+ * @tsplus fluent global pipe
  */
 export function pipe<A>(a: A): A;
 export function pipe<A, B>(a: A, ab: (a: A) => B): B;

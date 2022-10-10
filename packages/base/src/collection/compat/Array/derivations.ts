@@ -30,7 +30,7 @@ export const deriveReadonlyArrayGuard: <A extends ReadonlyArray<any>>(
       ? [element: Guard<_A>]
       : never
     : never
-) => Guard<A> = deriveGuard.unsafeCoerce();
+) => Guard<A> = unsafeCoerce(deriveGuard);
 
 /**
  * @tsplus derive fncts.Decoder[fncts.Array]<_> 10

@@ -3,7 +3,7 @@ import { Iterable } from "@fncts/base/collection/Iterable/definition";
 /**
  * @tsplus static fncts.IterableOps make
  */
-export function mkIterable<A>(iterator: () => Iterator<A>): Iterable<A> {
+export function makeIterable<A>(iterator: () => Iterator<A>): Iterable<A> {
   return {
     [Symbol.iterator]: iterator,
   };

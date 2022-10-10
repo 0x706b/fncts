@@ -33,10 +33,11 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
   [Symbol.asyncIterator]<E, A>(this: Observable<never, E, A>) {
     let done         = false;
     const queue: A[] = [];
-    let error: Cause<E>;
 
+    let error: Cause<E>;
     let resolveCurrent: ((a: A) => void) | undefined;
     let rejectCurrent: ((err: unknown) => void) | undefined;
+
     this.subscribe({
       next: (value) => {
         if (resolveCurrent) {
@@ -96,6 +97,7 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
     return observable;
   }
 
+  subscribe<E, A>(this: Observable<never, E, A>, observer?: Subscriber<E, A>): Subscription;
   subscribe<E, A>(this: Observable<never, E, A>, observer?: Partial<Observer<E, A>>): Subscription;
   subscribe<E, A>(this: Observable<never, E, A>, observer?: (value: A) => void): Subscription;
   subscribe<E, A>(
@@ -140,9 +142,7 @@ export class EnvironmentWith<R0, R, E, A> extends Observable<R0 | R, E, A> {
     });
   }
 }
-
 export const EMPTY: Observable<never, never, never> = new Observable((subscriber) => subscriber.complete());
-
 export function isObservable(u: unknown): u is Observable<unknown, unknown, unknown> {
   return isObject(u) && ObservableTypeId in u;
 }

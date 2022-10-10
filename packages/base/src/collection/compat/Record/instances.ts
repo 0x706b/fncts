@@ -26,7 +26,13 @@ export function deriveDictionaryGuard<A extends Record<string, any>>(
  */
 export function deriveGuard<A extends Record<string, any>>(
   ...[key, value, requiredKeys]: Check<Check.IsRecord<A>> extends Check.True
-    ? [key: Guard<keyof A>, value: Guard<A[keyof A]>, requiredKeys: { [k in keyof A]: 0 }]
+    ? [
+        key: Guard<keyof A>,
+        value: Guard<A[keyof A]>,
+        requiredKeys: {
+          [k in keyof A]: 0;
+        },
+      ]
     : never
 ): Guard<A> {
   const requiredKeysSet = new Set(Object.keys(requiredKeys));
@@ -51,7 +57,13 @@ export function deriveGuard<A extends Record<string, any>>(
 export function deriveDecoder<A extends Record<string, any>>(
   ...[keyGuard, valueDecoder, requiredKeysRecord]: [A] extends [Record<infer X, infer Y>]
     ? Check<Check.Not<Check.IsUnion<A>> & Check.IsEqual<A, Record<X, Y>>> extends Check.True
-      ? [keyGuard: Guard<X>, valueDecoder: Decoder<Y>, requiredKeysRecord: { [k in X]: 0 }]
+      ? [
+          keyGuard: Guard<X>,
+          valueDecoder: Decoder<Y>,
+          requiredKeysRecord: {
+            [k in X]: 0;
+          },
+        ]
       : never
     : never
 ): Decoder<A> {
@@ -121,7 +133,12 @@ export function deriveDictionaryEncoder<A extends Record<string, any>>(
  */
 export function deriveEncoder<A extends Record<string, any>>(
   ...[value, requiredKeys]: Check<Check.IsRecord<A>> extends Check.True
-    ? [value: Encoder<A[keyof A]>, requiredKeys: { [K in keyof A]: 0 }]
+    ? [
+        value: Encoder<A[keyof A]>,
+        requiredKeys: {
+          [K in keyof A]: 0;
+        },
+      ]
     : never
 ): Encoder<A> {
   return Encoder((inp) => {

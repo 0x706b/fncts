@@ -11,7 +11,6 @@ export class LeafRenderer {
   constructor(
     readonly use: <X>(f: <V>(annotation: TestAnnotation<V>, render: (_: List<V>) => Maybe<string>) => X) => X,
   ) {}
-
   run(ancestors: List<TestAnnotationMap>, child: TestAnnotationMap): List<string> {
     return this.use((annotation, render) =>
       render(
@@ -30,7 +29,6 @@ export class LeafRenderer {
 export class CompositeRenderer {
   readonly _tag = TestAnnotationRendererTag.CompositeRenderer;
   constructor(readonly renderers: Vector<TestAnnotationRenderer>) {}
-
   run(ancestors: List<TestAnnotationMap>, child: TestAnnotationMap): List<string> {
     return this.renderers.toList.flatMap((renderer) => renderer.run(ancestors, child));
   }

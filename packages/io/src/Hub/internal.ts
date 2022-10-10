@@ -1,5 +1,5 @@
 import type { Hub as HubInternal } from "@fncts/io/internal/Hub";
-import type { Dequeue} from "@fncts/io/Queue";
+import type { Dequeue } from "@fncts/io/Queue";
 
 import { HashSet } from "@fncts/base/collection/mutable/HashSet";
 import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
@@ -128,7 +128,7 @@ export class BackPressure<A> extends Strategy<A> {
     return Do((_) => {
       const fiberId    = _(IO.fiberId);
       const publishers = _(IO.succeed(self.publishers.unsafeDequeueAll));
-      _(IO.foreachC(publishers, ([_, future, last]) => (last ? future.interruptAs(fiberId) : IO.unit)));
+      _(publishers.traverseIOC(([_, future, last]) => (last ? future.interruptAs(fiberId) : IO.unit)));
     });
   }
 
@@ -283,7 +283,8 @@ class UnsafeSubscription<A> implements Dequeue<A> {
     return IO.fiberId.flatMap((fiberId) =>
       IO.defer(() => {
         this.shutdownFlag.set(true);
-        return IO.foreachC(this.pollers.unsafeDequeueAll, (fiber) => fiber.interruptAs(fiberId))
+        return this.pollers.unsafeDequeueAll
+          .traverseIOC((fiber) => fiber.interruptAs(fiberId))
           .apSecond(IO.succeed(this.subscription.unsubscribe()))
           .whenIO(this.shutdownHook.succeed(undefined));
       }),

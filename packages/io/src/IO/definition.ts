@@ -41,9 +41,27 @@ export const IOAspects: IOAspects = {};
 export function unifyIO<X extends IO<any, any, any>>(
   self: X,
 ): IO<
-  [X] extends [{ _R: () => infer R }] ? R : never,
-  [X] extends [{ _E: () => infer E }] ? E : never,
-  [X] extends [{ _A: () => infer A }] ? A : never
+  [X] extends [
+    {
+      _R: () => infer R;
+    },
+  ]
+    ? R
+    : never,
+  [X] extends [
+    {
+      _E: () => infer E;
+    },
+  ]
+    ? E
+    : never,
+  [X] extends [
+    {
+      _A: () => infer A;
+    },
+  ]
+    ? A
+    : never
 > {
   return self;
 }
@@ -157,7 +175,6 @@ export type FailureReporter = (e: Cause<unknown>) => void;
  */
 export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
   readonly _tag = IOTag.Fork;
-
   constructor(readonly io: IO<R, E, A>, readonly scope: Maybe<FiberScope>, readonly trace?: string) {
     super();
   }
@@ -168,7 +185,6 @@ export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
  */
 export class Fail<E> extends IO<never, E, never> {
   readonly _tag = IOTag.Fail;
-
   constructor(readonly cause: Lazy<Cause<E>>, readonly trace?: string) {
     super();
   }
@@ -179,7 +195,6 @@ export class Fail<E> extends IO<never, E, never> {
  */
 export class Yield extends IO<never, never, void> {
   readonly _tag = IOTag.Yield;
-
   constructor(readonly trace?: string) {
     super();
   }
@@ -190,7 +205,6 @@ export class Yield extends IO<never, never, void> {
  */
 export class Defer<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.Defer;
-
   constructor(readonly make: () => IO<R, E, A>, readonly trace?: string) {
     super();
   }
@@ -201,7 +215,6 @@ export class Defer<R, E, A> extends IO<R, E, A> {
  */
 export class DeferWith<R, E, A> extends IO<R, E, A> {
   readonly _tag = IOTag.DeferWith;
-
   constructor(readonly make: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>, readonly trace?: string) {
     super();
   }
@@ -212,7 +225,6 @@ export class DeferWith<R, E, A> extends IO<R, E, A> {
  */
 export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> {
   readonly _tag = "Race";
-
   constructor(
     readonly left: IO<R, E, A>,
     readonly right: IO<R1, E1, A1>,

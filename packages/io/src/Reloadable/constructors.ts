@@ -7,7 +7,7 @@ export function auto<In, E, Out, Env>(
   layer: Layer<In, E, Out>,
   tag: Tag<Out>,
   schedule: Schedule<Env, any, any>,
-  /** @tsplus auto */ reloadableTag: Tag<Reloadable<Out>>
+  /** @tsplus auto */ reloadableTag: Tag<Reloadable<Out>>,
 ): Layer<In | Env, E, Reloadable<Out>> {
   return Layer.scoped(
     Do((Δ) => {
@@ -27,7 +27,7 @@ export function autoFromConfig<In, E, Out, Env>(
   layer: Layer<In, E, Out>,
   tag: Tag<Out>,
   scheduleFromConfig: (env: Environment<In>) => Schedule<Env, any, any>,
-  /** @tsplus auto */ reloadableTag: Tag<Reloadable<Out>>
+  /** @tsplus auto */ reloadableTag: Tag<Reloadable<Out>>,
 ): Layer<In | Env, E, Reloadable<Out>> {
   return Layer.scoped(
     Do((Δ) => {

@@ -3,7 +3,6 @@ export * from "./Fiber/constructors.js";
 export * from "./Fiber/definition.js";
 export * from "./Fiber/FiberContext.js";
 // codegen:end
-
 // codegen:start { preset: barrel, include: Fiber/api/*.ts }
 export * from "./Fiber/api/await.js";
 export * from "./Fiber/api/awaitAll.js";
@@ -17,6 +16,7 @@ export * from "./Fiber/api/inheritRefs.js";
 export * from "./Fiber/api/interrupt.js";
 export * from "./Fiber/api/interruptAll.js";
 export * from "./Fiber/api/interruptAs.js";
+export * from "./Fiber/api/interruptAsFork.js";
 export * from "./Fiber/api/interruptFork.js";
 export * from "./Fiber/api/join.js";
 export * from "./Fiber/api/joinAll.js";

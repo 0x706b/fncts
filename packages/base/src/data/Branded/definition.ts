@@ -1,7 +1,5 @@
 import type { Union } from "@fncts/typelevel";
-
 declare const validSym: unique symbol;
-
 export declare namespace Brand {
   export type valid = typeof validSym;
 
@@ -25,16 +23,17 @@ export declare namespace Brand {
     : never;
 
   export type Unbranded<P> = P extends infer Q & Brands<P> ? Q : P;
-
-  export type Brands<P> = P extends Valid<any, any> ? Union.IntersectionOf<
-    {
-      [K in keyof P[Brand.valid]]: P extends P[Brand.valid][K]
-        ? K extends string
-          ? Valid<P[Brand.valid][K], K>
-          : never
-        : never;
-    }[keyof P[Brand.valid]]
-  > : unknown;
+  export type Brands<P> = P extends Valid<any, any>
+    ? Union.IntersectionOf<
+        {
+          [K in keyof P[Brand.valid]]: P extends P[Brand.valid][K]
+            ? K extends string
+              ? Valid<P[Brand.valid][K], K>
+              : never
+            : never;
+        }[keyof P[Brand.valid]]
+      >
+    : unknown;
 }
 
 /**

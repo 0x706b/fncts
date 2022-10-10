@@ -35,13 +35,11 @@ export class MemoMap {
           const observers    = _(Ref.make(0));
           const future       = _(Future.make<E, Environment<A>>());
           const finalizerRef = _(Ref.make<Finalizer>(Finalizer.noop));
-
-          const resource = IO.uninterruptibleMask(({ restore }) =>
+          const resource     = IO.uninterruptibleMask(({ restore }) =>
             Do((_) => {
               const outerScope = scope;
               const innerScope = _(Scope.make);
-
-              const tp = _(
+              const tp         = _(
                 restore(layer.scope(innerScope).flatMap((f) => f(this))).result.flatMap((exit) =>
                   exit.match(
                     (cause) => future.failCause(cause) > innerScope.close(exit) > IO.failCauseNow(cause),
@@ -107,71 +105,71 @@ export function build<R, E, A>(self: Layer<R, E, A>, __tsplusTrace?: string): IO
 }
 
 /**
- * @tsplus fluent fncts.io.Layer build
+ * @tsplus pipeable fncts.io.Layer build
  */
-export function build_<R, E, A>(self: Layer<R, E, A>, scope: Scope, __tsplusTrace?: string): IO<R, E, Environment<A>> {
-  return Do((_) => {
-    const memoMap = _(makeMemoMap());
-    const run     = _(self.scope(scope));
-    return _(run(memoMap));
-  });
+export function build_(scope: Scope, __tsplusTrace?: string) {
+  return <R, E, A>(self: Layer<R, E, A>): IO<R, E, Environment<A>> => {
+    return Do((_) => {
+      const memoMap = _(makeMemoMap());
+      const run     = _(self.scope(scope));
+      return _(run(memoMap));
+    });
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer scope
+ * @tsplus pipeable fncts.io.Layer scope
  */
-export function scope<R, E, A>(
-  layer: Layer<R, E, A>,
-  scope: Scope,
-  __tsplusTrace?: string,
-): IO<never, never, (_: MemoMap) => IO<R, E, Environment<A>>> {
-  layer.concrete();
-  switch (layer._tag) {
-    case LayerTag.Fold: {
-      return IO.succeed(
-        () => (memoMap: MemoMap) =>
-          memoMap.getOrElseMemoize(scope, layer.self, layer.trace).matchCauseIO(
-            (cause) => memoMap.getOrElseMemoize(scope, layer.failure(cause), layer.trace),
-            (r) => memoMap.getOrElseMemoize(scope, layer.success(r)),
-            layer.trace,
-          ),
-      );
-    }
-    case LayerTag.Fresh: {
-      return IO.succeed(() => () => layer.self.build(scope, layer.trace));
-    }
-    case LayerTag.Scoped: {
-      return IO.succeed(() => () => scope.extend(layer.self, layer.trace));
-    }
-    case LayerTag.Defer: {
-      return IO.succeed(() => (memoMap: MemoMap) => memoMap.getOrElseMemoize(scope, layer.self(), layer.trace));
-    }
-    case LayerTag.To: {
-      return IO.succeed(
-        () => (memoMap: MemoMap) =>
-          memoMap
-            .getOrElseMemoize(scope, layer.self, layer.trace)
-            .flatMap(
-              (r) => memoMap.getOrElseMemoize(scope, layer.that, layer.trace).provideEnvironment(r),
+export function scope(scope: Scope, __tsplusTrace?: string) {
+  return <R, E, A>(layer: Layer<R, E, A>): IO<never, never, (_: MemoMap) => IO<R, E, Environment<A>>> => {
+    layer.concrete();
+    switch (layer._tag) {
+      case LayerTag.Fold: {
+        return IO.succeed(
+          () => (memoMap: MemoMap) =>
+            memoMap.getOrElseMemoize(scope, layer.self, layer.trace).matchCauseIO(
+              (cause) => memoMap.getOrElseMemoize(scope, layer.failure(cause), layer.trace),
+              (r) => memoMap.getOrElseMemoize(scope, layer.success(r)),
               layer.trace,
             ),
-      );
+        );
+      }
+      case LayerTag.Fresh: {
+        return IO.succeed(() => () => layer.self.build(scope, layer.trace));
+      }
+      case LayerTag.Scoped: {
+        return IO.succeed(() => () => scope.extend(layer.self, layer.trace));
+      }
+      case LayerTag.Defer: {
+        return IO.succeed(() => (memoMap: MemoMap) => memoMap.getOrElseMemoize(scope, layer.self(), layer.trace));
+      }
+      case LayerTag.To: {
+        return IO.succeed(
+          () => (memoMap: MemoMap) =>
+            memoMap
+              .getOrElseMemoize(scope, layer.self, layer.trace)
+              .flatMap(
+                (r) => memoMap.getOrElseMemoize(scope, layer.that, layer.trace).provideEnvironment(r),
+                layer.trace,
+              ),
+        );
+      }
+      case LayerTag.ZipWith: {
+        return IO.succeed(
+          () => (memoMap: MemoMap) =>
+            memoMap
+              .getOrElseMemoize(scope, layer.self, layer.trace)
+              .zipWith(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
+        );
+      }
+      case LayerTag.ZipWithC: {
+        return IO.succeed(
+          () => (memoMap: MemoMap) =>
+            memoMap
+              .getOrElseMemoize(scope, layer.self, layer.trace)
+              .zipWithC(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
+        );
+      }
     }
-    case LayerTag.ZipWith: {
-      return IO.succeed(
-        () => (memoMap: MemoMap) =>
-          memoMap
-            .getOrElseMemoize(scope, layer.self, layer.trace)
-            .zipWith(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
-      );
-    }
-    case LayerTag.ZipWithC: {
-      return IO.succeed(
-        () => (memoMap: MemoMap) =>
-          memoMap
-            .getOrElseMemoize(scope, layer.self, layer.trace)
-            .zipWithC(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
-      );
-    }
-  }
+  };
 }

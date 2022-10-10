@@ -34,8 +34,7 @@ export class Executing<E, A> {
 }
 
 export class Done<E, A> {
-  readonly _tag = "Done";
-
+  readonly _tag                       = "Done";
   readonly interrupted                = Cause.empty<never>();
   readonly status: FiberStatus        = FiberStatus.done;
   readonly interruptors: Set<FiberId> = new Set();

@@ -1,7 +1,7 @@
 import type { EvalF } from "@fncts/base/control/Eval/definition";
 import type * as P from "@fncts/base/typeclass";
 
-import { map_, zip_, zipWith_ } from "@fncts/base/control/Eval/api";
+import { map, zip, zipWith } from "@fncts/base/control/Eval/api";
 import { now } from "@fncts/base/control/Eval/constructors";
 
 /**
@@ -9,7 +9,7 @@ import { now } from "@fncts/base/control/Eval/constructors";
  * @tsplus implicit
  */
 export const Functor = HKT.instance<P.Functor<EvalF>>({
-  map: map_,
+  map,
 });
 
 /**
@@ -17,9 +17,9 @@ export const Functor = HKT.instance<P.Functor<EvalF>>({
  * @tsplus implicit
  */
 export const Apply = HKT.instance<P.Apply<EvalF>>({
-  map: map_,
-  zip: zip_,
-  zipWith: zipWith_,
+  map,
+  zip,
+  zipWith,
 });
 
 /**

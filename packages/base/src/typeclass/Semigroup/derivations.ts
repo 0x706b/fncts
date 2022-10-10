@@ -2,7 +2,6 @@ import type { Check } from "@fncts/typelevel/Check";
 import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
 
 import { Semigroup } from "@fncts/base/typeclass/Semigroup/definition";
-
 /**
  * @tsplus derive fncts.Semigroup lazy
  */
@@ -18,7 +17,6 @@ export function deriveLazy<A>(fn: (_: Semigroup<A>) => Semigroup<A>): Semigroup<
   });
   return eq;
 }
-
 /**
  * @tsplus derive fncts.Semigroup<_> 20
  * @tsplus static fncts.SemigroupOps deriveStruct

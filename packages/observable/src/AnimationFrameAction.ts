@@ -5,7 +5,6 @@ export class AnimationFrameAction<A> extends AsyncAction<A> {
   ) {
     super(scheduler, work);
   }
-
   protected requestAsyncId(scheduler: AnimationFrameScheduler, delay = 0): any {
     if (delay != null && delay > 0) {
       return super.requestAsyncId(scheduler, delay);
@@ -13,7 +12,6 @@ export class AnimationFrameAction<A> extends AsyncAction<A> {
     scheduler.actions.push(this);
     return (scheduler.scheduled ||= animationFrameProvider.requestAnimationFrame(() => scheduler.flush(undefined)));
   }
-
   protected recycleAsyncId(scheduler: AnimationFrameScheduler, id?: any, delay = 0): any {
     if ((delay != null && delay > 0) || (delay == null && this.delay! > 0)) {
       super.recycleAsyncId(scheduler, delay);

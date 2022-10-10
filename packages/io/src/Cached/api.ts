@@ -19,7 +19,7 @@ export function auto<R, Error, Resource>(
 /**
  * @tsplus getter fncts.io.Cached get
  */
-export function get_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, Resource> {
+export function get<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, Resource> {
   concrete(self);
   return self.get;
 }
@@ -49,7 +49,7 @@ class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
 /**
  * @tsplus getter fncts.io.Cached refresh
  */
-export function refresh_<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, void> {
+export function refresh<Error, Resource>(self: Cached<Error, Resource>, __tsplusTrace?: string): FIO<Error, void> {
   concrete(self);
   return self.refresh;
 }

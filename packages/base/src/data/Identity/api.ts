@@ -1,15 +1,19 @@
 /**
- * @tsplus fluent fncts.Identity ap
+ * @tsplus pipeable fncts.Identity ap
  */
-export function ap_<A, B>(fab: Identity<(a: A) => B>, fa: Identity<A>): Identity<B> {
-  return Identity.get(Identity.reverseGet(fab)(Identity.reverseGet(fa)));
+export function ap<A>(fa: Identity<A>) {
+  return <B>(fab: Identity<(a: A) => B>): Identity<B> => {
+    return Identity.get(Identity.reverseGet(fab)(Identity.reverseGet(fa)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Identity map
+ * @tsplus pipeable fncts.Identity map
  */
-export function map_<A, B>(fa: Identity<A>, f: (a: A) => B): Identity<B> {
-  return Identity.get(f(Identity.reverseGet(fa)));
+export function map<A, B>(f: (a: A) => B) {
+  return (fa: Identity<A>): Identity<B> => {
+    return Identity.get(f(Identity.reverseGet(fa)));
+  };
 }
 
 /**
@@ -21,17 +25,21 @@ export function pure<A>(a: A): Identity<A> {
 }
 
 /**
- * @tsplus fluent fncts.Identity zipWith
+ * @tsplus pipeable fncts.Identity zipWith
  */
-export function zipWith_<A, B, C>(fa: Identity<A>, fb: Identity<B>, f: (a: A, b: B) => C): Identity<C> {
-  return Identity.get(f(Identity.reverseGet(fa), Identity.reverseGet(fb)));
+export function zipWith<A, B, C>(fb: Identity<B>, f: (a: A, b: B) => C) {
+  return (fa: Identity<A>): Identity<C> => {
+    return Identity.get(f(Identity.reverseGet(fa), Identity.reverseGet(fb)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Identity zip
+ * @tsplus pipeable fncts.Identity zip
  */
-export function zip_<A, B>(fa: Identity<A>, fb: Identity<B>): Identity<Zipped.Make<A, B>> {
-  return fa.zipWith(fb, (a, b) => Zipped(a, b));
+export function zip<B>(fb: Identity<B>) {
+  return <A>(fa: Identity<A>): Identity<Zipped.Make<A, B>> => {
+    return fa.zipWith(fb, (a, b) => Zipped(a, b));
+  };
 }
 
 /**

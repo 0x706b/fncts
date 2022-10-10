@@ -1,13 +1,12 @@
 import { PTraversal } from "@fncts/base/optics/Traversal/definition";
 
 /**
- * @tsplus fluent fncts.optics.PTraversal compose 4
+ * @tsplus pipeable fncts.optics.PTraversal compose 4
  */
-export function compose_<S, T, A, B, C, D>(
-  self: PTraversal<S, T, A, B>,
-  that: PTraversal<A, B, C, D>,
-): PTraversal<S, T, C, D> {
-  return PTraversal<S, T, C, D>({
-    modifyA: (F) => (s, f) => self.modifyA(F)(s, (a) => that.modifyA(F)(a, f)),
-  });
+export function compose<A, B, C, D>(that: PTraversal<A, B, C, D>) {
+  return <S, T>(self: PTraversal<S, T, A, B>): PTraversal<S, T, C, D> => {
+    return PTraversal<S, T, C, D>({
+      modifyA: (F) => (f) => self.modifyA(F)(that.modifyA(F)(f)),
+    });
+  };
 }

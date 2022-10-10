@@ -3,14 +3,12 @@ export function tableSizeFor(capacity: number) {
 }
 
 export function highestOneBit(i: number) {
-  /* eslint-disable no-param-reassign */
   i |= i >> 1;
   i |= i >> 2;
   i |= i >> 4;
   i |= i >> 8;
   i |= i >> 16;
   return i - (i >>> 1);
-  /* eslint-enable */
 }
 
 export function improveHash(originalHash: number): number {

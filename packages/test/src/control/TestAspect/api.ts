@@ -96,7 +96,6 @@ export function timeoutWarning(duration: Duration): TestAspect<Live, any> {
         Multiple: ({ specs }) => Spec.multiple(specs.map((spec) => loop(labels, spec))),
         Test: ({ test, annotations }) => Spec.test(warn(labels, test, duration), annotations),
       });
-
     return loop(Vector(), spec);
   };
 }

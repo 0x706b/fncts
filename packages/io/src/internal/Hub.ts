@@ -60,8 +60,7 @@ export class BoundedHubArb<A> extends Hub<A> {
     }
 
     if (this.subscriberCount !== 0) {
-      const index = this.publisherIndex % this.capacity;
-
+      const index             = this.publisherIndex % this.capacity;
       this.array[index]       = a;
       this.subscribers[index] = this.subscriberCount;
       this.publisherIndex    += 1;
@@ -100,8 +99,7 @@ export class BoundedHubArb<A> extends Hub<A> {
 
   slide(): void {
     if (this.subscribersIndex !== this.publisherIndex) {
-      const index = this.subscribersIndex % this.capacity;
-
+      const index             = this.subscribersIndex % this.capacity;
       this.array[index]       = null as unknown as A;
       this.subscribers[index] = 0;
       this.subscribersIndex  += 1;
@@ -240,10 +238,8 @@ export class BoundedHubPow2<A> extends Hub<A> {
     }
 
     if (this.subscriberCount !== 0) {
-      const index = this.publisherIndex & this.mask;
-
-      this.array[index] = a;
-
+      const index             = this.publisherIndex & this.mask;
+      this.array[index]       = a;
       this.subscribers[index] = this.subscriberCount;
       this.publisherIndex    += 1;
     }
@@ -281,8 +277,7 @@ export class BoundedHubPow2<A> extends Hub<A> {
 
   slide(): void {
     if (this.subscribersIndex !== this.publisherIndex) {
-      const index = this.subscribersIndex & this.mask;
-
+      const index             = this.subscribersIndex & this.mask;
       this.array[index]       = null as unknown as A;
       this.subscribers[index] = 0;
       this.subscribersIndex  += 1;
@@ -388,13 +383,11 @@ class BoundedHubPow2Subcription<A> extends SubscriptionInternal<A> {
     }
   }
 }
-
 export class BoundedHubSingle<A> extends Hub<A> {
-  publisherIndex  = 0;
-  subscriberCount = 0;
-  subscribers     = 0;
-  value: A        = null as unknown as A;
-
+  publisherIndex    = 0;
+  subscriberCount   = 0;
+  subscribers       = 0;
+  value: A          = null as unknown as A;
   readonly capacity = 1;
 
   constructor() {
@@ -468,9 +461,7 @@ class BoundedHubSingleSubscription<A> extends SubscriptionInternal<A> {
     if (this.isEmpty()) {
       return default_;
     }
-
-    const a = this.self.value;
-
+    const a                = this.self.value;
     this.self.subscribers -= 1;
 
     if (this.self.subscribers === 0) {
@@ -486,9 +477,7 @@ class BoundedHubSingleSubscription<A> extends SubscriptionInternal<A> {
     if (this.isEmpty() || n < 1) {
       return Conc.empty();
     }
-
-    const a = this.self.value;
-
+    const a                = this.self.value;
     this.self.subscribers -= 1;
 
     if (this.self.subscribers === 0) {
@@ -528,8 +517,7 @@ export class UnboundedHub<A> extends Hub<A> {
   publisherHead  = new Node<A>(null, 0, null);
   publisherIndex = 0;
   publisherTail: Node<A>;
-  subscribersIndex = 0;
-
+  subscribersIndex  = 0;
   readonly capacity = Number.MAX_SAFE_INTEGER;
 
   constructor() {
@@ -746,8 +734,10 @@ export function unsafePollAll<A>(subscription: SubscriptionInternal<A>): Conc<A>
 /**
  * Unsafely polls the specified number of values from a subscription.
  *
- * @tsplus fluent fncts.internal.Hub.Subscription unsafePollN
+ * @tsplus pipeable fncts.internal.Hub.Subscription unsafePollN
  */
-export function unsafePollN<A>(subscription: SubscriptionInternal<A>, max: number): Conc<A> {
-  return subscription.pollUpTo(max);
+export function unsafePollN(max: number) {
+  return <A>(subscription: SubscriptionInternal<A>): Conc<A> => {
+    return subscription.pollUpTo(max);
+  };
 }

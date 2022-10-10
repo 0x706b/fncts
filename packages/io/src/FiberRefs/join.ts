@@ -1,53 +1,44 @@
 /**
- * @tsplus fluent fncts.io.FiberRefs join
+ * @tsplus pipeable fncts.io.FiberRefs join
  */
-export function join(self: FiberRefs, fiberId: FiberId.Runtime, that: FiberRefs): FiberRefs {
-  const parentFiberRefs = self.fiberRefLocals;
-  const childFiberRefs  = that.fiberRefLocals;
-
-  const fiberRefLocals = childFiberRefs.foldLeftWithIndex(parentFiberRefs, (ref, parentFiberRefs, childStack) => {
-    const childValue = childStack.head[1];
-
-    if (childStack.head[0] == fiberId) {
-      return parentFiberRefs;
-    }
-
-    return parentFiberRefs.get(ref).match(
-      () => {
-        if (Equatable.strictEquals(childValue, ref.initial)) return parentFiberRefs;
-        return parentFiberRefs.set(ref, Cons([fiberId, childValue] as const));
-      },
-      (parentStack) => {
-        const [ancestor, wasModified] = findAncestor(ref, parentStack, childStack);
-
-        if (!wasModified) return parentFiberRefs;
-
-        const patch = ref.diff(ancestor, childValue);
-
-        const oldValue = parentStack.head[1];
-        const newValue = ref.join(oldValue, ref.patch(patch)(oldValue));
-
-        if (oldValue === newValue) return parentFiberRefs;
-
-        let newStack: Cons<readonly [FiberId.Runtime, unknown]>;
-
-        if (parentStack.isEmpty()) {
-          newStack = Cons([fiberId, newValue] as const);
-        } else {
-          const [parentFiberId] = parentStack.head;
-          if (parentFiberId == fiberId) {
-            newStack = Cons([parentFiberId, newValue], parentStack.tail);
+export function join(fiberId: FiberId.Runtime, that: FiberRefs) {
+  return (self: FiberRefs): FiberRefs => {
+    const parentFiberRefs = self.fiberRefLocals;
+    const childFiberRefs  = that.fiberRefLocals;
+    const fiberRefLocals  = childFiberRefs.foldLeftWithIndex(parentFiberRefs, (ref, parentFiberRefs, childStack) => {
+      const childValue = childStack.head[1];
+      if (childStack.head[0] == fiberId) {
+        return parentFiberRefs;
+      }
+      return parentFiberRefs.get(ref).match(
+        () => {
+          if (Equatable.strictEquals(childValue, ref.initial)) return parentFiberRefs;
+          return parentFiberRefs.set(ref, Cons([fiberId, childValue] as const));
+        },
+        (parentStack) => {
+          const [ancestor, wasModified] = findAncestor(ref, parentStack, childStack);
+          if (!wasModified) return parentFiberRefs;
+          const patch    = ref.diff(ancestor, childValue);
+          const oldValue = parentStack.head[1];
+          const newValue = ref.join(oldValue, ref.patch(patch)(oldValue));
+          if (oldValue === newValue) return parentFiberRefs;
+          let newStack: Cons<readonly [FiberId.Runtime, unknown]>;
+          if (parentStack.isEmpty()) {
+            newStack = Cons([fiberId, newValue] as const);
           } else {
-            newStack = Cons([fiberId, newValue], parentStack);
+            const [parentFiberId] = parentStack.head;
+            if (parentFiberId == fiberId) {
+              newStack = Cons([parentFiberId, newValue], parentStack.tail);
+            } else {
+              newStack = Cons([fiberId, newValue], parentStack);
+            }
           }
-        }
-
-        return parentFiberRefs.set(ref, newStack);
-      },
-    );
-  });
-
-  return FiberRefs(fiberRefLocals);
+          return parentFiberRefs.set(ref, newStack);
+        },
+      );
+    });
+    return FiberRefs(fiberRefLocals);
+  };
 }
 
 function compareFiberId(left: FiberId.Runtime, right: FiberId.Runtime): number {

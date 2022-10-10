@@ -3,7 +3,7 @@ import type * as P from "@fncts/base/typeclass";
 /**
  * @tsplus getter fncts.Iterable traverseToConcWithIndex
  */
-export function traverseToConcWithIndex_<A>(ta: Iterable<A>) {
+export function _traverseToConcWithIndex<A>(ta: Iterable<A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
     <K, Q, W, X, I, S, R, E, B>(
       f: (i: number, a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
@@ -13,7 +13,7 @@ export function traverseToConcWithIndex_<A>(ta: Iterable<A>) {
       let result: IteratorResult<A>;
       let i          = 0;
       while (!(result = iterator.next()).done) {
-        output = G.zipWith(output, f(i, result.value), (bs, b) => bs.append(b)) as typeof output;
+        output = output.pipe(G.zipWith(f(i, result.value), (bs, b) => bs.append(b))) as typeof output;
         i++;
       }
 
@@ -24,7 +24,7 @@ export function traverseToConcWithIndex_<A>(ta: Iterable<A>) {
 /**
  * @tsplus getter fncts.Iterable traverseToConc
  */
-export function traverseToConc_<A>(
+export function _traverseToConc<A>(
   ta: Iterable<A>,
 ): <G extends HKT, GC = HKT.None>(
   G: P.Applicative<G, GC>,

@@ -19,6 +19,6 @@ export function fromTraversable<F extends HKT, FC = HKT.None>(T: P.Traversable<F
     E = HKT.Low<F, "E">,
   >() =>
     PTraversal<HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>, A, B>({
-      modifyA: (F) => (s, f) => T.traverse(s)(F)(f),
+      modifyA: T.traverse,
     });
 }

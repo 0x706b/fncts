@@ -4,30 +4,36 @@ import type { Functor } from "@fncts/base/typeclass/Functor";
  * @tsplus type fncts.Filterable
  */
 export interface Filterable<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
-  filter<K, Q, W, X, I, S, R, E, A, B extends A>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  filter<A, B extends A>(
     refinement: Refinement<A, B>,
-  ): HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>;
-  filter<K, Q, W, X, I, S, R, E, A>(
+  ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>;
+  filter<A>(
     predicate: Predicate<A>,
-  ): HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>;
-  filterMap<K, Q, W, X, I, S, R, E, A, B>(
+  ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>;
+  filterMap<A, B>(
     f: (a: A) => Maybe<B>,
-  ): HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>;
-  partition<K, Q, W, X, I, S, R, E, A, B extends A>(
+  ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>;
+  partition<A, B extends A>(
     refinement: Refinement<A, B>,
-  ): readonly [HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>];
-  partition<K, Q, W, X, I, S, R, E, A>(
+  ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => readonly [HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>];
+  partition<A>(
     predicate: Predicate<A>,
-  ): readonly [HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>];
-  partitionMap<K, Q, W, X, I, S, R, E, A, B, B1>(
+  ): <K, Q, W, X, I, S, R, E>(
     fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => readonly [HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>];
+  partitionMap<A, B, B1>(
     f: (a: A) => Either<B, B1>,
-  ): readonly [HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B1>];
+  ): <K, Q, W, X, I, S, R, E>(
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => readonly [HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B>, HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, B1>];
 }
 
 /**

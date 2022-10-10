@@ -10,14 +10,16 @@ import { ExecutedSpec, TestCase } from "./definition.js";
 import { LabeledCase, MultipleCase } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.data.ExecutedSpec fold
+ * @tsplus pipeable fncts.test.data.ExecutedSpec fold
  */
-export function fold_<E, Z>(self: ExecutedSpec<E>, f: (_: SpecCase<E, Z>) => Z): Z {
-  return matchTag_(self.caseValue, {
-    Labeled: ({ label, spec }) => f(new LabeledCase(label, spec.fold(f))),
-    Multiple: ({ specs }) => f(new MultipleCase(specs.map((spec) => spec.fold(f)))),
-    Test: f,
-  });
+export function fold<E, Z>(f: (_: SpecCase<E, Z>) => Z) {
+  return (self: ExecutedSpec<E>): Z => {
+    return matchTag_(self.caseValue, {
+      Labeled: ({ label, spec }) => f(new LabeledCase(label, spec.fold(f))),
+      Multiple: ({ specs }) => f(new MultipleCase(specs.map((spec) => spec.fold(f)))),
+      Test: f,
+    });
+  };
 }
 
 /**
@@ -28,17 +30,19 @@ export function labeled<E>(spec: ExecutedSpec<E>, label: string): ExecutedSpec<E
 }
 
 /**
- * @tsplus fluent fncts.test.data.ExecutedSpecCase map
+ * @tsplus pipeable fncts.test.data.ExecutedSpecCase map
  */
-export function mapSpecCase_<E, A, B>(self: SpecCase<E, A>, f: (a: A) => B): SpecCase<E, B> {
-  return matchTag_(
-    self,
-    {
-      Labeled: ({ label, spec }) => new LabeledCase(label, f(spec)),
-      Multiple: ({ specs }) => new MultipleCase(specs.map(f)),
-    },
-    identity,
-  );
+export function mapSpecCase<A, B>(f: (a: A) => B) {
+  return <E>(self: SpecCase<E, A>): SpecCase<E, B> => {
+    return matchTag_(
+      self,
+      {
+        Labeled: ({ label, spec }) => new LabeledCase(label, f(spec)),
+        Multiple: ({ specs }) => new MultipleCase(specs.map(f)),
+      },
+      identity,
+    );
+  };
 }
 
 /**
@@ -56,30 +60,31 @@ export function test<E>(test: Either<TestFailure<E>, TestSuccess>, annotations: 
 }
 
 /**
- * @tsplus fluent fncts.test.data.ExecutedSpec transform
+ * @tsplus pipeable fncts.test.data.ExecutedSpec transform
  */
-export function transform_<E, E1>(
-  self: ExecutedSpec<E>,
-  f: (_: SpecCase<E, ExecutedSpec<E1>>) => SpecCase<E1, ExecutedSpec<E1>>,
-): ExecutedSpec<E1> {
-  return matchTag_(self.caseValue, {
-    Labeled: ({ label, spec }) => new ExecutedSpec(f(new LabeledCase(label, spec.transform(f)))),
-    Multiple: ({ specs }) => new ExecutedSpec(f(new MultipleCase(specs.map((spec) => spec.transform(f))))),
-    Test: (t) => new ExecutedSpec(f(t)),
-  });
+export function transform<E, E1>(f: (_: SpecCase<E, ExecutedSpec<E1>>) => SpecCase<E1, ExecutedSpec<E1>>) {
+  return (self: ExecutedSpec<E>): ExecutedSpec<E1> => {
+    return matchTag_(self.caseValue, {
+      Labeled: ({ label, spec }) => new ExecutedSpec(f(new LabeledCase(label, spec.transform(f)))),
+      Multiple: ({ specs }) => new ExecutedSpec(f(new MultipleCase(specs.map((spec) => spec.transform(f))))),
+      Test: (t) => new ExecutedSpec(f(t)),
+    });
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.data.ExecutedSpec exists
+ * @tsplus pipeable fncts.test.data.ExecutedSpec exists
  */
-export function exists_<E>(self: ExecutedSpec<E>, f: (_: SpecCase<E, boolean>) => boolean): boolean {
-  return self.fold(
-    matchTag({
-      Labeled: (c) => c.spec || f(c),
-      Multiple: (c) => c.specs.exists(identity) || f(c),
-      Test: f,
-    }),
-  );
+export function exists<E>(f: (_: SpecCase<E, boolean>) => boolean) {
+  return (self: ExecutedSpec<E>): boolean => {
+    return self.fold(
+      matchTag({
+        Labeled: (c) => c.spec || f(c),
+        Multiple: (c) => c.specs.exists(identity) || f(c),
+        Test: f,
+      }),
+    );
+  };
 }
 
 /**

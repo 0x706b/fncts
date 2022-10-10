@@ -15,10 +15,12 @@ import {
 import { Decoder } from "@fncts/base/data/Decoder/definition";
 
 /**
- * @tsplus fluent fncts.Decoder __call
+ * @tsplus pipeable fncts.Decoder __call
  */
-export function decode<A>(self: Decoder<A>, input: unknown): These<DecodeError, A> {
-  return self.decode(input);
+export function decode(input: unknown) {
+  return <A>(self: Decoder<A>): These<DecodeError, A> => {
+    return self.decode(input);
+  };
 }
 
 export function fromGuard<A>(guard: Guard<A>, onFalse: (i: unknown) => DecodeError, label: string): Decoder<A> {

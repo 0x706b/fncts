@@ -4,7 +4,6 @@ import {
   createComparator,
   sameValueZeroEqual,
 } from "@fncts/base/typeclass/Equatable/fast-equals";
-
 /**
  * @tsplus static fncts.EquatableOps deepEquals
  */
@@ -19,7 +18,6 @@ export const deepEquals = createComparator(
     }
   }),
 );
-
 /**
  * @tsplus static fncts.EquatableOps strictEquals
  * @tsplus operator fncts.Equatable ==

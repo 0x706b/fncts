@@ -4,25 +4,20 @@
  */
 export class Stack<A> {
   constructor(private node?: Node<A>) {}
-
   clone(): Stack<A> {
     return new Stack(this.node);
   }
-
   get hasNext(): boolean {
     return !!this.node;
   }
-
   get isEmpty(): boolean {
     return !this.hasNext;
   }
-
   peek(): A | undefined {
     if (this.node) {
       return this.node.value;
     }
   }
-
   pop(): A | undefined {
     if (this.node) {
       const value = this.node.value;
@@ -30,7 +25,6 @@ export class Stack<A> {
       return value;
     }
   }
-
   push(value: A): void {
     this.node = { value, previous: this.node };
   }
@@ -44,7 +38,7 @@ interface Node<A> {
 /**
  * @tsplus static fncts.StackOps __call
  */
-export function mkStack<A>(): Stack<A> {
+export function makeStack<A>(): Stack<A> {
   return new Stack();
 }
 

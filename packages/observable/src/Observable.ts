@@ -3,7 +3,6 @@ export * from "./Observable/api.js";
 export * from "./Observable/definition.js";
 export * from "./Observable/instances.js";
 // codegen:end
-
 // codegen:start { preset: barrel, include: Observable/api/*.ts }
 export * from "./Observable/api/connect.js";
 export * from "./Observable/api/connectable.js";
@@ -21,7 +20,6 @@ export * from "./Observable/api/windowTime.js";
 export * from "./Observable/api/windowToggle.js";
 export * from "./Observable/api/windowWhen.js";
 // codegen:end
-
 // codegen:start { preset: barrel, include: Observable/dom/*.ts }
 export * from "./Observable/dom/animationFrames.js";
 // codegen:end

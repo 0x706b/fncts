@@ -3,23 +3,12 @@ import type { MaybeF } from "@fncts/base/data/Maybe/definition";
 
 import { MaybeJson } from "@fncts/base/json/MaybeJson";
 
-import {
-  filter_,
-  filterMap_,
-  flatMap_,
-  foldLeft_,
-  foldRight_,
-  map_,
-  partition_,
-  partitionMap_,
-  zip_,
-  zipWith_,
-} from "./api.js";
+import { filter, filterMap, flatMap, foldLeft, foldRight, map, partition, partitionMap, zip, zipWith } from "./api.js";
 import { just } from "./constructors.js";
 
-export const Functor = HKT.instance<P.Functor<MaybeF>>({ map: map_ });
+export const Functor = HKT.instance<P.Functor<MaybeF>>({ map });
 
-export const Apply = HKT.instance<P.Apply<MaybeF>>({ ...Functor, zip: zip_, zipWith: zipWith_ });
+export const Apply = HKT.instance<P.Apply<MaybeF>>({ ...Functor, zip, zipWith });
 
 export const Applicative = HKT.instance<P.Applicative<MaybeF>>({
   ...Apply,
@@ -28,20 +17,20 @@ export const Applicative = HKT.instance<P.Applicative<MaybeF>>({
 
 export const Monad = HKT.instance<P.Monad<MaybeF>>({
   ...Applicative,
-  flatMap: flatMap_,
+  flatMap,
 });
 
 export const Foldable = HKT.instance<P.Foldable<MaybeF>>({
-  foldLeft: foldLeft_,
-  foldRight: foldRight_,
+  foldLeft,
+  foldRight,
 });
 
 export const Filterable = HKT.instance<P.Filterable<MaybeF>>({
   ...Functor,
-  filter: filter_,
-  filterMap: filterMap_,
-  partition: partition_,
-  partitionMap: partitionMap_,
+  filter,
+  filterMap,
+  partition,
+  partitionMap,
 });
 
 /**

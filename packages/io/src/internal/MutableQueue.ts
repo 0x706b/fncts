@@ -89,9 +89,7 @@ export abstract class MutableQueue<A> {
 
 export class OneElementMutableQueue<A> extends MutableQueue<A> {
   private ref: A | undefined = undefined;
-
-  capacity = 1;
-
+  capacity                   = 1;
   get isEmpty() {
     return this.ref === undefined;
   }
@@ -253,7 +251,7 @@ export class RingBufferPow2<A> extends RingBuffer<A> {
   }
 }
 
-export function mkRingBuffer<A>(requestedCapacity: number): RingBuffer<A> {
+export function makeRingBuffer<A>(requestedCapacity: number): RingBuffer<A> {
   assert(requestedCapacity >= 2, `RingBuffer created with capacity ${requestedCapacity}`);
   if (nextPow2(requestedCapacity) === requestedCapacity) {
     return new RingBufferPow2(requestedCapacity);
@@ -269,7 +267,7 @@ export function bounded<A>(capacity: number): MutableQueue<A> {
   if (capacity === 1) {
     return new OneElementMutableQueue<A>();
   } else {
-    return mkRingBuffer<A>(capacity);
+    return makeRingBuffer<A>(capacity);
   }
 }
 
@@ -288,8 +286,10 @@ export function unsafeDequeueAll<A>(queue: MutableQueue<A>): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.internal.MutableQueue unsafeRemove
+ * @tsplus pipeable fncts.internal.MutableQueue unsafeRemove
  */
-export function unsafeRemove<A>(queue: MutableQueue<A>, a: A): void {
-  queue.enqueueAll(queue.unsafeDequeueAll.filter((_) => _ !== a));
+export function unsafeRemove<A>(a: A) {
+  return (queue: MutableQueue<A>): void => {
+    queue.enqueueAll(queue.unsafeDequeueAll.filter((_) => _ !== a));
+  };
 }

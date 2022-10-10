@@ -80,13 +80,14 @@ function handleSuccess<A1, A2, A3>(
 }
 
 /**
- * @tsplus fluent fncts.io.Stream zipWithChunks
+ * @tsplus pipeable fncts.io.Stream zipWithChunks
  */
-export function zipWithChunks_<R, E, A, R1, E1, B, C>(
-  self: Stream<R, E, A>,
+export function zipWithChunks<A, R1, E1, B, C>(
   that: Stream<R1, E1, B>,
   f: (as: Conc<A>, bs: Conc<B>) => readonly [Conc<C>, Either<Conc<A>, Conc<B>>],
   __tsplusTrace?: string,
-): Stream<R | R1, E | E1, C> {
-  return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) => pull(s, l, r, f));
+) {
+  return <R, E>(self: Stream<R, E, A>): Stream<R | R1, E | E1, C> => {
+    return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) => pull(s, l, r, f));
+  };
 }

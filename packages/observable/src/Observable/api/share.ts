@@ -6,79 +6,71 @@ export interface ShareConfig<R, E, A, R1 = never, E1 = never, R2 = never, E2 = n
 }
 
 /**
- * @tsplus fluent fncts.observable.Observable share
+ * @tsplus pipeable fncts.observable.Observable share
  */
-export function share_<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R3 = never, E3 = never>(
-  fa: Observable<R, E, A>,
+export function share<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R3 = never, E3 = never>(
   options: ShareConfig<R, E, A, R1, E1, R2, E2, R3, E3> = {},
-): Observable<R | R1 | R2, E | E1 | E2 | E3, A> {
-  const {
-    connector = () => new Subject<R, E, A>(),
-    resetOnDefect = true,
-    resetOnComplete = true,
-    resetOnRefCountZero = true,
-  } = options;
-
-  let connection: SafeSubscriber<E, A> | null = null;
-  let resetConnection: Subscription | null    = null;
-  let subject: Subject<R, E, A> | null        = null;
-  let refCount     = 0;
-  let hasCompleted = false;
-  let hasErrored   = false;
-
-  const cancelReset = () => {
-    resetConnection?.unsubscribe();
-    resetConnection = null;
-  };
-
-  const reset = () => {
-    cancelReset();
-    connection   = subject = null;
-    hasCompleted = hasErrored = false;
-  };
-
-  const resetAndUnsubscribe = () => {
-    const conn = connection;
-    reset();
-    conn?.unsubscribe();
-  };
-
-  return operate_(fa, (source, subscriber, environment) => {
-    refCount++;
-    if (!hasErrored && !hasCompleted) {
+) {
+  return (fa: Observable<R, E, A>): Observable<R | R1 | R2, E | E1 | E2 | E3, A> => {
+    const {
+      connector = () => new Subject<R, E, A>(),
+      resetOnDefect = true,
+      resetOnComplete = true,
+      resetOnRefCountZero = true,
+    } = options;
+    let connection: SafeSubscriber<E, A> | null = null;
+    let resetConnection: Subscription | null    = null;
+    let subject: Subject<R, E, A> | null        = null;
+    let refCount      = 0;
+    let hasCompleted  = false;
+    let hasErrored    = false;
+    const cancelReset = () => {
+      resetConnection?.unsubscribe();
+      resetConnection = null;
+    };
+    const reset = () => {
       cancelReset();
-    }
-
-    const dest = (subject ||= connector());
-
-    subscriber.add(() => {
-      refCount--;
-      if (refCount === 0 && !hasErrored && !hasCompleted) {
-        resetConnection = handleReset(resetAndUnsubscribe, resetOnRefCountZero, environment);
+      connection   = subject = null;
+      hasCompleted = hasErrored = false;
+    };
+    const resetAndUnsubscribe = () => {
+      const conn = connection;
+      reset();
+      conn?.unsubscribe();
+    };
+    return fa.operate((source, subscriber, environment) => {
+      refCount++;
+      if (!hasErrored && !hasCompleted) {
+        cancelReset();
+      }
+      const dest = (subject ||= connector());
+      subscriber.add(() => {
+        refCount--;
+        if (refCount === 0 && !hasErrored && !hasCompleted) {
+          resetConnection = handleReset(resetAndUnsubscribe, resetOnRefCountZero, environment);
+        }
+      });
+      dest.provideEnvironment(environment).subscribe(subscriber);
+      if (!connection) {
+        connection = new SafeSubscriber({
+          next: (value) => dest.next(value),
+          error: (defect) => {
+            hasErrored = true;
+            cancelReset();
+            resetConnection = handleReset(reset, resetOnDefect, environment, defect);
+            dest.error(defect);
+          },
+          complete: () => {
+            hasCompleted = true;
+            cancelReset();
+            resetConnection = handleReset(reset, resetOnComplete, environment);
+            dest.complete();
+          },
+        });
+        Observable.from(source).provideEnvironment(environment).subscribe(connection);
       }
     });
-
-    dest.provideEnvironment(environment).subscribe(subscriber);
-
-    if (!connection) {
-      connection = new SafeSubscriber({
-        next: (value) => dest.next(value),
-        error: (defect) => {
-          hasErrored = true;
-          cancelReset();
-          resetConnection = handleReset(reset, resetOnDefect, environment, defect);
-          dest.error(defect);
-        },
-        complete: () => {
-          hasCompleted = true;
-          cancelReset();
-          resetConnection = handleReset(reset, resetOnComplete, environment);
-          dest.complete();
-        },
-      });
-      Observable.from(source).provideEnvironment(environment).subscribe(connection);
-    }
-  });
+  };
 }
 
 function handleReset<T extends unknown[] = never[]>(
@@ -91,11 +83,9 @@ function handleReset<T extends unknown[] = never[]>(
     reset();
     return null;
   }
-
   if (on === false) {
     return null;
   }
-
   return on(...args)
     .take(1)
     .provideEnvironment(environment)

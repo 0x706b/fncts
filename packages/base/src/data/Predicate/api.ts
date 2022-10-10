@@ -1,15 +1,19 @@
 /**
- * @tsplus operator fncts.Predicate &&
+ * @tsplus pipeable-operator fncts.Predicate &&
  */
-export function and<A>(self: Predicate<A>, that: Predicate<A>): Predicate<A> {
-  return (a) => self(a) && that(a);
+export function and<A>(that: Predicate<A>) {
+  return (self: Predicate<A>): Predicate<A> =>
+    (a) =>
+      self(a) && that(a);
 }
 
 /**
- * @tsplus fluent fncts.Predicate contramap
+ * @tsplus pipeable fncts.Predicate contramap
  */
-export function contramap<A, B>(self: Predicate<A>, f: (b: B) => A): Predicate<B> {
-  return (b) => self(f(b));
+export function contramap<A, B>(f: (b: B) => A) {
+  return (self: Predicate<A>): Predicate<B> => {
+    return (b) => self(f(b));
+  };
 }
 
 /**
@@ -22,6 +26,8 @@ export function invert<A>(self: Predicate<A>): Predicate<A> {
 /**
  * @tsplus operator fncts.Predicate ||
  */
-export function or<A extends B, B>(self: Predicate<A>, that: Predicate<B>): Predicate<A> {
-  return (a) => self(a) || that(a);
+export function or<A extends B, B>(that: Predicate<B>) {
+  return (self: Predicate<A>): Predicate<A> =>
+    (a) =>
+      self(a) || that(a);
 }

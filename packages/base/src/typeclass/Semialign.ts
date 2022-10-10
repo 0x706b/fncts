@@ -18,8 +18,7 @@ export interface SemialignOps {}
 export const Semialign: SemialignOps = {};
 
 export interface align<F extends HKT, FC = HKT.None> {
-  <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  <K, Q, W, X, I, S, R, E, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
     fb: HKT.Kind<
       F,
       FC,
@@ -33,7 +32,9 @@ export interface align<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "E", E, E1>,
       B
     >,
-  ): HKT.Kind<
+  ): <A>(
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<
     F,
     FC,
     HKT.Mix<F, "K", [K, K1]>,
@@ -53,8 +54,7 @@ export interface align<F extends HKT, FC = HKT.None> {
  */
 export function align<F extends HKT, FC = HKT.None>(
   F: Semialign<F, FC>,
-): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+): <K, Q, W, X, I, S, R, E, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
   fb: HKT.Kind<
     F,
     FC,
@@ -68,6 +68,8 @@ export function align<F extends HKT, FC = HKT.None>(
     HKT.Intro<F, "E", E, E1>,
     B
   >,
+) => <A>(
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -81,12 +83,11 @@ export function align<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E, E1]>,
   These<A, B>
 > {
-  return (fa, fb) => F.alignWith(fa, fb, identity);
+  return (fb) => F.alignWith(fb, identity);
 }
 
 export interface alignWith<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
       FC,
@@ -101,7 +102,9 @@ export interface alignWith<F extends HKT, FC = HKT.None> {
       B
     >,
     f: (th: These<A, B>) => C,
-  ): HKT.Kind<
+  ): (
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<
     F,
     FC,
     HKT.Mix<F, "K", [K, K1]>,
@@ -122,7 +125,6 @@ export interface alignWith<F extends HKT, FC = HKT.None> {
 export function alignWith<F extends HKT, FC = HKT.None>(
   F: Semialign<F, FC>,
 ): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, C>(
-  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
     FC,
@@ -137,6 +139,8 @@ export function alignWith<F extends HKT, FC = HKT.None>(
     B
   >,
   f: (th: These<A, B>) => C,
+) => (
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -150,12 +154,11 @@ export function alignWith<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E, E1]>,
   C
 > {
-  return (fa, fb, f) => F.alignWith(fa, fb, f);
+  return (fb, f) => F.alignWith(fb, f);
 }
 
 export interface alignCombine<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1>(
-    self: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     that: HKT.Kind<
       F,
       FC,
@@ -170,7 +173,9 @@ export interface alignCombine<F extends HKT, FC = HKT.None> {
       A
     >,
     S: Semigroup<A>,
-  ): HKT.Kind<
+  ): (
+    self: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<
     F,
     FC,
     HKT.Mix<F, "K", [K, K1]>,
@@ -191,7 +196,6 @@ export interface alignCombine<F extends HKT, FC = HKT.None> {
 export function alignCombine<F extends HKT, FC = HKT.None>(
   F: Semialign<F, FC>,
 ): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1>(
-  self: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   that: HKT.Kind<
     F,
     FC,
@@ -206,6 +210,8 @@ export function alignCombine<F extends HKT, FC = HKT.None>(
     A
   >,
   /** @tsplus auto */ S: Semigroup<A>,
+) => (
+  self: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -219,12 +225,11 @@ export function alignCombine<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E, E1]>,
   A
 > {
-  return (self, that, S) => F.alignWith(self, that, (th) => th.match(identity, identity, S.combine));
+  return (that, S) => F.alignWith(that, (th) => th.match(identity, identity, S.combine));
 }
 
 export interface padZip<F extends HKT, FC = HKT.None> {
-  <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  <K, Q, W, X, I, S, R, E, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
     fb: HKT.Kind<
       F,
       FC,
@@ -238,7 +243,9 @@ export interface padZip<F extends HKT, FC = HKT.None> {
       HKT.Intro<F, "E", E, E1>,
       B
     >,
-  ): HKT.Kind<
+  ): <A>(
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<
     F,
     FC,
     HKT.Mix<F, "K", [K, K1]>,
@@ -254,12 +261,11 @@ export interface padZip<F extends HKT, FC = HKT.None> {
 }
 
 /**
- * @tsplus fluent fncts.Kind padZip
+ * @tsplus pipeable fncts.Kind padZip
  */
 export function padZip<F extends HKT, FC = HKT.None>(
   F: Semialign<F, FC>,
-): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+): <K, Q, W, X, I, S, R, E, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
   fb: HKT.Kind<
     F,
     FC,
@@ -273,6 +279,8 @@ export function padZip<F extends HKT, FC = HKT.None>(
     HKT.Intro<F, "E", E, E1>,
     B
   >,
+) => <A>(
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -286,12 +294,11 @@ export function padZip<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E, E1]>,
   readonly [Maybe<A>, Maybe<B>]
 > {
-  return (fa, fb) => Semialign.padZipWith(F)(fa, fb, identity);
+  return (fb) => Semialign.padZipWith(F)(fb, identity);
 }
 
 export interface padZipWith<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, D>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
       FC,
@@ -306,7 +313,9 @@ export interface padZipWith<F extends HKT, FC = HKT.None> {
       B
     >,
     f: (_: readonly [Maybe<A>, Maybe<B>]) => D,
-  ): HKT.Kind<
+  ): (
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<
     F,
     FC,
     HKT.Mix<F, "K", [K, K1]>,
@@ -327,7 +336,6 @@ export interface padZipWith<F extends HKT, FC = HKT.None> {
 export function padZipWith<F extends HKT, FC = HKT.None>(
   F: Semialign<F, FC>,
 ): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B, D>(
-  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
     FC,
@@ -342,6 +350,8 @@ export function padZipWith<F extends HKT, FC = HKT.None>(
     B
   >,
   f: (_: readonly [Maybe<A>, Maybe<B>]) => D,
+) => (
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -355,8 +365,8 @@ export function padZipWith<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E, E1]>,
   D
 > {
-  return (fa, fb, f) =>
-    F.alignWith(fa, fb, (th) =>
+  return (fb, f) =>
+    F.alignWith(fb, (th) =>
       th.match(
         (a) => f([Just(a), Nothing()]),
         (b) => f([Nothing(), Just(b)]),
@@ -364,10 +374,8 @@ export function padZipWith<F extends HKT, FC = HKT.None>(
       ),
     );
 }
-
 export interface zipAll<F extends HKT, FC = HKT.None> {
   <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     fb: HKT.Kind<
       F,
       FC,
@@ -383,7 +391,9 @@ export interface zipAll<F extends HKT, FC = HKT.None> {
     >,
     a: A,
     b: B,
-  ): HKT.Kind<
+  ): (
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => HKT.Kind<
     F,
     FC,
     HKT.Mix<F, "K", [K, K1]>,
@@ -404,7 +414,6 @@ export interface zipAll<F extends HKT, FC = HKT.None> {
 export function zipAll<F extends HKT, FC = HKT.None>(
   F: Semialign<F, FC>,
 ): <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   fb: HKT.Kind<
     F,
     FC,
@@ -420,6 +429,8 @@ export function zipAll<F extends HKT, FC = HKT.None>(
   >,
   a: A,
   b: B,
+) => (
+  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -433,8 +444,8 @@ export function zipAll<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E, E1]>,
   readonly [A, B]
 > {
-  return (fa, fb, a, b) =>
-    F.alignWith(fa, fb, (th) =>
+  return (fb, a, b) =>
+    F.alignWith(fb, (th) =>
       th.match(
         (x) => [x, b],
         (x) => [a, x],

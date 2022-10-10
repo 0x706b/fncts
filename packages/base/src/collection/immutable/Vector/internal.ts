@@ -357,44 +357,46 @@ export function decrementDepth(bits: number): number {
 /**
  * Appends the value to the Vector by _mutating_ the Vector and its content.
  *
- * @tsplus fluent fncts.MutableVector push
+ * @tsplus pipeable fncts.MutableVector push
  */
-export function push<A>(l: MutableVector<A>, value: A): MutableVector<A> {
-  const suffixSize = getSuffixSize(l);
-  if (l.length === 0) {
-    l.bits   = setPrefix(1, l.bits);
-    l.prefix = [value];
-  } else if (suffixSize < 32) {
-    l.bits = incrementSuffix(l.bits);
-    l.suffix.push(value);
-  } else if (l.root === undefined) {
-    l.root   = new Node(undefined, l.suffix);
-    l.suffix = [value];
-    l.bits   = setSuffix(1, l.bits);
-  } else {
-    const newNode = new Node(undefined, l.suffix);
-    const index   = l.length - 1 - 32 + 1;
-    let current   = l.root!;
-    let depth     = getDepth(l);
-    l.suffix      = [value];
-    l.bits        = setSuffix(1, l.bits);
-    if (index - 1 < branchingFactor ** (depth + 1)) {
-      for (; depth >= 0; --depth) {
-        const path = (index >> (depth * branchBits)) & mask;
-        if (path < current.array.length) {
-          current = current.array[path];
-        } else {
-          current.array.push(createPath(depth - 1, newNode));
-          break;
-        }
-      }
+export function push<A>(value: A) {
+  return (l: MutableVector<A>): MutableVector<A> => {
+    const suffixSize = getSuffixSize(l);
+    if (l.length === 0) {
+      l.bits   = setPrefix(1, l.bits);
+      l.prefix = [value];
+    } else if (suffixSize < 32) {
+      l.bits = incrementSuffix(l.bits);
+      l.suffix.push(value);
+    } else if (l.root === undefined) {
+      l.root   = new Node(undefined, l.suffix);
+      l.suffix = [value];
+      l.bits   = setSuffix(1, l.bits);
     } else {
-      l.bits = incrementDepth(l.bits);
-      l.root = new Node(undefined, [l.root, createPath(depth, newNode)]);
+      const newNode = new Node(undefined, l.suffix);
+      const index   = l.length - 1 - 32 + 1;
+      let current   = l.root!;
+      let depth     = getDepth(l);
+      l.suffix      = [value];
+      l.bits        = setSuffix(1, l.bits);
+      if (index - 1 < branchingFactor ** (depth + 1)) {
+        for (; depth >= 0; --depth) {
+          const path = (index >> (depth * branchBits)) & mask;
+          if (path < current.array.length) {
+            current = current.array[path];
+          } else {
+            current.array.push(createPath(depth - 1, newNode));
+            break;
+          }
+        }
+      } else {
+        l.bits = incrementDepth(l.bits);
+        l.root = new Node(undefined, [l.root, createPath(depth, newNode)]);
+      }
     }
-  }
-  l.length++;
-  return l;
+    l.length++;
+    return l;
+  };
 }
 
 /**
@@ -1123,8 +1125,7 @@ export function sliceTreeVector<A>(
     if (childRight === undefined) {
       --pathRight;
     }
-    newOffset = 0;
-
+    newOffset       = 0;
     const childLeft = sliceLeft(
       tree.array[pathLeft],
       depth - 1,
@@ -1429,8 +1430,6 @@ export function mapAffix<A, B>(f: (i: number, a: A) => B, suffix: A[], length: n
   }
   return newSuffix;
 }
-
-// functions based on foldlCb
 
 export function arrayPush<A>(array: A[], a: A): A[] {
   array.push(a);

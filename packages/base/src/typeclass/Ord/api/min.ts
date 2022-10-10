@@ -1,5 +1,4 @@
 import type { Ord } from "@fncts/base/typeclass/Ord/definition";
-
 /**
  * @tsplus static fncts.OrdOps min
  * @tsplus getter fncts.Ord min

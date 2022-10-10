@@ -1,5 +1,4 @@
 /* eslint-disable no-param-reassign */
-
 /*
  * Copyright 2014 Thom Chiovoloni, released under the MIT license.
  *
@@ -14,7 +13,6 @@
 export function isNothing<T>(value: T | null | undefined) {
   return value === void 0 || value === null;
 }
-
 const defaultIncHi = 0x14057b7e;
 const defaultIncLo = 0xf767814f;
 const MUL_HI       = 0x5851f42d >>> 0;
@@ -159,9 +157,8 @@ function mul64(out: Int32Array, aHi: number, aLo: number, bHi: number, bLo: numb
 
   let lo = ((aLo & 0xffff) * (bLo & 0xffff)) >>> 0;
   let hi = ((aLo >>> 16) * (bLo >>> 16) + ((c0 >>> 16) + (c1 >>> 16))) >>> 0;
-
-  c0 = (c0 << 16) >>> 0;
-  lo = (lo + c0) >>> 0;
+  c0     = (c0 << 16) >>> 0;
+  lo     = (lo + c0) >>> 0;
   if (lo >>> 0 < c0 >>> 0) {
     hi = (hi + 1) >>> 0;
   }
@@ -171,10 +168,8 @@ function mul64(out: Int32Array, aHi: number, aLo: number, bHi: number, bLo: numb
   if (lo >>> 0 < c1 >>> 0) {
     hi = (hi + 1) >>> 0;
   }
-
-  hi = (hi + Math.imul(aLo, bHi)) >>> 0;
-  hi = (hi + Math.imul(aHi, bLo)) >>> 0;
-
+  hi     = (hi + Math.imul(aLo, bHi)) >>> 0;
+  hi     = (hi + Math.imul(aHi, bLo)) >>> 0;
   out[0] = hi;
   out[1] = lo;
 }

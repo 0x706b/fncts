@@ -1,6 +1,5 @@
 import type { Check } from "@fncts/typelevel/Check";
 import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
-
 /**
  * @tsplus derive fncts.Guard lazy
  */
@@ -14,7 +13,6 @@ export function deriveLazy<A>(f: (_: Guard<A>) => Guard<A>): Guard<A> {
   });
   return guard;
 }
-
 /**
  * @tsplus derive fncts.Guard<_> 20
  */
@@ -23,7 +21,6 @@ export function deriveLiteral<A extends string | number | boolean>(
 ): Guard<A> {
   return Guard((u): u is A => u === value);
 }
-
 /**
  * @tsplus derive fncts.Guard<_> 20
  */
@@ -49,7 +46,6 @@ export function deriveStruct<A extends Record<string, any>>(
     if (!isObject(u)) {
       return false;
     }
-
     for (const key in requiredFields) {
       if (!(key in u) || !(requiredFields[key] as Guard<any>).is(u[key])) {
         return false;
@@ -65,11 +61,14 @@ export function deriveStruct<A extends Record<string, any>>(
     return true;
   });
 }
-
 /**
  * @tsplus derive fncts.Guard<|> 30
  */
-export function deriveUnion<A extends unknown[]>(...members: { [K in keyof A]: Guard<A[K]> }): Guard<A[number]> {
+export function deriveUnion<A extends unknown[]>(
+  ...members: {
+    [K in keyof A]: Guard<A[K]>;
+  }
+): Guard<A[number]> {
   return Guard((u): u is A[number] => {
     for (const member of members) {
       if (member.is(u)) {

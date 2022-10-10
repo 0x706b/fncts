@@ -1,5 +1,4 @@
 import type { Pull } from "./Pull.js";
-
 /**
  * A `Take<E, A>` represents a single `take` from a queue modeling a stream of
  * values. A `Take` may be a failure cause `Cause<E>`, an chunk value `A`
@@ -11,7 +10,6 @@ import type { Pull } from "./Pull.js";
 export class Take<E, A> {
   readonly _E!: () => E;
   readonly _A!: () => A;
-
   constructor(readonly exit: Exit<Maybe<E>, Conc<A>>) {}
 }
 
@@ -28,15 +26,12 @@ export function done<E, A>(self: Take<E, A>): FIO<Maybe<E>, Conc<A>> {
  * Folds over the failure cause, success value and end-of-stream marker to
  * yield a value.
  *
- * @tsplus fluent fncts.io.Stream.Take match
+ * @tsplus pipeable fncts.io.Stream.Take match
  */
-export function match_<E, A, Z>(
-  self: Take<E, A>,
-  end: Z,
-  error: (cause: Cause<E>) => Z,
-  value: (chunk: Conc<A>) => Z,
-): Z {
-  return self.exit.match((cause) => cause.flipCauseMaybe.match(() => end, error), value);
+export function match<E, A, Z>(end: Z, error: (cause: Cause<E>) => Z, value: (chunk: Conc<A>) => Z) {
+  return (self: Take<E, A>): Z => {
+    return self.exit.match((cause) => cause.flipCauseMaybe.match(() => end, error), value);
+  };
 }
 
 /**
@@ -45,15 +40,16 @@ export function match_<E, A, Z>(
  * Folds over the failure cause, success value and end-of-stream marker to
  * yield an effect.
  *
- * @tsplus fluent fncts.io.Stream.Take matchIO
+ * @tsplus pipeable fncts.io.Stream.Take matchIO
  */
-export function matchIO_<R, R1, R2, E, E1, E2, E3, A, Z>(
-  self: Take<E, A>,
+export function matchIO<R, R1, R2, E, E1, E2, E3, A, Z>(
   end: IO<R, E1, Z>,
   error: (cause: Cause<E>) => IO<R1, E2, Z>,
   value: (chunk: Conc<A>) => IO<R2, E3, Z>,
-): IO<R | R1 | R2, E1 | E2 | E3, Z> {
-  return self.exit.match((cause) => cause.flipCauseMaybe.match(() => end, error), value);
+) {
+  return (self: Take<E, A>): IO<R | R1 | R2, E1 | E2 | E3, Z> => {
+    return self.exit.match((cause) => cause.flipCauseMaybe.match(() => end, error), value);
+  };
 }
 
 /**
@@ -95,19 +91,23 @@ export function isSuccess<E, A>(self: Take<E, A>): boolean {
 /**
  * Transforms `Take<E, A>` to `Take<E, B>` by applying function `f`.
  *
- * @tsplus fluent fncts.io.Stream.Take map
+ * @tsplus pipeable fncts.io.Stream.Take map
  */
-export function map_<E, A, B>(self: Take<E, A>, f: (a: A) => B): Take<E, B> {
-  return new Take(self.exit.map((chunk) => chunk.map(f)));
+export function map<A, B>(f: (a: A) => B) {
+  return <E>(self: Take<E, A>): Take<E, B> => {
+    return new Take(self.exit.map((chunk) => chunk.map(f)));
+  };
 }
 
 /**
  * Returns an effect that effectfully "peeks" at the success of this take.
  *
- * @tsplus fluent fncts.io.Stream.Take tap
+ * @tsplus pipeable fncts.io.Stream.Take tap
  */
-export function tap_<R, E, E1, A>(self: Take<E, A>, f: (chunk: Conc<A>) => IO<R, E1, any>): IO<R, E1, void> {
-  return self.exit.foreachIO(f);
+export function tap<R, E1, A>(f: (chunk: Conc<A>) => IO<R, E1, any>) {
+  return <E>(self: Take<E, A>): IO<R, E1, void> => {
+    return self.exit.foreachIO(f);
+  };
 }
 
 /**

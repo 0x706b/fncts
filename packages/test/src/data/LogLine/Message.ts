@@ -44,14 +44,14 @@ export function prependFragment(fragment: Fragment, self: Message): Message {
 /**
  * @tsplus operator fncts.test.data.Message +
  */
-export function concat_(self: Message, that: Message): Message {
+export function concat(self: Message, that: Message): Message {
   return Message(self.lines.concat(that.lines));
 }
 
 /**
  * @tsplus operator fncts.test.data.Message |
  */
-export function combine_(self: Message, that: Message): Message {
+export function combine(self: Message, that: Message): Message {
   const last = self.lines.last;
   const head = that.lines.head;
   if (last.isJust() && head.isJust()) {
@@ -62,33 +62,41 @@ export function combine_(self: Message, that: Message): Message {
 }
 
 /**
- * @tsplus fluent fncts.test.data.Message drop
+ * @tsplus pipeable fncts.test.data.Message drop
  */
-export function drop_(self: Message, n: number): Message {
-  return Message(self.lines.drop(n));
+export function drop(n: number) {
+  return (self: Message): Message => {
+    return Message(self.lines.drop(n));
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.data.Message map
+ * @tsplus pipeable fncts.test.data.Message map
  */
-export function map_(self: Message, f: (line: Line) => Line): Message {
-  return Message(self.lines.map(f));
+export function map(f: (line: Line) => Line) {
+  return (self: Message): Message => {
+    return Message(self.lines.map(f));
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.data.Message withOffset
+ * @tsplus pipeable fncts.test.data.Message withOffset
  */
-export function withOffset(self: Message, offset: number): Message {
-  return self.map((line) => line.withOffset(offset));
+export function withOffset(offset: number) {
+  return (self: Message): Message => {
+    return self.map((line) => line.withOffset(offset));
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.data.Message intersperse
+ * @tsplus pipeable fncts.test.data.Message intersperse
  */
-export function intersperse(self: Message, line: Line): Message {
-  return new Message(
-    Vector.from(
-      self.lines.foldRight(List.empty<Line>(), (ln, rest) => Cons(ln, rest.isEmpty() ? Nil() : Cons(line, rest))),
-    ),
-  );
+export function intersperse(line: Line) {
+  return (self: Message): Message => {
+    return new Message(
+      Vector.from(
+        self.lines.foldRight(List.empty<Line>(), (ln, rest) => Cons(ln, rest.isEmpty() ? Nil() : Cons(line, rest))),
+      ),
+    );
+  };
 }

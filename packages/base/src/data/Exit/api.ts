@@ -2,52 +2,66 @@ import { identity, tuple } from "../function.js";
 import { ExitTag } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.Exit ap
+ * @tsplus pipeable fncts.Exit ap
  */
-export function ap_<E, A, G, B>(fab: Exit<G, (a: A) => B>, fa: Exit<E, A>): Exit<E | G, B> {
-  return fab.flatMap((f) => fa.map((a) => f(a)));
+export function ap<E, A>(fa: Exit<E, A>) {
+  return <G, B>(fab: Exit<G, (a: A) => B>): Exit<E | G, B> => {
+    return fab.flatMap((f) => fa.map((a) => f(a)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit apFirst
+ * @tsplus pipeable fncts.Exit apFirst
  */
-export function apFirst_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, A> {
-  return fa.zipWithCause(fb, (a, _) => a, Cause.then);
+export function apFirst<G, B>(fb: Exit<G, B>) {
+  return <E, A>(fa: Exit<E, A>): Exit<E | G, A> => {
+    return fa.zipWithCause(fb, (a, _) => a, Cause.then);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit apSecond
+ * @tsplus pipeable fncts.Exit apSecond
  */
-export function apSecond_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, B> {
-  return fa.zipWithCause(fb, (_, b) => b, Cause.then);
+export function apSecond<G, B>(fb: Exit<G, B>) {
+  return <E, A>(fa: Exit<E, A>): Exit<E | G, B> => {
+    return fa.zipWithCause(fb, (_, b) => b, Cause.then);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit apFirstC
+ * @tsplus pipeable fncts.Exit apFirstC
  */
-export function apFirstC_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, A> {
-  return fa.zipWithCause(fb, (a, _) => a, Cause.both);
+export function apFirstC<G, B>(fb: Exit<G, B>) {
+  return <E, A>(fa: Exit<E, A>): Exit<E | G, A> => {
+    return fa.zipWithCause(fb, (a, _) => a, Cause.both);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit apSecondC
+ * @tsplus pipeable fncts.Exit apSecondC
  */
-export function apSecondC_<E, G, A, B>(fa: Exit<E, A>, fb: Exit<G, B>): Exit<E | G, B> {
-  return fa.zipWithCause(fb, (_, b) => b, Cause.both);
+export function apSecondC<G, B>(fb: Exit<G, B>) {
+  return <E, A>(fa: Exit<E, A>): Exit<E | G, B> => {
+    return fa.zipWithCause(fb, (_, b) => b, Cause.both);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit flatMap
+ * @tsplus pipeable fncts.Exit flatMap
  */
-export function flatMap_<E, A, G, B>(ma: Exit<E, A>, f: (a: A) => Exit<G, B>): Exit<E | G, B> {
-  return ma.isFailure() ? ma : f(ma.value);
+export function flatMap<A, G, B>(f: (a: A) => Exit<G, B>) {
+  return <E>(ma: Exit<E, A>): Exit<E | G, B> => {
+    return ma.isFailure() ? ma : f(ma.value);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit bimap
+ * @tsplus pipeable fncts.Exit bimap
  */
-export function bimap_<E1, A, E2, B>(self: Exit<E1, A>, f: (e: E1) => E2, g: (a: A) => B): Exit<E2, B> {
-  return self.isFailure() ? Exit.failCause(self.cause.map(f)) : Exit.succeed(g(self.value));
+export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
+  return (self: Exit<E1, A>): Exit<E2, B> => {
+    return self.isFailure() ? Exit.failCause(self.cause.map(f)) : Exit.succeed(g(self.value));
+  };
 }
 
 /**
@@ -72,101 +86,118 @@ export function collectAllC<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A
  * @tsplus getter fncts.Exit flatten
  */
 export function flatten<E, G, A>(mma: Exit<E, Exit<G, A>>): Exit<E | G, A> {
-  return flatMap_(mma, identity);
+  return mma.flatMap(identity);
 }
 
 /**
- * @tsplus fluent fncts.Exit map
+ * @tsplus pipeable fncts.Exit map
  */
-export function map_<E, A, B>(fa: Exit<E, A>, f: (a: A) => B): Exit<E, B> {
-  return fa.isFailure() ? fa : Exit.succeed(f(fa.value));
+export function map<A, B>(f: (a: A) => B) {
+  return <E>(fa: Exit<E, A>): Exit<E, B> => {
+    return fa.isFailure() ? fa : Exit.succeed(f(fa.value));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit mapError
+ * @tsplus pipeable fncts.Exit mapError
  */
-export function mapError_<E1, A, E2>(self: Exit<E1, A>, f: (e: E1) => E2): Exit<E2, A> {
-  return self.isFailure() ? Exit.failCause(self.cause.map(f)) : self;
+export function mapError<E1, E2>(f: (e: E1) => E2) {
+  return <A>(self: Exit<E1, A>): Exit<E2, A> => {
+    return self.isFailure() ? Exit.failCause(self.cause.map(f)) : self;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit mapErrorCause
+ * @tsplus pipeable fncts.Exit mapErrorCause
  */
-export function mapErrorCause_<E1, A, E2>(self: Exit<E1, A>, f: (e: Cause<E1>) => Cause<E2>): Exit<E2, A> {
-  return self.isFailure() ? Exit.failCause(f(self.cause)) : self;
+export function mapErrorCause<E1, E2>(f: (e: Cause<E1>) => Cause<E2>) {
+  return <A>(self: Exit<E1, A>): Exit<E2, A> => {
+    return self.isFailure() ? Exit.failCause(f(self.cause)) : self;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit match
+ * @tsplus pipeable fncts.Exit match
  */
-export function match_<E, A, B, C>(exit: Exit<E, A>, onFailure: (e: Cause<E>) => B, onSuccess: (a: A) => C): B | C {
-  switch (exit._tag) {
-    case ExitTag.Success: {
-      return onSuccess(exit.value);
+export function match<E, A, B, C>(onFailure: (e: Cause<E>) => B, onSuccess: (a: A) => C) {
+  return (exit: Exit<E, A>): B | C => {
+    switch (exit._tag) {
+      case ExitTag.Success: {
+        return onSuccess(exit.value);
+      }
+      case ExitTag.Failure: {
+        return onFailure(exit.cause);
+      }
     }
-    case ExitTag.Failure: {
-      return onFailure(exit.cause);
-    }
-  }
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit zipWith
+ * @tsplus pipeable fncts.Exit zipWith
  */
-export function zipWith_<EA, A, EB, B, C>(fa: Exit<EA, A>, fb: Exit<EB, B>, f: (a: A, b: B) => C): Exit<EA | EB, C> {
-  return fa.zipWithCause(fb, f, Cause.then);
+export function zipWith<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
+  return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
+    return fa.zipWithCause(fb, f, Cause.then);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit zip
+ * @tsplus pipeable fncts.Exit zip
  */
-export function zip<EA, A, EB, B>(self: Exit<EA, A>, that: Exit<EB, B>): Exit<EA | EB, readonly [A, B]> {
-  return self.zipWith(that, tuple);
+export function zip<EB, B>(that: Exit<EB, B>) {
+  return <EA, A>(self: Exit<EA, A>): Exit<EA | EB, readonly [A, B]> => {
+    return self.zipWith(that, tuple);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit zipWithC
+ * @tsplus pipeable fncts.Exit zipWithC
  */
-export function zipWithC_<EA, A, EB, B, C>(fa: Exit<EA, A>, fb: Exit<EB, B>, f: (a: A, b: B) => C): Exit<EA | EB, C> {
-  return fa.zipWithCause(fb, f, Cause.both);
+export function zipWithC<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
+  return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
+    return fa.zipWithCause(fb, f, Cause.both);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit zipC
+ * @tsplus pipeable fncts.Exit zipC
  */
-export function zipC<EA, A, EB, B>(self: Exit<EA, A>, that: Exit<EB, B>): Exit<EA | EB, readonly [A, B]> {
-  return self.zipWithC(that, tuple);
+export function zipC<EB, B>(that: Exit<EB, B>) {
+  return <EA, A>(self: Exit<EA, A>): Exit<EA | EB, readonly [A, B]> => {
+    return self.zipWithC(that, tuple);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Exit zipWithCause
+ * @tsplus pipeable fncts.Exit zipWithCause
  */
-export function zipWithCause_<E, A, G, B, C>(
-  fa: Exit<E, A>,
+export function zipWithCause<E, A, G, B, C>(
   fb: Exit<G, B>,
   f: (a: A, b: B) => C,
   g: (ea: Cause<E>, eb: Cause<G>) => Cause<E | G>,
-): Exit<E | G, C> {
-  switch (fa._tag) {
-    case ExitTag.Failure: {
-      switch (fb._tag) {
-        case ExitTag.Success: {
-          return fa;
+) {
+  return (fa: Exit<E, A>): Exit<E | G, C> => {
+    switch (fa._tag) {
+      case ExitTag.Failure: {
+        switch (fb._tag) {
+          case ExitTag.Success: {
+            return fa;
+          }
+          case ExitTag.Failure: {
+            return Exit.failCause(g(fa.cause, fb.cause));
+          }
         }
-        case ExitTag.Failure: {
-          return Exit.failCause(g(fa.cause, fb.cause));
+      }
+      case ExitTag.Success: {
+        switch (fb._tag) {
+          case ExitTag.Success: {
+            return Exit.succeed(f(fa.value, fb.value));
+          }
+          case ExitTag.Failure: {
+            return fb;
+          }
         }
       }
     }
-    case ExitTag.Success: {
-      switch (fb._tag) {
-        case ExitTag.Success: {
-          return Exit.succeed(f(fa.value, fb.value));
-        }
-        case ExitTag.Failure: {
-          return fb;
-        }
-      }
-    }
-  }
+  };
 }

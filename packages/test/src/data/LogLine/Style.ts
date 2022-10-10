@@ -1,5 +1,4 @@
 import type { Fragment } from "./Fragment.js";
-
 export const enum StyleTag {
   Primary = "Primary",
   Default = "Default",

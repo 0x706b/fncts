@@ -10,17 +10,17 @@ export function acquire(self: TSemaphore, __tsplusTrace?: string): USTM<void> {
 }
 
 /**
- * @tsplus fluent fncts.io.TSemaphore acquireN
+ * @tsplus pipeable fncts.io.TSemaphore acquireN
  */
-export function acquireN_(self: TSemaphore, n: number, __tsplusTrace?: string): USTM<void> {
-  return new Effect((journal) => {
-    assert(n >= 0, "Negative permits given to TSemaphore#acquireN");
-
-    const value = TSemaphore.reverseGet(self).unsafeGet(journal);
-
-    if (value < n) throw new RetryException();
-    else return TSemaphore.reverseGet(self).unsafeSet(journal, value - n);
-  });
+export function acquireN(n: number, __tsplusTrace?: string) {
+  return (self: TSemaphore): USTM<void> => {
+    return new Effect((journal) => {
+      assert(n >= 0, "Negative permits given to TSemaphore#acquireN");
+      const value = TSemaphore.reverseGet(self).unsafeGet(journal);
+      if (value < n) throw new RetryException();
+      else return TSemaphore.reverseGet(self).unsafeSet(journal, value - n);
+    });
+  };
 }
 
 /**
@@ -38,15 +38,16 @@ export function release(self: TSemaphore, __tsplusTrace?: string): USTM<void> {
 }
 
 /**
- * @tsplus fluent fncts.io.TSemaphore releaseN
+ * @tsplus pipeable fncts.io.TSemaphore releaseN
  */
-export function releaseN_(self: TSemaphore, n: number, __tsplusTrace?: string): USTM<void> {
-  return new Effect((journal) => {
-    assert(n >= 0, "Negative permits given to TSemaphore#releaseN");
-
-    const current = TSemaphore.reverseGet(self).unsafeGet(journal);
-    TSemaphore.reverseGet(self).unsafeSet(journal, current + n);
-  });
+export function releaseN(n: number, __tsplusTrace?: string) {
+  return (self: TSemaphore): USTM<void> => {
+    return new Effect((journal) => {
+      assert(n >= 0, "Negative permits given to TSemaphore#releaseN");
+      const current = TSemaphore.reverseGet(self).unsafeGet(journal);
+      TSemaphore.reverseGet(self).unsafeSet(journal, current + n);
+    });
+  };
 }
 
 /**

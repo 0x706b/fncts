@@ -61,7 +61,17 @@ export class Nothing extends Maybe<never> {
 /**
  * @tsplus unify fncts.Maybe
  */
-export function unifyMaybe<X extends Maybe<any>>(self: X): Maybe<[X] extends [{ _A: () => infer A }] ? A : never> {
+export function unifyMaybe<X extends Maybe<any>>(
+  self: X,
+): Maybe<
+  [X] extends [
+    {
+      _A: () => infer A;
+    },
+  ]
+    ? A
+    : never
+> {
   return self;
 }
 

@@ -4,8 +4,7 @@ import { None, Runtime } from "./definition.js";
 /**
  * @tsplus static fncts.FiberIdOps none
  */
-export const none = new None();
-
+export const none          = new None();
 const _fiberCounter = new AtomicNumber(0);
 
 /**

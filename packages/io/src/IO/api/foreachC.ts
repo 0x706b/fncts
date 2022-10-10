@@ -16,7 +16,7 @@ import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
  * @tsplus static fncts.io.IOOps foreachDiscardC
  * @tsplus fluent fncts.Iterable traverseIODiscardC
  */
-export function foreachDiscardC_<R, E, A>(
+export function foreachDiscardC<R, E, A>(
   as: Iterable<A>,
   f: (a: A) => IO<R, E, any>,
   __tsplusTrace?: string,
@@ -38,7 +38,7 @@ export function foreachDiscardC_<R, E, A>(
  * @tsplus static fncts.io.IOOps foreachC
  * @tsplus fluent fncts.Iterable traverseIOC
  */
-export function foreachC_<R, E, A, B>(
+export function foreachC<R, E, A, B>(
   as: Iterable<A>,
   f: (a: A) => IO<R, E, B>,
   __tsplusTrace?: string,
@@ -59,15 +59,12 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
   return IO.defer(() => {
     const arr  = Array.from(as);
     const size = arr.length;
-
     if (size === 0) {
       return IO.unit;
     }
-
     return IO.uninterruptibleMask(({ restore }) => {
       const future = Future.unsafeMake<void, void>(FiberId.none);
       const ref    = new AtomicNumber(0);
-
       return IO.transplant((graft) =>
         IO.foreach(
           as,
@@ -142,14 +139,21 @@ function foreachConcurrentBoundedDiscard<R, E, A>(
 ): IO<R, E, void> {
   return IO.defer(() => {
     const size =
-      "length" in as && typeof (as as Iterable<A> & { length: unknown })["length"] === "number"
-        ? (as as Iterable<A> & { length: number })["length"]
+      "length" in as &&
+      typeof (
+        as as Iterable<A> & {
+          length: unknown;
+        }
+      )["length"] === "number"
+        ? (
+            as as Iterable<A> & {
+              length: number;
+            }
+          )["length"]
         : as.size;
-
     if (size === 0) {
       return IO.unit;
     }
-
     return Do((Δ) => {
       const queue = Δ(Queue.makeBounded<A>(size));
       Δ(queue.offerAll(as));
@@ -187,10 +191,18 @@ function foreachConcurrentBounded<R, E, A, B>(
 ): IO<R, E, Conc<B>> {
   return IO.defer(() => {
     const size =
-      "length" in as && typeof (as as Iterable<A> & { length: unknown })["length"] === "number"
-        ? (as as Iterable<A> & { length: number })["length"]
+      "length" in as &&
+      typeof (
+        as as Iterable<A> & {
+          length: unknown;
+        }
+      )["length"] === "number"
+        ? (
+            as as Iterable<A> & {
+              length: number;
+            }
+          )["length"]
         : as.size;
-
     if (size === 0) {
       return IO.succeed(Conc.empty());
     }

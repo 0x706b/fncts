@@ -1,11 +1,9 @@
 import { isFunction } from "@fncts/base/util/predicates";
 
-const builtInObjects = new Set(Object.getOwnPropertyNames(globalThis).filter((e) => /^[A-Z][a-zA-Z0-9]+$/.test(e)));
-
-export const addBacktickQuotes = String.surround("`");
-export const addSingleQuotes   = String.surround("'");
-export const addDoubleQuotes   = String.surround('"');
-
+const builtInObjects           = new Set(Object.getOwnPropertyNames(globalThis).filter((e) => /^[A-Z][a-zA-Z0-9]+$/.test(e)));
+export const addBacktickQuotes        = String.surround("`");
+export const addSingleQuotes          = String.surround("'");
+export const addDoubleQuotes          = String.surround('"');
 const byteToHex: Array<string> = [];
 
 // Regex used for ansi escape code splitting
@@ -17,68 +15,56 @@ export const ansiPattern =
   "(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)" +
   "|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))";
 export const ansi = new RegExp(ansiPattern, "g");
-
 // Escaped control characters (plus the single quote and the backslash). Use
 // empty strings to fill up unused entries.
 // prettier-ignore
 export const meta = [
-  "\\x00", "\\x01", "\\x02", "\\x03", "\\x04", "\\x05", "\\x06", "\\x07", // x07
-  "\\b", "\\t", "\\n", "\\x0B", "\\f", "\\r", "\\x0E", "\\x0F",           // x0F
-  "\\x10", "\\x11", "\\x12", "\\x13", "\\x14", "\\x15", "\\x16", "\\x17", // x17
-  "\\x18", "\\x19", "\\x1A", "\\x1B", "\\x1C", "\\x1D", "\\x1E", "\\x1F", // x1F
-  "", "", "", "", "", "", "", "\\'", "", "", "", "", "", "", "", "",      // x2F
-  "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",         // x3F
-  "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",         // x4F
-  "", "", "", "", "", "", "", "", "", "", "", "", "\\\\", "", "", "",     // x5F
-  "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",         // x6F
-  "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "\\x7F",    // x7F
-  "\\x80", "\\x81", "\\x82", "\\x83", "\\x84", "\\x85", "\\x86", "\\x87", // x87
-  "\\x88", "\\x89", "\\x8A", "\\x8B", "\\x8C", "\\x8D", "\\x8E", "\\x8F", // x8F
-  "\\x90", "\\x91", "\\x92", "\\x93", "\\x94", "\\x95", "\\x96", "\\x97", // x97
-  "\\x98", "\\x99", "\\x9A", "\\x9B", "\\x9C", "\\x9D", "\\x9E", "\\x9F", // x9F
+    "\\x00", "\\x01", "\\x02", "\\x03", "\\x04", "\\x05", "\\x06", "\\x07",
+    "\\b", "\\t", "\\n", "\\x0B", "\\f", "\\r", "\\x0E", "\\x0F",
+    "\\x10", "\\x11", "\\x12", "\\x13", "\\x14", "\\x15", "\\x16", "\\x17",
+    "\\x18", "\\x19", "\\x1A", "\\x1B", "\\x1C", "\\x1D", "\\x1E", "\\x1F",
+    "", "", "", "", "", "", "", "\\'", "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", "", "", "", "", "", "", "\\\\", "", "", "",
+    "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+    "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "\\x7F",
+    "\\x80", "\\x81", "\\x82", "\\x83", "\\x84", "\\x85", "\\x86", "\\x87",
+    "\\x88", "\\x89", "\\x8A", "\\x8B", "\\x8C", "\\x8D", "\\x8E", "\\x8F",
+    "\\x90", "\\x91", "\\x92", "\\x93", "\\x94", "\\x95", "\\x96", "\\x97",
+    "\\x98", "\\x99", "\\x9A", "\\x9B", "\\x9C", "\\x9D", "\\x9E", "\\x9F", // x9F
 ];
-
 export const strEscapeSequencesRegExp         = /[\x00-\x1f\x27\x5c\x7f-\x9f]/;
 export const strEscapeSequencesReplacer       = /[\x00-\x1f\x27\x5c\x7f-\x9f]/g;
 export const strEscapeSequencesRegExpSingle   = /[\x00-\x1f\x5c\x7f-\x9f]/;
 export const strEscapeSequencesReplacerSingle = /[\x00-\x1f\x5c\x7f-\x9f]/g;
 export const colorRegExp                      = /\u001b\[\d\d?m/g;
-
-export const classRegExp         = /^(\s+[^(]*?)\s*{/;
-export const stripCommentsRegExp = /(\/\/.*?\n)|(\/\*(.|\n)*?\*\/)/g;
-
-export const keyStrRegExp = /^[a-zA-Z_][a-zA-Z_0-9]*$/;
-export const numberRegExp = /^(0|[1-9][0-9]*)$/;
-
+export const classRegExp                      = /^(\s+[^(]*?)\s*{/;
+export const stripCommentsRegExp              = /(\/\/.*?\n)|(\/\*(.|\n)*?\*\/)/g;
+export const keyStrRegExp                     = /^[a-zA-Z_][a-zA-Z_0-9]*$/;
+export const numberRegExp                     = /^(0|[1-9][0-9]*)$/;
 export function escapeFn(str: string): string {
   return meta[str.charCodeAt(0)]!;
 }
-
 export const OBJECT_TYPE       = 0;
 export const ARRAY_TYPE        = 1;
 export const ARRAY_EXTRAS_TYPE = 2;
 export const PROTO_TYPE        = 3;
-
 for (let n = 0; n <= 0xff; ++n) {
   const hexOctet = n.toString(16).padStart(2, "0");
   byteToHex.push(hexOctet);
 }
-
 export function hex(arrayBuffer: ArrayBuffer) {
   const buff      = new Uint8Array(arrayBuffer);
   const hexOctets = Array<string>(buff.length);
-
   for (let i = 0; i < buff.length; ++i) {
     hexOctets[i] = byteToHex[buff[i]!]!;
   }
-
   return hexOctets.join("");
 }
-
 export function pluralize(n: number): string {
   return n > 1 ? "s" : "";
 }
-
 export function getKeys(value: object, showHidden = true): Array<PropertyKey> {
   const symbols                  = Object.getOwnPropertySymbols(value);
   const keys: Array<PropertyKey> = Object.getOwnPropertyNames(value);
@@ -92,7 +78,6 @@ export function getKeys(value: object, showHidden = true): Array<PropertyKey> {
   }
   return keys;
 }
-
 export function getStringWidth(input: string, removeControlChars = true): number {
   let width = 0;
   let str   = input;
@@ -110,7 +95,6 @@ export function getStringWidth(input: string, removeControlChars = true): number
   }
   return width;
 }
-
 /**
  * Returns true if the character represented by a given
  * Unicode code point is full-width. Otherwise returns false.
@@ -153,7 +137,6 @@ export function isFullWidthCodePoint(code: number): boolean {
       (code >= 0x20000 && code <= 0x3fffd))
   );
 }
-
 export function isZeroWidthCodePoint(code: number): boolean {
   return (
     code <= 0x1f || // C0 control codes
@@ -167,7 +150,6 @@ export function isZeroWidthCodePoint(code: number): boolean {
     (code >= 0xe0100 && code <= 0xe01ef)
   ); // Variation Selectors
 }
-
 export function getConstructorName(value: object): [string | null, Conc<PropertyKey>] {
   let obj        = value;
   const tmp      = obj;
@@ -186,23 +168,19 @@ export function getConstructorName(value: object): [string | null, Conc<Property
       }
       return [descriptor.value.name, protoProps];
     }
-
     obj = Object.getPrototypeOf(obj);
     if (!firstProto) {
       firstProto = obj;
     }
   }
-
   return [null, Conc.empty()];
 }
-
 export function getPrototypeProperties(main: object, obj: object): Conc<PropertyKey> {
   let proto                   = obj;
   const keySet                = new Set<PropertyKey>();
   let keys: PropertyKey[]     = [];
   let depth                   = 0;
   const output: PropertyKey[] = [];
-
   while (depth <= 3) {
     if (depth !== 0 || main === proto) {
       proto = Object.getPrototypeOf(proto);
@@ -214,7 +192,6 @@ export function getPrototypeProperties(main: object, obj: object): Conc<Property
         return Conc.from(output);
       }
     }
-
     if (depth !== 0) {
       for (let i = 0; i < keys.length; i++) {
         keySet.add(keys[i]!);
@@ -240,7 +217,6 @@ export function getPrototypeProperties(main: object, obj: object): Conc<Property
   }
   return Conc.from(output);
 }
-
 function isInstanceof(value: unknown, constructor: Function): boolean {
   try {
     return value instanceof constructor;
@@ -248,11 +224,9 @@ function isInstanceof(value: unknown, constructor: Function): boolean {
     return false;
   }
 }
-
 function isUndetectableObject(obj: unknown): boolean {
   return typeof obj !== "undefined" && obj !== undefined;
 }
-
 export function getPrefix(constructor: string | null, tag: string, fallback: string, size = "") {
   if (constructor === null) {
     if (tag !== "" && fallback !== tag) {
@@ -260,13 +234,11 @@ export function getPrefix(constructor: string | null, tag: string, fallback: str
     }
     return `[${fallback}${size}: null prototype] `;
   }
-
   if (tag !== "" && constructor !== tag) {
     return `${constructor}${size} [${tag}] `;
   }
   return `${constructor}${size} `;
 }
-
 export function getFunctionBase(value: Function, constructor: string | null, tag: string): string {
   const stringified = value.toString();
   if (stringified.startsWith("class") && stringified.endsWith("}")) {
@@ -298,7 +270,6 @@ export function getFunctionBase(value: Function, constructor: string | null, tag
   }
   return base;
 }
-
 export function getClassBase(value: Function, constructor: string | null, tag: string): string {
   const hasName = Object.prototype.hasOwnProperty.call(value, "name");
   const name    = (hasName && value.name) || "(anonymous)";
@@ -319,7 +290,6 @@ export function getClassBase(value: Function, constructor: string | null, tag: s
   }
   return `[${base}]`;
 }
-
 export function addQuotes(str: string, quotes: number): string {
   if (quotes === -1) {
     return `"${str}"`;
@@ -329,12 +299,10 @@ export function addQuotes(str: string, quotes: number): string {
   }
   return `'${str}'`;
 }
-
 export function strEscape(str: string): string {
   let escapeTest    = strEscapeSequencesRegExp;
   let escapeReplace = strEscapeSequencesReplacer;
   let singleQuote   = 39;
-
   // Check for double quotes. If not present, do not escape single quotes and
   // instead wrap the text in double quotes. If double quotes exist, check for
   // backticks. If they do not exist, use those as fallback instead of the
@@ -352,7 +320,6 @@ export function strEscape(str: string): string {
       escapeReplace = strEscapeSequencesReplacerSingle;
     }
   }
-
   // Some magic numbers that worked out fine while benchmarking with v8 6.0
   if (str.length < 5000 && !escapeTest.test(str)) {
     return addQuotes(str, singleQuote);
@@ -362,7 +329,6 @@ export function strEscape(str: string): string {
     str = str.replace(escapeReplace, escapeFn);
     return addQuotes(str, singleQuote);
   }
-
   let result      = "";
   let last        = 0;
   const lastIndex = str.length;
@@ -377,7 +343,6 @@ export function strEscape(str: string): string {
       last = i + 1;
     }
   }
-
   if (last !== lastIndex) {
     result += str.slice(last);
   }

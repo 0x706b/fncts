@@ -1,4 +1,5 @@
 import { RoseTree } from "./definition.js";
+
 /**
  * @tsplus static fncts.RoseTreeOps __call
  */
@@ -7,17 +8,21 @@ export function make<A>(value: A, forest: Vector<RoseTree<A>> = Vector.empty()):
 }
 
 /**
- * @tsplus fluent fncts.RoseTree foldLeft
+ * @tsplus pipeable fncts.RoseTree foldLeft
  */
-export function foldLeft<A, B>(self: RoseTree<A>, b: B, f: (b: B, a: A) => B): B {
-  return foldLeftLoop(f, b, Vector(self), Vector());
+export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
+  return (self: RoseTree<A>): B => {
+    return foldLeftLoop(f, b, Vector(self), Vector());
+  };
 }
 
 /**
- * @tsplus fluent fncts.RoseTree foldRight
+ * @tsplus pipeable fncts.RoseTree foldRight
  */
-export function foldRight<A, B>(self: RoseTree<A>, b: B, f: (a: A, b: B) => B): B {
-  return self.foldLeft(Vector<A>(), (b, a) => b.prepend(a)).foldLeft(b, (b, a) => f(a, b));
+export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
+  return (self: RoseTree<A>): B => {
+    return self.foldLeft(Vector<A>(), (b, a) => b.prepend(a)).foldLeft(b, (b, a) => f(a, b));
+  };
 }
 
 /**
@@ -46,29 +51,31 @@ function foldLeftLoop<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.RoseTree map
+ * @tsplus pipeable fncts.RoseTree map
  */
-export function map<A, B>(self: RoseTree<A>, f: (a: A) => B): RoseTree<B> {
-  return self.mapAccum(undefined, (_, a) => [undefined, f(a)])[1];
+export function map<A, B>(f: (a: A) => B) {
+  return (self: RoseTree<A>): RoseTree<B> => {
+    return self.mapAccum(undefined, (_, a) => [undefined, f(a)])[1];
+  };
 }
 
 /**
- * @tsplus fluent fncts.RoseTree mapAccum
+ * @tsplus pipeable fncts.RoseTree mapAccum
  */
-export function mapAccum<A, S, B>(
-  self: RoseTree<A>,
-  s: S,
-  f: (s: S, a: A) => readonly [S, B],
-): readonly [S, RoseTree<B>] {
-  const [state, b] = f(s, self.value);
-  return mapAccumLoop(f, state, { todo: self.forest, done: Vector(), label: b }, List());
+export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [S, B]) {
+  return (self: RoseTree<A>): readonly [S, RoseTree<B>] => {
+    const [state, b] = f(s, self.value);
+    return mapAccumLoop(f, state, { todo: self.forest, done: Vector(), label: b }, List());
+  };
 }
 
 /**
- * @tsplus fluent fncts.RoseTree mapWithIndex
+ * @tsplus pipeable fncts.RoseTree mapWithIndex
  */
-export function mapWithIndex<A, B>(self: RoseTree<A>, f: (i: number, a: A) => B): RoseTree<B> {
-  return self.mapAccum(0, (idx, elem) => [idx + 1, f(idx, elem)])[1];
+export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
+  return (self: RoseTree<A>): RoseTree<B> => {
+    return self.mapAccum(0, (idx, elem) => [idx + 1, f(idx, elem)])[1];
+  };
 }
 
 interface MapAcc<A, B> {
@@ -156,23 +163,22 @@ function unfoldLoop<A, B>(
 }
 
 /**
- * @tsplus fluent fncts.RoseTree zipWith
+ * @tsplus pipeable fncts.RoseTree zipWith
  */
-export function zipWith<A, B, C>(self: RoseTree<A>, that: RoseTree<B>, f: (a: A, b: B) => C): RoseTree<C> {
-  return self.zipWithAccum(that, undefined, (s, a, b) => [s, f(a, b)])[1];
+export function zipWith<A, B, C>(that: RoseTree<B>, f: (a: A, b: B) => C) {
+  return (self: RoseTree<A>): RoseTree<C> => {
+    return self.zipWithAccum(that, undefined, (s, a, b) => [s, f(a, b)])[1];
+  };
 }
 
 /**
- * @tsplus fluent fncts.RoseTree zipWithAccum
+ * @tsplus pipeable fncts.RoseTree zipWithAccum
  */
-export function zipWithAccum<A, S, B, C>(
-  self: RoseTree<A>,
-  that: RoseTree<B>,
-  s: S,
-  f: (s: S, a: A, b: B) => readonly [S, C],
-): readonly [S, RoseTree<C>] {
-  const [state, c] = f(s, self.value, that.value);
-  return zipWithAccumLoop(f, state, { todoL: self.forest, todoR: that.forest, done: Vector(), label: c }, List());
+export function zipWithAccum<A, S, B, C>(that: RoseTree<B>, s: S, f: (s: S, a: A, b: B) => readonly [S, C]) {
+  return (self: RoseTree<A>): readonly [S, RoseTree<C>] => {
+    const [state, c] = f(s, self.value, that.value);
+    return zipWithAccumLoop(f, state, { todoL: self.forest, todoR: that.forest, done: Vector(), label: c }, List());
+  };
 }
 
 export interface ZipWithAcc<A, B, C> {

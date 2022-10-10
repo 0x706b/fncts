@@ -1,32 +1,37 @@
-import { identity } from "@fncts/base/data/function";
 import { concrete } from "@fncts/io/FiberRef/definition";
 
 /**
- * @tsplus fluent fncts.io.FiberRef modify
+ * @tsplus pipeable fncts.io.FiberRef modify
  */
-export function modify_<A, B>(self: FiberRef<A>, f: (a: A) => readonly [B, A], __tsplusTrace?: string): UIO<B> {
-  concrete(self);
-  return IO.withFiberContext((fiber) =>
-    IO(() => {
-      const [result, newValue] = f(fiber.unsafeGetRef(self));
-      fiber.unsafeSetRef(self, newValue);
-      return result;
-    }),
-  );
+export function modify<A, B>(f: (a: A) => readonly [B, A], __tsplusTrace?: string) {
+  return (self: FiberRef<A>): UIO<B> => {
+    concrete(self);
+    return IO.withFiberContext((fiber) =>
+      IO(() => {
+        const [result, newValue] = f(fiber.unsafeGetRef(self));
+        fiber.unsafeSetRef(self, newValue);
+        return result;
+      }),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRef update
+ * @tsplus pipeable fncts.io.FiberRef update
  */
-export function update_<A>(fiberRef: FiberRef<A>, f: (a: A) => A, __tsplusTrace?: string): UIO<void> {
-  return fiberRef.modify((a) => [undefined, f(a)]);
+export function update<A>(f: (a: A) => A, __tsplusTrace?: string) {
+  return (fiberRef: FiberRef<A>): UIO<void> => {
+    return fiberRef.modify((a) => [undefined, f(a)]);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRef set
+ * @tsplus pipeable fncts.io.FiberRef set
  */
-export function set_<A>(fiberRef: FiberRef<A>, a: A, __tsplusTrace?: string): UIO<void> {
-  return fiberRef.modify(() => [undefined, a]);
+export function set<A>(a: A, __tsplusTrace?: string) {
+  return (fiberRef: FiberRef<A>): UIO<void> => {
+    return fiberRef.modify(() => [undefined, a]);
+  };
 }
 
 /**
@@ -37,24 +42,30 @@ export function get<A>(fiberRef: FiberRef<A>, __tsplusTrace?: string): UIO<A> {
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRef getAndSet
+ * @tsplus pipeable fncts.io.FiberRef getAndSet
  */
-export function getAndSet_<A>(fiberRef: FiberRef<A>, a: A, __tsplusTrace?: string): UIO<A> {
-  return fiberRef.modify((v) => [v, a]);
+export function getAndSet<A>(a: A, __tsplusTrace?: string) {
+  return (fiberRef: FiberRef<A>): UIO<A> => {
+    return fiberRef.modify((v) => [v, a]);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRef getAndUpdate
+ * @tsplus pipeable fncts.io.FiberRef getAndUpdate
  */
-export function getAndUpdate_<A>(fiberRef: FiberRef<A>, f: (a: A) => A, __tsplusTrace?: string): UIO<A> {
-  return fiberRef.modify((a) => [a, f(a)]);
+export function getAndUpdate<A>(f: (a: A) => A, __tsplusTrace?: string) {
+  return (fiberRef: FiberRef<A>): UIO<A> => {
+    return fiberRef.modify((a) => [a, f(a)]);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRef getAndUpdateJust
+ * @tsplus pipeable fncts.io.FiberRef getAndUpdateJust
  */
-export function getAndUpdateJust_<A>(fiberRef: FiberRef<A>, f: (a: A) => Maybe<A>, __tsplusTrace?: string): UIO<A> {
-  return fiberRef.modify((a) => [a, f(a).getOrElse(a)]);
+export function getAndUpdateJust<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
+  return (fiberRef: FiberRef<A>): UIO<A> => {
+    return fiberRef.modify((a) => [a, f(a).getOrElse(a)]);
+  };
 }
 
 /**
@@ -64,7 +75,7 @@ export function getAndUpdateJust_<A>(fiberRef: FiberRef<A>, f: (a: A) => Maybe<A
  *
  * @tsplus fluent fncts.io.FiberRef locally
  */
-export function locally_<A>(fiberRef: FiberRef<A>, value: A, __tsplusTrace?: string) {
+export function locally<A>(fiberRef: FiberRef<A>, value: A, __tsplusTrace?: string) {
   return <R1, E1, B>(use: IO<R1, E1, B>): IO<R1, E1, B> =>
     IO.withFiberContext((fiber) =>
       IO.defer(() => {
@@ -87,19 +98,17 @@ export function locally_<A>(fiberRef: FiberRef<A>, value: A, __tsplusTrace?: str
  *
  * @tsplus fluent fncts.io.FiberRef locallyWith
  */
-export function locallyWith_<A>(self: FiberRef<A>, f: (a: A) => A, __tsplusTrace?: string) {
+export function locallyWith<A>(self: FiberRef<A>, f: (a: A) => A, __tsplusTrace?: string) {
   return <R1, E1, B>(use: IO<R1, E1, B>): IO<R1, E1, B> => self.getWith((a) => self.locally(f(a))(use));
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRef getWith
+ * @tsplus pipeable fncts.io.FiberRef getWith
  */
-export function getWith_<A, R, E, B>(
-  fiberRef: FiberRef<A>,
-  f: (a: A) => IO<R, E, B>,
-  __tsplusTrace?: string,
-): IO<R, E, B> {
-  return IO.withFiberContext((fiber) => f(fiber.unsafeGetRef(fiberRef)));
+export function getWith<A, R, E, B>(f: (a: A) => IO<R, E, B>, __tsplusTrace?: string) {
+  return (fiberRef: FiberRef<A>): IO<R, E, B> => {
+    return IO.withFiberContext((fiber) => f(fiber.unsafeGetRef(fiberRef)));
+  };
 }
 
 /**
@@ -150,9 +159,11 @@ export function fork<Value, Patch>(self: FiberRef.WithPatch<Value, Patch>): Patc
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRef join
+ * @tsplus pipeable fncts.io.FiberRef join
  */
-export function join<Value, Patch>(self: FiberRef.WithPatch<Value, Patch>, oldValue: Value, newValue: Value): Value {
-  concrete(self);
-  return self._join(oldValue, newValue);
+export function join<Value>(oldValue: Value, newValue: Value) {
+  return <Patch>(self: FiberRef.WithPatch<Value, Patch>): Value => {
+    concrete(self);
+    return self._join(oldValue, newValue);
+  };
 }

@@ -2,7 +2,6 @@
  * The number of fibers used for concurrent operators.
  */
 export const Concurrency: FiberRef<Maybe<number>> = FiberRef.unsafeMake(Nothing());
-
 /**
  * Retrieves the maximum number of fibers for concurrent operators or `Nothing` if
  * it is unbounded.
@@ -10,7 +9,6 @@ export const Concurrency: FiberRef<Maybe<number>> = FiberRef.unsafeMake(Nothing(
  * @tsplus static fncts.io.IOOps concurrency
  */
 export const concurrency: UIO<Maybe<number>> = Concurrency.get;
-
 /**
  * Retrieves the current maximum number of fibers for concurrent operators and
  * uses it to run the specified effect.
@@ -23,17 +21,17 @@ export function concurrencyWith<R, E, A>(
 ): IO<R, E, A> {
   return Concurrency.getWith(f);
 }
-
 /**
  * Runs the specified effect with the specified maximum number of fibers for
  * concurrent operators.
  *
- * @tsplus fluent fncts.io.IO withConcurrency
+ * @tsplus pipeable fncts.io.IO withConcurrency
  */
-export function withConcurrency_<R, E, A>(ma: IO<R, E, A>, n: number, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.defer(Concurrency.locally(Just(n))(ma));
+export function withConcurrency(n: number, __tsplusTrace?: string) {
+  return <R, E, A>(ma: IO<R, E, A>): IO<R, E, A> => {
+    return IO.defer(Concurrency.locally(Just(n))(ma));
+  };
 }
-
 /**
  * Runs the specified effect with an unbounded maximum number of fibers for
  * concurrent operators.

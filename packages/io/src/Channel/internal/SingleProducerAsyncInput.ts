@@ -167,9 +167,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
     (el) => Exit.succeed(el),
     (d) => Exit.fail(Either.right(d)),
   );
-
-  close = IO.fiberId.flatMap((id) => this.error(Cause.interrupt(id)));
-
+  close                = IO.fiberId.flatMap((id) => this.error(Cause.interrupt(id)));
   awaitRead: UIO<void> = this.ref.modify((s) =>
     s._stateTag === StateTag.Empty ? [s.notifyProducer.await, s] : [IO.unit, s],
   );

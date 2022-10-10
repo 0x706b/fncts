@@ -61,13 +61,14 @@ export function succeedNow<Z>(z: Z): Channel<never, unknown, unknown, unknown, n
  * returned channel is created by applying the specified function to the terminal value of this
  * channel.
  *
- * @tsplus fluent fncts.io.Channel map
+ * @tsplus pipeable fncts.io.Channel map
  */
-export function map_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDone2>(
-  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  f: (out: OutDone) => OutDone2,
-): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2> {
-  return self.flatMap((z) => Channel.succeedNow(f(z)));
+export function map<OutDone, OutDone2>(f: (out: OutDone) => OutDone2) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem>(
+    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2> => {
+    return self.flatMap((z) => Channel.succeedNow(f(z)));
+  };
 }
 
 /**
@@ -76,153 +77,105 @@ export function map_<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone, OutDo
  * The result is a channel that will first perform the functions of this channel, before
  * performing the functions of the created channel (including yielding its terminal value).
  *
- * @tsplus fluent fncts.io.Channel flatMap
+ * @tsplus pipeable fncts.io.Channel flatMap
  */
-export function flatMap_<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone,
-  Env1,
-  InErr1,
-  InElem1,
-  InDone1,
-  OutErr1,
-  OutElem1,
-  OutDone2,
->(
-  channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+export function flatMap<OutDone, Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone2>(
   f: (d: OutDone) => Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone2>,
-): Channel<
-  Env | Env1,
-  InErr & InErr1,
-  InElem & InElem1,
-  InDone & InDone1,
-  OutErr | OutErr1,
-  OutElem | OutElem1,
-  OutDone2
-> {
-  return new Fold<
+) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem>(
+    channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<
     Env | Env1,
     InErr & InErr1,
     InElem & InElem1,
     InDone & InDone1,
     OutErr | OutErr1,
-    OutErr | OutErr1,
     OutElem | OutElem1,
-    OutDone,
     OutDone2
-  >(channel, new ContinuationK(f, Channel.failCauseNow));
+  > => {
+    return new Fold<
+      Env | Env1,
+      InErr & InErr1,
+      InElem & InElem1,
+      InDone & InDone1,
+      OutErr | OutErr1,
+      OutErr | OutErr1,
+      OutElem | OutElem1,
+      OutDone,
+      OutDone2
+    >(channel, new ContinuationK(f, Channel.failCauseNow));
+  };
 }
 
 /**
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with a tuple of the terminal values of both channels.
  *
- * @tsplus fluent fncts.io.Channel cross
+ * @tsplus pipeable fncts.io.Channel cross
  */
-export function cross_<
-  Env,
-  Env1,
-  InErr,
-  InErr1,
-  InElem,
-  InElem1,
-  InDone,
-  InDone1,
-  OutErr,
-  OutErr1,
-  OutElem,
-  OutElem1,
-  OutDone,
-  OutDone1,
->(
-  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+export function cross<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<
-  Env | Env1,
-  InErr & InErr1,
-  InElem & InElem1,
-  InDone & InDone1,
-  OutErr | OutErr1,
-  OutElem | OutElem1,
-  readonly [OutDone, OutDone1]
-> {
-  return self.flatMap((z) => that.map((z2) => tuple(z, z2)));
+) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<
+    Env | Env1,
+    InErr & InErr1,
+    InElem & InElem1,
+    InDone & InDone1,
+    OutErr | OutErr1,
+    OutElem | OutElem1,
+    readonly [OutDone, OutDone1]
+  > => {
+    return self.flatMap((z) => that.map((z2) => tuple(z, z2)));
+  };
 }
 
 /**
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with the terminal value of this channel.
  *
- * @tsplus fluent fncts.io.Channel apFirst
+ * @tsplus pipeable fncts.io.Channel apFirst
  */
-export function apFirst_<
-  Env,
-  Env1,
-  InErr,
-  InErr1,
-  InElem,
-  InElem1,
-  InDone,
-  InDone1,
-  OutErr,
-  OutErr1,
-  OutElem,
-  OutElem1,
-  OutDone,
-  OutDone1,
->(
-  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+export function apFirst<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<
-  Env | Env1,
-  InErr & InErr1,
-  InElem & InElem1,
-  InDone & InDone1,
-  OutErr | OutErr1,
-  OutElem | OutElem1,
-  OutDone
-> {
-  return self.flatMap((a) => that.map(() => a));
+) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<
+    Env | Env1,
+    InErr & InErr1,
+    InElem & InElem1,
+    InDone & InDone1,
+    OutErr | OutErr1,
+    OutElem | OutElem1,
+    OutDone
+  > => {
+    return self.flatMap((a) => that.map(() => a));
+  };
 }
 
 /**
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with the terminal value of the other channel.
  *
- * @tsplus fluent fncts.io.Channel apSecond
- * @tsplus operator fncts.io.Channel >
+ * @tsplus pipeable fncts.io.Channel apSecond
+ * @tsplus pipeable-operator fncts.io.Channel >
  */
-export function apSecond_<
-  Env,
-  Env1,
-  InErr,
-  InErr1,
-  InElem,
-  InElem1,
-  InDone,
-  InDone1,
-  OutErr,
-  OutErr1,
-  OutElem,
-  OutElem1,
-  OutDone,
-  OutDone1,
->(
-  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+export function apSecond<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-): Channel<
-  Env | Env1,
-  InErr & InErr1,
-  InElem & InElem1,
-  InDone & InDone1,
-  OutErr1 | OutErr,
-  OutElem1 | OutElem,
-  OutDone1
-> {
-  return self.flatMap(() => that);
+) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<
+    Env | Env1,
+    InErr & InErr1,
+    InElem & InElem1,
+    InDone & InDone1,
+    OutErr1 | OutErr,
+    OutElem1 | OutElem,
+    OutDone1
+  > => {
+    return self.flatMap(() => that);
+  };
 }

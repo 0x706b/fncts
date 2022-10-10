@@ -67,7 +67,6 @@ export class ExecutionResult {
     readonly annotations: List<TestAnnotationMap>,
     readonly lines: List<Line>,
   ) {}
-
   withAnnotations(annotations: List<TestAnnotationMap>): ExecutionResult {
     return new ExecutionResult(this.resultType, this.label, this.status, this.offset, annotations, this.lines);
   }
@@ -84,61 +83,65 @@ export function rendered(
 }
 
 /**
- * @tsplus operator fncts.test.ExecutionResult &&
+ * @tsplus pipeable-operator fncts.test.ExecutionResult &&
  */
-export function and_(self: ExecutionResult, that: ExecutionResult): ExecutionResult {
-  if (self.status._tag === "Ignored") {
-    return that;
-  }
-  if (that.status._tag === "Ignored") {
-    return self;
-  }
-  if (self.status._tag === "Failed" && that.status._tag === "Failed") {
-    return new ExecutionResult(
-      self.resultType,
-      self.label,
-      self.status,
-      self.offset,
-      self.annotations,
-      self.lines.concat(that.lines.tail.getOrElse(Nil())),
-    );
-  }
-  if (self.status._tag === "Passed") {
-    return that;
-  }
-  if (that.status._tag === "Passed") {
-    return self;
-  }
-  throw new Error("BUG");
+export function and(that: ExecutionResult) {
+  return (self: ExecutionResult): ExecutionResult => {
+    if (self.status._tag === "Ignored") {
+      return that;
+    }
+    if (that.status._tag === "Ignored") {
+      return self;
+    }
+    if (self.status._tag === "Failed" && that.status._tag === "Failed") {
+      return new ExecutionResult(
+        self.resultType,
+        self.label,
+        self.status,
+        self.offset,
+        self.annotations,
+        self.lines.concat(that.lines.tail.getOrElse(Nil())),
+      );
+    }
+    if (self.status._tag === "Passed") {
+      return that;
+    }
+    if (that.status._tag === "Passed") {
+      return self;
+    }
+    throw new Error("BUG");
+  };
 }
 
 /**
- * @tsplus operator fncts.test.ExecutionResult ||
+ * @tsplus pipeable-operator fncts.test.ExecutionResult ||
  */
-export function or_(self: ExecutionResult, that: ExecutionResult): ExecutionResult {
-  if (self.status._tag === "Ignored") {
-    return that;
-  }
-  if (that.status._tag === "Ignored") {
-    return self;
-  }
-  if (self.status._tag === "Failed" && that.status._tag === "Failed") {
-    return new ExecutionResult(
-      self.resultType,
-      self.label,
-      self.status,
-      self.offset,
-      self.annotations,
-      self.lines.concat(that.lines.tail.getOrElse(Nil())),
-    );
-  }
-  if (self.status._tag === "Passed") {
-    return self;
-  }
-  if (that.status._tag === "Passed") {
-    return that;
-  }
-  throw new Error("BUG");
+export function or(that: ExecutionResult) {
+  return (self: ExecutionResult): ExecutionResult => {
+    if (self.status._tag === "Ignored") {
+      return that;
+    }
+    if (that.status._tag === "Ignored") {
+      return self;
+    }
+    if (self.status._tag === "Failed" && that.status._tag === "Failed") {
+      return new ExecutionResult(
+        self.resultType,
+        self.label,
+        self.status,
+        self.offset,
+        self.annotations,
+        self.lines.concat(that.lines.tail.getOrElse(Nil())),
+      );
+    }
+    if (self.status._tag === "Passed") {
+      return self;
+    }
+    if (that.status._tag === "Passed") {
+      return that;
+    }
+    throw new Error("BUG");
+  };
 }
 
 /**

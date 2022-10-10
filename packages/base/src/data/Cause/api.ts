@@ -5,10 +5,12 @@ import { identity } from "../function.js";
 import { _Empty, Both, Cause, CauseTag, Empty, Fail, Halt, Interrupt, Stackless, Then } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.Cause as
+ * @tsplus pipeable fncts.Cause as
  */
-export function as_<A, B>(self: Cause<A>, b: Lazy<B>): Cause<B> {
-  return self.map(() => b());
+export function as_<B>(b: Lazy<B>) {
+  return <A>(self: Cause<A>): Cause<B> => {
+    return self.map(() => b());
+  };
 }
 
 /**
@@ -54,19 +56,23 @@ export function both<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
 /**
  * Composes computations in sequence, using the return value of one computation as input for the next
  *
- * @tsplus fluent fncts.Cause flatMap
+ * @tsplus pipeable fncts.Cause flatMap
  */
-export function flatMap_<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Cause<D> {
-  return chainEval(self, f).run;
+export function flatMap<E, D>(f: (e: E) => Cause<D>) {
+  return (self: Cause<E>): Cause<D> => {
+    return chainEval(self, f).run;
+  };
 }
 
 /**
  * Determines whether a `Cause` contains or is equal to the specified cause.
  *
- * @tsplus fluent fncts.Cause contains
+ * @tsplus pipeable fncts.Cause contains
  */
-export function contains_<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): boolean {
-  return containsEval(self, that).run;
+export function contains<E, E1 extends E = E>(that: Cause<E1>) {
+  return (self: Cause<E>): boolean => {
+    return containsEval(self, that).run;
+  };
 }
 
 /**
@@ -181,38 +187,40 @@ export function failureMaybe<E>(self: Cause<E>): Maybe<E> {
  * returning `Just` with the remaining causes or `Nothing` if there are no
  * remaining causes.
  *
- * @tsplus fluent fncts.Cause filterDefects
+ * @tsplus pipeable fncts.Cause filterDefects
  */
-export function filterDefects_<E>(self: Cause<E>, p: Predicate<unknown>): Maybe<Cause<E>> {
-  return self.fold({
-    Empty: () => Just(Empty()),
-    Fail: (e, trace) => Just(Fail(e, trace)),
-    Halt: (u, trace) => (p(u) ? Nothing() : Just(Halt(u, trace))),
-    Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
-    Then: (l, r) => {
-      if (l.isJust() && r.isJust()) {
-        return Just(Then(l.value, r.value));
-      } else if (l.isJust() && r.isNothing()) {
-        return Just(l.value);
-      } else if (l.isNothing() && r.isJust()) {
-        return Just(r.value);
-      } else {
-        return Nothing();
-      }
-    },
-    Both: (l, r) => {
-      if (l.isJust() && r.isJust()) {
-        return Just(Both(l.value, r.value));
-      } else if (l.isJust() && r.isNothing()) {
-        return Just(l.value);
-      } else if (l.isNothing() && r.isJust()) {
-        return Just(r.value);
-      } else {
-        return Nothing();
-      }
-    },
-    Stackless: (causeOption, stackless) => causeOption.map((cause) => Stackless(cause, stackless)),
-  });
+export function filterDefects(p: Predicate<unknown>) {
+  return <E>(self: Cause<E>): Maybe<Cause<E>> => {
+    return self.fold({
+      Empty: () => Just(Empty()),
+      Fail: (e, trace) => Just(Fail(e, trace)),
+      Halt: (u, trace) => (p(u) ? Nothing() : Just(Halt(u, trace))),
+      Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
+      Then: (l, r) => {
+        if (l.isJust() && r.isJust()) {
+          return Just(Then(l.value, r.value));
+        } else if (l.isJust() && r.isNothing()) {
+          return Just(l.value);
+        } else if (l.isNothing() && r.isJust()) {
+          return Just(r.value);
+        } else {
+          return Nothing();
+        }
+      },
+      Both: (l, r) => {
+        if (l.isJust() && r.isJust()) {
+          return Just(Both(l.value, r.value));
+        } else if (l.isJust() && r.isNothing()) {
+          return Just(l.value);
+        } else if (l.isNothing() && r.isJust()) {
+          return Just(r.value);
+        } else {
+          return Nothing();
+        }
+      },
+      Stackless: (causeOption, stackless) => causeOption.map((cause) => Stackless(cause, stackless)),
+    });
+  };
 }
 
 /**
@@ -245,10 +253,12 @@ function findLoop<A, B>(self: Cause<A>, f: (cause: Cause<A>) => Maybe<B>, stack:
 /**
  * Finds the first result matching `f`
  *
- * @tsplus fluent fncts.Cause find
+ * @tsplus pipeable fncts.Cause find
  */
-export function find_<E, A>(self: Cause<E>, f: (cause: Cause<E>) => Maybe<A>): Maybe<A> {
-  return findLoop(self, f, Nil());
+export function find<E, A>(f: (cause: Cause<E>) => Maybe<A>) {
+  return (self: Cause<E>): Maybe<A> => {
+    return findLoop(self, f, Nil());
+  };
 }
 
 /**
@@ -531,10 +541,12 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
 /**
  * Accumulates a state over a `Cause`
  *
- * @tsplus fluent fncts.Cause foldLeft
+ * @tsplus pipeable fncts.Cause foldLeft
  */
-export function foldLeft_<A, B>(self: Cause<A>, b: B, f: (b: B, cause: Cause<A>) => Maybe<B>): B {
-  return foldLeftLoop(self, b, f, Nil());
+export function foldLeft<A, B>(b: B, f: (b: B, cause: Cause<A>) => Maybe<B>) {
+  return (self: Cause<A>): B => {
+    return foldLeftLoop(self, b, f, Nil());
+  };
 }
 
 /**
@@ -753,25 +765,29 @@ export function keepDefects<E>(self: Cause<E>): Maybe<Cause<never>> {
 }
 
 /**
- * @tsplus fluent fncts.Cause map
+ * @tsplus pipeable fncts.Cause map
  */
-export function map_<A, B>(self: Cause<A>, f: (e: A) => B): Cause<B> {
-  return self.flatMap((e) => Cause.fail(f(e), Trace.none));
+export function map<A, B>(f: (e: A) => B) {
+  return (self: Cause<A>): Cause<B> => {
+    return self.flatMap((e) => Cause.fail(f(e), Trace.none));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Cause mapTrace
+ * @tsplus pipeable fncts.Cause mapTrace
  */
-export function mapTrace_<E>(self: Cause<E>, f: (trace: Trace) => Trace): Cause<E> {
-  return self.fold({
-    Empty: () => Cause.empty(),
-    Fail: (e, trace) => Cause.fail(e, f(trace)),
-    Halt: (u, trace) => Cause.halt(u, f(trace)),
-    Interrupt: (id, trace) => Cause.interrupt(id, f(trace)),
-    Then: Cause.then,
-    Both: Cause.both,
-    Stackless: Cause.stackless,
-  });
+export function mapTrace(f: (trace: Trace) => Trace) {
+  return <E>(self: Cause<E>): Cause<E> => {
+    return self.fold({
+      Empty: () => Cause.empty(),
+      Fail: (e, trace) => Cause.fail(e, f(trace)),
+      Halt: (u, trace) => Cause.halt(u, f(trace)),
+      Interrupt: (id, trace) => Cause.interrupt(id, f(trace)),
+      Then: Cause.then,
+      Both: Cause.both,
+      Stackless: Cause.stackless,
+    });
+  };
 }
 
 /**
@@ -804,32 +820,34 @@ export function stripFailures<A>(self: Cause<A>): Cause<never> {
  * returning `Just` with the remaining causes or `Nothing` if there are no
  * remaining causes.
  *
- * @tsplus fluent fncts.Cause stripSomeDefects
+ * @tsplus pipeable fncts.Cause stripSomeDefects
  */
-export function stripSomeDefects<E>(self: Cause<E>, p: Predicate<unknown>): Maybe<Cause<E>> {
-  return self.fold({
-    Empty: () => Just(Empty()),
-    Fail: (e, trace) => Just(Fail(e, trace)),
-    Halt: (t, trace) => (p(t) ? Nothing() : Just(Halt(t, trace))),
-    Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
-    Then: (l, r) =>
-      l.isJust() && r.isJust()
-        ? Just(Then(l.value, r.value))
-        : l.isJust()
-        ? Just(l.value)
-        : r.isJust()
-        ? Just(r.value)
-        : Nothing(),
-    Both: (l, r) =>
-      l.isJust() && r.isJust()
-        ? Just(Then(l.value, r.value))
-        : l.isJust()
-        ? Just(l.value)
-        : r.isJust()
-        ? Just(r.value)
-        : Nothing(),
-    Stackless: (causeOption, stackless) => causeOption.map((cause) => Stackless(cause, stackless)),
-  });
+export function stripSomeDefects(p: Predicate<unknown>) {
+  return <E>(self: Cause<E>): Maybe<Cause<E>> => {
+    return self.fold({
+      Empty: () => Just(Empty()),
+      Fail: (e, trace) => Just(Fail(e, trace)),
+      Halt: (t, trace) => (p(t) ? Nothing() : Just(Halt(t, trace))),
+      Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
+      Then: (l, r) =>
+        l.isJust() && r.isJust()
+          ? Just(Then(l.value, r.value))
+          : l.isJust()
+          ? Just(l.value)
+          : r.isJust()
+          ? Just(r.value)
+          : Nothing(),
+      Both: (l, r) =>
+        l.isJust() && r.isJust()
+          ? Just(Then(l.value, r.value))
+          : l.isJust()
+          ? Just(l.value)
+          : r.isJust()
+          ? Just(r.value)
+          : Nothing(),
+      Stackless: (causeOption, stackless) => causeOption.map((cause) => Stackless(cause, stackless)),
+    });
+  };
 }
 
 function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<Cause<E>, A>> {
@@ -963,26 +981,28 @@ export function sequenceCauseMaybe<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
  * Squashes a `Cause` down to a single `Error`, chosen to be the
  * "most important" `Error`.
  *
- * @tsplus fluent fncts.Cause squashWith
+ * @tsplus pipeable fncts.Cause squashWith
  */
-export function squashWith_<E>(self: Cause<E>, f: (e: E) => unknown): unknown {
-  return self.failureMaybe
-    .map(f)
-    .orElse(
-      self.isInterrupted
-        ? Just(
-            new InterruptedException(
-              "Interrupted by fibers: " +
-                self.interruptors
-                  .flatMap((id) => id.ids)
-                  .map((id) => `#${id}`)
-                  .join(", "),
-            ),
-          )
-        : Nothing(),
-    )
-    .orElse(self.defects.head)
-    .getOrElse(new InterruptedException());
+export function squashWith<E>(f: (e: E) => unknown) {
+  return (self: Cause<E>): unknown => {
+    return self.failureMaybe
+      .map(f)
+      .orElse(
+        self.isInterrupted
+          ? Just(
+              new InterruptedException(
+                "Interrupted by fibers: " +
+                  self.interruptors
+                    .flatMap((id) => id.ids)
+                    .map((id) => `#${id}`)
+                    .join(", "),
+              ),
+            )
+          : Nothing(),
+      )
+      .orElse(self.defects.head)
+      .getOrElse(new InterruptedException());
+  };
 }
 
 /**

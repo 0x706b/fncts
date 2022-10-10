@@ -20,7 +20,6 @@ export type ArrayInt = {
    */
   data: number[];
 };
-
 /**
  * Add two ArrayInt
  * @internal
@@ -48,7 +47,6 @@ export function addArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt): Arra
   }
   return { sign: arrayIntA.sign, data: data.reverse() };
 }
-
 /**
  * Add one to a given positive ArrayInt
  * @internal
@@ -67,7 +65,6 @@ export function addOneToPositiveArrayInt(arrayInt: ArrayInt): ArrayInt {
   data.unshift(1);
   return arrayInt;
 }
-
 /** @internal */
 function isStrictlySmaller(dataA: number[], dataB: number[]): boolean {
   const maxLength = Math.max(dataA.length, dataB.length);
@@ -81,7 +78,6 @@ function isStrictlySmaller(dataA: number[], dataB: number[]): boolean {
   }
   return false;
 }
-
 /**
  * Substract two ArrayInt
  * @internal
@@ -108,7 +104,6 @@ export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt)
   }
   return { sign: arrayIntA.sign, data: data.reverse() };
 }
-
 /**
  * Trim uneeded zeros in ArrayInt
  * and uniform notation for zero: {sign: 1, data: [0]}
@@ -127,12 +122,11 @@ export function trimArrayIntInplace(arrayInt: ArrayInt) {
   data.splice(0, firstNonZero);
   return arrayInt;
 }
-
 // Helpers specific to 64 bits versions
-
 /** @internal */
-export type ArrayInt64 = Required<ArrayInt> & { data: [number, number] };
-
+export type ArrayInt64 = Required<ArrayInt> & {
+  data: [number, number];
+};
 /**
  * We only accept safe integers here
  * @internal
@@ -150,7 +144,6 @@ export function fromNumberToArrayInt64(out: ArrayInt64, n: number): ArrayInt64 {
   }
   return out;
 }
-
 /**
  * Substract two ArrayInt of 64 bits on 64 bits.
  * With arrayIntA - arrayIntB >= 0
@@ -163,10 +156,8 @@ export function substractArrayInt64(out: ArrayInt64, arrayIntA: ArrayInt64, arra
   const lowB  = arrayIntB.data[1];
   const highB = arrayIntB.data[0];
   const signB = arrayIntB.sign;
-
   // Requirement: arrayIntA - arrayIntB >= 0
   out.sign = 1;
-
   if (signA === 1 && signB === -1) {
     // Operation is a simple sum of arrayIntA + abs(arrayIntB)
     const low   = lowA + lowB;
@@ -176,7 +167,6 @@ export function substractArrayInt64(out: ArrayInt64, arrayIntA: ArrayInt64, arra
     return out;
   }
   // signA === -1 with signB === 1 is impossible given: arrayIntA - arrayIntB >= 0
-
   // Operation is a substraction
   let lowFirst   = lowA;
   let highFirst  = highA;

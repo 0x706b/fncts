@@ -1,23 +1,20 @@
 import type { ChildExecutorDecision } from "@fncts/io/Channel/ChildExecutorDecision/definition";
 
 /**
- * @tsplus fluent fncts.io.Channel.ChildExecutorDecision match
+ * @tsplus pipeable fncts.io.Channel.ChildExecutorDecision match
  */
-export function match_<A, B, C>(
-  d: ChildExecutorDecision,
-  onContinue: () => A,
-  onClose: (value: any) => B,
-  onYield: () => C,
-): A | B | C {
-  switch (d._tag) {
-    case "Continue": {
-      return onContinue();
+export function match<A, B, C>(onContinue: () => A, onClose: (value: any) => B, onYield: () => C) {
+  return (d: ChildExecutorDecision): A | B | C => {
+    switch (d._tag) {
+      case "Continue": {
+        return onContinue();
+      }
+      case "Close": {
+        return onClose(d.value);
+      }
+      case "Yield": {
+        return onYield();
+      }
     }
-    case "Close": {
-      return onClose(d.value);
-    }
-    case "Yield": {
-      return onYield();
-    }
-  }
+  };
 }

@@ -1,5 +1,4 @@
 import type { _A, _E, _R } from "@fncts/base/types";
-
 export const StreamTypeId = Symbol.for("@principia/base/IO/Stream");
 export type StreamTypeId = typeof StreamTypeId;
 
@@ -28,7 +27,6 @@ export class Stream<R, E, A> {
   declare _R: () => R;
   declare _E: () => E;
   declare _A: () => A;
-
   constructor(readonly channel: Channel<R, unknown, unknown, unknown, E, Conc<A>, unknown>) {}
 }
 

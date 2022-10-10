@@ -60,9 +60,9 @@ export class TestClock extends Clock {
   }
   sleep = (ms: Lazy<Duration>) => {
     const self = this;
-    return IO.gen(function* (_) {
-      const promise = yield* _(Future.make<never, void>());
-      const wait    = yield* _(
+    return Do((_) => {
+      const promise = _(Future.make<never, void>());
+      const wait    = _(
         self.clockState.modify((data) => {
           const end = data.duration + ms().milliseconds;
           if (end > data.duration) {
@@ -72,7 +72,7 @@ export class TestClock extends Clock {
           }
         }),
       );
-      yield* _(
+      _(
         IO.defer(() => {
           if (wait) {
             return self.warningStart > promise.await;
@@ -83,23 +83,17 @@ export class TestClock extends Clock {
       );
     });
   };
-
   currentTime = this.clockState.get.map((data) => data.duration);
-
   adjust(duration: number): UIO<void> {
     return this.warningDone > this.run((d) => d + duration);
   }
-
   setDate(date: Date): UIO<void> {
     return this.setTime(date.getTime());
   }
-
   setTime(time: number): UIO<void> {
     return this.warningDone > this.run((_) => time);
   }
-
   sleeps = this.clockState.get.map((data) => data.sleeps.map(([_]) => _));
-
   get supervizedFibers(): UIO<HashSet<Fiber.Runtime<any, any>>> {
     return IO.descriptorWith((descriptor) =>
       this.annotations.get(TestAnnotation.Fibers).flatMap((_) =>
@@ -113,7 +107,6 @@ export class TestClock extends Clock {
       ),
     );
   }
-
   private get freeze(): IO<never, void, HashMap<FiberId, FiberStatus>> {
     return this.supervizedFibers.flatMap((fibers) =>
       IO.foldLeft(fibers, HashMap.makeDefault<FiberId, FiberStatus>(), (map, fiber) =>
@@ -133,17 +126,14 @@ export class TestClock extends Clock {
       ),
     );
   }
-
   private get delay(): UIO<void> {
     return this.live.provide(Clock.sleep((5).milliseconds));
   }
-
   private get awaitSuspended(): UIO<void> {
     return this.suspended
       .zipWith(this.live.provide(Clock.sleep((10).milliseconds)) > this.suspended, Equatable.strictEquals)
       .filterOrFail(Function.identity, (): void => undefined).eventually.asUnit;
   }
-
   private run(f: (duration: number) => number): UIO<void> {
     return (
       this.awaitSuspended >
@@ -165,7 +155,6 @@ export class TestClock extends Clock {
       ),
     );
   }
-
   private get suspended(): IO<never, void, HashMap<FiberId, FiberStatus>> {
     return this.freeze.zip(this.delay > this.freeze).flatMap(([first, last]) => {
       if (Equatable.strictEquals(first, last)) {
@@ -175,7 +164,6 @@ export class TestClock extends Clock {
       }
     });
   }
-
   warningDone: UIO<void> = this.warningState.updateJustIO(
     matchTag({
       Start: () => Just(IO(Done)),
@@ -183,7 +171,6 @@ export class TestClock extends Clock {
       Done: () => Nothing(),
     }),
   );
-
   private warningStart: UIO<void> = this.warningState.updateJustIO(
     matchTag(
       {

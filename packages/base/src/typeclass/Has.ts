@@ -11,9 +11,11 @@ export interface Has<T> {
 }
 
 /**
- * @tsplus operator fncts.Has &
- * @tsplus fluent fncts.Has merge
+ * @tsplus pipeable-operator fncts.Has &
+ * @tsplus pipeable fncts.Has merge
  */
-export function merge<A extends Has<any>, B extends Has<any>>(self: A, that: B): A & B {
-  return { ...self, ...that };
+export function merge<B extends Has<any>>(that: B) {
+  return <A extends Has<any>>(self: A): A & B => {
+    return { ...self, ...that };
+  };
 }

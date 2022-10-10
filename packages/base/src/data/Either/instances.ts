@@ -1,6 +1,6 @@
 import type { EitherF } from "@fncts/base/data/Either/definition.js";
 
-import { map_ } from "@fncts/base/data/Either/api";
+import { map } from "@fncts/base/data/Either/api";
 import { concrete, Either, EitherTag, Right } from "@fncts/base/data/Either/definition";
 import { EitherJson } from "@fncts/base/json/EitherJson";
 
@@ -10,7 +10,7 @@ import * as P from "../../typeclass.js";
  * @tsplus implicit
  */
 export const Functor = HKT.instance<P.Functor<EitherF>>({
-  map: map_,
+  map,
 });
 
 /**
@@ -50,7 +50,7 @@ export function deriveEq<A extends Either<any, any>>(
 export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterable<EitherF, HKT.Fix<"E", E>> {
   return HKT.instance<P.Filterable<EitherF, HKT.Fix<"E", E>>>({
     ...Functor,
-    partitionMap: (fa, f) => {
+    partitionMap: (f) => (fa) => {
       concrete(fa);
       if (fa._tag === EitherTag.Left) {
         return [fa, fa];
@@ -64,16 +64,18 @@ export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterab
           return [Either.left(ME.nat), fb];
       }
     },
-    filter: <A>(fa: Either<E, A>, p: Predicate<A>) => {
-      concrete(fa);
-      switch (fa._tag) {
-        case EitherTag.Left:
-          return fa;
-        case EitherTag.Right:
-          return p(fa.right) ? fa : Either.left(ME.nat);
-      }
-    },
-    filterMap: (fa, f) => {
+    filter:
+      <A>(p: Predicate<A>) =>
+      (fa: Either<E, A>) => {
+        concrete(fa);
+        switch (fa._tag) {
+          case EitherTag.Left:
+            return fa;
+          case EitherTag.Right:
+            return p(fa.right) ? fa : Either.left(ME.nat);
+        }
+      },
+    filterMap: (f) => (fa) => {
       concrete(fa);
       if (fa._tag === EitherTag.Left) {
         return fa;
@@ -83,13 +85,15 @@ export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterab
         (b) => Either.right(b),
       );
     },
-    partition: <A>(fa: Either<E, A>, p: Predicate<A>): readonly [Either<E, A>, Either<E, A>] => {
-      concrete(fa);
-      if (fa._tag === EitherTag.Left) {
-        return [fa, fa];
-      }
-      return p(fa.right) ? [Either.left(ME.nat), fa] : [fa, Either.left(ME.nat)];
-    },
+    partition:
+      <A>(p: Predicate<A>) =>
+      (fa: Either<E, A>): readonly [Either<E, A>, Either<E, A>] => {
+        concrete(fa);
+        if (fa._tag === EitherTag.Left) {
+          return [fa, fa];
+        }
+        return p(fa.right) ? [Either.left(ME.nat), fa] : [fa, Either.left(ME.nat)];
+      },
   });
 }
 

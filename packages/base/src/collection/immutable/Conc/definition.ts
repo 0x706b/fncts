@@ -1,12 +1,8 @@
 import { Iterable } from "../../Iterable/definition.js";
-
-export const BUFFER_SIZE = 64;
-
+export const BUFFER_SIZE        = 64;
 export const UPDATE_BUFFER_SIZE = 256;
-
-export const ConcTypeId = Symbol.for("fncts.Conc");
+export const ConcTypeId         = Symbol.for("fncts.Conc");
 export type ConcTypeId = typeof ConcTypeId;
-
 export const enum ConcTag {
   Empty = "Empty",
   Concat = "Concat",
@@ -224,12 +220,11 @@ const alloc = typeof Buffer !== "undefined" ? Buffer.alloc : (n: number) => new 
 
 export class Empty<A> extends ConcImplementation<A> {
   readonly _tag = ConcTag.Empty;
-
-  length = 0;
-  depth  = 0;
-  left   = this;
-  right  = this;
-  binary = false;
+  length        = 0;
+  depth         = 0;
+  left          = this;
+  right         = this;
+  binary        = false;
   get(index: number): A {
     throw new ArrayIndexOutOfBoundsError(`Conc.get access to ${index}`);
   }
@@ -272,10 +267,9 @@ export const _Empty = new Empty<never>();
 export class Concat<A> extends ConcImplementation<A> {
   declare _A: () => A;
   readonly _tag = ConcTag.Concat;
-
-  length = this.left.length + this.right.length;
-  depth  = 1 + Math.max(this.left.depth, this.right.depth);
-  binary = this.left.binary && this.right.binary;
+  length        = this.left.length + this.right.length;
+  depth         = 1 + Math.max(this.left.depth, this.right.depth);
+  binary        = this.left.binary && this.right.binary;
   constructor(readonly left: ConcImplementation<A>, readonly right: ConcImplementation<A>) {
     super();
   }
@@ -537,11 +531,10 @@ class Update<A> extends ConcImplementation<A> {
 
 export class Singleton<A> extends ConcImplementation<A> {
   readonly _tag = ConcTag.Singleton;
-
-  length = 1;
-  depth  = 0;
-  left   = _Empty;
-  right  = _Empty;
+  length        = 1;
+  depth         = 0;
+  left          = _Empty;
+  right         = _Empty;
   binary: boolean;
 
   constructor(readonly value: A) {
@@ -742,56 +735,52 @@ export function isConc(u: unknown): u is Conc<unknown> {
 }
 
 /**
- * @tsplus fluent fncts.Conc corresponds
+ * @tsplus pipeable fncts.Conc corresponds
  */
-export function corresponds_<A, B>(self: Conc<A>, bs: Conc<B>, f: (a: A, b: B) => boolean): boolean {
-  if (self.length !== bs.length) {
-    return false;
-  }
-
-  concrete(self);
-  concrete(bs);
-
-  const leftIterator  = self.arrayIterator();
-  const rightIterator = bs.arrayIterator();
-
-  let left: ArrayLike<A> | undefined  = undefined;
-  let right: ArrayLike<B> | undefined = undefined;
-  let leftLength  = 0;
-  let rightLength = 0;
-  let i           = 0;
-  let j           = 0;
-  let equal       = true;
-  let done        = false;
-
-  let leftNext;
-  let rightNext;
-
-  while (equal && !done) {
-    if (i < leftLength && j < rightLength) {
-      const a = left![i]!;
-      const b = right![j]!;
-      if (!f(a, b)) {
+export function corresponds<A, B>(bs: Conc<B>, f: (a: A, b: B) => boolean) {
+  return (self: Conc<A>): boolean => {
+    if (self.length !== bs.length) {
+      return false;
+    }
+    concrete(self);
+    concrete(bs);
+    const leftIterator                  = self.arrayIterator();
+    const rightIterator                 = bs.arrayIterator();
+    let left: ArrayLike<A> | undefined  = undefined;
+    let right: ArrayLike<B> | undefined = undefined;
+    let leftLength  = 0;
+    let rightLength = 0;
+    let i           = 0;
+    let j           = 0;
+    let equal       = true;
+    let done        = false;
+    let leftNext;
+    let rightNext;
+    while (equal && !done) {
+      if (i < leftLength && j < rightLength) {
+        const a = left![i]!;
+        const b = right![j]!;
+        if (!f(a, b)) {
+          equal = false;
+        }
+        i++;
+        j++;
+      } else if (i === leftLength && !(leftNext = leftIterator.next()).done) {
+        left       = leftNext.value;
+        leftLength = left.length;
+        i          = 0;
+      } else if (j === rightLength && !(rightNext = rightIterator.next()).done) {
+        right       = rightNext.value;
+        rightLength = right.length;
+        j           = 0;
+      } else if (i === leftLength && j === rightLength) {
+        done = true;
+      } else {
         equal = false;
       }
-      i++;
-      j++;
-    } else if (i === leftLength && !(leftNext = leftIterator.next()).done) {
-      left       = leftNext.value;
-      leftLength = left.length;
-      i          = 0;
-    } else if (j === rightLength && !(rightNext = rightIterator.next()).done) {
-      right       = rightNext.value;
-      rightLength = right.length;
-      j           = 0;
-    } else if (i === leftLength && j === rightLength) {
-      done = true;
-    } else {
-      equal = false;
     }
-  }
-
-  return equal;
+    return equal;
+  };
 }
 
 /**

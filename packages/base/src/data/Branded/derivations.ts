@@ -1,4 +1,4 @@
-import type { Validation, Brand } from "@fncts/base/data/Branded/definition";
+import type { Brand, Validation } from "@fncts/base/data/Branded/definition";
 import type { Check } from "@fncts/typelevel/Check";
 
 import { BrandedError, CompoundError } from "@fncts/base/data/DecodeError";
@@ -29,7 +29,7 @@ export function deriveDecoder<A extends Brand.Valid<any, any>>(
     ? [
         base: Decoder<Brand.Unbranded<A>>,
         brands: {
-          [K in (keyof A[Brand.valid]) & string]: Validation<A[Brand.valid][K], K>;
+          [K in keyof A[Brand.valid] & string]: Validation<A[Brand.valid][K], K>;
         },
       ]
     : never

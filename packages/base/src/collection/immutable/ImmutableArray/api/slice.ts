@@ -1,6 +1,8 @@
 /**
- * @tsplus fluent fncts.ImmutableArray slice
+ * @tsplus pipeable fncts.ImmutableArray slice
  */
-export function slice_<A>(self: ImmutableArray<A>, start?: number, end?: number): ImmutableArray<A> {
-  return self._array.slice(start, end).asImmutableArray;
+export function slice(start?: number, end?: number) {
+  return <A>(self: ImmutableArray<A>): ImmutableArray<A> => {
+    return self._array.slice(start, end).asImmutableArray;
+  };
 }

@@ -58,22 +58,21 @@ export function current<E, A>(fiber: Fiber<E, HandoffSignal<E, A>>): DebounceSta
 }
 
 /**
- * @tsplus fluent fncts.io.Stream.DebounceState match
+ * @tsplus pipeable fncts.io.Stream.DebounceState match
  */
-export function match_<E, A, B, C, D>(
-  ds: DebounceState<E, A>,
-  cases: {
-    NotStarted: (_: NotStarted) => B;
-    Current: (_: Current<E, A>) => C;
-    Previous: (_: Previous<A>) => D;
-  },
-): B | C | D {
-  switch (ds._tag) {
-    case DebounceStateTag.NotStarted:
-      return cases.NotStarted(ds);
-    case DebounceStateTag.Current:
-      return cases.Current(ds);
-    case DebounceStateTag.Previous:
-      return cases.Previous(ds);
-  }
+export function match<E, A, B, C, D>(cases: {
+  NotStarted: (_: NotStarted) => B;
+  Current: (_: Current<E, A>) => C;
+  Previous: (_: Previous<A>) => D;
+}) {
+  return (ds: DebounceState<E, A>): B | C | D => {
+    switch (ds._tag) {
+      case DebounceStateTag.NotStarted:
+        return cases.NotStarted(ds);
+      case DebounceStateTag.Current:
+        return cases.Current(ds);
+      case DebounceStateTag.Previous:
+        return cases.Previous(ds);
+    }
+  };
 }

@@ -7,77 +7,92 @@ import { concrete } from "./definition.js";
 import { EitherTag, EitherTypeId, Left, Right } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.Either ap
+ * @tsplus pipeable fncts.Either ap
  */
-export function ap_<E1, A, E2, B>(self: Either<E1, (a: A) => B>, fa: Either<E2, A>): Either<E1 | E2, B> {
-  self.concrete();
-  fa.concrete();
-  return self._tag === EitherTag.Left ? self : fa._tag === EitherTag.Left ? fa : Right(self.right(fa.right));
+export function ap<A, E2>(fa: Either<E2, A>) {
+  return <E1, B>(self: Either<E1, (a: A) => B>): Either<E1 | E2, B> => {
+    self.concrete();
+    fa.concrete();
+    return self._tag === EitherTag.Left ? self : fa._tag === EitherTag.Left ? fa : Right(self.right(fa.right));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either bimap
+ * @tsplus pipeable fncts.Either bimap
  */
-export function bimap_<E1, A, E2, B>(self: Either<E1, A>, f: (e: E1) => E2, g: (a: A) => B): Either<E2, B> {
-  self.concrete();
-  return self._tag === EitherTag.Left ? Left(f(self.left)) : Right(g(self.right));
+export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
+  return (self: Either<E1, A>): Either<E2, B> => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? Left(f(self.left)) : Right(g(self.right));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either catchAll
+ * @tsplus pipeable fncts.Either catchAll
  */
-export function catchAll_<E1, A, E2, B>(self: Either<E1, A>, f: (e: E1) => Either<E2, B>): Either<E2, A | B> {
-  self.concrete();
-  return self._tag === EitherTag.Left ? f(self.left) : self;
+export function catchAll<E1, E2, B>(f: (e: E1) => Either<E2, B>) {
+  return <A>(self: Either<E1, A>): Either<E2, A | B> => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? f(self.left) : self;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either catchJust
+ * @tsplus pipeable fncts.Either catchJust
  */
-export function catchJust_<E1, A, E2, B>(
-  self: Either<E1, A>,
-  f: (e: E1) => Maybe<Either<E2, B>>,
-): Either<E1 | E2, A | B> {
-  return self.catchAll((e): Either<E1 | E2, A | B> => f(e).getOrElse(self));
+export function catchJust<E1, E2, B>(f: (e: E1) => Maybe<Either<E2, B>>) {
+  return <A>(self: Either<E1, A>): Either<E1 | E2, A | B> => {
+    return self.catchAll((e): Either<E1 | E2, A | B> => f(e).getOrElse(self));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either catchMap
+ * @tsplus pipeable fncts.Either catchMap
  */
-export function catchMap_<E, A, B>(self: Either<E, A>, f: (e: E) => B): Either<never, A | B> {
-  return self.catchAll((e) => Right(f(e)));
+export function catchMap<E, B>(f: (e: E) => B) {
+  return <A>(self: Either<E, A>): Either<never, A | B> => {
+    return self.catchAll((e) => Right(f(e)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either flatMap
+ * @tsplus pipeable fncts.Either flatMap
  */
-export function flatMap_<E1, A, E2, B>(self: Either<E1, A>, f: (a: A) => Either<E2, B>): Either<E1 | E2, B> {
-  self.concrete();
-  return self._tag === EitherTag.Left ? self : f(self.right);
+export function flatMap<A, E2, B>(f: (a: A) => Either<E2, B>) {
+  return <E1>(self: Either<E1, A>): Either<E1 | E2, B> => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? self : f(self.right);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either foldLeft
+ * @tsplus pipeable fncts.Either foldLeft
  */
-export function foldLeft_<E, A, B>(self: Either<E, A>, b: B, f: (b: B, a: A) => B): B {
-  self.concrete();
-  return self._tag === EitherTag.Left ? b : f(b, self.right);
+export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
+  return <E>(self: Either<E, A>): B => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? b : f(b, self.right);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either foldRight
+ * @tsplus pipeable fncts.Either foldRight
  */
-export function foldRight_<E, A, B>(self: Either<E, A>, b: B, f: (a: A, b: B) => B): B {
-  self.concrete();
-  return self._tag === EitherTag.Left ? b : f(self.right, b);
+export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
+  return <E>(self: Either<E, A>): B => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? b : f(self.right, b);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either foldMap
+ * @tsplus pipeable fncts.Either foldMap
  */
-export function foldMap_<E, A, M>(self: Either<E, A>, f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
-  self.concrete();
-  return self._tag === EitherTag.Left ? M.nat : f(self.right);
+export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
+  return <E>(self: Either<E, A>): M => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? M.nat : f(self.right);
+  };
 }
 
 /**
@@ -101,10 +116,12 @@ export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
 }
 
 /**
- * @tsplus fluent fncts.Either getOrElse
+ * @tsplus pipeable fncts.Either getOrElse
  */
-export function getOrElse_<E, A, B>(self: Either<E, A>, orElse: (e: E) => B): A | B {
-  return self.match(orElse, identity);
+export function getOrElse<E, B>(orElse: (e: E) => B) {
+  return <A>(self: Either<E, A>): A | B => {
+    return self.match(orElse, identity);
+  };
 }
 
 /**
@@ -133,24 +150,24 @@ export function isRight<E, A>(self: Either<E, A>): self is Right<A> {
 }
 
 /**
- * @tsplus fluent fncts.Either map
+ * @tsplus static fncts.EitherOps map
+ * @tsplus pipeable fncts.Either map
  */
-export function map_<E, A, B>(self: Either<E, A>, f: (a: A) => B): Either<E, B> {
-  self.concrete();
-  return self._tag === EitherTag.Left ? self : Right(f(self.right));
+export function map<A, B>(f: (a: A) => B) {
+  return <E>(self: Either<E, A>): Either<E, B> => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? self : Right(f(self.right));
+  };
 }
 
 /**
- * @tsplus static fncts.EitherOps map
+ * @tsplus pipeable fncts.Either mapLeft
  */
-export const map = Pipeable(map_);
-
-/**
- * @tsplus fluent fncts.Either mapLeft
- */
-export function mapLeft_<E1, A, E2>(self: Either<E1, A>, f: (e: E1) => E2): Either<E2, A> {
-  self.concrete();
-  return self._tag === EitherTag.Left ? Left(f(self.left)) : self;
+export function mapLeft<E1, E2>(f: (e: E1) => E2) {
+  return <A>(self: Either<E1, A>): Either<E2, A> => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? Left(f(self.left)) : self;
+  };
 }
 
 /**
@@ -161,11 +178,13 @@ export function merge<E, A>(self: Either<E, A>): E | A {
 }
 
 /**
- * @tsplus fluent fncts.Either orElse
+ * @tsplus pipeable fncts.Either orElse
  */
-export function orElse_<E1, A, E2, B>(self: Either<E1, A>, that: Lazy<Either<E2, B>>): Either<E1 | E2, A | B> {
-  self.concrete();
-  return self._tag === EitherTag.Left ? that() : self;
+export function orElse<E2, B>(that: Lazy<Either<E2, B>>) {
+  return <E1, A>(self: Either<E1, A>): Either<E1 | E2, A | B> => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? that() : self;
+  };
 }
 
 /**
@@ -177,91 +196,94 @@ export function swap<E, A>(self: Either<E, A>): Either<A, E> {
 }
 
 /**
- * @tsplus fluent fncts.Either traverse
+ * @tsplus getter fncts.Either traverse
  */
-export const traverse_: P.Traversable<EitherF>["traverse"] = (self) => (A) => (f) =>
-  self.match(
-    (e) => A.pure(Left(e)),
-    (a) => A.map(f(a), (b) => Right(b)),
-  );
-
-/**
- * @tsplus fluent fncts.Either zipWith
- */
-export function zipWith_<E1, A, E2, B, C>(
-  self: Either<E1, A>,
-  fb: Either<E2, B>,
-  f: (a: A, b: B) => C,
-): Either<E1 | E2, C> {
-  self.concrete();
-  fb.concrete();
-  return self._tag === EitherTag.Left ? self : fb._tag === EitherTag.Left ? fb : Right(f(self.right, fb.right));
-}
-
-/**
- * @tsplus fluent fncts.Either zip
- */
-export function zip<E, A, E1, B>(self: Either<E, A>, that: Either<E1, B>): Either<E | E1, Zipped.Make<A, B>> {
-  return self.zipWith(that, (a, b) => Zipped(a, b));
-}
-
-/**
- * @tsplus fluent fncts.Either filterMap
- */
-export function filterMap<E, A, B>(
-  self: Either<E, A>,
-  f: (a: A) => Maybe<B>,
-  /** @tsplus auto */ M: P.Monoid<E>,
-): Either<E, B> {
-  self.concrete();
-  return self._tag === EitherTag.Left
-    ? self
-    : f(self.right).match(
-        () => Left(M.nat),
-        (b) => Right(b),
+export function _traverse<E, A>(self: Either<E, A>) {
+  return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
+    <K, Q, W, X, I, S, R, E1, B>(
+      f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E1, B>,
+    ): HKT.Kind<G, GC, K, Q, W, X, I, S, R, E1, Either<E, B>> =>
+      self.match(
+        (e) => G.pure(Left(e)),
+        (a) => f(a).pipe(G.map((b) => Right(b))),
       );
 }
 
+export const traverse_: P.Traversable<EitherF>["traverse"] = (A) => (f) => (self) => self.traverse(A)(f);
+
 /**
- * @tsplus fluent fncts.Either filter
+ * @tsplus pipeable fncts.Either zipWith
  */
-export function filter<E, A>(self: Either<E, A>, f: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>): Either<E, A> {
-  self.concrete();
-  return self._tag === EitherTag.Left ? self : f(self.right) ? self : Left(M.nat);
+export function zipWith<A, E2, B, C>(fb: Either<E2, B>, f: (a: A, b: B) => C) {
+  return <E1>(self: Either<E1, A>): Either<E1 | E2, C> => {
+    self.concrete();
+    fb.concrete();
+    return self._tag === EitherTag.Left ? self : fb._tag === EitherTag.Left ? fb : Right(f(self.right, fb.right));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either partitionMap
+ * @tsplus pipeable fncts.Either zip
  */
-export function partitionMap<E, A, B, C>(
-  self: Either<E, A>,
-  f: (a: A) => Either<B, C>,
-  /** @tsplus auto */ M: P.Monoid<E>,
-): readonly [Either<E, B>, Either<E, C>] {
-  self.concrete();
-  if (self._tag === EitherTag.Left) {
-    return [self, self];
-  }
-  const fb: Either<B, C> = f(self.right);
-  fb.concrete();
-  switch (fb._tag) {
-    case EitherTag.Left:
-      return [Right(fb.left), Left(M.nat)];
-    case EitherTag.Right:
-      return [Left(M.nat), fb];
-  }
+export function zip<E1, B>(that: Either<E1, B>) {
+  return <E, A>(self: Either<E, A>): Either<E | E1, Zipped.Make<A, B>> => {
+    return self.zipWith(that, (a, b) => Zipped(a, b));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Either partition
+ * @tsplus pipeable fncts.Either filterMap
  */
-export function partition<E, A>(
-  self: Either<E, A>,
-  p: Predicate<A>,
-  /** @tsplus auto */ M: P.Monoid<E>,
-): readonly [Either<E, A>, Either<E, A>] {
-  self.concrete();
-  return self._tag === EitherTag.Left ? [self, self] : p(self.right) ? [Left(M.nat), self] : [self, Left(M.nat)];
+export function filterMap<E, A, B>(f: (a: A) => Maybe<B>, /** @tsplus auto */ M: P.Monoid<E>) {
+  return (self: Either<E, A>): Either<E, B> => {
+    self.concrete();
+    return self._tag === EitherTag.Left
+      ? self
+      : f(self.right).match(
+          () => Left(M.nat),
+          (b) => Right(b),
+        );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Either filter
+ */
+export function filter<E, A>(f: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
+  return (self: Either<E, A>): Either<E, A> => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? self : f(self.right) ? self : Left(M.nat);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Either partitionMap
+ */
+export function partitionMap<E, A, B, C>(f: (a: A) => Either<B, C>, /** @tsplus auto */ M: P.Monoid<E>) {
+  return (self: Either<E, A>): readonly [Either<E, B>, Either<E, C>] => {
+    self.concrete();
+    if (self._tag === EitherTag.Left) {
+      return [self, self];
+    }
+    const fb: Either<B, C> = f(self.right);
+    fb.concrete();
+    switch (fb._tag) {
+      case EitherTag.Left:
+        return [Right(fb.left), Left(M.nat)];
+      case EitherTag.Right:
+        return [Left(M.nat), fb];
+    }
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Either partition
+ */
+export function partition<E, A>(p: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
+  return (self: Either<E, A>): readonly [Either<E, A>, Either<E, A>] => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? [self, self] : p(self.right) ? [Left(M.nat), self] : [self, Left(M.nat)];
+  };
 }
 
 // codegen:start { preset: barrel, include: api/*.ts }

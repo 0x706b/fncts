@@ -1,11 +1,13 @@
 import { PIso } from "@fncts/base/optics/Iso/definition";
 
 /**
- * @tsplus fluent fncts.optics.PIso compose
+ * @tsplus pipeable fncts.optics.PIso compose
  */
-export function compose_<S, T, A, B, C, D>(self: PIso<S, T, A, B>, that: PIso<A, B, C, D>): PIso<S, T, C, D> {
-  return PIso({
-    get: self.get.compose(that.get),
-    reverseGet: that.reverseGet.compose(self.reverseGet),
-  });
+export function compose<A, B, C, D>(that: PIso<A, B, C, D>) {
+  return <S, T>(self: PIso<S, T, A, B>): PIso<S, T, C, D> => {
+    return PIso({
+      get: self.get.compose(that.get),
+      reverseGet: that.reverseGet.compose(self.reverseGet),
+    });
+  };
 }

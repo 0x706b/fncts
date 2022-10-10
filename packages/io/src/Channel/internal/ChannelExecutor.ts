@@ -21,9 +21,7 @@ type Finalizer<R> = (exit: Exit<unknown, unknown>) => URIO<R, unknown>;
  * SubexecutorStack
  * -------------------------------------------------------------------------------------------------
  */
-
 type Subexecutor<R> = PullFromUpstream<R> | PullFromChild<R> | DrainChildExecutors<R> | Emit<R>;
-
 const enum SubexecutorStackTag {
   PullFromUpstream = "PullFromUpstream",
   PullFromChild = "PullFromChild",
@@ -563,9 +561,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
       this.activeSubexecutor === null ? null : this.activeSubexecutor.close(exit);
 
     let closeSelf: URIO<Env, unknown> | null = null;
-
-    const selfFinalizers = this.popAllFinalizers(exit);
-
+    const selfFinalizers                     = this.popAllFinalizers(exit);
     if (selfFinalizers !== null) {
       closeSelf = selfFinalizers.ensuring(IO.succeed(this.clearInProgressFinalizer()));
     }

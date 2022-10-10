@@ -41,7 +41,6 @@ import {
   isWeakMap,
   isWeakSet,
 } from "@fncts/base/util/predicates";
-
 export interface ShowContextArgs {
   readonly stylize: StyleFunction;
   readonly circular: HashMap<unknown, number>;
@@ -58,7 +57,6 @@ export interface ShowContextArgs {
   readonly recurseTimes: number;
   readonly budget: Record<number, number>;
 }
-
 export interface ShowOptions {
   readonly maxArrayLength: number;
   readonly maxStringLength: number;
@@ -69,13 +67,10 @@ export interface ShowOptions {
   readonly showHidden: boolean;
   readonly indentationLevel: number;
 }
-
 export class ShowContext extends CaseClass<ShowContextArgs> {}
-
 export type ShowComputationZ<A> = Z<never, ShowContext, ShowContext, never, never, A>;
 export type ShowComputation = ShowComputationZ<string>;
 export type ShowComputationChunk = ShowComputationZ<Conc<string>>;
-
 export interface ShowComputationPrimitive {
   readonly _tag: "Primitive";
   readonly computation: ShowComputation;
@@ -86,7 +81,6 @@ export function showComputationPrimitive(computation: ShowComputation): ShowComp
     computation,
   };
 }
-
 export interface ShowComputationComplex {
   readonly _tag: "Complex";
   extrasType?: number;
@@ -101,9 +95,7 @@ export function showComputationComplex(args: Omit<ShowComputationComplex, "_tag"
     ...args,
   };
 }
-
 export type ShowComputationExternal = ShowComputationPrimitive | ShowComputationComplex;
-
 function getShowContext(options?: Partial<ShowOptions>) {
   return new ShowContext({
     maxArrayLength: 100,
@@ -123,15 +115,12 @@ function getShowContext(options?: Partial<ShowOptions>) {
     ...(options || {}),
   });
 }
-
 export function show(value: unknown): string {
   return _show(value).unsafeRunStateResult(getShowContext());
 }
-
 export function showWithOptions(value: unknown, options: Partial<ShowOptions>): string {
   return _show(value).unsafeRunStateResult(getShowContext(options));
 }
-
 export function _show(value: unknown): ShowComputation {
   return Z.getsZ((context) => {
     if (value === undefined) {
@@ -143,11 +132,9 @@ export function _show(value: unknown): ShowComputation {
     if (!isObject(value) && !isFunction(value)) {
       return Z.succeedNow(_showPrimitive(context, value as Primitive));
     }
-
     return showValue(value);
   });
 }
-
 function showValue(value: object): ShowComputation {
   return Z.getsZ((context) => {
     if (context.seen.findIndex((v) => v === value) !== -1) {
@@ -164,7 +151,6 @@ function showValue(value: object): ShowComputation {
     return showRaw(value);
   });
 }
-
 interface InspectionInfo {
   readonly _tag: "InspectionInfo";
   readonly constructor: string | null;
@@ -183,7 +169,6 @@ function inspectionInfo(args: Omit<InspectionInfo, "_tag">): InspectionInfo {
     ...args,
   };
 }
-
 interface InspectionEarlyReturn {
   readonly _tag: "InspectionEarlyReturn";
   readonly shown: string;
@@ -194,7 +179,6 @@ function inspectionEarlyReturn(shown: string): InspectionEarlyReturn {
     shown,
   };
 }
-
 interface InspectionExternal {
   readonly _tag: "InspectionExternal";
   readonly computation: ShowComputationExternal;
@@ -205,9 +189,7 @@ function inspectionExternal(computation: ShowComputationExternal): InspectionExt
     computation,
   };
 }
-
 type InspectionResult = InspectionInfo | InspectionEarlyReturn | InspectionExternal;
-
 /**
  * Determines the approximate type of the unknown value and collects information about
  * the structure of that value
@@ -216,7 +198,6 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
   if (isShowable(value)) {
     return inspectionExternal(value[Symbol.showable as keyof typeof value]);
   }
-
   // eslint-disable-next-line prefer-const
   let [constructor, protoProps] = getConstructorName(value);
   let keys       = [] as Array<PropertyKey>;
@@ -226,7 +207,6 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
   let braces     = ["", ""] as [string, string];
   let noIterator = true;
   let extrasType = OBJECT_TYPE;
-
   if (
     typeof tag !== "string" ||
     (tag !== "" &&
@@ -237,7 +217,6 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
   ) {
     tag = "";
   }
-
   if (value[Symbol.iterator as keyof typeof value] || constructor === null) {
     noIterator = false;
     if (Conc.is(value)) {
@@ -363,7 +342,6 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
     protoProps,
   });
 }
-
 /**
  * Retrieves information on the unknown value and processes that info to convert the value
  * into a human-readable, formatted string
@@ -428,7 +406,6 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                 break;
               }
             }
-
             const output      = indices.crossWith(keys, (idxs, ks) => idxs.concat(ks));
             const baseWithRef = Z.getsZ((context: ShowContext) =>
               context.circular.get(value).match(
@@ -440,7 +417,6 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                   }),
               ),
             );
-
             return Z.update((_: ShowContext) =>
               _.copy({
                 recurseTimes: context.recurseTimes + 1,
@@ -451,13 +427,11 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
               .cross(baseWithRef)
               .flatMap(([output, base]) =>
                 Z.modify((context) => {
-                  const res = reduceToSingleString(context, output, base, braces, extrasType, value);
-
+                  const res       = reduceToSingleString(context, output, base, braces, extrasType, value);
                   const budget    = context.budget[context.indentationLevel] || 0;
                   const newLength = budget + res.length;
                   const newBudget = { ...context.budget, [context.indentationLevel]: newLength };
                   let newContext;
-
                   if (newLength > 2 ** 27) {
                     newContext = context.copy({ budget: newBudget, depth: -1 });
                   } else {
@@ -480,7 +454,6 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
     },
   );
 }
-
 /**
  * Converts a Chunk of strings containing the formatted keys/values of the original value
  * into a single formatted string
@@ -512,7 +485,6 @@ function reduceToSingleString(
     `${output.join(`,${indentation}  `)}${indentation}${braces[1]}`
   );
 }
-
 function isBelowBreakLength(context: ShowContext, input: Conc<string>, start: number, base: string): boolean {
   let totalLength = input.length + start;
   if (totalLength + input.length > context.breakLength) {
@@ -530,17 +502,14 @@ function isBelowBreakLength(context: ShowContext, input: Conc<string>, start: nu
   }
   return base === "" || !base.includes("\n");
 }
-
 function removeColors(str: string): string {
   return str.replace(colorRegExp, "");
 }
-
 function showSet(value: Set<unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
     .apSecond((value as Iterable<unknown>).traverseToConc(Z.Applicative)(_show))
     .apFirst(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
 }
-
 function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
     .apSecond(
@@ -556,14 +525,12 @@ function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
       ),
     );
 }
-
 function showTypedArray(value: TypedArray): ShowComputationChunk {
   return Z.getsZ((context) =>
     Z.defer(() => {
       const maxLength = Math.min(Math.max(0, context.maxArrayLength), value.length);
       const remaining = value.length - maxLength;
       let output      = Conc.empty<string>();
-
       const elementFormatter: (context: ShowContext, _: any) => string =
         value.length > 0 && typeof value[0] === "number" ? _showNumber : _showBigInt;
       for (let i = 0; i < maxLength; ++i) {
@@ -590,7 +557,6 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
     }),
   );
 }
-
 function showArrayBuffer(value: ArrayBuffer | SharedArrayBuffer): ShowComputationChunk {
   return Z.gets((context: ShowContext) => {
     let buffer;
@@ -599,22 +565,17 @@ function showArrayBuffer(value: ArrayBuffer | SharedArrayBuffer): ShowComputatio
     } catch {
       return Conc.single("(detached)");
     }
-
     let str = hex(buffer.slice(0, Math.min(context.maxArrayLength, buffer.length)))
       .replace(/(.{2})/g, "$1 ")
       .trim();
     const remaining = buffer.length - context.maxArrayLength;
-
     if (remaining > 0) {
       str += ` ... ${remaining} more byte${pluralize(remaining)}`;
     }
-
     return Conc.single(`[Uint8Contents]: <${str}>`);
   });
 }
-
 const maxEntries = 2 ** 32 - 2;
-
 function showSpecialArray(
   value: ReadonlyArray<unknown>,
   maxLength: number,
@@ -664,7 +625,6 @@ function showSpecialArray(
     return computation;
   });
 }
-
 function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
   return Z.gets((context: ShowContext) => {
     let chunk       = Conc.from(value);
@@ -687,7 +647,6 @@ function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
     return computation;
   });
 }
-
 function showChunk(value: Conc<unknown>): ShowComputationChunk {
   return Z.gets((context: ShowContext) => {
     const valLen    = value.length;
@@ -701,7 +660,6 @@ function showChunk(value: Conc<unknown>): ShowComputationChunk {
       .map((chunk) => (remaining > 0 ? chunk.append(`... ${remaining} more item${pluralize(remaining)}`) : chunk)),
   );
 }
-
 export function showProperty(
   value: object,
   key: PropertyKey,
@@ -715,7 +673,6 @@ export function showProperty(
           value: value[key as keyof typeof value],
           enumerable: true,
         };
-
       if (isDefined(descriptor.value)) {
         const diff = context.compact !== true || (type !== OBJECT_TYPE && type !== PROTO_TYPE) ? 2 : 3;
         return Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel + diff }))
@@ -739,9 +696,7 @@ export function showProperty(
       if (type === ARRAY_TYPE) {
         return shown;
       }
-
       let name: string;
-
       if (isSymbol(key)) {
         const tmp = key.toString().replace(strEscapeSequencesReplacer, escapeFn);
         name      = `[${context.stylize(tmp, "symbol")}]`;
@@ -755,16 +710,13 @@ export function showProperty(
       } else {
         name = context.stylize(strEscape(String(key)), "string");
       }
-
       if (type === PROTO_TYPE) {
         return context.stylize(`${name}:${extra}${shown}`, "dim");
       }
-
       return `${name}:${extra}${shown}`;
     }),
   );
 }
-
 /**
  * Groups the formatted elements of an array-like structure into chunks limited by the
  * maximum character width set in the context
@@ -823,7 +775,6 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
       lineMaxLength   += separatorSpace;
       maxLineLength[i] = lineMaxLength;
     }
-
     let order = String.prototype.padStart;
     if (value !== undefined && isArray(value)) {
       for (let i = 0; i < output.length; i++) {
@@ -856,9 +807,7 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
   }
   return output;
 }
-
 type Primitive = string | number | boolean | bigint | symbol;
-
 function _showPrimitive(context: ShowContext, value: Primitive): string {
   switch (typeof value) {
     case "string":
@@ -873,7 +822,6 @@ function _showPrimitive(context: ShowContext, value: Primitive): string {
       return _showSymbol(context, value);
   }
 }
-
 function _showString(context: ShowContext, value: string): string {
   let result  = value;
   let trailer = "";
@@ -896,19 +844,15 @@ function _showString(context: ShowContext, value: string): string {
   }
   return context.stylize(strEscape(value), "string") + trailer;
 }
-
 function _showNumber(context: ShowContext, value: number): string {
   return context.stylize(value.toString(10), "number");
 }
-
 function _showBoolean(context: ShowContext, value: boolean): string {
   return context.stylize(value === true ? "true" : "false", "boolean");
 }
-
 function _showBigInt(context: ShowContext, value: bigint): string {
   return context.stylize(`${value.toString()}n`, "bigint");
 }
-
 function _showSymbol(context: ShowContext, value: symbol): string {
   return context.stylize(value.toString(), "symbol");
 }

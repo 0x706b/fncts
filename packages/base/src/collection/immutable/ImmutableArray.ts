@@ -5,7 +5,6 @@ export * from "./ImmutableArray/definition.js";
 export * from "./ImmutableArray/derivations.js";
 export * from "./ImmutableArray/instances.js";
 // codegen:end
-
 // codegen:start { preset: barrel, include: ./ImmutableArray/api/*.ts }
 export * from "./ImmutableArray/api/chunksOf.js";
 export * from "./ImmutableArray/api/slice.js";

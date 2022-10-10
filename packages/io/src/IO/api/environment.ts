@@ -1,17 +1,13 @@
-import type * as Intersection from "@fncts/typelevel/Intersection";
-
 /**
  * Provides some of the environment required to run this `IO`,
  * leaving the remainder `R0`.
  *
- * @tsplus fluent fncts.io.IO contramapEnvironment
+ * @tsplus pipeable fncts.io.IO contramapEnvironment
  */
-export function contramapEnvironment_<R0, R, E, A>(
-  self: IO<R, E, A>,
-  f: (r0: Environment<R0>) => Environment<R>,
-  __tsplusTrace?: string,
-): IO<R0, E, A> {
-  return IO.environmentWithIO((r0: Environment<R0>) => self.provideEnvironment(f(r0)));
+export function contramapEnvironment<R0, R>(f: (r0: Environment<R0>) => Environment<R>, __tsplusTrace?: string) {
+  return <E, A>(self: IO<R, E, A>): IO<R0, E, A> => {
+    return IO.environmentWithIO((r0: Environment<R0>) => self.provideEnvironment(f(r0)));
+  };
 }
 
 /**
@@ -50,52 +46,40 @@ export function environmentWithIO<R0, R, E, A>(
  * Provides the `IO` with its required environment, which eliminates
  * its dependency on `R`.
  *
- * @tsplus fluent fncts.io.IO provideEnvironment
+ * @tsplus pipeable fncts.io.IO provideEnvironment
  */
-export function provideEnvironment_<R, E, A>(self: IO<R, E, A>, r: Environment<R>, __tsplusTrace?: string): FIO<E, A> {
-  return FiberRef.currentEnvironment.locallyWith((_) => _.union(r))(self as FIO<E, A>);
+export function provideEnvironment<R>(r: Environment<R>, __tsplusTrace?: string) {
+  return <E, A>(self: IO<R, E, A>): FIO<E, A> => {
+    return FiberRef.currentEnvironment.locallyWith((_) => _.union(r))(self as FIO<E, A>);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.IO provideSomeEnvironment
+ * @tsplus pipeable fncts.io.IO provideSomeEnvironment
  */
-export function provideSomeEnvironment_<R, E, A, R0>(
-  self: IO<R, E, A>,
-  environment: Environment<R0>,
-  __tsplusTrace?: string,
-): IO<Exclude<R, R0>, E, A> {
-  return self.contramapEnvironment((r0) => r0.union(environment));
+export function provideSomeEnvironment<R0>(environment: Environment<R0>, __tsplusTrace?: string) {
+  return <R, E, A>(self: IO<R, E, A>): IO<Exclude<R, R0>, E, A> => {
+    return self.contramapEnvironment((r0) => r0.union(environment));
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.IO provideService
+ * @tsplus pipeable fncts.io.IO provideService
  */
-export function provideService_<E, A, T>(
-  self: IO<T, E, A>,
-  service: T,
-  tag: Tag<T>,
-  __tsplusTrace?: string,
-): FIO<E, A> {
-  return self.provideEnvironment(Environment().add(service, tag));
+export function provideService<T>(service: T, tag: Tag<T>, __tsplusTrace?: string) {
+  return <E, A>(self: IO<T, E, A>): FIO<E, A> => {
+    return self.provideEnvironment(Environment().add(service, tag));
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.IO provideSomeService
- */
-export function provideSomeService_<R, E, A, T>(
-  self: IO<R, E, A>,
-  service: T,
-  tag: Tag<T>,
-  __tsplusTrace?: string,
-): IO<Exclude<R, T>, E, A> {
-  return self.contramapEnvironment((r: Environment<Exclude<R, T>>) => r.add(service, tag) as Environment<R>);
-}
-
-/**
+ * @tsplus pipeable fncts.io.IO provideSomeService
  * @tsplus static fncts.io.IOAspects provideSomeService
  */
 export function provideSomeService<T>(service: T, tag: Tag<T>, __tsplusTrace?: string) {
-  return <R, E, A>(io: IO<R | T, E, A>): IO<R, E, A> => io.provideSomeService(service, tag);
+  return <R, E, A>(self: IO<R, E, A>): IO<Exclude<R, T>, E, A> => {
+    return self.contramapEnvironment((r: Environment<Exclude<R, T>>) => r.add(service, tag) as Environment<R>);
+  };
 }
 
 /**
@@ -104,14 +88,12 @@ export function provideSomeService<T>(service: T, tag: Tag<T>, __tsplusTrace?: s
 export function service<T>(tag: Tag<T>, __tsplusTrace?: string): IO<T, never, T> {
   return IO.serviceWithIO(IO.succeedNow, tag);
 }
-
 /**
  * @tsplus static fncts.io.IOOps serviceWith
  */
 export function serviceWith<S, A>(f: (service: S) => A, tag: Tag<S>, __tsplusTrace?: string): IO<S, never, A> {
   return IO.serviceWithIO((s) => IO.succeedNow(f(s)), tag);
 }
-
 /**
  * @tsplus static fncts.io.IOOps serviceWithIO
  */

@@ -5,14 +5,12 @@ import { Fold, Fresh, FromScoped, Layer, To, ZipWithC } from "@fncts/io/Layer/de
 import { DecisionTag } from "@fncts/io/Schedule";
 
 /**
- * @tsplus fluent fncts.io.Layer and
+ * @tsplus pipeable fncts.io.Layer and
  */
-export function and_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
-  that: Layer<RIn1, E1, ROut1>,
-  __tsplusTrace?: string,
-): Layer<RIn | RIn1, E | E1, ROut | ROut1> {
-  return new ZipWithC(self, that, (a, b) => a.union(b), __tsplusTrace);
+export function and<RIn1, E1, ROut1>(that: Layer<RIn1, E1, ROut1>, __tsplusTrace?: string) {
+  return <RIn, E, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1, E | E1, ROut | ROut1> => {
+    return new ZipWithC(self, that, (a, b) => a.union(b), __tsplusTrace);
+  };
 }
 
 /**
@@ -20,14 +18,12 @@ export function and_<RIn, E, ROut, RIn1, E1, ROut1>(
  * layer, resulting in a new layer with the inputs of this layer, and the
  * outputs of both layers.
  *
- * @tsplus fluent fncts.io.Layer andTo
+ * @tsplus pipeable fncts.io.Layer andTo
  */
-export function andTo_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
-  that: Layer<RIn1, E1, ROut1>,
-  __tsplusTrace?: string,
-): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut | ROut1> {
-  return self.and(self.to(that));
+export function andTo<RIn1, E1, ROut1>(that: Layer<RIn1, E1, ROut1>, __tsplusTrace?: string) {
+  return <RIn, E, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut | ROut1> => {
+    return self.and(self.to(that));
+  };
 }
 
 /**
@@ -35,47 +31,42 @@ export function andTo_<RIn, E, ROut, RIn1, E1, ROut1>(
  * layer, resulting in a new layer with the inputs of this layer, and the
  * outputs of both layers.
  *
- * @tsplus fluent fncts.io.Layer andTo
+ * @tsplus pipeable fncts.io.Layer andTo
  */
-export function andUsing_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn1, E1, ROut1>,
-  that: Layer<RIn, E, ROut>,
-  __tsplusTrace?: string,
-): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut | ROut1> {
-  return that.and(that.to(self));
+export function andUsing<RIn, E, ROut>(that: Layer<RIn, E, ROut>, __tsplusTrace?: string) {
+  return <RIn1, E1, ROut1>(self: Layer<RIn1, E1, ROut1>): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut | ROut1> => {
+    return that.and(that.to(self));
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer catchAll
+ * @tsplus pipeable fncts.io.Layer catchAll
  */
-export function catchAll_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
-  f: (e: E) => Layer<RIn1, E1, ROut1>,
-  __tsplusTrace?: string,
-): Layer<RIn | RIn1, E1, ROut | ROut1> {
-  return self.matchLayer(f, Layer.succeedEnvironmentNow);
+export function catchAll<E, RIn1, E1, ROut1>(f: (e: E) => Layer<RIn1, E1, ROut1>, __tsplusTrace?: string) {
+  return <RIn, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1, E1, ROut | ROut1> => {
+    return self.matchLayer(f, Layer.succeedEnvironmentNow);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer flatMap
+ * @tsplus pipeable fncts.io.Layer flatMap
  */
-export function flatMap_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
+export function flatMap<ROut, RIn1, E1, ROut1>(
   f: (r: Environment<ROut>) => Layer<RIn1, E1, ROut1>,
   __tsplusTrace?: string,
-): Layer<RIn | RIn1, E | E1, ROut1> {
-  return self.matchLayer(Layer.failNow, f);
+) {
+  return <RIn, E>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1, E | E1, ROut1> => {
+    return self.matchLayer(Layer.failNow, f);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer compose
+ * @tsplus pipeable fncts.io.Layer compose
  */
-export function compose_<RIn, E, ROut, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
-  that: Layer<ROut, E1, ROut1>,
-  __tsplusTrace?: string,
-): Layer<RIn, E | E1, ROut1> {
-  return new To(self, that, __tsplusTrace);
+export function compose<ROut, E1, ROut1>(that: Layer<ROut, E1, ROut1>, __tsplusTrace?: string) {
+  return <RIn, E>(self: Layer<RIn, E, ROut>): Layer<RIn, E | E1, ROut1> => {
+    return new To(self, that, __tsplusTrace);
+  };
 }
 
 /**
@@ -194,49 +185,47 @@ export function haltNow(defect: unknown, __tsplusTrace?: string): Layer<never, n
 }
 
 /**
- * @tsplus fluent fncts.io.Layer matchCauseLayer
+ * @tsplus pipeable fncts.io.Layer matchCauseLayer
  */
-export function matchCauseLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
-  self: Layer<RIn, E, ROut>,
+export function matchCauseLayer<E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
   failure: (cause: Cause<E>) => Layer<RIn1, E1, ROut1>,
   success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
   __tsplusTrace?: string,
-): Layer<RIn | RIn1 | RIn2, E1 | E2, ROut1 | ROut2> {
-  return new Fold(self, failure, success, __tsplusTrace);
+) {
+  return <RIn>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1 | RIn2, E1 | E2, ROut1 | ROut2> => {
+    return new Fold(self, failure, success, __tsplusTrace);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer matchLayer
+ * @tsplus pipeable fncts.io.Layer matchLayer
  */
-export function matchLayer_<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
-  self: Layer<RIn, E, ROut>,
+export function matchLayer<E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
   failure: (e: E) => Layer<RIn1, E1, ROut1>,
   success: (r: Environment<ROut>) => Layer<RIn2, E2, ROut2>,
   __tsplusTrace?: string,
-): Layer<RIn | RIn1 | RIn2, E1 | E2, ROut1 | ROut2> {
-  return self.matchCauseLayer((cause) => cause.failureOrCause.match(failure, Layer.failCauseNow), success);
+) {
+  return <RIn>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1 | RIn2, E1 | E2, ROut1 | ROut2> => {
+    return self.matchCauseLayer((cause) => cause.failureOrCause.match(failure, Layer.failCauseNow), success);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer map
+ * @tsplus pipeable fncts.io.Layer map
  */
-export function map_<RIn, E, ROut, ROut1>(
-  self: Layer<RIn, E, ROut>,
-  f: (r: Environment<ROut>) => Environment<ROut1>,
-  __tsplusTrace?: string,
-): Layer<RIn, E, ROut1> {
-  return self.flatMap((a) => Layer.succeedEnvironmentNow(f(a)));
+export function map<ROut, ROut1>(f: (r: Environment<ROut>) => Environment<ROut1>, __tsplusTrace?: string) {
+  return <RIn, E>(self: Layer<RIn, E, ROut>): Layer<RIn, E, ROut1> => {
+    return self.flatMap((a) => Layer.succeedEnvironmentNow(f(a)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer mapError
+ * @tsplus pipeable fncts.io.Layer mapError
  */
-export function mapError_<RIn, E, ROut, E1>(
-  self: Layer<RIn, E, ROut>,
-  f: (e: E) => E1,
-  __tsplusTrace?: string,
-): Layer<RIn, E1, ROut> {
-  return self.catchAll((e) => Layer.failNow(f(e)));
+export function mapError<E, E1>(f: (e: E) => E1, __tsplusTrace?: string) {
+  return <RIn, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn, E1, ROut> => {
+    return self.catchAll((e) => Layer.failNow(f(e)));
+  };
 }
 
 /**
@@ -250,14 +239,12 @@ export function memoize<RIn, E, ROut>(
 }
 
 /**
- * @tsplus fluent fncts.io.Layer orElse
+ * @tsplus pipeable fncts.io.Layer orElse
  */
-export function orElse_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
-  that: Layer<RIn1, E1, ROut1>,
-  __tsplusTrace?: string,
-): Layer<RIn | RIn1, E | E1, ROut | ROut1> {
-  return self.catchAll(() => that);
+export function orElse<RIn1, E1, ROut1>(that: Layer<RIn1, E1, ROut1>, __tsplusTrace?: string) {
+  return <RIn, E, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1, E | E1, ROut | ROut1> => {
+    return self.catchAll(() => that);
+  };
 }
 
 /**
@@ -278,26 +265,34 @@ export function passthrough<RIn extends Spreadable, E, ROut extends Spreadable>(
 }
 
 /**
- * @tsplus fluent fncts.io.Layer retry
+ * @tsplus pipeable fncts.io.Layer retry
  */
-export function retry_<RIn, E, ROut, S, RIn1>(
-  self: Layer<RIn, E, ROut>,
-  schedule: Schedule.WithState<S, RIn1, E, any>,
-  __tsplusTrace?: string,
-): Layer<RIn | RIn1, E, ROut> {
-  const tag = Tag<{ readonly state: S }>("fncts.io.Layer.retryState");
-  return Layer.succeedNow({ state: schedule.initial }, tag).flatMap((environment) =>
-    retryLoop(self, schedule, environment.get(tag).state, tag),
-  );
+export function retry<E, S, RIn1>(schedule: Schedule.WithState<S, RIn1, E, any>, __tsplusTrace?: string) {
+  return <RIn, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1, E, ROut> => {
+    const tag = Tag<{
+      readonly state: S;
+    }>("fncts.io.Layer.retryState");
+    return Layer.succeedNow({ state: schedule.initial }, tag).flatMap((environment) =>
+      retryLoop(self, schedule, environment.get(tag).state, tag),
+    );
+  };
 }
 
 function retryUpdate<S, RIn, E, X>(
   schedule: Schedule.WithState<S, RIn, E, X>,
   e: E,
   s: S,
-  tag: Tag<{ readonly state: S }>,
+  tag: Tag<{
+    readonly state: S;
+  }>,
   __tsplusTrace?: string,
-): Layer<RIn, E, { readonly state: S }> {
+): Layer<
+  RIn,
+  E,
+  {
+    readonly state: S;
+  }
+> {
   return Layer.fromIO(
     Clock.currentTime.flatMap((now) =>
       schedule
@@ -316,7 +311,9 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
   self: Layer<RIn, E, ROut>,
   schedule: Schedule.WithState<S, RIn1, E, X>,
   s: S,
-  tag: Tag<{ readonly state: S }>,
+  tag: Tag<{
+    readonly state: S;
+  }>,
   __tsplusTrace?: string,
 ): Layer<RIn | RIn1, E, ROut> {
   return self.catchAll((e) =>
@@ -381,31 +378,25 @@ export function succeedNow<A>(resource: A, tag: Tag<A>, __tsplusTrace?: string):
 }
 
 /**
- * @tsplus fluent fncts.io.Layer to
+ * @tsplus pipeable fncts.io.Layer to
  */
-export function to_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
+export function to<RIn1, E1, ROut1>(
   that: Layer<RIn1, E1, ROut1>,
-): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut1>;
-export function to_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn, E, ROut>,
-  that: Layer<ROut | RIn1, E1, ROut1>,
-  __tsplusTrace?: string,
-): Layer<RIn | RIn1, E | E1, ROut1> {
-  return new To(Layer(IO.environment<RIn1>(), __tsplusTrace).and(self), that);
+): <RIn, E, ROut>(self: Layer<RIn, E, ROut>) => Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut1>;
+export function to<ROut, RIn1, E1, ROut1>(that: Layer<ROut | RIn1, E1, ROut1>, __tsplusTrace?: string) {
+  return <RIn, E>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1, E | E1, ROut1> => {
+    return new To(Layer(IO.environment<RIn1>(), __tsplusTrace).and(self), that);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Layer using
+ * @tsplus pipeable fncts.io.Layer using
  */
-export function using_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<RIn1, E1, ROut1>,
+export function using<RIn, E, ROut>(
   that: Layer<RIn, E, ROut>,
-): Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut1>;
-export function using_<RIn, E, ROut, RIn1, E1, ROut1>(
-  self: Layer<ROut | RIn1, E1, ROut1>,
-  that: Layer<RIn, E, ROut>,
-  __tsplusTrace?: string,
-): Layer<RIn | RIn1, E | E1, ROut1> {
-  return new To(Layer(IO.environment<RIn1>(), __tsplusTrace).and(that), self);
+): <RIn1, E1, ROut1>(self: Layer<RIn1, E1, ROut1>) => Layer<RIn | Exclude<RIn1, ROut>, E | E1, ROut1>;
+export function using<RIn, E, ROut>(that: Layer<RIn, E, ROut>, __tsplusTrace?: string) {
+  return <RIn1, E1, ROut1>(self: Layer<ROut | RIn1, E1, ROut1>): Layer<RIn | RIn1, E | E1, ROut1> => {
+    return new To(Layer(IO.environment<RIn1>(), __tsplusTrace).and(that), self);
+  };
 }

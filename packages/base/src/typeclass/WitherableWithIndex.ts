@@ -3,6 +3,8 @@ import type { FilterableWithIndex } from "@fncts/base/typeclass/FilterableWithIn
 import type { TraversableWithIndex } from "@fncts/base/typeclass/TraversableWithIndex";
 import type { Witherable } from "@fncts/base/typeclass/Witherable";
 
+import { pipe } from "@fncts/base/data/function";
+
 /**
  * @tsplus type fncts.WitherableWithIndex
  */
@@ -10,19 +12,20 @@ export interface WitherableWithIndex<F extends HKT, FC = HKT.None>
   extends FilterableWithIndex<F, FC>,
     TraversableWithIndex<F, FC>,
     Witherable<F, FC> {
-  witherWithIndex: <KF, QF, WF, XF, IF, SF, RF, EF, A>(
-    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
-  ) => <G extends HKT, GC = HKT.None>(
+  witherWithIndex: <G extends HKT, GC = HKT.None>(
     G: Applicative<G, GC>,
-  ) => <KG, QG, WG, XG, IG, SG, RG, EG, B>(
+  ) => <KF, A, KG, QG, WG, XG, IG, SG, RG, EG, B>(
     f: (k: HKT.IndexFor<F, KF>, a: A) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, Maybe<B>>,
-  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>;
-  wiltWithIndex: <KF, QF, WF, XF, IF, SF, RF, EF, A, B, B2>(
+  ) => <QF, WF, XF, IF, SF, RF, EF>(
     wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
-  ) => <G extends HKT, GC = HKT.None>(
+  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>;
+
+  wiltWithIndex: <G extends HKT, GC = HKT.None>(
     G: Applicative<G, GC>,
-  ) => <KG, QG, WG, XG, IG, SG, RG, EG, B, B2>(
+  ) => <KF, A, KG, QG, WG, XG, IG, SG, RG, EG, B, B2>(
     f: (k: HKT.IndexFor<F, KF>, a: A) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, Either<B, B2>>,
+  ) => <QF, WF, XF, IF, SF, RF, EF>(
+    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
   ) => HKT.Kind<
     G,
     GC,
@@ -62,11 +65,11 @@ export function makeWitherWithIndex<F extends HKT, FC = HKT.None>(): (
     FR: RF;
     FE: EF;
   }) => (
-    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
-  ) => (
     G: Applicative<HKT.F<G>>,
   ) => (
     f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", KF>>, a: A) => HKT.FK1<G, Maybe<B>>,
+  ) => (
+    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
   ) => HKT.FK1<G, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>,
 ) => WitherableWithIndex<F, FC>["witherWithIndex"];
 export function makeWitherWithIndex() {
@@ -91,11 +94,11 @@ export function makeWiltWithIndex<F extends HKT, FC = HKT.None>(): (
     B: B;
     B1: B1;
   }) => (
-    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
-  ) => (
     G: Applicative<HKT.F<G>>,
   ) => (
     f: (i: HKT.IndexFor<F, HKT.OrFix<FC, "K", KF>>, a: A) => HKT.FK1<G, Either<B, B1>>,
+  ) => (
+    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
   ) => HKT.FK1<
     G,
     readonly [HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B1>]
@@ -107,12 +110,18 @@ export function makeWiltWithIndex() {
 
 export function filterWithIndexA<F extends HKT, FC = HKT.None>(
   F: WitherableWithIndex<F, FC>,
-): <KF, QF, WF, XF, IF, SF, RF, EF, AF>(
-  fa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, AF>,
-) => <G extends HKT, GC = HKT.None>(
+): <G extends HKT, GC = HKT.None>(
   G: Applicative<G, GC>,
-) => <KG, QG, WG, XG, IG, SG, RG, EG>(
+) => <KF, AF, KG, QG, WG, XG, IG, SG, RG, EG>(
   p: (i: HKT.IndexFor<F, KF>, a: AF) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, boolean>,
+) => <QF, WF, XF, IF, SF, RF, EF>(
+  fa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, AF>,
 ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, AF>> {
-  return (fa) => (G) => (p) => F.witherWithIndex(fa)(G)((i, a) => G.map(p(i, a), (bb) => (bb ? Just(a) : Nothing())));
+  return (G) => (p) =>
+    F.witherWithIndex(G)((i, a) =>
+      pipe(
+        p(i, a),
+        G.map((bb) => (bb ? Just(a) : Nothing())),
+      ),
+    );
 }

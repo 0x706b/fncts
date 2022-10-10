@@ -6,30 +6,36 @@ import { Done, FutureStateTag, Pending } from "@fncts/io/Future/definition";
  * Exits the future with the specified exit, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.io.Future done
+ * @tsplus pipeable fncts.io.Future done
  */
-export function done_<E, A>(future: Future<E, A>, exit: Exit<E, A>, __tsplusTrace?: string): UIO<boolean> {
-  return future.fulfillWith(IO.fromExitNow(exit));
+export function done<E, A>(exit: Exit<E, A>, __tsplusTrace?: string) {
+  return (future: Future<E, A>): UIO<boolean> => {
+    return future.fulfillWith(IO.fromExitNow(exit));
+  };
 }
 
 /**
  * Fails the future with the specified error, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.io.Future fail
+ * @tsplus pipeable fncts.io.Future fail
  */
-export function fail_<E, A>(future: Future<E, A>, e: E, __tsplusTrace?: string): UIO<boolean> {
-  return future.fulfillWith(IO.failNow(e));
+export function fail<E>(e: E, __tsplusTrace?: string) {
+  return <A>(future: Future<E, A>): UIO<boolean> => {
+    return future.fulfillWith(IO.failNow(e));
+  };
 }
 
 /**
  * Halts the future with the specified cause, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.io.Future failCause
+ * @tsplus pipeable fncts.io.Future failCause
  */
-export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>, __tsplusTrace?: string): UIO<boolean> {
-  return future.fulfillWith(IO.failCauseNow(cause));
+export function failCause<E>(cause: Cause<E>, __tsplusTrace?: string) {
+  return <A>(future: Future<E, A>): UIO<boolean> => {
+    return future.fulfillWith(IO.failCauseNow(cause));
+  };
 }
 
 /**
@@ -39,14 +45,12 @@ export function failCause_<E, A>(future: Future<E, A>, cause: Cause<E>, __tsplus
  * Note that `Future.completeWith` will be much faster, so consider using
  * that if you do not need to memoize the result of the specified effect.
  *
- * @tsplus fluent fncts.io.Future fulfill
+ * @tsplus pipeable fncts.io.Future fulfill
  */
-export function fulfill_<R, E, A>(
-  future: Future<E, A>,
-  io: IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, never, boolean> {
-  return IO.uninterruptibleMask(({ restore }) => restore(io).result.flatMap((exit) => future.done(exit)));
+export function fulfill<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) {
+  return (future: Future<E, A>): IO<R, never, boolean> => {
+    return IO.uninterruptibleMask(({ restore }) => restore(io).result.flatMap((exit) => future.done(exit)));
+  };
 }
 
 /**
@@ -62,34 +66,38 @@ export function fulfill_<R, E, A>(
  * completes the future with the result of an IO see
  * `Future.complete`.
  *
- * @tsplus fluent fncts.io.Future fulfillWith
+ * @tsplus pipeable fncts.io.Future fulfillWith
  */
-export function fulfillWith_<E, A>(future: Future<E, A>, io: FIO<E, A>, __tsplusTrace?: string): UIO<boolean> {
-  return IO.succeed(() => {
-    switch (future.state._tag) {
-      case FutureStateTag.Done: {
-        return false;
+export function fulfillWith<E, A>(io: FIO<E, A>, __tsplusTrace?: string) {
+  return (future: Future<E, A>): UIO<boolean> => {
+    return IO.succeed(() => {
+      switch (future.state._tag) {
+        case FutureStateTag.Done: {
+          return false;
+        }
+        case FutureStateTag.Pending: {
+          const state  = future.state;
+          future.state = new Done(io);
+          state.joiners.reverse.forEach((f) => {
+            f(io);
+          });
+          return true;
+        }
       }
-      case FutureStateTag.Pending: {
-        const state  = future.state;
-        future.state = new Done(io);
-        state.joiners.reverse.forEach((f) => {
-          f(io);
-        });
-        return true;
-      }
-    }
-  });
+    });
+  };
 }
 
 /**
  * Kills the future with the specified error, which will be propagated to all
  * fibers waiting on the value of the future.
  *
- * @tsplus fluent fncts.io.Future halt
+ * @tsplus pipeable fncts.io.Future halt
  */
-export function halt_<E, A>(future: Future<E, A>, defect: unknown, __tsplusTrace?: string): UIO<boolean> {
-  return future.fulfillWith(IO.haltNow(defect));
+export function halt(defect: unknown, __tsplusTrace?: string) {
+  return <E, A>(future: Future<E, A>): UIO<boolean> => {
+    return future.fulfillWith(IO.haltNow(defect));
+  };
 }
 
 /**
@@ -106,10 +114,12 @@ export function interrupt<E, A>(future: Future<E, A>, __tsplusTrace?: string): U
  * Completes the future with interruption. This will interrupt all fibers
  * waiting on the value of the future as by the specified fiber.
  *
- * @tsplus fluent fncts.io.Future interruptAs
+ * @tsplus pipeable fncts.io.Future interruptAs
  */
-export function interruptAs_<E, A>(future: Future<E, A>, id: FiberId, __tsplusTrace?: string): UIO<boolean> {
-  return future.fulfillWith(IO.interruptAs(id));
+export function interruptAs(id: FiberId, __tsplusTrace?: string) {
+  return <E, A>(future: Future<E, A>): UIO<boolean> => {
+    return future.fulfillWith(IO.interruptAs(id));
+  };
 }
 
 /**
@@ -144,33 +154,37 @@ export function poll<E, A>(future: Future<E, A>, __tsplusTrace?: string): UIO<Ma
 /**
  * Completes the future with the specified value.
  *
- * @tsplus fluent fncts.io.Future succeed
+ * @tsplus pipeable fncts.io.Future succeed
  */
-export function succeed_<A, E>(future: Future<E, A>, a: A, __tsplusTrace?: string) {
-  return future.fulfillWith(IO.succeedNow(a));
+export function succeed_<A>(a: A, __tsplusTrace?: string) {
+  return <E>(future: Future<E, A>): UIO<boolean> => future.fulfillWith(IO.succeedNow(a));
 }
 
 /**
  * Retrieves the value of the future, suspending the fiber running the action
  * until the result is available.
  *
- * @tsplus fluent fncts.io.Future unsafeDone
+ * @tsplus pipeable fncts.io.Future unsafeDone
  */
-export function unsafeDone_<E, A>(future: Future<E, A>, io: FIO<E, A>, __tsplusTrace?: string) {
-  if (future.state._tag === FutureStateTag.Pending) {
-    const state  = future.state;
-    future.state = new Done(io);
-    state.joiners.reverse.forEach((f) => {
-      f(io);
-    });
-  }
+export function unsafeDone<E, A>(io: FIO<E, A>, __tsplusTrace?: string) {
+  return (future: Future<E, A>): void => {
+    if (future.state._tag === FutureStateTag.Pending) {
+      const state  = future.state;
+      future.state = new Done(io);
+      state.joiners.reverse.forEach((f) => {
+        f(io);
+      });
+    }
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Future unsafeSucceed
+ * @tsplus pipeable fncts.io.Future unsafeSucceed
  */
-export function unsafeSucceed_<A>(future: Future<never, A>, a: A, __tsplusTrace?: string): void {
-  future.unsafeDone(IO.succeedNow(a));
+export function unsafeSucceed<A>(a: A, __tsplusTrace?: string) {
+  return (future: Future<never, A>): void => {
+    future.unsafeDone(IO.succeedNow(a));
+  };
 }
 
 /**

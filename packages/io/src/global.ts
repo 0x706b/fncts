@@ -82,7 +82,7 @@ import { LogLevel } from "@fncts/io/LogLevel";
 /**
  * @tsplus global
  */
-import { Queue, Dequeue, Enqueue } from "@fncts/io/Queue/definition";
+import { Dequeue, Enqueue,Queue } from "@fncts/io/Queue/definition";
 /**
  * @tsplus global
  */

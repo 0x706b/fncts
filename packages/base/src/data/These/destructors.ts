@@ -29,33 +29,32 @@ export function leftMaybe<E, A>(self: These<E, A>): Maybe<E> {
 }
 
 /**
- * @tsplus fluent fncts.These match
+ * @tsplus pipeable fncts.These match
  */
-export function match_<E, A, B, C, D>(
-  self: These<E, A>,
-  left: (e: E) => B,
-  right: (a: A) => C,
-  both: (e: E, a: A) => D,
-): B | C | D {
-  switch (self._tag) {
-    case TheseTag.Left:
-      return left(self.left);
-    case TheseTag.Right:
-      return right(self.right);
-    case TheseTag.Both:
-      return both(self.left, self.right);
-  }
+export function match<E, A, B, C, D>(left: (e: E) => B, right: (a: A) => C, both: (e: E, a: A) => D) {
+  return (self: These<E, A>): B | C | D => {
+    switch (self._tag) {
+      case TheseTag.Left:
+        return left(self.left);
+      case TheseTag.Right:
+        return right(self.right);
+      case TheseTag.Both:
+        return both(self.left, self.right);
+    }
+  };
 }
 
 /**
- * @tsplus fluent fncts.These match2
+ * @tsplus pipeable fncts.These match2
  */
-export function match2<E, A, B, C>(self: These<E, A>, left: (e: E) => B, right: (e: Maybe<E>, a: A) => C): B | C {
-  switch (self._tag) {
-    case TheseTag.Left:
-      return left(self.left);
-    case TheseTag.Right:
-    case TheseTag.Both:
-      return right(self.leftMaybe, self.right);
-  }
+export function match2<E, A, B, C>(left: (e: E) => B, right: (e: Maybe<E>, a: A) => C) {
+  return (self: These<E, A>): B | C => {
+    switch (self._tag) {
+      case TheseTag.Left:
+        return left(self.left);
+      case TheseTag.Right:
+      case TheseTag.Both:
+        return right(self.leftMaybe, self.right);
+    }
+  };
 }

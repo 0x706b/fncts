@@ -29,8 +29,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     private loadFactor: number,
     private config: HashEq<K> = HashEq.StructuralStrict,
   ) {
-    this.table = new Array<Node<K, V> | undefined>(tableSizeFor(this.initialCapacity));
-
+    this.table     = new Array<Node<K, V> | undefined>(tableSizeFor(this.initialCapacity));
     this.threshold = this.newThreshold(this.table.length);
   }
 
@@ -280,7 +279,6 @@ class Node<K, V> {
   constructor(public key: K, public hash: number, public value: V, public next: Node<K, V> | undefined) {}
 
   findNode(k: K, h: number, equals: (x: K, y: K) => boolean): Node<K, V> | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let n: Node<K, V> | undefined = this;
     while (n) {
       if (h === n.hash && equals(k, n.key)) {
@@ -293,7 +291,6 @@ class Node<K, V> {
   }
 
   forEach<U>(f: (k: K, v: V) => U): void {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let n: Node<K, V> | undefined = this;
     while (n) {
       f(n.key, n.value);

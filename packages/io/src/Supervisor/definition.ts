@@ -1,5 +1,4 @@
 import type { SupervisorPatch } from "@fncts/io/SupervisorPatch";
-
 export const enum SupervisorTag {
   Const,
   Proxy,

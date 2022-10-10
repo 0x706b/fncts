@@ -34,7 +34,6 @@ export function buildSummary<E>(executedSpec: ExecutedSpec<E>): Summary {
   );
   const failures = extractFailures(executedSpec);
   const rendered = ConsoleRenderer.render(failures.flatMap(render), silent).join("\n");
-
   return new Summary(success, fail, ignore, rendered);
 }
 

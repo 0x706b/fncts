@@ -10,10 +10,8 @@ export function zipChunks<A, B, C>(
   for (let i = 0; i < len; i++) {
     fc = fc.append(f(fa.unsafeGet(i), fb.unsafeGet(i)));
   }
-
   if (fa.length > fb.length) {
     return tuple(fc, Either.left(fa.drop(fb.length)));
   }
-
   return tuple(fc, Either.right(fb.drop(fa.length)));
 }

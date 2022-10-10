@@ -1,5 +1,4 @@
 import type { Eq } from "@fncts/base/typeclass";
-
 /**
  * @tsplus getter fncts.Array elem
  * @tsplus getter fncts.ReadonlyArray elem
@@ -33,21 +32,25 @@ export function isNonEmpty<A>(self: ReadonlyArray<A>): self is ReadonlyNonEmptyA
 }
 
 /**
- * @tsplus fluent fncts.Array foldLeft
- * @tsplus fluent fncts.ReadonlyArray foldLeft
+ * @tsplus pipeable fncts.Array foldLeft
+ * @tsplus pipeable fncts.ReadonlyArray foldLeft
  */
-export function foldLeft<A, B>(self: ReadonlyArray<A>, b: B, f: (b: B, a: A) => B): B {
-  return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
+  return (self: ReadonlyArray<A>): B => {
+    return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Array foldLeftWithIndex
- * @tsplus fluent fncts.ReadonlyArray foldLeftWithIndex
+ * @tsplus pipeable fncts.Array foldLeftWithIndex
+ * @tsplus pipeable fncts.ReadonlyArray foldLeftWithIndex
  */
-export function foldLeftWithIndex<A, B>(self: ReadonlyArray<A>, b: B, f: (i: number, b: B, a: A) => B): B {
-  let out = b;
-  for (let i = 0; i < self.length; i++) {
-    out = f(i, b, self[i]!);
-  }
-  return out;
+export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
+  return (self: ReadonlyArray<A>): B => {
+    let out = b;
+    for (let i = 0; i < self.length; i++) {
+      out = f(i, b, self[i]!);
+    }
+    return out;
+  };
 }

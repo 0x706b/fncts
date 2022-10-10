@@ -50,7 +50,6 @@ export class Fold<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2> extends Layer<
   ROut1 | ROut2
 > {
   readonly _tag = LayerTag.Fold;
-
   constructor(
     readonly self: Layer<RIn, E, ROut>,
     readonly failure: (cause: Cause<E>) => Layer<RIn1, E1, ROut1>,

@@ -1,11 +1,10 @@
 /**
- * @tsplus fluent fncts.Function compose
+ * @tsplus pipeable fncts.Function compose
  */
-export function compose_<A extends ReadonlyArray<any>, B, C>(
-  f: (...params: A) => B,
-  g: (b: B) => C,
-): (...params: A) => C {
-  return (...params) => g(f(...params));
+export function compose<B, C>(g: (b: B) => C) {
+  return <A extends ReadonlyArray<any>>(f: (...params: A) => B): ((...params: A) => C) => {
+    return (...params) => g(f(...params));
+  };
 }
 
 /**

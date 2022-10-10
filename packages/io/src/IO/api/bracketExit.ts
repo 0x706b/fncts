@@ -8,7 +8,7 @@
  * @tsplus fluent fncts.io.IO bracketExit
  * @tsplus static fncts.io.IOOps bracketExit
  */
-export function bracketExit_<R, E, A, E1, R1, A1, R2, E2>(
+export function bracketExit<R, E, A, E1, R1, A1, R2, E2>(
   acquire: Lazy<IO<R, E, A>>,
   use: (a: A) => IO<R1, E1, A1>,
   release: (a: A, e: Exit<E1, A1>) => IO<R2, E2, any>,

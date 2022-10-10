@@ -10,11 +10,9 @@ export type SubscriptionRefTypeId = typeof SubscriptionRefTypeId;
  */
 export class SubscriptionRef<A> extends Synchronized<A> {
   readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId = SubscriptionRefTypeId;
-
   constructor(readonly semaphore: TSemaphore, readonly hub: Hub<A>, readonly ref: Ref<A>) {
     super(semaphore, ref.get, (a) => ref.set(a));
   }
-
   changes: Stream<never, never, A> = Stream.unwrapScoped(
     this.withPermit(
       this.unsafeGet.flatMap((a) =>
@@ -22,11 +20,9 @@ export class SubscriptionRef<A> extends Synchronized<A> {
       ),
     ),
   );
-
   set(a: A, __tsplusTrace?: string): UIO<void> {
     return this.withPermit(this.unsafeSet(a) < this.hub.publish(a));
   }
-
   modifyIO<R1, E1, B>(f: (a: A) => IO<R1, E1, readonly [B, A]>, __tsplusTrace?: string): IO<R1, E1, B> {
     return this.withPermit(
       this.unsafeGet.flatMap(f).flatMap(([b, a]) => this.unsafeSet(a).as(b) < this.hub.publish(a)),

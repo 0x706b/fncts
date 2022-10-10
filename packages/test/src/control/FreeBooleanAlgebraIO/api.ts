@@ -3,25 +3,23 @@ import type { FreeBooleanAlgebraIO } from "./definition.js";
 import { FreeBooleanAlgebra } from "../../data/FreeBooleanAlgebra.js";
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebraIO and
- * @tsplus operator fncts.test.FreeBooleanAlgebraIO &&
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebraIO and
+ * @tsplus pipeable-operator fncts.test.FreeBooleanAlgebraIO &&
  */
-export function and_<R, E, A extends A1, R1, E1, A1>(
-  self: FreeBooleanAlgebraIO<R, E, A>,
-  that: FreeBooleanAlgebraIO<R1, E1, A1>,
-): FreeBooleanAlgebraIO<R | R1, E | E1, A | A1> {
-  return self.zipWith(that, (a, b) => a && b);
+export function and<R1, E1, A1>(that: FreeBooleanAlgebraIO<R1, E1, A1>) {
+  return <R, E, A extends A1>(self: FreeBooleanAlgebraIO<R, E, A>): FreeBooleanAlgebraIO<R | R1, E | E1, A | A1> => {
+    return self.zipWith(that, (a, b) => a && b);
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebraIO or
- * @tsplus operator fncts.test.FreeBooleanAlgebraIO ||
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebraIO or
+ * @tsplus pipeable-operator fncts.test.FreeBooleanAlgebraIO ||
  */
-export function or_<R, E, A extends A1, R1, E1, A1>(
-  self: FreeBooleanAlgebraIO<R, E, A>,
-  that: FreeBooleanAlgebraIO<R1, E1, A1>,
-): FreeBooleanAlgebraIO<R | R1, E | E1, A | A1> {
-  return self.zipWith(that, (a, b) => a || b);
+export function or<R1, E1, A1>(that: FreeBooleanAlgebraIO<R1, E1, A1>) {
+  return <R, E, A extends A1>(self: FreeBooleanAlgebraIO<R, E, A>): FreeBooleanAlgebraIO<R | R1, E | E1, A | A1> => {
+    return self.zipWith(that, (a, b) => a || b);
+  };
 }
 
 /**

@@ -87,19 +87,18 @@ function foldLoop<E, Z>(
 /**
  * Folds over a cause
  *
- * @tsplus fluent fncts.Cause fold
+ * @tsplus pipeable fncts.Cause fold
  */
-export function fold_<E, Z>(
-  self: Cause<E>,
-  cases: {
-    Empty: () => Z;
-    Fail: (e: E, trace: Trace) => Z;
-    Halt: (t: unknown, trace: Trace) => Z;
-    Interrupt: (fiberId: FiberId, trace: Trace) => Z;
-    Then: (l: Z, r: Z) => Z;
-    Both: (l: Z, r: Z) => Z;
-    Stackless: (z: Z, stackless: boolean) => Z;
-  },
-): Z {
-  return foldLoop(cases, Cons(self, Nil()), List.empty()).unsafeHead;
+export function fold<E, Z>(cases: {
+  Empty: () => Z;
+  Fail: (e: E, trace: Trace) => Z;
+  Halt: (t: unknown, trace: Trace) => Z;
+  Interrupt: (fiberId: FiberId, trace: Trace) => Z;
+  Then: (l: Z, r: Z) => Z;
+  Both: (l: Z, r: Z) => Z;
+  Stackless: (z: Z, stackless: boolean) => Z;
+}) {
+  return (self: Cause<E>): Z => {
+    return foldLoop(cases, Cons(self, Nil()), List.empty()).unsafeHead;
+  };
 }

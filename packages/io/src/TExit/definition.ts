@@ -40,11 +40,9 @@ export class Fail<E> {
   readonly _typeId: TExitTypeId = TExitTypeId;
   readonly _tag                 = TExitTag.Fail;
   constructor(readonly value: E) {}
-
   get [Symbol.hash](): number {
     return Hashable.combine(_failHash, Hashable.unknown(this.value));
   }
-
   [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isFail(that) && Equatable.strictEquals(this.value, that.value);
   }
@@ -63,11 +61,9 @@ export class Succeed<A> {
   readonly _typeId: TExitTypeId = TExitTypeId;
   readonly _tag                 = TExitTag.Succeed;
   constructor(readonly value: A) {}
-
   get [Symbol.hash](): number {
     return P.Hashable.combine(_succeedHash, Hashable.unknown(this.value));
   }
-
   [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isSucceed(that) && P.Equatable.strictEquals(this.value, that.value);
   }
@@ -86,11 +82,9 @@ export class Halt {
   readonly _typeId: TExitTypeId = TExitTypeId;
   readonly _tag                 = TExitTag.Halt;
   constructor(readonly value: unknown) {}
-
   get [Symbol.hash](): number {
     return Hashable.combine(_haltHash, Hashable.unknown(this.value));
   }
-
   [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isHalt(that) && P.Equatable.strictEquals(this.value, that.value);
   }
@@ -109,11 +103,9 @@ export class Interrupt {
   readonly _typeId = TExitTypeId;
   readonly _tag    = TExitTag.Interrupt;
   constructor(readonly fiberId: FiberId) {}
-
   get [Symbol.hash](): number {
     return Hashable.combine(_interruptHash, Hashable.unknown(this.fiberId));
   }
-
   [Symbol.equals](that: unknown): boolean {
     return isTExit(that) && isInterrupt(that) && P.Equatable.strictEquals(this.fiberId, that.fiberId);
   }

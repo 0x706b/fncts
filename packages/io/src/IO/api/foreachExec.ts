@@ -6,7 +6,7 @@
  *
  * @tsplus static fncts.io.IOOps foreachExec
  */
-export function foreachExec_<R, E, A, B>(
+export function foreachExec<R, E, A, B>(
   as: Iterable<A>,
   es: ExecutionStrategy,
   f: (a: A) => IO<R, E, B>,

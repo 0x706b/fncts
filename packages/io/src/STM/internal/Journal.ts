@@ -5,7 +5,6 @@ import type { Scheduler } from "@fncts/io/internal/Scheduler";
 import type { Atomic } from "@fncts/io/TRef";
 import type { TxnId } from "@fncts/io/TxnId";
 
-import { defaultScheduler } from "@fncts/io/internal/Scheduler";
 import { TExitTag } from "@fncts/io/TExit";
 
 import { STMDriver } from "../driver.js";
@@ -99,7 +98,6 @@ export const emptyTodoMap = HashMap.makeDefault<TxnId, Todo>();
  */
 export function collectTodos(journal: Journal): Map<TxnId, Todo> {
   const allTodos: Map<TxnId, Todo> = new Map();
-
   for (const entry of journal) {
     const tref: Atomic<unknown> = entry[1].use((entry) => entry.tref as Atomic<unknown>);
     const todos                 = tref.todo.get;
@@ -108,7 +106,6 @@ export function collectTodos(journal: Journal): Map<TxnId, Todo> {
     }
     tref.todo.set(emptyTodoMap);
   }
-
   return allTodos;
 }
 
@@ -126,36 +123,38 @@ export function execTodos(todos: Map<TxnId, Todo>) {
 /**
  * Runs all the todos.
  *
- * @tsplus fluent fncts.io.Journal completeTodos
+ * @tsplus pipeable fncts.io.Journal completeTodos
  */
-export function completeTodos<E, A>(journal: Journal, exit: Exit<E, A>, scheduler: Scheduler): Done<E, A> {
-  const todos = collectTodos(journal);
-  if (todos.size > 0) {
-    scheduler.scheduleTask(() => execTodos(todos));
-  }
-  return new Done(exit);
+export function completeTodos<E, A>(exit: Exit<E, A>, scheduler: Scheduler) {
+  return (journal: Journal): Done<E, A> => {
+    const todos = collectTodos(journal);
+    if (todos.size > 0) {
+      scheduler.scheduleTask(() => execTodos(todos));
+    }
+    return new Done(exit);
+  };
 }
 
 /**
  * For the given transaction id, adds the specified todo effect to all
  * `TRef` values.
  *
- * @tsplus fluent fncts.io.Journal addTodo
+ * @tsplus pipeable fncts.io.Journal addTodo
  */
-export function addTodo(journal: Journal, txnId: TxnId, todoEffect: Todo): boolean {
-  let added = false;
-
-  for (const entry of journal.values()) {
-    const tref    = entry.use((entry) => entry.tref as Atomic<unknown>);
-    const oldTodo = tref.todo.get;
-    if (!oldTodo.has(txnId)) {
-      const newTodo = oldTodo.set(txnId, todoEffect);
-      tref.todo.set(newTodo);
-      added = true;
+export function addTodo(txnId: TxnId, todoEffect: Todo) {
+  return (journal: Journal): boolean => {
+    let added = false;
+    for (const entry of journal.values()) {
+      const tref    = entry.use((entry) => entry.tref as Atomic<unknown>);
+      const oldTodo = tref.todo.get;
+      if (!oldTodo.has(txnId)) {
+        const newTodo = oldTodo.set(txnId, todoEffect);
+        tref.todo.set(newTodo);
+        added = true;
+      }
     }
-  }
-
-  return added;
+    return added;
+  };
 }
 
 /**
@@ -276,7 +275,6 @@ function suspendTryCommit<R, E, A>(
         }
         case "Suspend": {
           const untracked = untrackedTodoTargets(accum, result.journal);
-
           if (untracked.size > 0) {
             for (const entry of untracked) {
               accum.set(entry[0], entry[1]);
@@ -284,7 +282,6 @@ function suspendTryCommit<R, E, A>(
             // eslint-disable-next-line no-param-reassign
             journal = untracked;
           }
-
           break;
         }
       }

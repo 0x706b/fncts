@@ -1,5 +1,4 @@
 import { ImmutableArray } from "@fncts/base/collection/immutable/ImmutableArray/definition";
-
 export interface ImmutableNonEmptyArrayF extends HKT {
   type: ImmutableNonEmptyArray<this["A"]>;
   variance: {

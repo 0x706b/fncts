@@ -6,7 +6,6 @@ import type { Dequeue } from "@fncts/io/Queue";
 
 import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
 import { Hub as HubInternal } from "@fncts/io/internal/Hub";
-import { QueueTypeId } from "@fncts/io/Queue";
 
 import { Hub } from "./definition.js";
 import { BackPressure, Dropping, Sliding } from "./internal.js";

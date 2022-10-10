@@ -8,86 +8,93 @@ import { add64, halve64, isEqual64, substract64 } from "../../util/math.js";
 import { Sample } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.Sample flatMap
+ * @tsplus pipeable fncts.test.Sample flatMap
  */
-export function flatMap_<R, A, R1, B>(ma: Sample<R, A>, f: (a: A) => Sample<R1, B>): Sample<R | R1, B> {
-  const sample = f(ma.value);
-  return new Sample(
-    sample.value,
-    mergeStream(
-      sample.shrink,
-      ma.shrink.map((maybeSample) => maybeSample.map((sample) => sample.flatMap(f))),
-    ),
-  );
+export function flatMap<A, R1, B>(f: (a: A) => Sample<R1, B>) {
+  return <R>(ma: Sample<R, A>): Sample<R | R1, B> => {
+    const sample = f(ma.value);
+    return new Sample(
+      sample.value,
+      mergeStream(
+        sample.shrink,
+        ma.shrink.map((maybeSample) => maybeSample.map((sample) => sample.flatMap(f))),
+      ),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Sample filter
+ * @tsplus pipeable fncts.test.Sample filter
  */
-export function filter_<R, A>(ma: Sample<R, A>, f: Predicate<A>): Stream<R, never, Maybe<Sample<R, A>>> {
-  if (f(ma.value)) {
-    return Stream.succeedNow(
-      Just(
+export function filter<A>(f: Predicate<A>) {
+  return <R>(ma: Sample<R, A>): Stream<R, never, Maybe<Sample<R, A>>> => {
+    if (f(ma.value)) {
+      return Stream.succeedNow(
+        Just(
+          new Sample(
+            ma.value,
+            ma.shrink.flatMap((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty)),
+          ),
+        ),
+      );
+    } else {
+      return ma.shrink.flatMap((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty));
+    }
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.test.Sample foreach
+ */
+export function foreach<A, R1, B>(f: (a: A) => IO<R1, never, B>) {
+  return <R>(ma: Sample<R, A>): IO<R | R1, never, Sample<R | R1, B>> => {
+    return f(ma.value).map(
+      (b) =>
         new Sample(
-          ma.value,
-          ma.shrink.flatMap((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty)),
-        ),
-      ),
-    );
-  } else {
-    return ma.shrink.flatMap((maybeSample) => maybeSample.map((sample) => sample.filter(f)).getOrElse(Stream.empty));
-  }
-}
-
-/**
- * @tsplus fluent fncts.test.Sample foreach
- */
-export function foreach_<R, A, R1, B>(
-  ma: Sample<R, A>,
-  f: (a: A) => IO<R1, never, B>,
-): IO<R | R1, never, Sample<R | R1, B>> {
-  return f(ma.value).map(
-    (b) =>
-      new Sample(
-        b,
-        ma.shrink.mapIO((maybeSample) =>
-          maybeSample.match(
-            () => IO.succeedNow(Nothing()),
-            (sample) => sample.foreach(f).map((value) => Just(value)),
+          b,
+          ma.shrink.mapIO((maybeSample) =>
+            maybeSample.match(
+              () => IO.succeedNow(Nothing()),
+              (sample) => sample.foreach(f).map((value) => Just(value)),
+            ),
           ),
         ),
-      ),
-  );
-}
-
-/**
- * @tsplus fluent fncts.test.Sample map
- */
-export function map_<R, A, B>(ma: Sample<R, A>, f: (a: A) => B): Sample<R, B> {
-  return new Sample(
-    f(ma.value),
-    ma.shrink.map((v) => v.map((sample) => sample.map(f))),
-  );
-}
-
-/**
- * @tsplus fluent fncts.test.Sample shrinkSearch
- */
-export function shrinkSearch_<R, A>(ma: Sample<R, A>, p: Predicate<A>): Stream<R, never, A> {
-  if (!p(ma.value)) {
-    return Stream.succeedNow(ma.value);
-  } else {
-    return Stream.succeedNow(ma.value).concat(
-      ma.shrink
-        .takeUntil((maybeSample) =>
-          maybeSample.match(
-            () => false,
-            (v) => p(v.value),
-          ),
-        )
-        .flatMap((maybeSample) => maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty)),
     );
-  }
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.test.Sample map
+ */
+export function map<A, B>(f: (a: A) => B) {
+  return <R>(ma: Sample<R, A>): Sample<R, B> => {
+    return new Sample(
+      f(ma.value),
+      ma.shrink.map((v) => v.map((sample) => sample.map(f))),
+    );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.test.Sample shrinkSearch
+ */
+export function shrinkSearch<A>(p: Predicate<A>) {
+  return <R>(ma: Sample<R, A>): Stream<R, never, A> => {
+    if (!p(ma.value)) {
+      return Stream.succeedNow(ma.value);
+    } else {
+      return Stream.succeedNow(ma.value).concat(
+        ma.shrink
+          .takeUntil((maybeSample) =>
+            maybeSample.match(
+              () => false,
+              (v) => p(v.value),
+            ),
+          )
+          .flatMap((maybeSample) => maybeSample.map((sample) => sample.shrinkSearch(p)).getOrElse(() => Stream.empty)),
+      );
+    }
+  };
 }
 
 /**
@@ -102,17 +109,21 @@ export function unfold<R, A, S>(s: S, f: (s: S) => readonly [A, Stream<R, never,
 }
 
 /**
- * @tsplus fluent fncts.test.Sample zip
+ * @tsplus pipeable fncts.test.Sample zip
  */
-export function zip<R, A, R1, B>(ma: Sample<R, A>, mb: Sample<R1, B>): Sample<R | R1, readonly [A, B]> {
-  return ma.zipWith(mb, tuple);
+export function zip<R1, B>(mb: Sample<R1, B>) {
+  return <R, A>(ma: Sample<R, A>): Sample<R | R1, readonly [A, B]> => {
+    return ma.zipWith(mb, tuple);
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Sample zipWith
+ * @tsplus pipeable fncts.test.Sample zipWith
  */
-export function zipWith_<R, A, R1, B, C>(ma: Sample<R, A>, mb: Sample<R1, B>, f: (a: A, b: B) => C): Sample<R | R1, C> {
-  return ma.flatMap((a) => map_(mb, (b) => f(a, b)));
+export function zipWith<A, R1, B, C>(mb: Sample<R1, B>, f: (a: A, b: B) => C) {
+  return <R>(ma: Sample<R, A>): Sample<R | R1, C> => {
+    return ma.flatMap((a) => mb.map((b) => f(a, b)));
+  };
 }
 
 /**

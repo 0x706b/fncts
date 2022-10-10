@@ -1,5 +1,8 @@
 type EventHandler = (...args: any[]) => void;
 
+/**
+ * @tsplus static fncts.observable.ObservableOps fromEvent
+ */
 export function fromEvent<A extends ReadonlyArray<unknown>>(
   addHandler: (handler: (...args: A) => void) => any,
   removeHandler?: (handler: EventHandler, signal?: any) => void,

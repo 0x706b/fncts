@@ -62,128 +62,103 @@ export function bg_rgb(r: number, g: number, b: number): (s: string) => string {
  * Foreground color for ANSI black
  */
 export const BLACK = escape(30);
-
 /**
  * Foreground color for ANSI red
  */
 export const RED = escape(31);
-
 /**
  * Foreground color for ANSI green
  */
 export const GREEN = escape(32);
-
 /**
  * Foreground color for ANSI yellow
  */
 export const YELLOW = escape(33);
-
 /**
  * Foreground color for ANSI blue
  */
 export const BLUE = escape(34);
-
 /**
  * Foreground color for ANSI magenta
  */
 export const MAGENTA = escape(35);
-
 /**
  * Foreground color for ANSI cyan
  */
 export const CYAN = escape(36);
-
 /**
  * Foreground color for ANSI white
  */
 export const WHITE = escape(37);
-
 /**
  * Background color for ANSI black
  */
 export const BLACK_B = escape(40);
-
 /**
  * Background color for ANSI red
  */
 export const RED_B = escape(41);
-
 /**
  * Background color for ANSI green
  */
 export const GREEN_B = escape(42);
-
 /**
  * Background color for ANSI yellow
  */
 export const YELLOW_B = escape(43);
-
 /**
  * Background color for ANSI blue
  */
 export const BLUE_B = escape(44);
-
 /**
  * Background color for ANSI magenta
  */
 export const MAGENTA_B = escape(45);
-
 /**
  * Background color for ANSI cyan
  */
 export const CYAN_B = escape(46);
-
 /**
  * Background color for ANSI white
  */
 export const WHITE_B = escape(47);
-
 /**
  * Reset ANSI styles
  */
 export const RESET = escape(0);
-
 /**
  * ANSI bold
  */
 export const BOLD = escape(1);
-
 /**
  * ANSI underline
  */
 export const UNDERLINE = escape(4);
-
 /**
  * ANSI blink
  */
 export const BLINK = escape(5);
-
 /**
  * ANSI reversed
  */
 export const REVERSED = escape(7);
-
 /**
  * ANSI invisible
  */
 export const INVISIBLE = escape(8);
-
 /**
  * Reset ANSI foreground
  */
 export const RESET_FG = escape(39);
-
 /**
  * Reset ANSI background
  */
 export const RESET_BG = escape(49);
-
 /**
  * ANSI 24bit foreground
  */
 export const RGB = <r extends number, g extends number, b extends number>(r: r, g: g, b: b) =>
   `\u001b[38;2;${r};${g};${b}m` as const;
-
 /**
  * ANSI 24bit background
  */

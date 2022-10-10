@@ -2,16 +2,18 @@ import { Closeable } from "./definition.js";
 import { ReleaseMap } from "./ReleaseMap.js";
 
 /**
- * @tsplus fluent fncts.io.Scope addFinalizer
+ * @tsplus pipeable fncts.io.Scope addFinalizer
  */
-export function addFinalizer_(self: Scope, finalizer: Lazy<UIO<any>>, __tsplusTrace?: string): UIO<void> {
-  return self.addFinalizerExit(Finalizer.get(() => finalizer()));
+export function addFinalizer(finalizer: Lazy<UIO<any>>, __tsplusTrace?: string) {
+  return (self: Scope): UIO<void> => {
+    return self.addFinalizerExit(Finalizer.get(() => finalizer()));
+  };
 }
 
 /**
  * @tsplus static fncts.io.ScopeOps addFinalizer
  */
-export function addFinalizer(finalizer: Lazy<UIO<void>>, __tsplusTrace?: string): IO<Scope, never, void> {
+export function makeAddFinalizer(finalizer: Lazy<UIO<void>>, __tsplusTrace?: string): IO<Scope, never, void> {
   return IO.serviceWithIO((scope) => scope.addFinalizer(finalizer), Scope.Tag);
 }
 
@@ -22,14 +24,12 @@ export function addFinalizer(finalizer: Lazy<UIO<void>>, __tsplusTrace?: string)
 export const concurrent: UIO<Scope.Closeable> = makeWith(ExecutionStrategy.concurrent);
 
 /**
- * @tsplus fluent fncts.io.Scope extend
+ * @tsplus pipeable fncts.io.Scope extend
  */
-export function extend_<R, E, A>(
-  self: Scope,
-  io: Lazy<IO<R, E, A>>,
-  __tsplusTrace?: string,
-): IO<Exclude<R, Scope>, E, A> {
-  return IO.defer(io).contramapEnvironment((r) => r.union(Environment.empty.add(self, Scope.Tag)));
+export function extend<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string) {
+  return (self: Scope): IO<Exclude<R, Scope>, E, A> => {
+    return IO.defer(io).contramapEnvironment((r) => r.union(Environment.empty.add(self, Scope.Tag)));
+  };
 }
 
 /**
@@ -114,12 +114,10 @@ export function unsafeMakeWith(executionStrategy: ExecutionStrategy, __tsplusTra
 }
 
 /**
- * @tsplus fluent fncts.io.Scope.Closeable use
+ * @tsplus pipeable fncts.io.Scope.Closeable use
  */
-export function use_<R, E, A>(
-  self: Scope.Closeable,
-  io: Lazy<IO<R, E, A>>,
-  __tsplusTrace?: string,
-): IO<Exclude<R, Scope>, E, A> {
-  return self.extend(io).onExit((exit) => self.close(exit));
+export function use<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string) {
+  return (self: Scope.Closeable): IO<Exclude<R, Scope>, E, A> => {
+    return self.extend(io).onExit((exit) => self.close(exit));
+  };
 }

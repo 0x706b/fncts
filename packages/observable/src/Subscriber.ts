@@ -63,7 +63,6 @@ export class Subscriber<E, A> extends Subscription implements Observer<E, A> {
     }
   }
 }
-
 export class SafeSubscriber<E, A> extends Subscriber<E, A> {
   constructor(observer?: Partial<Observer<E, A>> | ((value: A) => void)) {
     super();
@@ -118,7 +117,9 @@ function defaultErrorHandler(error: any) {
   throw error;
 }
 
-export const EMPTY_OBSERVER: Readonly<Observer<any, any>> & { closed: true } = {
+export const EMPTY_OBSERVER: Readonly<Observer<any, any>> & {
+  closed: true;
+} = {
   closed: true,
   next: noop,
   error: defaultErrorHandler,

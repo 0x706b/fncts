@@ -42,7 +42,7 @@ export class ForkScopeRestore {
  *
  * @tsplus static fncts.io.IOOps forkScopeMask
  */
-export function forkScopeMask_<R, E, A>(
+export function forkScopeMask<R, E, A>(
   newScope: FiberScope,
   f: (restore: ForkScopeRestore) => IO<R, E, A>,
   __tsplusTrace?: string,
@@ -56,40 +56,41 @@ export function forkScopeMask_<R, E, A>(
  * Returns an effect that races this effect with the specified effect, calling
  * the specified finisher as soon as one result or the other has been computed.
  *
- * @tsplus fluent fncts.io.IO raceWith
+ * @tsplus pipeable fncts.io.IO raceWith
  */
-export function raceWith_<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
-  left: IO<R, E, A>,
+export function raceWith<E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
   right: Lazy<IO<R1, E1, A1>>,
   leftWins: (exit: Exit<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
   rightWins: (exit: Exit<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
   __tsplusTrace?: string,
-): IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> {
-  return IO.defer(
-    () =>
-      new Race(
-        left,
-        right(),
-        (winner, loser) =>
-          winner.await.flatMap((exit) => {
-            switch (exit._tag) {
-              case ExitTag.Success:
-                return winner.inheritRefs.flatMap(() => leftWins(exit, loser));
-              case ExitTag.Failure:
-                return leftWins(exit, loser);
-            }
-          }),
-        (winner, loser) =>
-          winner.await.flatMap((exit) => {
-            switch (exit._tag) {
-              case ExitTag.Success:
-                return winner.inheritRefs.flatMap(() => rightWins(exit, loser));
-              case ExitTag.Failure:
-                return rightWins(exit, loser);
-            }
-          }),
-      ),
-  );
+) {
+  return <R>(left: IO<R, E, A>): IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> => {
+    return IO.defer(
+      () =>
+        new Race(
+          left,
+          right(),
+          (winner, loser) =>
+            winner.await.flatMap((exit) => {
+              switch (exit._tag) {
+                case ExitTag.Success:
+                  return winner.inheritRefs.flatMap(() => leftWins(exit, loser));
+                case ExitTag.Failure:
+                  return leftWins(exit, loser);
+              }
+            }),
+          (winner, loser) =>
+            winner.await.flatMap((exit) => {
+              switch (exit._tag) {
+                case ExitTag.Success:
+                  return winner.inheritRefs.flatMap(() => rightWins(exit, loser));
+                case ExitTag.Failure:
+                  return rightWins(exit, loser);
+              }
+            }),
+        ),
+    );
+  };
 }
 
 export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;
@@ -123,10 +124,12 @@ export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): UR
  * Returns a new effect that will utilize the specified scope to supervise
  * any fibers forked within the original effect.
  *
- * @tsplus fluent fncts.io.IO overrideForkScope
+ * @tsplus pipeable fncts.io.IO overrideForkScope
  */
-export function overrideForkScope_<R, E, A>(ma: IO<R, E, A>, scope: FiberScope, __tsplusTrace?: string): IO<R, E, A> {
-  return FiberRef.forkScopeOverride.locally(Just(scope))(ma);
+export function overrideForkScope(scope: FiberScope, __tsplusTrace?: string) {
+  return <R, E, A>(ma: IO<R, E, A>): IO<R, E, A> => {
+    return FiberRef.forkScopeOverride.locally(Just(scope))(ma);
+  };
 }
 
 /**

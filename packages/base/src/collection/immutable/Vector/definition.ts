@@ -38,17 +38,14 @@ export class Vector<A> implements Iterable<A> {
     /** @private */
     readonly suffix: A[],
   ) {}
-
   [Symbol.iterator](): Iterator<A> {
     return new ForwardVectorIterator(this);
   }
-
   get [Symbol.hash](): number {
     return Hashable.iterator(this[Symbol.iterator]());
   }
-
   [Symbol.equals](that: unknown): boolean {
-    return isVector(that) && corresponds_(this, that, Equatable.strictEquals);
+    return isVector(that) && (this as Vector<A>).corresponds(that, Equatable.strictEquals);
   }
 }
 
@@ -83,15 +80,17 @@ export function isVector(u: unknown): u is Vector<unknown> {
  * pair of elements with the given comparison function.
  *
  * @complexity O(n)
- * @tsplus fluent fncts.Vector corresponds
+ * @tsplus pipeable fncts.Vector corresponds
  */
-export function corresponds_<A, B>(as: Vector<A>, bs: Vector<B>, f: (a: A, b: B) => boolean): boolean {
-  if (as.length !== bs.length) {
-    return false;
-  } else {
-    const s = { iterator: bs[Symbol.iterator](), equals: true, f };
-    return foldLeftCb<A, EqualsState<A, B>>(equalsCb, s, as).equals;
-  }
+export function corresponds<A, B>(bs: Vector<B>, f: (a: A, b: B) => boolean) {
+  return (as: Vector<A>): boolean => {
+    if (as.length !== bs.length) {
+      return false;
+    } else {
+      const s = { iterator: bs[Symbol.iterator](), equals: true, f };
+      return foldLeftCb<A, EqualsState<A, B>>(equalsCb, s, as).equals;
+    }
+  };
 }
 
 type EqualsState<A, B> = {

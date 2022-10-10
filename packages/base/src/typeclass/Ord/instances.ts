@@ -2,7 +2,6 @@ import { Monoid } from "@fncts/base/typeclass/Monoid";
 import { Ord } from "@fncts/base/typeclass/Ord/definition";
 import { Ordering } from "@fncts/base/typeclass/Ordering";
 import { Semigroup } from "@fncts/base/typeclass/Semigroup";
-
 /**
  * @tsplus static fncts.OrdOps getSemigroup
  */
@@ -18,7 +17,6 @@ export function getSemigroup<A = never>(): Semigroup<Ord<A>> {
       }),
   });
 }
-
 /**
  * @tsplus static fncts.OrdOps getMonoid
  */

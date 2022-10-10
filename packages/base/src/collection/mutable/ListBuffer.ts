@@ -95,7 +95,7 @@ export class ListBuffer<A> implements Iterable<A> {
     return this;
   }
 
-  foldl<B>(b: B, f: (b: B, a: A) => B): B {
+  foldLeft<B>(b: B, f: (b: B, a: A) => B): B {
     return this.first.foldLeft(b, f);
   }
 

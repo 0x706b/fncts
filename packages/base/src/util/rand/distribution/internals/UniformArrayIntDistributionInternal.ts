@@ -2,7 +2,6 @@ import type { ArrayInt } from "@fncts/base/util/rand/distribution/internals/Arra
 import type RandomGenerator from "@fncts/base/util/rand/generator/RandomGenerator";
 
 import { uniformIntDistributionInternal } from "@fncts/base/util/rand/distribution/internals/UniformIntDistributionInternal";
-
 /**
  * Uniformly generate ArrayInt in range [0 ; rangeSize[
  *
@@ -18,7 +17,6 @@ export function uniformArrayIntDistributionInternal(
   rng: RandomGenerator,
 ): ArrayInt["data"] {
   const rangeLength = rangeSize.length;
-
   // We iterate until we find a valid value for arrayInt
   // eslint-disable-next-line no-constant-condition
   while (true) {
@@ -27,7 +25,6 @@ export function uniformArrayIntDistributionInternal(
       const indexRangeSize = index === 0 ? rangeSize[0]! + 1 : 0x100000000;
       out[index]           = uniformIntDistributionInternal(indexRangeSize, rng);
     }
-
     // If in the correct range we can return it
     for (let index = 0; index !== rangeLength; ++index) {
       const current        = out[index]!;

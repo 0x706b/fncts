@@ -3,21 +3,19 @@ import type { UpstreamPullRequest } from "@fncts/io/Channel/UpstreamPullRequest/
 import { NoUpstream, Pulled } from "@fncts/io/Channel/UpstreamPullRequest/definition";
 
 /**
- * @tsplus fluent fncts.io.Channel.UpstreamPullRequest match
+ * @tsplus pipeable fncts.io.Channel.UpstreamPullRequest match
  */
-export function match_<A, B, C>(
-  upr: UpstreamPullRequest<A>,
-  pulled: (value: A) => B,
-  noUpstream: (activeDownstreamCount: number) => C,
-): B | C {
-  switch (upr._tag) {
-    case "Pulled": {
-      return pulled(upr.value);
+export function match<A, B, C>(pulled: (value: A) => B, noUpstream: (activeDownstreamCount: number) => C) {
+  return (upr: UpstreamPullRequest<A>): B | C => {
+    switch (upr._tag) {
+      case "Pulled": {
+        return pulled(upr.value);
+      }
+      case "NoUpstream": {
+        return noUpstream(upr.activeDownstreamCount);
+      }
     }
-    case "NoUpstream": {
-      return noUpstream(upr.activeDownstreamCount);
-    }
-  }
+  };
 }
 
 /**

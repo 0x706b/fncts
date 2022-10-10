@@ -24,7 +24,7 @@ export function fromEither<E = never, A = never>(e: Either<E, A>): Exit<E, A> {
 /**
  * @tsplus static fncts.ExitOps fromMaybe
  */
-export function fromMaybe_<E, A>(fa: Maybe<A>, onNothing: () => E): Exit<E, A> {
+export function fromMaybe<E, A>(fa: Maybe<A>, onNothing: () => E): Exit<E, A> {
   return fa.match(() => fail(onNothing()), succeed);
 }
 
@@ -38,7 +38,7 @@ export function failCause<E = never, A = never>(cause: Cause<E>): Exit<E, A> {
 /**
  * @tsplus static fncts.ExitOps interrupt
  */
-export function interrupt(id: FiberId) {
+export function interrupt(id: FiberId): Exit<never, never> {
   return failCause(Cause.interrupt(id));
 }
 

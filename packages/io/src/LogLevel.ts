@@ -7,35 +7,43 @@ export class LogLevel {
 }
 
 /**
- * @tsplus fluent fncts.LogLevel lt
- * @tsplus operator fncts.LogLevel <
+ * @tsplus pipeable fncts.LogLevel lt
+ * @tsplus pipeable-operator fncts.LogLevel <
  */
-export function lt(self: LogLevel, that: LogLevel): boolean {
-  return self.ordinal < that.ordinal;
+export function lt(that: LogLevel) {
+  return (self: LogLevel): boolean => {
+    return self.ordinal < that.ordinal;
+  };
 }
 
 /**
- * @tsplus fluent fncts.LogLevel lte
- * @tsplus operator fncts.LogLevel <=
+ * @tsplus pipeable fncts.LogLevel lte
+ * @tsplus pipeable-operator fncts.LogLevel <=
  */
-export function lte(self: LogLevel, that: LogLevel): boolean {
-  return self.ordinal <= that.ordinal;
+export function lte(that: LogLevel) {
+  return (self: LogLevel): boolean => {
+    return self.ordinal <= that.ordinal;
+  };
 }
 
 /**
- * @tsplus fluent fncts.LogLevel gte
- * @tsplus operator fncts.LogLevel >=
+ * @tsplus pipeable fncts.LogLevel gte
+ * @tsplus pipeable-operator fncts.LogLevel >=
  */
-export function gte(self: LogLevel, that: LogLevel): boolean {
-  return self.ordinal >= that.ordinal;
+export function gte(that: LogLevel) {
+  return (self: LogLevel): boolean => {
+    return self.ordinal >= that.ordinal;
+  };
 }
 
 /**
- * @tsplus fluent fncts.LogLevel gt
- * @tsplus operator fncts.LogLevel >
+ * @tsplus pipeable fncts.LogLevel gt
+ * @tsplus pipeable-operator fncts.LogLevel >
  */
-export function gt(self: LogLevel, that: LogLevel): boolean {
-  return self.ordinal > that.ordinal;
+export function gt(that: LogLevel) {
+  return (self: LogLevel): boolean => {
+    return self.ordinal > that.ordinal;
+  };
 }
 
 /**

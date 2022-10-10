@@ -4,10 +4,12 @@ export type Ordering = -1 | 0 | 1;
  * @tsplus static fncts.Ordering LT
  */
 export const LT = -1;
+
 /**
  * @tsplus static fncts.Ordering EQ
  */
 export const EQ = 0;
+
 /**
  * @tsplus static fncts.Ordering GT
  */

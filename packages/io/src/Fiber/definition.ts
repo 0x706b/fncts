@@ -11,7 +11,6 @@ export interface Fiber<E, A> {
   readonly _E: () => E;
   readonly _A: () => A;
 }
-
 /**
  * @tsplus type fncts.io.FiberOps
  */
@@ -26,29 +25,24 @@ export declare namespace Fiber {
 
 export interface FiberCommon<E, A> extends Fiber<E, A> {
   readonly id: FiberId;
-
   /**
    * Awaits the fiber, which suspends the awaiting fiber until the result of the
    * fiber has been determined.
    */
   readonly await: UIO<Exit<E, A>>;
-
   /**
    * Inherits values from all {@link FiberRef} instances into current fiber.
    * This will resume immediately.
    */
   readonly inheritRefs: UIO<void>;
-
   /**
    * Interrupts the fiber as if interrupted from the specified fiber.
    */
   readonly interruptAsFork: (fiberId: FiberId) => UIO<void>;
-
   /**
    * Tentatively observes the fiber, but returns immediately if it is not already done.
    */
   readonly poll: UIO<Maybe<Exit<E, A>>>;
-
   /**
    * Retrieves the immediate children of the fiber.
    */
@@ -57,34 +51,28 @@ export interface FiberCommon<E, A> extends Fiber<E, A> {
 
 export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
   readonly _tag: "RuntimeFiber";
-
   /**
    * The identity of the Fiber
    */
   readonly id: FiberId.Runtime;
-
   /**
    * The location the fiber was forked from
    */
   readonly location: TraceElement;
-
   /**
    * Evaluates the specified effect on the fiber. If this is not possible,
    * because the fiber has already ended life, then the specified alternate
    * effect will be executed instead.
    */
   readonly evalOn: (effect: UIO<any>, orElse: UIO<any>) => UIO<void>;
-
   readonly evalOnIO: <R1, E1, B, R2, E2, C>(
     effect: IO<R1, E1, B>,
     orElse: IO<R2, E2, C>,
   ) => IO<R1 | R2, E1 | E2, B | C>;
-
   /**
    * The status of the fiber.
    */
   readonly status: UIO<FiberStatus>;
-
   /**
    * The trace of the Fiber
    */
@@ -92,13 +80,11 @@ export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
 }
 
 export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
-  readonly _tag = "SyntheticFiber";
-
+  readonly _tag                 = "SyntheticFiber";
   readonly _typeId: FiberTypeId = FiberTypeId;
   readonly _E!: () => E;
   readonly _A!: () => A;
   readonly await;
-
   constructor(
     readonly id: FiberId,
     wait: UIO<Exit<E, A>>,

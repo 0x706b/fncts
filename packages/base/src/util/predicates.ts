@@ -44,7 +44,9 @@ export function isObject<A>(value: A | Primitive): boolean {
 export function hasTypeId<X extends symbol>(
   value: unknown,
   typeId: X,
-): value is { readonly _typeId: X } & Record<PropertyKey, unknown> {
+): value is {
+  readonly _typeId: X;
+} & Record<PropertyKey, unknown> {
   return isObject(value) && "_typeId" in value && value["_typeId"] === typeId;
 }
 

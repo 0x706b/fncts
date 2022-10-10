@@ -2,23 +2,25 @@ import type { Applicative } from "@fncts/base/typeclass/Applicative";
 import type { Filterable } from "@fncts/base/typeclass/Filterable";
 import type { Traversable } from "@fncts/base/typeclass/Traversable";
 
+import { pipe } from "@fncts/base/data/function";
 /**
  * @tsplus type fncts.Witherable
  */
 export interface Witherable<F extends HKT, FC = HKT.None> extends Filterable<F, FC>, Traversable<F, FC> {
-  wither: <KF, QF, WF, XF, IF, SF, RF, EF, A>(
-    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
-  ) => <G extends HKT, GC = HKT.None>(
+  wither: <G extends HKT, GC = HKT.None>(
     G: Applicative<G, GC>,
-  ) => <KG, QG, WG, XG, IG, SG, RG, EG, B>(
+  ) => <A, KG, QG, WG, XG, IG, SG, RG, EG, B>(
     f: (a: A) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, Maybe<B>>,
-  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>;
-  wilt: <KF, QF, WF, XF, IF, SF, RF, EF, A>(
+  ) => <KF, QF, WF, XF, IF, SF, RF, EF>(
     wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
-  ) => <G extends HKT, GC = HKT.None>(
+  ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, B>>;
+
+  wilt: <G extends HKT, GC = HKT.None>(
     G: Applicative<G, GC>,
-  ) => <KG, QG, WG, XG, IG, SG, RG, EG, B, B1>(
+  ) => <A, KG, QG, WG, XG, IG, SG, RG, EG, B, B1>(
     f: (a: A) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, Either<B, B1>>,
+  ) => <KF, QF, WF, XF, IF, SF, RF, EF>(
+    wa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, A>,
   ) => HKT.Kind<
     G,
     GC,
@@ -46,12 +48,18 @@ export const Witherable: WitherableOps = {};
  */
 export function filterA<F extends HKT, FC = HKT.None>(
   F: Witherable<F, FC>,
-): <KF, QF, WF, XF, IF, SF, RF, EF, AF>(
-  fa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, AF>,
-) => <G extends HKT, GC = HKT.None>(
+): <G extends HKT, GC = HKT.None>(
   G: Applicative<G, GC>,
-) => <KG, QG, WG, XG, IG, SG, RG, EG>(
+) => <AF, KG, QG, WG, XG, IG, SG, RG, EG>(
   p: (a: AF) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, boolean>,
+) => <KF, QF, WF, XF, IF, SF, RF, EF>(
+  fa: HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, AF>,
 ) => HKT.Kind<G, GC, KG, QG, WG, XG, IG, SG, RG, EG, HKT.Kind<F, FC, KF, QF, WF, XF, IF, SF, RF, EF, AF>> {
-  return (fa) => (G) => (p) => F.wither(fa)(G)((a) => G.map(p(a), (bb) => (bb ? Just(a) : Nothing())));
+  return (G) => (p) =>
+    F.wither(G)((a) =>
+      pipe(
+        p(a),
+        G.map((bb) => (bb ? Just(a) : Nothing())),
+      ),
+    );
 }

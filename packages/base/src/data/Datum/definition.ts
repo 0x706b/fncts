@@ -26,11 +26,8 @@ export type Datum<A> = Initial | Pending | Refresh<A> | Replete<A>;
 export interface DatumOps {}
 
 export const Datum: DatumOps = {};
-
-const datumHash = Hashable.string("fncts.Datum");
-
-const initialHash = Hashable.combine(datumHash, Hashable.string(DatumTag.Initial));
-
+const datumHash       = Hashable.string("fncts.Datum");
+const initialHash     = Hashable.combine(datumHash, Hashable.string(DatumTag.Initial));
 /**
  * @tsplus type fncts.Datum.Initial
  * @tsplus companion fncts.Datum.InitialOps

@@ -1,24 +1,25 @@
 /**
- * @tsplus fluent fncts.io.Logger filterLogLevel
+ * @tsplus pipeable fncts.io.Logger filterLogLevel
  */
-export function filterLogLevel_<Message, Output>(
-  self: Logger<Message, Output>,
-  p: Predicate<LogLevel>,
-): Logger<Message, Maybe<Output>> {
-  return new Logger((trace, fiberId, logLevel, message, cause, context, spans, annotations) => {
-    if (p(logLevel)) {
-      return Just(self.log(trace, fiberId, logLevel, message, cause, context, spans, annotations));
-    } else {
-      return Nothing();
-    }
-  });
+export function filterLogLevel(p: Predicate<LogLevel>) {
+  return <Message, Output>(self: Logger<Message, Output>): Logger<Message, Maybe<Output>> => {
+    return new Logger((trace, fiberId, logLevel, message, cause, context, spans, annotations) => {
+      if (p(logLevel)) {
+        return Just(self.log(trace, fiberId, logLevel, message, cause, context, spans, annotations));
+      } else {
+        return Nothing();
+      }
+    });
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Logger map
+ * @tsplus pipeable fncts.io.Logger map
  */
-export function map_<Message, Output, B>(self: Logger<Message, Output>, f: (_: Output) => B): Logger<Message, B> {
-  return new Logger((trace, fiberId, logLevel, message, cause, context, spans, annotations) =>
-    f(self.log(trace, fiberId, logLevel, message, cause, context, spans, annotations)),
-  );
+export function map<Output, B>(f: (_: Output) => B) {
+  return <Message>(self: Logger<Message, Output>): Logger<Message, B> => {
+    return new Logger((trace, fiberId, logLevel, message, cause, context, spans, annotations) =>
+      f(self.log(trace, fiberId, logLevel, message, cause, context, spans, annotations)),
+    );
+  };
 }

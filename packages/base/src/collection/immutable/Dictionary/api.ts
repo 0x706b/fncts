@@ -1,29 +1,35 @@
 /**
- * @tsplus fluent fncts.Dictionary foldLeft
+ * @tsplus pipeable fncts.Dictionary foldLeft
  */
-export function foldLeft_<A, B>(self: Dictionary<A>, b: B, f: (b: B, a: A) => B): B {
-  return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
+  return (self: Dictionary<A>): B => {
+    return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Dictionary foldLeftWithIndex
+ * @tsplus pipeable fncts.Dictionary foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(self: Dictionary<A>, b: B, f: (k: string, b: B, a: A) => B): B {
-  let out   = b;
-  const ks  = self.keys;
-  const len = ks.length;
-  for (let i = 0; i < len; i++) {
-    const k = ks[i]!;
-    out     = f(k, out, self.toRecord[k]!);
-  }
-  return out;
+export function foldLeftWithIndex<A, B>(b: B, f: (k: string, b: B, a: A) => B) {
+  return (self: Dictionary<A>): B => {
+    let out   = b;
+    const ks  = self.keys;
+    const len = ks.length;
+    for (let i = 0; i < len; i++) {
+      const k = ks[i]!;
+      out     = f(k, out, self.toRecord[k]!);
+    }
+    return out;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Dictionary get
+ * @tsplus pipeable fncts.Dictionary get
  */
-export function get_<A>(self: Dictionary<A>, key: string): Maybe<A> {
-  return Maybe.fromNullable(self.unsafeGet(key));
+export function get(key: string) {
+  return <A>(self: Dictionary<A>): Maybe<A> => {
+    return Maybe.fromNullable(self.unsafeGet(key));
+  };
 }
 
 /**
@@ -34,24 +40,28 @@ export function keys<A>(self: Dictionary<A>): ReadonlyArray<string> {
 }
 
 /**
- * @tsplus fluent fncts.Dictionary map
+ * @tsplus pipeable fncts.Dictionary map
  */
-export function map_<A, B>(self: Dictionary<A>, f: (a: A) => B): Dictionary<B> {
-  return self.mapWithIndex((_, a) => f(a));
+export function map<A, B>(f: (a: A) => B) {
+  return (self: Dictionary<A>): Dictionary<B> => {
+    return self.mapWithIndex((_, a) => f(a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Dictionary mapWithIndex
+ * @tsplus pipeable fncts.Dictionary mapWithIndex
  */
-export function mapWithIndex_<A, B>(self: Dictionary<A>, f: (k: string, a: A) => B): Dictionary<B> {
-  const out = {} as Record<string, B>;
-  const ks  = self.keys;
-  const len = ks.length;
-  for (let i = 0; i < len; i++) {
-    const k = ks[i]!;
-    out[k]  = f(k, self.toRecord[k]!);
-  }
-  return Dictionary.get(out);
+export function mapWithIndex<A, B>(f: (k: string, a: A) => B) {
+  return (self: Dictionary<A>): Dictionary<B> => {
+    const out = {} as Record<string, B>;
+    const ks  = self.keys;
+    const len = ks.length;
+    for (let i = 0; i < len; i++) {
+      const k = ks[i]!;
+      out[k]  = f(k, self.toRecord[k]!);
+    }
+    return Dictionary.get(out);
+  };
 }
 
 /**
@@ -63,8 +73,10 @@ export function toRecord<A>(self: Dictionary<A>): Record<string, A> {
 }
 
 /**
- * @tsplus fluent fncts.Dictionary unsafeGet
+ * @tsplus pipeable fncts.Dictionary unsafeGet
  */
-export function unsafeGet_<A>(self: Dictionary<A>, key: string): A | undefined {
-  return self.toRecord[key];
+export function unsafeGet(key: string) {
+  return <A>(self: Dictionary<A>): A | undefined => {
+    return self.toRecord[key];
+  };
 }

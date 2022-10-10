@@ -1,5 +1,3 @@
-import type { Erase } from "@fncts/typelevel/Intersection";
-
 import { IOEnv } from "@fncts/io/IOEnv";
 
 /**
@@ -12,7 +10,6 @@ export const LiveTag = Tag<Live>("fncts.test.Live");
  */
 export abstract class Live {
   abstract provide<R, E, A>(io: IO<R, E, A>): IO<R, E, A>;
-
   static Default: Layer<IOEnv, never, Live> = Layer.fromIO(
     IO.environmentWith(
       (env) =>
@@ -24,7 +21,6 @@ export abstract class Live {
     ),
     LiveTag,
   );
-
   static Live<R extends Live, E, A>(io: IO<R, E, A>): IO<R | Live, E, A> {
     return IO.serviceWithIO((live) => live.provide(io), LiveTag);
   }

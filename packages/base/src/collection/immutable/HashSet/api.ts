@@ -8,10 +8,12 @@ import * as P from "@fncts/base/typeclass";
 import { HashEq } from "@fncts/base/typeclass";
 
 /**
- * @tsplus fluent fncts.HashSet add
+ * @tsplus pipeable fncts.HashSet add
  */
-export function add_<A>(set: HashSet<A>, value: A): HashSet<A> {
-  return modifyHash(set, value, set.config.hash(value), false);
+export function add<A>(value: A) {
+  return (set: HashSet<A>): HashSet<A> => {
+    return modifyHash(set, value, set.config.hash(value), false);
+  };
 }
 
 /**
@@ -36,17 +38,21 @@ export function endMutation<K>(set: HashSet<K>): HashSet<K> {
 /**
  * Appy f to each element
  *
- * @tsplus fluent fncts.HashSet forEach
+ * @tsplus pipeable fncts.HashSet forEach
  */
-export function forEach_<V>(map: HashSet<V>, f: (v: V, m: HashSet<V>) => void): void {
-  foldLeft_(map, undefined as void, (_, value) => f(value, map));
+export function forEach<V>(f: (v: V, m: HashSet<V>) => void) {
+  return (map: HashSet<V>): void => {
+    map.foldLeft(undefined as void, (_, value) => f(value, map));
+  };
 }
 
 /**
- * @tsplus fluent fncts.HashSet has
+ * @tsplus pipeable fncts.HashSet has
  */
-export function has_<A>(set: HashSet<A>, value: A): boolean {
-  return hasHash(set, value, set.config.hash(value));
+export function has<A>(value: A) {
+  return (set: HashSet<A>): boolean => {
+    return hasHash(set, value, set.config.hash(value));
+  };
 }
 
 /**
@@ -67,9 +73,9 @@ export function makeDefault<A>(): HashSet<A> {
  * @tsplus static fncts.HashSetOps fromDefault
  */
 export function fromDefault<A>(...values: ReadonlyArray<A>): HashSet<A> {
-  return mutate_(makeDefault<A>(), (set) => {
+  return makeDefault<A>().mutate((set) => {
     values.forEach((v) => {
-      add_(set, v);
+      set.add(v);
     });
   });
 }
@@ -77,19 +83,23 @@ export function fromDefault<A>(...values: ReadonlyArray<A>): HashSet<A> {
 /**
  * Mutate `set` within the context of `f`.
  *
- * @tsplus fluent fncts.HashSet mutate
+ * @tsplus pipeable fncts.HashSet mutate
  */
-export function mutate_<A>(set: HashSet<A>, transient: (set: HashSet<A>) => void) {
-  const s = beginMutation(set);
-  transient(s);
-  return endMutation(s);
+export function mutate<A>(transient: (set: HashSet<A>) => void) {
+  return (self: HashSet<A>): HashSet<A> => {
+    const s = beginMutation(self);
+    transient(s);
+    return endMutation(s);
+  };
 }
 
 /**
- * @tsplus fluent fncts.HashSet remove
+ * @tsplus pipeable fncts.HashSet remove
  */
-export function remove_<A>(set: HashSet<A>, value: A): HashSet<A> {
-  return modifyHash(set, value, set.config.hash(value), true);
+export function remove<A>(value: A) {
+  return (set: HashSet<A>): HashSet<A> => {
+    return modifyHash(set, value, set.config.hash(value), true);
+  };
 }
 
 /**
@@ -104,24 +114,25 @@ export function size<A>(set: HashSet<A>): number {
 /**
  * If element is present remove it, if not add it
  *
- * @tsplus fluent fncts.HashSet toggle
+ * @tsplus pipeable fncts.HashSet toggle
  */
-export function toggle_<A>(set: HashSet<A>, a: A): HashSet<A> {
-  return (has_(set, a) ? remove_ : add_)(set, a);
+export function toggle<A>(a: A) {
+  return (set: HashSet<A>): HashSet<A> => {
+    return set.has(a) ? set.remove(a) : set.add(a);
+  };
 }
 
 /**
  * Projects a Set through a function
  */
-export function map_<B>(C: P.HashEq<B>): <A>(fa: HashSet<A>, f: (x: A) => B) => HashSet<B> {
+export function map<B>(C: P.HashEq<B>): <A>(f: (x: A) => B) => (fa: HashSet<A>) => HashSet<B> {
   const r = make(C);
-
-  return (fa, f) =>
-    mutate_(r, (r) => {
-      forEach_(fa, (e) => {
+  return (f) => (fa) =>
+    r.mutate((r) => {
+      fa.forEach((e) => {
         const v = f(e);
-        if (!has_(r, v)) {
-          add_(r, v);
+        if (!r.has(v)) {
+          r.add(v);
         }
       });
       return r;
@@ -131,23 +142,25 @@ export function map_<B>(C: P.HashEq<B>): <A>(fa: HashSet<A>, f: (x: A) => B) => 
 /**
  * Projects a Set through a function
  *
- * @tsplus fluent fncts.HashSet map
+ * @tsplus pipeable fncts.HashSet map
  */
-export function mapDefault<A, B>(self: HashSet<A>, f: (a: A) => B): HashSet<B> {
-  return map_(P.HashEq.StructuralStrict as P.HashEq<B>)(self, f);
+export function mapDefault<A, B>(f: (a: A) => B) {
+  return (self: HashSet<A>): HashSet<B> => {
+    return map(P.HashEq.StructuralStrict as P.HashEq<B>)(f)(self);
+  };
 }
 
 /**
  * Map + Flatten
  */
-export function flatMap_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => Iterable<B>) => HashSet<B> {
+export function flatMap<B>(C: P.HashEq<B>): <A>(f: (x: A) => Iterable<B>) => (self: HashSet<A>) => HashSet<B> {
   const r = make<B>(C);
-  return (set, f) =>
-    mutate_(r, (r) => {
-      forEach_(set, (e) => {
+  return (f) => (self) =>
+    r.mutate((r) => {
+      self.forEach((e) => {
         for (const a of f(e)) {
-          if (!has_(r, a)) {
-            add_(r, a);
+          if (!r.has(a)) {
+            r.add(a);
           }
         }
       });
@@ -156,10 +169,12 @@ export function flatMap_<B>(C: P.HashEq<B>): <A>(set: HashSet<A>, f: (x: A) => I
 }
 
 /**
- * @tsplus fluent fncts.HashSet flatMap
+ * @tsplus pipeable fncts.HashSet flatMap
  */
-export function flatMapDefault<A, B>(self: HashSet<A>, f: (a: A) => Iterable<B>): HashSet<B> {
-  return flatMap_<B>(HashEq.StructuralStrict)(self, f);
+export function flatMapDefault<A, B>(f: (a: A) => Iterable<B>) {
+  return (self: HashSet<A>): HashSet<B> => {
+    return flatMap<B>(HashEq.StructuralStrict)(f)(self);
+  };
 }
 
 /**
@@ -178,7 +193,7 @@ export function getEq<A>(): P.Eq<HashSet<A>> {
       }
       let eq = true;
       for (const vx of x) {
-        if (!has_(y, vx)) {
+        if (!y.has(vx)) {
           eq = false;
           break;
         }
@@ -191,29 +206,30 @@ export function getEq<A>(): P.Eq<HashSet<A>> {
 /**
  * Filter set values using predicate
  *
- * @tsplus fluent fncts.HashSet filter
+ * @tsplus pipeable fncts.HashSet filter
  */
-export function filter_<A, B extends A>(set: HashSet<A>, refinement: Refinement<A, B>): HashSet<B>;
-export function filter_<A>(set: HashSet<A>, predicate: Predicate<A>): HashSet<A>;
-export function filter_<A>(set: HashSet<A>, predicate: Predicate<A>): HashSet<A> {
-  const r = make(set.config);
-
-  return mutate_(r, (r) => {
-    forEach_(set, (v) => {
-      if (predicate(v)) {
-        add_(r, v);
-      }
+export function filter<A, B extends A>(refinement: Refinement<A, B>): (set: HashSet<A>) => HashSet<B>;
+export function filter<A>(predicate: Predicate<A>): (set: HashSet<A>) => HashSet<A>;
+export function filter<A>(predicate: Predicate<A>) {
+  return (set: HashSet<A>): HashSet<A> => {
+    const r = make(set.config);
+    return r.mutate((r) => {
+      set.forEach((v) => {
+        if (predicate(v)) {
+          r.add(v);
+        }
+      });
     });
-  });
+  };
 }
 
-export function filterMap_<B>(B: P.HashEq<B>): <A>(fa: HashSet<A>, f: (a: A) => Maybe<B>) => HashSet<B> {
-  return (fa, f) => {
+export function filterMap<B>(B: P.HashEq<B>): <A>(f: (a: A) => Maybe<B>) => (fa: HashSet<A>) => HashSet<B> {
+  return (f) => (fa) => {
     const out = beginMutation(make(B));
-    forEach_(fa, (a) => {
+    fa.forEach((a) => {
       const ob = f(a);
       if (ob.isJust()) {
-        add_(out, ob.value);
+        out.add(ob.value);
       }
     });
     return endMutation(out);
@@ -223,40 +239,42 @@ export function filterMap_<B>(B: P.HashEq<B>): <A>(fa: HashSet<A>, f: (a: A) => 
 /**
  * Partition set values using predicate
  *
- * @tsplus fluent fncts.HashSet partition
+ * @tsplus pipeable fncts.HashSet partition
  */
-export function partition_<A, B extends A>(self: HashSet<A>, p: Refinement<A, B>): readonly [HashSet<A>, HashSet<B>];
-export function partition_<A>(self: HashSet<A>, p: Predicate<A>): readonly [HashSet<A>, HashSet<A>];
-export function partition_<A>(self: HashSet<A>, p: Predicate<A>): readonly [HashSet<A>, HashSet<A>] {
-  const right = beginMutation(make(self.config));
-  const left  = beginMutation(make(self.config));
-  forEach_(self, (v) => {
-    if (p(v)) {
-      add_(right, v);
-    } else {
-      add_(left, v);
-    }
-  });
-  return tuple(endMutation(left), endMutation(right));
+export function partition<A, B extends A>(p: Refinement<A, B>): (self: HashSet<A>) => readonly [HashSet<A>, HashSet<B>];
+export function partition<A>(p: Predicate<A>): (self: HashSet<A>) => readonly [HashSet<A>, HashSet<A>];
+export function partition<A>(p: Predicate<A>) {
+  return (self: HashSet<A>): readonly [HashSet<A>, HashSet<A>] => {
+    const right = beginMutation(make(self.config));
+    const left  = beginMutation(make(self.config));
+    self.forEach((v) => {
+      if (p(v)) {
+        right.add(v);
+      } else {
+        left.add(v);
+      }
+    });
+    return tuple(endMutation(left), endMutation(right));
+  };
 }
 
 /**
  * Partition set values using predicate
  */
-export function partitionMap_<B, C>(
+export function partitionMap<B, C>(
   B: P.HashEq<B>,
   C: P.HashEq<C>,
-): <A>(self: HashSet<A>, f: (a: A) => Either<B, C>) => readonly [HashSet<B>, HashSet<C>] {
-  return (fa, f) => {
+): <A>(f: (a: A) => Either<B, C>) => (self: HashSet<A>) => readonly [HashSet<B>, HashSet<C>] {
+  return (f) => (fa) => {
     const right = beginMutation(make(C));
     const left  = beginMutation(make(B));
-    forEach_(fa, (v) => {
+    fa.forEach((v) => {
       f(v).match(
         (b) => {
-          add_(left, b);
+          left.add(b);
         },
         (c) => {
-          add_(right, c);
+          right.add(c);
         },
       );
     });
@@ -267,122 +285,137 @@ export function partitionMap_<B, C>(
 /**
  * Reduce a state over the set elements
  *
- * @tsplus fluent fncts.HashSet foldLeft
+ * @tsplus pipeable fncts.HashSet foldLeft
  */
-export function foldLeft_<A, B>(fa: HashSet<A>, b: B, f: (b: B, v: A) => B): B {
-  const root = fa._root;
-  if (root._tag === "LeafNode") return f(b, root.value);
-  if (root._tag === "EmptyNode") return b;
-  const toVisit: Stack<Array<Node<A>>> = Stack();
-  toVisit.push(root.children);
-  while (toVisit.hasNext) {
-    const children = toVisit.pop()!;
-    for (let i = 0, len = children.length; i < len; ) {
-      const child = children[i++];
-      if (child && !isEmptyNode(child)) {
-        if (child._tag === "LeafNode") {
-          // eslint-disable-next-line no-param-reassign
-          b = f(b, child.value);
-        } else {
-          toVisit.push(child.children);
+export function foldLeft<A, B>(b: B, f: (b: B, v: A) => B) {
+  return (fa: HashSet<A>): B => {
+    const root = fa._root;
+    if (root._tag === "LeafNode") return f(b, root.value);
+    if (root._tag === "EmptyNode") return b;
+    const toVisit: Stack<Array<Node<A>>> = Stack();
+    toVisit.push(root.children);
+    while (toVisit.hasNext) {
+      const children = toVisit.pop()!;
+      for (let i = 0, len = children.length; i < len; ) {
+        const child = children[i++];
+        if (child && !isEmptyNode(child)) {
+          if (child._tag === "LeafNode") {
+            // eslint-disable-next-line no-param-reassign
+            b = f(b, child.value);
+          } else {
+            toVisit.push(child.children);
+          }
         }
       }
     }
-  }
-  return b;
+    return b;
+  };
 }
 
 /**
- * @tsplus fluent fncts.HashSet join
+ * @tsplus pipeable fncts.HashSet join
  */
-export function join_(self: HashSet<string>, separator: string): string {
-  if (self.size === 0) {
-    return "";
-  }
-  const iterator = self[Symbol.iterator]();
-  let first      = true;
-  let s          = "";
-  let result: IteratorResult<string>;
-  while (!(result = iterator.next()).done) {
-    if (first) {
-      first  = false;
-      s     += result.value;
-      result = iterator.next();
-    } else {
-      s += separator;
-      s += result.value;
+export function join(separator: string) {
+  return (self: HashSet<string>): string => {
+    if (self.size === 0) {
+      return "";
     }
-  }
-  return s;
+    const iterator = self[Symbol.iterator]();
+    let first      = true;
+    let s          = "";
+    let result: IteratorResult<string>;
+    while (!(result = iterator.next()).done) {
+      if (first) {
+        first  = false;
+        s     += result.value;
+        result = iterator.next();
+      } else {
+        s += separator;
+        s += result.value;
+      }
+    }
+    return s;
+  };
 }
 
 /**
  * Form the set difference
  *
- * @tsplus fluent fncts.HashSet difference
+ * @tsplus pipeable fncts.HashSet difference
  */
-export function difference_<A>(x: HashSet<A>, y: Iterable<A>): HashSet<A> {
-  return mutate_(x, (s) => {
-    for (const k of y) {
-      remove_(s, k);
-    }
-  });
+export function difference<A>(y: Iterable<A>) {
+  return (x: HashSet<A>): HashSet<A> => {
+    return x.mutate((s) => {
+      for (const k of y) {
+        s.remove(k);
+      }
+    });
+  };
 }
 
 /**
  * true if all elements match predicate
  *
- * @tsplus fluent fncts.HashSet every
+ * @tsplus pipeable fncts.HashSet every
  */
-export function every_<A>(self: HashSet<A>, predicate: Predicate<A>): boolean {
-  for (const e of self) {
-    if (!predicate(e)) {
-      return false;
+export function every<A>(predicate: Predicate<A>) {
+  return (self: HashSet<A>): boolean => {
+    for (const e of self) {
+      if (!predicate(e)) {
+        return false;
+      }
     }
-  }
-  return true;
+    return true;
+  };
 }
 
 /**
  * The set of elements which are in both the first and second set,
  *
  * the hash and equal of the 2 sets has to be the same
+ *
+ * @tsplus pipeable fncts.HashSet intersection
  */
-export function intersection_<A>(self: HashSet<A>, that: Iterable<A>): HashSet<A> {
-  const out = make<A>(self.config);
-
-  return out.mutate((y) => {
-    for (const k of that) {
-      if (has_(self, k)) {
-        y.add(k);
+export function intersection<A>(that: Iterable<A>) {
+  return (self: HashSet<A>): HashSet<A> => {
+    const out = make<A>(self.config);
+    return out.mutate((y) => {
+      for (const k of that) {
+        if (self.has(k)) {
+          y.add(k);
+        }
       }
-    }
-  });
+    });
+  };
 }
 
 /**
  * `true` if and only if every element in the first set is an element of the second set,
  *
  * the hash and equal of the 2 sets has to be the same
+ *
+ * @tsplus pipeable fncts.HashSet isSubset
  */
-export function isSubset_<A>(x: HashSet<A>, y: HashSet<A>): boolean {
-  return every_(x, (a: A) => has_(y, a));
+export function isSubset<A>(y: HashSet<A>) {
+  return (x: HashSet<A>): boolean => x.every((a) => y.has(a));
 }
 
 /**
  * true if one or more elements match predicate
  *
- * @tsplus fluent fncts.HashSet exists
+ * @tsplus pipeable fncts.HashSet exists
  */
-export function exists_<A>(set: HashSet<A>, predicate: Predicate<A>): boolean {
-  let found = false;
-  for (const e of set) {
-    found = predicate(e);
-    if (found) {
-      break;
+export function exists<A>(predicate: Predicate<A>) {
+  return (set: HashSet<A>): boolean => {
+    let found = false;
+    for (const e of set) {
+      found = predicate(e);
+      if (found) {
+        break;
+      }
     }
-  }
-  return found;
+    return found;
+  };
 }
 
 /**
@@ -390,20 +423,22 @@ export function exists_<A>(set: HashSet<A>, predicate: Predicate<A>): boolean {
  *
  * the hash and equal of the 2 sets has to be the same
  *
- * @tsplus fluent fncts.HashSet union
+ * @tsplus pipeable fncts.HashSet union
  */
-export function union_<A>(l: HashSet<A>, r: Iterable<A>): HashSet<A> {
-  return mutate_(l, (x) => {
-    for (const a of r) {
-      add_(x, a);
-    }
-  });
+export function union<A>(r: Iterable<A>) {
+  return (l: HashSet<A>): HashSet<A> => {
+    return l.mutate((x) => {
+      for (const a of r) {
+        x.add(a);
+      }
+    });
+  };
 }
 
 /**
  * @tsplus static fncts.HashSet toArray
  */
-export function toArray_<A>(set: HashSet<A>, O: P.Ord<A>): ReadonlyArray<A> {
+export function toArray<A>(set: HashSet<A>, O: P.Ord<A>): ReadonlyArray<A> {
   const r: Array<A> = [];
   set.forEach((a) => r.push(a));
   return r.sort(O.compare);

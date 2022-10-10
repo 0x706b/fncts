@@ -25,12 +25,12 @@ export interface PPrismMin<S, T, A, B> {
 /**
  * @tsplus static fncts.optics.PPrismOps __call
  */
-export function mkPPrism<S, T, A, B>(F: PPrismMin<S, T, A, B>): PPrism<S, T, A, B> {
+export function makePPrism<S, T, A, B>(F: PPrismMin<S, T, A, B>): PPrism<S, T, A, B> {
   return {
     reverseGet: F.reverseGet,
     ...POptional({
       getOrModify: F.getOrModify,
-      replace_: (s, b) => F.getOrModify(s).match(identity, () => F.reverseGet(b)),
+      set: (b) => (s) => F.getOrModify(s).match(identity, () => F.reverseGet(b)),
     }),
   };
 }
@@ -50,7 +50,7 @@ export const Prism: PrismOps = {};
 /**
  * @tsplus static fncts.optics.PrismOps __call
  */
-export function mkPrism<S, A>(F: PPrismMin<S, S, A, A>): Prism<S, A> {
+export function makePrism<S, A>(F: PPrismMin<S, S, A, A>): Prism<S, A> {
   return PPrism(F);
 }
 

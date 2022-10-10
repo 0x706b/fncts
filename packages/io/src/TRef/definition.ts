@@ -2,7 +2,6 @@ import type { Todo } from "../STM/internal/Journal.js";
 import type { Versioned } from "../STM/internal/Versioned.js";
 import type { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import type { TxnId } from "@fncts/io/TxnId";
-
 export const TRefTypeId = Symbol.for("fncts.io.TRef");
 export type TRefTypeId = typeof TRefTypeId;
 
@@ -44,14 +43,12 @@ export abstract class TRefInternal<EA, EB, A, B> implements TRef<EA, EB, A, B> {
   readonly _EB!: () => EB;
   readonly _A!: (_: A) => void;
   readonly _B!: () => B;
-
   abstract match<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
     ca: (c: C) => Either<EC, A>,
     bd: (b: B) => Either<ED, D>,
   ): TRef<EC, ED, C, D>;
-
   abstract matchAll<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
@@ -75,11 +72,9 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
   readonly _typeId: TRefTypeId     = TRefTypeId;
   readonly _tag                    = "Atomic";
   readonly atomic: Atomic<unknown> = this as Atomic<unknown>;
-
   constructor(public versioned: Versioned<A>, readonly todo: AtomicReference<HashMap<TxnId, Todo>>) {
     super();
   }
-
   match<EC, ED, C, D>(
     _ea: (ea: never) => EC,
     _eb: (ea: never) => ED,
@@ -88,7 +83,6 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
   ): TRef<EC, ED, C, D> {
     return new Derived((f) => f(bd, ca, this, this.atomic));
   }
-
   matchAll<EC, ED, C, D>(
     _ea: (ea: never) => EC,
     _eb: (ea: never) => ED,
@@ -103,7 +97,6 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
 export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
   readonly _typeId: TRefTypeId = TRefTypeId;
   readonly _tag                = "Derived";
-
   constructor(
     readonly use: <X>(
       f: <S>(
@@ -116,7 +109,6 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
   ) {
     super();
   }
-
   match<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
@@ -135,7 +127,6 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         ),
     );
   }
-
   matchAll<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
@@ -163,7 +154,6 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
 export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
   readonly _typeId: TRefTypeId = TRefTypeId;
   readonly _tag                = "DerivedAll";
-
   constructor(
     readonly use: <X>(
       f: <S>(
@@ -176,7 +166,6 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
   ) {
     super();
   }
-
   match<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
@@ -195,7 +184,6 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         ),
     );
   }
-
   matchAll<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,

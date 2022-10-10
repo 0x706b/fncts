@@ -44,13 +44,15 @@ export function continueWith(interval: Interval): Decision {
 }
 
 /**
- * @tsplus fluent fncts.io.Schedule.Decision match
+ * @tsplus pipeable fncts.io.Schedule.Decision match
  */
-export function match_<A, B>(self: Decision, onDone: () => A, onContinue: (interval: Intervals) => B): A | B {
-  switch (self._tag) {
-    case DecisionTag.Continue:
-      return onContinue(self.interval);
-    case DecisionTag.Done:
-      return onDone();
-  }
+export function match<A, B>(onDone: () => A, onContinue: (interval: Intervals) => B) {
+  return (self: Decision): A | B => {
+    switch (self._tag) {
+      case DecisionTag.Continue:
+        return onContinue(self.interval);
+      case DecisionTag.Done:
+        return onDone();
+    }
+  };
 }

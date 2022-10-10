@@ -14,7 +14,6 @@ const _tagHash = Hashable.string("fncts.Tag");
 export class Tag<in out T> implements Hashable, Equatable {
   declare _T: (_: T) => T;
   readonly _typeId: TagTypeId = TagTypeId;
-  private static counter      = new AtomicNumber(0);
 
   constructor(readonly id: string) {}
 

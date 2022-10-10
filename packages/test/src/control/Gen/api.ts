@@ -45,16 +45,18 @@ export function constant<A>(a: A): Gen<never, A> {
 }
 
 /**
- * @tsplus fluent fncts.test.Gen flatMap
+ * @tsplus pipeable fncts.test.Gen flatMap
  */
-export function flatMap_<R, A, R1, B>(ma: Gen<R, A>, f: (a: A) => Gen<R1, B>): Gen<R | R1, B> {
-  return new Gen(
-    Sample.flatMapStream(ma.sample, (sample) => {
-      const values  = f(sample.value).sample;
-      const shrinks = new Gen(sample.shrink).flatMap((a) => f(a)).sample;
-      return values.map((maybeSample) => maybeSample.map((sample) => sample.flatMap((b) => new Sample(b, shrinks))));
-    }),
-  );
+export function flatMap<A, R1, B>(f: (a: A) => Gen<R1, B>) {
+  return <R>(ma: Gen<R, A>): Gen<R | R1, B> => {
+    return new Gen(
+      Sample.flatMapStream(ma.sample, (sample) => {
+        const values  = f(sample.value).sample;
+        const shrinks = new Gen(sample.shrink).flatMap((a) => f(a)).sample;
+        return values.map((maybeSample) => maybeSample.map((sample) => sample.flatMap((b) => new Sample(b, shrinks))));
+      }),
+    );
+  };
 }
 
 /**
@@ -70,19 +72,23 @@ export function defer<R, A>(gen: Lazy<Gen<R, A>>): Gen<R, A> {
 export const empty: Gen<never, never> = new Gen(Stream.empty);
 
 /**
- * @tsplus fluent fncts.test.Gen filter
+ * @tsplus pipeable fncts.test.Gen filter
  */
-export function filter_<R, A, B extends A>(fa: Gen<R, A>, p: Refinement<A, B>): Gen<R, B>;
-export function filter_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A>;
-export function filter_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A> {
-  return fa.flatMap((a) => (p(a) ? Gen.constant(a) : Gen.empty));
+export function filter<A, B extends A>(p: Refinement<A, B>): <R>(fa: Gen<R, A>) => Gen<R, B>;
+export function filter<A>(p: Predicate<A>): <R>(fa: Gen<R, A>) => Gen<R, A>;
+export function filter<A>(p: Predicate<A>) {
+  return <R>(fa: Gen<R, A>): Gen<R, A> => {
+    return fa.flatMap((a) => (p(a) ? Gen.constant(a) : Gen.empty));
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Gen filterNot
+ * @tsplus pipeable fncts.test.Gen filterNot
  */
-export function filterNot_<R, A>(fa: Gen<R, A>, p: Predicate<A>): Gen<R, A> {
-  return fa.filter((a) => !p(a));
+export function filterNot<A>(p: Predicate<A>) {
+  return <R>(fa: Gen<R, A>): Gen<R, A> => {
+    return fa.filter((a) => !p(a));
+  };
 }
 
 /**
@@ -124,24 +130,28 @@ export function int(constraints: NumberConstraints = {}): Gen<never, number> {
 }
 
 /**
- * @tsplus fluent fncts.test.Gen map
+ * @tsplus pipeable fncts.test.Gen map
  */
-export function map_<R, A, B>(self: Gen<R, A>, f: (a: A) => B): Gen<R, B> {
-  return new Gen(self.sample.map((maybeSample) => maybeSample.map((sample) => sample.map(f))));
+export function map<A, B>(f: (a: A) => B) {
+  return <R>(self: Gen<R, A>): Gen<R, B> => {
+    return new Gen(self.sample.map((maybeSample) => maybeSample.map((sample) => sample.map(f))));
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Gen mapIO
+ * @tsplus pipeable fncts.test.Gen mapIO
  */
-export function mapIO_<R, A, R1, B>(self: Gen<R, A>, f: (a: A) => IO<R1, never, B>): Gen<R | R1, B> {
-  return new Gen(
-    self.sample.mapIO((maybeSample) =>
-      maybeSample.match(
-        () => IO.succeedNow(Nothing()),
-        (sample) => sample.foreach(f).map(Maybe.just),
+export function mapIO<A, R1, B>(f: (a: A) => IO<R1, never, B>) {
+  return <R>(self: Gen<R, A>): Gen<R | R1, B> => {
+    return new Gen(
+      self.sample.mapIO((maybeSample) =>
+        maybeSample.match(
+          () => IO.succeedNow(Nothing()),
+          (sample) => sample.foreach(f).map(Maybe.just),
+        ),
       ),
-    ),
-  );
+    );
+  };
 }
 
 /**
@@ -168,7 +178,9 @@ export function medium<R, A>(f: (n: number) => Gen<R, A>, min = 0): Gen<R | Size
  * @tsplus static fncts.test.GenOps memo
  */
 export function memo<R, A>(builder: (maxDepth: number) => Gen<R, A>): (maxDepth?: number) => Gen<R, A> {
-  const previous: { [depth: number]: Gen<R, A> } = {};
+  const previous: {
+    [depth: number]: Gen<R, A>;
+  } = {};
   let remainingDepth = 10;
   return (maxDepth?: number): Gen<R, A> => {
     const n = maxDepth !== undefined ? maxDepth : remainingDepth;
@@ -198,14 +210,16 @@ export function oneOf<A extends ReadonlyArray<Gen<any, any>>>(...gens: A): Gen<_
 }
 
 /**
- * @tsplus fluent fncts.test.Gen reshrink
+ * @tsplus pipeable fncts.test.Gen reshrink
  */
-export function reshrink_<R, A, R1, B>(gen: Gen<R, A>, f: (a: A) => Sample<R1, B>): Gen<R | R1, B> {
-  return new Gen(
-    (gen.sample as Stream<R | R1, never, Maybe<Sample<R, A>>>).map((maybeSample) =>
-      maybeSample.map((sample) => f(sample.value)),
-    ),
-  );
+export function reshrink<A, R1, B>(f: (a: A) => Sample<R1, B>) {
+  return <R>(gen: Gen<R, A>): Gen<R | R1, B> => {
+    return new Gen(
+      (gen.sample as Stream<R | R1, never, Maybe<Sample<R, A>>>).map((maybeSample) =>
+        maybeSample.map((sample) => f(sample.value)),
+      ),
+    );
+  };
 }
 
 /**
@@ -269,8 +283,10 @@ export function weighted<R, A>(...gens: ReadonlyArray<readonly [Gen<R, A>, numbe
 }
 
 /**
- * @tsplus fluent fncts.test.Gen zipWith
+ * @tsplus pipeable fncts.test.Gen zipWith
  */
-export function zipWith_<R, A, R1, B, C>(self: Gen<R, A>, that: Gen<R1, B>, f: (a: A, b: B) => C): Gen<R | R1, C> {
-  return self.flatMap((a) => that.map((b) => f(a, b)));
+export function zipWith<A, R1, B, C>(that: Gen<R1, B>, f: (a: A, b: B) => C) {
+  return <R>(self: Gen<R, A>): Gen<R | R1, C> => {
+    return self.flatMap((a) => that.map((b) => f(a, b)));
+  };
 }

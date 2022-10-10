@@ -11,7 +11,6 @@ export class PSpec<R, E, T> {
   readonly _R!: () => R;
   readonly _E!: () => E;
   readonly _A!: () => T;
-
   constructor(readonly caseValue: SpecCase<R, E, T, PSpec<R, E, T>>) {}
 }
 
@@ -26,7 +25,6 @@ export const Spec: SpecOps = {};
  * @tsplus type fncts.test.PSpec
  */
 export type Spec<R, E> = PSpec<R, TestFailure<E>, TestSuccess>;
-
 export const enum SpecCaseTag {
   Exec = "Exec",
   Labeled = "Labeled",

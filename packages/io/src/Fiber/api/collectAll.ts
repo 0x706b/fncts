@@ -1,5 +1,4 @@
 import { SyntheticFiber } from "@fncts/io/Fiber/definition";
-
 /**
  * Collects all fibers into a single fiber producing an in-order list of the
  * results.
@@ -27,6 +26,6 @@ export function sequenceIterable<E, A>(
         ),
       ),
     ),
-    (fiberId) => IO.foreachDiscard(fibers, (fiber) => fiber.interruptAsFork(fiberId))
+    (fiberId) => IO.foreachDiscard(fibers, (fiber) => fiber.interruptAsFork(fiberId)),
   );
 }

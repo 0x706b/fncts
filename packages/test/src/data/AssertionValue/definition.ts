@@ -1,6 +1,5 @@
 import type { AssertionIO } from "../../control/AssertionIO/definition.js";
 import type { FreeBooleanAlgebra } from "../FreeBooleanAlgebra.js";
-
 export const AssertionValueTypeId = Symbol.for("fncts.test.data.AssertionValue");
 export type AssertionValueTypeId = typeof AssertionValueTypeId;
 

@@ -90,20 +90,21 @@ function applyLoop(environment: Environment<any>, patches: List<EnvironmentPatch
 }
 
 /**
- * @tsplus fluent fncts.Environment.Patch __call
+ * @tsplus pipeable fncts.Environment.Patch __call
  */
-export function apply<In, Out>(patch: EnvironmentPatch<In, Out>, environment: Environment<In>): Environment<Out> {
-  return applyLoop(environment, Cons(patch));
+export function apply<In>(environment: Environment<In>) {
+  return <Out>(patch: EnvironmentPatch<In, Out>): Environment<Out> => {
+    return applyLoop(environment, Cons(patch));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Environment.Patch combine
+ * @tsplus pipeable fncts.Environment.Patch combine
  */
-export function combine<In, Out, Out2>(
-  self: EnvironmentPatch<In, Out>,
-  that: EnvironmentPatch<Out, Out2>,
-): EnvironmentPatch<In, Out2> {
-  return new Combine(self, that);
+export function combine<Out, Out2>(that: EnvironmentPatch<Out, Out2>) {
+  return <In>(self: EnvironmentPatch<In, Out>): EnvironmentPatch<In, Out2> => {
+    return new Combine(self, that);
+  };
 }
 
 /**

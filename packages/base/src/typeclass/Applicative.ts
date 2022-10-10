@@ -1,6 +1,5 @@
 import type { Apply } from "@fncts/base/typeclass/Apply";
 import type { Pointed } from "@fncts/base/typeclass/Pointed";
-
 export interface Applicative<F extends HKT, FC = HKT.None> extends Apply<F, FC>, Pointed<F, FC> {}
 
 /**

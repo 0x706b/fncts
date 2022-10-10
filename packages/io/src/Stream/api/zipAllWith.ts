@@ -3,17 +3,18 @@ import { tuple } from "@fncts/base/data/function";
 import { zipChunks } from "../internal/util.js";
 
 /**
- * @tsplus fluent fncts.io.Stream zipAllWith
+ * @tsplus pipeable fncts.io.Stream zipAllWith
  */
-export function zipAllWith_<R, E, A, R1, E1, B, C, D, F>(
-  self: Stream<R, E, A>,
+export function zipAllWith<A, R1, E1, B, C, D, F>(
   that: Stream<R1, E1, B>,
   left: (a: A) => C,
   right: (b: B) => D,
   both: (a: A, b: B) => F,
   __tsplusTrace?: string,
-): Stream<R | R1, E | E1, C | D | F> {
-  return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) => pull(s, l, r, left, right, both));
+) {
+  return <R, E>(self: Stream<R, E, A>): Stream<R | R1, E | E1, C | D | F> => {
+    return self.combineChunks(that, <State<A, B>>new PullBoth(), (s, l, r) => pull(s, l, r, left, right, both));
+  };
 }
 
 class DrainLeft {

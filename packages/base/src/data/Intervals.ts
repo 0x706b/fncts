@@ -14,19 +14,21 @@ export function make(intervals: List<Interval>): Intervals {
 }
 
 /**
- * @tsplus fluent fncts.Intervals union
- * @tsplus operator fncts.Intervals ||
+ * @tsplus pipeable fncts.Intervals union
+ * @tsplus pipeable-operator fncts.Intervals ||
  */
-export function union(self: Intervals, that: Intervals): Intervals {
-  if (that.intervals.isEmpty()) {
-    return self;
-  } else if (self.intervals.isEmpty()) {
-    return that;
-  } else if (self.intervals.head.startMilliseconds < that.intervals.head.startMilliseconds) {
-    return unionLoop(self.intervals.tail, that.intervals, self.intervals.head, Nil());
-  } else {
-    return unionLoop(self.intervals, that.intervals.tail, that.intervals.head, Nil());
-  }
+export function union(that: Intervals) {
+  return (self: Intervals): Intervals => {
+    if (that.intervals.isEmpty()) {
+      return self;
+    } else if (self.intervals.isEmpty()) {
+      return that;
+    } else if (self.intervals.head.startMilliseconds < that.intervals.head.startMilliseconds) {
+      return unionLoop(self.intervals.tail, that.intervals, self.intervals.head, Nil());
+    } else {
+      return unionLoop(self.intervals, that.intervals.tail, that.intervals.head, Nil());
+    }
+  };
 }
 
 /**
@@ -64,11 +66,13 @@ function unionLoop(left: List<Interval>, right: List<Interval>, interval: Interv
 }
 
 /**
- * @tsplus fluent fncts.Intervals intersect
- * @tsplus operator fncts.Intervals &&
+ * @tsplus pipeable fncts.Intervals intersect
+ * @tsplus pipeable-operator fncts.Intervals &&
  */
-export function intersect(self: Intervals, that: Intervals): Intervals {
-  return intersectLoop(self.intervals, that.intervals, Nil());
+export function intersect(that: Intervals) {
+  return (self: Intervals): Intervals => {
+    return intersectLoop(self.intervals, that.intervals, Nil());
+  };
 }
 
 /**
@@ -104,18 +108,22 @@ export function end(self: Intervals): number {
 }
 
 /**
- * @tsplus fluent fncts.Intervals lt
- * @tsplus operator fncts.Intervals <
+ * @tsplus pipeable fncts.Intervals lt
+ * @tsplus pipeable-operator fncts.Intervals <
  */
-export function lt(self: Intervals, that: Intervals): boolean {
-  return self.start < that.start;
+export function lt(that: Intervals) {
+  return (self: Intervals): boolean => {
+    return self.start < that.start;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Intervals max
+ * @tsplus pipeable fncts.Intervals max
  */
-export function max(self: Intervals, that: Intervals): Intervals {
-  return self < that ? that : self;
+export function max(that: Intervals) {
+  return (self: Intervals): Intervals => {
+    return self < that ? that : self;
+  };
 }
 
 /**

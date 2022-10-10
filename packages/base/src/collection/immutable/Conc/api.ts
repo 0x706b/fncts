@@ -1,5 +1,6 @@
 import type { Concat, ConcF } from "@fncts/base/collection/immutable/Conc/definition";
 import type { Eq } from "@fncts/base/typeclass";
+import type * as P from "@fncts/base/typeclass";
 
 import {
   _Empty,
@@ -11,49 +12,53 @@ import {
   Slice,
 } from "@fncts/base/collection/immutable/Conc/definition";
 import { EitherTag } from "@fncts/base/data/Either";
-import { identity, tuple } from "@fncts/base/data/function";
+import { identity, pipe, tuple } from "@fncts/base/data/function";
 import { Stack } from "@fncts/base/internal/Stack";
-import * as P from "@fncts/base/typeclass";
 
 /**
- * @tsplus fluent fncts.Conc align
+ * @tsplus pipeable fncts.Conc align
  */
-export function align_<A, B>(self: Conc<A>, fb: Conc<B>): Conc<These<A, B>> {
-  return self.alignWith(fb, identity);
+export function align<B>(fb: Conc<B>) {
+  return <A>(self: Conc<A>): Conc<These<A, B>> => {
+    return self.alignWith(fb, identity);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc alignWith
+ * @tsplus pipeable fncts.Conc alignWith
  */
-export function alignWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (_: These<A, B>) => C): Conc<C> {
-  concrete(self);
-  concrete(fb);
-  const out    = builder<C>();
-  const minlen = Math.min(self.length, fb.length);
-  const maxlen = Math.max(self.length, fb.length);
-  for (let i = 0; i < minlen; i++) {
-    out.append(f(These.both(self.get(i), fb.get(i))));
-  }
-  if (minlen === maxlen) {
+export function alignWith<A, B, C>(fb: Conc<B>, f: (_: These<A, B>) => C) {
+  return (self: Conc<A>): Conc<C> => {
+    concrete(self);
+    concrete(fb);
+    const out    = builder<C>();
+    const minlen = Math.min(self.length, fb.length);
+    const maxlen = Math.max(self.length, fb.length);
+    for (let i = 0; i < minlen; i++) {
+      out.append(f(These.both(self.get(i), fb.get(i))));
+    }
+    if (minlen === maxlen) {
+      return out.result();
+    } else if (self.length > fb.length) {
+      for (let i = minlen; i < maxlen; i++) {
+        out.append(f(These.left(self.get(i))));
+      }
+    } else {
+      for (let i = minlen; i < maxlen; i++) {
+        out.append(f(These.right(fb.get(i))));
+      }
+    }
     return out.result();
-  } else if (self.length > fb.length) {
-    for (let i = minlen; i < maxlen; i++) {
-      out.append(f(These.left(self.get(i))));
-    }
-  } else {
-    for (let i = minlen; i < maxlen; i++) {
-      out.append(f(These.right(fb.get(i))));
-    }
-  }
-  return out.result();
+  };
 }
-
 /**
- * @tsplus fluent fncts.Conc append
+ * @tsplus pipeable fncts.Conc append
  */
-export function append_<A1, A2>(self: Conc<A1>, a: A2): Conc<A1 | A2> {
-  concrete(self);
-  return self.append(a);
+export function append<A2>(a: A2) {
+  return <A1>(self: Conc<A1>): Conc<A1 | A2> => {
+    concrete(self);
+    return self.append(a);
+  };
 }
 
 export class ConcBuilder<A> {
@@ -75,22 +80,24 @@ export function builder<A>(): ConcBuilder<A> {
 }
 
 /**
- * @tsplus fluent fncts.Conc flatMap
+ * @tsplus pipeable fncts.Conc flatMap
  */
-export function flatMap_<A, B>(ma: Conc<A>, f: (a: A) => Conc<B>): Conc<B> {
-  concrete(ma);
-  const iterator = ma.arrayIterator();
-  let result: IteratorResult<ArrayLike<A>>;
-  let out        = Conc.empty<B>();
-  while (!(result = iterator.next()).done) {
-    const arr    = result.value;
-    const length = arr.length;
-    for (let i = 0; i < length; i++) {
-      const a = arr[i]!;
-      out     = out.concat(f(a));
+export function flatMap<A, B>(f: (a: A) => Conc<B>) {
+  return (ma: Conc<A>): Conc<B> => {
+    concrete(ma);
+    const iterator = ma.arrayIterator();
+    let result: IteratorResult<ArrayLike<A>>;
+    let out        = Conc.empty<B>();
+    while (!(result = iterator.next()).done) {
+      const arr    = result.value;
+      const length = arr.length;
+      for (let i = 0; i < length; i++) {
+        const a = arr[i]!;
+        out     = out.concat(f(a));
+      }
     }
-  }
-  return out;
+    return out;
+  };
 }
 
 /**
@@ -145,55 +152,60 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>
 }
 
 /**
- * @tsplus fluent fncts.Conc chop
+ * @tsplus pipeable fncts.Conc chop
  */
-export function chop_<A, B>(self: Conc<A>, f: (as: Conc<A>) => readonly [B, Conc<A>]): Conc<B> {
-  const out       = builder<B>();
-  let cs: Conc<A> = self;
-  while (cs.isNonEmpty) {
-    const [b, c] = f(cs);
-    out.append(b);
-    cs = c;
-  }
-  return out.result();
+export function chop<A, B>(f: (as: Conc<A>) => readonly [B, Conc<A>]) {
+  return (self: Conc<A>): Conc<B> => {
+    const out       = builder<B>();
+    let cs: Conc<A> = self;
+    while (cs.isNonEmpty) {
+      const [b, c] = f(cs);
+      out.append(b);
+      cs = c;
+    }
+    return out.result();
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc chunksOf
+ * @tsplus pipeable fncts.Conc chunksOf
  */
-export function chunksOf_<A>(self: Conc<A>, n: number): Conc<Conc<A>> {
-  return self.chop((as) => as.splitAt(n));
+export function chunksOf(n: number) {
+  return <A>(self: Conc<A>): Conc<Conc<A>> => {
+    return self.chop((as) => as.splitAt(n));
+  };
 }
 
 /**
  * Transforms all elements of the Conc for as long as the specified partial function is defined.
  *
- * @tsplus fluent fncts.Conc collectWhile
+ * @tsplus pipeable fncts.Conc collectWhile
  */
-export function collectWhile_<A, B>(as: Conc<A>, f: (a: A) => Maybe<B>): Conc<B> {
-  concrete(as);
-
-  switch (as._tag) {
-    case ConcTag.Singleton: {
-      return f(as.value).match(() => Conc.empty(), Conc.single);
-    }
-    case ConcTag.Chunk: {
-      const array = as.arrayLike();
-      let dest    = Conc.empty<B>();
-      for (let i = 0; i < array.length; i++) {
-        const rhs = f(array[i]!);
-        if (rhs.isJust()) {
-          dest = dest.append(rhs.value);
-        } else {
-          return dest;
-        }
+export function collectWhile<A, B>(f: (a: A) => Maybe<B>) {
+  return (as: Conc<A>): Conc<B> => {
+    concrete(as);
+    switch (as._tag) {
+      case ConcTag.Singleton: {
+        return f(as.value).match(() => Conc.empty(), Conc.single);
       }
-      return dest;
+      case ConcTag.Chunk: {
+        const array = as.arrayLike();
+        let dest    = Conc.empty<B>();
+        for (let i = 0; i < array.length; i++) {
+          const rhs = f(array[i]!);
+          if (rhs.isJust()) {
+            dest = dest.append(rhs.value);
+          } else {
+            return dest;
+          }
+        }
+        return dest;
+      }
+      default: {
+        return (as.materialize() as Conc<A>).collectWhile(f);
+      }
     }
-    default: {
-      return collectWhile_(as.materialize(), f);
-    }
-  }
+  };
 }
 
 /**
@@ -204,219 +216,241 @@ export function compact<A>(self: Conc<Maybe<A>>): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.Conc concat
+ * @tsplus pipeable fncts.Conc concat
  */
-export function concat_<A, B>(self: Conc<A>, that: Conc<B>): Conc<A | B> {
-  concrete(self);
-  concrete(that);
-  return self.concat(that);
+export function concat<B>(that: Conc<B>) {
+  return <A>(self: Conc<A>): Conc<A | B> => {
+    concrete(self);
+    concrete(that);
+    return self.concat(that);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc elem
+ * @tsplus pipeable fncts.Conc elem
  */
-export function elem_<A>(self: Conc<A>, a: A, /** @tsplus auto */ E: Eq<A>): boolean {
-  return self.exists((el) => E.equals(el, a));
+export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
+  return (self: Conc<A>): boolean => {
+    return self.exists((el) => E.equals(el, a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc exists
+ * @tsplus pipeable fncts.Conc exists
  */
-export function exists_<A>(as: Conc<A>, predicate: Predicate<A>): boolean {
-  concrete(as);
-  const iterator = as.arrayIterator();
-  let exists     = false;
-  let result: IteratorResult<ArrayLike<A>>;
-  while (!exists && !(result = iterator.next()).done) {
-    const array = result.value;
-    for (let i = 0; !exists && i < array.length; i++) {
-      exists = predicate(array[i]!);
-    }
-  }
-  return exists;
-}
-
-/**
- * @tsplus fluent fncts.Conc drop
- */
-export function drop_<A>(self: Conc<A>, n: number): Conc<A> {
-  concrete(self);
-  const len = self.length;
-  if (len <= 0) {
-    return self;
-  } else if (n >= len) {
-    return Conc.empty();
-  } else {
-    switch (self._tag) {
-      case ConcTag.Slice:
-        return new Slice(self.conc, self.offset + n, self.l - n);
-      case ConcTag.Singleton:
-        return n > 0 ? Conc.empty() : self;
-      case ConcTag.Empty:
-        return Conc.empty();
-      default:
-        return new Slice(self, n, len - n);
-    }
-  }
-}
-
-/**
- * @tsplus fluent fncts.Conc dropUntil
- */
-export function dropUntil<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
-  let cont = true;
-  let i    = 0;
-  for (const elem of self) {
-    if (!cont) {
-      break;
-    }
-    i++;
-    cont = !p(elem);
-  }
-  return self.drop(i);
-}
-
-/**
- * @tsplus fluent fncts.Conc dropWhile
- */
-export function dropWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
-  concrete(self);
-  switch (self._tag) {
-    case ConcTag.Chunk: {
-      const arr = self.arrayLike();
-      let i     = 0;
-      while (i < arr.length && p(arr[i]!)) {
-        i++;
+export function exists<A>(predicate: Predicate<A>) {
+  return (as: Conc<A>): boolean => {
+    concrete(as);
+    const iterator = as.arrayIterator();
+    let exists     = false;
+    let result: IteratorResult<ArrayLike<A>>;
+    while (!exists && !(result = iterator.next()).done) {
+      const array = result.value;
+      for (let i = 0; !exists && i < array.length; i++) {
+        exists = predicate(array[i]!);
       }
-      return drop_(self, i);
     }
-    default: {
-      const iterator = self.arrayIterator();
-      let result: IteratorResult<ArrayLike<A>>;
-      let cont       = true;
-      let i          = 0;
-      while (cont && !(result = iterator.next()).done) {
-        const array = result.value;
-        let j       = 0;
-        while (cont && j < array.length) {
-          if (p(array[j]!)) {
-            i++;
-            j++;
-          } else {
-            cont = false;
-          }
-        }
+    return exists;
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc drop
+ */
+export function drop(n: number) {
+  return <A>(self: Conc<A>): Conc<A> => {
+    concrete(self);
+    const len = self.length;
+    if (len <= 0) {
+      return self;
+    } else if (n >= len) {
+      return Conc.empty();
+    } else {
+      switch (self._tag) {
+        case ConcTag.Slice:
+          return new Slice(self.conc, self.offset + n, self.l - n);
+        case ConcTag.Singleton:
+          return n > 0 ? Conc.empty() : self;
+        case ConcTag.Empty:
+          return Conc.empty();
+        default:
+          return new Slice(self, n, len - n);
       }
-      return drop_(self, i);
     }
-  }
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc filter
+ * @tsplus pipeable fncts.Conc dropUntil
  */
-export function filter_<A, B extends A>(self: Conc<A>, p: Refinement<A, B>): Conc<B>;
-export function filter_<A>(self: Conc<A>, p: Predicate<A>): Conc<A>;
-export function filter_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
-  return self.filterWithIndex((_, a) => p(a));
-}
-
-/**
- * @tsplus fluent fncts.Conc filterMap
- */
-export function filterMap_<A, B>(self: Conc<A>, f: (a: A) => Maybe<B>): Conc<B> {
-  return self.filterMapWithIndex((_, a) => f(a));
-}
-
-/**
- * @tsplus fluent fncts.Conc filterMapWithIndex
- */
-export function filterMapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => Maybe<B>): Conc<B> {
-  concrete(self);
-  const iterator = self.arrayIterator();
-  const out      = builder<B>();
-  let result: IteratorResult<ArrayLike<A>>;
-  let i          = 0;
-  while (!(result = iterator.next()).done) {
-    const array = result.value;
-    for (let j = 0; j < array.length; j++) {
-      const ob = f(i, array[j]!);
-      if (ob.isJust()) {
-        out.append(ob.value);
+export function dropUntil<A>(p: Predicate<A>) {
+  return (self: Conc<A>): Conc<A> => {
+    let cont = true;
+    let i    = 0;
+    for (const elem of self) {
+      if (!cont) {
+        break;
       }
       i++;
+      cont = !p(elem);
     }
-  }
-  return out.result();
+    return self.drop(i);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc filterWithIndex
+ * @tsplus pipeable fncts.Conc dropWhile
  */
-export function filterWithIndex_<A, B extends A>(self: Conc<A>, p: RefinementWithIndex<number, A, B>): Conc<B>;
-export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A>;
-export function filterWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): Conc<A> {
-  concrete(self);
-  switch (self._tag) {
-    case ConcTag.Empty: {
-      return _Empty;
-    }
-    case ConcTag.Chunk: {
-      const arr   = self.arrayLike();
-      let builder = Conc.empty<A>();
-      for (let i = 0; i < arr.length; i++) {
-        const a = arr[i]!;
-        if (p(i, a)) {
-          builder = builder.append(a);
-        }
-      }
-      return builder;
-    }
-    case ConcTag.Singleton: {
-      if (p(0, self.value)) {
-        return self;
-      }
-      return _Empty;
-    }
-    default: {
-      const iterator = self.arrayIterator();
-      let out        = Conc.empty<A>();
-      let result: IteratorResult<ArrayLike<A>>;
-      let i          = 0;
-      while (!(result = iterator.next()).done) {
-        const array = result.value;
-        for (let j = 0; j < array.length; j++) {
-          const a = array[j]!;
-          if (p(i, a)) {
-            out = out.append(a);
-          }
+export function dropWhile<A>(p: Predicate<A>) {
+  return (self: Conc<A>): Conc<A> => {
+    concrete(self);
+    switch (self._tag) {
+      case ConcTag.Chunk: {
+        const arr = self.arrayLike();
+        let i     = 0;
+        while (i < arr.length && p(arr[i]!)) {
           i++;
         }
+        return (self as Conc<A>).drop(i);
       }
-      return out;
+      default: {
+        const iterator = self.arrayIterator();
+        let result: IteratorResult<ArrayLike<A>>;
+        let cont       = true;
+        let i          = 0;
+        while (cont && !(result = iterator.next()).done) {
+          const array = result.value;
+          let j       = 0;
+          while (cont && j < array.length) {
+            if (p(array[j]!)) {
+              i++;
+              j++;
+            } else {
+              cont = false;
+            }
+          }
+        }
+        return (self as Conc<A>).drop(i);
+      }
     }
-  }
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc find
+ * @tsplus pipeable fncts.Conc filter
  */
-export function find_<A>(self: Conc<A>, f: (a: A) => boolean): Maybe<A> {
-  concrete(self);
-  const iterator = self.arrayIterator();
-  let out        = Nothing<A>();
-  let result: IteratorResult<ArrayLike<A>>;
-  while (out.isNothing() && !(result = iterator.next()).done) {
-    const array  = result.value;
-    const length = array.length;
-    for (let i = 0; out.isNothing() && i < length; i++) {
-      const a = array[i]!;
-      if (f(a)) {
-        out = Just(a);
+export function filter<A, B extends A>(p: Refinement<A, B>): (self: Conc<A>) => Conc<B>;
+export function filter<A>(p: Predicate<A>): (self: Conc<A>) => Conc<A>;
+export function filter<A>(p: Predicate<A>) {
+  return (self: Conc<A>): Conc<A> => {
+    return self.filterWithIndex((_, a) => p(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc filterMap
+ */
+export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
+  return (self: Conc<A>): Conc<B> => {
+    return self.filterMapWithIndex((_, a) => f(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc filterMapWithIndex
+ */
+export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
+  return (self: Conc<A>): Conc<B> => {
+    concrete(self);
+    const iterator = self.arrayIterator();
+    const out      = builder<B>();
+    let result: IteratorResult<ArrayLike<A>>;
+    let i          = 0;
+    while (!(result = iterator.next()).done) {
+      const array = result.value;
+      for (let j = 0; j < array.length; j++) {
+        const ob = f(i, array[j]!);
+        if (ob.isJust()) {
+          out.append(ob.value);
+        }
+        i++;
       }
     }
-  }
-  return out;
+    return out.result();
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc filterWithIndex
+ */
+export function filterWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: Conc<A>) => Conc<B>;
+export function filterWithIndex<A>(p: PredicateWithIndex<number, A>): (self: Conc<A>) => Conc<A>;
+export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
+  return (self: Conc<A>): Conc<A> => {
+    concrete(self);
+    switch (self._tag) {
+      case ConcTag.Empty: {
+        return _Empty;
+      }
+      case ConcTag.Chunk: {
+        const arr   = self.arrayLike();
+        let builder = Conc.empty<A>();
+        for (let i = 0; i < arr.length; i++) {
+          const a = arr[i]!;
+          if (p(i, a)) {
+            builder = builder.append(a);
+          }
+        }
+        return builder;
+      }
+      case ConcTag.Singleton: {
+        if (p(0, self.value)) {
+          return self;
+        }
+        return _Empty;
+      }
+      default: {
+        const iterator = self.arrayIterator();
+        let out        = Conc.empty<A>();
+        let result: IteratorResult<ArrayLike<A>>;
+        let i          = 0;
+        while (!(result = iterator.next()).done) {
+          const array = result.value;
+          for (let j = 0; j < array.length; j++) {
+            const a = array[j]!;
+            if (p(i, a)) {
+              out = out.append(a);
+            }
+            i++;
+          }
+        }
+        return out;
+      }
+    }
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc find
+ */
+export function find<A>(f: (a: A) => boolean) {
+  return (self: Conc<A>): Maybe<A> => {
+    concrete(self);
+    const iterator = self.arrayIterator();
+    let out        = Nothing<A>();
+    let result: IteratorResult<ArrayLike<A>>;
+    while (out.isNothing() && !(result = iterator.next()).done) {
+      const array  = result.value;
+      const length = array.length;
+      for (let i = 0; out.isNothing() && i < length; i++) {
+        const a = array[i]!;
+        if (f(a)) {
+          out = Just(a);
+        }
+      }
+    }
+    return out;
+  };
 }
 
 /**
@@ -425,115 +459,136 @@ export function find_<A>(self: Conc<A>, f: (a: A) => boolean): Maybe<A> {
 export function flatten<A>(self: Conc<Conc<A>>): Conc<A> {
   return self.flatMap(identity);
 }
+
 /**
  * Folds over the elements in this Conc from the left.
  * Stops the fold early when the condition is not fulfilled.
  *
- * @tsplus fluent fncts.Conc foldLeftWhile
+ * @tsplus pipeable fncts.Conc foldLeftWhile
  */
-export function foldLeftWhile_<A, B>(as: Conc<A>, b: B, p: Predicate<B>, f: (b: B, a: A) => B): B {
-  concrete(as);
-  const iterator = as.arrayIterator();
-  let s          = b;
-  let cont       = p(s);
-  let result: IteratorResult<ArrayLike<A>>;
-  while (cont && !(result = iterator.next()).done) {
-    const array = result.value;
-    for (let i = 0; cont && i < array.length; i++) {
-      s    = f(s, array[i]!);
-      cont = p(s);
+export function foldLeftWhile<A, B>(b: B, p: Predicate<B>, f: (b: B, a: A) => B) {
+  return (as: Conc<A>): B => {
+    concrete(as);
+    const iterator = as.arrayIterator();
+    let s          = b;
+    let cont       = p(s);
+    let result: IteratorResult<ArrayLike<A>>;
+    while (cont && !(result = iterator.next()).done) {
+      const array = result.value;
+      for (let i = 0; cont && i < array.length; i++) {
+        s    = f(s, array[i]!);
+        cont = p(s);
+      }
     }
-  }
-  return s;
+    return s;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc foldLeft
+ * @tsplus pipeable fncts.Conc foldLeft
  */
-export function foldLeft_<A, B>(self: Conc<A>, b: B, f: (b: B, a: A) => B): B {
-  return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
+  return (self: Conc<A>): B => {
+    return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc foldLeftWithIndex
+ * @tsplus pipeable fncts.Conc foldLeftWithIndex
  */
-export function foldLeftWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, b: B, a: A) => B): B {
-  concrete(self);
-  const iterator = self.arrayIterator();
-  let out        = b;
-  let result: IteratorResult<ArrayLike<A>>;
-  let i          = 0;
-  while (!(result = iterator.next()).done) {
-    const array = result.value;
-    for (let j = 0; j < array.length; j++) {
-      out = f(i, out, array[j]!);
-      i++;
+export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
+  return (self: Conc<A>): B => {
+    concrete(self);
+    const iterator = self.arrayIterator();
+    let out        = b;
+    let result: IteratorResult<ArrayLike<A>>;
+    let i          = 0;
+    while (!(result = iterator.next()).done) {
+      const array = result.value;
+      for (let j = 0; j < array.length; j++) {
+        out = f(i, out, array[j]!);
+        i++;
+      }
     }
-  }
-  return out;
+    return out;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc foldMap
+ * @tsplus pipeable fncts.Conc foldMap
  */
-export function foldMap_<A, M>(fa: Conc<A>, f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
-  return fa.foldMapWithIndex((_, a) => f(a), M);
+export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
+  return (fa: Conc<A>): M => {
+    return fa.foldMapWithIndex((_, a) => f(a), M);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc foldMapWithIndex
+ * @tsplus pipeable fncts.Conc foldMapWithIndex
  */
-export function foldMapWithIndex_<A, M>(fa: Conc<A>, f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>): M {
-  return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
+export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
+  return (fa: Conc<A>): M => {
+    return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc foldRight
+ * @tsplus pipeable fncts.Conc foldRight
  */
-export function foldRight_<A, B>(fa: Conc<A>, b: B, f: (a: A, b: B) => B): B {
-  return fa.foldRightWithIndex(b, (_, a, b) => f(a, b));
+export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
+  return (fa: Conc<A>): B => {
+    return fa.foldRightWithIndex(b, (_, a, b) => f(a, b));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc foldRightWithIndex
+ * @tsplus pipeable fncts.Conc foldRightWithIndex
  */
-export function foldRightWithIndex_<A, B>(self: Conc<A>, b: B, f: (i: number, a: A, b: B) => B): B {
-  concrete(self);
-  const iterator = self.reverseArrayIterator();
-  let out        = b;
-  let result: IteratorResult<ArrayLike<A>>;
-  let i          = self.length - 1;
-  while (!(result = iterator.next()).done) {
-    const array = result.value;
-    for (let j = array.length - 1; j >= 0; j--) {
-      out = f(i, array[i]!, out);
-      i--;
+export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
+  return (self: Conc<A>): B => {
+    concrete(self);
+    const iterator = self.reverseArrayIterator();
+    let out        = b;
+    let result: IteratorResult<ArrayLike<A>>;
+    let i          = self.length - 1;
+    while (!(result = iterator.next()).done) {
+      const array = result.value;
+      for (let j = array.length - 1; j >= 0; j--) {
+        out = f(i, array[i]!, out);
+        i--;
+      }
     }
-  }
-  return out;
+    return out;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc forEach
+ * @tsplus pipeable fncts.Conc forEach
  */
-export function forEach_<A, B>(self: Conc<A>, f: (a: A) => B): void {
-  concrete(self);
-  return self.forEach(0, (_, a) => f(a));
+export function forEach<A, B>(f: (a: A) => B) {
+  return (self: Conc<A>): void => {
+    concrete(self);
+    return self.forEach(0, (_, a) => f(a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc forEachWithIndex
+ * @tsplus pipeable fncts.Conc forEachWithIndex
  */
-export function forEachWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): void {
-  concrete(self);
-  self.forEach(0, f);
+export function forEachWithIndex<A, B>(f: (i: number, a: A) => B) {
+  return (self: Conc<A>): void => {
+    concrete(self);
+    self.forEach(0, f);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc get
+ * @tsplus pipeable fncts.Conc get
  */
-export function get_<A>(as: Conc<A>, n: number): Maybe<A> {
-  return Maybe.tryCatch(() => unsafeGet_(as, n));
+export function get(n: number) {
+  return <A>(as: Conc<A>): Maybe<A> => {
+    return Maybe.tryCatch(() => as[n]);
+  };
 }
 
 /**
@@ -558,13 +613,15 @@ export function init<A>(self: Conc<A>): Maybe<Conc<A>> {
 }
 
 /**
- * @tsplus fluent fncts.Conc join
+ * @tsplus pipeable fncts.Conc join
  */
-export function join_(self: Conc<string>, separator: string): string {
-  if (self.length === 0) {
-    return "";
-  }
-  return self.unsafeTail.foldLeft(self.unsafeGet(0), (b, s) => b + separator + s);
+export function join(separator: string) {
+  return (self: Conc<string>): string => {
+    if (self.length === 0) {
+      return "";
+    }
+    return self.unsafeTail.foldLeft(self.unsafeGet(0), (b, s) => b + separator + s);
+  };
 }
 
 /**
@@ -579,40 +636,44 @@ export function last<A>(self: Conc<A>): Maybe<A> {
 }
 
 /**
- * @tsplus fluent fncts.Conc map
+ * @tsplus pipeable fncts.Conc map
  */
-export function map_<A, B>(self: Conc<A>, f: (a: A) => B): Conc<B> {
-  return self.mapWithIndex((_, a) => f(a));
+export function map<A, B>(f: (a: A) => B) {
+  return (self: Conc<A>): Conc<B> => {
+    return self.mapWithIndex((_, a) => f(a));
+  };
 }
 
 /**
  * Statefully maps over the Conc, producing new elements of type `B`.
  *
- * @tsplus fluent fncts.Conc mapAccum
+ * @tsplus pipeable fncts.Conc mapAccum
  */
-export function mapAccum_<A, S, B>(self: Conc<A>, s: S, f: (s: S, a: A) => readonly [S, B]): readonly [S, Conc<B>] {
-  concrete(self);
-  const iterator = self.arrayIterator();
-  const out      = builder<B>();
-  let state      = s;
-  let result;
-  while (!(result = iterator.next()).done) {
-    const array  = result.value;
-    const length = array.length;
-    for (let i = 0; i < length; i++) {
-      const a   = array[i]!;
-      const tup = f(state, a);
-      out.append(tup[1]);
-      state = tup[0];
+export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [S, B]) {
+  return (self: Conc<A>): readonly [S, Conc<B>] => {
+    concrete(self);
+    const iterator = self.arrayIterator();
+    const out      = builder<B>();
+    let state      = s;
+    let result;
+    while (!(result = iterator.next()).done) {
+      const array  = result.value;
+      const length = array.length;
+      for (let i = 0; i < length; i++) {
+        const a   = array[i]!;
+        const tup = f(state, a);
+        out.append(tup[1]);
+        state = tup[0];
+      }
     }
-  }
-  return tuple(s, out.result());
+    return tuple(s, out.result());
+  };
 }
 
 function mapArrayLike<A, B>(as: ArrayLike<A>, len: number, startIndex: number, f: (i: number, a: A) => B): Conc<B> {
   let bs = Conc.empty<B>();
   for (let i = 0; i < len; i++) {
-    bs = append_(bs, f(i + startIndex, as[i]!));
+    bs = bs.append(f(i + startIndex, as[i]!));
   }
   return bs;
 }
@@ -625,7 +686,7 @@ function mapArrayLikeReverse<A, B>(
 ): Conc<B> {
   let bs = Conc.empty<B>();
   for (let i = BUFFER_SIZE - len, j = len - 1; i < BUFFER_SIZE; i++, j--) {
-    bs = append_(bs, f(endIndex - j, as[i]!));
+    bs = bs.append(f(endIndex - j, as[i]!));
   }
   return bs;
 }
@@ -658,101 +719,99 @@ class PrependFrame<A, B> {
 type Frame<A, B> = DoneFrame | ConcatLeftFrame<A> | ConcatRightFrame<B> | AppendFrame<A> | PrependFrame<A, B>;
 
 /**
- * @tsplus fluent fncts.Conc mapWithIndex
+ * @tsplus pipeable fncts.Conc mapWithIndex
  */
-export function mapWithIndex_<A, B>(self: Conc<A>, f: (i: number, a: A) => B): Conc<B> {
-  let current = self;
-
-  let index = 0;
-
-  const stack = Stack<Frame<A, B>>();
-  stack.push(new DoneFrame());
-
-  let result: Conc<B> = Conc.empty();
-
-  recursion: while (stack.hasNext) {
-    // eslint-disable-next-line no-constant-condition
-    pushing: while (true) {
-      concrete<A>(current);
-      switch (current._tag) {
-        case ConcTag.Singleton: {
-          result = new Singleton(f(index++, current.value));
-          break pushing;
-        }
-        case ConcTag.Empty: {
-          result = _Empty;
-          break pushing;
-        }
-        case ConcTag.Chunk: {
-          result = new Chunk(current._array.map((a, i) => f(i + index, a)));
-          index += current.length;
-          break pushing;
-        }
-        case ConcTag.Concat: {
-          stack.push(new ConcatLeftFrame(current, index));
-          current = current.left;
-          continue pushing;
-        }
-        case ConcTag.AppendN: {
-          stack.push(new AppendFrame(current.buffer as ArrayLike<A>, current.bufferUsed, index));
-          current = current.start;
-          continue pushing;
-        }
-        case ConcTag.PrependN: {
-          stack.push(
-            new PrependFrame(
-              mapArrayLikeReverse(
-                current.buffer as ArrayLike<A>,
-                current.bufferUsed,
-                index + current.bufferUsed - 1,
-                f,
-              ),
-              current.end,
-            ),
-          );
-          index += current.bufferUsed;
-          break pushing;
-        }
-        case ConcTag.Slice: {
-          let r = Conc.empty<B>();
-          for (let i = 0; i < current.length; i++) {
-            r = r.append(f(i + index, unsafeGet_(current, i)));
+export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
+  return (self: Conc<A>): Conc<B> => {
+    let current = self;
+    let index   = 0;
+    const stack = Stack<Frame<A, B>>();
+    stack.push(new DoneFrame());
+    let result: Conc<B> = Conc.empty();
+    recursion: while (stack.hasNext) {
+      // eslint-disable-next-line no-constant-condition
+      pushing: while (true) {
+        concrete<A>(current);
+        switch (current._tag) {
+          case ConcTag.Singleton: {
+            result = new Singleton(f(index++, current.value));
+            break pushing;
           }
-          result = r;
-          index += current.length;
-          break pushing;
+          case ConcTag.Empty: {
+            result = _Empty;
+            break pushing;
+          }
+          case ConcTag.Chunk: {
+            result = new Chunk(current._array.map((a, i) => f(i + index, a)));
+            index += current.length;
+            break pushing;
+          }
+          case ConcTag.Concat: {
+            stack.push(new ConcatLeftFrame(current, index));
+            current = current.left;
+            continue pushing;
+          }
+          case ConcTag.AppendN: {
+            stack.push(new AppendFrame(current.buffer as ArrayLike<A>, current.bufferUsed, index));
+            current = current.start;
+            continue pushing;
+          }
+          case ConcTag.PrependN: {
+            stack.push(
+              new PrependFrame(
+                mapArrayLikeReverse(
+                  current.buffer as ArrayLike<A>,
+                  current.bufferUsed,
+                  index + current.bufferUsed - 1,
+                  f,
+                ),
+                current.end,
+              ),
+            );
+            index += current.bufferUsed;
+            break pushing;
+          }
+          case ConcTag.Slice: {
+            let r = Conc.empty<B>();
+            for (let i = 0; i < current.length; i++) {
+              r = r.append(f(i + index, current[i]));
+            }
+            result = r;
+            index += current.length;
+            break pushing;
+          }
+        }
+      }
+      // eslint-disable-next-line no-constant-condition
+      popping: while (true) {
+        const top = stack.pop()!;
+        switch (top._tag) {
+          case "Done": {
+            return result;
+          }
+          case "ConcatLeft": {
+            current = top.conc.right;
+            stack.push(new ConcatRightFrame(result));
+            continue recursion;
+          }
+          case "ConcatRight": {
+            result = top.leftResult.concat(result);
+            continue popping;
+          }
+          case "Append": {
+            result = result.concat(mapArrayLike(top.buffer, top.bufferUsed, index, f));
+            continue popping;
+          }
+          case "Prepend": {
+            current = top.end;
+            stack.push(new ConcatRightFrame(top.pre));
+            continue recursion;
+          }
         }
       }
     }
-    // eslint-disable-next-line no-constant-condition
-    popping: while (true) {
-      const top = stack.pop()!;
-      switch (top._tag) {
-        case "Done": {
-          return result;
-        }
-        case "ConcatLeft": {
-          current = top.conc.right;
-          stack.push(new ConcatRightFrame(result));
-          continue recursion;
-        }
-        case "ConcatRight": {
-          result = concat_(top.leftResult, result);
-          continue popping;
-        }
-        case "Append": {
-          result = concat_(result, mapArrayLike(top.buffer, top.bufferUsed, index, f));
-          continue popping;
-        }
-        case "Prepend": {
-          current = top.end;
-          stack.push(new ConcatRightFrame(top.pre));
-          continue recursion;
-        }
-      }
-    }
-  }
-  throw new Error("bug");
+    throw new Error("bug");
+  };
 }
 
 /**
@@ -771,84 +830,90 @@ export function isNonEmpty<A>(conc: Conc<A>): boolean {
 }
 
 /**
- * @tsplus fluent fncts.Conc partition
+ * @tsplus pipeable fncts.Conc partition
  */
-export function partition_<A, B extends A>(self: Conc<A>, p: Refinement<A, B>): readonly [Conc<A>, Conc<B>];
-export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>, Conc<A>];
-export function partition_<A>(self: Conc<A>, p: Predicate<A>): readonly [Conc<A>, Conc<A>] {
-  return self.partitionWithIndex((_, a) => p(a));
+export function partition<A, B extends A>(p: Refinement<A, B>): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
+export function partition<A>(p: Predicate<A>): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
+export function partition<A>(p: Predicate<A>) {
+  return (self: Conc<A>): readonly [Conc<A>, Conc<A>] => {
+    return self.partitionWithIndex((_, a) => p(a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc partitionMap
+ * @tsplus pipeable fncts.Conc partitionMap
  */
-export function partitionMap_<A, B, C>(self: Conc<A>, f: (a: A) => Either<B, C>): readonly [Conc<B>, Conc<C>] {
-  return self.partitionMapWithIndex((_, a) => f(a));
+export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
+  return (self: Conc<A>): readonly [Conc<B>, Conc<C>] => {
+    return self.partitionMapWithIndex((_, a) => f(a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc partitionMapWithIndex
+ * @tsplus pipeable fncts.Conc partitionMapWithIndex
  */
-export function partitionMapWithIndex_<A, B, C>(
-  fa: Conc<A>,
-  f: (i: number, a: A) => Either<B, C>,
-): readonly [Conc<B>, Conc<C>] {
-  concrete(fa);
-  const iterator = fa.arrayIterator();
-  const left     = builder<B>();
-  const right    = builder<C>();
-  let result: IteratorResult<ArrayLike<A>>;
-  let i          = 0;
-  while (!(result = iterator.next()).done) {
-    const array = result.value;
-    for (let j = 0; j < array.length; j++) {
-      const eab = f(i, array[j]!);
-      eab.match(
-        (b) => left.append(b),
-        (c) => right.append(c),
-      );
-      i++;
-    }
-  }
-  return [left.result(), right.result()];
-}
-
-/**
- * @tsplus fluent fncts.Conc partitionWithIndex
- */
-export function partitionWithIndex_<A, B extends A>(
-  self: Conc<A>,
-  p: RefinementWithIndex<number, A, B>,
-): readonly [Conc<A>, Conc<B>];
-export function partitionWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): readonly [Conc<A>, Conc<A>];
-export function partitionWithIndex_<A>(self: Conc<A>, p: PredicateWithIndex<number, A>): readonly [Conc<A>, Conc<A>] {
-  concrete(self);
-  const iterator = self.arrayIterator();
-  const left     = builder<A>();
-  const right    = builder<A>();
-  let result: IteratorResult<ArrayLike<A>>;
-  let i          = 0;
-  while (!(result = iterator.next()).done) {
-    const array = result.value;
-    for (let j = 0; j < array.length; j++) {
-      const a = array[j]!;
-      if (p(i, a)) {
-        right.append(a);
-      } else {
-        left.append(a);
+export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
+  return (fa: Conc<A>): readonly [Conc<B>, Conc<C>] => {
+    concrete(fa);
+    const iterator = fa.arrayIterator();
+    const left     = builder<B>();
+    const right    = builder<C>();
+    let result: IteratorResult<ArrayLike<A>>;
+    let i          = 0;
+    while (!(result = iterator.next()).done) {
+      const array = result.value;
+      for (let j = 0; j < array.length; j++) {
+        const eab = f(i, array[j]!);
+        eab.match(
+          (b) => left.append(b),
+          (c) => right.append(c),
+        );
+        i++;
       }
-      i++;
     }
-  }
-  return [left.result(), right.result()];
+    return [left.result(), right.result()];
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc prepend
+ * @tsplus pipeable fncts.Conc partitionWithIndex
  */
-export function prepend_<A, B>(self: Conc<A>, a: B): Conc<A | B> {
-  concrete(self);
-  return self.prepend(a);
+export function partitionWithIndex<A, B extends A>(
+  p: RefinementWithIndex<number, A, B>,
+): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
+export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>): (self: Conc<A>) => readonly [Conc<A>, Conc<A>];
+export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
+  return (self: Conc<A>): readonly [Conc<A>, Conc<A>] => {
+    concrete(self);
+    const iterator = self.arrayIterator();
+    const left     = builder<A>();
+    const right    = builder<A>();
+    let result: IteratorResult<ArrayLike<A>>;
+    let i          = 0;
+    while (!(result = iterator.next()).done) {
+      const array = result.value;
+      for (let j = 0; j < array.length; j++) {
+        const a = array[j]!;
+        if (p(i, a)) {
+          right.append(a);
+        } else {
+          left.append(a);
+        }
+        i++;
+      }
+    }
+    return [left.result(), right.result()];
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc prepend
+ */
+export function prepend<B>(a: B) {
+  return <A>(self: Conc<A>): Conc<A | B> => {
+    concrete(self);
+    return self.prepend(a);
+  };
 }
 
 /**
@@ -887,40 +952,42 @@ export function separate<E, A>(self: Conc<Either<E, A>>): readonly [Conc<E>, Con
 }
 
 /**
- * @tsplus fluent fncts.Conc splitAt
+ * @tsplus pipeable fncts.Conc splitAt
  */
-export function splitAt_<A>(self: Conc<A>, n: number): readonly [Conc<A>, Conc<A>] {
-  return [self.take(n), self.drop(n)];
+export function splitAt(n: number) {
+  return <A>(self: Conc<A>): readonly [Conc<A>, Conc<A>] => {
+    return [self.take(n), self.drop(n)];
+  };
 }
 
 /**
  * Splits this Conc on the first element that matches this predicate.
  *
- * @tsplus fluent fncts.Conc splitWhere
+ * @tsplus pipeable fncts.Conc splitWhere
  */
-export function splitWhere_<A>(self: Conc<A>, f: (a: A) => boolean): readonly [Conc<A>, Conc<A>] {
-  concrete(self);
-  const iterator = self.arrayIterator();
-  let next;
-  let cont       = true;
-  let i          = 0;
-
-  while (cont && (next = iterator.next()) && !next.done) {
-    const array = next.value;
-    const len   = array.length;
-    let j       = 0;
-    while (cont && j < len) {
-      const a = array[j]!;
-      if (f(a)) {
-        cont = false;
-      } else {
-        i++;
-        j++;
+export function splitWhere<A>(f: (a: A) => boolean) {
+  return (self: Conc<A>): readonly [Conc<A>, Conc<A>] => {
+    concrete(self);
+    const iterator = self.arrayIterator();
+    let next;
+    let cont       = true;
+    let i          = 0;
+    while (cont && (next = iterator.next()) && !next.done) {
+      const array = next.value;
+      const len   = array.length;
+      let j       = 0;
+      while (cont && j < len) {
+        const a = array[j]!;
+        if (f(a)) {
+          cont = false;
+        } else {
+          i++;
+          j++;
+        }
       }
     }
-  }
-
-  return splitAt_(self, i);
+    return (self as Conc<A>).splitAt(i);
+  };
 }
 
 /**
@@ -934,62 +1001,92 @@ export function tail<A>(conc: Conc<A>): Maybe<Conc<A>> {
 }
 
 /**
- * @tsplus fluent fncts.Conc take
+ * @tsplus pipeable fncts.Conc take
  */
-export function take_<A>(self: Conc<A>, n: number): Conc<A> {
-  concrete(self);
-  return self.take(n);
+export function take(n: number) {
+  return <A>(self: Conc<A>): Conc<A> => {
+    concrete(self);
+    return self.take(n);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc takeWhile
+ * @tsplus pipeable fncts.Conc takeWhile
  */
-export function takeWhile_<A>(self: Conc<A>, p: Predicate<A>): Conc<A> {
-  concrete(self);
-  switch (self._tag) {
-    case ConcTag.Chunk: {
-      const arr = self.arrayLike();
-      let i     = 0;
-      while (i < arr.length && p(arr[i]!)) {
-        i++;
+export function takeWhile<A>(p: Predicate<A>) {
+  return (self: Conc<A>): Conc<A> => {
+    concrete(self);
+    switch (self._tag) {
+      case ConcTag.Chunk: {
+        const arr = self.arrayLike();
+        let i     = 0;
+        while (i < arr.length && p(arr[i]!)) {
+          i++;
+        }
+        return self.take(i);
       }
-      return take_(self, i);
-    }
-    default: {
-      const iterator = self.arrayIterator();
-      let result: IteratorResult<ArrayLike<A>>;
-      let cont       = true;
-      let i          = 0;
-      while (cont && !(result = iterator.next()).done) {
-        const array = result.value;
-        let j       = 0;
-        while (cont && j < array.length) {
-          if (!p(array[j]!)) {
-            cont = false;
-          } else {
-            i++;
-            j++;
+      default: {
+        const iterator = self.arrayIterator();
+        let result: IteratorResult<ArrayLike<A>>;
+        let cont       = true;
+        let i          = 0;
+        while (cont && !(result = iterator.next()).done) {
+          const array = result.value;
+          let j       = 0;
+          while (cont && j < array.length) {
+            if (!p(array[j]!)) {
+              cont = false;
+            } else {
+              i++;
+              j++;
+            }
           }
         }
+        return self.take(i);
       }
-      return take_(self, i);
     }
-  }
+  };
+}
+
+export const traverse: P.Traversable<ConcF>["traverse"] = (G) => (f) => (self) => self.traverse(G)(f);
+
+export const traverseWithIndex: P.TraversableWithIndex<ConcF>["traverseWithIndex"] = (G) => (f) => (self) =>
+  self.traverseWithIndex(G)(f);
+
+/**
+ * @tsplus getter fncts.Conc traverseWithIndex
+ */
+export function _traverseWithIndex<A>(
+  self: Conc<A>,
+): <G extends HKT, GC = HKT.None>(
+  G: P.Applicative<G, GC>,
+) => <K, Q, W, X, I, S, R, E, B>(
+  f: (i: number, a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
+) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, Conc<B>>;
+export function _traverseWithIndex<A>(
+  self: Conc<A>,
+): <G>(G: P.Applicative<HKT.F<G>>) => <B>(f: (i: number, a: A) => HKT.FK1<G, B>) => HKT.FK1<G, Conc<B>> {
+  return (G) => (f) =>
+    self.foldLeftWithIndex(G.pure(Conc.empty()), (i, fbs, a) =>
+      pipe(
+        fbs,
+        G.zipWith(f(i, a), (bs, b) => bs.append(b)),
+      ),
+    );
 }
 
 /**
  * @tsplus getter fncts.Conc traverse
  */
-export const traverse: P.Traversable<ConcF>["traverse"] = (self) => (G) => (f) =>
-  self.traverseWithIndex(G)((_, a) => f(a));
-
-/**
- * @tsplus getter fncts.Conc traverseWithIndex
- */
-export const traverseWithIndex = P.TraversableWithIndex.makeTraverseWithIndex<ConcF>()(
-  () => (self) => (G) => (f) =>
-    self.foldLeftWithIndex(G.pure(Conc.empty()), (i, fbs, a) => G.zipWith(fbs, f(i, a), (bs, b) => bs.append(b))),
-);
+export function _traverse<A>(
+  self: Conc<A>,
+): <G extends HKT, GC = HKT.None>(
+  G: P.Applicative<G, GC>,
+) => <K, Q, W, X, I, S, R, E, B>(
+  f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
+) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, Conc<B>> {
+  return (G) => (f) => self.traverseWithIndex(G)((_, a) => f(a));
+}
 
 /**
  * @tsplus getter fncts.Conc toBuffer
@@ -1000,7 +1097,7 @@ export function toBuffer(self: Conc<Byte>): Uint8Array {
 }
 
 /**
- * @tsplus fluent fncts.ConcOps unfold
+ * @tsplus static fncts.ConcOps unfold
  */
 export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A> {
   const out = builder<A>();
@@ -1018,12 +1115,14 @@ export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A>
 }
 
 /**
- * @tsplus fluent fncts.Conc unsafeGet
- * @tsplus index fncts.Conc
+ * @tsplus pipeable fncts.Conc unsafeGet
+ * @tsplus pipeable-index fncts.Conc
  */
-export function unsafeGet_<A>(self: Conc<A>, n: number): A {
-  concrete(self);
-  return self.get(n);
+export function unsafeGet(n: number) {
+  return <A>(self: Conc<A>): A => {
+    concrete(self);
+    return self.get(n);
+  };
 }
 
 /**
@@ -1055,70 +1154,78 @@ export function unsafeTail<A>(self: Conc<A>): Conc<A> {
 }
 
 /**
- * @tsplus fluent fncts.Conc unsafeUpdateAt
+ * @tsplus pipeable fncts.Conc unsafeUpdateAt
  */
-export function unsafeUpdateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Conc<A | A1> {
-  concrete(self);
-  return self.update(i, a);
+export function unsafeUpdateAt<A1>(i: number, a: A1) {
+  return <A>(self: Conc<A>): Conc<A | A1> => {
+    concrete(self);
+    return self.update(i, a);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Conc updateAt
+ * @tsplus pipeable fncts.Conc updateAt
  */
-export function updateAt_<A, A1>(self: Conc<A>, i: number, a: A1): Maybe<Conc<A | A1>> {
-  try {
-    return Just(self.unsafeUpdateAt(i, a));
-  } catch {
-    return Nothing();
-  }
-}
-
-/**
- * @tsplus fluent fncts.Conc zip
- */
-export function zip_<A, B>(self: Conc<A>, fb: Conc<B>): Conc<readonly [A, B]> {
-  return self.zipWith(fb, tuple);
-}
-
-/**
- * @tsplus fluent fncts.Conc zipWith
- */
-export function zipWith_<A, B, C>(self: Conc<A>, fb: Conc<B>, f: (a: A, b: B) => C): Conc<C> {
-  concrete(self);
-  concrete(fb);
-  const length = Math.min(self.length, fb.length);
-  if (length === 0) {
-    return Conc.empty();
-  } else {
-    const leftIterator  = self.arrayIterator();
-    const rightIterator = fb.arrayIterator();
-    const out           = builder<C>();
-    let left: IteratorResult<ArrayLike<A>>  = null as any;
-    let right: IteratorResult<ArrayLike<B>> = null as any;
-    let leftLength  = 0;
-    let rightLength = 0;
-    let i           = 0;
-    let j           = 0;
-    let k           = 0;
-    while (i < length) {
-      if (j < leftLength && k < rightLength) {
-        const a = left.value[j];
-        const b = right.value[k];
-        const c = f(a, b);
-        out.append(c);
-        i++;
-        j++;
-        k++;
-      } else if (j === leftLength && !(left = leftIterator.next()).done) {
-        leftLength = left.value.length;
-        j          = 0;
-      } else if (k === rightLength && !(right = rightIterator.next()).done) {
-        rightLength = right.value.length;
-        k           = 0;
-      }
+export function updateAt<A1>(i: number, a: A1) {
+  return <A>(self: Conc<A>): Maybe<Conc<A | A1>> => {
+    try {
+      return Just(self.unsafeUpdateAt(i, a));
+    } catch {
+      return Nothing();
     }
-    return out.result();
-  }
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc zip
+ */
+export function zip<B>(fb: Conc<B>) {
+  return <A>(self: Conc<A>): Conc<readonly [A, B]> => {
+    return self.zipWith(fb, tuple);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Conc zipWith
+ */
+export function zipWith<A, B, C>(fb: Conc<B>, f: (a: A, b: B) => C) {
+  return (self: Conc<A>): Conc<C> => {
+    concrete(self);
+    concrete(fb);
+    const length = Math.min(self.length, fb.length);
+    if (length === 0) {
+      return Conc.empty();
+    } else {
+      const leftIterator  = self.arrayIterator();
+      const rightIterator = fb.arrayIterator();
+      const out           = builder<C>();
+      let left: IteratorResult<ArrayLike<A>>  = null as any;
+      let right: IteratorResult<ArrayLike<B>> = null as any;
+      let leftLength  = 0;
+      let rightLength = 0;
+      let i           = 0;
+      let j           = 0;
+      let k           = 0;
+      while (i < length) {
+        if (j < leftLength && k < rightLength) {
+          const a = left.value[j];
+          const b = right.value[k];
+          const c = f(a, b);
+          out.append(c);
+          i++;
+          j++;
+          k++;
+        } else if (j === leftLength && !(left = leftIterator.next()).done) {
+          leftLength = left.value.length;
+          j          = 0;
+        } else if (k === rightLength && !(right = rightIterator.next()).done) {
+          rightLength = right.value.length;
+          k           = 0;
+        }
+      }
+      return out.result();
+    }
+  };
 }
 
 /**
@@ -1129,20 +1236,22 @@ export function zipWithIndex<A>(self: Conc<A>): Conc<readonly [A, number]> {
 }
 
 /**
- * @tsplus fluent fncts.Conc zipWithIndexOffset
+ * @tsplus pipeable fncts.Conc zipWithIndexOffset
  */
-export function zipWithIndexOffset_<A>(as: Conc<A>, offset: number): Conc<readonly [A, number]> {
-  concrete(as);
-  const iterator = as.arrayIterator();
-  let next: IteratorResult<ArrayLike<A>>;
-  let i          = offset;
-  const out      = builder<readonly [A, number]>();
-  while (!(next = iterator.next()).done) {
-    const array = next.value;
-    const len   = array.length;
-    for (let j = 0; i < len; j++, i++) {
-      out.append([array[j]!, i]);
+export function zipWithIndexOffset(offset: number) {
+  return <A>(as: Conc<A>): Conc<readonly [A, number]> => {
+    concrete(as);
+    const iterator = as.arrayIterator();
+    let next: IteratorResult<ArrayLike<A>>;
+    let i          = offset;
+    const out      = builder<readonly [A, number]>();
+    while (!(next = iterator.next()).done) {
+      const array = next.value;
+      const len   = array.length;
+      for (let j = 0; i < len; j++, i++) {
+        out.append([array[j]!, i]);
+      }
     }
-  }
-  return out.result();
+    return out.result();
+  };
 }

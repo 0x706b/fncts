@@ -15,17 +15,19 @@ export function make(fiberRefLocals: HashMap<FiberRef<unknown>, Cons<readonly [F
 }
 
 /**
- * @tsplus fluent fncts.io.FiberRefs forkAs
+ * @tsplus pipeable fncts.io.FiberRefs forkAs
  */
-export function forkAs(self: FiberRefs, childId: FiberId.Runtime): FiberRefs {
-  const childFiberRefLocals = self.fiberRefLocals.mapWithIndex((fiberRef, stack) => {
-    const oldValue = stack.head[1];
-    const newValue = fiberRef.patch(fiberRef.fork)(oldValue);
-    if (oldValue === newValue) {
-      return stack;
-    } else {
-      return Cons([childId, newValue], stack);
-    }
-  });
-  return FiberRefs(childFiberRefLocals);
+export function forkAs(childId: FiberId.Runtime) {
+  return (self: FiberRefs): FiberRefs => {
+    const childFiberRefLocals = self.fiberRefLocals.mapWithIndex((fiberRef, stack) => {
+      const oldValue = stack.head[1];
+      const newValue = fiberRef.patch(fiberRef.fork)(oldValue);
+      if (oldValue === newValue) {
+        return stack;
+      } else {
+        return Cons([childId, newValue], stack);
+      }
+    });
+    return FiberRefs(childFiberRefLocals);
+  };
 }

@@ -60,32 +60,30 @@ export function complete<E = never, A = never>(): Notification<E, A> {
 }
 
 /**
- * @tsplus fluent fncts.observable.Notification match
+ * @tsplus pipeable fncts.observable.Notification match
  */
-export function match_<E, A, B, C, D, F>(
-  fa: Notification<E, A>,
-  onNext: (a: A) => B,
-  onFail: (e: Cause<E>) => C,
-  onComplete: () => F,
-): B | C | D | F {
-  switch (fa._tag) {
-    case "Next":
-      return onNext(fa.value);
-    case "Fail":
-      return onFail(fa.error);
-    case "Complete":
-      return onComplete();
-  }
+export function match<E, A, B, C, F>(onNext: (a: A) => B, onFail: (e: Cause<E>) => C, onComplete: () => F) {
+  return <D>(fa: Notification<E, A>): B | C | D | F => {
+    switch (fa._tag) {
+      case "Next":
+        return onNext(fa.value);
+      case "Fail":
+        return onFail(fa.error);
+      case "Complete":
+        return onComplete();
+    }
+  };
 }
 
 /**
- * @tsplus fluent fncts.observable.Notification observe
+ * @tsplus pipeable fncts.observable.Notification observe
  */
-export function observe_<E, A>(notification: Notification<E, A>, observer: Partial<Observer<E, A>>): void {
-  return match_(
-    notification,
-    (a) => observer.next?.(a),
-    (e) => observer.error?.(e),
-    () => observer.complete?.(),
-  );
+export function observe<E, A>(observer: Partial<Observer<E, A>>) {
+  return (notification: Notification<E, A>): void => {
+    return notification.match(
+      (a) => observer.next?.(a),
+      (e) => observer.error?.(e),
+      () => observer.complete?.(),
+    );
+  };
 }

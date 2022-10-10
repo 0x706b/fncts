@@ -10,14 +10,16 @@ import { RenderParam } from "../../data/RenderParam.js";
 import { Assertion } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.Assertion and
- * @tsplus operator fncts.test.Assertion &&
+ * @tsplus pipeable fncts.test.Assertion and
+ * @tsplus pipeable-operator fncts.test.Assertion &&
  */
-export function and_<A>(self: Assertion<A>, that: Assertion<A>): Assertion<A> {
-  return new Assertion(
-    Render.infix(RenderParam(self), "&&", RenderParam(that)),
-    (actual) => self.run(actual) && that.run(actual),
-  );
+export function and<A>(that: Assertion<A>) {
+  return (self: Assertion<A>): Assertion<A> => {
+    return new Assertion(
+      Render.infix(RenderParam(self), "&&", RenderParam(that)),
+      (actual) => self.run(actual) && that.run(actual),
+    );
+  };
 }
 
 /**
@@ -210,10 +212,12 @@ export function isLessThanOrEqualTo(n: number): Assertion<number> {
 }
 
 /**
- * @tsplus fluent fncts.test.Assertion label
+ * @tsplus pipeable fncts.test.Assertion label
  */
-export function label_<A>(self: Assertion<A>, label: string): Assertion<A> {
-  return new Assertion(Render.infix(RenderParam(self), ":", RenderParam(label)), self.run);
+export function label(label: string) {
+  return <A>(self: Assertion<A>): Assertion<A> => {
+    return new Assertion(Render.infix(RenderParam(self), ":", RenderParam(label)), self.run);
+  };
 }
 
 /**
@@ -224,16 +228,21 @@ export function not<A>(assertion: Assertion<A>): Assertion<A> {
 }
 
 /**
- * @tsplus fluent fncts.test.Assertion or
- * @tsplus operator fncts.test.Assertion ||
+ * @tsplus pipeable fncts.test.Assertion or
+ * @tsplus pipeable-operator fncts.test.Assertion ||
  */
-export function or_<A>(self: Assertion<A>, that: Assertion<A>): Assertion<A> {
-  return new Assertion(
-    Render.infix(RenderParam(self), "||", RenderParam(that)),
-    (actual) => self.run(actual) || that.run(actual),
-  );
+export function or<A>(that: Assertion<A>) {
+  return (self: Assertion<A>): Assertion<A> => {
+    return new Assertion(
+      Render.infix(RenderParam(self), "||", RenderParam(that)),
+      (actual) => self.run(actual) || that.run(actual),
+    );
+  };
 }
 
+/**
+ * @tsplus getter fncts.test.Assertion succeeds
+ */
 export function succeeds<A>(assertion: Assertion<A>): Assertion<Exit<any, A>> {
   return Assertion.rec("succeeds", [RenderParam(assertion)], assertion, (exit) =>
     exit.match(
@@ -244,10 +253,12 @@ export function succeeds<A>(assertion: Assertion<A>): Assertion<Exit<any, A>> {
 }
 
 /**
- * @tsplus fluent fncts.test.Assertion test
+ * @tsplus pipeable fncts.test.Assertion test
  */
-export function test_<A>(self: Assertion<A>, actual: A): boolean {
-  return self.run(actual).isSuccess;
+export function test<A>(actual: A) {
+  return (self: Assertion<A>): boolean => {
+    return self.run(actual).isSuccess;
+  };
 }
 
 export const completes = Assertion.make("completes", [], () => true);

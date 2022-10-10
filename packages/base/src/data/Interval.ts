@@ -33,20 +33,24 @@ export function isEmpty(self: Interval): boolean {
 }
 
 /**
- * @tsplus fluent fncts.io.Schedule.Interval intersect
+ * @tsplus pipeable fncts.io.Schedule.Interval intersect
  */
-export function intersect_(self: Interval, that: Interval): Interval {
-  const start = Math.max(self.startMilliseconds, that.startMilliseconds);
-  const end   = Math.min(self.endMilliseconds, that.endMilliseconds);
-  return Interval(start, end);
+export function intersect_(that: Interval) {
+  return (self: Interval): Interval => {
+    const start = Math.max(self.startMilliseconds, that.startMilliseconds);
+    const end   = Math.min(self.endMilliseconds, that.endMilliseconds);
+    return Interval(start, end);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Schedule.Interval lt
- * @tsplus operator fncts.io.Schedule.Interval <
+ * @tsplus pipeable fncts.io.Schedule.Interval lt
+ * @tsplus pipeable-operator fncts.io.Schedule.Interval <
  */
-export function lt_(self: Interval, that: Interval): boolean {
-  return self.min(that) === self;
+export function lt(that: Interval) {
+  return (self: Interval): boolean => {
+    return self.min(that) === self;
+  };
 }
 
 /**
@@ -58,24 +62,28 @@ export function makeInterval(start: number, end: number): Interval {
 }
 
 /**
- * @tsplus fluent fncts.io.Schedule.Interval max
+ * @tsplus pipeable fncts.io.Schedule.Interval max
  */
-export function max_(self: Interval, that: Interval): Interval {
-  const m = self.min(that);
-  if (m === self) return that;
-  else return self;
+export function max(that: Interval) {
+  return (self: Interval): Interval => {
+    const m = self.min(that);
+    if (m === self) return that;
+    else return self;
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.Schedule.Interval min
+ * @tsplus pipeable fncts.io.Schedule.Interval min
  */
-export function min_(self: Interval, that: Interval): Interval {
-  if (self.endMilliseconds <= that.startMilliseconds) return self;
-  if (that.endMilliseconds <= self.startMilliseconds) return that;
-  if (self.startMilliseconds < that.startMilliseconds) return self;
-  if (that.startMilliseconds < self.startMilliseconds) return that;
-  if (self.endMilliseconds <= that.endMilliseconds) return self;
-  return that;
+export function min(that: Interval) {
+  return (self: Interval): Interval => {
+    if (self.endMilliseconds <= that.startMilliseconds) return self;
+    if (that.endMilliseconds <= self.startMilliseconds) return that;
+    if (self.startMilliseconds < that.startMilliseconds) return self;
+    if (that.startMilliseconds < self.startMilliseconds) return that;
+    if (self.endMilliseconds <= that.endMilliseconds) return self;
+    return that;
+  };
 }
 
 /**
@@ -93,11 +101,13 @@ export function size(self: Interval): number {
 }
 
 /**
- * @tsplus fluent fncts.io.Schedule.Interval union
+ * @tsplus pipeable fncts.io.Schedule.Interval union
  */
-export function union_(self: Interval, that: Interval): Maybe<Interval> {
-  const istart = Math.max(self.startMilliseconds, that.startMilliseconds);
-  const iend   = Math.min(self.endMilliseconds, that.endMilliseconds);
-  if (istart <= iend) return Nothing();
-  else return Just(Interval(istart, iend));
+export function union(that: Interval) {
+  return (self: Interval): Maybe<Interval> => {
+    const istart = Math.max(self.startMilliseconds, that.startMilliseconds);
+    const iend   = Math.min(self.endMilliseconds, that.endMilliseconds);
+    if (istart <= iend) return Nothing();
+    else return Just(Interval(istart, iend));
+  };
 }

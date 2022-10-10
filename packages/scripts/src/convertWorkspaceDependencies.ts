@@ -6,11 +6,7 @@ const DEPENDENCY_TYPE = ["dependencies", "peerDependencies"];
 
 const WORKSPACE_PROTOCOL = "workspace:";
 
-export function convertWorkspaceDependencies(
-  rawManifest: any,
-  project: Project,
-  workspace: Workspace,
-): void {
+export function convertWorkspaceDependencies(rawManifest: any, project: Project, workspace: Workspace): void {
   for (const dependencyType of DEPENDENCY_TYPE) {
     for (const descriptor of workspace.manifest.getForScope(dependencyType).values()) {
       const matchingWorkspace = project.tryWorkspaceByDescriptor(descriptor);

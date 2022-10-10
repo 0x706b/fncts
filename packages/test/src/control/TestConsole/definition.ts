@@ -54,7 +54,6 @@ export class TestConsole implements Console {
     return this.debugState.locally(true)(io);
   }
 }
-
 /**
  * @tsplus static fncts.test.TestConsoleOps Tag
  */

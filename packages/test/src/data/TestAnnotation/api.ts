@@ -30,7 +30,9 @@ export const TimingTag = Tag<number>("fncts.test.TestAnnotation.Timing");
  */
 export const Timing = new TestAnnotation(TimingTag, "timing", 0, (x, y) => x + y);
 
-export const FibersTag = Tag<Either<number, Conc<Ref<HashSet<Fiber.Runtime<any, any>>>>>>("fncts.test.TestAnnotation.Fibers");
+export const FibersTag = Tag<Either<number, Conc<Ref<HashSet<Fiber.Runtime<any, any>>>>>>(
+  "fncts.test.TestAnnotation.Fibers",
+);
 /**
  * @tsplus static fncts.test.TestAnnotationOps Fibers
  */

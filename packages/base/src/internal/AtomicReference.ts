@@ -3,15 +3,12 @@ export class AtomicReference<A> {
   constructor(readonly initial: A) {
     this.current = initial;
   }
-
   get get() {
     return this.current;
   }
-
   set(value: A) {
     this.current = value;
   }
-
   compareAndSet(old: A, value: A) {
     if (this.get === old) {
       this.set(value);
@@ -19,7 +16,6 @@ export class AtomicReference<A> {
     }
     return false;
   }
-
   getAndSet(value: A) {
     const previous = this.current;
     this.current   = value;

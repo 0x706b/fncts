@@ -2,7 +2,6 @@ import type { Check } from "@fncts/typelevel/Check";
 import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
 
 import { Eq } from "@fncts/base/typeclass/Eq/definition";
-
 /**
  * @tsplus derive fncts.Eq lazy
  */
@@ -18,7 +17,6 @@ export function deriveLazy<A>(fn: (_: Eq<A>) => Eq<A>): Eq<A> {
   });
   return eq;
 }
-
 /**
  * @tsplus derive fncts.Eq<_> 20
  */

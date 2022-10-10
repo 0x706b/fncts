@@ -1,9 +1,16 @@
 import { ImmutableNonEmptyArray } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
 
-export function allocWithHead<A>(head: A, length: number): Array<A> & { 0: A } {
+export function allocWithHead<A>(
+  head: A,
+  length: number,
+): Array<A> & {
+  0: A;
+} {
   const as = new Array(length);
   as[0]    = head;
-  return as as Array<A> & { 0: A };
+  return as as Array<A> & {
+    0: A;
+  };
 }
 
 /**
@@ -14,13 +21,21 @@ export function unsafeAsNonEmptyArray<A>(self: ReadonlyArray<A>): ImmutableNonEm
   if (self.length === 0) {
     throw new IndexOutOfBoundsError("0 length Array supplied to Array#unsafeAsNonEmpty");
   }
-  return new ImmutableNonEmptyArray(self as ReadonlyArray<A> & { readonly 0: A });
+  return new ImmutableNonEmptyArray(
+    self as ReadonlyArray<A> & {
+      readonly 0: A;
+    },
+  );
 }
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps from
  */
-export function from<A>(self: ReadonlyArray<A> & { readonly 0: A }): ImmutableNonEmptyArray<A> {
+export function from<A>(
+  self: ReadonlyArray<A> & {
+    readonly 0: A;
+  },
+): ImmutableNonEmptyArray<A> {
   return new ImmutableNonEmptyArray(self);
 }
 

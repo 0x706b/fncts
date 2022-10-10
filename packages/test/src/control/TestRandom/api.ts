@@ -7,30 +7,35 @@ import { Buffer, Data, TestRandom } from "@fncts/test/control/TestRandom";
 export function feedInts(...ints: ReadonlyArray<number>) {
   return IO.serviceWithIO((tr) => tr.feedInts(...ints), TestRandom.Tag);
 }
+
 /**
  * @tsplus static fncts.test.TestRandom feedBytes
  */
 export function feedBytes(...bytes: ReadonlyArray<ReadonlyArray<Byte>>) {
   return IO.serviceWithIO((tr) => tr.feedBytes(...bytes), TestRandom.Tag);
 }
+
 /**
  * @tsplus static fncts.test.TestRandom feedChars
  */
 export function feedChars(...chars: ReadonlyArray<string>) {
   return IO.serviceWithIO((tr) => tr.feedChars(...chars), TestRandom.Tag);
 }
+
 /**
  * @tsplus static fncts.test.TestRandom feedDoubles
  */
 export function feedDoubles(...doubles: ReadonlyArray<number>) {
   return IO.serviceWithIO((tr) => tr.feedDoubles(...doubles), TestRandom.Tag);
 }
+
 /**
  * @tsplus static fncts.test.TestRandom feedStrings
  */
 export function feedStrings(...strings: ReadonlyArray<string>) {
   return IO.serviceWithIO((tr) => tr.feedStrings(...strings), TestRandom.Tag);
 }
+
 /**
  * @tsplus static fncts.test.TestRandom feedBooleans
  */

@@ -20,19 +20,21 @@ export function right<E = never, A = never>(a: A): Either<E, A> {
 
 /**
  * @tsplus static fncts.EitherOps fromMaybe
- * @tsplus fluent fncts.Maybe toEither
+ * @tsplus pipeable fncts.Maybe toEither
  */
-export function fromMaybe_<E, A>(self: Maybe<A>, nothing: Lazy<E>): Either<E, A> {
-  return self.match(
-    () => Left(nothing()),
-    (a) => Right(a),
-  );
+export function fromMaybe<E>(nothing: Lazy<E>) {
+  return <A>(self: Maybe<A>): Either<E, A> => {
+    return self.match(
+      () => Left(nothing()),
+      (a) => Right(a),
+    );
+  };
 }
 
 /**
  * @tsplus static fncts.EitherOps fromNullable
  */
-export function fromNullable_<E, A>(value: A, nullable: Lazy<E>): Either<E, NonNullable<A>> {
+export function fromNullable<E, A>(value: A, nullable: Lazy<E>): Either<E, NonNullable<A>> {
   return value == null ? Left(nullable()) : Right(value as NonNullable<A>);
 }
 
@@ -49,9 +51,9 @@ export function fromNullableK<E, P extends ReadonlyArray<unknown>, A>(
 /**
  * @tsplus static fncts.EitherOps fromPredicate
  */
-export function fromPredicate_<E, A, B extends A>(value: A, p: Refinement<A, B>, otherwise: (a: A) => E): Either<E, B>;
-export function fromPredicate_<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A>;
-export function fromPredicate_<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A> {
+export function fromPredicate<E, A, B extends A>(value: A, p: Refinement<A, B>, otherwise: (a: A) => E): Either<E, B>;
+export function fromPredicate<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A>;
+export function fromPredicate<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A> {
   return p(value) ? Right(value) : left(otherwise(value));
 }
 

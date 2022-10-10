@@ -21,11 +21,9 @@ export class RuntimeConfig extends CaseClass<{
  */
 export class RuntimeConfigFlags {
   constructor(readonly flags: HashSet<RuntimeConfigFlag>) {}
-
   add(flag: RuntimeConfigFlag) {
     return new RuntimeConfigFlags(this.flags.add(flag));
   }
-
   isEnabled(flag: RuntimeConfigFlag): boolean {
     return this.flags.has(flag);
   }

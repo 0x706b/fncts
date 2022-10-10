@@ -1,10 +1,12 @@
 import { concrete, SupervisorTag, Zip } from "@fncts/io/Supervisor/definition";
 
 /**
- * @tsplus fluent fncts.io.Supervisor zip
+ * @tsplus pipeable fncts.io.Supervisor zip
  */
-export function zip_<A, B>(fa: Supervisor<A>, fb: Supervisor<B>): Supervisor<readonly [A, B]> {
-  return new Zip(fa, fb);
+export function zip<B>(fb: Supervisor<B>) {
+  return <A>(fa: Supervisor<A>): Supervisor<readonly [A, B]> => {
+    return new Zip(fa, fb);
+  };
 }
 
 /**
@@ -24,17 +26,19 @@ export function toSet(self: Supervisor<any>): HashSet<Supervisor<any>> {
 }
 
 /**
- * @tsplus fluent fncts.io.Supervisor removeSupervisor
+ * @tsplus pipeable fncts.io.Supervisor removeSupervisor
  */
-export function removeSupervisor(self: Supervisor<any>, that: Supervisor<any>): Supervisor<any> {
-  concrete(self);
-  if (self === that) return Supervisor.none;
-  else {
-    switch (self._tag) {
-      case SupervisorTag.Zip:
-        return self.first.removeSupervisor(that).zip(self.second.removeSupervisor(that));
-      default:
-        return self;
+export function removeSupervisor(that: Supervisor<any>) {
+  return (self: Supervisor<any>): Supervisor<any> => {
+    concrete(self);
+    if (self === that) return Supervisor.none;
+    else {
+      switch (self._tag) {
+        case SupervisorTag.Zip:
+          return self.first.removeSupervisor(that).zip(self.second.removeSupervisor(that));
+        default:
+          return self;
+      }
     }
-  }
+  };
 }

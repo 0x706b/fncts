@@ -3,7 +3,7 @@ import type * as BabelCore from "@babel/core";
 
 import * as t from "@babel/types";
 
-import { runTransform } from "./util.js";
+import { runBabelTransform } from "./util.js";
 
 export type Babel = typeof BabelCore;
 

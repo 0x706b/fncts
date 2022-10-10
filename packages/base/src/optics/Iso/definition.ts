@@ -26,10 +26,10 @@ export interface PIsoMin<S, T, A, B> {
 /**
  * @tsplus static fncts.optics.PIsoOps __call
  */
-export function mkPIso<S, T, A, B>(F: PIsoMin<S, T, A, B>): PIso<S, T, A, B> {
+export function makePIso<S, T, A, B>(F: PIsoMin<S, T, A, B>): PIso<S, T, A, B> {
   return {
     ...PPrism({ getOrModify: F.get.compose(Either.right), reverseGet: F.reverseGet }),
-    ...PLens({ get: F.get, set_: (_s, b) => F.reverseGet(b) }),
+    ...PLens({ get: F.get, set: (b) => () => F.reverseGet(b) }),
     reverse: () => PIso({ get: F.reverseGet, reverseGet: F.get }),
   };
 }
@@ -47,6 +47,6 @@ export interface IsoOps {}
 /**
  * @tsplus static fncts.optics.IsoOps __call
  */
-export function mkIso<S, A>(F: PIsoMin<S, S, A, A>): Iso<S, A> {
+export function makeIso<S, A>(F: PIsoMin<S, S, A, A>): Iso<S, A> {
   return PIso(F);
 }

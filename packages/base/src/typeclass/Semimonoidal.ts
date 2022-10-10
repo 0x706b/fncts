@@ -1,6 +1,5 @@
 export interface Semimonoidal<F extends HKT, FC = HKT.None> extends HKT.Typeclass<F, FC> {
-  zip: <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
-    fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
+  zip: <K1, Q1, W1, X1, I1, S1, R1, E1, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
     fb: HKT.Kind<
       F,
       FC,
@@ -14,6 +13,8 @@ export interface Semimonoidal<F extends HKT, FC = HKT.None> extends HKT.Typeclas
       HKT.Intro<F, "E", E1, E2>,
       B
     >,
+  ) => <A>(
+    fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
   ) => HKT.Kind<
     F,
     FC,

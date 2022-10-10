@@ -33,17 +33,21 @@ export function initial<S>(s: S, tag: Tag<State<S>>, __tsplusTrace?: string): La
 }
 
 /**
- * @tsplus fluent fncts.io.State set
+ * @tsplus pipeable fncts.io.State set
  */
-export function set_<S>(self: State<S>, value: S, __tsplusTrace?: string): UIO<void> {
-  concrete(self);
-  return self.set(value);
+export function set<S>(value: S, __tsplusTrace?: string) {
+  return (self: State<S>): UIO<void> => {
+    concrete(self);
+    return self.set(value);
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.State update
+ * @tsplus pipeable fncts.io.State update
  */
-export function update_<S>(self: State<S>, f: (s: S) => S, __tsplusTrace?: string): UIO<void> {
-  concrete(self);
-  return self.update(f);
+export function update<S>(f: (s: S) => S, __tsplusTrace?: string) {
+  return (self: State<S>): UIO<void> => {
+    concrete(self);
+    return self.update(f);
+  };
 }

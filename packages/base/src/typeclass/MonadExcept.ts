@@ -24,5 +24,5 @@ export function absolve<F extends HKT, FC = HKT.None>(
 export function absolve<F>(
   F: MonadExcept<HKT.F<F>>,
 ): <E, A, E1>(fa: HKT.FK2<F, E, Either<E1, A>>) => HKT.FK2<F, HKT.Mix<HKT.F<F>, "E", [E, E1]>, A> {
-  return (fa) => F.flatMap(fa, (r) => r.match(F.fail, F.pure));
+  return F.flatMap((r) => r.match(F.fail, F.pure));
 }

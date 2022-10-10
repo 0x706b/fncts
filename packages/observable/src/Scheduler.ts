@@ -8,12 +8,6 @@ export interface SchedulerAction<T> extends Subscription {
   schedule(state?: T, delay?: number): Subscription;
 }
 
-/*
- * -------------------------------------------------------------------------------------------------
- * Scheduler
- * -------------------------------------------------------------------------------------------------
- */
-
 export const SchedulerTypeId = Symbol.for("fncts.observable.Scheduler");
 export type SchedulerTypeId = typeof SchedulerTypeId;
 

@@ -2,14 +2,13 @@ import type { Functor } from "@fncts/base/typeclass/Functor";
 import type { Semimonoidal } from "@fncts/base/typeclass/Semimonoidal";
 import type { Object } from "@fncts/typelevel";
 
-import { tuple } from "@fncts/base/data/function";
+import { pipe, tuple } from "@fncts/base/data/function";
 
 /**
  * @tsplus type fncts.Apply
  */
 export interface Apply<F extends HKT, FC = HKT.None> extends Semimonoidal<F, FC>, Functor<F, FC> {
   zipWith: <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B, D>(
-    self: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
     that: HKT.Kind<
       F,
       FC,
@@ -24,6 +23,8 @@ export interface Apply<F extends HKT, FC = HKT.None> extends Semimonoidal<F, FC>
       B
     >,
     f: (a: A, b: B) => D,
+  ) => (
+    self: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
   ) => HKT.Kind<
     F,
     FC,
@@ -38,7 +39,6 @@ export interface Apply<F extends HKT, FC = HKT.None> extends Semimonoidal<F, FC>
     D
   >;
 }
-
 /**
  * @tsplus type fncts.ApplyOps
  */
@@ -51,8 +51,7 @@ export const Apply: ApplyOps = {};
  */
 export function ap<F extends HKT, FC = HKT.None>(
   F: Apply<F, FC>,
-): <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
-  fab: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, (a: A) => B>,
+): <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2>(
   fa: HKT.Kind<
     F,
     FC,
@@ -66,6 +65,8 @@ export function ap<F extends HKT, FC = HKT.None>(
     HKT.Intro<F, "E", E1, E2>,
     A
   >,
+) => <B>(
+  fab: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, (a: A) => B>,
 ) => HKT.Kind<
   F,
   FC,
@@ -79,16 +80,14 @@ export function ap<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E1, E2]>,
   B
 > {
-  return (fab, fa) => F.zipWith(fab, fa, (f, a) => f(a));
+  return (fa) => F.zipWith(fa, (f, a) => f(a));
 }
-
 /**
  * @tsplus static fncts.ApplyOps apFirst
  */
 export function apFirst<F extends HKT, FC = HKT.None>(
   F: Apply<F, FC>,
-): <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
-  fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
+): <K1, Q1, W1, X1, I1, S1, R1, E1, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
   fb: HKT.Kind<
     F,
     FC,
@@ -102,6 +101,8 @@ export function apFirst<F extends HKT, FC = HKT.None>(
     HKT.Intro<F, "E", E1, E2>,
     B
   >,
+) => <A>(
+  fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -115,16 +116,14 @@ export function apFirst<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E1, E2]>,
   A
 > {
-  return (fa, fb) => F.zipWith(fa, fb, (a, _) => a);
+  return (fb) => F.zipWith(fb, (a, _) => a);
 }
-
 /**
  * @tsplus static fncts.ApplyOps apSecond
  */
 export function apSecond<F extends HKT, FC = HKT.None>(
   F: Apply<F, FC>,
-): <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
-  fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
+): <K1, Q1, W1, X1, I1, S1, R1, E1, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
   fb: HKT.Kind<
     F,
     FC,
@@ -138,6 +137,8 @@ export function apSecond<F extends HKT, FC = HKT.None>(
     HKT.Intro<F, "E", E1, E2>,
     B
   >,
+) => <A>(
+  fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -151,13 +152,11 @@ export function apSecond<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E1, E2]>,
   B
 > {
-  return (fa, fb) => F.zipWith(fa, fb, (_, b) => b);
+  return (fb) => F.zipWith(fb, (_, b) => b);
 }
-
 export function apS<F extends HKT, FC = HKT.None>(
   F: Apply<F, FC>,
 ): <K1, Q1, W1, X1, I1, S1, R1, E1, A, BN extends string, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
-  fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
   name: Exclude<BN, keyof A>,
   fb: HKT.Kind<
     F,
@@ -172,7 +171,7 @@ export function apS<F extends HKT, FC = HKT.None>(
     HKT.Intro<F, "E", E1, E2>,
     B
   >,
-) => HKT.Kind<
+) => (fa: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>) => HKT.Kind<
   F,
   FC,
   HKT.Mix<F, "K", [K1, K2]>,
@@ -183,11 +182,12 @@ export function apS<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "S", [S1, S2]>,
   HKT.Mix<F, "R", [R1, R2]>,
   HKT.Mix<F, "E", [E1, E2]>,
-  { [K in keyof A | BN]: K extends keyof A ? A[K] : B }
+  {
+    [K in keyof A | BN]: K extends keyof A ? A[K] : B;
+  }
 > {
-  return (fa, name, fb) => F.zipWith(fa, fb, (a, b) => unsafeCoerce({ ...a, [name]: b }));
+  return (name, fb) => F.zipWith(fb, (a, b) => unsafeCoerce({ ...a, [name]: b }));
 }
-
 /**
  * @tsplus static fncts.ApplyOps sequenceS
  */
@@ -259,14 +259,13 @@ export function sequenceS<F extends HKT, FC = HKT.None>(
     const keys = globalThis.Object.keys(r);
     const len  = keys.length;
     const f    = getRecordConstructor(keys);
-    let fr     = F.map(r[keys[0]!]!, f);
+    let fr     = pipe(r[keys[0]!]!, F.map(f));
     for (let i = 1; i < len; i++) {
-      fr = Apply.ap(F)(fr, unsafeCoerce(r[keys[i]!]!));
+      fr = pipe(fr, Apply.ap(F)(unsafeCoerce(r[keys[i]!]!)));
     }
     return unsafeCoerce(fr);
   };
 }
-
 export function sequenceT<F extends HKT, FC = HKT.None>(
   F: Apply<F, FC>,
 ): <
@@ -327,20 +326,18 @@ export function sequenceT<F extends HKT, FC = HKT.None>(
   return (t) => {
     const len = t.length;
     const f   = getTupleConstructor(len);
-    let fas   = F.map(t[0], f);
+    let fas   = pipe(t[0], F.map(f));
     for (let i = 1; i < len; i++) {
-      fas = Apply.ap(F)(fas, unsafeCoerce(t[i]!));
+      fas = pipe(fas, Apply.ap(F)(unsafeCoerce(t[i]!)));
     }
     return unsafeCoerce(fas);
   };
 }
-
 /*
  * -------------------------------------------------------------------------------------------------
  * internal
  * -------------------------------------------------------------------------------------------------
  */
-
 /**
  * @internal
  */
@@ -365,7 +362,6 @@ const tupleConstructors: Record<number, (a: unknown) => any> = {
   4: (a) => (b: any) => (c: any) => (d: any) => [a, b, c, d],
   5: (a) => (b: any) => (c: any) => (d: any) => (e: any) => [a, b, c, d, e],
 };
-
 /**
  * @internal
  */
@@ -375,7 +371,6 @@ function getTupleConstructor(len: number): (a: unknown) => any {
   }
   return tupleConstructors[len]!;
 }
-
 /**
  * @internal
  */
@@ -393,7 +388,6 @@ function getRecordConstructor(keys: ReadonlyArray<string>) {
     [],
   );
 }
-
 /**
  * @internal
  */
@@ -401,9 +395,10 @@ type InferMixStruct<F extends HKT, FC, P extends HKT.ParamName, T, KS> = HKT.Mix
   F,
   P,
   T,
-  { [K in keyof KS]: HKT.Infer<F, FC, P, KS[K]> }
+  {
+    [K in keyof KS]: HKT.Infer<F, FC, P, KS[K]>;
+  }
 >;
-
 /**
  * @internal
  */
@@ -411,5 +406,7 @@ type InferMixTuple<F extends HKT, FC, P extends HKT.ParamName, T, KT> = HKT.MixS
   F,
   P,
   T,
-  { [K in keyof KT & number]: HKT.Infer<F, FC, P, KT[K]> }
+  {
+    [K in keyof KT & number]: HKT.Infer<F, FC, P, KT[K]>;
+  }
 >;

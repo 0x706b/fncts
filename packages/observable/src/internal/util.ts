@@ -33,7 +33,10 @@ export function reportUnhandledError(err: unknown) {
 
 export function arrayOrObject<T, O extends Record<string, T>>(
   args: ReadonlyArray<T> | [O] | [ReadonlyArray<T>],
-): { args: ReadonlyArray<T>; keys: ReadonlyArray<string> | null } {
+): {
+  args: ReadonlyArray<T>;
+  keys: ReadonlyArray<string> | null;
+} {
   if (args.length === 1) {
     const first = args[0];
     if (Array.isArray(first)) {
@@ -47,7 +50,6 @@ export function arrayOrObject<T, O extends Record<string, T>>(
       };
     }
   }
-
   return { args: args as ReadonlyArray<T>, keys: null };
 }
 
@@ -56,14 +58,16 @@ export function arrayOrObject<T, O extends Record<string, T>>(
  * ReadableStream
  * -------------------------------------------------------------------------------------------------
  */
-
 interface ReadableStreamDefaultReaderLike<T> {
   read(): PromiseLike<
     | {
         done: false;
         value: T;
       }
-    | { done: true; value?: undefined }
+    | {
+        done: true;
+        value?: undefined;
+      }
   >;
   releaseLock(): void;
 }

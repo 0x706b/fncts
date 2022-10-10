@@ -23,19 +23,18 @@ export class UpstreamEnd {
 export type SinkEndReason = ScheduleEnd | UpstreamEnd;
 
 /**
- * @tsplus fluent fncts.io.Stream.SinkEndReason match
+ * @tsplus pipeable fncts.io.Stream.SinkEndReason match
  */
-export function matchSinkEndReason_<A, B>(
-  self: SinkEndReason,
-  cases: {
-    ScheduleEnd: (_: ScheduleEnd) => A;
-    UpstreamEnd: (_: UpstreamEnd) => B;
-  },
-): A | B {
-  switch (self._tag) {
-    case SinkEndReasonTag.ScheduleEnd:
-      return cases.ScheduleEnd(self);
-    case SinkEndReasonTag.UpstreamEnd:
-      return cases.UpstreamEnd(self);
-  }
+export function matchSinkEndReason<A, B>(cases: {
+  ScheduleEnd: (_: ScheduleEnd) => A;
+  UpstreamEnd: (_: UpstreamEnd) => B;
+}) {
+  return (self: SinkEndReason): A | B => {
+    switch (self._tag) {
+      case SinkEndReasonTag.ScheduleEnd:
+        return cases.ScheduleEnd(self);
+      case SinkEndReasonTag.UpstreamEnd:
+        return cases.UpstreamEnd(self);
+    }
+  };
 }

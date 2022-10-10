@@ -51,7 +51,6 @@ function fromCallbackInternal(
         if (isComplete) {
           subject.complete();
         }
-
         isAsync = true;
       }
       return subs;

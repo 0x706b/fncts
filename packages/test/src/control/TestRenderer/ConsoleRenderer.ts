@@ -10,7 +10,6 @@ import { fr, info, sp, warn } from "../../data/LogLine.js";
 import { Line } from "../../data/LogLine/Line.js";
 import { Message } from "../../data/LogLine/Message.js";
 import { TestAnnotation } from "../../data/TestAnnotation.js";
-import { TestRenderer } from "./definition.js";
 
 const tabSize = 2;
 

@@ -9,7 +9,6 @@ import {
   trimArrayIntInplace,
 } from "@fncts/base/util/rand/distribution/internals/ArrayInt";
 import { uniformArrayIntDistributionInternal } from "@fncts/base/util/rand/distribution/internals/UniformArrayIntDistributionInternal";
-
 /** @internal */
 function uniformArrayIntInternal(from: ArrayInt, to: ArrayInt, rng: RandomGenerator): ArrayInt {
   const rangeSize         = trimArrayIntInplace(addOneToPositiveArrayInt(substractArrayIntToNew(to, from)));
@@ -17,7 +16,6 @@ function uniformArrayIntInternal(from: ArrayInt, to: ArrayInt, rng: RandomGenera
   const g                 = uniformArrayIntDistributionInternal(emptyArrayIntData, rangeSize.data, rng);
   return trimArrayIntInplace(addArrayIntToNew({ sign: 1, data: g }, from));
 }
-
 /**
  * Uniformly generate random ArrayInt values between `from` (included) and `to` (included)
  *
@@ -45,5 +43,4 @@ function uniformArrayIntDistribution(from: ArrayInt, to: ArrayInt, rng?: RandomG
     return uniformArrayIntInternal(from, to, rng);
   };
 }
-
 export { uniformArrayIntDistribution };

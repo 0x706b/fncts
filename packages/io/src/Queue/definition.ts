@@ -140,13 +140,11 @@ export class Queue<A> implements Enqueue<A>, Dequeue<A> {
         return IO.interrupt;
       } else {
         const taker = this.takers.dequeue(undefined);
-
         if (taker != null) {
           unsafeCompletePromise(taker, a);
           return IO.succeedNow(true);
         } else {
           const succeeded = this.queue.enqueue(a);
-
           if (succeeded) {
             return IO.succeedNow(true);
           } else {
@@ -168,15 +166,11 @@ export class Queue<A> implements Enqueue<A>, Dequeue<A> {
         pTakers.zip(forTakers).forEach(([taker, item]) => {
           unsafeCompletePromise(taker, item);
         });
-
         if (remaining.length === 0) {
           return IO.succeedNow(true);
         }
-
         const surplus = unsafeOfferAll(this.queue, remaining);
-
         unsafeCompleteTakers(this.strategy, this.queue, this.takers);
-
         if (surplus.length === 0) {
           return IO.succeedNow(true);
         } else {
@@ -204,7 +198,6 @@ export class Queue<A> implements Enqueue<A>, Dequeue<A> {
 
   shutdown: UIO<void> = IO.deferWith((_, id) => {
     this.shutdownFlag.set(true);
-
     return IO.foreachDiscardC(unsafePollAll(this.takers), (fiber) => fiber.interruptAs(id))
       .flatMap(() => this.strategy.shutdown)
       .whenIO(this.shutdownHook.succeed(undefined));
@@ -218,15 +211,12 @@ export class Queue<A> implements Enqueue<A>, Dequeue<A> {
     if (this.shutdownFlag.get) {
       return IO.interrupt;
     }
-
     const item = this.queue.dequeue(undefined);
-
     if (item != null) {
       this.strategy.unsafeOnQueueEmptySpace(this.queue, this.takers);
       return IO.succeedNow(item);
     } else {
       const p = Future.unsafeMake<never, A>(fiberId);
-
       return IO.defer(() => {
         this.takers.enqueue(p);
         unsafeCompleteTakers(this.strategy, this.queue, this.takers);

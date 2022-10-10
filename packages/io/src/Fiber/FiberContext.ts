@@ -192,13 +192,9 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   runUntil(maxOpCount: number): void {
     try {
       let current: Instruction | null = this.nextIO;
-
-      this.nextIO = null;
-
+      this.nextIO                     = null;
       let extraTrace: string | undefined = undefined;
-
-      const flags = this.runtimeConfig.flags;
-
+      const flags        = this.runtimeConfig.flags;
       const superviseOps =
         flags.isEnabled(RuntimeConfigFlag.SuperviseOperations) && this.currentSupervisor !== Supervisor.none;
 
@@ -277,8 +273,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                   }
                   case IOTag.Fail: {
                     const fastPathTrace: List<string> = extraTrace === undefined ? Nil() : Cons(extraTrace, Nil());
-                    extraTrace = undefined;
-
+                    extraTrace        = undefined;
                     const cause       = current.cause();
                     const tracedCause = cause.isTraced
                       ? cause
@@ -320,8 +315,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                   }
 
                   case IOTag.Async: {
-                    const trace = current.trace;
-
+                    const trace     = current.trace;
                     const epoch     = this.asyncEpoch;
                     this.asyncEpoch = epoch + 1;
 
@@ -376,17 +370,14 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
                     current = concrete(current.make(this.runtimeConfig, this.fiberId));
                     break;
                   }
-
                   case IOTag.Stateful: {
                     current = concrete(current.onState(this, this.state.status));
                     break;
                   }
-
                   case IOTag.Race: {
                     current = concrete(this.unsafeRace(current));
                     break;
                   }
-
                   case IOTag.Logged: {
                     this.unsafeLogWith(
                       current.message,
@@ -408,8 +399,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
               }
             } else {
               const trace = current.trace;
-
-              current = concrete(IO.failCauseNow(this.unsafeClearSuppressedCause(), trace));
+              current     = concrete(IO.failCauseNow(this.unsafeClearSuppressedCause(), trace));
               this.unsafeSetInterrupting(true);
             }
             opCount++;
@@ -677,8 +667,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
           // We are truly "done" because all the children of this fiber have terminated,
           // and there are no more pending effects that we have to execute on the fiber.
           const interruptorsCause = this.state.interruptorsCause;
-
-          const newExit = interruptorsCause.isEmpty
+          const newExit           = interruptorsCause.isEmpty
             ? exit
             : exit.mapErrorCause((cause) => {
                 if (cause.contains(interruptorsCause)) {
@@ -689,9 +678,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
               });
 
           const observers = this.state.observers;
-
-          this.state = FiberState.done(newExit);
-
+          this.state      = FiberState.done(newExit);
           this.unsafeReportUnhandled(newExit);
 
           this.unsafeNotifyObservers(newExit, observers);
@@ -799,17 +786,14 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     forkScope: Maybe<FiberScope> = Nothing(),
     trace?: string,
   ): FiberContext<any, any> {
-    const childId = FiberId.unsafeMake(TraceElement.parse(trace));
-
-    const childFiberRefLocals = this.fiberRefs.forkAs(childId).fiberRefLocals;
-
+    const childId                 = FiberId.unsafeMake(TraceElement.parse(trace));
+    const childFiberRefLocals     = this.fiberRefs.forkAs(childId).fiberRefLocals;
     const parentScope: FiberScope = forkScope
       .orElse(this.unsafeGetRef(FiberRef.forkScopeOverride))
       .getOrElse(this.scope);
 
     const grandChildren = new Set<FiberContext<any, any>>();
-
-    const childContext = new FiberContext<any, any>(
+    const childContext  = new FiberContext<any, any>(
       childId,
       this.runtimeConfig,
       Stack.single(this.unsafeIsInterruptible),
@@ -828,9 +812,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
         this.currentSupervisor.unsafeOnEnd(exit.flatten, childContext);
       });
     }
-
-    const childIO = !parentScope.unsafeAdd(childContext) ? IO.interruptAs(parentScope.fiberId) : io;
-
+    const childIO       = !parentScope.unsafeAdd(childContext) ? IO.interruptAs(parentScope.fiberId) : io;
     childContext.nextIO = concrete(childIO);
     this.unsafeGetRef(FiberRef.currentScheduler).scheduleTask(() =>
       childContext.runUntil(this.runtimeConfig.yieldOpCount),
@@ -973,10 +955,8 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
     overrideValue1: unknown | null = null,
     trace?: string,
   ): void {
-    const logLevel = overrideLogLevel.getOrElse(this.unsafeGetRef(FiberRef.currentLogLevel));
-
-    const spans = this.unsafeGetRef(FiberRef.currentLogSpan);
-
+    const logLevel    = overrideLogLevel.getOrElse(this.unsafeGetRef(FiberRef.currentLogLevel));
+    const spans       = this.unsafeGetRef(FiberRef.currentLogSpan);
     const annotations = this.unsafeGetRef(FiberRef.currentLogAnnotations);
 
     let contextMap;

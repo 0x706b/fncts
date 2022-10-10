@@ -20,19 +20,16 @@
 export class TReentrantLock {
   constructor(readonly data: UTRef<LockState>) {}
 }
-
 export interface Lock {
   readonly readLocks: number;
   readonly readLocksHeld: (fiberId: FiberId) => number;
   readonly writeLocks: number;
   readonly writeLocksHeld: (fiberId: FiberId) => number;
 }
-
 export const enum LockTag {
   WriteLock,
   ReadLock,
 }
-
 /**
  * @tsplus type fncts.io.TReentrantLock.WriteLock
  * @tsplus companion fncts.io.TReentrantLock.WriteLockOps
@@ -47,7 +44,6 @@ export class WriteLock implements Lock {
     return this.fiberId == fiberId ? this.writeLocks : 0;
   }
 }
-
 /**
  * @tsplus type fncts.io.TReentrantLock.ReadLock
  * @tsplus companion fncts.io.TReentrantLock.ReadLockOps
@@ -59,14 +55,12 @@ export class ReadLock implements Lock {
     return (this.readers.values as Iterable<number>).sum;
   }
   writeLocks = 0;
-
   readLocksHeld(fiberId: FiberId) {
     return this.readers.get(fiberId).getOrElse(0);
   }
   writeLocksHeld(_fiberId: FiberId) {
     return 0;
   }
-
   noOtherHolder(fiberId: FiberId): boolean {
     return this.readers.isEmpty || (this.readers.size === 1 && this.readers.has(fiberId));
   }
@@ -82,5 +76,4 @@ export class ReadLock implements Lock {
     return new ReadLock(this.readers.set(fiberId, newTotal));
   }
 }
-
 export type LockState = WriteLock | ReadLock;

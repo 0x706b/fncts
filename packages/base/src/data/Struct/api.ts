@@ -27,82 +27,102 @@ export function makeStruct<A>(a: A): Struct<A> {
 }
 
 /**
- * @tsplus fluent fncts.Struct set
+ * @tsplus pipeable fncts.Struct set
  */
-export function set_<A, N extends string, B>(
-  self: Struct<A>,
-  key: EnsureLiteral<N>,
-  value: B,
-): Struct<{ [P in Exclude<keyof A, N> | N]: P extends Exclude<keyof A, N> ? A[P] : B }> {
-  return Struct.get({ ...self.getStruct, [key]: value }) as Struct<any>;
+export function set<N extends string, B>(key: EnsureLiteral<N>, value: B) {
+  return <A>(
+    self: Struct<A>,
+  ): Struct<{
+    [P in Exclude<keyof A, N> | N]: P extends Exclude<keyof A, N> ? A[P] : B;
+  }> => {
+    return Struct.get({ ...self.getStruct, [key]: value }) as Struct<any>;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Struct hmap
+ * @tsplus pipeable fncts.Struct hmap
  */
-export function hmap_<A extends {}, F extends { [N in keyof A]: (a: A[N]) => any }>(
-  self: Struct<A>,
-  fs: F,
-): Struct<{ readonly [K in keyof F]: ReturnType<F[K]> }> {
-  const keys = self.keys;
-  const out  = {} as any;
-  for (const key of keys) {
-    out[key] = fs[key](unsafeCoerce(self.getStruct[key]));
-  }
-  return out;
+export function hmap<
+  A extends {},
+  F extends {
+    [N in keyof A]: (a: A[N]) => any;
+  },
+>(fs: F) {
+  return (
+    self: Struct<A>,
+  ): Struct<{
+    readonly [K in keyof F]: ReturnType<F[K]>;
+  }> => {
+    const keys = self.keys;
+    const out  = {} as any;
+    for (const key of keys) {
+      out[key] = fs[key](unsafeCoerce(self.getStruct[key]));
+    }
+    return out;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Struct modify
+ * @tsplus pipeable fncts.Struct modify
  */
-export function modify_<A, N extends keyof A, B>(
-  self: Struct<A>,
-  key: N,
-  f: (a: A[N]) => B,
-): Struct<{ readonly [P in Exclude<keyof A, N> | N]: P extends Exclude<keyof A, N> ? A[P] : B }> {
-  return Struct.get({ ...self.getStruct, [key]: f(self.getStruct[key]) }) as Struct<any>;
+export function modify<A, N extends keyof A, B>(key: N, f: (a: A[N]) => B) {
+  return (
+    self: Struct<A>,
+  ): Struct<{
+    readonly [P in Exclude<keyof A, N> | N]: P extends Exclude<keyof A, N> ? A[P] : B;
+  }> => {
+    return Struct.get({ ...self.getStruct, [key]: f(self.getStruct[key]) }) as Struct<any>;
+  };
 }
 
 /**
- * @tsplus fluent fncts.Struct pick
+ * @tsplus pipeable fncts.Struct pick
  */
-export function pick_<A, N extends ReadonlyArray<keyof A>>(
-  self: Struct<A>,
-  keys: [...N],
-): Struct<{ readonly [P in N[number]]: A[P] }> {
-  const out = {} as Pick<A, N[number]>;
-  for (const key of keys) {
-    out[key] = self.getStruct[key];
-  }
-  return Struct.get(out);
+export function pick<A, N extends ReadonlyArray<keyof A>>(keys: [...N]) {
+  return (
+    self: Struct<A>,
+  ): Struct<{
+    readonly [P in N[number]]: A[P];
+  }> => {
+    const out = {} as Pick<A, N[number]>;
+    for (const key of keys) {
+      out[key] = self.getStruct[key];
+    }
+    return Struct.get(out);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Struct omit
+ * @tsplus pipeable fncts.Struct omit
  */
-export function omit_<A extends {}, N extends ReadonlyArray<keyof A>>(
-  self: Struct<A>,
-  keys: [...N],
-): Struct<{ readonly [P in Exclude<keyof A, N[number]>]: A[P] }> {
-  const newKeys = keys.asImmutableArray.difference(self.keys.asImmutableArray, Eq({ equals: (x, y) => x === y }));
-  const out     = {} as any;
-  for (const key of newKeys) {
-    out[key] = self.getStruct[key];
-  }
-  return Struct.get(out);
+export function omit<A extends {}, N extends ReadonlyArray<keyof A>>(keys: [...N]) {
+  return (
+    self: Struct<A>,
+  ): Struct<{
+    readonly [P in Exclude<keyof A, N[number]>]: A[P];
+  }> => {
+    const newKeys = keys.asImmutableArray.difference(self.keys.asImmutableArray, Eq({ equals: (x, y) => x === y }));
+    const out     = {} as any;
+    for (const key of newKeys) {
+      out[key] = self.getStruct[key];
+    }
+    return Struct.get(out);
+  };
 }
 
 /**
- * @tsplus fluent fncts.Struct map
+ * @tsplus pipeable fncts.Struct map
  */
-export function map_<A, B>(self: Struct<A>, f: (a: A[keyof A]) => B): Struct<Record<keyof A, B>> {
-  const out  = {} as Record<keyof A, B>;
-  const keys = Object.keys(self);
-  for (let i = 0; i < keys.length; i++) {
-    const k = keys[i]! as keyof A;
-    out[k]  = f(self.getStruct[k]);
-  }
-  return Struct.get(out);
+export function map<A, B>(f: (a: A[keyof A]) => B) {
+  return (self: Struct<A>): Struct<Record<keyof A, B>> => {
+    const out  = {} as Record<keyof A, B>;
+    const keys = Object.keys(self);
+    for (let i = 0; i < keys.length; i++) {
+      const k = keys[i]! as keyof A;
+      out[k]  = f(self.getStruct[k]);
+    }
+    return Struct.get(out);
+  };
 }
 
 /**

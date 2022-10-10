@@ -1,23 +1,17 @@
 /**
- * @tsplus fluent fncts.io.IO timeoutTo
+ * @tsplus pipeable fncts.io.IO timeoutTo
  */
-export function timeoutTo<R, E, A, B, B1>(
-  self: IO<R, E, A>,
-  duration: Lazy<Duration>,
-  b: Lazy<B>,
-  f: (a: A) => B1,
-  __tsplusTrace?: string,
-): IO<R, E, B | B1> {
-  return self.map(f).raceFirst(IO.sleep(duration).interruptible.as(b));
+export function timeoutTo<A, B, B1>(duration: Lazy<Duration>, b: Lazy<B>, f: (a: A) => B1, __tsplusTrace?: string) {
+  return <R, E>(self: IO<R, E, A>): IO<R, E, B | B1> => {
+    return self.map(f).raceFirst(IO.sleep(duration).interruptible.as(b));
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.IO timeout
+ * @tsplus pipeable fncts.io.IO timeout
  */
-export function timeout<R, E, A>(
-  self: IO<R, E, A>,
-  duration: Lazy<Duration>,
-  __tsplusTrace?: string,
-): IO<R, E, Maybe<A>> {
-  return self.timeoutTo(duration, Nothing(), Maybe.just);
+export function timeout(duration: Lazy<Duration>, __tsplusTrace?: string) {
+  return <R, E, A>(self: IO<R, E, A>): IO<R, E, Maybe<A>> => {
+    return self.timeoutTo(duration, Nothing(), Maybe.just);
+  };
 }

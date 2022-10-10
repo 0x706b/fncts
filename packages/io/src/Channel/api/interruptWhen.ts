@@ -1,5 +1,4 @@
 import { MergeDecision } from "@fncts/io/Channel/internal/MergeDecision";
-
 /**
  * Returns a new channel, which is the same as this one, except it will be interrupted when the
  * specified effect completes. If the effect completes successfully before the underlying channel
@@ -7,17 +6,18 @@ import { MergeDecision } from "@fncts/io/Channel/internal/MergeDecision";
  * value. On the other hand, if the underlying channel finishes first, then the returned channel
  * will yield the success value of the underlying channel as its terminal value.
  *
- * @tsplus fluent fncts.io.Channel interruptWhen
+ * @tsplus pipeable fncts.io.Channel interruptWhen
  */
-export function interruptWhen_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
-  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  io: IO<Env1, OutErr1, OutDone1>,
-): Channel<Env1 | Env, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone | OutDone1> {
-  return self.mergeWith(
-    Channel.fromIO(io),
-    (selfDone) => MergeDecision.Done(IO.fromExitNow(selfDone)),
-    (ioDone) => MergeDecision.Done(IO.fromExitNow(ioDone)),
-  );
+export function interruptWhen<Env1, OutErr1, OutDone1>(io: IO<Env1, OutErr1, OutDone1>) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<Env1 | Env, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone | OutDone1> => {
+    return self.mergeWith(
+      Channel.fromIO(io),
+      (selfDone) => MergeDecision.Done(IO.fromExitNow(selfDone)),
+      (ioDone) => MergeDecision.Done(IO.fromExitNow(ioDone)),
+    );
+  };
 }
 
 /**
@@ -27,11 +27,12 @@ export function interruptWhen_<Env, Env1, InErr, InElem, InDone, OutErr, OutErr1
  * underlying channel finishes first, then the returned channel will yield the value of the
  * underlying channel.
  *
- * @tsplus fluent fncts.io.Channel interruptWhen
+ * @tsplus pipeable fncts.io.Channel interruptWhen
  */
-export function interruptWhenFuture_<Env, InErr, InElem, InDone, OutErr, OutErr1, OutElem, OutDone, OutDone1>(
-  self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  promise: Future<OutErr1, OutDone1>,
-): Channel<Env, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone | OutDone1> {
-  return self.interruptWhen(promise.await);
+export function interruptWhenFuture<OutErr1, OutDone1>(promise: Future<OutErr1, OutDone1>) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<Env, InErr, InElem, InDone, OutErr | OutErr1, OutElem, OutDone | OutDone1> => {
+    return self.interruptWhen(promise.await);
+  };
 }

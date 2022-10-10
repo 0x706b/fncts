@@ -57,10 +57,12 @@ export function prependTo(self: Line, message: Message): Message {
 }
 
 /**
- * @tsplus fluent fncts.test.data.Line withOffset
+ * @tsplus pipeable fncts.test.data.Line withOffset
  */
-export function withOffset(self: Line, shift: number): Line {
-  return new Line(self.fragments, self.offset + shift);
+export function withOffset(shift: number) {
+  return (self: Line): Line => {
+    return new Line(self.fragments, self.offset + shift);
+  };
 }
 
 /**

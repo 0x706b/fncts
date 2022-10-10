@@ -36,7 +36,6 @@ export abstract class Schedule<Env, In, Out> {
   readonly _In!: (_: In) => void;
   readonly _Out!: () => Out;
   readonly _State!: unknown;
-
   abstract readonly initial: this["_State"];
   abstract step(
     now: number,

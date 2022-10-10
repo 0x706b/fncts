@@ -8,15 +8,12 @@ export abstract class AbstractRunnableSpec<R, E> {
   abstract aspects: ReadonlyArray<TestAspect<R, any>>;
   abstract runner: TestRunner<R, E>;
   abstract spec: Spec<R, E>;
-
   get _run(): URIO<TestLogger, ExecutedSpec<E>> {
     return this.runSpec(this.spec);
   }
-
   runSpec(spec: Spec<R, E>): URIO<TestLogger, ExecutedSpec<E>> {
     return this.runner.run(this.aspects.foldLeft(spec, (b, a) => a(b)));
   }
-
   get platform() {
     return this.runner.runtimeConfig;
   }

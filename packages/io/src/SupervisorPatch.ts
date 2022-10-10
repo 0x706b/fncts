@@ -56,10 +56,12 @@ export function concrete(_: SupervisorPatch): asserts _ is Concrete {
 export const empty: SupervisorPatch = new Empty();
 
 /**
- * @tsplus fluent fncts.io.SupervisorPatch combine
+ * @tsplus pipeable fncts.io.SupervisorPatch combine
  */
-export function combine(first: SupervisorPatch, second: SupervisorPatch): SupervisorPatch {
-  return new Combine(first, second);
+export function combine(second: SupervisorPatch) {
+  return (first: SupervisorPatch): SupervisorPatch => {
+    return new Combine(first, second);
+  };
 }
 
 /**
@@ -100,8 +102,10 @@ function applyLoop(supervisor: Supervisor<any>, patches: List<SupervisorPatch>):
 }
 
 /**
- * @tsplus fluent fncts.io.SupervisorPatch __call
+ * @tsplus pipeable fncts.io.SupervisorPatch __call
  */
-export function apply(self: SupervisorPatch, supervisor: Supervisor<any>): Supervisor<any> {
-  return applyLoop(supervisor, Cons(self));
+export function apply(supervisor: Supervisor<any>) {
+  return (self: SupervisorPatch): Supervisor<any> => {
+    return applyLoop(supervisor, Cons(self));
+  };
 }

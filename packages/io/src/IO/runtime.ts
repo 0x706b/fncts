@@ -1,4 +1,3 @@
-import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { Stack } from "@fncts/base/internal/Stack";
 import { FiberContext } from "@fncts/io/Fiber";
 import { concrete } from "@fncts/io/IO/definition";
@@ -23,15 +22,11 @@ export class Runtime<R> {
       ),
       children,
     );
-
     FiberScope.global.unsafeAdd(context);
-
     if (supervisor !== Supervisor.none) {
       supervisor.unsafeOnStart(this.environment, io, Nothing(), context);
-
       context.unsafeOnDone((exit) => supervisor.unsafeOnEnd(exit.flatten, context));
     }
-
     context.nextIO = concrete(io);
     context.run();
     return context;
@@ -76,25 +71,18 @@ export class Runtime<R> {
       ),
       children,
     );
-
     FiberScope.global.unsafeAdd(context);
-
     if (supervisor !== Supervisor.none) {
       supervisor.unsafeOnStart(this.environment, io, Nothing(), context);
-
       context.unsafeOnDone((exit) => supervisor.unsafeOnEnd(exit.flatten, context));
     }
-
     context.nextIO = concrete(io);
     context.run();
     scheduler.flush();
-
     const result = context.unsafePoll();
-
     if (result.isJust()) {
       return result.value;
     }
-
     return Exit.halt(context);
   };
 }

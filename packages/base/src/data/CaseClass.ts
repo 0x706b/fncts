@@ -82,7 +82,10 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
 };
 
 export interface CaseConstructorTagged<Tag extends string | symbol, K extends string | symbol> {
-  new <T>(args: Equals<T, {}> extends true ? void : T): T & Copy<T> & { readonly [k in K]: Tag };
+  new <T>(args: Equals<T, {}> extends true ? void : T): T &
+    Copy<T> & {
+      readonly [k in K]: Tag;
+    };
 }
 
 export function Tagged<Tag extends string | symbol, Key extends string | symbol>(

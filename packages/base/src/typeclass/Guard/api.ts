@@ -4,29 +4,34 @@ import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
 import { Guard } from "@fncts/base/typeclass/Guard/definition";
 import { AssertionError } from "@fncts/base/util/assert";
 import { isObject } from "@fncts/base/util/predicates";
-
 /**
- * @tsplus fluent fncts.Guard __call
+ * @tsplus pipeable fncts.Guard __call
  */
-export function is<A>(self: Guard<A>, u: unknown): u is A {
-  return self.is(u);
+export function is(u: unknown) {
+  // @ts-expect-error
+  return <A>(self: Guard<A>): u is A => {
+    return self.is(u);
+  };
 }
-
 /**
- * @tsplus fluent fncts.Guard refine
+ * @tsplus pipeable fncts.Guard refine
  * @tsplus operator fncts.Guard &&
  */
-export function refine<A, B extends A>(self: Guard<A>, refinement: Refinement<A, B>): Guard<B>;
-export function refine<A>(self: Guard<A>, predicate: Predicate<A>): Guard<A>;
-export function refine<A>(self: Guard<A>, predicate: Predicate<A>): Guard<A> {
-  return Guard(self.is && predicate);
+export function refine<A, B extends A>(refinement: Refinement<A, B>): (self: Guard<A>) => Guard<B>;
+export function refine<A>(predicate: Predicate<A>): (self: Guard<A>) => Guard<A>;
+export function refine<A>(predicate: Predicate<A>) {
+  return (self: Guard<A>): Guard<A> => {
+    return Guard(self.is && predicate);
+  };
 }
-
 /**
- * @tsplus fluent fncts.Guard assert
+ * @tsplus pipeable fncts.Guard assert
  */
-export function assert<A>(self: Guard<A>, u: unknown): asserts u is A {
-  if (!self.is(u)) {
-    throw new AssertionError("Guard failed check failed");
-  }
+export function assert(u: unknown) {
+  // @ts-expect-error
+  return <A>(self: Guard<A>): asserts u is A => {
+    if (!self.is(u)) {
+      throw new AssertionError("Guard failed check failed");
+    }
+  };
 }

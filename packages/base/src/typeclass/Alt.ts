@@ -5,7 +5,6 @@ import type { Functor } from "@fncts/base/typeclass/Functor";
  */
 export interface Alt<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
   alt: <K, Q, W, X, I, S, R, E, A, K1, Q1, W1, X1, I1, S1, R1, E1, B>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
     that: Lazy<
       HKT.Kind<
         F,
@@ -21,6 +20,8 @@ export interface Alt<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
         HKT.Intro<F, "A", A, B>
       >
     >,
+  ) => (
+    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
   ) => HKT.Kind<
     F,
     FC,

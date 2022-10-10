@@ -1,15 +1,25 @@
 import { animationFrameProvider } from "@fncts/observable/internal/animationFrameProvider";
 import { performanceTimestampProvider } from "@fncts/observable/internal/performanceTimestampProvider";
 
-export function animationFrames(
-  timestampProvider?: TimestampProvider,
-): Observable<never, never, { timestamp: number; elapsed: number }> {
+export function animationFrames(timestampProvider?: TimestampProvider): Observable<
+  never,
+  never,
+  {
+    timestamp: number;
+    elapsed: number;
+  }
+> {
   return timestampProvider ? animationFramesInternal(timestampProvider) : DEFAULT_ANIMATION_FRAMES;
 }
 
-function animationFramesInternal(
-  timestampProvider?: TimestampProvider,
-): Observable<never, never, { timestamp: number; elapsed: number }> {
+function animationFramesInternal(timestampProvider?: TimestampProvider): Observable<
+  never,
+  never,
+  {
+    timestamp: number;
+    elapsed: number;
+  }
+> {
   const { schedule } = animationFrameProvider;
   return new Observable((subscriber) => {
     const subscription = new Subscription();

@@ -48,34 +48,24 @@ export interface ExecutionStrategyOps {}
 export const ExecutionStrategy: ExecutionStrategyOps = {};
 
 /**
- * @tsplus fluent fncts.ExecutionStrategy match
- */
-export function match_<A, B, C>(
-  strategy: ExecutionStrategy,
-  sequential: () => A,
-  concurrent: () => B,
-  concurrentBounded: (fiberBound: number) => C,
-): A | B | C {
-  switch (strategy._tag) {
-    case "Sequential": {
-      return sequential();
-    }
-    case "Concurrent": {
-      return concurrent();
-    }
-    case "ConcurrentBounded": {
-      return concurrentBounded(strategy.fiberBound);
-    }
-  }
-}
-
-/**
  * @tsplus pipeable fncts.ExecutionStrategy match
  */
-export function match<A, B, C>(
+export function match_<A, B, C>(
   sequential: () => A,
   concurrent: () => B,
   concurrentBounded: (fiberBound: number) => C,
-): (strategy: ExecutionStrategy) => A | B | C {
-  return (strategy) => match_(strategy, sequential, concurrent, concurrentBounded);
+) {
+  return (strategy: ExecutionStrategy): A | B | C => {
+    switch (strategy._tag) {
+      case "Sequential": {
+        return sequential();
+      }
+      case "Concurrent": {
+        return concurrent();
+      }
+      case "ConcurrentBounded": {
+        return concurrentBounded(strategy.fiberBound);
+      }
+    }
+  };
 }

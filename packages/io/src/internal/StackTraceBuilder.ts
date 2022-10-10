@@ -1,6 +1,5 @@
 export class StackTraceBuilder {
-  private last: TraceElement | undefined = undefined;
-
+  private last: TraceElement | undefined     = undefined;
   private builder: ConcBuilder<TraceElement> = Conc.builder();
 
   append(trace: TraceElement | undefined): void {

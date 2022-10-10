@@ -2,12 +2,7 @@ import type { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
 import type { MutableQueue } from "@fncts/io/internal/MutableQueue";
 
 import { unbounded } from "@fncts/io/internal/MutableQueue";
-import {
-  unsafeCompletePromise,
-  unsafeCompleteTakers,
-  unsafeOfferAll,
-  unsafePollAll,
-} from "@fncts/io/Queue/internal";
+import { unsafeCompletePromise, unsafeCompleteTakers, unsafeOfferAll, unsafePollAll } from "@fncts/io/Queue/internal";
 
 export interface Strategy<A> {
   readonly handleSurplus: (
@@ -31,7 +26,6 @@ export interface Strategy<A> {
 
 export class BackPressureStrategy<A> implements Strategy<A> {
   private putters = unbounded<[A, Future<never, boolean>, boolean]>();
-
   handleSurplus(
     as: Conc<A>,
     queue: MutableQueue<A>,
@@ -42,7 +36,6 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     return IO.descriptorWith((d) =>
       IO.defer(() => {
         const p = Future.unsafeMake<never, boolean>(d.id);
-
         return IO.defer(() => {
           this.unsafeOffer(as, p);
           this.unsafeOnQueueEmptySpace(queue, takers);
@@ -66,12 +59,10 @@ export class BackPressureStrategy<A> implements Strategy<A> {
 
   unsafeOffer(as: Conc<A>, p: Future<never, boolean>, __tsplusTrace?: string) {
     let bs = as;
-
     while (bs.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const head = bs.unsafeGet(0);
       bs         = bs.drop(1);
-
       if (bs.length === 0) {
         this.putters.enqueue([head, p, true]);
       } else {
@@ -82,13 +73,10 @@ export class BackPressureStrategy<A> implements Strategy<A> {
 
   unsafeOnQueueEmptySpace(queue: MutableQueue<A>, takers: MutableQueue<Future<never, A>>, __tsplusTrace?: string) {
     let keepPolling = true;
-
     while (keepPolling && !queue.isFull) {
       const putter = this.putters.dequeue(undefined);
-
       if (putter != null) {
         const offered = queue.enqueue(putter[0]);
-
         if (offered && putter[2]) {
           unsafeCompletePromise(putter[1], true);
         } else if (!offered) {
@@ -169,14 +157,12 @@ export class SlidingStrategy<A> implements Strategy<A> {
 
   private unsafeSlidingOffer(queue: MutableQueue<A>, as: Conc<A>) {
     let bs = as;
-
     while (bs.length > 0) {
       if (queue.capacity === 0) {
         return;
       }
       // poll 1 and retry
       queue.dequeue(undefined);
-
       if (queue.enqueue(bs.unsafeGet(0))) {
         bs = bs.drop(1);
       }

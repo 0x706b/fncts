@@ -1,14 +1,10 @@
 /* Forked from https://github.com/planttheidea/fast-equals */
-
 const HAS_WEAKSET_SUPPORT = typeof WeakSet === "function";
-
-const { keys } = Object;
-
+const { keys }            = Object;
 type Cache = {
   add: (value: any) => void;
   has: (value: any) => boolean;
 };
-
 /**
  * @function addToCache
  *
@@ -22,9 +18,7 @@ export function addToCache(value: any, cache: Cache) {
     cache.add(value);
   }
 }
-
 export type EqualityComparator = (a: any, b: any, meta?: any) => boolean;
-
 /**
  * @function hasPair
  *
@@ -40,20 +34,15 @@ export type EqualityComparator = (a: any, b: any, meta?: any) => boolean;
  */
 export function hasPair(pairs: [any, any][], pairToMatch: [any, any], isEqual: EqualityComparator, meta: any) {
   const { length } = pairs;
-
   let pair: [any, any];
-
   for (let index = 0; index < length; index++) {
     pair = pairs[index]!;
-
     if (isEqual(pair[0], pairToMatch[0], meta) && isEqual(pair[1], pairToMatch[1], meta)) {
       return true;
     }
   }
-
   return false;
 }
-
 /**
  * @function hasValue
  *
@@ -69,16 +58,13 @@ export function hasPair(pairs: [any, any][], pairToMatch: [any, any], isEqual: E
  */
 export function hasValue(values: any[], valueToMatch: any, isEqual: EqualityComparator, meta: any) {
   const { length } = values;
-
   for (let index = 0; index < length; index++) {
     if (isEqual(values[index], valueToMatch, meta)) {
       return true;
     }
   }
-
   return false;
 }
-
 /**
  * @function sameValueZeroEqual
  *
@@ -92,7 +78,6 @@ export function hasValue(values: any[], valueToMatch: any, isEqual: EqualityComp
 export function sameValueZeroEqual(a: any, b: any) {
   return a === b || (a !== a && b !== b);
 }
-
 /**
  * @function isPlainObject
  *
@@ -105,7 +90,6 @@ export function sameValueZeroEqual(a: any, b: any) {
 export function isPlainObject(value: any) {
   return value.constructor === Object || value.constructor == null;
 }
-
 /**
  * @function isPromiseLike
  *
@@ -118,7 +102,6 @@ export function isPlainObject(value: any) {
 export function isPromiseLike(value: any) {
   return !!value && typeof value.then === "function";
 }
-
 /**
  * @function isReactElement
  *
@@ -131,7 +114,6 @@ export function isPromiseLike(value: any) {
 export function isReactElement(value: any) {
   return !!(value && value.$$typeof);
 }
-
 /**
  * @function getNewCacheFallback
  *
@@ -144,19 +126,16 @@ export function isReactElement(value: any) {
 export function getNewCacheFallback(): Cache {
   return Object.create({
     _values: [],
-
     add(value: any) {
       // @ts-expect-error
       this._values.push(value);
     },
-
     has(value: any) {
       // @ts-expect-error
       return this._values.indexOf(value) !== -1;
     },
   });
 }
-
 /**
  * @function getNewCache
  *
@@ -171,10 +150,8 @@ export const getNewCache = ((canUseWeakMap: boolean) => {
       return new WeakSet();
     };
   }
-
   return getNewCacheFallback;
 })(HAS_WEAKSET_SUPPORT);
-
 /**
  * @function createCircularEqualCreator
  *
@@ -187,23 +164,18 @@ export const getNewCache = ((canUseWeakMap: boolean) => {
 export function createCircularEqualCreator(isEqual?: EqualityComparatorCreator) {
   return function createCircularEqual(comparator: EqualityComparator) {
     const _comparator = isEqual ? isEqual(comparator) : comparator;
-
     return function circularEqual(a: any, b: any, cache: Cache = getNewCache()) {
       const hasA = cache.has(a);
       const hasB = cache.has(b);
-
       if (hasA || hasB) {
         return hasA && hasB;
       }
-
       addToCache(a, cache);
       addToCache(b, cache);
-
       return _comparator(a, b, cache);
     };
   };
 }
-
 /**
  * @function toPairs
  *
@@ -215,16 +187,12 @@ export function createCircularEqualCreator(isEqual?: EqualityComparatorCreator) 
  */
 export function toPairs(map: Map<any, any>): [any, any][] {
   const pairs = new Array(map.size);
-
-  let index = 0;
-
+  let index   = 0;
   map.forEach((value, key) => {
     pairs[index++] = [key, value];
   });
-
   return pairs;
 }
-
 /**
  * @function toValues
  *
@@ -236,16 +204,12 @@ export function toPairs(map: Map<any, any>): [any, any][] {
  */
 export function toValues(set: Set<any>) {
   const values = new Array(set.size);
-
-  let index = 0;
-
+  let index    = 0;
   set.forEach((value) => {
     values[index++] = value;
   });
-
   return values;
 }
-
 /**
  * @function areArraysEqual
  *
@@ -260,20 +224,16 @@ export function toValues(set: Set<any>) {
  */
 export function areArraysEqual(a: any[], b: any[], isEqual: EqualityComparator, meta: any) {
   const { length } = a;
-
   if (b.length !== length) {
     return false;
   }
-
   for (let index = 0; index < length; index++) {
     if (!isEqual(a[index], b[index], meta)) {
       return false;
     }
   }
-
   return true;
 }
-
 /**
  * @function areMapsEqual
  *
@@ -290,30 +250,22 @@ export function areMapsEqual(a: Map<any, any>, b: Map<any, any>, isEqual: Equali
   if (a.size !== b.size) {
     return false;
   }
-
-  const pairsA = toPairs(a);
-  const pairsB = toPairs(b);
-
+  const pairsA     = toPairs(a);
+  const pairsB     = toPairs(b);
   const { length } = pairsA;
-
   for (let index = 0; index < length; index++) {
     if (!hasPair(pairsB, pairsA[index]!, isEqual, meta) || !hasPair(pairsA, pairsB[index]!, isEqual, meta)) {
       return false;
     }
   }
-
   return true;
 }
-
 type Dictionary<Type> = {
   [key: string]: Type;
   [index: number]: Type;
 };
-
-const OWNER = "_owner";
-
+const OWNER          = "_owner";
 const hasOwnProperty = Function.prototype.bind.call(Function.prototype.call, Object.prototype.hasOwnProperty);
-
 /**
  * @function areObjectsEqual
  *
@@ -327,23 +279,17 @@ const hasOwnProperty = Function.prototype.bind.call(Function.prototype.call, Obj
  * @returns are the objects equal
  */
 export function areObjectsEqual(a: Dictionary<any>, b: Dictionary<any>, isEqual: EqualityComparator, meta: any) {
-  const keysA = keys(a);
-
+  const keysA      = keys(a);
   const { length } = keysA;
-
   if (keys(b).length !== length) {
     return false;
   }
-
   let key: string;
-
   for (let index = 0; index < length; index++) {
     key = keysA[index]!;
-
     if (!hasOwnProperty(b, key)) {
       return false;
     }
-
     if (key === OWNER && isReactElement(a)) {
       if (!isReactElement(b)) {
         return false;
@@ -352,10 +298,8 @@ export function areObjectsEqual(a: Dictionary<any>, b: Dictionary<any>, isEqual:
       return false;
     }
   }
-
   return true;
 }
-
 /**
  * @function areRegExpsEqual
  *
@@ -377,7 +321,6 @@ export function areRegExpsEqual(a: RegExp, b: RegExp) {
     a.lastIndex === b.lastIndex
   );
 }
-
 /**
  * @function areSetsEqual
  *
@@ -394,36 +337,26 @@ export function areSetsEqual(a: Set<any>, b: Set<any>, isEqual: EqualityComparat
   if (a.size !== b.size) {
     return false;
   }
-
-  const valuesA = toValues(a);
-  const valuesB = toValues(b);
-
+  const valuesA    = toValues(a);
+  const valuesB    = toValues(b);
   const { length } = valuesA;
-
   for (let index = 0; index < length; index++) {
     if (!hasValue(valuesB, valuesA[index], isEqual, meta) || !hasValue(valuesA, valuesB[index], isEqual, meta)) {
       return false;
     }
   }
-
   return true;
 }
-
-const { isArray } = Array;
-
+const { isArray }     = Array;
 const HAS_MAP_SUPPORT = typeof Map === "function";
 const HAS_SET_SUPPORT = typeof Set === "function";
-
-const OBJECT_TYPEOF = "object";
-
+const OBJECT_TYPEOF   = "object";
 type EqualityComparatorCreator = (fn: EqualityComparator) => EqualityComparator;
-
 export function createComparator(createIsEqual?: EqualityComparatorCreator) {
   const isEqual: EqualityComparator =
     /* eslint-disable no-use-before-define */
     typeof createIsEqual === "function" ? createIsEqual(comparator) : comparator;
   /* eslint-enable */
-
   /**
    * @function comparator
    *
@@ -439,60 +372,45 @@ export function createComparator(createIsEqual?: EqualityComparatorCreator) {
     if (sameValueZeroEqual(a, b)) {
       return true;
     }
-
     if (a && b && typeof a === OBJECT_TYPEOF && typeof b === OBJECT_TYPEOF) {
       if (isPlainObject(a) && isPlainObject(b)) {
         return areObjectsEqual(a, b, isEqual, meta);
       }
-
       const arrayA = isArray(a);
       const arrayB = isArray(b);
-
       if (arrayA || arrayB) {
         return arrayA === arrayB && areArraysEqual(a, b, isEqual, meta);
       }
-
       const aDate = a instanceof Date;
       const bDate = b instanceof Date;
-
       if (aDate || bDate) {
         return aDate === bDate && sameValueZeroEqual(a.getTime(), b.getTime());
       }
-
       const aRegExp = a instanceof RegExp;
       const bRegExp = b instanceof RegExp;
-
       if (aRegExp || bRegExp) {
         return aRegExp === bRegExp && areRegExpsEqual(a, b);
       }
-
       if (isPromiseLike(a) || isPromiseLike(b)) {
         return a === b;
       }
-
       if (HAS_MAP_SUPPORT) {
         const aMap = a instanceof Map;
         const bMap = b instanceof Map;
-
         if (aMap || bMap) {
           return aMap === bMap && areMapsEqual(a, b, isEqual, meta);
         }
       }
-
       if (HAS_SET_SUPPORT) {
         const aSet = a instanceof Set;
         const bSet = b instanceof Set;
-
         if (aSet || bSet) {
           return aSet === bSet && areSetsEqual(a, b, isEqual, meta);
         }
       }
-
       return areObjectsEqual(a, b, isEqual, meta);
     }
-
     return false;
   }
-
   return comparator;
 }

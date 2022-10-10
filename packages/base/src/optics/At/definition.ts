@@ -1,5 +1,4 @@
 import { Lens } from "@fncts/base/optics/Lens";
-
 /**
  * @tsplus type fncts.optics.At
  */
@@ -8,7 +7,10 @@ export interface At<S, I, A> {
 }
 
 export type AtMin<S, I, A> =
-  | { readonly get: (i: I) => (s: S) => A; readonly set: (i: I) => (s: S, a: A) => S }
+  | {
+      readonly get: (i: I) => (s: S) => A;
+      readonly set: (i: I) => (a: A) => (s: S) => S;
+    }
   | At<S, I, A>;
 
 /**
@@ -26,7 +28,7 @@ export function mkAt<S, I, A>(F: AtMin<S, I, A>): At<S, I, A> {
     return F;
   } else {
     return {
-      at: (i) => Lens({ get: F.get(i), set_: F.set(i) }),
+      at: (i) => Lens({ get: F.get(i), set: F.set(i) }),
     };
   }
 }

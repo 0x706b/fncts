@@ -4,7 +4,6 @@ export const MIN_VALUE_32 = 2 ** -126 * 2 ** -23;
 export const MAX_VALUE_32 = 2 ** 127 * (1 + (2 ** 23 - 1) / 2 ** 23);
 /** @internal */
 export const EPSILON_32 = 2 ** -23;
-
 /** @internal */
 const INDEX_POSITIVE_INFINITY_32 = 2139095040; // floatToIndex(MAX_VALUE_32) + 1;
 /** @internal */
@@ -23,7 +22,10 @@ export function safeFloatToIndex(f: number, label: string): IO<never, never, num
   return IO.succeedNow(index);
 }
 
-export function decomposeFloat(f: number): { exponent: number; significand: number } {
+export function decomposeFloat(f: number): {
+  exponent: number;
+  significand: number;
+} {
   // 1 => significand 0b1   - exponent 1 (will be preferred)
   //   => significand 0b0.1 - exponent 2
   const maxSignificand = 1 + (2 ** 23 - 1) / 2 ** 23;
@@ -45,11 +47,9 @@ export function floatToIndex(f: number): number {
     return INDEX_NEGATIVE_INFINITY_32;
   }
   const { exponent, significand } = decomposeFloat(f);
-
   if (Number.isNaN(exponent) || Number.isNaN(significand) || !Number.isInteger(significand * 0x800000)) {
     return Number.NaN;
   }
-
   if (f > 0 || (f === 0 && 1 / f === Number.POSITIVE_INFINITY)) {
     return indexInFloatFromDecomp(exponent, significand);
   } else {
@@ -60,10 +60,8 @@ export function floatToIndex(f: number): number {
 /** @internal */
 export function indexInFloatFromDecomp(exponent: number, significand: number) {
   // WARNING: significand >= 0
-
   // By construct of significand in decomposeFloat,
   // significand is always max-ed.
-
   // The float close to zero are the only one having a significand <1, they also have an exponent of -126.
   // They are in range: [2**(-126) * 2**(-23), 2**(-126) * (2 - 2 ** 23)]
   // In other words there are 2**24 elements in that range if we include zero.
@@ -104,15 +102,17 @@ export function indexToFloat(index: number): number {
 }
 
 /** @internal */
-export type ArrayInt64 = { sign: 1 | -1; data: [number, number] };
+export type ArrayInt64 = {
+  sign: 1 | -1;
+  data: [number, number];
+};
 
 /** @internal */
 export const Zero64: ArrayInt64 = { sign: 1, data: [0, 0] };
-
 /** @internal */
 export const Unit64: ArrayInt64 = { sign: 1, data: [0, 1] };
-
 /** @internal */
+
 export function isZero64(a: ArrayInt64): boolean {
   return a.data[0] === 0 && a.data[1] === 0;
 }
@@ -178,7 +178,6 @@ function substract64Internal(a: ArrayInt64, b: ArrayInt64): ArrayInt64 {
     const high = a.data[0] + b.data[0] + (low > 0xffffffff ? 1 : 0);
     return { sign: 1, data: [high >>> 0, low >>> 0] };
   }
-
   // a.sign === -1 with b.sign === 1 is impossible given: a - b >= 0, except for a = 0 and b = 0
   // Operation is a substraction
   return {
@@ -270,7 +269,10 @@ const INDEX_NEGATIVE_INFINITY: ArrayInt64 = { sign: -1, data: [2146435072, 1] };
  *
  * @internal
  */
-export function decomposeDouble(d: number): { exponent: number; significand: number } {
+export function decomposeDouble(d: number): {
+  exponent: number;
+  significand: number;
+} {
   // 1 => significand 0b1   - exponent 1 (will be preferred)
   //   => significand 0b0.1 - exponent 2
   const maxSignificand = 2 - Number.EPSILON;
@@ -292,10 +294,8 @@ function positiveNumberToInt64(n: number): ArrayInt64["data"] {
 /** @internal */
 function indexInDoubleFromDecomp(exponent: number, significand: number): ArrayInt64["data"] {
   // WARNING: significand >= 0
-
   // By construct of significand in decomposeDouble,
   // significand is always max-ed.
-
   // The double close to zero are the only one having a significand <1, they also have an exponent of -1022.
   // They are in range: [2**(-1022) * 2**(-52), 2**(-1022) * (2 - 2 ** 52)]
   // In other words there are 2**53 elements in that range if we include zero.
@@ -447,8 +447,14 @@ export function nextAfter(x: number, y: number) {
 export function computeBiasedRanges(
   min: ArrayInt64,
   max: ArrayInt64,
-  biasedRanges?: { min: ArrayInt64; max: ArrayInt64 }[],
-): { min: ArrayInt64; max: ArrayInt64 }[] {
+  biasedRanges?: {
+    min: ArrayInt64;
+    max: ArrayInt64;
+  }[],
+): {
+  min: ArrayInt64;
+  max: ArrayInt64;
+}[] {
   if (biasedRanges != null) {
     return biasedRanges;
   }
@@ -477,8 +483,16 @@ export function computeArrayInt64GenerateRange(
   min: ArrayInt64,
   max: ArrayInt64,
   biasFactor: number | undefined,
-  biasedRanges: { min: ArrayInt64; max: ArrayInt64 }[] | undefined,
-): UIO<{ min: ArrayInt64; max: ArrayInt64 }> {
+  biasedRanges:
+    | {
+        min: ArrayInt64;
+        max: ArrayInt64;
+      }[]
+    | undefined,
+): UIO<{
+  min: ArrayInt64;
+  max: ArrayInt64;
+}> {
   return IO.gen(function* (_) {
     if (biasFactor === undefined || (yield* _(Random.nextIntBetween(1, biasFactor))) !== 1) {
       return { min, max };

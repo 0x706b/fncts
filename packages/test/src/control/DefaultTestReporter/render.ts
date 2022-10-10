@@ -51,15 +51,12 @@ export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>) 
         ],
     }),
   );
-
   const total = success + ignore + failure;
-
   const stats = detail(
     `Ran ${total} test${
       total === 1 ? "" : "s"
     } in ${duration}ms: ${success} succeeded, ${ignore} ignored, ${failure} failed`,
   );
-
   return rendered(Other, "", Passed, 0, List(stats.toLine));
 }
 
@@ -89,7 +86,6 @@ function renderLoop<E>(
           return false;
         }
       });
-
       const annotations = executedSpec.fold<E, TestAnnotationMap>(
         matchTag({
           Labeled: ({ spec }) => spec,
@@ -97,19 +93,15 @@ function renderLoop<E>(
           Test: ({ annotations }) => annotations,
         }),
       );
-
       const [status, renderedLabel] = specs.isEmpty
         ? [Ignored, Vector(renderSuiteIgnored(labels.reverse.join(" - "), depth))]
         : hasFailures
         ? [Failed, Vector(renderSuiteFailed(labels.reverse.join(" - "), depth))]
         : [Passed, Vector(renderSuiteSucceeded(labels.reverse.join(" - "), depth))];
-
       const allAnnotations = ancestors.prepend(annotations);
-
-      const rest = Vector.from(specs).flatMap((spec) =>
+      const rest           = Vector.from(specs).flatMap((spec) =>
         renderLoop(spec, depth + 1, ancestors.prepend(annotations), List.empty()),
       );
-
       return rest.prepend(
         rendered(
           Suite,
@@ -215,7 +207,6 @@ function renderGenFailureDetails(failureDetails: Maybe<GenFailureDetails>, offse
           `Test failed after ${details.iterations + 1} iteration${details.iterations > 0 ? "s" : ""} with input: `,
         ) + error(shrunken)
       ).withOffset(offset + 1);
-
       return initial === shrunken
         ? renderShrunken.toMessage
         : renderShrunken | (Fragment("Original input before shrinking was: ") + error(initial)).withOffset(offset + 1);
@@ -246,7 +237,6 @@ function renderValue<A>(av: AssertionValue<A>, offset: number) {
 
 function expressionRedundant(valueStr: string, expression: string) {
   const strip = (s: string) => s.replace('"', "").replace(" ", "").replace("\n", "").replace("\\n", "");
-
   return strip(valueStr) === strip(expression);
 }
 

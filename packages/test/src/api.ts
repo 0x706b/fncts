@@ -50,21 +50,25 @@ export function traverseResult<A>(value: A, assertResult: AssertResult<A>, asser
 }
 
 /**
- * @tsplus fluent global assert 1
+ * @tsplus pipeable global assert 1
  */
-export function assert_<A>(value: A, assertion: Assertion<A>): TestResult {
-  return traverseResult(value, assertion.run(value), assertion);
+export function assert<A>(assertion: Assertion<A>) {
+  return (value: A): TestResult => {
+    return traverseResult(value, assertion.run(value), assertion);
+  };
 }
 
 /**
- * @tsplus fluent global assert 0
+ * @tsplus pipeable global assert 0
  */
-export function assertIO_<R, E, A>(io: IO<R, E, A>, assertion: AssertionIO<A>): IO<R, E, TestResult> {
-  return IO.gen(function* (_) {
-    const value        = yield* _(io);
-    const assertResult = yield* _(assertion.runIO(value));
-    return traverseResult(value, assertResult, assertion);
-  });
+export function assertIO<A>(assertion: AssertionIO<A>) {
+  return <R, E>(io: IO<R, E, A>): IO<R, E, TestResult> => {
+    return Do((_) => {
+      const value        = _(io);
+      const assertResult = _(assertion.runIO(value));
+      return traverseResult(value, assertResult, assertion);
+    });
+  };
 }
 
 export function suite<Specs extends ReadonlyArray<Spec<any, any>>>(
@@ -83,44 +87,41 @@ export function test(label: string, assertion: Lazy<TestResult>): Spec<never, ne
 }
 
 /**
- * @tsplus fluent fncts.test.Gen check
+ * @tsplus pipeable fncts.test.Gen check
  */
-export function check<R, A>(rv: Gen<R, A>, test: (a: A) => TestResult): IO<R | TestConfig, never, TestResult> {
-  return TestConfig.samples.flatMap((n) =>
-    checkStream(rv.sample.forever.filterMap(identity).take(n), (a) => IO.succeed(test(a))),
-  );
+export function check<A>(test: (a: A) => TestResult) {
+  return <R>(rv: Gen<R, A>): IO<R | TestConfig, never, TestResult> => {
+    return TestConfig.samples.flatMap((n) =>
+      checkStream(rv.sample.forever.filterMap(identity).take(n), (a) => IO.succeed(test(a))),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Gen check
+ * @tsplus pipeable fncts.test.Gen check
  */
-export function checkIO<R, A, R1, E>(
-  rv: Gen<R, A>,
-  test: (a: A) => IO<R1, E, TestResult>,
-): IO<R | R1 | TestConfig, E, TestResult> {
-  return TestConfig.samples.flatMap((n) => checkStream(rv.sample.forever.filterMap(identity).take(n), test));
+export function checkIO<A, R1, E>(test: (a: A) => IO<R1, E, TestResult>) {
+  return <R>(rv: Gen<R, A>): IO<R | R1 | TestConfig, E, TestResult> => {
+    return TestConfig.samples.flatMap((n) => checkStream(rv.sample.forever.filterMap(identity).take(n), test));
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Gen checkAllC
+ * @tsplus pipeable fncts.test.Gen checkAllC
  */
-export function checkAllC<R, A>(
-  rv: Gen<R, A>,
-  concurrency: number,
-  test: (a: A) => TestResult,
-): IO<R | TestConfig, never, TestResult> {
-  return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, (a) => IO.succeed(test(a)));
+export function checkAllC<A>(concurrency: number, test: (a: A) => TestResult) {
+  return <R>(rv: Gen<R, A>): IO<R | TestConfig, never, TestResult> => {
+    return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, (a) => IO.succeed(test(a)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Gen checkAllC
+ * @tsplus pipeable fncts.test.Gen checkAllC
  */
-export function checkAllIOC<R, A, R1, E>(
-  rv: Gen<R, A>,
-  concurrency: number,
-  test: (a: A) => IO<R1, E, TestResult>,
-): IO<R | R1 | TestConfig, E, TestResult> {
-  return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, test);
+export function checkAllIOC<A, R1, E>(concurrency: number, test: (a: A) => IO<R1, E, TestResult>) {
+  return <R>(rv: Gen<R, A>): IO<R | R1 | TestConfig, E, TestResult> => {
+    return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, test);
+  };
 }
 
 function checkStreamC<R, E, A, R1>(

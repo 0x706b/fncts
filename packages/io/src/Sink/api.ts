@@ -5,82 +5,83 @@ import { MergeDecision } from "../Channel/internal/MergeDecision.js";
 /**
  * Like {@link zip}, but keeps only the result from this sink
  *
- * @tsplus fluent fncts.io.Sink apFirst
+ * @tsplus pipeable fncts.io.Sink apFirst
  */
-export function apFirst<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function apFirst<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z> {
-  return self.zipWith(that, (z, _) => z);
+) {
+  return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z> => {
+    return self.zipWith(that, (z, _) => z);
+  };
 }
 
 /**
  * Like {@link zipC}, but keeps only the result from this sink
  *
- * @tsplus fluent fncts.io.Sink apFirstC
+ * @tsplus pipeable fncts.io.Sink apFirstC
  */
-export function apFirstC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function apFirstC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z> {
-  return self.zipWithC(that, (z, _) => z);
+) {
+  return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z> => {
+    return self.zipWithC(that, (z, _) => z);
+  };
 }
 
 /**
  * Like {@link zip}, but keeps only the result from the `that` sink
  *
- * @tsplus fluent fncts.io.Sink apSecond
+ * @tsplus pipeable fncts.io.Sink apSecond
  */
-export function apSecond<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function apSecond<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z1> {
-  return self.zipWith(that, (_, z1) => z1);
+) {
+  return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z1> => {
+    return self.zipWith(that, (_, z1) => z1);
+  };
 }
 
 /**
  * Like {@link zipC}, but keeps only the result from the `that` sink
  *
- * @tsplus fluent fncts.io.Sink apSecondC
+ * @tsplus pipeable fncts.io.Sink apSecondC
  */
-export function apSecondC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function apSecondC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z1> {
-  return self.zipWithC(that, (_, z1) => z1);
+) {
+  return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z1> => {
+    return self.zipWithC(that, (_, z1) => z1);
+  };
 }
 
 /**
  * Replaces this sink's result with the provided value.
  *
- * @tsplus fluent fncts.io.Sink as
+ * @tsplus pipeable fncts.io.Sink as
  */
-export function as<R, E, In, L, Z, Z1>(
-  self: Sink<R, E, In, L, Z>,
-  z: Lazy<Z1>,
-  __tsplusTrace?: string,
-): Sink<R, E, In, L, Z1> {
-  return self.map(() => z());
+export function as<Z1>(z: Lazy<Z1>, __tsplusTrace?: string) {
+  return <R, E, In, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R, E, In, L, Z1> => {
+    return self.map(() => z());
+  };
 }
 
 /**
  * Repeatedly runs the sink and accumulates its results into a chunk
  *
- * @tsplus fluent fncts.io.Sink collectAll
+ * @tsplus pipeable fncts.io.Sink collectAll
  */
-export function collectAll<R, E, In extends L, L, Z>(
-  self: Sink<R, E, In, L, Z>,
-  __tsplusTrace?: string,
-): Sink<R, E, In, L, Conc<Z>> {
-  return self.collectAllWhileWith(
-    Conc.empty<Z>(),
-    () => true,
-    (s, z) => s.append(z),
-  );
+export function collectAll(__tsplusTrace?: string) {
+  return <R, E, In extends L, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R, E, In, L, Conc<Z>> => {
+    return self.collectAllWhileWith(
+      Conc.empty<Z>(),
+      () => true,
+      (s, z) => s.append(z),
+    );
+  };
 }
 
 /**
@@ -88,43 +89,39 @@ export function collectAll<R, E, In extends L, L, Z>(
  * `p`. The sink's results will be accumulated using the stepping function
  * `f`.
  *
- * @tsplus fluent fncts.io.Sink collectAllWhileWith
+ * @tsplus pipeable fncts.io.Sink collectAllWhileWith
  */
-export function collectAllWhileWith<R, E, In extends L, L, Z, S>(
-  self: Sink<R, E, In, L, Z>,
-  z: Lazy<S>,
-  p: Predicate<Z>,
-  f: (s: S, z: Z) => S,
-  __tsplusTrace?: string,
-): Sink<R, E, In, L, S> {
-  return new Sink(
-    Channel.fromIO(Ref.make<Conc<In>>(Conc.empty()).zip(Ref.make(false))).flatMap(([leftoversRef, upstreamDoneRef]) => {
-      const upstreamMarker: Channel<never, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
-        (inp) => Channel.writeNow(inp) > upstreamMarker,
-        Channel.failNow,
-        (x) => Channel.fromIO(upstreamDoneRef.set(true)).as(x),
-      );
-
-      function loop(currentResult: S, __tsplusTrace?: string): Channel<R, never, Conc<In>, unknown, E, Conc<L>, S> {
-        return self.channel.collectElements.matchChannel(Channel.failNow, ([leftovers, doneValue]) => {
-          if (p(doneValue)) {
-            return (
-              Channel.fromIO(leftoversRef.set(leftovers.flatten as Conc<In>)) >
-              Channel.fromIO(upstreamDoneRef.get).flatMap((upstreamDone) => {
-                const accumulatedResult = f(currentResult, doneValue);
-                if (upstreamDone) return Channel.writeNow(leftovers.flatten).as(accumulatedResult);
-                else return loop(accumulatedResult);
-              })
-            );
-          } else {
-            return Channel.writeNow(leftovers.flatten).as(currentResult);
+export function collectAllWhileWith<Z, S>(z: Lazy<S>, p: Predicate<Z>, f: (s: S, z: Z) => S, __tsplusTrace?: string) {
+  return <R, E, In extends L, L>(self: Sink<R, E, In, L, Z>): Sink<R, E, In, L, S> => {
+    return new Sink(
+      Channel.fromIO(Ref.make<Conc<In>>(Conc.empty()).zip(Ref.make(false))).flatMap(
+        ([leftoversRef, upstreamDoneRef]) => {
+          const upstreamMarker: Channel<never, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
+            (inp) => Channel.writeNow(inp) > upstreamMarker,
+            Channel.failNow,
+            (x) => Channel.fromIO(upstreamDoneRef.set(true)).as(x),
+          );
+          function loop(currentResult: S, __tsplusTrace?: string): Channel<R, never, Conc<In>, unknown, E, Conc<L>, S> {
+            return self.channel.collectElements.matchChannel(Channel.failNow, ([leftovers, doneValue]) => {
+              if (p(doneValue)) {
+                return (
+                  Channel.fromIO(leftoversRef.set(leftovers.flatten as Conc<In>)) >
+                  Channel.fromIO(upstreamDoneRef.get).flatMap((upstreamDone) => {
+                    const accumulatedResult = f(currentResult, doneValue);
+                    if (upstreamDone) return Channel.writeNow(leftovers.flatten).as(accumulatedResult);
+                    else return loop(accumulatedResult);
+                  })
+                );
+              } else {
+                return Channel.writeNow(leftovers.flatten).as(currentResult);
+              }
+            });
           }
-        });
-      }
-
-      return upstreamMarker.pipeTo(Channel.bufferChunk(leftoversRef)).pipeTo(loop(z()));
-    }),
-  );
+          return upstreamMarker.pipeTo(Channel.bufferChunk(leftoversRef)).pipeTo(loop(z()));
+        },
+      ),
+    );
+  };
 }
 
 /**
@@ -143,124 +140,119 @@ export function collectLeftover<R, E, In, L, Z>(
 /**
  * Transforms this sink's input elements.
  *
- * @tsplus fluent fncts.io.Sink contramap
+ * @tsplus pipeable fncts.io.Sink contramap
  */
-export function contramap<R, E, In, L, Z, In1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (inp: In1) => In,
-  __tsplusTrace?: string,
-): Sink<R, E, In1, L, Z> {
-  return self.contramapChunks((chunk) => chunk.map(f));
+export function contramap<In, In1>(f: (inp: In1) => In, __tsplusTrace?: string) {
+  return <R, E, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R, E, In1, L, Z> => {
+    return self.contramapChunks((chunk) => chunk.map(f));
+  };
 }
 
 /**
  * Transforms this sink's input chunks. `f` must preserve chunking-invariance
  *
- * @tsplus fluent fncts.io.Sink contramapChunks
+ * @tsplus pipeable fncts.io.Sink contramapChunks
  */
-export function contramapChunks<R, E, In, L, Z, In1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (chunk: Conc<In1>) => Conc<In>,
-  __tsplusTrace?: string,
-): Sink<R, E, In1, L, Z> {
-  const loop: Channel<R, never, Conc<In1>, unknown, never, Conc<In>, unknown> = Channel.readWith(
-    (chunk) => Channel.writeNow(f(chunk)) > loop,
-    Channel.failNow,
-    Channel.succeedNow,
-  );
-  return new Sink(loop >>> self.channel);
+export function contramapChunks<In, In1>(f: (chunk: Conc<In1>) => Conc<In>, __tsplusTrace?: string) {
+  return <R, E, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R, E, In1, L, Z> => {
+    const loop: Channel<R, never, Conc<In1>, unknown, never, Conc<In>, unknown> = Channel.readWith(
+      (chunk) => Channel.writeNow(f(chunk)) > loop,
+      Channel.failNow,
+      Channel.succeedNow,
+    );
+    return new Sink(loop >>> self.channel);
+  };
 }
 
 /**
  * Effectfully transforms this sink's input chunks. `f` must preserve
  * chunking-invariance
  *
- * @tsplus fluent fncts.io.Sink contramapChunksIO
+ * @tsplus pipeable fncts.io.Sink contramapChunksIO
  */
-export function contramapChunksIO<R, E, In, L, Z, R1, E1, In1>(
-  self: Sink<R, E, In, L, Z>,
+export function contramapChunksIO<In, R1, E1, In1>(
   f: (chunk: Conc<In1>) => IO<R1, E1, Conc<In>>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In1, L, Z> {
-  const loop: Channel<R | R1, never, Conc<In1>, unknown, E | E1, Conc<In>, unknown> = Channel.readWith(
-    (chunk) => Channel.fromIO(f(chunk)).flatMap(Channel.writeNow) > loop,
-    Channel.failNow,
-    Channel.succeedNow,
-  );
-  return new Sink(loop.pipeToOrFail(self.channel));
+) {
+  return <R, E, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In1, L, Z> => {
+    const loop: Channel<R | R1, never, Conc<In1>, unknown, E | E1, Conc<In>, unknown> = Channel.readWith(
+      (chunk) => Channel.fromIO(f(chunk)).flatMap(Channel.writeNow) > loop,
+      Channel.failNow,
+      Channel.succeedNow,
+    );
+    return new Sink(loop.pipeToOrFail(self.channel));
+  };
 }
 
 /**
  * Effectfully transforms this sink's input elements.
  *
- * @tsplus fluent fncts.io.Sink contramapIO
+ * @tsplus pipeable fncts.io.Sink contramapIO
  */
-export function contramapIO<R, E, In, L, Z, R1, E1, In1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (inp: In1) => IO<R1, E1, In>,
-  __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In1, L, Z> {
-  return self.contramapChunksIO((chunk) => chunk.mapIO(f));
+export function contramapIO<In, R1, E1, In1>(f: (inp: In1) => IO<R1, E1, In>, __tsplusTrace?: string) {
+  return <R, E, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In1, L, Z> => {
+    return self.contramapChunksIO((chunk) => chunk.mapIO(f));
+  };
 }
 
 /**
  * Transforms both inputs and result of this sink using the provided
  * functions.
  *
- * @tsplus fluent fncts.io.Sink dimap
+ * @tsplus pipeable fncts.io.Sink dimap
  */
-export function dimap<R, E, In, L, Z, In1, Z1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (inp: In1) => In,
-  g: (z: Z) => Z1,
-  __tsplusTrace?: string,
-): Sink<R, E, In1, L, Z1> {
-  return self.contramap(f).map(g);
+export function dimap<In, Z, In1, Z1>(f: (inp: In1) => In, g: (z: Z) => Z1, __tsplusTrace?: string) {
+  return <R, E, L>(self: Sink<R, E, In, L, Z>): Sink<R, E, In1, L, Z1> => {
+    return self.contramap(f).map(g);
+  };
 }
 
 /**
  * Transforms both input chunks and result of this sink using the provided
  * functions.
  *
- * @tsplus fluent fncts.io.Sink dimapChunks
+ * @tsplus pipeable fncts.io.Sink dimapChunks
  */
-export function dimapChunks<R, E, In, L, Z, In1, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function dimapChunks<In, Z, In1, Z1>(
   f: (chunk: Conc<In1>) => Conc<In>,
   g: (z: Z) => Z1,
   __tsplusTrace?: string,
-): Sink<R, E, In1, L, Z1> {
-  return self.contramapChunks(f).map(g);
+) {
+  return <R, E, L>(self: Sink<R, E, In, L, Z>): Sink<R, E, In1, L, Z1> => {
+    return self.contramapChunks(f).map(g);
+  };
 }
 
 /**
  * Effectfully transforms both input chunks and result of this sink using the
  * provided functions. `f` and `g` must preserve chunking-invariance
  *
- * @tsplus fluent fncts.io.Sink dimapChunksIO
+ * @tsplus pipeable fncts.io.Sink dimapChunksIO
  */
-export function dimapChunksIO<R, E, In, L, Z, R1, E1, In1, R2, E2, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function dimapChunksIO<In, Z, R1, E1, In1, R2, E2, Z1>(
   f: (chunk: Conc<In1>) => IO<R1, E1, Conc<In>>,
   g: (z: Z) => IO<R2, E2, Z1>,
   __tsplusTrace?: string,
-): Sink<R | R1 | R2, E | E1 | E2, In1, L, Z1> {
-  return self.contramapChunksIO(f).mapIO(g);
+) {
+  return <R, E, L>(self: Sink<R, E, In, L, Z>): Sink<R | R1 | R2, E | E1 | E2, In1, L, Z1> => {
+    return self.contramapChunksIO(f).mapIO(g);
+  };
 }
 
 /**
  * Effectfully transforms both inputs and result of this sink using the
  * provided functions.
  *
- * @tsplus fluent fncts.io.Sink dimapIO
+ * @tsplus pipeable fncts.io.Sink dimapIO
  */
-export function dimapIO<R, E, In, L, Z, R1, E1, In1, R2, E2, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function dimapIO<In, Z, R1, E1, In1, R2, E2, Z1>(
   f: (inp: In1) => IO<R1, E1, In>,
   g: (z: Z) => IO<R2, E2, Z1>,
   __tsplusTrace?: string,
-): Sink<R | R1 | R2, E | E1 | E2, In1, L, Z1> {
-  return self.contramapIO(f).mapIO(g);
+) {
+  return <R, E, L>(self: Sink<R, E, In, L, Z>): Sink<R | R1 | R2, E | E1 | E2, In1, L, Z1> => {
+    return self.contramapIO(f).mapIO(g);
+  };
 }
 
 /**
@@ -488,44 +480,40 @@ export function filterInputIO<R, E, In, L, Z, R1, E1>(
 /**
  * Creates a sink that produces values until one verifies the predicate `f`.
  *
- * @tsplus fluent fncts.io.Sink findIO
+ * @tsplus pipeable fncts.io.Sink findIO
  */
-export function findIO<R, E, In extends L, L, Z, R1, E1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (z: Z) => IO<R1, E1, boolean>,
-  __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In, L, Maybe<Z>> {
-  return new Sink(
-    Channel.fromIO(Ref.make(Conc.empty<In>()).zip(Ref.make(false))).flatMap(([leftoversRef, upstreamDoneRef]) => {
-      const upstreamMarker: Channel<never, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
-        (inp) => Channel.writeNow(inp) > upstreamMarker,
-        Channel.failNow,
-        (x) => Channel.fromIO(upstreamDoneRef.set(true)).as(x),
-      );
-
-      const loop: Channel<
-        R | R1,
-        never,
-        Conc<In>,
-        unknown,
-        E | E1,
-        Conc<L>,
-        Maybe<Z>
-      > = self.channel.collectElements.matchChannel(Channel.failNow, ([leftovers, doneValue]) =>
-        Channel.fromIO(f(doneValue)).flatMap(
-          (satisfied) =>
-            Channel.fromIO(leftoversRef.set(leftovers.flatten as Conc<In>)) >
-            Channel.fromIO(upstreamDoneRef.get).flatMap((upstreamDone) => {
-              if (satisfied) return Channel.writeNow(leftovers.flatten).as(Just(doneValue));
-              else if (upstreamDone) return Channel.writeNow(leftovers.flatten).as(Nothing());
-              else return loop;
-            }),
-        ),
-      );
-
-      return (upstreamMarker >>> Channel.bufferChunk(leftoversRef)) >>> loop;
-    }),
-  );
+export function findIO<Z, R1, E1>(f: (z: Z) => IO<R1, E1, boolean>, __tsplusTrace?: string) {
+  return <R, E, In extends L, L>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In, L, Maybe<Z>> => {
+    return new Sink(
+      Channel.fromIO(Ref.make(Conc.empty<In>()).zip(Ref.make(false))).flatMap(([leftoversRef, upstreamDoneRef]) => {
+        const upstreamMarker: Channel<never, never, Conc<In>, unknown, never, Conc<In>, unknown> = Channel.readWith(
+          (inp) => Channel.writeNow(inp) > upstreamMarker,
+          Channel.failNow,
+          (x) => Channel.fromIO(upstreamDoneRef.set(true)).as(x),
+        );
+        const loop: Channel<
+          R | R1,
+          never,
+          Conc<In>,
+          unknown,
+          E | E1,
+          Conc<L>,
+          Maybe<Z>
+        > = self.channel.collectElements.matchChannel(Channel.failNow, ([leftovers, doneValue]) =>
+          Channel.fromIO(f(doneValue)).flatMap(
+            (satisfied) =>
+              Channel.fromIO(leftoversRef.set(leftovers.flatten as Conc<In>)) >
+              Channel.fromIO(upstreamDoneRef.get).flatMap((upstreamDone) => {
+                if (satisfied) return Channel.writeNow(leftovers.flatten).as(Just(doneValue));
+                else if (upstreamDone) return Channel.writeNow(leftovers.flatten).as(Nothing());
+                else return loop;
+              }),
+          ),
+        );
+        return (upstreamMarker >>> Channel.bufferChunk(leftoversRef)) >>> loop;
+      }),
+    );
+  };
 }
 
 /**
@@ -535,14 +523,15 @@ export function findIO<R, E, In extends L, L, Z, R1, E1>(
  *
  * This function essentially runs sinks in sequence.
  *
- * @tsplus fluent fncts.io.Sink flatMap
+ * @tsplus pipeable fncts.io.Sink flatMap
  */
-export function flatMap<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function flatMap<In, Z, R1, E1, In1 extends In, L1, Z1>(
   f: (z: Z) => Sink<R1, E1, In1, L1, Z1>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In1, L | L1, Z1> {
-  return self.matchSink(Sink.failNow, f);
+) {
+  return <R, E, L>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In1, L | L1, Z1> => {
+    return self.matchSink(Sink.failNow, f);
+  };
 }
 
 /**
@@ -602,10 +591,7 @@ function fromPushPull<R, E, In, L, Z>(
  *
  * @tsplus static fncts.io.SinkOps fromQueue
  */
-export function fromQueue<In>(
-  queue: Lazy<Enqueue<In>>,
-  __tsplusTrace?: string,
-): Sink<never, never, In, never, void> {
+export function fromQueue<In>(queue: Lazy<Enqueue<In>>, __tsplusTrace?: string): Sink<never, never, In, never, void> {
   return Sink.unwrap(IO.succeed(queue).map((queue) => Sink.foreachChunk((inp: Conc<In>) => queue.offerAll(inp))));
 }
 
@@ -793,7 +779,6 @@ export function makeForeachChunk<R, E, In>(
     Channel.failCauseNow,
     () => Channel.unit,
   );
-
   return new Sink(process);
 }
 
@@ -846,7 +831,6 @@ export function makeForeachChunkWhile<R, E, In>(
     Channel.failNow,
     () => Channel.unit,
   );
-
   return new Sink(reader);
 }
 
@@ -1190,12 +1174,10 @@ export function makeFoldWeightedDecompose<In, S>(
       } else {
         const elem  = inp[idx];
         const total = cost + costFn(s, elem);
-
         if (total <= max) {
           return fold(inp, f(s, elem), max, true, total, idx + 1);
         } else {
           const decomposed = decompose(elem);
-
           if (decomposed.length <= 1 && !dirty) {
             return [f(s, elem), total, true, inp.drop(idx + 1)];
           } else if (decomposed.length <= 1 && dirty) {
@@ -1216,7 +1198,6 @@ export function makeFoldWeightedDecompose<In, S>(
       return Channel.readWith(
         (inp: Conc<In>) => {
           const [nextS, nextCost, nextDirty, leftovers] = fold(inp, s, max, dirty, cost, 0);
-
           if (leftovers.isNonEmpty) {
             return Channel.writeNow(leftovers) > Channel.succeedNow(nextS);
           } else if (cost > max) {
@@ -1229,7 +1210,6 @@ export function makeFoldWeightedDecompose<In, S>(
         (_: any) => Channel.succeedNow(s),
       );
     }
-
     return new Sink(go(z(), 0, false, max()));
   });
 }
@@ -1311,7 +1291,6 @@ export function makeFoldWeightedDecomposeIO<R, E, In, S, R1, E1, R2, E2>(
         (_: any) => Channel.succeedNow(s),
       );
     }
-
     return new Sink(go(z(), 0, false, max()));
   });
 }
@@ -1363,40 +1342,34 @@ export function makeFoldWeightedIO<R, E, In, S, R1, E1>(
 /**
  * Transforms this sink's result.
  *
- * @tsplus fluent fncts.io.Sink map
+ * @tsplus pipeable fncts.io.Sink map
  */
-export function map_<R, E, In, L, Z, Z1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (z: Z) => Z1,
-  __tsplusTrace?: string,
-): Sink<R, E, In, L, Z1> {
-  return new Sink(self.channel.map(f));
+export function map<Z, Z1>(f: (z: Z) => Z1, __tsplusTrace?: string) {
+  return <R, E, In, L>(self: Sink<R, E, In, L, Z>): Sink<R, E, In, L, Z1> => {
+    return new Sink(self.channel.map(f));
+  };
 }
 
 /**
  * Transforms the errors emitted by this sink using `f`.
  *
- * @tsplus fluent fncts.io.Sink mapError
+ * @tsplus pipeable fncts.io.Sink mapError
  */
-export function mapError_<R, E, In, L, Z, E1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (e: E) => E1,
-  __tsplusTrace?: string,
-): Sink<R, E1, In, L, Z> {
-  return new Sink(self.channel.mapError(f));
+export function mapError<E, E1>(f: (e: E) => E1, __tsplusTrace?: string) {
+  return <R, In, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R, E1, In, L, Z> => {
+    return new Sink(self.channel.mapError(f));
+  };
 }
 
 /**
  * Effectfully transforms this sink's result.
  *
- * @tsplus fluent fncts.io.Sink mapIO
+ * @tsplus pipeable fncts.io.Sink mapIO
  */
-export function mapIO_<R, E, In, L, Z, R1, E1, Z1>(
-  self: Sink<R, E, In, L, Z>,
-  f: (z: Z) => IO<R1, E1, Z1>,
-  __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In, L, Z1> {
-  return new Sink(self.channel.mapIO(f));
+export function mapIO<Z, R1, E1, Z1>(f: (z: Z) => IO<R1, E1, Z1>, __tsplusTrace?: string) {
+  return <R, E, In, L>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In, L, Z1> => {
+    return new Sink(self.channel.mapIO(f));
+  };
 }
 
 /**
@@ -1406,127 +1379,124 @@ export function mapIO_<R, E, In, L, Z, R1, E1, Z1>(
  *
  * This function essentially runs sinks in sequence.
  *
- * @tsplus fluent fncts.io.Sink matchSink
+ * @tsplus pipeable fncts.io.Sink matchSink
  */
-export function matchSink_<R, E, In, L, Z, R1, E1, In1 extends In, L1, Z1, R2, E2, In2 extends In, L2, Z2>(
-  self: Sink<R, E, In, L, Z>,
+export function matchSink<E, In, Z, R1, E1, In1 extends In, L1, Z1, R2, E2, In2 extends In, L2, Z2>(
   onFailure: (e: E) => Sink<R1, E1, In1, L1, Z1>,
   onSuccess: (z: Z) => Sink<R2, E2, In2, L2, Z2>,
   __tsplusTrace?: string,
-): Sink<R | R1 | R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2> {
-  return new Sink<R | R1 | R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2>(
-    self.channel.doneCollect.matchChannel(
-      (e) => onFailure(e).channel,
-      ([leftovers, z]) =>
-        Channel.defer(() => {
-          const leftoversRef = new AtomicReference(leftovers.filter((c) => c.isNonEmpty));
-          const refReader    = Channel.succeed(leftoversRef.getAndSet(Conc.empty())).flatMap((chunk) =>
-            Channel.writeChunk(chunk as unknown as Conc<Conc<In1 & In2>>),
-          );
-          const passthrough      = Channel.id<never, Conc<In1 & In2>, unknown>();
-          const continuationSink = (refReader > passthrough).pipeTo(onSuccess(z).channel);
-          return continuationSink.doneCollect.flatMap(
-            ([newLeftovers, z1]) =>
-              Channel.succeed(leftoversRef.get).flatMap(Channel.writeChunk) > Channel.writeChunk(newLeftovers).as(z1),
-          );
-        }),
-    ),
-  );
+) {
+  return <R, L>(self: Sink<R, E, In, L, Z>): Sink<R | R1 | R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2> => {
+    return new Sink<R | R1 | R2, E1 | E2, In1 & In2, L | L1 | L2, Z1 | Z2>(
+      self.channel.doneCollect.matchChannel(
+        (e) => onFailure(e).channel,
+        ([leftovers, z]) =>
+          Channel.defer(() => {
+            const leftoversRef = new AtomicReference(leftovers.filter((c) => c.isNonEmpty));
+            const refReader    = Channel.succeed(leftoversRef.getAndSet(Conc.empty())).flatMap((chunk) =>
+              Channel.writeChunk(chunk as unknown as Conc<Conc<In1 & In2>>),
+            );
+            const passthrough      = Channel.id<never, Conc<In1 & In2>, unknown>();
+            const continuationSink = (refReader > passthrough).pipeTo(onSuccess(z).channel);
+            return continuationSink.doneCollect.flatMap(
+              ([newLeftovers, z1]) =>
+                Channel.succeed(leftoversRef.get).flatMap(Channel.writeChunk) > Channel.writeChunk(newLeftovers).as(z1),
+            );
+          }),
+      ),
+    );
+  };
 }
 
 /**
  * Switch to another sink in case of failure
  *
- * @tsplus fluent fncts.io.Sink orElse
+ * @tsplus pipeable fncts.io.Sink orElse
  */
-export function orElse<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
-  self: Sink<R, E, In, L, Z>,
-  that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
-  __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1> {
-  return Sink.defer(new Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1>(self.channel.orElse(that().channel)));
+export function orElse<R1, E1, In1, L1, Z1>(that: Lazy<Sink<R1, E1, In1, L1, Z1>>, __tsplusTrace?: string) {
+  return <R, E, In, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1> => {
+    return Sink.defer(new Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1>(self.channel.orElse(that().channel)));
+  };
 }
 
 /**
  * Provides the sink with its required environment, which eliminates its
  * dependency on `R`.
  *
- * @tsplus fluent fncts.io.Sink provideEnvironment
+ * @tsplus pipeable fncts.io.Sink provideEnvironment
  */
-export function provideEnvironment<R, E, In, L, Z>(
-  self: Sink<R, E, In, L, Z>,
-  r: Lazy<Environment<R>>,
-  __tsplusTrace?: string,
-): Sink<never, E, In, L, Z> {
-  return new Sink(self.channel.provideEnvironment(r));
+export function provideEnvironment<R>(r: Lazy<Environment<R>>, __tsplusTrace?: string) {
+  return <E, In, L, Z>(self: Sink<R, E, In, L, Z>): Sink<never, E, In, L, Z> => {
+    return new Sink(self.channel.provideEnvironment(r));
+  };
 }
 
 /**
  * Runs both sinks in parallel on the input, returning the result or the
  * error from the one that finishes first.
  *
- * @tsplus fluent fncts.io.Sink race
+ * @tsplus pipeable fncts.io.Sink race
  */
-export function race<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
-  self: Sink<R, E, In, L, Z>,
-  that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
-  __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1> {
-  return self.raceBoth(that).map((result) => result.value);
+export function race<R1, E1, In1, L1, Z1>(that: Lazy<Sink<R1, E1, In1, L1, Z1>>, __tsplusTrace?: string) {
+  return <R, E, In, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z | Z1> => {
+    return self.raceBoth(that).map((result) => result.value);
+  };
 }
 
 /**
  * Runs both sinks in parallel on the input, returning the result or the error
  * from the one that finishes first.
  *
- * @tsplus fluent fncts.io.Sink raceBoth
+ * @tsplus pipeable fncts.io.Sink raceBoth
  */
-export function raceBoth<R, E, In, L, Z, R1, E1, In1, L1, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function raceBoth<R1, E1, In1, L1, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   capacity: Lazy<number> = () => 16,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Either<Z, Z1>> {
-  return self.raceWith(
-    that,
-    (selfDone) => MergeDecision.Done(IO.fromExitNow(selfDone).map(Either.left)),
-    (thatDone) => MergeDecision.Done(IO.fromExitNow(thatDone).map(Either.right)),
-    capacity,
-  );
+) {
+  return <R, E, In, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Either<Z, Z1>> => {
+    return self.raceWith(
+      that,
+      (selfDone) => MergeDecision.Done(IO.fromExitNow(selfDone).map(Either.left)),
+      (thatDone) => MergeDecision.Done(IO.fromExitNow(thatDone).map(Either.right)),
+      capacity,
+    );
+  };
 }
 
 /**
  * Runs both sinks in parallel on the input, using the specified merge
  * function as soon as one result or the other has been computed.
  *
- * @tsplus fluent fncts.io.Sink raceWith
+ * @tsplus pipeable fncts.io.Sink raceWith
  */
-export function raceWith<R, E, In, L, Z, R1, E1, In1, L1, Z1, R2, E2, Z2, R3, E3, Z3>(
-  self: Sink<R, E, In, L, Z>,
+export function raceWith<R, E, Z, R1, E1, In1, L1, Z1, E2, Z2, E3, Z3>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   leftDone: (exit: Exit<E, Z>) => MergeDecision<R1, E1, Z1, E2, Z2>,
   rightDone: (exit: Exit<E1, Z1>) => MergeDecision<R, E, Z, E3, Z3>,
   capacity: Lazy<number> = () => 16,
   __tsplusTrace?: string,
-): Sink<R | R1 | R2 | R3, E2 | E3, In & In1, L | L1, Z2 | Z3> {
-  const scoped = IO.defer(() => {
-    const that0     = that();
-    const capacity0 = capacity();
-    return Do((_) => {
-      const hub     = _(Hub.makeBounded<Either<Exit<never, any>, Conc<In & In1>>>(capacity()));
-      const c1      = _(Channel.fromHubScoped(hub));
-      const c2      = _(Channel.fromHubScoped(hub));
-      const reader  = Channel.toHub(hub);
-      const writer  = c1.pipeTo(self.channel).mergeWith(c2.pipeTo(that0.channel), leftDone, rightDone);
-      const channel = reader.mergeWith(
-        writer,
-        () => MergeDecision.Await(IO.fromExitNow),
-        (done) => MergeDecision.Done(IO.fromExitNow(done)),
-      );
-      return new Sink<R | R1 | R2 | R3, E2 | E3, In & In1, L | L1, Z2 | Z3>(channel);
+) {
+  return <In, L, R2, R3>(self: Sink<R, E, In, L, Z>): Sink<R | R1 | R2 | R3, E2 | E3, In & In1, L | L1, Z2 | Z3> => {
+    const scoped = IO.defer(() => {
+      const that0     = that();
+      const capacity0 = capacity();
+      return Do((_) => {
+        const hub     = _(Hub.makeBounded<Either<Exit<never, any>, Conc<In & In1>>>(capacity()));
+        const c1      = _(Channel.fromHubScoped(hub));
+        const c2      = _(Channel.fromHubScoped(hub));
+        const reader  = Channel.toHub(hub);
+        const writer  = c1.pipeTo(self.channel).mergeWith(c2.pipeTo(that0.channel), leftDone, rightDone);
+        const channel = reader.mergeWith(
+          writer,
+          () => MergeDecision.Await(IO.fromExitNow),
+          (done) => MergeDecision.Done(IO.fromExitNow(done)),
+        );
+        return new Sink<R | R1 | R2 | R3, E2 | E3, In & In1, L | L1, Z2 | Z3>(channel);
+      });
     });
-  });
-  return Sink.unwrapScoped(scoped);
+    return Sink.unwrapScoped(scoped);
+  };
 }
 
 /**
@@ -1588,24 +1558,22 @@ export function serviceWithSink<S, R, E, In, L, Z>(
  * consumes elements until an element after the first satisfies the specified
  * predicate.
  *
- * @tsplus fluent fncts.io.Sink splitWhere
+ * @tsplus pipeable fncts.io.Sink splitWhere
  */
-export function splitWhere<R, E, In, L extends In, Z>(
-  self: Sink<R, E, In, L, Z>,
-  p: Predicate<In>,
-  __tsplusTrace?: string,
-): Sink<R, E, In, In, Z> {
-  return new Sink(
-    Channel.fromIO(Ref.make<Conc<In>>(Conc.empty())).flatMap((ref) =>
-      splitter<R, E, In>(p, false, ref)
-        .pipeToOrFail(self.channel)
-        .collectElements.flatMap(([leftovers, z]) =>
-          Channel.fromIO(ref.get).flatMap(
-            (leftover) => Channel.writeNow(leftover.concat(leftovers.flatten)) > Channel.succeedNow(z),
+export function splitWhere<In>(p: Predicate<In>, __tsplusTrace?: string) {
+  return <R, E, L extends In, Z>(self: Sink<R, E, In, L, Z>): Sink<R, E, In, In, Z> => {
+    return new Sink(
+      Channel.fromIO(Ref.make<Conc<In>>(Conc.empty())).flatMap((ref) =>
+        splitter<R, E, In>(p, false, ref)
+          .pipeToOrFail(self.channel)
+          .collectElements.flatMap(([leftovers, z]) =>
+            Channel.fromIO(ref.get).flatMap(
+              (leftover) => Channel.writeNow(leftover.concat(leftovers.flatten)) > Channel.succeedNow(z),
+            ),
           ),
-        ),
-    ),
-  );
+      ),
+    );
+  };
 }
 
 function splitter<R, E, In>(
@@ -1663,23 +1631,20 @@ export function succeedNow<Z>(z: Z, __tsplusTrace?: string): Sink<never, never, 
  * Summarize a sink by running an effect when the sink starts and again when
  * it completes
  *
- * @tsplus fluent fncts.io.Sink summarized
+ * @tsplus pipeable fncts.io.Sink summarized
  */
-export function summarized<R, E, In, L, Z, R1, E1, B, C>(
-  self: Sink<R, E, In, L, Z>,
-  summary: Lazy<IO<R1, E1, B>>,
-  f: (b1: B, b2: B) => C,
-  __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In, L, readonly [Z, C]> {
-  return new Sink(
-    Channel.unwrap(
-      IO.succeed(summary).map((summary) =>
-        Channel.fromIO(summary).flatMap((start) =>
-          self.channel.flatMap((done) => Channel.fromIO(summary).map((end) => Function.tuple(done, f(start, end)))),
+export function summarized<R1, E1, B, C>(summary: Lazy<IO<R1, E1, B>>, f: (b1: B, b2: B) => C, __tsplusTrace?: string) {
+  return <R, E, In, L, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In, L, readonly [Z, C]> => {
+    return new Sink(
+      Channel.unwrap(
+        IO.succeed(summary).map((summary) =>
+          Channel.fromIO(summary).flatMap((start) =>
+            self.channel.flatMap((done) => Channel.fromIO(summary).map((end) => Function.tuple(done, f(start, end)))),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  };
 }
 
 /**
@@ -1721,28 +1686,30 @@ export function unwrapScoped<R, E, R1, E1, In, L, Z>(
  * the provided sink until it yields a result, finally combining the two
  * results into a tuple.
  *
- * @tsplus fluent fncts.io.Sink zip
+ * @tsplus pipeable fncts.io.Sink zip
  */
-export function zip<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function zip<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
-  return self.zipWith(that, Function.tuple);
+) {
+  return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> => {
+    return self.zipWith(that, Function.tuple);
+  };
 }
 
 /**
  * Runs both sinks in parallel on the input and combines the results in a
  * tuple.
  *
- * @tsplus fluent fncts.io.Sink zipC
+ * @tsplus pipeable fncts.io.Sink zipC
  */
-export function zipC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
-  self: Sink<R, E, In, L, Z>,
+export function zipC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> {
-  return self.zipWithC(that, Function.tuple);
+) {
+  return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> => {
+    return self.zipWithC(that, Function.tuple);
+  };
 }
 
 /**
@@ -1750,54 +1717,56 @@ export function zipC<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1>(
  * the provided sink until it yields a result, finally combining the two
  * results with `f`.
  *
- * @tsplus fluent fncts.io.Sink zipWith
+ * @tsplus pipeable fncts.io.Sink zipWith
  */
-export function zipWith<R, E, In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1, Z2>(
-  self: Lazy<Sink<R, E, In, L, Z>>,
+export function zipWith<In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1, Z2>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   f: (z: Z, z1: Z1) => Z2,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z2> {
-  return Sink.defer(self().flatMap((z) => that().map((z1) => f(z, z1))));
+) {
+  return <R, E>(self: Lazy<Sink<R, E, In, L, Z>>): Sink<R | R1, E | E1, In & In1, L | L1, Z2> => {
+    return Sink.defer(self().flatMap((z) => that().map((z1) => f(z, z1))));
+  };
 }
 
 /**
  * Runs both sinks in parallel on the input and combines the results using the
  * provided function.
  *
- * @tsplus fluent fncts.io.Sink zipWithC
+ * @tsplus pipeable fncts.io.Sink zipWithC
  */
-export function zipWithC<R, E, In, L, Z, R1, E1, In1, L1, Z1, Z2>(
-  self: Lazy<Sink<R, E, In, L, Z>>,
+export function zipWithC<Z, R1, E1, In1, L1, Z1, Z2>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   f: (z: Z, z1: Z1) => Z2,
   __tsplusTrace?: string,
-): Sink<R | R1, E | E1, In & In1, L | L1, Z2> {
-  return Sink.defer(
-    self().raceWith(
-      that(),
-      (exit) =>
-        exit.match(
-          (err) => MergeDecision.Done(IO.failCauseNow(err)),
-          (lz) =>
-            MergeDecision.Await((exit) =>
-              exit.match(
-                (cause) => IO.failCauseNow(cause),
-                (rz) => IO.succeedNow(f(lz, rz)),
+) {
+  return <R, E, In, L>(self: Lazy<Sink<R, E, In, L, Z>>): Sink<R | R1, E | E1, In & In1, L | L1, Z2> => {
+    return Sink.defer(
+      self().raceWith(
+        that(),
+        (exit) =>
+          exit.match(
+            (err) => MergeDecision.Done(IO.failCauseNow(err)),
+            (lz) =>
+              MergeDecision.Await((exit) =>
+                exit.match(
+                  (cause) => IO.failCauseNow(cause),
+                  (rz) => IO.succeedNow(f(lz, rz)),
+                ),
               ),
-            ),
-        ),
-      (exit) =>
-        exit.match(
-          (err) => MergeDecision.Done(IO.failCauseNow(err)),
-          (rz) =>
-            MergeDecision.Await((exit) =>
-              exit.match(
-                (cause) => IO.failCauseNow(cause),
-                (lz) => IO.succeedNow(f(lz, rz)),
+          ),
+        (exit) =>
+          exit.match(
+            (err) => MergeDecision.Done(IO.failCauseNow(err)),
+            (rz) =>
+              MergeDecision.Await((exit) =>
+                exit.match(
+                  (cause) => IO.failCauseNow(cause),
+                  (lz) => IO.succeedNow(f(lz, rz)),
+                ),
               ),
-            ),
-        ),
-    ),
-  );
+          ),
+      ),
+    );
+  };
 }

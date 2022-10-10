@@ -2,12 +2,18 @@
  * @tsplus type fncts.IterableWeakMap
  */
 export class IterableWeakMap<K extends object, V> implements Iterable<readonly [K, V]>, Map<K, V> {
-  private weakMap           = new WeakMap<K, { value: V; ref: WeakRef<K> }>();
+  private weakMap = new WeakMap<
+    K,
+    {
+      value: V;
+      ref: WeakRef<K>;
+    }
+  >();
   private refSet            = new Set<WeakRef<K>>();
-  private finalizationGroup = new FinalizationRegistry<{ ref: WeakRef<K>; set: Set<WeakRef<K>> }>(
-    IterableWeakMap.cleanup,
-  );
-
+  private finalizationGroup = new FinalizationRegistry<{
+    ref: WeakRef<K>;
+    set: Set<WeakRef<K>>;
+  }>(IterableWeakMap.cleanup);
   private static cleanup<K extends object>({ ref, set }: { ref: WeakRef<K>; set: Set<WeakRef<K>> }) {
     set.delete(ref);
   }
@@ -37,7 +43,6 @@ export class IterableWeakMap<K extends object, V> implements Iterable<readonly [
     if (!entry) {
       return false;
     }
-
     this.weakMap.delete(key);
     this.refSet.delete(entry.ref);
     this.finalizationGroup.unregister(entry.ref);
@@ -80,7 +85,6 @@ export class IterableWeakMap<K extends object, V> implements Iterable<readonly [
   [Symbol.iterator](this: this): IterableIterator<[K, V]> {
     return this.entries();
   }
-
   get [Symbol.toStringTag](): string {
     return this.weakMap[Symbol.toStringTag];
   }

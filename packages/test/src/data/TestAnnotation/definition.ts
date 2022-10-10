@@ -10,18 +10,15 @@ export type TestAnnotationTypeId = typeof TestAnnotationTypeId;
 export class TestAnnotation<V> implements Hashable, Equatable {
   readonly _typeId: TestAnnotationTypeId = TestAnnotationTypeId;
   readonly _V!: () => V;
-
   constructor(
     readonly tag: Tag<V>,
     readonly identifier: string,
     readonly initial: V,
     readonly combine: (v1: V, v2: V) => V,
   ) {}
-
   get [Symbol.hash]() {
     return Hashable.combine(Hashable.string(this.identifier), Hashable.unknown(this.tag));
   }
-
   [Symbol.equals](that: unknown) {
     return (
       isTestAnnotation(that) &&

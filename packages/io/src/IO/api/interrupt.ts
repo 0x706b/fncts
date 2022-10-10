@@ -21,21 +21,19 @@ export const interrupt: IO<never, never, never> = IO.fiberId.flatMap(IO.interrup
  * the effect becomes uninterruptible. These changes are compositional, so
  * they only affect regions of the effect.
  *
- * @tsplus fluent fncts.io.IO setInterruptStatus
+ * @tsplus pipeable fncts.io.IO setInterruptStatus
  */
-export function setInterruptStatus_<R, E, A>(
-  self: IO<R, E, A>,
-  flag: InterruptStatus,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
-  return IO.withFiberContext((fiber) => {
-    const b = flag.toBoolean;
-    if (fiber.unsafeIsInterruptible !== b) {
-      fiber.interruptStatus.push(b);
-      fiber.unsafeRestoreInterruptStatus();
-    }
-    return self;
-  });
+export function setInterruptStatus(flag: InterruptStatus, __tsplusTrace?: string) {
+  return <R, E, A>(self: IO<R, E, A>): IO<R, E, A> => {
+    return IO.withFiberContext((fiber) => {
+      const b = flag.toBoolean;
+      if (fiber.unsafeIsInterruptible !== b) {
+        fiber.interruptStatus.push(b);
+        fiber.unsafeRestoreInterruptStatus();
+      }
+      return self;
+    });
+  };
 }
 
 /**
@@ -103,42 +101,41 @@ export function interruptibleMask<R, E, A>(
  * Calls the specified function, and runs the effect it returns, if this
  * effect is interrupted.
  *
- * @tsplus fluent fncts.io.IO onInterrupt
+ * @tsplus pipeable fncts.io.IO onInterrupt
  */
-export function onInterrupt_<R, E, A, R1>(
-  ma: IO<R, E, A>,
+export function onInterrupt_<R1>(
   cleanup: (interruptors: HashSet<FiberId>) => IO<R1, never, any>,
   __tsplusTrace?: string,
-): IO<R | R1, E, A> {
-  return uninterruptibleMask(({ restore }) =>
-    restore(ma).matchCauseIO(
-      (cause) =>
-        cause.interrupted ? cleanup(cause.interruptors).apSecond(IO.failCauseNow(cause)) : IO.failCauseNow(cause),
-      IO.succeedNow,
-    ),
-  );
+) {
+  return <R, E, A>(ma: IO<R, E, A>): IO<R | R1, E, A> => {
+    return uninterruptibleMask(({ restore }) =>
+      restore(ma).matchCauseIO(
+        (cause) =>
+          cause.interrupted ? cleanup(cause.interruptors).apSecond(IO.failCauseNow(cause)) : IO.failCauseNow(cause),
+        IO.succeedNow,
+      ),
+    );
+  };
 }
 
 /**
  * Calls the specified function, and runs the effect it returns, if this
  * effect is interrupted (allows for expanding error).
  *
- * @tsplus fluent fncts.io.IO onInterruptExtended
+ * @tsplus pipeable fncts.io.IO onInterruptExtended
  */
-export function onInterruptExtended_<R, E, A, R2, E2>(
-  self: IO<R, E, A>,
-  cleanup: Lazy<IO<R2, E2, any>>,
-  __tsplusTrace?: string,
-): IO<R | R2, E | E2, A> {
-  return uninterruptibleMask(({ restore }) =>
-    restore(self).matchCauseIO(
-      (cause) =>
-        cause.interrupted
-          ? cleanup().matchCauseIO(IO.failCauseNow, () => IO.failCauseNow(cause))
-          : IO.failCauseNow(cause),
-      IO.succeedNow,
-    ),
-  );
+export function onInterruptExtended_<R2, E2>(cleanup: Lazy<IO<R2, E2, any>>, __tsplusTrace?: string) {
+  return <R, E, A>(self: IO<R, E, A>): IO<R | R2, E | E2, A> => {
+    return uninterruptibleMask(({ restore }) =>
+      restore(self).matchCauseIO(
+        (cause) =>
+          cause.interrupted
+            ? cleanup().matchCauseIO(IO.failCauseNow, () => IO.failCauseNow(cause))
+            : IO.failCauseNow(cause),
+        IO.succeedNow,
+      ),
+    );
+  };
 }
 
 /**

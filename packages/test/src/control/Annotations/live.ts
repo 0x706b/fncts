@@ -6,15 +6,12 @@ export class LiveAnnotations extends Annotations {
   constructor(private fiberRef: FiberRef<TestAnnotationMap>) {
     super();
   }
-
   annotate<V>(key: TestAnnotation<V>, value: V): UIO<void> {
     return this.fiberRef.update((map) => map.annotate(key, value));
   }
-
   get<V>(key: TestAnnotation<V>) {
     return this.fiberRef.get.map((map) => map.get(key));
   }
-
   withAnnotation<R, E, A>(io: IO<R, E, A>) {
     return this.fiberRef.locally(TestAnnotationMap.empty)(
       io.matchIO(
@@ -23,7 +20,6 @@ export class LiveAnnotations extends Annotations {
       ),
     );
   }
-
   supervisedFibers = IO.descriptorWith((descriptor) =>
     this.fiberRef.get
       .map((m) => m.get(TestAnnotation.Fibers))

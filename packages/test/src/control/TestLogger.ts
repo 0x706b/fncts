@@ -1,5 +1,3 @@
-import { Console } from "@fncts/io/Console";
-
 /**
  * @tsplus type fncts.test.TestLogger
  * @tsplus companion fncts.test.TestLoggerOps

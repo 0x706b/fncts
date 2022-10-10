@@ -16,7 +16,6 @@ export const EmptyTypeId = Symbol.for("fncts.io.Stream.Handoff.State.Empty");
 export class Empty {
   readonly _typeId: typeof StateTypeId = StateTypeId;
   readonly _tag: typeof EmptyTypeId    = EmptyTypeId;
-
   constructor(readonly notifyConsumer: Future<never, void>) {}
 }
 
@@ -40,20 +39,22 @@ export function make<A>(): UIO<Handoff<A>> {
 }
 
 /**
- * @tsplus fluent fncts.io.Stream.Handoff offer
+ * @tsplus pipeable fncts.io.Stream.Handoff offer
  */
-export function offer<A>(handoff: Handoff<A>, a: A): UIO<void> {
-  return Future.make<never, void>().flatMap(
-    (p) =>
-      handoff.ref.modify((s) => {
-        switch (s._tag) {
-          case FullTypeId:
-            return tuple(s.notifyProducer.await.apSecond(handoff.offer(a)), s);
-          case EmptyTypeId:
-            return tuple(s.notifyConsumer.succeed(undefined).apSecond(p.await), new Full(a, p));
-        }
-      }).flatten,
-  );
+export function offer<A>(a: A) {
+  return (handoff: Handoff<A>): UIO<void> => {
+    return Future.make<never, void>().flatMap(
+      (p) =>
+        handoff.ref.modify((s) => {
+          switch (s._tag) {
+            case FullTypeId:
+              return tuple(s.notifyProducer.await.apSecond(handoff.offer(a)), s);
+            case EmptyTypeId:
+              return tuple(s.notifyConsumer.succeed(undefined).apSecond(p.await), new Full(a, p));
+          }
+        }).flatten,
+    );
+  };
 }
 
 /**
@@ -97,7 +98,6 @@ export type EmitTypeId = typeof EmitTypeId;
 export class Emit<A> {
   readonly _typeId: typeof HandoffSignalTypeId = HandoffSignalTypeId;
   readonly _tag: typeof EmitTypeId             = EmitTypeId;
-
   constructor(readonly els: Conc<A>) {}
 }
 
@@ -106,7 +106,6 @@ export type HaltTypeId = typeof HaltTypeId;
 export class Halt<E> {
   readonly _typeId: typeof HandoffSignalTypeId = HandoffSignalTypeId;
   readonly _tag: typeof HaltTypeId             = HaltTypeId;
-
   constructor(readonly error: Cause<E>) {}
 }
 
@@ -115,7 +114,6 @@ export type EndTypeId = typeof EndTypeId;
 export class End {
   readonly _typeId: typeof HandoffSignalTypeId = HandoffSignalTypeId;
   readonly _tag: typeof EndTypeId              = EndTypeId;
-
   constructor(readonly reason: SinkEndReason) {}
 }
 
@@ -128,7 +126,6 @@ export type HandoffSignal<E, A> = Emit<A> | Halt<E> | End;
  * @tsplus type fncts.io.Stream.HandoffSignalOps
  */
 export interface HandoffSignalOps {}
-
 export const HandoffSignal: HandoffSignalOps = {};
 
 /**
@@ -153,22 +150,21 @@ export function end<C>(reason: SinkEndReason): HandoffSignal<never, never> {
 }
 
 /**
- * @tsplus fluent fncts.io.Stream.HandoffSignal match
+ * @tsplus pipeable fncts.io.Stream.HandoffSignal match
  */
-export function matchSignal_<E, A, B, D, F>(
-  signal: HandoffSignal<E, A>,
-  cases: {
-    Emit: (_: Emit<A>) => B;
-    Halt: (_: Halt<E>) => D;
-    End: (_: End) => F;
-  },
-): B | D | F {
-  switch (signal._tag) {
-    case EmitTypeId:
-      return cases.Emit(signal);
-    case HaltTypeId:
-      return cases.Halt(signal);
-    case EndTypeId:
-      return cases.End(signal);
-  }
+export function matchSignal<E, A, B, D, F>(cases: {
+  Emit: (_: Emit<A>) => B;
+  Halt: (_: Halt<E>) => D;
+  End: (_: End) => F;
+}) {
+  return (signal: HandoffSignal<E, A>): B | D | F => {
+    switch (signal._tag) {
+      case EmitTypeId:
+        return cases.Emit(signal);
+      case HaltTypeId:
+        return cases.Halt(signal);
+      case EndTypeId:
+        return cases.End(signal);
+    }
+  };
 }

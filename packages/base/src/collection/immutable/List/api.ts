@@ -18,56 +18,64 @@ import { _Nil } from "@fncts/base/collection/immutable/List/definition";
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
 
 /**
- * @tsplus fluent fncts.List flatMap
+ * @tsplus pipeable fncts.List flatMap
  */
-export function flatMap_<A, B>(self: List<A>, f: (a: A) => List<B>): List<B> {
-  let rest = self;
-  let h: Cons<B> | undefined;
-  let t: Cons<B> | undefined;
-  while (!rest.isEmpty()) {
-    let bs = f(rest.head);
-    while (!bs.isEmpty()) {
-      const nx = new Cons(bs.head, _Nil);
-      if (t === undefined) {
-        h = nx;
-      } else {
-        t.tail = nx;
+export function flatMap<A, B>(f: (a: A) => List<B>) {
+  return (self: List<A>): List<B> => {
+    let rest = self;
+    let h: Cons<B> | undefined;
+    let t: Cons<B> | undefined;
+    while (!rest.isEmpty()) {
+      let bs = f(rest.head);
+      while (!bs.isEmpty()) {
+        const nx = new Cons(bs.head, _Nil);
+        if (t === undefined) {
+          h = nx;
+        } else {
+          t.tail = nx;
+        }
+        t  = nx;
+        bs = bs.tail;
       }
-      t  = nx;
-      bs = bs.tail;
+      rest = rest.tail;
     }
-    rest = rest.tail;
-  }
-  if (h === undefined) return _Nil;
-  else return h;
+    if (h === undefined) return _Nil;
+    else return h;
+  };
 }
 
 /**
- * @tsplus fluent fncts.List concat
+ * @tsplus pipeable fncts.List concat
  */
-export function concat_<A, B>(self: List<A>, that: List<B>): List<A | B> {
-  return that.prependAll(self);
+export function concat<B>(that: List<B>) {
+  return <A>(self: List<A>): List<A | B> => {
+    return that.prependAll(self);
+  };
 }
 
 /**
- * @tsplus fluent fncts.List exists
+ * @tsplus pipeable fncts.List exists
  */
-export function exists_<A>(self: List<A>, p: Predicate<A>): boolean {
-  let these = self;
-  while (!these.isEmpty()) {
-    if (p(these.head)) {
-      return true;
+export function exists<A>(p: Predicate<A>) {
+  return (self: List<A>): boolean => {
+    let these = self;
+    while (!these.isEmpty()) {
+      if (p(these.head)) {
+        return true;
+      }
+      these = these.tail;
     }
-    these = these.tail;
-  }
-  return false;
+    return false;
+  };
 }
 
 /**
- * @tsplus fluent fncts.List filter
+ * @tsplus pipeable fncts.List filter
  */
-export function filter_<A>(self: List<A>, p: Predicate<A>): List<A> {
-  return filterCommon_(self, p, false);
+export function filter<A>(p: Predicate<A>) {
+  return (self: List<A>): List<A> => {
+    return filterCommon(self, p, false);
+  };
 }
 
 function noneIn<A>(l: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
@@ -105,14 +113,12 @@ function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>,
   const newHead   = new Cons(unsafeHead(origStart), _Nil);
   let toProcess   = origStart.unsafeTail as Cons<A>;
   let currentLast = newHead;
-
   while (!(toProcess === firstMiss)) {
     const newElem    = Cons(unsafeHead(toProcess), _Nil);
     currentLast.tail = newElem;
     currentLast      = newElem;
     toProcess        = unsafeCoerce(toProcess.tail);
   }
-
   let next                = firstMiss.tail;
   let nextToCopy: Cons<A> = unsafeCoerce(next);
   while (!next.isEmpty()) {
@@ -138,19 +144,21 @@ function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>,
   return newHead;
 }
 
-function filterCommon_<A>(list: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
+function filterCommon<A>(list: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   return noneIn(list, p, isFlipped);
 }
 
 /**
- * @tsplus fluent fncts.List forEach
+ * @tsplus pipeable fncts.List forEach
  */
-export function forEach_<A, U>(self: List<A>, f: (a: A) => U): void {
-  let these = self;
-  while (!these.isEmpty()) {
-    f(these.head);
-    these = these.tail;
-  }
+export function forEach<A, U>(f: (a: A) => U) {
+  return (self: List<A>): void => {
+    let these = self;
+    while (!these.isEmpty()) {
+      f(these.head);
+      these = these.tail;
+    }
+  };
 }
 
 /**
@@ -161,13 +169,15 @@ export function head<A>(self: List<A>): Maybe<A> {
 }
 
 /**
- * @tsplus fluent fncts.List join
+ * @tsplus pipeable fncts.List join
  */
-export function join(self: List<string>, separator: string): string {
-  if (self.isEmpty()) {
-    return "";
-  }
-  return self.unsafeTail.foldLeft(self.unsafeHead, (acc, s) => acc + separator + s);
+export function join(separator: string) {
+  return (self: List<string>): string => {
+    if (self.isEmpty()) {
+      return "";
+    }
+    return self.unsafeTail.foldLeft(self.unsafeHead, (acc, s) => acc + separator + s);
+  };
 }
 
 /**
@@ -184,30 +194,34 @@ export function length<A>(list: List<A>): number {
 }
 
 /**
- * @tsplus fluent fncts.List map
+ * @tsplus pipeable fncts.List map
  */
-export function map_<A, B>(self: List<A>, f: (a: A) => B): List<B> {
-  if (self.isEmpty()) {
-    return self as unknown as List<B>;
-  } else {
-    const h        = new Cons(f(self.head), _Nil);
-    let t: Cons<B> = h;
-    let rest       = self.tail;
-    while (!rest.isEmpty()) {
-      const nx = new Cons(f(rest.head), _Nil);
-      t.tail   = nx;
-      t        = nx;
-      rest     = rest.tail;
+export function map<A, B>(f: (a: A) => B) {
+  return (self: List<A>): List<B> => {
+    if (self.isEmpty()) {
+      return self as unknown as List<B>;
+    } else {
+      const h        = new Cons(f(self.head), _Nil);
+      let t: Cons<B> = h;
+      let rest       = self.tail;
+      while (!rest.isEmpty()) {
+        const nx = new Cons(f(rest.head), _Nil);
+        t.tail   = nx;
+        t        = nx;
+        rest     = rest.tail;
+      }
+      return h;
     }
-    return h;
-  }
+  };
 }
 
 /**
- * @tsplus fluent fncts.List prepend
+ * @tsplus pipeable fncts.List prepend
  */
-export function prepend_<A, B>(self: List<A>, elem: B): List<A | B> {
-  return new Cons<A | B>(elem, self);
+export function prepend<B>(elem: B) {
+  return <A>(self: List<A>): List<A | B> => {
+    return new Cons<A | B>(elem, self);
+  };
 }
 
 /**
@@ -218,27 +232,28 @@ export function prependOperator<A, B>(elem: A, self: List<B>): List<A | B> {
 }
 
 /**
- * @tsplus fluent fncts.List prependAll
+ * @tsplus pipeable fncts.List prependAll
  */
-export function prependAll_<A, B>(self: List<A>, prefix: List<B>): List<A | B> {
-  if (self.isEmpty()) {
-    return prefix;
-  } else if (prefix.isEmpty()) {
-    return self;
-  } else {
-    const result = new Cons<A | B>(prefix.head, self);
-    let curr     = result;
-    let that     = prefix.tail;
-    while (!that.isEmpty()) {
-      const temp = new Cons<A | B>(that.head, self);
-      curr.tail  = temp;
-      curr       = temp;
-      that       = that.tail;
+export function prependAll<B>(prefix: List<B>) {
+  return <A>(self: List<A>): List<A | B> => {
+    if (self.isEmpty()) {
+      return prefix;
+    } else if (prefix.isEmpty()) {
+      return self;
+    } else {
+      const result = new Cons<A | B>(prefix.head, self);
+      let curr     = result;
+      let that     = prefix.tail;
+      while (!that.isEmpty()) {
+        const temp = new Cons<A | B>(that.head, self);
+        curr.tail  = temp;
+        curr       = temp;
+        that       = that.tail;
+      }
+      return result;
     }
-    return result;
-  }
+  };
 }
-
 /**
  * @tsplus getter fncts.List reverse
  */
@@ -246,73 +261,74 @@ export function reverse<A>(self: List<A>): List<A> {
   let result: List<A> = Nil();
   let these           = self;
   while (!these.isEmpty()) {
-    result = prepend_(result, these.head);
+    result = result.prepend(these.head);
     these  = these.tail;
   }
   return result;
 }
-
 /**
- * @tsplus fluent fncts.List sort
+ * @tsplus pipeable fncts.List sort
  */
-export function sort<A>(self: List<A>, /** @tsplus auto */ O: P.Ord<A>): List<A> {
-  return sortWith_(self, O.compare);
+export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
+  return (self: List<A>): List<A> => {
+    return self.sortWith(O.compare);
+  };
 }
-
 /**
- * @tsplus fluent fncts.List sortWith
+ * @tsplus pipeable fncts.List sortWith
  */
-export function sortWith_<A>(self: List<A>, compare: (x: A, y: A) => P.Ordering): List<A> {
-  const len = length(self);
-  const b   = new ListBuffer<A>();
-  if (len === 1) {
-    b.append(unsafeHead(self));
-  } else if (len > 1) {
-    const arr = new Array<[number, A]>(len);
-    copyToArrayWithIndex(self, arr);
-    arr.sort(([i, x], [j, y]) => {
-      const c = compare(x, y);
-      return c !== 0 ? c : i < j ? -1 : 1;
-    });
-    for (let i = 0; i < len; i++) {
-      b.append(arr[i]![1]!);
+export function sortWith_<A>(compare: (x: A, y: A) => P.Ordering) {
+  return (self: List<A>): List<A> => {
+    const len = length(self);
+    const b   = new ListBuffer<A>();
+    if (len === 1) {
+      b.append(unsafeHead(self));
+    } else if (len > 1) {
+      const arr = new Array<[number, A]>(len);
+      copyToArrayWithIndex(self, arr);
+      arr.sort(([i, x], [j, y]) => {
+        const c = compare(x, y);
+        return c !== 0 ? c : i < j ? -1 : 1;
+      });
+      for (let i = 0; i < len; i++) {
+        b.append(arr[i]![1]!);
+      }
     }
-  }
-  return b.toList;
+    return b.toList;
+  };
 }
-
 /**
  * @tsplus getter fncts.List tail
  */
 export function tail<A>(self: List<A>): Maybe<List<A>> {
   return self.isEmpty() ? Nothing() : Just(self.tail);
 }
-
 /**
- * @tsplus fluent fncts.List take
+ * @tsplus pipeable fncts.List take
  */
-export function take_<A>(self: List<A>, n: number): List<A> {
-  if (self.isEmpty() || n <= 0) {
-    return _Nil;
-  } else {
-    const h  = new Cons(self.head, _Nil);
-    let t    = h;
-    let rest = self.tail;
-    let i    = 1;
-    while (i < n) {
-      if (rest.isEmpty()) {
-        return self;
+export function take_(n: number) {
+  return <A>(self: List<A>): List<A> => {
+    if (self.isEmpty() || n <= 0) {
+      return _Nil;
+    } else {
+      const h  = new Cons(self.head, _Nil);
+      let t    = h;
+      let rest = self.tail;
+      let i    = 1;
+      while (i < n) {
+        if (rest.isEmpty()) {
+          return self;
+        }
+        i       += 1;
+        const nx = new Cons(rest.head, _Nil);
+        t.tail   = nx;
+        t        = nx;
+        rest     = rest.tail;
       }
-      i       += 1;
-      const nx = new Cons(rest.head, _Nil);
-      t.tail   = nx;
-      t        = nx;
-      rest     = rest.tail;
+      return h;
     }
-    return h;
-  }
+  };
 }
-
 /**
  * @tsplus getter fncts.List unsafeHead
  */
@@ -322,7 +338,6 @@ export function unsafeHead<A>(list: List<A>): A {
   }
   return list.head;
 }
-
 /**
  * @tsplus getter fncts.List unsafeLast
  */
@@ -338,7 +353,6 @@ export function unsafeLast<A>(list: List<A>): A {
   }
   return these.head;
 }
-
 function copyToArrayWithIndex<A>(list: List<A>, arr: Array<[number, A]>): void {
   let these = list;
   let i     = 0;

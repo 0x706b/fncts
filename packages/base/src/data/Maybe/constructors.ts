@@ -35,9 +35,9 @@ export function fromNullableK<P extends ReadonlyArray<unknown>, A>(f: (...params
 /**
  * @tsplus static fncts.MaybeOps fromPredicate
  */
-export function fromPredicate_<A>(a: A, p: Predicate<A>): Maybe<A>;
-export function fromPredicate_<A, B extends A>(a: A, p: Refinement<A, B>): Maybe<A>;
-export function fromPredicate_<A>(a: A, p: Predicate<A>): Maybe<A> {
+export function fromPredicate<A>(a: A, p: Predicate<A>): Maybe<A>;
+export function fromPredicate<A, B extends A>(a: A, p: Refinement<A, B>): Maybe<A>;
+export function fromPredicate<A>(a: A, p: Predicate<A>): Maybe<A> {
   return p(a) ? Just(a) : Nothing();
 }
 

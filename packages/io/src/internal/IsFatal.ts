@@ -63,17 +63,19 @@ export function makeIsFatal(predicate: Predicate<unknown>): IsFatal {
 
 /**
  * @tsplus static fncts.io.IsFatalOps both
- * @tsplus fluent fncts.io.IsFatal both
- * @tsplus operator fncts.io.IsFatal |
+ * @tsplus pipeable fncts.io.IsFatal both
+ * @tsplus pipeable-operator fncts.io.IsFatal |
  */
-export function both(left: IsFatal, right: IsFatal): IsFatal {
-  concrete(left);
-  concrete(right);
-  if (left._tag === IsFatalTag.Empty) {
-    return right;
-  }
-  if (right._tag === IsFatalTag.Empty) {
-    return left;
-  }
-  return new Both(left, right);
+export function both(right: IsFatal) {
+  return (left: IsFatal): IsFatal => {
+    concrete(left);
+    concrete(right);
+    if (left._tag === IsFatalTag.Empty) {
+      return right;
+    }
+    if (right._tag === IsFatalTag.Empty) {
+      return left;
+    }
+    return new Both(left, right);
+  };
 }

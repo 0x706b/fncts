@@ -20,9 +20,7 @@ class Synch<A> extends ScopedRef<A> {
   constructor(readonly ref: Ref.Synchronized<readonly [Scope.Closeable, A]>) {
     super();
   }
-
   close: UIO<void> = this.ref.get.flatMap(([scope, _]) => scope.close(Exit.unit));
-
   set<R, E>(acquire: IO<R, E, A>, __tsplusTrace?: string): IO<Exclude<R, Scope>, E, void> {
     return this.ref.modifyIO(([oldScope, a]) =>
       IO.uninterruptibleMask(({ restore }) =>
@@ -40,6 +38,5 @@ class Synch<A> extends ScopedRef<A> {
       ),
     ).flatten;
   }
-
   get: UIO<A> = this.ref.get.map(([_, a]) => a);
 }

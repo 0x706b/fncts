@@ -2,13 +2,13 @@ import type { PluginObj } from "@babel/core";
 
 import * as BabelCore from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
-import glob from "glob";
+import fs from "node:fs/promises";
 import { parse, print } from "recast";
-import babelParser from "recast/parsers/babel-ts.js";
+import ts from "typescript";
 
 export type Babel = typeof BabelCore;
 
-export async function runTransform(code: string, filePath: string, transform: (file: Babel) => PluginObj) {
+export async function runBabelTransform(code: string, filePath: string, transform: (file: Babel) => PluginObj) {
   const ast: BabelCore.types.File = parse(code, {
     parser: {
       parse: (source: string) =>
@@ -33,4 +33,27 @@ export async function runTransform(code: string, filePath: string, transform: (f
   const transformedAst = transformResult.ast;
   const result         = print(transformedAst).code;
   return result;
+}
+
+export async function runTypescriptTransform(
+  currentDir = process.cwd(),
+  transformer: (program: ts.Program) => ts.TransformerFactory<ts.SourceFile>,
+): Promise<void> {
+  const configFile = ts.findConfigFile(currentDir, ts.sys.fileExists, "tsconfig.build.json");
+  if (!configFile) throw Error("tsconfig.json not found");
+  const { config } = ts.readConfigFile(configFile, ts.sys.readFile);
+
+  const { options, fileNames, errors } = ts.parseJsonConfigFileContent(config, ts.sys, currentDir);
+  const program        = ts.createProgram({ options, rootNames: fileNames, configFileParsingDiagnostics: errors });
+  const printer        = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  const sourceFiles    = program.getSourceFiles();
+  const newSourceFiles = sourceFiles
+    .filter((sourceFile) => sourceFile.fileName.includes(`${currentDir}/src`))
+    .flatMap((sourceFile) => ts.transform(sourceFile, [transformer(program)]).transformed);
+  return Promise.all(
+    newSourceFiles.map(async (sourceFile) => {
+      await fs.rm(sourceFile.fileName);
+      return fs.writeFile(sourceFile.fileName, printer.printFile(sourceFile));
+    }),
+  ).then(() => undefined);
 }

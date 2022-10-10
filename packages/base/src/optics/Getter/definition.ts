@@ -25,10 +25,9 @@ export interface GetterMin<S, A> {
 /**
  * @tsplus static fncts.optics.GetterOps __call
  */
-export function mkGetter<S, A>(F: GetterMin<S, A>): Getter<S, A> {
+export function makeGetter<S, A>(F: GetterMin<S, A>): Getter<S, A> {
   return {
     get: F.get,
-    foldMap_: (_) => (s, f) => f(F.get(s)),
     foldMap: (_) => (f) => (s) => f(F.get(s)),
   };
 }

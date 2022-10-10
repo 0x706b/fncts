@@ -24,15 +24,11 @@ export function driver<State, Env, In, Out>(
           ),
         );
       });
-
     const last = ref.get.flatMap(([mOut, _]) =>
       mOut.match(() => IO.failNow(new NoSuchElementError("There is no value left")), IO.succeedNow),
     );
-
     const reset = ref.set([Nothing(), schedule.initial]);
-
     const state = ref.get.map(([_, state]) => state);
-
     return Driver(next, last, reset, state);
   });
 }

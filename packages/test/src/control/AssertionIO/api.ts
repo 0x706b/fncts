@@ -3,30 +3,36 @@ import { RenderParam } from "../../data/RenderParam.js";
 import { AssertionIO } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.AssertionIO and
- * @tsplus operator fncts.test.AssertionIO &&
+ * @tsplus pipeable fncts.test.AssertionIO and
+ * @tsplus pipeable-operator fncts.test.AssertionIO &&
  */
-export function and_<A>(self: AssertionIO<A>, that: AssertionIO<A>): AssertionIO<A> {
-  return new AssertionIO(
-    Render.infix(RenderParam(self), "&&", RenderParam(that)),
-    (actual) => self.runIO(actual) && that.runIO(actual),
-  );
+export function and<A>(that: AssertionIO<A>) {
+  return (self: AssertionIO<A>): AssertionIO<A> => {
+    return new AssertionIO(
+      Render.infix(RenderParam(self), "&&", RenderParam(that)),
+      (actual) => self.runIO(actual) && that.runIO(actual),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.AssertionIO or
- * @tsplus operator fncts.test.AssertionIO ||
+ * @tsplus pipeable fncts.test.AssertionIO or
+ * @tsplus pipeable-operator fncts.test.AssertionIO ||
  */
-export function or_<A>(self: AssertionIO<A>, that: AssertionIO<A>): AssertionIO<A> {
-  return new AssertionIO(
-    Render.infix(RenderParam(self), "||", RenderParam(that)),
-    (actual) => self.runIO(actual) || that.runIO(actual),
-  );
+export function or<A>(that: AssertionIO<A>) {
+  return (self: AssertionIO<A>): AssertionIO<A> => {
+    return new AssertionIO(
+      Render.infix(RenderParam(self), "||", RenderParam(that)),
+      (actual) => self.runIO(actual) || that.runIO(actual),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.AssertionIO label
+ * @tsplus pipeable fncts.test.AssertionIO label
  */
-export function label_<A>(self: AssertionIO<A>, label: string): AssertionIO<A> {
-  return new AssertionIO(Render.infix(RenderParam(self), ":", RenderParam(label)), self.runIO);
+export function label(label: string) {
+  return <A>(self: AssertionIO<A>): AssertionIO<A> => {
+    return new AssertionIO(Render.infix(RenderParam(self), ":", RenderParam(label)), self.runIO);
+  };
 }

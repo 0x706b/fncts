@@ -6,17 +6,15 @@ export const defaultString: Logger<string, string> = new Logger(
     let s           = "";
     const nowMillis = Date.now();
     const now       = new Date(nowMillis);
-
-    s += "timestamp=";
-    s += now.toISOString();
-    s += " level=";
-    s += logLevel.label;
-    s += " thread=#";
-    s += fiberId.threadName;
-    s += ' message="';
-    s += message();
-    s += '"';
-
+    s              += "timestamp=";
+    s              += now.toISOString();
+    s              += " level=";
+    s              += logLevel.label;
+    s              += " thread=#";
+    s              += fiberId.threadName;
+    s              += ' message="';
+    s              += message();
+    s              += '"';
     if (spans.isNonEmpty()) {
       let first = true;
       for (const span of spans) {
@@ -25,18 +23,14 @@ export const defaultString: Logger<string, string> = new Logger(
         } else {
           s += " ";
         }
-
         s += span.render(nowMillis);
       }
     }
-
     if (trace._tag === "SourceLocation") {
       s += " location=";
       s += quoted(trace.show);
     }
-
     // TODO: render Cause, and Annotations
-
     return s;
   },
 );

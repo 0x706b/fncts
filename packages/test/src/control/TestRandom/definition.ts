@@ -13,7 +13,6 @@ export const TestRandomTag = Tag<TestRandom>("fncts.test.TestRandom");
  */
 export class TestRandom implements Random {
   constructor(readonly randomState: Ref<Data>, readonly bufferState: Ref<Buffer>) {}
-
   clearBooleans: UIO<void> = this.bufferState.update((buff) => buff.copy({ booleans: Vector.empty() }));
   clearBytes: UIO<void>    = this.bufferState.update((buff) => buff.copy({ bytes: Vector.empty() }));
   clearChars: UIO<void>    = this.bufferState.update((buff) => buff.copy({ chars: Vector.empty() }));
@@ -39,7 +38,6 @@ export class TestRandom implements Random {
     return this.bufferState.update((data) => data.copy({ strings: Vector.from(strings).concat(data.strings) }));
   }
   getSeed: UIO<number> = this.randomState.get.map((data) => ((data.seed1 << 24) | data.seed2) ^ 0x5deece66d);
-
   setSeed(seed: number): UIO<void> {
     const mash    = Mash();
     const newSeed = mash(seed.toString());
@@ -47,7 +45,6 @@ export class TestRandom implements Random {
     const seed2   = Math.floor(newSeed) & ((1 << 24) - 1);
     return this.randomState.set(new Data(seed1, seed2, ImmutableQueue.empty()));
   }
-
   private bufferedBoolean = (buffer: Buffer): readonly [Maybe<boolean>, Buffer] => {
     return [buffer.booleans.head, buffer.copy({ booleans: buffer.booleans.drop(1) })];
   };
@@ -57,19 +54,15 @@ export class TestRandom implements Random {
   private bufferedInt = (buffer: Buffer): readonly [Maybe<number>, Buffer] => {
     return [buffer.integers.head, buffer.copy({ integers: buffer.integers.drop(1) })];
   };
-
   private getOrElse = <A>(buffer: (_: Buffer) => readonly [Maybe<A>, Buffer], random: UIO<A>): UIO<A> => {
     return this.bufferState.modify(buffer).flatMap((_) => _.match(() => random, IO.succeedNow));
   };
-
   private leastSignificantBits = (x: number): number => {
     return Math.floor(x) & ((1 << 24) - 1);
   };
-
   private mostSignificantBits = (x: number): number => {
     return Math.floor(x / (1 << 24));
   };
-
   private randomBits = (bits: number): UIO<number> => {
     return this.randomState.modify((data) => {
       const multiplier  = 0x5deece66d;
@@ -83,10 +76,8 @@ export class TestRandom implements Random {
       return [result >>> (32 - bits), new Data(newSeed1, newSeed2, data.nextNextGaussians)];
     });
   };
-
   private randomBoolean = this.randomBits(1).map((n) => n !== 0);
-
-  private randomBytes = (length: number): UIO<ReadonlyArray<Byte>> => {
+  private randomBytes   = (length: number): UIO<ReadonlyArray<Byte>> => {
     const loop = (i: number, rnd: UIO<number>, n: number, acc: UIO<List<Byte>>): UIO<List<Byte>> => {
       if (i === length) {
         return acc.map((l) => l.reverse);
@@ -103,10 +94,8 @@ export class TestRandom implements Random {
         return loop(i, this.nextInt, Math.min(length - i, 4), acc);
       }
     };
-
     return loop(0, this.randomInt, Math.min(length, 4), IO.succeedNow(List.empty())).map((list) => Array.from(list));
   };
-
   private randomIntBounded = (n: number) => {
     if (n <= 0) {
       return IO.haltNow(new IllegalArgumentError("n must be positive", "TestRandom.randomIntBounded"));
@@ -121,47 +110,35 @@ export class TestRandom implements Random {
       return loop;
     }
   };
-
   private randomLong: UIO<bigint> = this.randomBits(32).flatMap((i1) =>
     this.randomBits(32).flatMap((i2) => IO.succeedNow(BigInt(i1 << 32) + BigInt(i2))),
   );
-
-  private randomInt = this.randomBits(32);
-
+  private randomInt    = this.randomBits(32);
   private randomDouble = this.randomBits(26).flatMap((i1) =>
     this.randomBits(27).map((i2) => (i1 * (1 << 27) + i2) / (1 << 53)),
   );
-
   private random = this.randomBits(26);
-
   get nextInt(): UIO<number> {
     return this.getOrElse(this.bufferedInt, this.randomInt);
   }
-
   get nextBoolean(): UIO<boolean> {
     return this.getOrElse(this.bufferedBoolean, this.randomBoolean);
   }
-
   get nextDouble(): UIO<number> {
     return this.getOrElse(this.bufferedDouble, this.randomDouble);
   }
-
   get next(): UIO<number> {
     return this.getOrElse(this.bufferedDouble, this.random);
   }
-
   nextBigIntBetween(low: bigint, high: bigint): UIO<bigint> {
     return this.randomLong.repeatUntil((n) => low <= n && n < high);
   }
-
   nextIntBetween(low: number, high: number): UIO<number> {
     return nextIntBetweenWith(low, high, this.randomInt, this.randomIntBounded);
   }
-
   nextRange(low: number, high: number): UIO<number> {
     return this.next.map((n) => (high - low + 1) * n + low);
   }
-
   nextArrayIntBetween(low: ArrayInt, high: ArrayInt): UIO<ArrayInt> {
     const self = this;
     return IO.gen(function* (_) {
@@ -187,7 +164,6 @@ export class TestRandom implements Random {
     }).map((ns) => trimArrayIntInplace(addArrayIntToNew({ sign: 1, data: ns }, low)));
   }
 }
-
 /**
  * @internal
  */
@@ -205,7 +181,6 @@ function nextIntBetweenWith(
     else return nextInt.repeatUntil((n) => min <= n && n < max);
   }
 }
-
 export class Data {
   constructor(
     readonly seed1: number,
@@ -213,7 +188,6 @@ export class Data {
     readonly nextNextGaussians: ImmutableQueue<number> = ImmutableQueue.empty(),
   ) {}
 }
-
 export class Buffer {
   constructor(
     readonly booleans: Vector<boolean> = Vector.empty(),
@@ -223,7 +197,6 @@ export class Buffer {
     readonly integers: Vector<number> = Vector.empty(),
     readonly strings: Vector<string> = Vector.empty(),
   ) {}
-
   copy(_: Partial<Buffer>): Buffer {
     return new Buffer(
       _.booleans ?? this.booleans,
@@ -235,7 +208,6 @@ export class Buffer {
     );
   }
 }
-
 /** @internal */
 function isStrictlySmaller(dataA: number[], dataB: number[]): boolean {
   const maxLength = Math.max(dataA.length, dataB.length);
@@ -249,7 +221,6 @@ function isStrictlySmaller(dataA: number[], dataB: number[]): boolean {
   }
   return false;
 }
-
 export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt): ArrayInt {
   if (arrayIntA.sign !== arrayIntB.sign) {
     return addArrayIntToNew(arrayIntA, { sign: -arrayIntB.sign as -1 | 1, data: arrayIntB.data });
@@ -272,7 +243,6 @@ export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt)
   }
   return { sign: arrayIntA.sign, data: data.reverse() };
 }
-
 /**
  * Trim uneeded zeros in ArrayInt
  * and uniform notation for zero: {sign: 1, data: [0]}
@@ -292,7 +262,6 @@ export function trimArrayIntInplace(arrayInt: ArrayInt) {
   return arrayInt;
   /* eslint-enable */
 }
-
 /**
  * Add two ArrayInt
  * @internal
@@ -320,7 +289,6 @@ export function addArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt): Arra
   }
   return { sign: arrayIntA.sign, data: data.reverse() };
 }
-
 /**
  * Add one to a given positive ArrayInt
  * @internal
@@ -342,8 +310,7 @@ export function addOneToPositiveArrayInt(arrayInt: ArrayInt): ArrayInt {
 }
 
 function Mash() {
-  let n = 0xefc8249d;
-
+  let n      = 0xefc8249d;
   const mash = function (data: string) {
     for (let i = 0; i < data.length; i++) {
       n    += data.charCodeAt(i);
@@ -357,6 +324,5 @@ function Mash() {
     }
     return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
   };
-
   return mash;
 }

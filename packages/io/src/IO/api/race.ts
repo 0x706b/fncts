@@ -11,26 +11,24 @@ function maybeDisconnect<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R
  * WARNING: The raced effect will safely interrupt the "loser", but will not
  * resume until the loser has been cleanly terminated.
  *
- * @tsplus fluent fncts.io.IO race
+ * @tsplus pipeable fncts.io.IO race
  */
-export function race_<R, E, A, R1, E1, A1>(
-  io: IO<R, E, A>,
-  that: IO<R1, E1, A1>,
-  __tsplusTrace?: string,
-): IO<R | R1, E | E1, A | A1> {
-  return IO.descriptorWith((descriptor) =>
-    maybeDisconnect(io).raceWith(
-      maybeDisconnect(that),
-      (exit, right) =>
-        exit.match(
-          (cause) => right.join.mapErrorCause((c) => Cause.both(cause, c)),
-          (a) => right.interruptAs(descriptor.id).as(a),
-        ),
-      (exit, left) =>
-        exit.match(
-          (cause) => left.join.mapErrorCause((c) => Cause.both(cause, c)),
-          (a1) => left.interruptAs(descriptor.id).as(a1),
-        ),
-    ),
-  );
+export function race<R1, E1, A1>(that: IO<R1, E1, A1>, __tsplusTrace?: string) {
+  return <R, E, A>(io: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
+    return IO.descriptorWith((descriptor) =>
+      maybeDisconnect(io).raceWith(
+        maybeDisconnect(that),
+        (exit, right) =>
+          exit.match(
+            (cause) => right.join.mapErrorCause((c) => Cause.both(cause, c)),
+            (a) => right.interruptAs(descriptor.id).as(a),
+          ),
+        (exit, left) =>
+          exit.match(
+            (cause) => left.join.mapErrorCause((c) => Cause.both(cause, c)),
+            (a1) => left.interruptAs(descriptor.id).as(a1),
+          ),
+      ),
+    );
+  };
 }

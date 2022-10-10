@@ -1,10 +1,8 @@
 import type Distribution from "@fncts/base/util/rand/distribution/Distribution";
 import type { RandomGenerator } from "@fncts/base/util/rand/generator/RandomGenerator";
-
 function uniformBigIntInternal(from: bigint, diff: bigint, rng: RandomGenerator): bigint {
   const MinRng    = BigInt(rng.min());
   const NumValues = BigInt(rng.max() - rng.min() + 1);
-
   // Number of iterations required to have enough random
   // to build uniform entries in the asked range
   let FinalNumValues = NumValues;
@@ -14,7 +12,6 @@ function uniformBigIntInternal(from: bigint, diff: bigint, rng: RandomGenerator)
     ++NumIterations;
   }
   const MaxAcceptedRandom = FinalNumValues - (FinalNumValues % diff);
-
   // eslint-disable-next-line no-constant-condition
   while (true) {
     // Aggregate mutiple calls to next() into a single random value
@@ -29,7 +26,6 @@ function uniformBigIntInternal(from: bigint, diff: bigint, rng: RandomGenerator)
     }
   }
 }
-
 /**
  * Uniformly generate random bigint values between `from` (included) and `to` (included)
  *
@@ -58,5 +54,4 @@ function uniformBigIntDistribution(from: bigint, to: bigint, rng?: RandomGenerat
     return uniformBigIntInternal(from, diff, rng);
   };
 }
-
 export { uniformBigIntDistribution };

@@ -87,21 +87,25 @@ export function releaseWrite(self: TReentrantLock, __tsplusTrace?: string): USTM
 }
 
 /**
- * @tsplus fluent fncts.io.TReentrantLock withReadLock
+ * @tsplus pipeable fncts.io.TReentrantLock withReadLock
  */
-export function withReadLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.uninterruptibleMask(
-    ({ restore }) => restore(self.acquireRead.commit) > restore(io).ensuring(self.releaseRead.commit),
-  );
+export function withReadLock<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) {
+  return (self: TReentrantLock): IO<R, E, A> => {
+    return IO.uninterruptibleMask(
+      ({ restore }) => restore(self.acquireRead.commit) > restore(io).ensuring(self.releaseRead.commit),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.TReentrantLock withWriteLock
+ * @tsplus pipeable fncts.io.TReentrantLock withWriteLock
  */
-export function withWriteLock<R, E, A>(self: TReentrantLock, io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.uninterruptibleMask(
-    ({ restore }) => restore(self.acquireWrite.commit) > restore(io).ensuring(self.releaseWrite.commit),
-  );
+export function withWriteLock<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) {
+  return (self: TReentrantLock): IO<R, E, A> => {
+    return IO.uninterruptibleMask(
+      ({ restore }) => restore(self.acquireWrite.commit) > restore(io).ensuring(self.releaseWrite.commit),
+    );
+  };
 }
 
 /**

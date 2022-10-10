@@ -1,5 +1,4 @@
 import type { RandomGenerator } from "@fncts/base/util/rand/generator/RandomGenerator";
-
 /**
  * Uniformly generate number in range [0 ; rangeSize[
  * @internal
@@ -7,7 +6,6 @@ import type { RandomGenerator } from "@fncts/base/util/rand/generator/RandomGene
 export function uniformIntDistributionInternal(rangeSize: number, rng: RandomGenerator): number {
   const MinRng    = rng.min();
   const NumValues = rng.max() - rng.min() + 1;
-
   // Range provided by the RandomGenerator is large enough
   if (rangeSize <= NumValues) {
     const MaxAllowed = NumValues - (NumValues % rangeSize);
@@ -20,7 +18,6 @@ export function uniformIntDistributionInternal(rangeSize: number, rng: RandomGen
       }
     }
   }
-
   // Compute number of iterations required to have enough random
   // to build uniform entries in the asked range
   let FinalNumValues = NumValues * NumValues;
@@ -30,7 +27,6 @@ export function uniformIntDistributionInternal(rangeSize: number, rng: RandomGen
     ++NumIterations;
   }
   const MaxAcceptedRandom = rangeSize * Math.floor((1 * FinalNumValues) / rangeSize);
-
   // eslint-disable-next-line no-constant-condition
   while (true) {
     // Aggregate mutiple calls to next() into a single random value

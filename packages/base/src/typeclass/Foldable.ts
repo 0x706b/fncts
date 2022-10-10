@@ -4,16 +4,14 @@ import type { Monoid } from "@fncts/base/typeclass/Monoid";
  * @tsplus type fncts.Foldable
  */
 export interface Foldable<F extends HKT, FC = HKT.None> extends HKT.Typeclass<F, FC> {
-  foldLeft: <K, Q, W, X, I, S, R, E, A, B>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  foldLeft: <A, B>(
     b: B,
     f: (b: B, a: A) => B,
-  ) => B;
-  foldRight: <K, Q, W, X, I, S, R, E, A, B>(
-    fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+  ) => <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>) => B;
+  foldRight: <A, B>(
     b: Eval<B>,
     f: (a: A, b: Eval<B>) => Eval<B>,
-  ) => Eval<B>;
+  ) => <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>) => Eval<B>;
 }
 
 /**
@@ -28,10 +26,9 @@ export const Foldable: FoldableOps = {};
  */
 export function foldMap<F extends HKT, FC = HKT.None>(
   F: Foldable<F, FC>,
-): <K, Q, W, X, I, S, R, E, A, M>(
-  fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>,
+): <A, M>(
   f: (a: A) => M,
   /** @tsplus auto */ M: Monoid<M>,
-) => M {
-  return (fa, f, M) => F.foldLeft(fa, M.nat, (b, a) => M.combine(b, f(a)));
+) => <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>) => M {
+  return (f, M) => F.foldLeft(M.nat, (b, a) => M.combine(b, f(a)));
 }

@@ -29,8 +29,7 @@ export class HashSet<A> implements Iterable<A> {
     private loadFactor: number,
     private config: HashEq<A> = HashEq.StructuralStrict,
   ) {
-    this.table = new Array<Node<A> | undefined>(tableSizeFor(this.initialCapacity));
-
+    this.table     = new Array<Node<A> | undefined>(tableSizeFor(this.initialCapacity));
     this.threshold = this.newThreshold(this.table.length);
   }
 

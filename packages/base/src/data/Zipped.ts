@@ -1,11 +1,10 @@
-import { assert } from "@fncts/base/util/assert";
 import { isArray } from "@fncts/base/util/predicates";
 
 export const ZippedTypeId = Symbol.for("fncts.Zipped");
 export type ZippedTypeId = typeof ZippedTypeId;
-
-export type Zipped<A extends Array<any>> = Readonly<A> & { readonly [ZippedTypeId]: ZippedTypeId };
-
+export type Zipped<A extends Array<any>> = Readonly<A> & {
+  readonly [ZippedTypeId]: ZippedTypeId;
+};
 export declare namespace Zipped {
   type Make<A, B> = [A] extends [Zipped<infer X>]
     ? [B] extends [Zipped<infer Y>]

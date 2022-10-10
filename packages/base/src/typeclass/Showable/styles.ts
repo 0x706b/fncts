@@ -1,5 +1,4 @@
 import * as Ansi from "@fncts/base/util/AnsiFormat";
-
 export type Style =
   | "red"
   | "green"
@@ -12,7 +11,6 @@ export type Style =
   | "bold"
   | "italic"
   | "underline";
-
 export type ShowGroup =
   | "string"
   | "number"
@@ -26,9 +24,7 @@ export type ShowGroup =
   | "regexp"
   | "module"
   | "dim";
-
 export type ShowStyle = Record<ShowGroup, (s: string) => string>;
-
 export const defaultShowStyle: ShowStyle = {
   string: Ansi.green,
   number: Ansi.yellow,
@@ -43,15 +39,11 @@ export const defaultShowStyle: ShowStyle = {
   module: Ansi.underline,
   dim: Ansi.dim,
 };
-
 export type StyleFunction = (str: string, group: ShowGroup) => string;
-
 export type GetStyle = (group: ShowGroup) => string;
-
 export function stylizeWithColor(str: string, group: ShowGroup): string {
   return defaultShowStyle[group](str);
 }
-
 export function stylizeNoColor(str: string, _: ShowGroup): string {
   return str;
 }

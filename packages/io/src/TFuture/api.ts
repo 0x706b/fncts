@@ -1,23 +1,27 @@
 /**
- * @tsplus fluent fncts.io.TFuture done
+ * @tsplus pipeable fncts.io.TFuture done
  */
-export function done_<E, A>(self: TFuture<E, A>, v: Either<E, A>, __tsplusTrace?: string): USTM<boolean> {
-  return TFuture.reverseGet(self).get.flatMap((mea) =>
-    mea.match(
-      () =>
-        TFuture.reverseGet(self)
-          .set(Just(v))
-          .flatMap(() => STM.succeedNow(true)),
-      () => STM.succeedNow(false),
-    ),
-  );
+export function done<E, A>(v: Either<E, A>, __tsplusTrace?: string) {
+  return (self: TFuture<E, A>): USTM<boolean> => {
+    return TFuture.reverseGet(self).get.flatMap((mea) =>
+      mea.match(
+        () =>
+          TFuture.reverseGet(self)
+            .set(Just(v))
+            .flatMap(() => STM.succeedNow(true)),
+        () => STM.succeedNow(false),
+      ),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.io.TFuture fail
+ * @tsplus pipeable fncts.io.TFuture fail
  */
-export function fail_<E, A>(self: TFuture<E, A>, e: E, __tsplusTrace?: string): USTM<boolean> {
-  return self.done(Either.left(e));
+export function fail<E>(e: E, __tsplusTrace?: string) {
+  return <A>(self: TFuture<E, A>): USTM<boolean> => {
+    return self.done(Either.left(e));
+  };
 }
 
 /**
@@ -28,10 +32,12 @@ export function poll<E, A>(self: TFuture<E, A>, __tsplusTrace?: string): USTM<Ma
 }
 
 /**
- * @tsplus fluent fncts.io.TFuture succeed
+ * @tsplus pipeable fncts.io.TFuture succeed
  */
-export function succeed_<E, A>(self: TFuture<E, A>, a: A, __tsplusTrace?: string): USTM<boolean> {
-  return self.done(Either.right(a));
+export function succeed<A>(a: A, __tsplusTrace?: string) {
+  return <E>(self: TFuture<E, A>): USTM<boolean> => {
+    return self.done(Either.right(a));
+  };
 }
 
 /**

@@ -25,7 +25,6 @@ export class Queue<A> implements Iterable<A> {
     /* @internal */
     public _out: List<A>,
   ) {}
-
   [Symbol.iterator]() {
     return this._in.concat(this._out.reverse)[Symbol.iterator]();
   }

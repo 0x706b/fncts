@@ -5,22 +5,24 @@ import { LeafRenderer } from "./definition.js";
 import { CompositeRenderer, TestAnnotationRendererTag } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.TestAnnotationRenderer combine
- * @tsplus operator fncts.test.TestAnnotationRenderer +
+ * @tsplus pipeable fncts.test.TestAnnotationRenderer combine
+ * @tsplus pipeable-operator fncts.test.TestAnnotationRenderer +
  */
-export function combine_(self: TestAnnotationRenderer, that: TestAnnotationRenderer): TestAnnotationRenderer {
-  if (
-    self._tag === TestAnnotationRendererTag.CompositeRenderer &&
-    that._tag === TestAnnotationRendererTag.CompositeRenderer
-  ) {
-    return new CompositeRenderer(self.renderers.concat(that.renderers));
-  } else if (self._tag === TestAnnotationRendererTag.CompositeRenderer) {
-    return new CompositeRenderer(self.renderers.append(that));
-  } else if (that._tag === TestAnnotationRendererTag.CompositeRenderer) {
-    return new CompositeRenderer(that.renderers.prepend(self));
-  } else {
-    return new CompositeRenderer(Vector(self, that));
-  }
+export function combine(that: TestAnnotationRenderer) {
+  return (self: TestAnnotationRenderer): TestAnnotationRenderer => {
+    if (
+      self._tag === TestAnnotationRendererTag.CompositeRenderer &&
+      that._tag === TestAnnotationRendererTag.CompositeRenderer
+    ) {
+      return new CompositeRenderer(self.renderers.concat(that.renderers));
+    } else if (self._tag === TestAnnotationRendererTag.CompositeRenderer) {
+      return new CompositeRenderer(self.renderers.append(that));
+    } else if (that._tag === TestAnnotationRendererTag.CompositeRenderer) {
+      return new CompositeRenderer(that.renderers.prepend(self));
+    } else {
+      return new CompositeRenderer(Vector(self, that));
+    }
+  };
 }
 
 /**

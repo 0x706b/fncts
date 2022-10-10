@@ -42,11 +42,10 @@ export class Connectable<R, E, A> extends Observable<R, E, A> implements Connect
 }
 
 /**
- * @tsplus fluent fncts.observable.Observable connectable
+ * @tsplus pipeable fncts.observable.Observable connectable
  */
-export function connectable<R, E, A>(
-  source: ObservableInput<R, E, A>,
-  config: ConnectableConfig<E, A> = DEFAULT_CONFIG,
-): Connectable<R, E, A> {
-  return new Connectable(source, config);
+export function connectable<E, A>(config: ConnectableConfig<E, A> = DEFAULT_CONFIG) {
+  return <R>(source: ObservableInput<R, E, A>): Connectable<R, E, A> => {
+    return new Connectable(source, config);
+  };
 }

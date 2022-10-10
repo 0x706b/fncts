@@ -1,5 +1,3 @@
-import type { Spreadable } from "@fncts/base/types";
-
 import { State } from "../../State.js";
 
 /**

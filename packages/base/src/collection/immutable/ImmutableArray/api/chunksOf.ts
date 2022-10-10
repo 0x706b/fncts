@@ -1,6 +1,8 @@
 /**
- * @tsplus fluent fncts.ImmutableArray chunksOf
+ * @tsplus pipeable fncts.ImmutableArray chunksOf
  */
-export function chunksOf_<A>(self: ImmutableArray<A>, n: number): ImmutableArray<ImmutableArray<A>> {
-  return self.chop((as) => as.splitAt(n));
+export function chunksOf(n: number) {
+  return <A>(self: ImmutableArray<A>): ImmutableArray<ImmutableArray<A>> => {
+    return self.chop((as) => as.splitAt(n));
+  };
 }

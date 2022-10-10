@@ -2,17 +2,16 @@ import type { ImmutableNonEmptyArrayF } from "@fncts/base/collection/immutable/I
 import type * as P from "@fncts/base/typeclass";
 
 import {
-  align_,
-  alignWith_,
-  cross_,
-  crossWith_,
-  flatMap_,
-  foldLeft_,
-  foldLeftWithIndex_,
-  foldRight_,
-  foldRightWithIndex_,
-  map_,
-  mapWithIndex_,
+  alignWith,
+  cross,
+  crossWith,
+  flatMap,
+  foldLeft,
+  foldLeftWithIndex,
+  foldRight,
+  foldRightWithIndex,
+  map,
+  mapWithIndex,
   traverse,
   traverseWithIndex,
 } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/api";
@@ -22,23 +21,23 @@ import { make } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/co
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Semialign
  */
 export const Semialign = HKT.instance<P.Semialign<ImmutableNonEmptyArrayF>>({
-  map: map_,
-  alignWith: alignWith_,
+  map,
+  alignWith,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Functor
  */
 export const Functor = HKT.instance<P.Functor<ImmutableNonEmptyArrayF>>({
-  map: map_,
+  map,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps FunctorWithIndex
  */
 export const FunctorWithIndex = HKT.instance<P.FunctorWithIndex<ImmutableNonEmptyArrayF>>({
-  map: map_,
-  mapWithIndex: mapWithIndex_,
+  map,
+  mapWithIndex,
 });
 
 /**
@@ -46,8 +45,8 @@ export const FunctorWithIndex = HKT.instance<P.FunctorWithIndex<ImmutableNonEmpt
  */
 export const Apply = HKT.instance<P.Apply<ImmutableNonEmptyArrayF>>({
   ...Functor,
-  zip: cross_,
-  zipWith: crossWith_,
+  zip: cross,
+  zipWith: crossWith,
 });
 
 /**
@@ -63,15 +62,15 @@ export const Applicative = HKT.instance<P.Applicative<ImmutableNonEmptyArrayF>>(
  */
 export const Monad = HKT.instance<P.Monad<ImmutableNonEmptyArrayF>>({
   ...Applicative,
-  flatMap: flatMap_,
+  flatMap,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Foldable
  */
 export const Foldable = HKT.instance<P.Foldable<ImmutableNonEmptyArrayF>>({
-  foldLeft: foldLeft_,
-  foldRight: foldRight_,
+  foldLeft,
+  foldRight,
 });
 
 /**
@@ -79,8 +78,8 @@ export const Foldable = HKT.instance<P.Foldable<ImmutableNonEmptyArrayF>>({
  */
 export const FoldableWithIndex = HKT.instance<P.FoldableWithIndex<ImmutableNonEmptyArrayF>>({
   ...Foldable,
-  foldLeftWithIndex: foldLeftWithIndex_,
-  foldRightWithIndex: foldRightWithIndex_,
+  foldLeftWithIndex,
+  foldRightWithIndex,
 });
 
 /**

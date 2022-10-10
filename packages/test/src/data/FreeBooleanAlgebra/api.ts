@@ -1,30 +1,36 @@
 import { And, FreeBooleanAlgebra, FreeBooleanAlgebraTag, Not, Or, Value } from "./definition.js";
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra and
- * @tsplus operator fncts.test.FreeBooleanAlgebra &&
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra and
+ * @tsplus pipeable-operator fncts.test.FreeBooleanAlgebra &&
  */
-export function and_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
-  return new And(left, right);
+export function and<A>(right: FreeBooleanAlgebra<A>) {
+  return (left: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> => {
+    return new And(left, right);
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra flatMap
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra flatMap
  */
-export function flatMap_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => FreeBooleanAlgebra<B>): FreeBooleanAlgebra<B> {
-  return self.fold({
-    Value: f,
-    And: (l, r) => l && r,
-    Or: (l, r) => l || r,
-    Not: (v) => v.invert,
-  });
+export function flatMap<A, B>(f: (a: A) => FreeBooleanAlgebra<B>) {
+  return (self: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<B> => {
+    return self.fold({
+      Value: f,
+      And: (l, r) => l && r,
+      Or: (l, r) => l || r,
+      Not: (v) => v.invert,
+    });
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra map
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra map
  */
-export function map_<A, B>(self: FreeBooleanAlgebra<A>, f: (a: A) => B): FreeBooleanAlgebra<B> {
-  return self.flatMap((a) => FreeBooleanAlgebra.success(f(a)));
+export function map<A, B>(f: (a: A) => B) {
+  return (self: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<B> => {
+    return self.flatMap((a) => FreeBooleanAlgebra.success(f(a)));
+  };
 }
 
 /**
@@ -69,58 +75,60 @@ export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgeb
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra foldEval
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra foldEval
  */
-export function foldEval_<A, B>(
-  self: FreeBooleanAlgebra<A>,
-  cases: {
-    Value: (value: A) => B;
-    And: (left: B, right: B) => B;
-    Or: (left: B, right: B) => B;
-    Not: (value: B) => B;
-  },
-): Eval<B> {
-  return Eval.defer(() => {
-    switch (self._tag) {
-      case FreeBooleanAlgebraTag.Value:
-        return Eval.now(cases.Value(self.value));
-      case FreeBooleanAlgebraTag.And:
-        return self.left.foldEval(cases).zipWith(self.right.foldEval(cases), cases.And);
-      case FreeBooleanAlgebraTag.Or:
-        return self.left.foldEval(cases).zipWith(self.right.foldEval(cases), cases.Or);
-      case FreeBooleanAlgebraTag.Not:
-        return self.result.foldEval(cases).map(cases.Not);
-    }
-  });
+export function foldEval<A, B>(cases: {
+  Value: (value: A) => B;
+  And: (left: B, right: B) => B;
+  Or: (left: B, right: B) => B;
+  Not: (value: B) => B;
+}) {
+  return (self: FreeBooleanAlgebra<A>): Eval<B> => {
+    return Eval.defer(() => {
+      switch (self._tag) {
+        case FreeBooleanAlgebraTag.Value:
+          return Eval.now(cases.Value(self.value));
+        case FreeBooleanAlgebraTag.And:
+          return self.left.foldEval(cases).zipWith(self.right.foldEval(cases), cases.And);
+        case FreeBooleanAlgebraTag.Or:
+          return self.left.foldEval(cases).zipWith(self.right.foldEval(cases), cases.Or);
+        case FreeBooleanAlgebraTag.Not:
+          return self.result.foldEval(cases).map(cases.Not);
+      }
+    });
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra fold
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra fold
  */
-export function fold_<A, B>(
-  self: FreeBooleanAlgebra<A>,
-  cases: {
-    Value: (value: A) => B;
-    And: (left: B, right: B) => B;
-    Or: (left: B, right: B) => B;
-    Not: (value: B) => B;
-  },
-): B {
-  return self.foldEval(cases).run;
+export function fold<A, B>(cases: {
+  Value: (value: A) => B;
+  And: (left: B, right: B) => B;
+  Or: (left: B, right: B) => B;
+  Not: (value: B) => B;
+}) {
+  return (self: FreeBooleanAlgebra<A>): B => {
+    return self.foldEval(cases).run;
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra iff
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra iff
  */
-export function iff_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
-  return left.implies(right) && right.implies(left);
+export function iff<A>(right: FreeBooleanAlgebra<A>) {
+  return (left: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> => {
+    return left.implies(right) && right.implies(left);
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra implies
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra implies
  */
-export function implies_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
-  return left.invert || right;
+export function implies<A>(right: FreeBooleanAlgebra<A>) {
+  return (left: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> => {
+    return left.invert || right;
+  };
 }
 
 /**
@@ -150,11 +158,13 @@ export function not<A>(self: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
 }
 
 /**
- * @tsplus fluent fncts.test.FreeBooleanAlgebra or
- * @tsplus operator fncts.test.FreeBooleanAlgebra ||
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra or
+ * @tsplus pipeable-operator fncts.test.FreeBooleanAlgebra ||
  */
-export function or_<A>(left: FreeBooleanAlgebra<A>, right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
-  return new Or(left, right);
+export function or<A>(right: FreeBooleanAlgebra<A>) {
+  return (left: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> => {
+    return new Or(left, right);
+  };
 }
 
 /**

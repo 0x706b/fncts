@@ -4,17 +4,21 @@ import { Chain } from "@fncts/base/control/Eval/definition";
 import { identity, tuple } from "@fncts/base/data/function";
 
 /**
- * @tsplus fluent fncts.control.Eval and
+ * @tsplus pipeable fncts.control.Eval and
  */
-export function and_(self: Eval<boolean>, that: Eval<boolean>): Eval<boolean> {
-  return self.zipWith(that, (b0, b1) => b0 && b1);
+export function and(that: Eval<boolean>) {
+  return (self: Eval<boolean>): Eval<boolean> => {
+    return self.zipWith(that, (b0, b1) => b0 && b1);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Eval flatMap
+ * @tsplus pipeable fncts.control.Eval flatMap
  */
-export function flatMap_<A, B>(self: Eval<A>, f: (a: A) => Eval<B>): Eval<B> {
-  return new Chain(self, f);
+export function flatMap<A, B>(f: (a: A) => Eval<B>) {
+  return (self: Eval<A>): Eval<B> => {
+    return new Chain(self, f);
+  };
 }
 
 /**
@@ -25,37 +29,49 @@ export function flatten<A>(self: Eval<Eval<A>>): Eval<A> {
 }
 
 /**
- * @tsplus fluent fncts.control.Eval map
+ * @tsplus pipeable fncts.control.Eval map
  */
-export function map_<A, B>(self: Eval<A>, f: (a: A) => B): Eval<B> {
-  return self.flatMap((a) => Eval.now(f(a)));
+export function map<A, B>(f: (a: A) => B) {
+  return (self: Eval<A>): Eval<B> => {
+    return self.flatMap((a) => Eval.now(f(a)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Eval zipWith
+ * @tsplus pipeable fncts.control.Eval zipWith
  */
-export function zipWith_<A, B, C>(self: Eval<A>, fb: Eval<B>, f: (a: A, b: B) => C): Eval<C> {
-  return self.flatMap((a) => fb.map((b) => f(a, b)));
+export function zipWith<A, B, C>(fb: Eval<B>, f: (a: A, b: B) => C) {
+  return (self: Eval<A>): Eval<C> => {
+    return self.flatMap((a) => fb.map((b) => f(a, b)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Eval zip
+ * @tsplus pipeable fncts.control.Eval zip
  */
-export function zip_<A, B>(self: Eval<A>, fb: Eval<B>): Eval<Zipped.Make<A, B>> {
-  return self.zipWith(fb, (a, b) => Zipped(a, b));
+export function zip<B>(fb: Eval<B>) {
+  return <A>(self: Eval<A>): Eval<Zipped.Make<A, B>> => {
+    return self.zipWith(fb, (a, b) => Zipped(a, b));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Eval ap
+ * @tsplus pipeable fncts.control.Eval ap
  */
-export function ap_<A, B>(self: Eval<(a: A) => B>, fa: Eval<A>): Eval<B> {
-  return self.zipWith(fa, (f, a) => f(a));
+export function ap<A>(fa: Eval<A>) {
+  return <B>(self: Eval<(a: A) => B>): Eval<B> => {
+    return self.zipWith(fa, (f, a) => f(a));
+  };
 }
 
 /**
  * @tsplus static fncts.control.EvalOps sequenceT
  */
-export function sequenceT<A extends Array<Eval<any>>>(...computations: A): Eval<{ [K in keyof A]: _A<A[K]> }> {
+export function sequenceT<A extends Array<Eval<any>>>(
+  ...computations: A
+): Eval<{
+  [K in keyof A]: _A<A[K]>;
+}> {
   return Eval.defer(Eval.now(computations.map((e) => e.run)) as Eval<any>);
 }
 

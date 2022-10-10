@@ -21,7 +21,7 @@
  * @tsplus fluent fncts.io.IO bracket
  * @tsplus static fncts.io.IOOps bracket
  */
-export function bracket_<R, E, A, R1, E1, A1, R2, E2, A2>(
+export function bracket<R, E, A, R1, E1, A1, R2, E2, A2>(
   acquire: Lazy<IO<R, E, A>>,
   use: (a: A) => IO<R1, E1, A1>,
   release: (a: A) => IO<R2, E2, A2>,

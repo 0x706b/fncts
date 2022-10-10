@@ -19,6 +19,6 @@ export const Index: IndexOps = {};
 /**
  * @tsplus static fncts.optics.IndexOps __call
  */
-export function mkIndex<S, I, A>(F: IndexMin<S, I, A>): Index<S, I, A> {
+export function makeIndex<S, I, A>(F: IndexMin<S, I, A>): Index<S, I, A> {
   return { index: F.index };
 }

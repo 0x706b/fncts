@@ -9,123 +9,110 @@ export function absolve<W, S1, S2, R, E, E1, A>(fa: Z<W, S1, S2, R, E, Either<E1
 }
 
 /**
- * @tsplus fluent fncts.control.Z ap
+ * @tsplus pipeable fncts.control.Z ap
  */
-export function ap_<W, S, R, E, A, R1, E1, B>(
-  self: Z<W, S, S, R, E, (a: A) => B>,
-  fb: Z<W, S, S, R1, E1, A>,
-): Z<W, S, S, R & R1, E | E1, B> {
-  return self.crossWith(fb, (f, a) => f(a));
+export function ap<W, S, A, R1, E1>(fb: Z<W, S, S, R1, E1, A>) {
+  return <R, E, B>(self: Z<W, S, S, R, E, (a: A) => B>): Z<W, S, S, R & R1, E | E1, B> => {
+    return self.crossWith(fb, (f, a) => f(a));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z apFirst
+ * @tsplus pipeable fncts.control.Z apFirst
  */
-export function apFirst_<W, S, R, E, A, R1, E1, B>(
-  fa: Z<W, S, S, R, E, A>,
-  fb: Z<W, S, S, R1, E1, B>,
-): Z<W, S, S, R & R1, E | E1, A> {
-  return fa.crossWith(fb, (a, _) => a);
+export function apFirst<W, S, R1, E1, B>(fb: Z<W, S, S, R1, E1, B>) {
+  return <R, E, A>(fa: Z<W, S, S, R, E, A>): Z<W, S, S, R & R1, E | E1, A> => {
+    return fa.crossWith(fb, (a, _) => a);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z apSecond
+ * @tsplus pipeable fncts.control.Z apSecond
  */
-export function apSecond_<W, S, R, E, A, R1, E1, B>(
-  fa: Z<W, S, S, R, E, A>,
-  fb: Z<W, S, S, R1, E1, B>,
-): Z<W, S, S, R & R1, E | E1, B> {
-  return fa.crossWith(fb, (_, b) => b);
+export function apSecond<W, S, R1, E1, B>(fb: Z<W, S, S, R1, E1, B>) {
+  return <R, E, A>(fa: Z<W, S, S, R, E, A>): Z<W, S, S, R & R1, E | E1, B> => {
+    return fa.crossWith(fb, (_, b) => b);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z bimap
+ * @tsplus pipeable fncts.control.Z bimap
  */
-export function bimap_<W, S1, S2, R, E, A, G, B>(
-  pab: Z<W, S1, S2, R, E, A>,
-  f: (e: E) => G,
-  g: (a: A) => B,
-): Z<W, S1, S2, R, G, B> {
-  return pab.matchZ(
-    (e) => Z.failNow(f(e)),
-    (a) => Z.succeedNow(g(a)),
-  );
+export function bimap<E, A, G, B>(f: (e: E) => G, g: (a: A) => B) {
+  return <W, S1, S2, R>(pab: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, G, B> => {
+    return pab.matchZ(
+      (e) => Z.failNow(f(e)),
+      (a) => Z.succeedNow(g(a)),
+    );
+  };
 }
 
 /**
  * Recovers from all errors.
  *
- * @tsplus fluent fncts.control.Z catchAll
+ * @tsplus pipeable fncts.control.Z catchAll
  */
-export function catchAll_<W, S1, S2, R, E, A, S3, R1, E1, B>(
-  fa: Z<W, S1, S2, R, E, A>,
-  onFailure: (e: E) => Z<W, S1, S3, R1, E1, B>,
-): Z<W, S1, S3, R | R1, E1, A | B> {
-  return fa.matchZ(onFailure, Z.succeedNow);
+export function catchAll<W, S1, E, S3, R1, E1, B>(onFailure: (e: E) => Z<W, S1, S3, R1, E1, B>) {
+  return <S2, R, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, S3, R | R1, E1, A | B> => {
+    return fa.matchZ(onFailure, Z.succeedNow);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z catchJust
+ * @tsplus pipeable fncts.control.Z catchJust
  */
-export function catchJust_<W, S1, S2, R, E, A, S3, R1, E1, B>(
-  fa: Z<W, S1, S2, R, E, A>,
-  f: (e: E) => Maybe<Z<W, S1, S3, R1, E1, B>>,
-): Z<W, S1, S2 | S3, R | R1, E | E1, A | B> {
-  return fa.catchAll((e) => f(e).getOrElse(fa));
+export function catchJust<W, S1, E, S3, R1, E1, B>(f: (e: E) => Maybe<Z<W, S1, S3, R1, E1, B>>) {
+  return <S2, R, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, S2 | S3, R | R1, E | E1, A | B> => {
+    return fa.catchAll((e) => f(e).getOrElse(fa));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z flatMap
+ * @tsplus pipeable fncts.control.Z flatMap
  */
-export function flatMap_<W, S1, S2, R, E, A, W1, S3, R1, E1, B>(
-  ma: Z<W, S1, S2, R, E, A>,
-  f: (a: A) => Z<W1, S2, S3, R1, E1, B>,
-): Z<W | W1, S1, S3, R1 & R, E1 | E, B> {
-  return new Chain(ma, f);
+export function flatMap<S2, A, W1, S3, R1, E1, B>(f: (a: A) => Z<W1, S2, S3, R1, E1, B>) {
+  return <W, S1, R, E>(ma: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S3, R1 & R, E1 | E, B> => {
+    return new Chain(ma, f);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z contramapEnvironment
+ * @tsplus pipeable fncts.control.Z contramapEnvironment
  */
-export function contramapEnvironment_<R0, W, S1, S2, R, E, A>(
-  ma: Z<W, S1, S2, R, E, A>,
-  f: (r0: Environment<R0>) => Environment<R>,
-): Z<W, S1, S2, R0, E, A> {
-  return Z.environmentWithZ((r) => ma.provideEnvironment(f(r)));
+export function contramapEnvironment<R0, R>(f: (r0: Environment<R0>) => Environment<R>) {
+  return <W, S1, S2, E, A>(ma: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R0, E, A> => {
+    return Z.environmentWithZ((r) => ma.provideEnvironment(f(r)));
+  };
 }
 
 /**
  * Transforms the initial state of this computation` with the specified
  * function.
  *
- * @tsplus fluent fncts.control.Z contramapState
+ * @tsplus pipeable fncts.control.Z contramapState
  */
-export function contramapState_<S0, W, S1, S2, R, E, A>(
-  fa: Z<W, S1, S2, R, E, A>,
-  f: (s: S0) => S1,
-): Z<W, S0, S2, R, E, A> {
-  return Z.update(f).flatMap(() => fa);
+export function contramapState<S0, S1>(f: (s: S0) => S1) {
+  return <W, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S0, S2, R, E, A> => {
+    return Z.update(f).flatMap(() => fa);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z cross
+ * @tsplus pipeable fncts.control.Z cross
  */
-export function cross_<W, S, R, E, A, R1, E1, B>(
-  fa: Z<W, S, S, R, E, A>,
-  fb: Z<W, S, S, R1, E1, B>,
-): Z<W, S, S, R & R1, E | E1, readonly [A, B]> {
-  return fa.crossWith(fb, tuple);
+export function cross<W, S, R1, E1, B>(fb: Z<W, S, S, R1, E1, B>) {
+  return <R, E, A>(fa: Z<W, S, S, R, E, A>): Z<W, S, S, R & R1, E | E1, readonly [A, B]> => {
+    return fa.crossWith(fb, tuple);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z crossWith
+ * @tsplus pipeable fncts.control.Z crossWith
  */
-export function crossWith_<W, S, R, E, A, R1, E1, B, C>(
-  fa: Z<W, S, S, R, E, A>,
-  fb: Z<W, S, S, R1, E1, B>,
-  f: (a: A, b: B) => C,
-): Z<W, S, S, R & R1, E | E1, C> {
-  return fa.flatMap((a) => fb.map((b) => f(a, b)));
+export function crossWith<W, S, A, R1, E1, B, C>(fb: Z<W, S, S, R1, E1, B>, f: (a: A, b: B) => C) {
+  return <R, E>(fa: Z<W, S, S, R, E, A>): Z<W, S, S, R & R1, E | E1, C> => {
+    return fa.flatMap((a) => fb.map((b) => f(a, b)));
+  };
 }
 
 /**
@@ -266,48 +253,52 @@ export function listen<W, S1, S2, R, E, A>(wa: Z<W, S1, S2, R, E, A>): Z<W, S1, 
 }
 
 /**
- * @tsplus fluent fncts.control.Z listens
+ * @tsplus pipeable fncts.control.Z listens
  */
-export function listens_<W, S1, S2, R, E, A, B>(
-  wa: Z<W, S1, S2, R, E, A>,
-  f: (log: Conc<W>) => B,
-): Z<W, S1, S2, R, E, readonly [A, B]> {
-  return wa.listen.map(([a, ws]) => [a, f(ws)]);
+export function listens<W, B>(f: (log: Conc<W>) => B) {
+  return <S1, S2, R, E, A>(wa: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, E, readonly [A, B]> => {
+    return wa.listen.map(([a, ws]) => [a, f(ws)]);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z map
+ * @tsplus pipeable fncts.control.Z map
  */
-export function map_<W, S1, S2, R, E, A, B>(fa: Z<W, S1, S2, R, E, A>, f: (a: A) => B): Z<W, S1, S2, R, E, B> {
-  return fa.flatMap((a) => Z.succeedNow(f(a)));
+export function map<A, B>(f: (a: A) => B) {
+  return <W, S1, S2, R, E>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, E, B> => {
+    return fa.flatMap((a) => Z.succeedNow(f(a)));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z mapError
+ * @tsplus pipeable fncts.control.Z mapError
  */
-export function mapError_<W, S1, S2, R, E, A, G>(pab: Z<W, S1, S2, R, E, A>, f: (e: E) => G): Z<W, S1, S2, R, G, A> {
-  return pab.matchZ((e) => Z.failNow(f(e)), Z.succeedNow);
+export function mapError<E, G>(f: (e: E) => G) {
+  return <W, S1, S2, R, A>(pab: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, G, A> => {
+    return pab.matchZ((e) => Z.failNow(f(e)), Z.succeedNow);
+  };
 }
 
 /**
  * Modifies the current log with the specified function
  *
- * @tsplus fluent fncts.control.Z mapLog
+ * @tsplus pipeable fncts.control.Z mapLog
  */
-export function mapLog_<W, S1, S2, R, E, A, W1>(
-  wa: Z<W, S1, S2, R, E, A>,
-  f: (ws: Conc<W>) => Conc<W1>,
-): Z<W1, S1, S2, R, E, A> {
-  return new MapLog(wa, f);
+export function mapLog<W, W1>(f: (ws: Conc<W>) => Conc<W1>) {
+  return <S1, S2, R, E, A>(wa: Z<W, S1, S2, R, E, A>): Z<W1, S1, S2, R, E, A> => {
+    return new MapLog(wa, f);
+  };
 }
 
 /**
  * Modifies the current state with the specified function
  *
- * @tsplus fluent fncts.control.Z mapState
+ * @tsplus pipeable fncts.control.Z mapState
  */
-export function mapState_<W, S1, S2, R, E, A, S3>(ma: Z<W, S1, S2, R, E, A>, f: (s: S2) => S3): Z<W, S1, S3, R, E, A> {
-  return ma.transform((s, a) => [a, f(s)]);
+export function mapState<S2, S3>(f: (s: S2) => S3) {
+  return <W, S1, R, E, A>(ma: Z<W, S1, S2, R, E, A>): Z<W, S1, S3, R, E, A> => {
+    return ma.transform((s, a) => [a, f(s)]);
+  };
 }
 
 /**
@@ -315,61 +306,60 @@ export function mapState_<W, S1, S2, R, E, A, S3>(ma: Z<W, S1, S2, R, E, A>, f: 
  * a computation that does not fail, but succeeds with the value of the left
  * or right function passed to `match`.
  *
- * @tsplus fluent fncts.control.Z match
+ * @tsplus pipeable fncts.control.Z match
  */
-export function match_<W, S1, S2, R, E, A, B, C>(
-  fa: Z<W, S1, S2, R, E, A>,
-  onFailure: (e: E) => B,
-  onSuccess: (a: A) => C,
-): Z<W, S1, S2, R, never, B | C> {
-  return fa.matchZ(
-    (e) => Z.succeedNow(onFailure(e)),
-    (a) => Z.succeedNow(onSuccess(a)),
-  );
+export function match<E, A, B, C>(onFailure: (e: E) => B, onSuccess: (a: A) => C) {
+  return <W, S1, S2, R>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, never, B | C> => {
+    return fa.matchZ(
+      (e) => Z.succeedNow(onFailure(e)),
+      (a) => Z.succeedNow(onSuccess(a)),
+    );
+  };
 }
 
 /**
  * Recovers from errors by accepting one computation to execute for the case
  * of an error, and one computation to execute for the case of success.
  *
- * @tsplus fluent fncts.control.Z matchZ
+ * @tsplus pipeable fncts.control.Z matchZ
  */
-export function matchZ_<W, S1, S5, S2, R, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>(
-  fa: Z<W, S1, S2, R, E, A>,
+export function matchZ<S5, S2, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>(
   onFailure: (e: E) => Z<W1, S5, S3, R1, E1, B>,
   onSuccess: (a: A) => Z<W2, S2, S4, R2, E2, C>,
-): Z<W | W1 | W2, S1 & S5, S3 | S4, R | R1 | R2, E1 | E2, B | C> {
-  return fa.matchCauseZ((cause) => cause.failureOrCause.match(onFailure, Z.failCauseNow), onSuccess);
+) {
+  return <W, S1, R>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1 | W2, S1 & S5, S3 | S4, R | R1 | R2, E1 | E2, B | C> => {
+    return fa.matchCauseZ((cause) => cause.failureOrCause.match(onFailure, Z.failCauseNow), onSuccess);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z matchCauseZ
+ * @tsplus pipeable fncts.control.Z matchCauseZ
  */
-export function matchCauseZ_<W, S1, S2, R, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E2, C>(
-  fa: Z<W, S1, S2, R, E, A>,
+export function matchCauseZ<S2, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E2, C>(
   onFailure: (e: Cause<E>) => Z<W1, S0, S3, R1, E1, B>,
   onSuccess: (a: A) => Z<W2, S2, S4, R2, E2, C>,
-): Z<W | W1 | W2, S0 & S1, S3 | S4, R | R1 | R2, E1 | E2, B | C> {
-  return matchLogCauseZ_(
-    fa,
-    (ws, e) => onFailure(e).mapLog((w1s) => ws.concat(w1s)),
-    (ws, a) => onSuccess(a).mapLog((w2s) => ws.concat(w2s)),
-  );
+) {
+  return <W, S1, R>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1 | W2, S0 & S1, S3 | S4, R | R1 | R2, E1 | E2, B | C> => {
+    return fa.matchLogCauseZ(
+      (ws, e) => onFailure(e).mapLog((w1s) => ws.concat(w1s)),
+      (ws, a) => onSuccess(a).mapLog((w2s) => ws.concat(w2s)),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z matchLogZ
+ * @tsplus pipeable fncts.control.Z matchLogZ
  */
-export function matchLogZ_<W, S1, S5, S2, R, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>(
-  fa: Z<W, S1, S2, R, E, A>,
+export function matchLogZ<W, S5, S2, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>(
   onFailure: (ws: Conc<W>, e: E) => Z<W1, S5, S3, R1, E1, B>,
   onSuccess: (ws: Conc<W>, a: A) => Z<W2, S2, S4, R2, E2, C>,
-): Z<W | W1 | W2, S1 & S5, S3 | S4, R | R1 | R2, E1 | E2, B | C> {
-  return matchLogCauseZ_(
-    fa,
-    (ws, cause) => cause.failureOrCause.match((e) => onFailure(ws, e), Z.failCauseNow),
-    onSuccess,
-  );
+) {
+  return <S1, R>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1 | W2, S1 & S5, S3 | S4, R | R1 | R2, E1 | E2, B | C> => {
+    return fa.matchLogCauseZ(
+      (ws, cause) => cause.failureOrCause.match((e) => onFailure(ws, e), Z.failCauseNow),
+      onSuccess,
+    );
+  };
 }
 
 /**
@@ -380,14 +370,15 @@ export function matchLogZ_<W, S1, S5, S2, R, E, A, W1, S3, R1, E1, B, W2, S4, R2
  *
  * @note the log is cleared after being provided
  *
- * @tsplus fluent fncts.control.Z matchLogCauseZ
+ * @tsplus pipeable fncts.control.Z matchLogCauseZ
  */
-export function matchLogCauseZ_<W, S1, S2, R, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E2, C>(
-  fa: Z<W, S1, S2, R, E, A>,
+export function matchLogCauseZ<W, S2, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E2, C>(
   onFailure: (ws: Conc<W>, e: Cause<E>) => Z<W1, S0, S3, R1, E1, B>,
   onSuccess: (ws: Conc<W>, a: A) => Z<W2, S2, S4, R2, E2, C>,
-): Z<W1 | W2, S0 & S1, S3 | S4, R & R1 & R2, E1 | E2, B | C> {
-  return new Match(fa, onFailure, onSuccess);
+) {
+  return <S1, R>(fa: Z<W, S1, S2, R, E, A>): Z<W1 | W2, S0 & S1, S3 | S4, R & R1 & R2, E1 | E2, B | C> => {
+    return new Match(fa, onFailure, onSuccess);
+  };
 }
 
 /**
@@ -411,39 +402,36 @@ export function modifyEither<S1, S2, E, A>(f: (s: S1) => Either<E, readonly [A, 
 }
 
 /**
- * @tsplus fluent fncts.control.Z orElse
+ * @tsplus pipeable fncts.control.Z orElse
  */
-export function orElse_<W, S1, S2, R, E, A, W1, S3, R1, E1, A1>(
-  fa: Z<W, S1, S2, R, E, A>,
-  fb: Lazy<Z<W1, S1, S3, R1, E1, A1>>,
-): Z<W | W1, S1, S2 | S3, R | R1, E | E1, A | A1> {
-  return fa.matchZ(() => fb(), Z.succeedNow);
+export function orElse<S1, W1, S3, R1, E1, A1>(fb: Lazy<Z<W1, S1, S3, R1, E1, A1>>) {
+  return <W, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S2 | S3, R | R1, E | E1, A | A1> => {
+    return fa.matchZ(() => fb(), Z.succeedNow);
+  };
 }
 
 /**
  * Executes this computation and returns its value, if it succeeds, but
  * otherwise executes the specified computation.
  *
- * @tsplus fluent fncts.control.Z orElseEither
+ * @tsplus pipeable fncts.control.Z orElseEither
  */
-export function orElseEither_<W, S1, S2, R, E, A, S3, S4, R1, E1, A1>(
-  fa: Z<W, S1, S2, R, E, A>,
-  that: Lazy<Z<W, S3, S4, R1, E1, A1>>,
-): Z<W, S1 & S3, S2 | S4, R | R1, E1, Either<A, A1>> {
-  return fa.matchZ(
-    () => that().map(Either.right),
-    (a) => Z.succeedNow(Either.left(a)),
-  );
+export function orElseEither<W, S3, S4, R1, E1, A1>(that: Lazy<Z<W, S3, S4, R1, E1, A1>>) {
+  return <S1, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1 & S3, S2 | S4, R | R1, E1, Either<A, A1>> => {
+    return fa.matchZ(
+      () => that().map(Either.right),
+      (a) => Z.succeedNow(Either.left(a)),
+    );
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z provideEnvironment
+ * @tsplus pipeable fncts.control.Z provideEnvironment
  */
-export function provideEnvironment_<W, S1, S2, R, E, A>(
-  fa: Z<W, S1, S2, R, E, A>,
-  r: Environment<R>,
-): Z<W, S1, S2, never, E, A> {
-  return new Provide(fa, r);
+export function provideEnvironment<R>(r: Environment<R>) {
+  return <W, S1, S2, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, never, E, A> => {
+    return new Provide(fa, r);
+  };
 }
 
 /**
@@ -459,23 +447,24 @@ export function put<S>(s: S): Z<never, unknown, S, never, never, void> {
  * Repeats this computation the specified number of times (or until the first failure)
  * passing the updated state to each successive repetition.
  *
- * @tsplus fluent fncts.control.Z repeatN
+ * @tsplus pipeable fncts.control.Z repeatN
  */
-export function repeatN_<W, S1, S2 extends S1, R, E, A>(ma: Z<W, S1, S2, R, E, A>, n: number): Z<W, S1, S2, R, E, A> {
-  return ma.flatMap((a) => (n <= 0 ? Z.succeedNow(a) : ma.repeatN(n - 1)));
+export function repeatN(n: number) {
+  return <W, S1, S2 extends S1, R, E, A>(ma: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, E, A> => {
+    return ma.flatMap((a) => (n <= 0 ? Z.succeedNow(a) : ma.repeatN(n - 1)));
+  };
 }
 
 /**
  * Repeats this computation until its value satisfies the specified predicate
  * (or until the first failure) passing the updated state to each successive repetition.
  *
- * @tsplus fluent fncts.control.Z repeatUntil
+ * @tsplus pipeable fncts.control.Z repeatUntil
  */
-export function repeatUntil_<W, S1, S2 extends S1, R, E, A>(
-  ma: Z<W, S1, S2, R, E, A>,
-  p: Predicate<A>,
-): Z<W, S1, S2, R, E, A> {
-  return ma.flatMap((a) => (p(a) ? Z.succeedNow(a) : ma.repeatUntil(p)));
+export function repeatUntil<A>(p: Predicate<A>) {
+  return <W, S1, S2 extends S1, R, E>(ma: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, R, E, A> => {
+    return ma.flatMap((a) => (p(a) ? Z.succeedNow(a) : ma.repeatUntil(p)));
+  };
 }
 
 /**
@@ -499,13 +488,12 @@ export function succeedNow<A, W = never, S1 = unknown, S2 = never>(
 }
 
 /**
- * @tsplus fluent fncts.control.Z tap
+ * @tsplus pipeable fncts.control.Z tap
  */
-export function tap_<W, S1, S2, R, E, A, W1, S3, R1, E1, B>(
-  ma: Z<W, S1, S2, R, E, A>,
-  f: (a: A) => Z<W1, S2, S3, R1, E1, B>,
-): Z<W | W1, S1, S3, R1 & R, E1 | E, A> {
-  return ma.flatMap((a) => f(a).map(() => a));
+export function tap<S2, A, W1, S3, R1, E1, B>(f: (a: A) => Z<W1, S2, S3, R1, E1, B>) {
+  return <W, S1, R, E>(ma: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S3, R1 & R, E1 | E, A> => {
+    return ma.flatMap((a) => f(a).map(() => a));
+  };
 }
 
 /**
@@ -525,13 +513,12 @@ export function tellAll<W>(ws: Conc<W>): Z<W, unknown, never, never, never, void
 /**
  * Like `map`, but also allows the state to be modified.
  *
- * @tsplus fluent fncts.control.Z transform
+ * @tsplus pipeable fncts.control.Z transform
  */
-export function transform_<W, S1, S2, R, E, A, S3, B>(
-  ma: Z<W, S1, S2, R, E, A>,
-  f: (s: S2, a: A) => readonly [B, S3],
-): Z<W, S1, S3, R, E, B> {
-  return ma.flatMap((a) => Z.modify((s) => f(s, a)));
+export function transform<S2, A, S3, B>(f: (s: S2, a: A) => readonly [B, S3]) {
+  return <W, S1, R, E>(ma: Z<W, S1, S2, R, E, A>): Z<W, S1, S3, R, E, B> => {
+    return ma.flatMap((a) => Z.modify((s) => f(s, a)));
+  };
 }
 
 /**
@@ -549,59 +536,55 @@ export function update<S1, S2>(f: (s: S1) => S2): Z<never, S1, S2, never, never,
 }
 
 /**
- * @tsplus fluent fncts.control.Z write
+ * @tsplus pipeable fncts.control.Z write
  */
-export function write_<W, S1, S2, R, E, A, W1>(ma: Z<W, S1, S2, R, E, A>, w: W1): Z<W | W1, S1, S2, R, E, A> {
-  return ma.writeAll(Conc.single(w));
+export function write<W1>(w: W1) {
+  return <W, S1, S2, R, E, A>(ma: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S2, R, E, A> => {
+    return ma.writeAll(Conc.single(w));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z writeAll
+ * @tsplus pipeable fncts.control.Z writeAll
  */
-export function writeAll_<W, S1, S2, R, E, A, W1>(
-  ma: Z<W, S1, S2, R, E, A>,
-  log: Conc<W1>,
-): Z<W | W1, S1, S2, R, E, A> {
-  return ma.mapLog((ws) => ws.concat(log));
+export function writeAll<W1>(log: Conc<W1>) {
+  return <W, S1, S2, R, E, A>(ma: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S2, R, E, A> => {
+    return ma.mapLog((ws) => ws.concat(log));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z zip
+ * @tsplus pipeable fncts.control.Z zip
  */
-export function zip_<W, S1, S2, R, E, A, W1, S3, Q, D, B>(
-  fa: Z<W, S1, S2, R, E, A>,
-  fb: Z<W1, S2, S3, Q, D, B>,
-): Z<W | W1, S1, S3, Q & R, D | E, Zipped.Make<A, B>> {
-  return fa.zipWith(fb, (a, b) => Zipped(a, b));
+export function zip<S2, W1, S3, Q, D, B>(fb: Z<W1, S2, S3, Q, D, B>) {
+  return <W, S1, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S3, Q & R, D | E, Zipped.Make<A, B>> => {
+    return fa.zipWith(fb, (a, b) => Zipped(a, b));
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z zipFirst
+ * @tsplus pipeable fncts.control.Z zipFirst
  */
-export function zipFirst_<W, S1, S2, R, E, A, W1, S3, Q, D, B>(
-  fa: Z<W, S1, S2, R, E, A>,
-  fb: Z<W1, S2, S3, Q, D, B>,
-): Z<W | W1, S1, S3, Q & R, D | E, A> {
-  return fa.zipWith(fb, (a, _) => a);
+export function zipFirst<S2, W1, S3, Q, D, B>(fb: Z<W1, S2, S3, Q, D, B>) {
+  return <W, S1, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S3, Q & R, D | E, A> => {
+    return fa.zipWith(fb, (a, _) => a);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z zipSecond
+ * @tsplus pipeable fncts.control.Z zipSecond
  */
-export function zipSecond_<W, S1, S2, R, E, A, W1, S3, Q, D, B>(
-  fa: Z<W, S1, S2, R, E, A>,
-  fb: Z<W1, S2, S3, Q, D, B>,
-): Z<W | W1, S1, S3, Q & R, D | E, B> {
-  return fa.zipWith(fb, (_, b) => b);
+export function zipSecond<S2, W1, S3, Q, D, B>(fb: Z<W1, S2, S3, Q, D, B>) {
+  return <W, S1, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S3, Q & R, D | E, B> => {
+    return fa.zipWith(fb, (_, b) => b);
+  };
 }
 
 /**
- * @tsplus fluent fncts.control.Z zipWith
+ * @tsplus pipeable fncts.control.Z zipWith
  */
-export function zipWith_<W, S1, S2, R, E, A, W1, S3, R1, E1, B, C>(
-  fa: Z<W, S1, S2, R, E, A>,
-  fb: Z<W1, S2, S3, R1, E1, B>,
-  f: (a: A, b: B) => C,
-): Z<W | W1, S1, S3, R1 & R, E1 | E, C> {
-  return fa.flatMap((a) => fb.map((b) => f(a, b)));
+export function zipWith<S2, A, W1, S3, R1, E1, B, C>(fb: Z<W1, S2, S3, R1, E1, B>, f: (a: A, b: B) => C) {
+  return <W, S1, R, E>(fa: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S3, R1 & R, E1 | E, C> => {
+    return fa.flatMap((a) => fb.map((b) => f(a, b)));
+  };
 }

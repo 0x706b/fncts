@@ -47,20 +47,24 @@ export function string16(constraints: LengthConstraints = {}): Gen<Sized, string
 }
 
 /**
- * @tsplus fluent fncts.test.Gen string
+ * @tsplus pipeable fncts.test.Gen string
  */
-export function string<R>(char: Gen<R, string>, constraints: LengthConstraints = {}): Gen<R | Sized, string> {
-  const min = constraints.minLength || 0;
-  return constraints.maxLength
-    ? Gen.bounded(min, constraints.maxLength, (n) => char.stringN(n))
-    : Gen.small((n) => char.stringN(n), min);
+export function string(constraints: LengthConstraints = {}) {
+  return <R>(char: Gen<R, string>): Gen<R | Sized, string> => {
+    const min = constraints.minLength || 0;
+    return constraints.maxLength
+      ? Gen.bounded(min, constraints.maxLength, (n) => char.stringN(n))
+      : Gen.small((n) => char.stringN(n), min);
+  };
 }
 
 /**
- * @tsplus fluent fncts.test.Gen stringN
+ * @tsplus pipeable fncts.test.Gen stringN
  */
-export function stringN<R>(char: Gen<R, string>, n: number): Gen<R, string> {
-  return char.arrayN(n).map((arr) => arr.join(""));
+export function stringN(n: number) {
+  return <R>(char: Gen<R, string>): Gen<R, string> => {
+    return char.arrayN(n).map((arr) => arr.join(""));
+  };
 }
 
 /**

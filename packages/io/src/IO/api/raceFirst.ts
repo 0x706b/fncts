@@ -10,12 +10,10 @@
  * interrupt signal, allowing a fast return, with interruption performed
  * in the background.
  *
- * @tsplus fluent fncts.io.IO raceFirst
+ * @tsplus pipeable fncts.io.IO raceFirst
  */
-export function raceFirst_<R, E, A, R1, E1, A1>(
-  ma: IO<R, E, A>,
-  that: IO<R1, E1, A1>,
-  __tsplusTrace?: string,
-): IO<R | R1, E | E1, A | A1> {
-  return ma.result.race(that.result).flatMap((exit) => IO.fromExitNow<E | E1, A | A1>(exit));
+export function raceFirst<R1, E1, A1>(that: IO<R1, E1, A1>, __tsplusTrace?: string) {
+  return <R, E, A>(ma: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
+    return ma.result.race(that.result).flatMap((exit) => IO.fromExitNow<E | E1, A | A1>(exit));
+  };
 }

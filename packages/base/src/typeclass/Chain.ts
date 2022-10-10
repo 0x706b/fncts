@@ -1,9 +1,7 @@
-import { identity } from "@fncts/base/data/function";
+import { identity, pipe } from "@fncts/base/data/function";
 import { Functor } from "@fncts/base/typeclass/Functor";
-
 export interface FlatMap<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
   flatMap: <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
-    ma: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
     f: (
       a: A,
     ) => HKT.Kind<
@@ -19,6 +17,8 @@ export interface FlatMap<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
       HKT.Intro<F, "E", E1, E2>,
       B
     >,
+  ) => (
+    ma: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
   ) => HKT.Kind<
     F,
     FC,
@@ -33,16 +33,13 @@ export interface FlatMap<F extends HKT, FC = HKT.None> extends Functor<F, FC> {
     B
   >;
 }
-
 /**
  * @tsplus type fncts.FlatMapOps
  */
 export interface FlatMapOps {}
-
 export const FlatMap: FlatMapOps = {};
-
 /**
- * @tsplus fluent fncts.Kind flatten
+ * @tsplus pipeable fncts.Kind flatten
  */
 export function flatten<F extends HKT, FC = HKT.None>(
   F: FlatMap<F, FC>,
@@ -85,16 +82,14 @@ export function flatten<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E2, E1]>,
   A
 > {
-  return (mma) => F.flatMap(mma, identity);
+  return F.flatMap(identity);
 }
-
 /**
- * @tsplus fluent fncts.Kind tap
+ * @tsplus pipeable fncts.Kind tap
  */
 export function tap<F extends HKT, FC = HKT.None>(
   F: FlatMap<F, FC>,
 ): <K1, Q1, W1, X1, I1, S1, R1, E1, A, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
-  ma: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
   f: (
     a: A,
   ) => HKT.Kind<
@@ -110,6 +105,8 @@ export function tap<F extends HKT, FC = HKT.None>(
     HKT.Intro<F, "E", E1, E2>,
     B
   >,
+) => (
+  ma: HKT.Kind<F, FC, K1, Q1, W1, X1, I1, S1, R1, E1, A>,
 ) => HKT.Kind<
   F,
   FC,
@@ -123,5 +120,5 @@ export function tap<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E1, E2]>,
   A
 > {
-  return (ma, f) => F.flatMap(ma, (a) => Functor.as(F)(f(a), a));
+  return (f) => F.flatMap((a) => pipe(f(a), Functor.as(F)(a)));
 }

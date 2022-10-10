@@ -48,17 +48,21 @@ export function tail<A>(queue: Queue<A>): Maybe<Queue<A>> {
 }
 
 /**
- * @tsplus fluent fncts.ImmutableQueue prepend
+ * @tsplus pipeable fncts.ImmutableQueue prepend
  */
-export function prepend_<A, B>(queue: Queue<A>, elem: B): Queue<A | B> {
-  return new Queue(queue._in, queue._out.prepend(elem));
+export function prepend<B>(elem: B) {
+  return <A>(queue: Queue<A>): Queue<A | B> => {
+    return new Queue(queue._in, queue._out.prepend(elem));
+  };
 }
 
 /**
- * @tsplus fluent fncts.ImmutableQueue enqueue
+ * @tsplus pipeable fncts.ImmutableQueue enqueue
  */
-export function enqueue_<A, B>(queue: Queue<A>, elem: B): Queue<A | B> {
-  return new Queue(queue._in.prepend(elem), queue._out);
+export function enqueue<B>(elem: B) {
+  return <A>(queue: Queue<A>): Queue<A | B> => {
+    return new Queue(queue._in.prepend(elem), queue._out);
+  };
 }
 
 /**
@@ -86,57 +90,69 @@ export function dequeue<A>(queue: Queue<A>): Maybe<readonly [A, Queue<A>]> {
 }
 
 /**
- * @tsplus fluent fncts.ImmutableQueue map
+ * @tsplus pipeable fncts.ImmutableQueue map
  */
-export function map_<A, B>(fa: Queue<A>, f: (a: A) => B): Queue<B> {
-  return new Queue(fa._in.map(f), fa._out.map(f));
+export function map<A, B>(f: (a: A) => B) {
+  return (fa: Queue<A>): Queue<B> => {
+    return new Queue(fa._in.map(f), fa._out.map(f));
+  };
 }
 
 /**
- * @tsplus fluent fncts.ImmutableQueue foldLeft
+ * @tsplus pipeable fncts.ImmutableQueue foldLeft
  */
-export function foldLeft_<A, B>(fa: Queue<A>, b: B, f: (b: B, a: A) => B): B {
-  let acc   = b;
-  let these = fa;
-  while (!these.isEmpty) {
-    acc   = f(acc, these.unsafeHead);
-    these = these.unsafeTail;
-  }
-  return acc;
-}
-
-/**
- * @tsplus fluent fncts.ImmutableQueue exists
- */
-export function exists_<A>(queue: Queue<A>, p: Predicate<A>): boolean {
-  return queue._in.exists(p) || queue._out.exists(p);
-}
-
-/**
- * @tsplus fluent fncts.ImmutableQueue find
- */
-export function find_<A>(queue: Queue<A>, p: Predicate<A>): Maybe<A> {
-  let these = queue;
-  while (!these.isEmpty) {
-    const head = these.unsafeHead;
-    if (p(head)) {
-      return Just(head);
+export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
+  return (fa: Queue<A>): B => {
+    let acc   = b;
+    let these = fa;
+    while (!these.isEmpty) {
+      acc   = f(acc, these.unsafeHead);
+      these = these.unsafeTail;
     }
-    these = these.unsafeTail;
-  }
-  return Nothing();
+    return acc;
+  };
 }
 
 /**
- * @tsplus fluent fncts.ImmutableQueue filter
+ * @tsplus pipeable fncts.ImmutableQueue exists
  */
-export function filter_<A>(queue: Queue<A>, p: Predicate<A>): Queue<A> {
-  return new Queue(queue._in.filter(p), queue._out.filter(p));
+export function exists<A>(p: Predicate<A>) {
+  return (queue: Queue<A>): boolean => {
+    return queue._in.exists(p) || queue._out.exists(p);
+  };
 }
 
 /**
- * @tsplus fluent fncts.ImmutableQueue count
+ * @tsplus pipeable fncts.ImmutableQueue find
  */
-export function count_<A>(queue: Queue<A>, p: Predicate<A>): number {
-  return queue.foldLeft(0, (b, a) => (p(a) ? b + 1 : b));
+export function find<A>(p: Predicate<A>) {
+  return (queue: Queue<A>): Maybe<A> => {
+    let these = queue;
+    while (!these.isEmpty) {
+      const head = these.unsafeHead;
+      if (p(head)) {
+        return Just(head);
+      }
+      these = these.unsafeTail;
+    }
+    return Nothing();
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.ImmutableQueue filter
+ */
+export function filter<A>(p: Predicate<A>) {
+  return (queue: Queue<A>): Queue<A> => {
+    return new Queue(queue._in.filter(p), queue._out.filter(p));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.ImmutableQueue count
+ */
+export function count<A>(p: Predicate<A>) {
+  return (queue: Queue<A>): number => {
+    return queue.foldLeft(0, (b, a) => (p(a) ? b + 1 : b));
+  };
 }
