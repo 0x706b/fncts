@@ -1,5 +1,14 @@
 # @fncts/pattern
 
+## 0.0.10
+
+### Patch Changes
+
+- 02d4e7e: refactor: make everything pipeable
+- Updated dependencies [e6ee7a5]
+- Updated dependencies [02d4e7e]
+  - @fncts/base@0.0.21
+
 ## 0.0.9
 
 ### Patch Changes
