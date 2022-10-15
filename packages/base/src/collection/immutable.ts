@@ -1,5 +1,6 @@
 // codegen:start { preset: type-barrel, include: ./immutable/*.ts }
 export type {} from "./immutable/Conc.js";
+export type {} from "./immutable/Dictionary.js";
 export type {} from "./immutable/HashMap.js";
 export type {} from "./immutable/HashSet.js";
 export type {} from "./immutable/ImmutableArray.js";

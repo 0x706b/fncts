@@ -10,3 +10,7 @@ export class Encoder<in out A> {
   readonly _typeId: EncoderTypeId = EncoderTypeId;
   constructor(readonly encode: (inp: A) => unknown) {}
 }
+
+export interface EncoderF extends HKT {
+  readonly type: Encoder<this["A"]>;
+}

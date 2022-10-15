@@ -5,7 +5,7 @@ import { Const } from "./definition.js";
  */
 export function map<A, B>(_f: (a: A) => B) {
   return <E>(self: Const<E, A>): Const<E, B> => {
-    return new Const(self.getConst);
+    return self.unsafeCoerce();
   };
 }
 

@@ -168,6 +168,10 @@ import { Lazy } from "@fncts/base/data/function/definition";
 /**
  * @tsplus global
  */
+import { Guard } from "@fncts/base/data/Guard";
+/**
+ * @tsplus global
+ */
 import { Identity } from "@fncts/base/data/Identity/definition";
 /**
  * @tsplus global
@@ -238,10 +242,6 @@ import { Stack } from "@fncts/base/internal/Stack";
  * @tsplus global
  */
 import { Equatable } from "@fncts/base/typeclass/Equatable";
-/**
- * @tsplus global
- */
-import { Guard } from "@fncts/base/typeclass/Guard";
 /**
  * @tsplus global
  */

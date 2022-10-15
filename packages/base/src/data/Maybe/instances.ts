@@ -67,3 +67,24 @@ export function deriveDecoder<A extends Maybe<any>>(
     label,
   );
 }
+
+/**
+ * @tsplus derive fncts.Encoder[fncts.Maybe]<_> 10
+ */
+export function deriveEncoder<A extends Maybe<any>>(
+  ...[value]: [A] extends [Maybe<infer A>] ? [value: Encoder<A>] : never
+): Encoder<A> {
+  return Encoder((input) => {
+    Maybe.concrete(input);
+    if (input.isJust()) {
+      return {
+        _tag: "Just",
+        value: value.encode(input.value),
+      };
+    } else {
+      return {
+        _tag: "Nothing",
+      };
+    }
+  });
+}

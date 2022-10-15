@@ -71,6 +71,7 @@ export function isFiberId(u: unknown): u is FiberId {
 
 /**
  * @tsplus static fncts.FiberIdOps isNone
+ * @tsplus fluent fncts.FiberId isNone
  */
 export function isNone(fiberId: FiberId): fiberId is None {
   return fiberId._tag === "None";
@@ -78,6 +79,7 @@ export function isNone(fiberId: FiberId): fiberId is None {
 
 /**
  * @tsplus static fncts.FiberIdOps isRuntime
+ * @tsplus fluent fncts.FiberId isRuntime
  */
 export function isRuntime(fiberId: FiberId): fiberId is Runtime {
   return fiberId._tag === "Runtime";
@@ -85,6 +87,7 @@ export function isRuntime(fiberId: FiberId): fiberId is Runtime {
 
 /**
  * @tsplus static fncts.FiberIdOps isComposite
+ * @tsplus fluent fncts.FiberId isComposite
  */
 export function isComposite(fiberId: FiberId): fiberId is Composite {
   return fiberId._tag === "Composite";

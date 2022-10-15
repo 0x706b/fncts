@@ -27,7 +27,9 @@
       "@fncts/node/*": ["../node/src/*"],
       "@fncts/node": ["../node/src/index"],
       "@fncts/express/*": ["../express/src/*"],
-      "@fncts/express": ["../express/src/index"]
+      "@fncts/express": ["../express/src/index"],
+      "@fncts/schema/*": ["../schema/src/*"],
+      "@fncts/schema": ["../schema/src/index"]
     }
   },
   "exclude": ["node_modules", "build"],
