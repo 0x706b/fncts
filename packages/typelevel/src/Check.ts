@@ -93,4 +93,6 @@ export declare namespace Check {
    * @tsplus type fncts.Check.Or
    */
   type Or<A, B> = A extends never ? B : A;
+
+  type IsTuple<A> = A extends ReadonlyArray<any> ? (number extends A["length"] ? never : unknown) : never;
 }

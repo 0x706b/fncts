@@ -20,6 +20,7 @@ export const Ord: P.Ord<number> = P.Ord({
 
 /**
  * @tsplus static fncts.NumberOps Guard
+ * @tsplus static fncts.GuardOps number
  * @tsplus implicit
  */
 export const Guard: P.Guard<number> = P.Guard(isNumber);

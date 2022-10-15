@@ -17,7 +17,6 @@ export * from "./typeclass/Foldable.js";
 export * from "./typeclass/FoldableWithIndex.js";
 export * from "./typeclass/Functor.js";
 export * from "./typeclass/FunctorWithIndex.js";
-export * from "./typeclass/Guard.js";
 export * from "./typeclass/Has.js";
 export * from "./typeclass/Hash.js";
 export * from "./typeclass/Hashable.js";
@@ -37,3 +36,5 @@ export * from "./typeclass/TraversableWithIndex.js";
 export * from "./typeclass/Witherable.js";
 export * from "./typeclass/WitherableWithIndex.js";
 // codegen:end
+
+export { Guard } from "./data/Guard.js";

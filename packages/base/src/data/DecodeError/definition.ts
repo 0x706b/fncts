@@ -1,3 +1,5 @@
+import type { Literal } from "@fncts/typelevel/Any";
+
 import { show } from "@fncts/base/typeclass/Showable";
 
 export const DecodeErrorTypeId = Symbol.for("fncts.DecodeError");
@@ -140,7 +142,7 @@ export class PrimitiveError extends DecodeError {
   render = Eval(RoseTree(cannotDecode(this.actual, this.name)));
 }
 
-export class LiteralError<A extends string | number | boolean> extends DecodeError {
+export class LiteralError<A extends Literal> extends DecodeError {
   readonly _tag = "Literal";
   constructor(readonly actual: unknown, readonly literals: Vector<A>) {
     super();

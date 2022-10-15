@@ -1324,6 +1324,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@fncts/schema@workspace:packages/schema":
+  version: 0.0.0-use.local
+  resolution: "@fncts/schema@workspace:packages/schema"
+  dependencies:
+    "@fncts/base": "workspace:*"
+    "@fncts/config": "workspace:*"
+    "@fncts/eslint-config": "workspace:*"
+    "@fncts/scripts": "workspace:*"
+    "@fncts/typelevel": "workspace:*"
+    madge: "npm:^5.0.1"
+    typescript: "npm:^4.8.2"
+  languageName: unknown
+  linkType: soft
+
 "@fncts/scripts@workspace:*, @fncts/scripts@workspace:packages/scripts":
   version: 0.0.0-use.local
   resolution: "@fncts/scripts@workspace:packages/scripts"
