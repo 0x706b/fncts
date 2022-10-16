@@ -79,6 +79,10 @@ import { Observable, ObservableInput, Subscribable } from "@fncts/observable/Obs
 /**
  * @tsplus global
  */
+import { ObservableRef } from "@fncts/observable/ObservableRef/definition";
+/**
+ * @tsplus global
+ */
 import { Observer } from "@fncts/observable/Observer";
 /**
  * @tsplus global

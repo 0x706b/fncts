@@ -1,5 +1,5 @@
 import type { Brand, Validation } from "@fncts/base/data/Branded";
-import type { Schema, UnionSchema } from "@fncts/schema/Schema";
+import type { UnionSchema } from "@fncts/schema/Schema";
 import type { Literal } from "@fncts/typelevel/Any";
 
 export type SchemableKind<F extends HKT, A> = F extends { readonly type: unknown }
@@ -8,8 +8,6 @@ export type SchemableKind<F extends HKT, A> = F extends { readonly type: unknown
       readonly _F: F;
       readonly _A: A;
     };
-
-type TypeOf<K> = [K] extends [SchemableKind<any, infer A>] ? A : never;
 
 export interface Schemable<F extends HKT> {
   readonly unknown: SchemableKind<F, unknown>;
