@@ -95,7 +95,7 @@ export function mergeWith<
               decision.concrete();
               switch (decision._tag) {
                 case MergeDecisionTag.Done:
-                  return IO.succeedNow(Channel.fromIO(fiber.interrupt.apSecond(decision.io)));
+                  return IO.succeedNow(Channel.fromIO(fiber.interrupt.zipRight(decision.io)));
                 case MergeDecisionTag.Await:
                   return fiber.await.map((ex) =>
                     ex.match(
@@ -103,7 +103,7 @@ export function mergeWith<
                       (r) =>
                         r.match(
                           (done) => Channel.fromIO(decision.f(Exit.succeed(done))),
-                          (elem) => Channel.writeNow(elem).apSecond(go(single(decision.f))),
+                          (elem) => Channel.writeNow(elem).zipRight(go(single(decision.f))),
                         ),
                     ),
                   );
@@ -115,7 +115,7 @@ export function mergeWith<
                 r.match(
                   (d) => onDecision(done(Exit.succeed(d))),
                   (elem) =>
-                    pull.forkDaemon.map((leftFiber) => Channel.writeNow(elem).apSecond(go(both(leftFiber, fiber)))),
+                    pull.forkDaemon.map((leftFiber) => Channel.writeNow(elem).zipRight(go(both(leftFiber, fiber)))),
                 ),
             );
           };
@@ -160,7 +160,7 @@ export function mergeWith<
                     (r) =>
                       r.match(
                         (d) => Channel.fromIO(state.f(Exit.succeed(d))),
-                        (elem) => Channel.writeNow(elem).apSecond(go(MergeState.LeftDone(state.f))),
+                        (elem) => Channel.writeNow(elem).zipRight(go(MergeState.LeftDone(state.f))),
                       ),
                   ),
                 ),
@@ -173,7 +173,7 @@ export function mergeWith<
                     (r) =>
                       r.match(
                         (d) => Channel.fromIO(state.f(Exit.succeed(d))),
-                        (elem) => Channel.writeNow(elem).apSecond(go(MergeState.RightDone(state.f))),
+                        (elem) => Channel.writeNow(elem).zipRight(go(MergeState.RightDone(state.f))),
                       ),
                   ),
                 ),

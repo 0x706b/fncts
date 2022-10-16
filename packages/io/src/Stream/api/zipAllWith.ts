@@ -62,7 +62,7 @@ function pull<R, E, A, R1, E1, B, C, D, F>(
         (rightChunk) => IO.succeedNow(Exit.succeed(tuple(rightChunk.map(right), new DrainRight()))),
       );
     case "PullBoth":
-      return pullLeft.unjust.zipC(pullRight.unjust).matchIO(
+      return pullLeft.unjust.zipConcurrent(pullRight.unjust).matchIO(
         (err) => IO.succeedNow(Exit.fail(Just(err))),
         ([maybeLeftChunk, maybeRightChunk]) =>
           maybeLeftChunk.match(

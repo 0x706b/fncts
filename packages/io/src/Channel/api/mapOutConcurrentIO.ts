@@ -1,7 +1,10 @@
 /**
- * @tsplus pipeable fncts.io.Channel mapOutIOC
+ * @tsplus pipeable fncts.io.Channel mapOutConcurrentIO
  */
-export function mapOutIOC<OutElem, Env1, OutErr1, OutElem1>(n: number, f: (_: OutElem) => IO<Env1, OutErr1, OutElem1>) {
+export function mapOutConcurrentIO<OutElem, Env1, OutErr1, OutElem1>(
+  n: number,
+  f: (_: OutElem) => IO<Env1, OutErr1, OutElem1>,
+) {
   return <Env, InErr, InElem, InDone, OutErr, OutDone>(
     self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   ): Channel<Env | Env1, InErr, InElem, InDone, OutErr | OutErr1, OutElem1, OutDone> => {
@@ -26,7 +29,7 @@ export function mapOutIOC<OutElem, Env1, OutErr1, OutElem1>(n: number, f: (_: Ou
                   (outDone) =>
                     permits
                       .withPermits(n)(IO.unit)
-                      .interruptible.apSecond(queue.offer(IO.succeedNow(Either.left(outDone)))).asUnit,
+                      .interruptible.zipRight(queue.offer(IO.succeedNow(Either.left(outDone)))).asUnit,
                   (outElem) =>
                     Do((Δ) => {
                       const p     = Δ(Future.make<OutErr1, OutElem1>());
@@ -34,7 +37,7 @@ export function mapOutIOC<OutElem, Env1, OutErr1, OutElem1>(n: number, f: (_: Ou
                       Δ(queue.offer(p.await.map(Either.right)));
                       Δ(
                         permits.withPermit(
-                          latch.succeed(undefined).apSecond(
+                          latch.succeed(undefined).zipRight(
                             errorSignal.await
                               .raceFirst(f(outElem))
                               .tapErrorCause((c) => p.failCause(c))
@@ -53,7 +56,7 @@ export function mapOutIOC<OutElem, Env1, OutErr1, OutElem1>(n: number, f: (_: Ou
         const consumer: Channel<Env | Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem1, OutDone> =
           Channel.unwrap(
             queue.take.flatten.matchCause(Channel.failCauseNow, (r) =>
-              r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),
+              r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).zipRight(consumer)),
             ),
           );
         return consumer;

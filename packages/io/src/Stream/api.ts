@@ -89,7 +89,7 @@ export function aggregateAsyncWithinEither<R1, E1, A1, B, R2, C>(
     );
     return Stream.fromIO(deps).flatMap(([handoff, sinkEndReason, sinkLeftovers, scheduleDriver, consumed]) => {
       const handoffProducer: Channel<never, E | E1, Conc<A1>, unknown, never, never, any> = Channel.readWithCause(
-        (_in: Conc<A1>) => Channel.fromIO(handoff.offer(HandoffSignal.Emit(_in))).apSecond(handoffProducer),
+        (_in: Conc<A1>) => Channel.fromIO(handoff.offer(HandoffSignal.Emit(_in))).zipRight(handoffProducer),
         (cause: Cause<E | E1>) => Channel.fromIO(handoff.offer(HandoffSignal.Halt(cause))),
         (_: any) => Channel.fromIO(handoff.offer(HandoffSignal.End(new UpstreamEnd()))),
       );
@@ -196,9 +196,9 @@ export function aggregateAsyncWithinEither<R1, E1, A1, B, R2, C>(
  * but keeps only elements from this stream.
  * The `that` stream would be run multiple times, for every element in the `this` stream.
  *
- * @tsplus pipeable fncts.io.Stream apFirst
+ * @tsplus pipeable fncts.io.Stream zipLeft
  */
-export function apFirst<R1, E1, A1>(that: Stream<R1, E1, A1>, __tsplusTrace?: string) {
+export function zipLeft<R1, E1, A1>(that: Stream<R1, E1, A1>, __tsplusTrace?: string) {
   return <R, E, A>(stream: Stream<R, E, A>): Stream<R | R1, E | E1, A> => {
     return stream.crossWith(that, (a, _) => a);
   };
@@ -209,9 +209,9 @@ export function apFirst<R1, E1, A1>(that: Stream<R1, E1, A1>, __tsplusTrace?: st
  * but keeps only elements from the other stream.
  * The `that` stream would be run multiple times, for every element in the `this` stream.
  *
- * @tsplus pipeable fncts.io.Stream apSecond
+ * @tsplus pipeable fncts.io.Stream zipRight
  */
-export function apSecond<R1, E1, A1>(that: Stream<R1, E1, A1>, __tsplusTrace?: string) {
+export function zipRight<R1, E1, A1>(that: Stream<R1, E1, A1>, __tsplusTrace?: string) {
   return <R, E, A>(stream: Stream<R, E, A>): Stream<R | R1, E | E1, A1> => {
     return stream.crossWith(that, (_, b) => b);
   };
@@ -461,7 +461,7 @@ export function buffer(capacity: number, __tsplusTrace?: string) {
           ).flatMap((exit: Exit<Maybe<E>, A>) =>
             exit.match(
               (cause) => cause.flipCauseMaybe.match(() => Channel.endNow(undefined), Channel.failCauseNow),
-              (value) => Channel.writeNow(Conc.single(value)).apSecond(process),
+              (value) => Channel.writeNow(Conc.single(value)).zipRight(process),
             ),
           );
           return process;
@@ -484,7 +484,7 @@ export function bufferChunks(capacity: number, __tsplusTrace?: string) {
             queue.take,
           ).flatMap((take: Take<E, A>) =>
             take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
-              Channel.writeNow(value).apSecond(process),
+              Channel.writeNow(value).zipRight(process),
             ),
           );
           return process;
@@ -508,7 +508,7 @@ export function bufferUnbounded<R, E, A>(stream: Stream<R, E, A>, __tsplusTrace?
         const process: Channel<never, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
           (take) =>
             take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
-              Channel.writeNow(value).apSecond(process),
+              Channel.writeNow(value).zipRight(process),
             ),
         );
         return process;
@@ -553,9 +553,9 @@ function bufferSignalConsumer<R, E, A>(
 ): Channel<R, unknown, unknown, unknown, E, Conc<A>, void> {
   const process: Channel<never, unknown, unknown, unknown, E, Conc<A>, void> = Channel.fromIO(queue.take).flatMap(
     ([take, promise]) =>
-      Channel.fromIO(promise.succeed(undefined)).apSecond(
+      Channel.fromIO(promise.succeed(undefined)).zipRight(
         take.match(Channel.endNow(undefined), Channel.failCauseNow, (value) =>
-          Channel.writeNow(value).apSecond(process),
+          Channel.writeNow(value).zipRight(process),
         ),
       ),
   );
@@ -672,7 +672,7 @@ function changesWithWriter<R, E, A>(
           (o) => (f(o, o1) ? [Just(o1), os] : [Just(o1), os.append(o1)]),
         ),
       );
-      return Channel.writeNow(newChunk).apSecond(changesWithWriter(f, newLast));
+      return Channel.writeNow(newChunk).zipRight(changesWithWriter(f, newLast));
     },
     Channel.failCauseNow,
     () => Channel.unit,
@@ -703,7 +703,7 @@ export function collectWhile<A, A1>(pf: (a: A) => Maybe<A1>, __tsplusTrace?: str
       (inp) => {
         const mapped = inp.collectWhile(pf);
         if (mapped.length === inp.length) {
-          return Channel.writeNow(mapped).apSecond(loop);
+          return Channel.writeNow(mapped).zipRight(loop);
         } else {
           return Channel.writeNow(mapped);
         }
@@ -753,11 +753,11 @@ function combineProducer<Err, Elem>(
   latch: Handoff<void>,
   __tsplusTrace?: string,
 ): Channel<never, Err, Elem, unknown, never, never, any> {
-  return Channel.fromIO(latch.take).apSecond(
+  return Channel.fromIO(latch.take).zipRight(
     Channel.readWithCause(
-      (value) => Channel.fromIO(handoff.offer(Exit.succeed(value))).apSecond(combineProducer(handoff, latch)),
+      (value) => Channel.fromIO(handoff.offer(Exit.succeed(value))).zipRight(combineProducer(handoff, latch)),
       (cause) => Channel.fromIO(handoff.offer(Exit.failCause(cause.map(Maybe.just)))),
-      () => Channel.fromIO(handoff.offer(Exit.fail(Nothing()))).apSecond(combineProducer(handoff, latch)),
+      () => Channel.fromIO(handoff.offer(Exit.fail(Nothing()))).zipRight(combineProducer(handoff, latch)),
     ),
   );
 }
@@ -794,8 +794,8 @@ export function combine<R, E, A, R1, E1, A1, S, R2, A2>(
           Δ(that.channel.concatMap(Channel.writeChunk).pipeTo(combineProducer(right, latchR)).runScoped.fork);
           return tuple(left, right, latchL, latchR);
         }).map(([left, right, latchL, latchR]) => {
-          const pullLeft  = latchL.offer(undefined).apSecond(left.take).flatMap(IO.fromExitNow);
-          const pullRight = latchR.offer(undefined).apSecond(right.take).flatMap(IO.fromExitNow);
+          const pullLeft  = latchL.offer(undefined).zipRight(left.take).flatMap(IO.fromExitNow);
+          const pullRight = latchR.offer(undefined).zipRight(right.take).flatMap(IO.fromExitNow);
           return Stream.unfoldIO(s, (s) => f(s, pullLeft, pullRight).flatMap((exit) => IO.fromExitNow(exit).optional))
             .channel;
         }),
@@ -809,11 +809,11 @@ function combineChunksProducer<Err, Elem>(
   latch: Handoff<void>,
   __tsplusTrace?: string,
 ): Channel<never, Err, Conc<Elem>, unknown, never, never, any> {
-  return Channel.fromIO(latch.take).apSecond(
+  return Channel.fromIO(latch.take).zipRight(
     Channel.readWithCause(
-      (chunk) => Channel.fromIO(handoff.offer(Take.chunk(chunk))).apSecond(combineChunksProducer(handoff, latch)),
+      (chunk) => Channel.fromIO(handoff.offer(Take.chunk(chunk))).zipRight(combineChunksProducer(handoff, latch)),
       (cause) => Channel.fromIO(handoff.offer(Take.failCause(cause))),
-      () => Channel.fromIO(handoff.offer(Take.end)).apSecond(combineChunksProducer(handoff, latch)),
+      () => Channel.fromIO(handoff.offer(Take.end)).zipRight(combineChunksProducer(handoff, latch)),
     ),
   );
 }
@@ -850,11 +850,11 @@ export function combineChunks<R, E, A, R1, E1, A1, S, R2, A2>(
         }).map(([left, right, latchL, latchR]) => {
           const pullLeft = latchL
             .offer(undefined)
-            .apSecond(left.take)
+            .zipRight(left.take)
             .flatMap((take) => take.done);
           const pullRight = latchR
             .offer(undefined)
-            .apSecond(right.take)
+            .zipRight(right.take)
             .flatMap((take) => take.done);
           return Stream.unfoldChunkIO(s, (s) => f(s, pullLeft, pullRight).flatMap((exit) => IO.fromExit(exit).optional))
             .channel;
@@ -872,7 +872,7 @@ export function combineChunks<R, E, A, R1, E1, A1, S, R2, A2>(
  */
 export function concat<R1, E1, A1>(that: Stream<R1, E1, A1>, __tsplusTrace?: string) {
   return <R, E, A>(stream: Stream<R, E, A>): Stream<R | R1, E | E1, A | A1> => {
-    return new Stream<R | R1, E | E1, A | A1>(stream.channel.apSecond(that.channel));
+    return new Stream<R | R1, E | E1, A | A1>(stream.channel.zipRight(that.channel));
   };
 }
 
@@ -931,7 +931,7 @@ export function debounce(duration: Lazy<Duration>, __tsplusTrace?: string) {
             (inp: Conc<A>) =>
               inp.last.match(
                 () => producer,
-                (last) => Channel.fromIO(handoff.offer(HandoffSignal.Emit(Conc.single(last)))).apSecond(producer),
+                (last) => Channel.fromIO(handoff.offer(HandoffSignal.Emit(Conc.single(last)))).zipRight(producer),
               ),
             (cause: Cause<E>) => Channel.fromIO(handoff.offer(HandoffSignal.Halt(cause))),
             () => Channel.fromIO(handoff.offer(HandoffSignal.End(new UpstreamEnd()))),
@@ -965,23 +965,23 @@ export function debounce(duration: Lazy<Duration>, __tsplusTrace?: string) {
                       ex.match(
                         (cause) => current.interrupt.as(Channel.failCauseNow(cause)),
                         (chunk) =>
-                          IO.succeedNow(Channel.writeNow(chunk).apSecond(consumer(DebounceState.Current(current)))),
+                          IO.succeedNow(Channel.writeNow(chunk).zipRight(consumer(DebounceState.Current(current)))),
                       ),
                     (ex, previous) =>
                       ex.match(
                         (cause) => previous.interrupt.as(Channel.failCauseNow(cause)),
                         (signal) =>
                           signal.match({
-                            Emit: ({ els }) => previous.interrupt.apSecond(enqueue(els)),
+                            Emit: ({ els }) => previous.interrupt.zipRight(enqueue(els)),
                             Halt: ({ error }) => previous.interrupt.as(Channel.failCauseNow(error)),
-                            End: () => previous.join.map((chunk) => Channel.writeNow(chunk).apSecond(Channel.unit)),
+                            End: () => previous.join.map((chunk) => Channel.writeNow(chunk).zipRight(Channel.unit)),
                           }),
                       ),
                   ),
               }),
             );
           }
-          return Stream.scoped(stream.channel.pipeTo(producer).runScoped.fork).apSecond(
+          return Stream.scoped(stream.channel.pipeTo(producer).runScoped.fork).zipRight(
             new Stream(consumer(DebounceState.NotStarted)),
           );
         }),
@@ -996,7 +996,7 @@ function defaultIfEmptyWriter<R, E, A, R1, E1, B>(
 ): Channel<R | R1, E, Conc<A>, unknown, E | E1, Conc<A | B>, unknown> {
   return Channel.readWith(
     (i: Conc<A>) =>
-      i.isEmpty ? defaultIfEmptyWriter(fb) : Channel.writeNow(i).apSecond(Channel.id<E, Conc<A>, unknown>()),
+      i.isEmpty ? defaultIfEmptyWriter(fb) : Channel.writeNow(i).zipRight(Channel.id<E, Conc<A>, unknown>()),
     Channel.failNow,
     () => fb.channel,
   );
@@ -1158,7 +1158,7 @@ function dropLoop<R, E, A>(r: number, __tsplusTrace?: string): Channel<R, E, Con
       const dropped  = inp.drop(r);
       const leftover = Math.max(0, r - inp.length);
       const more     = inp.isEmpty || leftover > 0;
-      return more ? dropLoop(leftover) : Channel.write(dropped).apSecond(Channel.id());
+      return more ? dropLoop(leftover) : Channel.write(dropped).zipRight(Channel.id());
     },
     Channel.failNow,
     () => Channel.unit,
@@ -1227,7 +1227,7 @@ function endWhenWriter<E, A, E1>(
       maybeExit.match(
         () =>
           Channel.readWith(
-            (inp: Conc<A>) => Channel.writeNow(inp).apSecond(endWhenWriter<E, A, E1>(fiber)),
+            (inp: Conc<A>) => Channel.writeNow(inp).zipRight(endWhenWriter<E, A, E1>(fiber)),
             Channel.failNow,
             () => Channel.unit,
           ),
@@ -1507,7 +1507,7 @@ export function flattenExitOption<R, E, E1, A>(
           () => Channel.endNow<void>(undefined),
         ),
     );
-    return Channel.writeNow(toEmit.filterMap((exit) => exit.match(() => Nothing(), Maybe.just))).apSecond(next);
+    return Channel.writeNow(toEmit.filterMap((exit) => exit.match(() => Nothing(), Maybe.just))).zipRight(next);
   };
   const process: Channel<R, E, Conc<Exit<Maybe<E1>, A>>, unknown, E | E1, Conc<A>, any> = Channel.readWithCause(
     (chunk) => processChunk(chunk, process),
@@ -1611,7 +1611,7 @@ function fromAsyncIterableLoop<A>(
         .then((result) =>
           result.done
             ? k(IO.succeedNow(Channel.end(undefined)))
-            : k(IO.succeedNow(Channel.writeNow(Conc.single(result.value)).apSecond(fromAsyncIterableLoop(iterator)))),
+            : k(IO.succeedNow(Channel.writeNow(Conc.single(result.value)).zipRight(fromAsyncIterableLoop(iterator)))),
         );
     }),
   );
@@ -1642,7 +1642,7 @@ export function fromIterable<A>(
               return Channel.unit;
             }
             if (maxChunkSize === 1) {
-              return Channel.writeNow(Conc.single(result.value)).apSecond(loop(iterator));
+              return Channel.writeNow(Conc.single(result.value)).zipRight(loop(iterator));
             } else {
               const out = Array<A>(maxChunkSize);
               out[0]    = result.value;
@@ -1651,7 +1651,7 @@ export function fromIterable<A>(
                 out[count] = result.value;
                 count++;
               }
-              return Channel.writeNow(Conc.from(out)).apSecond(loop(iterator));
+              return Channel.writeNow(Conc.from(out)).zipRight(loop(iterator));
             }
           }),
         );
@@ -1778,7 +1778,7 @@ function haltWhenWriter<E, A, E1>(
       maybeExit.match(
         () =>
           Channel.readWith(
-            (i: Conc<A>) => Channel.writeNow(i).apSecond(haltWhenWriter<E, A, E1>(fiber)),
+            (i: Conc<A>) => Channel.writeNow(i).zipRight(haltWhenWriter<E, A, E1>(fiber)),
             Channel.failNow,
             () => Channel.unit,
           ),
@@ -1815,7 +1815,7 @@ function haltWhenFutureWriter<R, E, A, E1>(
       maybeIO.match(
         () =>
           Channel.readWith(
-            (i: Conc<A>) => Channel.writeNow(i).apSecond(haltWhenFutureWriter<R, E, A, E1>(future)),
+            (i: Conc<A>) => Channel.writeNow(i).zipRight(haltWhenFutureWriter<R, E, A, E1>(future)),
             Channel.failNow,
             () => Channel.unit,
           ),
@@ -1852,7 +1852,7 @@ function interleaveWithProducer<E, A>(
   __tsplusTrace?: string,
 ): Channel<never, E, A, unknown, never, never, void> {
   return Channel.readWithCause(
-    (value: A) => Channel.fromIO(handoff.offer(Take.single(value))).apSecond(interleaveWithProducer(handoff)),
+    (value: A) => Channel.fromIO(handoff.offer(Take.single(value))).zipRight(interleaveWithProducer(handoff)),
     (cause) => Channel.fromIO(handoff.offer(Take.failCause(cause))),
     () => Channel.fromIO(handoff.offer(Take.end)),
   );
@@ -1892,14 +1892,14 @@ export function interleaveWith<R1, E1, B, R2, E2>(
                 if (b && !leftDone) {
                   return Channel.fromIO(left.take).flatMap((take) =>
                     take.match(rightDone ? Channel.unit : process(true, rightDone), Channel.failCauseNow, (chunk) =>
-                      Channel.writeNow(chunk).apSecond(process(leftDone, rightDone)),
+                      Channel.writeNow(chunk).zipRight(process(leftDone, rightDone)),
                     ),
                   );
                 }
                 if (!b && !rightDone) {
                   return Channel.fromIO(right.take).flatMap((take) =>
                     take.match(leftDone ? Channel.unit : process(leftDone, true), Channel.failCauseNow, (chunk) =>
-                      Channel.writeNow(chunk).apSecond(process(leftDone, rightDone)),
+                      Channel.writeNow(chunk).zipRight(process(leftDone, rightDone)),
                     ),
                   );
                 }
@@ -1933,7 +1933,7 @@ function intersperseWriter<R, E, A, A1>(
           builder.append(a);
         }
       });
-      return Channel.writeNow(builder.result()).apSecond(intersperseWriter(middle, flagResult));
+      return Channel.writeNow(builder.result()).zipRight(intersperseWriter(middle, flagResult));
     },
     Channel.failNow,
     () => Channel.unit,
@@ -1995,7 +1995,7 @@ function mapAccumAccumulator<S, E = never, A = never, B = never>(
   return Channel.readWith(
     (inp: Conc<A>) => {
       const [nextS, bs] = inp.mapAccum(currS, f);
-      return Channel.writeNow(bs).apSecond(mapAccumAccumulator(nextS, f));
+      return Channel.writeNow(bs).zipRight(mapAccumAccumulator(nextS, f));
     },
     Channel.failNow,
     () => Channel.unit,
@@ -2031,10 +2031,10 @@ function mapAccumIOAccumulator<R, E, A, R1, E1, S, B>(
             (e) => {
               const partialResult = outputChunk.result();
               return partialResult.isNonEmpty
-                ? Channel.writeNow(partialResult).apSecond(Channel.failNow(e))
+                ? Channel.writeNow(partialResult).zipRight(Channel.failNow(e))
                 : Channel.failNow(e);
             },
-            (s) => Channel.writeNow(outputChunk.result()).apSecond(mapAccumIOAccumulator<R, E, A, R1, E1, S, B>(s, f)),
+            (s) => Channel.writeNow(outputChunk.result()).zipRight(mapAccumIOAccumulator<R, E, A, R1, E1, S, B>(s, f)),
           );
         }),
       ),
@@ -2192,7 +2192,7 @@ function mapIOLoop<R, E, A, R1, E1, B>(
  */
 export function mapIOC<A, R1, E1, B>(n: number, f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E>(stream: Stream<R, E, A>): Stream<R | R1, E | E1, B> => {
-    return new Stream(stream.channel.concatMap(Channel.writeChunk).mapOutIOC(n, f).mapOut(Conc.single));
+    return new Stream(stream.channel.concatMap(Channel.writeChunk).mapOutConcurrentIO(n, f).mapOut(Conc.single));
   };
 }
 
@@ -2284,7 +2284,7 @@ export function mergeWith<A, R1, E1, A1, B, C>(
  */
 export function onError<E, R1>(cleanup: (e: Cause<E>) => IO<R1, never, any>, __tsplusTrace?: string) {
   return <R, A>(stream: Stream<R, E, A>): Stream<R | R1, E, A> => {
-    return stream.catchAllCause((cause) => fromIO(cleanup(cause).apSecond(IO.failCauseNow(cause))));
+    return stream.catchAllCause((cause) => fromIO(cleanup(cause).zipRight(IO.failCauseNow(cause))));
   };
 }
 
@@ -2431,7 +2431,7 @@ function rechunkProcess<E, In>(
   return Channel.readWithCause(
     (chunk: Conc<In>) => {
       if (chunk.length === target && rechunker.isEmpty) {
-        return Channel.writeNow(chunk).apSecond(rechunkProcess<E, In>(rechunker, target));
+        return Channel.writeNow(chunk).zipRight(rechunkProcess<E, In>(rechunker, target));
       } else if (chunk.length > 0) {
         const chunks: Array<Conc<In>> = [];
         let result: Conc<In> | null   = null;
@@ -2446,12 +2446,12 @@ function rechunkProcess<E, In>(
             result = null;
           }
         }
-        return Channel.writeAll(chunks).apSecond(rechunkProcess<E, In>(rechunker, target));
+        return Channel.writeAll(chunks).zipRight(rechunkProcess<E, In>(rechunker, target));
       } else {
         return rechunkProcess<E, In>(rechunker, target);
       }
     },
-    (cause) => rechunker.emitOfNotEmpty().apSecond(Channel.failCauseNow(cause)),
+    (cause) => rechunker.emitOfNotEmpty().zipRight(Channel.failCauseNow(cause)),
     () => rechunker.emitOfNotEmpty(),
   );
 }
@@ -2569,9 +2569,9 @@ export function runIntoElementsScoped<E, A, E1>(queue: Queue<Exit<Maybe<E | E1>,
         inp
           .foldLeft(
             Channel.unit as Channel<never, unknown, unknown, unknown, never, Exit<Maybe<E | E1>, A>, unknown>,
-            (channel, a) => channel.apSecond(Channel.writeNow(Exit.succeed(a))),
+            (channel, a) => channel.zipRight(Channel.writeNow(Exit.succeed(a))),
           )
-          .apSecond(writer),
+          .zipRight(writer),
       (err) => Channel.writeNow(Exit.fail(Just(err))),
       () => Channel.writeNow(Exit.fail(Nothing())),
     );
@@ -2588,7 +2588,7 @@ export function runIntoElementsScoped<E, A, E1>(queue: Queue<Exit<Maybe<E | E1>,
 export function runIntoQueueScoped<E1, A>(queue: Enqueue<Take<E1, A>>, __tsplusTrace?: string) {
   return <R, E extends E1>(stream: Stream<R, E, A>): IO<R | Scope, E | E1, void> => {
     const writer: Channel<R, E, Conc<A>, unknown, E, Take<E | E1, A>, any> = Channel.readWithCause(
-      (inp) => Channel.writeNow(Take.chunk(inp)).apSecond(writer),
+      (inp) => Channel.writeNow(Take.chunk(inp)).zipRight(writer),
       (cause) => Channel.writeNow(Take.failCause(cause)),
       (_) => Channel.writeNow(Take.end),
     );
@@ -2696,7 +2696,7 @@ function takeLoop<E, A>(n: number, __tsplusTrace?: string): Channel<never, E, Co
       const taken = inp.take(n);
       const left  = Math.max(n - taken.length, 0);
       if (left > 0) {
-        return Channel.writeNow(taken).apSecond(takeLoop(left));
+        return Channel.writeNow(taken).zipRight(takeLoop(left));
       } else {
         return Channel.writeNow(taken);
       }
@@ -2764,7 +2764,7 @@ function takeUntilLoop<R, E, A>(
       const taken = chunk.takeWhile(p.invert);
       const last  = chunk.drop(taken.length).take(1);
       if (last.isEmpty) {
-        return Channel.writeNow(taken).apSecond(takeUntilLoop<R, E, A>(p));
+        return Channel.writeNow(taken).zipRight(takeUntilLoop<R, E, A>(p));
       } else {
         return Channel.writeNow(taken.concat(last));
       }
@@ -2836,7 +2836,7 @@ function throttleEnforceIOLoop<E, A, R1, E1>(
             return sum < 0 ? max : Math.min(sum, max);
           })();
           return weight <= available
-            ? Channel.writeNow(inp).apSecond(
+            ? Channel.writeNow(inp).zipRight(
                 throttleEnforceIOLoop<E, A, R1, E1>(costFn, units, duration, burst, available - weight, current),
               )
             : throttleEnforceIOLoop<E, A, R1, E1>(costFn, units, duration, burst, available - weight, current);

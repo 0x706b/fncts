@@ -83,9 +83,9 @@ export function ap<F extends HKT, FC = HKT.None>(
   return (fa) => F.zipWith(fa, (f, a) => f(a));
 }
 /**
- * @tsplus static fncts.ApplyOps apFirst
+ * @tsplus static fncts.ApplyOps zipLeft
  */
-export function apFirst<F extends HKT, FC = HKT.None>(
+export function zipLeft<F extends HKT, FC = HKT.None>(
   F: Apply<F, FC>,
 ): <K1, Q1, W1, X1, I1, S1, R1, E1, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
   fb: HKT.Kind<
@@ -118,10 +118,11 @@ export function apFirst<F extends HKT, FC = HKT.None>(
 > {
   return (fb) => F.zipWith(fb, (a, _) => a);
 }
+
 /**
- * @tsplus static fncts.ApplyOps apSecond
+ * @tsplus static fncts.ApplyOps zipRight
  */
-export function apSecond<F extends HKT, FC = HKT.None>(
+export function zipRight<F extends HKT, FC = HKT.None>(
   F: Apply<F, FC>,
 ): <K1, Q1, W1, X1, I1, S1, R1, E1, K2, Q2, W2, X2, I2, S2, R2, E2, B>(
   fb: HKT.Kind<

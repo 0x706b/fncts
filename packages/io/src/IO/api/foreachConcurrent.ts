@@ -13,10 +13,10 @@ import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
  *
  * Additionally, interrupts all effects on any failure.
  *
- * @tsplus static fncts.io.IOOps foreachDiscardC
- * @tsplus fluent fncts.Iterable traverseIODiscardC
+ * @tsplus static fncts.io.IOOps foreachConcurrentDiscard
+ * @tsplus fluent fncts.Iterable traverseIOConcurrentDiscard
  */
-export function foreachDiscardC<R, E, A>(
+export function foreachConcurrentDiscard<R, E, A>(
   as: Iterable<A>,
   f: (a: A) => IO<R, E, any>,
   __tsplusTrace?: string,
@@ -35,10 +35,10 @@ export function foreachDiscardC<R, E, A>(
  *
  * For a sequential version of this method, see `IO.foreach`.
  *
- * @tsplus static fncts.io.IOOps foreachC
- * @tsplus fluent fncts.Iterable traverseIOC
+ * @tsplus static fncts.io.IOOps foreachConcurrent
+ * @tsplus fluent fncts.Iterable traverseIOConcurrent
  */
-export function foreachC<R, E, A, B>(
+export function foreachConcurrent<R, E, A, B>(
   as: Iterable<A>,
   f: (a: A) => IO<R, E, B>,
   __tsplusTrace?: string,
@@ -71,7 +71,7 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
           (a) =>
             graft(
               restore(IO.defer(f(a))).matchCauseIO(
-                (cause) => future.fail(undefined).apSecond(IO.failCauseNow(cause)),
+                (cause) => future.fail(undefined).zipRight(IO.failCauseNow(cause)),
                 () => {
                   if (ref.incrementAndGet() === size) {
                     future.unsafeDone(IO.unit);
@@ -85,7 +85,7 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
         restore(future.await).matchCauseIO(
           (cause) =>
             foreachConcurrentUnbounded(fibers, (f) => f.interrupt).flatMap((exits) =>
-              Exit.collectAllC(exits).match(
+              Exit.collectAllConcurrent(exits).match(
                 () => IO.failCauseNow(cause.stripFailures),
                 (exit) =>
                   exit.isFailure()

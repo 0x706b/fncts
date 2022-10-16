@@ -75,7 +75,7 @@ export class Hub<A> implements Enqueue<A> {
     this.shutdownFlag.set(true);
     return this.scope
       .close(Exit.interrupt(fiberId))
-      .apSecond(this.strategy.shutdown)
+      .zipRight(this.strategy.shutdown)
       .whenIO(this.shutdownHook.succeed(undefined));
   }).uninterruptible;
 

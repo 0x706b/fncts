@@ -135,9 +135,9 @@ export function cross<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with the terminal value of this channel.
  *
- * @tsplus pipeable fncts.io.Channel apFirst
+ * @tsplus pipeable fncts.io.Channel zipLeft
  */
-export function apFirst<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
+export function zipLeft<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ) {
   return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
@@ -159,10 +159,10 @@ export function apFirst<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDo
  * Returns a new channel that is the sequential composition of this channel and the specified
  * channel. The returned channel terminates with the terminal value of the other channel.
  *
- * @tsplus pipeable fncts.io.Channel apSecond
+ * @tsplus pipeable fncts.io.Channel zipRight
  * @tsplus pipeable-operator fncts.io.Channel >
  */
-export function apSecond<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
+export function zipRight<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ) {
   return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(

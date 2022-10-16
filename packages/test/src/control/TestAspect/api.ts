@@ -35,7 +35,7 @@ export function after<R, E, A>(effect: IO<R, E, A>): TestAspect<R, E> {
   return perTest<R, E>((test) =>
     test.result
       .zipWith(effect.catchAllCause((cause) => IO.fail(new RuntimeFailure(cause))).result, (ex0, ex1) =>
-        ex0.apFirst(ex1),
+        ex0.zipLeft(ex1),
       )
       .flatMap(IO.fromExitNow),
   );
@@ -60,7 +60,7 @@ export function aroundAll<R, E, A, R1>(
 }
 
 export function before<R0>(effect: IO<R0, never, any>): TestAspect<R0, never> {
-  return perTest<R0, never>((test) => effect.apSecond(test));
+  return perTest<R0, never>((test) => effect.zipRight(test));
 }
 
 export function beforeAll<R0, E0>(effect: IO<R0, E0, any>): TestAspect<R0, E0> {

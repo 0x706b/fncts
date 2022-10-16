@@ -32,14 +32,14 @@ class IOSpec extends DefaultRunnableSpec {
       "foreachC",
       testIO("returns results in the same order", () => {
         const list = List("1", "2", "3");
-        const res  = IO.foreachC(list, (x) => IO.succeed(parseInt(x)));
+        const res  = IO.foreachConcurrent(list, (x) => IO.succeed(parseInt(x)));
         return res.assert(strictEqualTo(Conc(1, 2, 3)));
       }),
       testIO(
         "runs effects in parallel",
         Do((Δ) => {
           const f     = Δ(Future.make<never, void>());
-          const fiber = Δ(IO.foreachC([IO.never, f.succeed(undefined)], Function.identity).fork);
+          const fiber = Δ(IO.foreachConcurrent([IO.never, f.succeed(undefined)], Function.identity).fork);
           Δ(f.await);
           Δ(fiber.interrupt);
           return true;
@@ -47,7 +47,7 @@ class IOSpec extends DefaultRunnableSpec {
       ),
       testIO("propagates error", () => {
         const ints = List(1, 2, 3, 4, 5, 6);
-        const odds = IO.foreachC(ints, (n) => (n % 2 !== 0 ? IO.succeed(n) : IO.fail("not odd")));
+        const odds = IO.foreachConcurrent(ints, (n) => (n % 2 !== 0 ? IO.succeed(n) : IO.fail("not odd")));
         return odds.swap.assert(strictEqualTo("not odd"));
       }),
       testIO(
@@ -61,7 +61,7 @@ class IOSpec extends DefaultRunnableSpec {
             IO.fail("C"),
             future.await > ref.set(true),
           );
-          const e = Δ(IO.foreachC(actions, Function.identity).swap);
+          const e = Δ(IO.foreachConcurrent(actions, Function.identity).swap);
           const v = Δ(ref.get);
           return e.assert(strictEqualTo("C")) && v.assert(isFalse);
         }),
@@ -70,7 +70,7 @@ class IOSpec extends DefaultRunnableSpec {
         "does not kill fiber when forked on the parent scope",
         Do((Δ) => {
           const ref    = Δ(Ref.make(0));
-          const fibers = Δ(IO.foreachC(Iterable.range(1, 100), () => ref.update((n) => n + 1).fork));
+          const fibers = Δ(IO.foreachConcurrent(Iterable.range(1, 100), () => ref.update((n) => n + 1).fork));
           Δ(IO.foreach(fibers, (f) => f.await));
           const value = Δ(ref.get);
           return value.assert(strictEqualTo(100));
@@ -534,7 +534,7 @@ class IOSpec extends DefaultRunnableSpec {
       ),
     ),
     suite(
-      "zipC",
+      "zipConcurrent",
       testIO(
         "is interruptible",
         Do((Δ) => {
@@ -542,7 +542,7 @@ class IOSpec extends DefaultRunnableSpec {
           const future2 = Δ(Future.make<never, void>());
           const left    = future1.succeed(undefined) > IO.never;
           const right   = future2.succeed(undefined) > IO.never;
-          const fiber   = Δ(left.zipC(right).fork);
+          const fiber   = Δ(left.zipConcurrent(right).fork);
           Δ(future1.await);
           Δ(future2.await);
           Δ(fiber.interrupt);

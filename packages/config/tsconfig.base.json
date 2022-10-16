@@ -16,6 +16,7 @@
     "moduleResolution": "node",
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/src/*"],
+      "@fncts/typelevel": ["../typelevel/src/index"],
       "@fncts/base/*": ["../base/src/*"],
       "@fncts/base": ["../base/src/index"],
       "@fncts/test/*": ["../test/src/*"],

@@ -111,7 +111,7 @@ export function onInterrupt_<R1>(
     return uninterruptibleMask(({ restore }) =>
       restore(ma).matchCauseIO(
         (cause) =>
-          cause.interrupted ? cleanup(cause.interruptors).apSecond(IO.failCauseNow(cause)) : IO.failCauseNow(cause),
+          cause.interrupted ? cleanup(cause.interruptors).zipRight(IO.failCauseNow(cause)) : IO.failCauseNow(cause),
         IO.succeedNow,
       ),
     );

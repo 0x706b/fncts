@@ -153,7 +153,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
               return tuple(
                 state.notifyProducer
                   .succeed(undefined)
-                  .apSecond(p.await.matchCause(onError, (de) => de.match(onDone, onElement))),
+                  .zipRight(p.await.matchCause(onError, (de) => de.match(onDone, onElement))),
                 new StateEmit(Queue.single(p)),
               );
             }

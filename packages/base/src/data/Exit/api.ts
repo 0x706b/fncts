@@ -4,45 +4,45 @@ import { ExitTag } from "./definition.js";
 /**
  * @tsplus pipeable fncts.Exit ap
  */
-export function ap<E, A>(fa: Exit<E, A>) {
-  return <G, B>(fab: Exit<G, (a: A) => B>): Exit<E | G, B> => {
-    return fab.flatMap((f) => fa.map((a) => f(a)));
+export function ap<E, A>(that: Exit<E, A>) {
+  return <G, B>(self: Exit<G, (a: A) => B>): Exit<E | G, B> => {
+    return self.flatMap((f) => that.map((a) => f(a)));
   };
 }
 
 /**
- * @tsplus pipeable fncts.Exit apFirst
+ * @tsplus pipeable fncts.Exit zipLeft
  */
-export function apFirst<G, B>(fb: Exit<G, B>) {
-  return <E, A>(fa: Exit<E, A>): Exit<E | G, A> => {
-    return fa.zipWithCause(fb, (a, _) => a, Cause.then);
+export function zipLeft<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
+    return self.zipWithCause(that, (a, _) => a, Cause.then);
   };
 }
 
 /**
- * @tsplus pipeable fncts.Exit apSecond
+ * @tsplus pipeable fncts.Exit zipRight
  */
-export function apSecond<G, B>(fb: Exit<G, B>) {
-  return <E, A>(fa: Exit<E, A>): Exit<E | G, B> => {
-    return fa.zipWithCause(fb, (_, b) => b, Cause.then);
+export function zipRight<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
+    return self.zipWithCause(that, (_, b) => b, Cause.then);
   };
 }
 
 /**
- * @tsplus pipeable fncts.Exit apFirstC
+ * @tsplus pipeable fncts.Exit zipLeftConcurrent
  */
-export function apFirstC<G, B>(fb: Exit<G, B>) {
-  return <E, A>(fa: Exit<E, A>): Exit<E | G, A> => {
-    return fa.zipWithCause(fb, (a, _) => a, Cause.both);
+export function zipLeftConcurrent<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
+    return self.zipWithCause(that, (a, _) => a, Cause.both);
   };
 }
 
 /**
- * @tsplus pipeable fncts.Exit apSecondC
+ * @tsplus pipeable fncts.Exit zipRightConcurrent
  */
-export function apSecondC<G, B>(fb: Exit<G, B>) {
-  return <E, A>(fa: Exit<E, A>): Exit<E | G, B> => {
-    return fa.zipWithCause(fb, (_, b) => b, Cause.both);
+export function zipRightConcurrent<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
+    return self.zipWithCause(that, (_, b) => b, Cause.both);
   };
 }
 
@@ -74,9 +74,9 @@ export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>
 }
 
 /**
- * @tsplus static fncts.ExitOps collectAllC
+ * @tsplus static fncts.ExitOps collectAllConcurrent
  */
-export function collectAllC<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
+export function collectAllConcurrent<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
   return exits.head.map((head) =>
     exits.drop(1).foldLeft(head.map(Conc.single), (acc, el) => acc.zipWithCause(el, (c, a) => c.append(a), Cause.both)),
   );
@@ -151,20 +151,20 @@ export function zip<EB, B>(that: Exit<EB, B>) {
 }
 
 /**
- * @tsplus pipeable fncts.Exit zipWithC
+ * @tsplus pipeable fncts.Exit zipWithConcurrent
  */
-export function zipWithC<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
+export function zipWithConcurrent<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
   return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
     return fa.zipWithCause(fb, f, Cause.both);
   };
 }
 
 /**
- * @tsplus pipeable fncts.Exit zipC
+ * @tsplus pipeable fncts.Exit zipConcurrent
  */
-export function zipC<EB, B>(that: Exit<EB, B>) {
+export function zipConcurrent<EB, B>(that: Exit<EB, B>) {
   return <EA, A>(self: Exit<EA, A>): Exit<EA | EB, readonly [A, B]> => {
-    return self.zipWithC(that, tuple);
+    return self.zipWithConcurrent(that, tuple);
   };
 }
 

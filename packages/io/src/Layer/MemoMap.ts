@@ -167,7 +167,7 @@ export function scope(scope: Scope, __tsplusTrace?: string) {
           () => (memoMap: MemoMap) =>
             memoMap
               .getOrElseMemoize(scope, layer.self, layer.trace)
-              .zipWithC(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
+              .zipWithConcurrent(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
         );
       }
     }

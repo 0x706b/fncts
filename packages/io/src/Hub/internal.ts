@@ -128,7 +128,7 @@ export class BackPressure<A> extends Strategy<A> {
     return Do((_) => {
       const fiberId    = _(IO.fiberId);
       const publishers = _(IO.succeed(self.publishers.unsafeDequeueAll));
-      _(publishers.traverseIOC(([_, future, last]) => (last ? future.interruptAs(fiberId) : IO.unit)));
+      _(publishers.traverseIOConcurrentDiscard(([_, future, last]) => (last ? future.interruptAs(fiberId) : IO.unit)));
     });
   }
 
@@ -284,8 +284,8 @@ class UnsafeSubscription<A> implements Dequeue<A> {
       IO.defer(() => {
         this.shutdownFlag.set(true);
         return this.pollers.unsafeDequeueAll
-          .traverseIOC((fiber) => fiber.interruptAs(fiberId))
-          .apSecond(IO.succeed(this.subscription.unsubscribe()))
+          .traverseIOConcurrent((fiber) => fiber.interruptAs(fiberId))
+          .zipRight(IO.succeed(this.subscription.unsubscribe()))
           .whenIO(this.shutdownHook.succeed(undefined));
       }),
     );

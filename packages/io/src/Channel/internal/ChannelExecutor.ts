@@ -60,7 +60,7 @@ class PullFromUpstream<R> {
           if (next === null) {
             return acc;
           } else {
-            return acc.zipWith(next.result, (a, b) => a.apSecond(b));
+            return acc.zipWith(next.result, (a, b) => a.zipRight(b));
           }
         }
       },
@@ -107,7 +107,7 @@ class PullFromChild<R> {
       if (fin2 === null) {
         return fin1;
       } else {
-        return fin1.result.zipWith(fin2.result, (a, b) => a.apSecond(b)).flatMap(IO.fromExitNow);
+        return fin1.result.zipWith(fin2.result, (a, b) => a.zipRight(b)).flatMap(IO.fromExitNow);
       }
     }
   }
@@ -147,7 +147,7 @@ class DrainChildExecutors<R> {
           if (next === null) {
             return acc;
           } else {
-            return acc.zipWith(next.result, (a, b) => a.apSecond(b));
+            return acc.zipWith(next.result, (a, b) => a.zipRight(b));
           }
         }
       },
@@ -299,7 +299,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 if (this.input !== null) {
                   const inputExecutor = this.input;
                   this.input          = null;
-                  const drainer: URIO<Env, unknown> = currentChannel.input.awaitRead.apSecond(
+                  const drainer: URIO<Env, unknown> = currentChannel.input.awaitRead.zipRight(
                     IO.defer(() => {
                       const state = inputExecutor.run();
 
@@ -332,7 +332,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                     drainer.fork.flatMap((fiber) =>
                       IO.succeed(() => {
                         this.addFinalizer((exit) =>
-                          fiber.interrupt.apSecond(
+                          fiber.interrupt.zipRight(
                             IO.defer(() => {
                               const effect = this.restorePipe(exit, inputExecutor);
                               if (effect !== null) {
@@ -506,7 +506,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         if (head._tag === ChannelTag.ContinuationK) {
           return unwind(acc, conts.unsafeTail);
         } else {
-          return unwind(acc.apSecond(head.finalizer(exit).result), conts.unsafeTail);
+          return unwind(acc.zipRight(head.finalizer(exit).result), conts.unsafeTail);
         }
       }
     };
@@ -574,7 +574,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         this.ifNotNull(runInProgressFinalizers).result,
         this.ifNotNull(closeSelf).result,
       )
-        .map(([a, b, c]) => a.apSecond(b).apSecond(c))
+        .map(([a, b, c]) => a.zipRight(b).zipRight(c))
         .uninterruptible.flatMap(IO.fromExitNow);
     }
   }
@@ -717,7 +717,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
       (effect) => {
         const closeLast         = this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
         this.closeLastSubstream = null;
-        return this.executeCloseLastSubstream(closeLast).apSecond(effect);
+        return this.executeCloseLastSubstream(closeLast).zipRight(effect);
       },
       (emitted) => {
         if (this.closeLastSubstream !== null) {

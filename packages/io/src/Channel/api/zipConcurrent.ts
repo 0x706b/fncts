@@ -1,9 +1,9 @@
 import { MergeDecision } from "@fncts/io/Channel/internal/MergeDecision";
 
 /**
- * @tsplus pipeable fncts.io.Channel zipC
+ * @tsplus pipeable fncts.io.Channel zipConcurrent
  */
-export function zipC<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
+export function zipConcurrent<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ) {
   return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
@@ -19,16 +19,16 @@ export function zipC<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1
   > => {
     return self.mergeWith(
       that,
-      (exit1) => MergeDecision.Await((exit2) => IO.fromExit(exit1.zipC(exit2))),
-      (exit2) => MergeDecision.Await((exit1) => IO.fromExit(exit1.zipC(exit2))),
+      (exit1) => MergeDecision.Await((exit2) => IO.fromExit(exit1.zipConcurrent(exit2))),
+      (exit2) => MergeDecision.Await((exit1) => IO.fromExit(exit1.zipConcurrent(exit2))),
     );
   };
 }
 
 /**
- * @tsplus pipeable fncts.io.Channel zipFirstC
+ * @tsplus pipeable fncts.io.Channel zipLeftConcurrent
  */
-export function zipFirstC<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
+export function zipLeftConcurrent<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ) {
   return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
@@ -42,14 +42,14 @@ export function zipFirstC<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, Out
     OutElem | OutElem1,
     OutDone
   > => {
-    return self.zipC(that).map(([d]) => d);
+    return self.zipConcurrent(that).map(([d]) => d);
   };
 }
 
 /**
- * @tsplus pipeable fncts.io.Channel zipSecondC
+ * @tsplus pipeable fncts.io.Channel zipRightConcurrent
  */
-export function zipSecondC<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
+export function zipRightConcurrent<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
   that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
 ) {
   return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
@@ -63,6 +63,6 @@ export function zipSecondC<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, Ou
     OutElem | OutElem1,
     OutDone1
   > => {
-    return self.zipC(that).map(([_, d1]) => d1);
+    return self.zipConcurrent(that).map(([_, d1]) => d1);
   };
 }

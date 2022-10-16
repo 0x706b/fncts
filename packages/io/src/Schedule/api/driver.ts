@@ -15,11 +15,11 @@ export function driver<State, Env, In, Out>(
         const [state1, out, decision] = _(schedule.step(now, inp, state));
         return _(
           decision.match(
-            () => ref.set([Just(out), state1]).apSecond(IO.failNow(Nothing() as Nothing)),
+            () => ref.set([Just(out), state1]).zipRight(IO.failNow(Nothing() as Nothing)),
             (interval) =>
               ref
                 .set([Just(out), state1])
-                .apSecond(Clock.sleep(Duration.fromInterval(now, interval.start)))
+                .zipRight(Clock.sleep(Duration.fromInterval(now, interval.start)))
                 .as(out),
           ),
         );

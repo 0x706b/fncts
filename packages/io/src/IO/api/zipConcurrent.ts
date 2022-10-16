@@ -2,18 +2,18 @@ import { tuple } from "@fncts/base/data/function";
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 
 /**
- * @tsplus pipeable fncts.io.IO zipC
+ * @tsplus pipeable fncts.io.IO zipConcurrent
  */
-export function zipC<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: string) {
+export function zipConcurrent<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E | E1, readonly [A, B]> => {
-    return self.zipWithC(that, tuple);
+    return self.zipWithConcurrent(that, tuple);
   };
 }
 
 /**
- * @tsplus pipeable fncts.io.IO zipWithC
+ * @tsplus pipeable fncts.io.IO zipWithConcurrent
  */
-export function zipWithC<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A, b: B) => C, __tsplusTrace?: string) {
+export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A, b: B) => C, __tsplusTrace?: string) {
   return <R, E>(self: IO<R, E, A>): IO<R | R1, E | E1, C> => {
     return IO.descriptorWith((descriptor) =>
       IO.uninterruptibleMask(({ restore }) => {
@@ -55,9 +55,9 @@ export function zipWithC<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A, b: B) =
                 (cause) =>
                   left
                     .interruptAs(descriptor.id)
-                    .zipC(right.interruptAs(descriptor.id))
+                    .zipConcurrent(right.interruptAs(descriptor.id))
                     .flatMap(([left, right]) =>
-                      left.zipC(right).match(IO.failCauseNow, () => IO.failCauseNow(cause.stripFailures)),
+                      left.zipConcurrent(right).match(IO.failCauseNow, () => IO.failCauseNow(cause.stripFailures)),
                     ),
                 (c) => left.inheritRefs.zip(right.inheritRefs).as(c),
               ),

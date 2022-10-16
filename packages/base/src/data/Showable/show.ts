@@ -381,7 +381,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
             recurseTimes: context.recurseTimes - 1,
             currentDepth: context.currentDepth - 1,
           }),
-        ).apSecond(Z.succeedNow(context.stylize(constructorName, "special")));
+        ).zipRight(Z.succeedNow(context.stylize(constructorName, "special")));
       }
       if (info._tag === "InspectionEarlyReturn") {
         return Z.succeedNow(info.shown);
@@ -389,7 +389,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
         return Z.update((context: ShowContext) => {
           context.seen.push(value);
           return context;
-        }).apSecond(
+        }).zipRight(
           Z.defer(() => {
             let keys: ShowComputationChunk;
             let indices: ShowComputationChunk;
@@ -445,7 +445,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                 currentDepth: _.recurseTimes + 1,
               }),
             )
-              .apSecond(output)
+              .zipRight(output)
               .cross(baseWithRef)
               .flatMap(([output, base]) =>
                 Z.modify((context) => {
@@ -462,7 +462,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                   return [res, newContext];
                 }),
               )
-              .apFirst(
+              .zipLeft(
                 Z.update((context: ShowContext) => {
                   context.seen.pop();
                   return context.copy({
@@ -532,18 +532,18 @@ function removeColors(str: string): string {
 
 function showSet(value: Set<unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
-    .apSecond((value as Iterable<unknown>).traverseToConc(Z.Applicative)(_show))
-    .apFirst(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
+    .zipRight((value as Iterable<unknown>).traverseToConc(Z.Applicative)(_show))
+    .zipLeft(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
 }
 
 function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
-    .apSecond(
+    .zipRight(
       (value as Iterable<[unknown, unknown]>).traverseToConc(Z.Applicative)(([k, v]) =>
         _show(k).crossWith(_show(v), (k, v) => `${k} => ${v}`),
       ),
     )
-    .apFirst(
+    .zipLeft(
       Z.update((_: ShowContext) =>
         _.copy({
           indentationLevel: _.indentationLevel - 2,
@@ -568,7 +568,7 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
       }
       if (context.showHidden) {
         return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
-          .apSecond(
+          .zipRight(
             Z.succeedNow(output).flatMap((output) =>
               Conc("BYTES_PER_ELEMENT", "length", "byteLength", "byteOffset", "buffer")
                 .traverse(Z.Applicative)((key) =>
@@ -577,7 +577,7 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
                 .map((shownKeys) => output.concat(shownKeys)),
             ),
           )
-          .apFirst(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
+          .zipLeft(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
       } else {
         return Z.succeedNow(output);
       }
@@ -709,7 +709,7 @@ export function showProperty(
       if (isDefined(descriptor.value)) {
         const diff = context.compact !== true || (type !== OBJECT_TYPE && type !== PROTO_TYPE) ? 2 : 3;
         return Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel + diff }))
-          .apSecond(_show(descriptor.value))
+          .zipRight(_show(descriptor.value))
           .flatMap((shown: string) =>
             Z.gets((_: ShowContext) =>
               diff === 3 && _.breakLength < getStringWidth(shown, _.colors)
@@ -717,7 +717,7 @@ export function showProperty(
                 : tuple(descriptor, " ", shown),
             ),
           )
-          .apFirst(Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel - diff })));
+          .zipLeft(Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel - diff })));
       } else if (isDefined(descriptor.get)) {
         return Z.succeedNow(tuple(descriptor, " ", `[${descriptor.set ? "Getter/Settter" : "Getter"}]`));
       } else if (isDefined(descriptor.set)) {

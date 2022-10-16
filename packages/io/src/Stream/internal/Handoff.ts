@@ -48,9 +48,9 @@ export function offer<A>(a: A) {
         handoff.ref.modify((s) => {
           switch (s._tag) {
             case FullTypeId:
-              return tuple(s.notifyProducer.await.apSecond(handoff.offer(a)), s);
+              return tuple(s.notifyProducer.await.zipRight(handoff.offer(a)), s);
             case EmptyTypeId:
-              return tuple(s.notifyConsumer.succeed(undefined).apSecond(p.await), new Full(a, p));
+              return tuple(s.notifyConsumer.succeed(undefined).zipRight(p.await), new Full(a, p));
           }
         }).flatten,
     );
@@ -68,7 +68,7 @@ export function take<A>(handoff: Handoff<A>): UIO<A> {
           case FullTypeId:
             return tuple(s.notifyProducer.succeed(undefined).as(s.a), new Empty(p));
           case EmptyTypeId:
-            return tuple(s.notifyConsumer.await.apSecond(handoff.take), s);
+            return tuple(s.notifyConsumer.await.zipRight(handoff.take), s);
         }
       }).flatten,
   );

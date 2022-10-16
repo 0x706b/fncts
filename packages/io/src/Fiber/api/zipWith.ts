@@ -11,7 +11,7 @@ export function zipWith<A, E1, B, C>(that: Fiber<E1, B>, f: (a: A, b: B) => C, _
   return <E>(self: Fiber<E, A>): Fiber<E | E1, C> => {
     return new SyntheticFiber(
       self.id,
-      self.await.flatMap(IO.fromExitNow).zipWithC(that.await.flatMap(IO.fromExitNow), f).result,
+      self.await.flatMap(IO.fromExitNow).zipWithConcurrent(that.await.flatMap(IO.fromExitNow), f).result,
       self.children,
       that.inheritRefs > self.inheritRefs,
       self.poll.zipWith(that.poll, (ma, mb) =>

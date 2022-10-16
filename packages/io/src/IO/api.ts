@@ -100,10 +100,10 @@ export function absorbWith<R, E, A>(f: (e: E) => unknown, __tsplusTrace?: string
 }
 
 /**
- * @tsplus pipeable fncts.io.IO apFirst
+ * @tsplus pipeable fncts.io.IO zipLeft
  * @tsplus pipeable-operator fncts.io.IO <
  */
-export function apFirst<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
+export function zipLeft<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E, A>(self: IO<R, E, A>): IO<R1 | R, E1 | E, A> => {
     return self.flatMap((a) => fb.map(() => a));
   };
@@ -112,10 +112,10 @@ export function apFirst<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
 /**
  * Combine two effectful actions, keeping only the result of the second
  *
- * @tsplus pipeable fncts.io.IO apSecond
+ * @tsplus pipeable fncts.io.IO zipRight
  * @tsplus pipeable-operator fncts.io.IO >
  */
-export function apSecond<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
+export function zipRight<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E, A>(self: IO<R, E, A>): IO<R1 | R, E1 | E, B> => {
     return self.flatMap(() => fb);
   };
@@ -188,7 +188,7 @@ export function bitap<E, A, R1, E1, R2, E2>(
           (e) => onFailure(e).flatMap(() => IO.failCauseNow(cause)),
           () => IO.failCauseNow(cause),
         ),
-      (a) => onSuccess(a).apSecond(IO.succeedNow(a)),
+      (a) => onSuccess(a).zipRight(IO.succeedNow(a)),
     );
   };
 }
@@ -911,7 +911,7 @@ export function foreachDiscard<A, R, E, B>(
  * @tsplus getter fncts.io.IO forever
  */
 export function forever<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, never> {
-  return ma.apSecond(IO.yieldNow).flatMap(() => ma.forever);
+  return ma.zipRight(IO.yieldNow).flatMap(() => ma.forever);
 }
 
 /**
@@ -1964,7 +1964,7 @@ export function tapError<E, R1, E1>(f: (e: E) => IO<R1, E1, any>, __tsplusTrace?
  */
 export function tapErrorCause<E, R1, E1>(f: (e: Cause<E>) => IO<R1, E1, any>, __tsplusTrace?: string) {
   return <R, A>(self: IO<R, E, A>): IO<R | R1, E | E1, A> => {
-    return self.matchCauseIO((cause) => f(cause).apSecond(IO.failCauseNow(cause)), IO.succeedNow);
+    return self.matchCauseIO((cause) => f(cause).zipRight(IO.failCauseNow(cause)), IO.succeedNow);
   };
 }
 

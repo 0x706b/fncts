@@ -14,7 +14,7 @@ export function foreachExec<R, E, A, B>(
 ): IO<R, E, Conc<B>> {
   return es.match(
     () => IO.foreach(as, f),
-    () => IO.foreachC(as, f).withConcurrencyUnbounded,
-    (fiberBound) => IO.foreachC(as, f).withConcurrency(fiberBound),
+    () => IO.foreachConcurrent(as, f).withConcurrencyUnbounded,
+    (fiberBound) => IO.foreachConcurrent(as, f).withConcurrency(fiberBound),
   );
 }

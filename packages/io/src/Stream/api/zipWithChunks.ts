@@ -23,7 +23,7 @@ function pull<R, E, A1, R1, E1, A2, A3>(
 ): IO<R | R1, never, Exit<Maybe<E | E1>, readonly [Conc<A3>, State<A1, A2>]>> {
   switch (state._tag) {
     case "PullBoth":
-      return pullLeft.zipC(pullRight).matchIO(
+      return pullLeft.zipConcurrent(pullRight).matchIO(
         (err) => IO.succeedNow(Exit.fail(err)),
         ([leftChunk, rightChunk]) => {
           if (leftChunk.isEmpty && rightChunk.isEmpty) {

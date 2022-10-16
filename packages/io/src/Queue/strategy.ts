@@ -95,7 +95,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
     return Do((_) => {
       const fiberId = _(IO.fiberId);
       const putters = _(IO.succeed(unsafePollAll(self.putters)));
-      _(IO.foreachC(putters, ([, p, lastItem]) => (lastItem ? p.interruptAs(fiberId).asUnit : IO.unit)));
+      _(IO.foreachConcurrent(putters, ([, p, lastItem]) => (lastItem ? p.interruptAs(fiberId).asUnit : IO.unit)));
     });
   }
 

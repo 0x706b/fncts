@@ -72,7 +72,7 @@ export function createReadStream(
 ): Stream<never, ErrnoException, Byte> {
   const chunkSize = options?.chunkSize ?? 1024 * 64;
   return Stream.acquireRelease(
-    open(path, options?.flags ?? fs.constants.O_RDONLY, options?.mode).zipC(
+    open(path, options?.flags ?? fs.constants.O_RDONLY, options?.mode).zip(
       IO.defer(() => {
         const start = options?.start ?? 0;
         const end   = options?.end ?? Infinity;
@@ -121,7 +121,7 @@ export function createWriteSink<InErr>(
         const errorRef = _(Ref.make<Maybe<ErrnoException>>(Nothing()));
         const st       = _(
           open(path, options?.flags ?? fs.constants.O_CREAT | fs.constants.O_WRONLY, options?.mode)
-            .zipC(Ref.make(options?.start ?? undefined))
+            .zip(Ref.make(options?.start ?? undefined))
             .acquireRelease(([fd, _]) => close(fd).orHalt)
             .catchAll((err) => errorRef.set(Just(err))),
         );

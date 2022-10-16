@@ -62,16 +62,16 @@ export function mergeAllWith<OutDone>(
             pull
               .matchCauseIO(
                 (cause) =>
-                  getChildren.flatMap(Fiber.interruptAll).apSecond(queue.offer(IO.failCauseNow(cause)).as(false)),
+                  getChildren.flatMap(Fiber.interruptAll).zipRight(queue.offer(IO.failCauseNow(cause)).as(false)),
                 (doneOrChannel) =>
                   doneOrChannel.match(
                     (outDone) =>
                       errorSignal.await.raceWith(
                         permits.withPermits(n)(IO.unit),
                         (_, permitAcquisition) =>
-                          getChildren.flatMap(Fiber.interruptAll).apSecond(permitAcquisition.interrupt.as(false)),
+                          getChildren.flatMap(Fiber.interruptAll).zipRight(permitAcquisition.interrupt.as(false)),
                         (_, failureAwait) =>
-                          failureAwait.interrupt.apSecond(
+                          failureAwait.interrupt.zipRight(
                             lastDone.get
                               .flatMap((maybeDone) =>
                                 maybeDone.match(
@@ -90,7 +90,7 @@ export function mergeAllWith<OutDone>(
                             const raceIOs = channel.toPull.flatMap((io) =>
                               evaluatePull(io).race(errorSignal.await),
                             ).scoped;
-                            Δ(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
+                            Δ(permits.withPermit(latch.succeed(undefined).zipRight(raceIOs)).fork);
                             Δ(latch.await);
                             return Δ(errorSignal.isDone.map((b) => !b));
                           });
@@ -103,7 +103,7 @@ export function mergeAllWith<OutDone>(
                             const raceIOs = channel.toPull.flatMap((io) =>
                               evaluatePull(io).race(errorSignal.await).race(canceler.await),
                             ).scoped;
-                            Δ(permits.withPermit(latch.succeed(undefined).apSecond(raceIOs)).fork);
+                            Δ(permits.withPermit(latch.succeed(undefined).zipRight(raceIOs)).fork);
                             Δ(latch.await);
                             return Δ(errorSignal.isDone.map((b) => !b));
                           });
@@ -119,7 +119,7 @@ export function mergeAllWith<OutDone>(
         const consumer: Channel<Env | Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem, OutDone> =
           Channel.unwrap(
             queue.take.flatten.matchCause(Channel.failCauseNow, (out) =>
-              out.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).apSecond(consumer)),
+              out.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).zipRight(consumer)),
             ),
           );
         return consumer;

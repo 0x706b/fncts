@@ -17,9 +17,10 @@ export function releaseAll(exit: Exit<any, any>, execStrategy: ExecutionStrategy
               ([_, f]) => Finalizer.reverseGet(s.update(f))(exit).result,
             ).flatMap((exits) =>
               IO.fromExit(
-                (execStrategy._tag === "Sequential" ? Exit.collectAll(exits) : Exit.collectAllC(exits)).getOrElse(
-                  Exit.succeed(Conc.empty()),
-                ),
+                (execStrategy._tag === "Sequential"
+                  ? Exit.collectAll(exits)
+                  : Exit.collectAllConcurrent(exits)
+                ).getOrElse(Exit.succeed(Conc.empty())),
               ),
             ),
             new Exited(s.nextKey, exit, s.update),

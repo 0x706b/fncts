@@ -173,7 +173,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
   }
 
   interruptAs(fiberId: FiberId): UIO<Exit<E, A>> {
-    return this.interruptAsFork(fiberId).apSecond(this.await);
+    return this.interruptAsFork(fiberId).zipRight(this.await);
   }
 
   evalOn(effect: UIO<any>, orElse: UIO<any>): UIO<void> {

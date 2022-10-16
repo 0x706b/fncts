@@ -256,7 +256,7 @@ export function flatMapStream<R, A, R1, B>(
           )
           .foldLeft(
             Channel.unit as Channel<R1, unknown, unknown, unknown, never, Conc<Either<boolean, B>>, unknown>,
-            (a, b) => a.apSecond(b),
+            (a, b) => a.zipRight(b),
           ),
       constVoid,
       constVoid,

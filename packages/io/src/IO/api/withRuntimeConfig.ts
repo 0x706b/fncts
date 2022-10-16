@@ -8,7 +8,7 @@ export function withRuntimeConfig(runtimeConfig: Lazy<RuntimeConfig>, __tsplusTr
   return <R, E, A>(self: IO<R, E, A>): IO<R, E, A> => {
     return IO.runtimeConfig.flatMap((currentRuntimeConfig) =>
       IO.setRuntimeConfig(runtimeConfig)
-        .apSecond(IO.yieldNow)
+        .zipRight(IO.yieldNow)
         .bracket(
           () => self,
           () => IO.setRuntimeConfig(currentRuntimeConfig),

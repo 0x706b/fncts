@@ -748,7 +748,7 @@ export function succeed<A>(a: Lazy<A>, __tsplusTrace?: string): Schedule.WithSta
  */
 export function tapInput<I, R1>(f: (inp: I) => URIO<R1, any>, __tsplusTrace?: string) {
   return <S, R, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R | R1, I, O> => {
-    return Schedule(self.initial, (now, inp, state) => f(inp).apSecond(self.step(now, inp, state)));
+    return Schedule(self.initial, (now, inp, state) => f(inp).zipRight(self.step(now, inp, state)));
   };
 }
 

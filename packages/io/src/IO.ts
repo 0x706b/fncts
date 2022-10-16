@@ -20,7 +20,7 @@ export * from "./IO/api/consoleWith.js";
 export * from "./IO/api/core-scope.js";
 export * from "./IO/api/ensuringChildren.js";
 export * from "./IO/api/environment.js";
-export * from "./IO/api/foreachC.js";
+export * from "./IO/api/foreachConcurrent.js";
 export * from "./IO/api/foreachExec.js";
 export * from "./IO/api/forkAll.js";
 export * from "./IO/api/forkIn.js";
@@ -52,5 +52,5 @@ export * from "./IO/api/withEarlyRelease.js";
 export * from "./IO/api/withFinalizer.js";
 export * from "./IO/api/withFinalizerExit.js";
 export * from "./IO/api/withRuntimeConfig.js";
-export * from "./IO/api/zipC.js";
+export * from "./IO/api/zipConcurrent.js";
 // codegen:end

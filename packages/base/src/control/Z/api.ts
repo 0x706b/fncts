@@ -18,18 +18,18 @@ export function ap<W, S, A, R1, E1>(fb: Z<W, S, S, R1, E1, A>) {
 }
 
 /**
- * @tsplus pipeable fncts.control.Z apFirst
+ * @tsplus pipeable fncts.control.Z zipLeft
  */
-export function apFirst<W, S, R1, E1, B>(fb: Z<W, S, S, R1, E1, B>) {
+export function zipLeft<W, S, R1, E1, B>(fb: Z<W, S, S, R1, E1, B>) {
   return <R, E, A>(fa: Z<W, S, S, R, E, A>): Z<W, S, S, R & R1, E | E1, A> => {
     return fa.crossWith(fb, (a, _) => a);
   };
 }
 
 /**
- * @tsplus pipeable fncts.control.Z apSecond
+ * @tsplus pipeable fncts.control.Z zipRight
  */
-export function apSecond<W, S, R1, E1, B>(fb: Z<W, S, S, R1, E1, B>) {
+export function zipRight<W, S, R1, E1, B>(fb: Z<W, S, S, R1, E1, B>) {
   return <R, E, A>(fa: Z<W, S, S, R, E, A>): Z<W, S, S, R & R1, E | E1, B> => {
     return fa.crossWith(fb, (_, b) => b);
   };

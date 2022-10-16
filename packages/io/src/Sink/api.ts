@@ -5,9 +5,9 @@ import { MergeDecision } from "../Channel/internal/MergeDecision.js";
 /**
  * Like {@link zip}, but keeps only the result from this sink
  *
- * @tsplus pipeable fncts.io.Sink apFirst
+ * @tsplus pipeable fncts.io.Sink zipLeft
  */
-export function apFirst<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
+export function zipLeft<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
 ) {
@@ -19,9 +19,9 @@ export function apFirst<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
 /**
  * Like {@link zipC}, but keeps only the result from this sink
  *
- * @tsplus pipeable fncts.io.Sink apFirstC
+ * @tsplus pipeable fncts.io.Sink zipLeftC
  */
-export function apFirstC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
+export function zipLeftC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
 ) {
@@ -33,9 +33,9 @@ export function apFirstC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
 /**
  * Like {@link zip}, but keeps only the result from the `that` sink
  *
- * @tsplus pipeable fncts.io.Sink apSecond
+ * @tsplus pipeable fncts.io.Sink zipRight
  */
-export function apSecond<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
+export function zipRight<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
 ) {
@@ -47,9 +47,9 @@ export function apSecond<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
 /**
  * Like {@link zipC}, but keeps only the result from the `that` sink
  *
- * @tsplus pipeable fncts.io.Sink apSecondC
+ * @tsplus pipeable fncts.io.Sink zipRightC
  */
-export function apSecondC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
+export function zipRightC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
 ) {
@@ -338,7 +338,7 @@ export function makeDropWhile<Err, In>(
       if (more) {
         return loop;
       } else {
-        return Channel.writeNow(leftover).apSecond(Channel.id<never, Conc<In>, any>());
+        return Channel.writeNow(leftover).zipRight(Channel.id<never, Conc<In>, any>());
       }
     },
     Channel.failNow,
@@ -813,7 +813,7 @@ function foreachWhileLoop<R, Err, In>(
   }
   return Channel.fromIO(f(chunk.unsafeGet(idx)))
     .flatMap((b) => (b ? foreachWhileLoop(f, chunk, idx + 1, len, cont) : Channel.writeNow(chunk.drop(idx))))
-    .catchAll((e) => Channel.writeNow(chunk.drop(idx)).apSecond(Channel.failNow(e)));
+    .catchAll((e) => Channel.writeNow(chunk.drop(idx)).zipRight(Channel.failNow(e)));
 }
 
 /**

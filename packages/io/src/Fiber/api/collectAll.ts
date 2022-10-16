@@ -12,7 +12,7 @@ export function sequenceIterable<E, A>(
   return new SyntheticFiber(
     fibers.foldLeft(FiberId.none as FiberId, (b, a) => b.combine(a.id)),
     Fiber.awaitAll(fibers),
-    IO.foreachC(fibers, (fiber) => fiber.children).map((c) => c.flatten),
+    IO.foreachConcurrent(fibers, (fiber) => fiber.children).map((c) => c.flatten),
     IO.foreachDiscard(fibers, (f) => f.inheritRefs),
     IO.foreach(fibers, (f) => f.poll).map((exits) =>
       exits.foldRight(Just(Exit.succeed(Conc.empty()) as Exit<E, Conc<A>>), (a, b) =>

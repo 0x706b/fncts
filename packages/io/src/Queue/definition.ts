@@ -198,7 +198,7 @@ export class Queue<A> implements Enqueue<A>, Dequeue<A> {
 
   shutdown: UIO<void> = IO.deferWith((_, id) => {
     this.shutdownFlag.set(true);
-    return IO.foreachDiscardC(unsafePollAll(this.takers), (fiber) => fiber.interruptAs(id))
+    return IO.foreachConcurrentDiscard(unsafePollAll(this.takers), (fiber) => fiber.interruptAs(id))
       .flatMap(() => this.strategy.shutdown)
       .whenIO(this.shutdownHook.succeed(undefined));
   }).uninterruptible;
