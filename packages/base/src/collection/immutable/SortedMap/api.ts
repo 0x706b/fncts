@@ -24,7 +24,7 @@ export function find<K>(key: K, direction: 0 | 1 = 0) {
         let n     = m.root;
         const stack: Array<Node<K, V>> = [];
         while (n) {
-          const d = cmp(key, n.key);
+          const d = cmp(n.key)(key);
           stack.push(n);
           switch (d) {
             case 0: {
@@ -142,7 +142,7 @@ export function get<K>(key: K) {
     const cmp = m.ord.compare;
     let n     = m.root;
     while (n) {
-      const d = cmp(key, n.key);
+      const d = cmp(n.key)(key);
       switch (d) {
         case 0: {
           return Just(n.value);
@@ -172,7 +172,7 @@ export function getGt<K>(key: K) {
     let n         = m.root;
     let lastValue = Nothing<V>();
     while (n) {
-      const d = cmp(key, n.key);
+      const d = cmp(n.key)(key);
       if (d < 0) {
         lastValue = Just(n.value);
         n         = n.left;
@@ -198,7 +198,7 @@ export function getLt<K>(key: K) {
     let n         = m.root;
     let lastValue = Nothing<V>();
     while (n) {
-      const d = cmp(key, n.key);
+      const d = cmp(n.key)(key);
       if (d > 0) {
         lastValue = Just(n.value);
       }
@@ -223,7 +223,7 @@ export function getLte<K>(key: K) {
     let n         = m.root;
     let lastValue = Nothing<V>();
     while (n) {
-      const d = cmp(key, n.key);
+      const d = cmp(n.key)(key);
       if (d > 0) {
         if (lastValue.isJust()) {
           break;
@@ -249,7 +249,7 @@ export function getGte<K>(key: K) {
     let n         = m.root;
     let lastValue = Nothing<V>();
     while (n) {
-      const d = cmp(key, n.key);
+      const d = cmp(n.key)(key);
       if (d <= 0) {
         lastValue = Just(n.value);
         n         = n.left;
@@ -281,7 +281,7 @@ export function insert<K, V>(key: K, value: V) {
     const orderStack: Array<Ordering>  = [];
     let n: RBNode<K, V>                = m.root;
     while (n) {
-      const d = cmp(key, n.key);
+      const d = cmp(n.key)(key);
       nodeStack.push(n);
       orderStack.push(d);
       if (d <= 0) {
@@ -317,7 +317,7 @@ export function insertWith<K, V>(
   let n: RBNode<K, V>                = m.root;
   let cv: V | null                   = null;
   while (n && !cv) {
-    const d = cmp(key, n.key);
+    const d = cmp(n.key)(key);
     nodeStack.push(n);
     switch (d) {
       case -1: {
@@ -331,7 +331,7 @@ export function insertWith<K, V>(
         break;
       }
       case 0: {
-        cv = com(n.value, value);
+        cv = com(value)(n.value);
         break;
       }
     }
@@ -424,7 +424,7 @@ export function visitLte<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
         current = current.left;
       } else if (stack.hasNext) {
         const next = stack.pop()!;
-        if (cmp(next.key, max) > 0) {
+        if (cmp(max)(next.key) > 0) {
           break;
         }
         const v = visit(next.key, next.value);
@@ -455,7 +455,7 @@ export function visitLt<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
         current = current.left;
       } else if (stack.hasNext) {
         const next = stack.pop()!;
-        if (cmp(next.key, max) >= 0) {
+        if (cmp(max)(next.key) >= 0) {
           break;
         }
         const v = visit(next.key, next.value);
@@ -483,14 +483,14 @@ export function visitGte<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
     while (!done) {
       if (current) {
         stack.push(current);
-        if (cmp(current.key, min) >= 0) {
+        if (cmp(min)(current.key) >= 0) {
           current = current.left;
         } else {
           current = null;
         }
       } else if (stack.hasNext) {
         const next = stack.pop()!;
-        if (cmp(next.key, min) >= 0) {
+        if (cmp(min)(next.key) >= 0) {
           const v = visit(next.key, next.value);
           if (v.isJust()) {
             return v;
@@ -517,14 +517,14 @@ export function visitGt<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
     while (!done) {
       if (current) {
         stack.push(current);
-        if (cmp(current.key, min) > 0) {
+        if (cmp(min)(current.key) > 0) {
           current = current.left;
         } else {
           current = null;
         }
       } else if (stack.hasNext) {
         const next = stack.pop()!;
-        if (cmp(next.key, min) > 0) {
+        if (cmp(min)(next.key) > 0) {
           const v = visit(next.key, next.value);
           if (v.isJust()) {
             return v;
@@ -551,14 +551,14 @@ export function visitBetween<K, V, A>(min: K, max: K, visit: (k: K, v: V) => May
     while (!done) {
       if (current) {
         stack.push(current);
-        if (cmp(current.key, min) > 0) {
+        if (cmp(min)(current.key) > 0) {
           current = current.left;
         } else {
           current = null;
         }
       } else if (stack.hasNext) {
         const next = stack.pop()!;
-        if (cmp(next.key, max) >= 0) {
+        if (cmp(max)(next.key) >= 0) {
           break;
         }
         const v = visit(next.key, next.value);

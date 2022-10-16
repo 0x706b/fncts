@@ -1,6 +1,6 @@
 import type { DatumF } from "@fncts/base/data/Datum/definition";
+import type { Eq } from "@fncts/base/data/Eq";
 import type * as P from "@fncts/base/typeclass";
-import type { Eq } from "@fncts/base/typeclass/Eq";
 
 import { DatumTag, Initial, Pending, Refresh, Replete } from "@fncts/base/data/Datum/definition";
 import { Zipped } from "@fncts/base/data/Zipped";
@@ -105,8 +105,8 @@ export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
     return self.match({
       Initial: () => false,
       Pending: () => false,
-      Refresh: (value) => E.equals(a, value),
-      Replete: (value) => E.equals(a, value),
+      Refresh: (value) => E.equals(value)(a),
+      Replete: (value) => E.equals(value)(a),
     });
   };
 }

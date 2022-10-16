@@ -176,7 +176,7 @@ export function cross<B>(fb: ImmutableNonEmptyArray<B>) {
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: P.Eq<A>) {
   return (self: ImmutableNonEmptyArray<A>): boolean => {
-    const p   = (element: A) => E.equals(a, element);
+    const p   = (element: A) => E.equals(element)(a);
     const len = self.length;
     for (let i = 0; i < len; i++) {
       if (p(self._array[i]!)) {
@@ -199,7 +199,7 @@ export function flatten<A>(self: ImmutableNonEmptyArray<ImmutableNonEmptyArray<A
  */
 export function fold<A>(/** @tsplus auto */ S: P.Semigroup<A>) {
   return (self: ImmutableNonEmptyArray<A>): A => {
-    return self.slice(1).foldLeft(self._array[0], S.combine);
+    return self.slice(1).foldLeft(self._array[0], (b, a) => S.combine(a)(b));
   };
 }
 
@@ -231,7 +231,7 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
   return (self: ImmutableNonEmptyArray<A>): M => {
-    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
+    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(f(i, a))(b));
   };
 }
 
@@ -277,7 +277,7 @@ export function group<A>(/** @tsplus auto */ E: P.Eq<A>) {
       let i     = 1;
       for (; i < as.length; i++) {
         const a = as._array[i]!;
-        if (E.equals(a, h)) {
+        if (E.equals(h)(a)) {
           out.push(a);
         } else {
           break;
@@ -333,7 +333,7 @@ export function max<A>(/** @tsplus auto */ O: P.Ord<A>) {
   return (self: ImmutableNonEmptyArray<A>): A => {
     const S            = P.Semigroup.max(O);
     const [head, tail] = self.unprepend;
-    return tail.isNonEmpty() ? tail.foldLeft(head, S.combine) : head;
+    return tail.isNonEmpty() ? tail.foldLeft(head, (b, a) => S.combine(a)(b)) : head;
   };
 }
 
@@ -344,7 +344,7 @@ export function min<A>(/** @tsplus auto */ O: P.Ord<A>) {
   return (self: ImmutableNonEmptyArray<A>): A => {
     const S            = P.Semigroup.min(O);
     const [head, tail] = self.unprepend;
-    return tail.isNonEmpty() ? tail.foldLeft(head, S.combine) : head;
+    return tail.isNonEmpty() ? tail.foldLeft(head, (b, a) => S.combine(a)(b)) : head;
   };
 }
 
@@ -403,7 +403,7 @@ export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
   return (self: ImmutableNonEmptyArray<A>): ImmutableNonEmptyArray<A> => {
     return self.length === 1
       ? self
-      : self._array.slice().sort((first, second) => O.compare(first, second)).unsafeAsNonEmptyArray;
+      : self._array.slice().sort((first, second) => O.compare(second)(first)).unsafeAsNonEmptyArray;
   };
 }
 

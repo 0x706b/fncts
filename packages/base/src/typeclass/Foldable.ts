@@ -30,5 +30,5 @@ export function foldMap<F extends HKT, FC = HKT.None>(
   f: (a: A) => M,
   /** @tsplus auto */ M: Monoid<M>,
 ) => <K, Q, W, X, I, S, R, E>(fa: HKT.Kind<F, FC, K, Q, W, X, I, S, R, E, A>) => M {
-  return (f, M) => F.foldLeft(M.nat, (b, a) => M.combine(b, f(a)));
+  return (f, M) => F.foldLeft(M.nat, (b, a) => M.combine(f(a))(b));
 }

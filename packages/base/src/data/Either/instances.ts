@@ -18,18 +18,18 @@ export const Functor = HKT.instance<P.Functor<EitherF>>({
  */
 export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
   return P.Eq({
-    equals: (x, y) =>
+    equals: (y) => (x) =>
       x === y ||
       x.match(
         (e1) =>
           y.match(
-            (e2) => EE.equals(e1, e2),
+            (e2) => EE.equals(e2)(e1),
             () => false,
           ),
         (a1) =>
           y.match(
             () => false,
-            (a2) => EA.equals(a1, a2),
+            (a2) => EA.equals(a2)(a1),
           ),
       ),
   });

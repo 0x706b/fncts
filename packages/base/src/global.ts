@@ -134,6 +134,14 @@ import { EnvironmentPatch } from "@fncts/base/data/EnvironmentPatch";
 /**
  * @tsplus global
  */
+import { Eq } from "@fncts/base/data/Eq/definition";
+/**
+ * @tsplus global
+ */
+import { Equatable } from "@fncts/base/data/Equatable";
+/**
+ * @tsplus global
+ */
 import {
   ArrayIndexOutOfBoundsError,
   IllegalArgumentError,
@@ -172,6 +180,10 @@ import { Guard } from "@fncts/base/data/Guard";
 /**
  * @tsplus global
  */
+import { Hashable } from "@fncts/base/data/Hashable";
+/**
+ * @tsplus global
+ */
 import { Identity } from "@fncts/base/data/Identity/definition";
 /**
  * @tsplus global
@@ -198,6 +210,14 @@ import {} from "@fncts/base/data/object/definition";
  * @tsplus global
  */
 import {} from "@fncts/base/data/object/definition";
+/**
+ * @tsplus global
+ */
+import { Ord } from "@fncts/base/data/Ord/definition";
+/**
+ * @tsplus global
+ */
+import { Ordering } from "@fncts/base/data/Ordering";
 /**
  * @tsplus global
  */
@@ -241,15 +261,7 @@ import { Stack } from "@fncts/base/internal/Stack";
 /**
  * @tsplus global
  */
-import { Equatable } from "@fncts/base/typeclass/Equatable";
-/**
- * @tsplus global
- */
 import { Has } from "@fncts/base/typeclass/Has";
-/**
- * @tsplus global
- */
-import { Hashable } from "@fncts/base/typeclass/Hashable";
 /**
  * @tsplus global
  */

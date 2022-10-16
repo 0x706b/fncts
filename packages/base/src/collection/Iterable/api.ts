@@ -377,7 +377,7 @@ export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus au
     let n   = -1;
     for (const value of self) {
       n  += 1;
-      res = M.combine(res, f(n, value));
+      res = M.combine(f(n, value))(res);
     }
     return res;
   };

@@ -1,9 +1,9 @@
-import type { StyleFunction } from "@fncts/base/typeclass/Showable/styles";
+import type { StyleFunction } from "@fncts/base/data/Showable/styles";
 import type { TypedArray } from "@fncts/base/util/predicates";
 
 import { tuple } from "@fncts/base/data/function";
-import { isShowable } from "@fncts/base/typeclass/Showable/definition";
-import { stylizeNoColor, stylizeWithColor } from "@fncts/base/typeclass/Showable/styles";
+import { isShowable } from "@fncts/base/data/Showable/definition";
+import { stylizeNoColor, stylizeWithColor } from "@fncts/base/data/Showable/styles";
 import {
   ARRAY_EXTRAS_TYPE,
   ARRAY_TYPE,
@@ -22,7 +22,7 @@ import {
   PROTO_TYPE,
   strEscape,
   strEscapeSequencesReplacer,
-} from "@fncts/base/typeclass/Showable/util";
+} from "@fncts/base/data/Showable/util";
 import {
   isAnyArrayBuffer,
   isArray,
@@ -41,6 +41,7 @@ import {
   isWeakMap,
   isWeakSet,
 } from "@fncts/base/util/predicates";
+
 export interface ShowContextArgs {
   readonly stylize: StyleFunction;
   readonly circular: HashMap<unknown, number>;
@@ -57,6 +58,7 @@ export interface ShowContextArgs {
   readonly recurseTimes: number;
   readonly budget: Record<number, number>;
 }
+
 export interface ShowOptions {
   readonly maxArrayLength: number;
   readonly maxStringLength: number;
@@ -67,20 +69,24 @@ export interface ShowOptions {
   readonly showHidden: boolean;
   readonly indentationLevel: number;
 }
+
 export class ShowContext extends CaseClass<ShowContextArgs> {}
 export type ShowComputationZ<A> = Z<never, ShowContext, ShowContext, never, never, A>;
 export type ShowComputation = ShowComputationZ<string>;
 export type ShowComputationChunk = ShowComputationZ<Conc<string>>;
+
 export interface ShowComputationPrimitive {
   readonly _tag: "Primitive";
   readonly computation: ShowComputation;
 }
+
 export function showComputationPrimitive(computation: ShowComputation): ShowComputationPrimitive {
   return {
     _tag: "Primitive",
     computation,
   };
 }
+
 export interface ShowComputationComplex {
   readonly _tag: "Complex";
   extrasType?: number;
@@ -89,13 +95,16 @@ export interface ShowComputationComplex {
   keys?: ShowComputationChunk;
   braces?: [string, string];
 }
+
 export function showComputationComplex(args: Omit<ShowComputationComplex, "_tag">): ShowComputationComplex {
   return {
     _tag: "Complex",
     ...args,
   };
 }
+
 export type ShowComputationExternal = ShowComputationPrimitive | ShowComputationComplex;
+
 function getShowContext(options?: Partial<ShowOptions>) {
   return new ShowContext({
     maxArrayLength: 100,
@@ -115,12 +124,15 @@ function getShowContext(options?: Partial<ShowOptions>) {
     ...(options || {}),
   });
 }
+
 export function show(value: unknown): string {
   return _show(value).unsafeRunStateResult(getShowContext());
 }
+
 export function showWithOptions(value: unknown, options: Partial<ShowOptions>): string {
   return _show(value).unsafeRunStateResult(getShowContext(options));
 }
+
 export function _show(value: unknown): ShowComputation {
   return Z.getsZ((context) => {
     if (value === undefined) {
@@ -135,6 +147,7 @@ export function _show(value: unknown): ShowComputation {
     return showValue(value);
   });
 }
+
 function showValue(value: object): ShowComputation {
   return Z.getsZ((context) => {
     if (context.seen.findIndex((v) => v === value) !== -1) {
@@ -151,6 +164,7 @@ function showValue(value: object): ShowComputation {
     return showRaw(value);
   });
 }
+
 interface InspectionInfo {
   readonly _tag: "InspectionInfo";
   readonly constructor: string | null;
@@ -163,33 +177,40 @@ interface InspectionInfo {
   readonly keys: ReadonlyArray<PropertyKey>;
   readonly protoProps: Conc<PropertyKey>;
 }
+
 function inspectionInfo(args: Omit<InspectionInfo, "_tag">): InspectionInfo {
   return {
     _tag: "InspectionInfo",
     ...args,
   };
 }
+
 interface InspectionEarlyReturn {
   readonly _tag: "InspectionEarlyReturn";
   readonly shown: string;
 }
+
 function inspectionEarlyReturn(shown: string): InspectionEarlyReturn {
   return {
     _tag: "InspectionEarlyReturn",
     shown,
   };
 }
+
 interface InspectionExternal {
   readonly _tag: "InspectionExternal";
   readonly computation: ShowComputationExternal;
 }
+
 function inspectionExternal(computation: ShowComputationExternal): InspectionExternal {
   return {
     _tag: "InspectionExternal",
     computation,
   };
 }
+
 type InspectionResult = InspectionInfo | InspectionEarlyReturn | InspectionExternal;
+
 /**
  * Determines the approximate type of the unknown value and collects information about
  * the structure of that value
@@ -342,6 +363,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
     protoProps,
   });
 }
+
 /**
  * Retrieves information on the unknown value and processes that info to convert the value
  * into a human-readable, formatted string
@@ -454,6 +476,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
     },
   );
 }
+
 /**
  * Converts a Chunk of strings containing the formatted keys/values of the original value
  * into a single formatted string
@@ -502,14 +525,17 @@ function isBelowBreakLength(context: ShowContext, input: Conc<string>, start: nu
   }
   return base === "" || !base.includes("\n");
 }
+
 function removeColors(str: string): string {
   return str.replace(colorRegExp, "");
 }
+
 function showSet(value: Set<unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
     .apSecond((value as Iterable<unknown>).traverseToConc(Z.Applicative)(_show))
     .apFirst(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
 }
+
 function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
   return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
     .apSecond(
@@ -525,6 +551,7 @@ function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
       ),
     );
 }
+
 function showTypedArray(value: TypedArray): ShowComputationChunk {
   return Z.getsZ((context) =>
     Z.defer(() => {
@@ -557,6 +584,7 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
     }),
   );
 }
+
 function showArrayBuffer(value: ArrayBuffer | SharedArrayBuffer): ShowComputationChunk {
   return Z.gets((context: ShowContext) => {
     let buffer;
@@ -575,7 +603,9 @@ function showArrayBuffer(value: ArrayBuffer | SharedArrayBuffer): ShowComputatio
     return Conc.single(`[Uint8Contents]: <${str}>`);
   });
 }
+
 const maxEntries = 2 ** 32 - 2;
+
 function showSpecialArray(
   value: ReadonlyArray<unknown>,
   maxLength: number,
@@ -625,6 +655,7 @@ function showSpecialArray(
     return computation;
   });
 }
+
 function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
   return Z.gets((context: ShowContext) => {
     let chunk       = Conc.from(value);
@@ -647,6 +678,7 @@ function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
     return computation;
   });
 }
+
 function showChunk(value: Conc<unknown>): ShowComputationChunk {
   return Z.gets((context: ShowContext) => {
     const valLen    = value.length;
@@ -660,6 +692,7 @@ function showChunk(value: Conc<unknown>): ShowComputationChunk {
       .map((chunk) => (remaining > 0 ? chunk.append(`... ${remaining} more item${pluralize(remaining)}`) : chunk)),
   );
 }
+
 export function showProperty(
   value: object,
   key: PropertyKey,
@@ -717,6 +750,7 @@ export function showProperty(
     }),
   );
 }
+
 /**
  * Groups the formatted elements of an array-like structure into chunks limited by the
  * maximum character width set in the context
@@ -807,7 +841,9 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
   }
   return output;
 }
+
 type Primitive = string | number | boolean | bigint | symbol;
+
 function _showPrimitive(context: ShowContext, value: Primitive): string {
   switch (typeof value) {
     case "string":
@@ -822,6 +858,7 @@ function _showPrimitive(context: ShowContext, value: Primitive): string {
       return _showSymbol(context, value);
   }
 }
+
 function _showString(context: ShowContext, value: string): string {
   let result  = value;
   let trailer = "";
@@ -844,15 +881,19 @@ function _showString(context: ShowContext, value: string): string {
   }
   return context.stylize(strEscape(value), "string") + trailer;
 }
+
 function _showNumber(context: ShowContext, value: number): string {
   return context.stylize(value.toString(10), "number");
 }
+
 function _showBoolean(context: ShowContext, value: boolean): string {
   return context.stylize(value === true ? "true" : "false", "boolean");
 }
+
 function _showBigInt(context: ShowContext, value: bigint): string {
   return context.stylize(`${value.toString()}n`, "bigint");
 }
+
 function _showSymbol(context: ShowContext, value: symbol): string {
   return context.stylize(value.toString(), "symbol");
 }

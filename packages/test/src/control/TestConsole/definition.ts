@@ -1,7 +1,7 @@
 import type { Console } from "@fncts/io/Console";
 import type { Live } from "@fncts/test/control/Live";
 
-import { showWithOptions } from "@fncts/base/typeclass/Showable";
+import { showWithOptions } from "@fncts/base/data/Showable";
 
 export class ConsoleData extends CaseClass<{
   readonly input: Vector<string>;

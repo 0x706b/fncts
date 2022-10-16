@@ -1,10 +1,13 @@
 /* Forked from https://github.com/planttheidea/fast-equals */
 const HAS_WEAKSET_SUPPORT = typeof WeakSet === "function";
-const { keys }            = Object;
+
+const { keys } = Object;
+
 type Cache = {
   add: (value: any) => void;
   has: (value: any) => boolean;
 };
+
 /**
  * @function addToCache
  *
@@ -18,7 +21,9 @@ export function addToCache(value: any, cache: Cache) {
     cache.add(value);
   }
 }
+
 export type EqualityComparator = (a: any, b: any, meta?: any) => boolean;
+
 /**
  * @function hasPair
  *
@@ -43,6 +48,7 @@ export function hasPair(pairs: [any, any][], pairToMatch: [any, any], isEqual: E
   }
   return false;
 }
+
 /**
  * @function hasValue
  *
@@ -65,6 +71,7 @@ export function hasValue(values: any[], valueToMatch: any, isEqual: EqualityComp
   }
   return false;
 }
+
 /**
  * @function sameValueZeroEqual
  *
@@ -78,6 +85,7 @@ export function hasValue(values: any[], valueToMatch: any, isEqual: EqualityComp
 export function sameValueZeroEqual(a: any, b: any) {
   return a === b || (a !== a && b !== b);
 }
+
 /**
  * @function isPlainObject
  *
@@ -90,6 +98,7 @@ export function sameValueZeroEqual(a: any, b: any) {
 export function isPlainObject(value: any) {
   return value.constructor === Object || value.constructor == null;
 }
+
 /**
  * @function isPromiseLike
  *
@@ -102,6 +111,7 @@ export function isPlainObject(value: any) {
 export function isPromiseLike(value: any) {
   return !!value && typeof value.then === "function";
 }
+
 /**
  * @function isReactElement
  *
@@ -114,6 +124,7 @@ export function isPromiseLike(value: any) {
 export function isReactElement(value: any) {
   return !!(value && value.$$typeof);
 }
+
 /**
  * @function getNewCacheFallback
  *
@@ -136,6 +147,7 @@ export function getNewCacheFallback(): Cache {
     },
   });
 }
+
 /**
  * @function getNewCache
  *
@@ -152,6 +164,7 @@ export const getNewCache = ((canUseWeakMap: boolean) => {
   }
   return getNewCacheFallback;
 })(HAS_WEAKSET_SUPPORT);
+
 /**
  * @function createCircularEqualCreator
  *
@@ -176,6 +189,7 @@ export function createCircularEqualCreator(isEqual?: EqualityComparatorCreator) 
     };
   };
 }
+
 /**
  * @function toPairs
  *
@@ -193,6 +207,7 @@ export function toPairs(map: Map<any, any>): [any, any][] {
   });
   return pairs;
 }
+
 /**
  * @function toValues
  *
@@ -210,6 +225,7 @@ export function toValues(set: Set<any>) {
   });
   return values;
 }
+
 /**
  * @function areArraysEqual
  *
@@ -234,6 +250,7 @@ export function areArraysEqual(a: any[], b: any[], isEqual: EqualityComparator, 
   }
   return true;
 }
+
 /**
  * @function areMapsEqual
  *
@@ -260,12 +277,16 @@ export function areMapsEqual(a: Map<any, any>, b: Map<any, any>, isEqual: Equali
   }
   return true;
 }
+
 type Dictionary<Type> = {
   [key: string]: Type;
   [index: number]: Type;
 };
-const OWNER          = "_owner";
+
+const OWNER = "_owner";
+
 const hasOwnProperty = Function.prototype.bind.call(Function.prototype.call, Object.prototype.hasOwnProperty);
+
 /**
  * @function areObjectsEqual
  *
@@ -300,6 +321,7 @@ export function areObjectsEqual(a: Dictionary<any>, b: Dictionary<any>, isEqual:
   }
   return true;
 }
+
 /**
  * @function areRegExpsEqual
  *
@@ -321,6 +343,7 @@ export function areRegExpsEqual(a: RegExp, b: RegExp) {
     a.lastIndex === b.lastIndex
   );
 }
+
 /**
  * @function areSetsEqual
  *
@@ -347,11 +370,17 @@ export function areSetsEqual(a: Set<any>, b: Set<any>, isEqual: EqualityComparat
   }
   return true;
 }
-const { isArray }     = Array;
+
+const { isArray } = Array;
+
 const HAS_MAP_SUPPORT = typeof Map === "function";
+
 const HAS_SET_SUPPORT = typeof Set === "function";
-const OBJECT_TYPEOF   = "object";
+
+const OBJECT_TYPEOF = "object";
+
 type EqualityComparatorCreator = (fn: EqualityComparator) => EqualityComparator;
+
 export function createComparator(createIsEqual?: EqualityComparatorCreator) {
   const isEqual: EqualityComparator =
     /* eslint-disable no-use-before-define */

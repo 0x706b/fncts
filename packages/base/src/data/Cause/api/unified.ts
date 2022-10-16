@@ -1,6 +1,6 @@
 import type { Cause, Fail, Halt, Interrupt } from "../definition.js";
 
-import { showWithOptions } from "../../../typeclass/Showable.js";
+import { showWithOptions } from "../../../data/Showable.js";
 import { CauseTag, Unified } from "../definition.js";
 
 function unifyFail<E>(fail: Fail<E>): Unified {

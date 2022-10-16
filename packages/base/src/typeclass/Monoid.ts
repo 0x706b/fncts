@@ -37,11 +37,11 @@ export function mkMonoid<A>(F: MonoidMin<A>): Monoid<A> {
 export function deriveLazy<A>(fn: (_: Monoid<A>) => Monoid<A>): Monoid<A> {
   let cached: Monoid<A> | undefined;
   const M: Monoid<A> = Monoid({
-    combine: (x, y) => {
+    combine: (y) => (x) => {
       if (!cached) {
         cached = fn(M);
       }
-      return cached.combine(x, y);
+      return cached.combine(y)(x);
     },
     get nat() {
       if (!cached) {

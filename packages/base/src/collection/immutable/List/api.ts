@@ -271,7 +271,7 @@ export function reverse<A>(self: List<A>): List<A> {
  */
 export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
   return (self: List<A>): List<A> => {
-    return self.sortWith(O.compare);
+    return self.sortWith((x, y) => O.compare(y)(x));
   };
 }
 /**

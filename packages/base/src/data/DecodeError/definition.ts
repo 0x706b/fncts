@@ -1,6 +1,6 @@
 import type { Literal } from "@fncts/typelevel/Any";
 
-import { show } from "@fncts/base/typeclass/Showable";
+import { show } from "@fncts/base/data/Showable";
 
 export const DecodeErrorTypeId = Symbol.for("fncts.DecodeError");
 export type DecodeErrorTypeId = typeof DecodeErrorTypeId;

@@ -42,8 +42,8 @@ export function join(fiberId: FiberId.Runtime, that: FiberRefs) {
 }
 
 function compareFiberId(left: FiberId.Runtime, right: FiberId.Runtime): number {
-  const compare = Number.Ord.compare(left.startTime, right.startTime);
-  return compare === 0 ? Number.Ord.compare(left.id, right.id) : compare;
+  const compare = Number.Ord.compare(right.startTime)(left.startTime);
+  return compare === 0 ? Number.Ord.compare(right.id)(left.id) : compare;
 }
 
 /**

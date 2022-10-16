@@ -34,7 +34,7 @@ export function concN(n: number) {
 export function uniqueConc<A>(constraints: LengthConstraints & EqConstraint<A> = {}) {
   return <R>(self: Gen<R, A>): Gen<Sized | R, Conc<A>> => {
     const minLength = constraints.minLength ?? 0;
-    const eq        = constraints.eq ?? Eq({ equals: Equatable.strictEquals });
+    const eq        = constraints.eq ?? Eq({ equals: (y) => (x) => Equatable.strictEquals(x, y) });
     return constraints.maxLength
       ? Gen.bounded(minLength, constraints.maxLength, (n) => self.uniqueConcN(n, eq))
       : Gen.small((n) => self.uniqueConcN(n, eq), minLength);

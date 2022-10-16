@@ -184,7 +184,7 @@ export function flatMapDefault<A, B>(f: (a: A) => Iterable<B>) {
  */
 export function getEq<A>(): P.Eq<HashSet<A>> {
   return P.Eq({
-    equals: (x, y) => {
+    equals: (y) => (x) => {
       if (y === x) {
         return true;
       }
@@ -441,7 +441,7 @@ export function union<A>(r: Iterable<A>) {
 export function toArray<A>(set: HashSet<A>, O: P.Ord<A>): ReadonlyArray<A> {
   const r: Array<A> = [];
   set.forEach((a) => r.push(a));
-  return r.sort(O.compare);
+  return r.sort((a, b) => O.compare(b)(a));
 }
 
 /*
@@ -474,14 +474,14 @@ function tryGetHash<A>(set: HashSet<A>, value: A, hash: number): Maybe<A> {
   while (true) {
     switch (node._tag) {
       case "LeafNode": {
-        return eq(node.value, value) ? Just(node.value) : Nothing();
+        return eq(value)(node.value) ? Just(node.value) : Nothing();
       }
       case "CollisionNode": {
         if (hash === node.hash) {
           const children = node.children;
           for (let i = 0, len = children.length; i < len; ++i) {
             const child = children[i]!;
-            if ("value" in child && eq(child.value, value)) return Just(child.value);
+            if ("value" in child && eq(value)(child.value)) return Just(child.value);
           }
         }
         return Nothing();

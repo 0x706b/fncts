@@ -2632,10 +2632,13 @@ export function uniqueUntilKeyChanged<A, K extends keyof A>(
   key: K,
   equals: Eq<A[K]> | ((x: A[K], y: A[K]) => boolean),
 ) {
-  return <R, E>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    const compare = "equals" in equals ? equals.equals : equals;
-    return fa.uniqueUntilChanged((x, y) => compare(x[key], y[key]));
-  };
+  if ("equals" in equals) {
+    return <R, E>(fa: Observable<R, E, A>): Observable<R, E, A> =>
+      fa.uniqueUntilChanged((x, y) => equals.equals(y[key])(x[key]));
+  } else {
+    return <R, E>(fa: Observable<R, E, A>): Observable<R, E, A> =>
+      fa.uniqueUntilChanged((x, y) => equals(x[key], y[key]));
+  }
 }
 
 function combineLatestInternal(

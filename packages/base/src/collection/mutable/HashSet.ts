@@ -13,7 +13,7 @@
  */
 
 import { copyOfArray, improveHash, tableSizeFor } from "@fncts/base/collection/mutable/internal";
-import { HashEq } from "@fncts/base/typeclass/HashEq";
+import { HashEq } from "@fncts/base/data/HashEq";
 import { assert } from "@fncts/base/util/assert";
 
 const DEFAULT_INITIAL_CAPACITY = 16;
@@ -80,7 +80,7 @@ export class HashSet<A> implements Iterable<A> {
       const old                     = n;
       let prev: Node<A> | undefined = undefined;
       while (n !== undefined && n.hash <= hash) {
-        if (n.hash === hash && this.config.equals(elem, n.key)) {
+        if (n.hash === hash && this.config.equals(n.key)(elem)) {
           return false;
         }
         prev = n;
@@ -101,7 +101,7 @@ export class HashSet<A> implements Iterable<A> {
     const n   = this.table[idx];
     if (n === undefined) {
       return false;
-    } else if (n.hash === hash && this.config.equals(n.key, elem)) {
+    } else if (n.hash === hash && this.config.equals(elem)(n.key)) {
       this.table[idx]   = n.next;
       this.contentSize -= 1;
       return true;
@@ -109,7 +109,7 @@ export class HashSet<A> implements Iterable<A> {
       let prev = n;
       let next = n.next;
       while (next && next.hash <= hash) {
-        if (next.hash === hash && this.config.equals(next.key, elem)) {
+        if (next.hash === hash && this.config.equals(elem)(next.key)) {
           prev.next         = next.next;
           this.contentSize -= 1;
           return true;
@@ -190,11 +190,11 @@ export class HashSet<A> implements Iterable<A> {
 class Node<K> {
   constructor(public key: K, public hash: number, public next: Node<K> | undefined) {}
 
-  findNode(k: K, h: number, equals: (x: K, y: K) => boolean): Node<K> | undefined {
+  findNode(k: K, h: number, equals: (y: K) => (x: K) => boolean): Node<K> | undefined {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let n: Node<K> | undefined = this;
     while (n) {
-      if (h === n.hash && equals(k, n.key)) {
+      if (h === n.hash && equals(n.key)(k)) {
         return n;
       } else {
         n = n.next;

@@ -61,9 +61,9 @@ export function fromFoldable<F extends HKT, C, K, A>(config: P.HashEq<K>, S: P.S
     return pipe(
       fka,
       F.foldLeft(makeWith(config), (b, [k, a]) => {
-        const oa = b.get(k);
+        const oa: Maybe<A> = b.get(k);
         if (oa.isJust()) {
-          return b.set(k, S.combine(oa.value, a));
+          return b.set(k, S.combine(a)(oa.value));
         } else {
           return b.set(k, a);
         }
@@ -753,14 +753,14 @@ function tryGetHash<K, V>(map: HashMap<K, V>, key: K, hash: number): Maybe<V> {
   while (true) {
     switch (node._tag) {
       case "LeafNode": {
-        return keyEq(node.key, key) ? node.value : Nothing();
+        return keyEq(key)(node.key) ? node.value : Nothing();
       }
       case "CollisionNode": {
         if (hash === node.hash) {
           const children = node.children;
           for (let i = 0, len = children.length; i < len; ++i) {
             const child = children[i]!;
-            if ("key" in child && keyEq(child.key, key)) return child.value;
+            if ("key" in child && keyEq(key)(child.key)) return child.value;
           }
         }
         return Nothing();

@@ -793,7 +793,7 @@ export function foldMap<R, E, A, M>(
   f: (a: A) => M,
   /** @tsplus auto */ M: P.Monoid<M>,
 ): IO<R, E, M> {
-  return IO.foldLeft(as, M.nat, (m, a) => a.map((a) => M.combine(m, f(a))));
+  return IO.foldLeft(as, M.nat, (m, a) => a.map((a) => M.combine(f(a))(m)));
 }
 
 function foldRightLoop<A, B, R, E>(

@@ -6,19 +6,19 @@ import * as P from "../../typeclass.js";
  * @tsplus static fncts.StringOps Eq
  * @tsplus implicit
  */
-export const Eq: P.Eq<string> = P.Eq({ equals: (x, y) => x === y });
+export const Eq: P.Eq<string> = P.Eq({ equals: (y) => (x) => x === y });
 
 /**
  * @tsplus static fncts.StringOps Semigroup
  * @tsplus implicit
  */
-export const Semigroup: P.Semigroup<string> = P.Semigroup({ combine: (x, y) => x + y });
+export const Semigroup: P.Semigroup<string> = P.Semigroup({ combine: (y) => (x) => x + y });
 
 /**
  * @tsplus static fncts.StringOps Monoid
  * @tsplus implicit
  */
-export const Monoid: P.Monoid<string> = P.Monoid({ combine: (x, y) => x + y, nat: "" });
+export const Monoid: P.Monoid<string> = P.Monoid({ combine: (y) => (x) => x + y, nat: "" });
 
 /**
  * @tsplus static fncts.StringOps Ord
@@ -26,7 +26,7 @@ export const Monoid: P.Monoid<string> = P.Monoid({ combine: (x, y) => x + y, nat
  */
 export const Ord: P.Ord<string> = P.Ord({
   ...Eq,
-  compare: (x, y) => (x < y ? -1 : x > y ? 1 : 0),
+  compare: (y) => (x) => x < y ? -1 : x > y ? 1 : 0,
 });
 
 /**

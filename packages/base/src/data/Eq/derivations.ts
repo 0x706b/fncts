@@ -1,22 +1,24 @@
 import type { Check } from "@fncts/typelevel/Check";
 import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
 
-import { Eq } from "@fncts/base/typeclass/Eq/definition";
+import { Eq } from "@fncts/base/data/Eq";
+
 /**
  * @tsplus derive fncts.Eq lazy
  */
 export function deriveLazy<A>(fn: (_: Eq<A>) => Eq<A>): Eq<A> {
   let cached: Eq<A> | undefined;
   const eq: Eq<A> = Eq({
-    equals: (x, y) => {
+    equals: (y) => (x) => {
       if (!cached) {
         cached = fn(eq);
       }
-      return cached.equals(x, y);
+      return cached.equals(y)(x);
     },
   });
   return eq;
 }
+
 /**
  * @tsplus derive fncts.Eq<_> 20
  */
@@ -39,9 +41,9 @@ export function deriveStruct<A extends Record<string, any>>(
     : never
 ): Eq<A> {
   return Eq({
-    equals: (x, y) => {
+    equals: (y) => (x) => {
       for (const field in requiredFields) {
-        if (!(requiredFields[field] as Eq<any>).equals(x[field], y[field])) {
+        if (!(requiredFields[field] as Eq<any>).equals(y[field])(x[field])) {
           return false;
         }
       }
@@ -49,7 +51,7 @@ export function deriveStruct<A extends Record<string, any>>(
         if ((field in x && !(field in y)) || (field in y && !(field in x))) {
           return false;
         }
-        if (!(optionalFields[field] as Eq<any>).equals(x[field], y[field])) {
+        if (!(optionalFields[field] as Eq<any>).equals(y[field])(x[field])) {
           return false;
         }
       }

@@ -2,7 +2,7 @@
  * @tsplus type fncts.Closure
  */
 export interface Closure<A> {
-  readonly combine: (x: A, y: A) => A;
+  readonly combine: (y: A) => (x: A) => A;
 }
 
 /**
@@ -15,6 +15,6 @@ export const Closure: ClosureOps = {};
 /**
  * @tsplus static fncts.ClosureOps __call
  */
-export function mkClosure<A>(F: Closure<A>): Closure<A> {
+export function makeClosure<A>(F: Closure<A>): Closure<A> {
   return F;
 }

@@ -231,7 +231,7 @@ export function concat<B>(that: Conc<B>) {
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
   return (self: Conc<A>): boolean => {
-    return self.exists((el) => E.equals(el, a));
+    return self.exists((el) => E.equals(a)(el));
   };
 }
 
@@ -528,7 +528,7 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
   return (fa: Conc<A>): M => {
-    return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
+    return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(f(i, a))(b));
   };
 }
 

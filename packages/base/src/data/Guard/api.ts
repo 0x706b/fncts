@@ -60,24 +60,33 @@ export const _undefined: Guard<undefined> = Guard(isUndefined);
 export const _null: Guard<null> = Guard(isNull);
 
 /**
+ * @tsplus implicit
  * @tsplus static fncts.GuardOps string
  */
 export const string: Guard<string> = String.Guard;
 
 /**
+ * @tsplus implicit
  * @tsplus static fncts.GuardOps number
  */
 export const number: Guard<number> = Number.Guard;
 
 /**
+ * @tsplus implicit
  * @tsplus static fncts.GuardOps boolean
  */
 export const boolean: Guard<boolean> = Boolean.Guard;
 
 /**
+ * @tsplus implicit
  * @tsplus static fncts.GuardOps bigint
  */
 export const bigint: Guard<bigint> = BigInt.Guard;
+
+/**
+ * @tsplus static fncts.GuardOps object
+ */
+export const object: Guard<{}> = Object.Guard;
 
 /**
  * @tsplus static fncts.GuardOps nullable
@@ -99,6 +108,15 @@ export function deriveLazy<A>(f: (_: Guard<A>) => Guard<A>): Guard<A> {
     return cached.is(u);
   });
   return guard;
+}
+
+/**
+ * @tsplus derive fncts.Guard<_> 10
+ */
+export function deriveEmptyObject<A extends {}>(
+  ..._: Check<Check.IsEqual<A, {}>> extends Check.True ? [] : never
+): Guard<A> {
+  return Guard((u): u is A => typeof u === "object" && u !== null);
 }
 
 /**

@@ -101,7 +101,7 @@ export function omit<A extends {}, N extends ReadonlyArray<keyof A>>(keys: [...N
   ): Struct<{
     readonly [P in Exclude<keyof A, N[number]>]: A[P];
   }> => {
-    const newKeys = keys.asImmutableArray.difference(self.keys.asImmutableArray, Eq({ equals: (x, y) => x === y }));
+    const newKeys = keys.asImmutableArray.difference(self.keys.asImmutableArray, Eq({ equals: (y) => (x) => x === y }));
     const out     = {} as any;
     for (const key of newKeys) {
       out[key] = self.getStruct[key];

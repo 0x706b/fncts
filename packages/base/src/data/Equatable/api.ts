@@ -1,9 +1,10 @@
-import { isEquatable } from "@fncts/base/typeclass/Equatable/definition";
+import { isEquatable } from "@fncts/base/data/Equatable/definition";
 import {
   createCircularEqualCreator,
   createComparator,
   sameValueZeroEqual,
-} from "@fncts/base/typeclass/Equatable/fast-equals";
+} from "@fncts/base/data/Equatable/fast-equals";
+
 /**
  * @tsplus static fncts.EquatableOps deepEquals
  */
@@ -18,6 +19,7 @@ export const deepEquals = createComparator(
     }
   }),
 );
+
 /**
  * @tsplus static fncts.EquatableOps strictEquals
  * @tsplus operator fncts.Equatable ==

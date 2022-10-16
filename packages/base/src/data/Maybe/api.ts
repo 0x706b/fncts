@@ -34,7 +34,7 @@ export function flatMap<A, B>(f: (a: A) => Maybe<B>) {
 export function elem<A>(elem: A, /** @tsplus auto */ E: Eq<A>) {
   return (self: Maybe<A>): boolean => {
     self.concrete();
-    return self._tag === MaybeTag.Just ? E.equals(self.value, elem) : false;
+    return self._tag === MaybeTag.Just ? E.equals(elem)(self.value) : false;
   };
 }
 

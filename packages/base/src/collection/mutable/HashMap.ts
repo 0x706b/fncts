@@ -13,7 +13,7 @@
  */
 
 import { copyOfArray, improveHash, tableSizeFor } from "@fncts/base/collection/mutable/internal";
-import { HashEq } from "@fncts/base/typeclass/HashEq";
+import { HashEq } from "@fncts/base/data/HashEq";
 import { assert } from "@fncts/base/util/assert";
 
 const DEFAULT_INITIAL_CAPACITY = 16;
@@ -83,7 +83,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
       let prev: Node<K, V> | undefined = undefined;
       let nd: Node<K, V> | undefined   = n;
       while (nd) {
-        if (hash === nd.hash && this.config.equals(key, nd.key)) {
+        if (hash === nd.hash && this.config.equals(nd.key)(key)) {
           previousNode = prev;
           foundNode    = nd;
           break;
@@ -161,7 +161,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
       const old = n;
       let prev: Node<K, V> | undefined = undefined;
       while (n !== undefined && n.hash <= hash) {
-        if (n.hash === hash && this.config.equals(key, n.key)) {
+        if (n.hash === hash && this.config.equals(n.key)(key)) {
           const old = n.value;
           n.value   = value;
           if (getOld) return Just(old);
@@ -189,7 +189,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     const nd  = this.table[idx];
     if (nd === undefined) {
       return undefined;
-    } else if (nd.hash === hash && this.config.equals(nd.key, key)) {
+    } else if (nd.hash === hash && this.config.equals(key)(nd.key)) {
       this.table[idx]   = nd.next;
       this.contentSize -= 1;
       return nd;
@@ -197,7 +197,7 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
       let prev = nd;
       let next = nd.next;
       while (next && next.hash <= hash) {
-        if (next.hash === hash && this.config.equals(next.key, key)) {
+        if (next.hash === hash && this.config.equals(key)(next.key)) {
           prev.next         = next.next;
           this.contentSize -= 1;
           return next;
@@ -278,10 +278,10 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
 class Node<K, V> {
   constructor(public key: K, public hash: number, public value: V, public next: Node<K, V> | undefined) {}
 
-  findNode(k: K, h: number, equals: (x: K, y: K) => boolean): Node<K, V> | undefined {
+  findNode(k: K, h: number, equals: (y: K) => (x: K) => boolean): Node<K, V> | undefined {
     let n: Node<K, V> | undefined = this;
     while (n) {
-      if (h === n.hash && equals(k, n.key)) {
+      if (h === n.hash && equals(n.key)(k)) {
         return n;
       } else {
         n = n.next;

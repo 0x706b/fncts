@@ -225,7 +225,7 @@ export function alignCombine<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [E, E1]>,
   A
 > {
-  return (that, S) => F.alignWith(that, (th) => th.match(identity, identity, S.combine));
+  return (that, S) => F.alignWith(that, (th) => th.match(identity, identity, (a, b) => S.combine(b)(a)));
 }
 
 export interface padZip<F extends HKT, FC = HKT.None> {

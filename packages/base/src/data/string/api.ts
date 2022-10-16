@@ -1,5 +1,3 @@
-import { Ord } from "../../typeclass.js";
-
 /**
  * Capitalize the first letter of the string
  *
@@ -81,7 +79,7 @@ export function surround(x: string) {
  */
 export function take(n: number) {
   return (s: string): string => {
-    return s.slice(0, Ord.max(Number.Ord)(0, n));
+    return s.slice(0, Ord.max(Number.Ord)(n)(0));
   };
 }
 
@@ -99,7 +97,7 @@ export function take(n: number) {
  */
 export function takeLast(n: number) {
   return (s: string): string => {
-    return s.slice(Ord.max(Number.Ord)(0, s.length - Math.floor(n)), Infinity);
+    return s.slice(Ord.max(Number.Ord)(s.length - Math.floor(n))(0), Infinity);
   };
 }
 

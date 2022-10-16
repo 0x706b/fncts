@@ -276,12 +276,12 @@ export function dropWhile<A>(predicate: Predicate<A>) {
 
 type ElemState = {
   element: any;
-  equals: (x: any, y: any) => boolean;
+  equals: (y: any) => (x: any) => boolean;
   result: boolean;
 };
 
 function elemCb(value: any, state: ElemState): boolean {
-  return !(state.result = state.equals(value, state.element));
+  return !(state.result = state.equals(state.element)(value));
 }
 
 /**
@@ -560,7 +560,7 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>) 
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: Monoid<M>) {
   return (self: Vector<A>): M => {
-    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
+    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(f(i, a))(b));
   };
 }
 
@@ -1132,7 +1132,7 @@ export function slice(from: number, to: number) {
  */
 export function sort<A>(/** @tsplus auto */ O: Ord<A>) {
   return (self: Vector<A>): Vector<A> => {
-    return self.sortWith(O.compare);
+    return self.sortWith((a, b) => O.compare(b)(a));
   };
 }
 
@@ -1340,7 +1340,7 @@ export const traverse: Traversable<VectorF>["traverse"] = (G) => (f) => (self) =
  * @tsplus getter fncts.Vector uniq
  */
 export function uniq<A>(as: Vector<A>) {
-  return (E: Eq<A>) => as.dropRepeatsWith(E.equals);
+  return (E: Eq<A>) => as.dropRepeatsWith((a, b) => E.equals(b)(a));
 }
 
 /**

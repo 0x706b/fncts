@@ -359,7 +359,7 @@ export function dropLastWhile<A>(p: Predicate<A>) {
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: P.Eq<A>) {
   return (as: ImmutableArray<A>): boolean => {
-    const predicate = (element: A) => E.equals(element, a);
+    const predicate = (element: A) => E.equals(a)(element);
     const len       = as.length;
     for (let i = 0; i < len; i++) {
       if (predicate(as._array[i]!)) {
@@ -642,7 +642,7 @@ export function foldLeftWithIndexWhile<A, B>(b: B, p: Predicate<B>, f: (i: numbe
  */
 export function fold<M>(/** @tsplus auto */ M: Monoid<M>) {
   return (self: ImmutableArray<M>): M => {
-    return self.foldLeft(M.nat, M.combine);
+    return self.foldLeft(M.nat, (b, a) => M.combine(a)(b));
   };
 }
 
@@ -651,7 +651,7 @@ export function fold<M>(/** @tsplus auto */ M: Monoid<M>) {
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: Monoid<M>) {
   return (self: ImmutableArray<A>): M => {
-    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(b, f(i, a)));
+    return self.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(f(i, a))(b));
   };
 }
 
@@ -739,7 +739,7 @@ export function group<A>(E: P.Eq<A>): (self: ImmutableArray<A>) => ImmutableArra
     let i     = 1;
     for (; i < self.length; i++) {
       const a = self._array[i]!;
-      if (E.equals(a, h)) {
+      if (E.equals(h)(a)) {
         out.push(a);
       } else {
         break;
@@ -1114,7 +1114,9 @@ export function scanRight<A, B>(b: B, f: (a: A, b: B) => B) {
  */
 export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
   return (self: ImmutableArray<A>): ImmutableArray<A> => {
-    return self.isEmpty() || self.length === 1 ? self : self._array.slice().sort(O.compare).asImmutableArray;
+    return self.isEmpty() || self.length === 1
+      ? self
+      : self._array.slice().sort((a, b) => O.compare(b)(a)).asImmutableArray;
   };
 }
 

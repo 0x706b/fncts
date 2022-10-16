@@ -80,11 +80,11 @@ export function zipWith<E, A, B, C>(that: These<E, B>, f: (a: A, b: B) => C, /**
       case TheseTag.Left:
         switch (that._tag) {
           case TheseTag.Left:
-            return These.left(S.combine(self.left, that.left));
+            return These.left(S.combine(that.left)(self.left));
           case TheseTag.Right:
             return self;
           case TheseTag.Both:
-            return These.left(S.combine(self.left, that.left));
+            return These.left(S.combine(that.left)(self.left));
         }
       case TheseTag.Right:
         switch (that._tag) {
@@ -98,11 +98,11 @@ export function zipWith<E, A, B, C>(that: These<E, B>, f: (a: A, b: B) => C, /**
       case TheseTag.Both:
         switch (that._tag) {
           case TheseTag.Left:
-            return These.left(S.combine(self.left, that.left));
+            return These.left(S.combine(that.left)(self.left));
           case TheseTag.Right:
             return These.both(self.left, f(self.right, that.right));
           case TheseTag.Both:
-            return These.both(S.combine(self.left, that.left), f(self.right, that.right));
+            return These.both(S.combine(that.left)(self.left), f(self.right, that.right));
         }
     }
   };
@@ -140,11 +140,11 @@ export function flatMap<E, A, B>(f: (a: A) => These<E, B>, /** @tsplus auto */ S
     const that = f(self.right);
     switch (that._tag) {
       case TheseTag.Left:
-        return These.left(S.combine(self.left, that.left));
+        return These.left(S.combine(that.left)(self.left));
       case TheseTag.Right:
         return These.both(self.left, that.right);
       case TheseTag.Both:
-        return These.both(S.combine(self.left, that.left), that.right);
+        return These.both(S.combine(that.left)(self.left), that.right);
     }
   };
 }

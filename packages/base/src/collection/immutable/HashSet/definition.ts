@@ -104,7 +104,7 @@ export class EmptyNode<A> {
   modify(
     remove: boolean,
     edit: number,
-    eq: (x: A, y: A) => boolean,
+    eq: (y: A) => (x: A) => boolean,
     shift: number,
     hash: number,
     value: A,
@@ -129,13 +129,13 @@ export class LeafNode<A> {
   modify(
     remove: boolean,
     edit: number,
-    eq: (x: A, y: A) => boolean,
+    eq: (y: A) => (x: A) => boolean,
     shift: number,
     hash: number,
     value: A,
     size: SizeRef,
   ): Node<A> {
-    if (eq(value, this.value)) {
+    if (eq(this.value)(value)) {
       if (remove) {
         --size.value;
         return _EmptyNode;
@@ -163,7 +163,7 @@ export class CollisionNode<A> {
   modify(
     remove: boolean,
     edit: number,
-    eq: (x: A, y: A) => boolean,
+    eq: (y: A) => (x: A) => boolean,
     shift: number,
     hash: number,
     value: A,
@@ -185,7 +185,7 @@ function updateCollisionList<A>(
   remove: boolean,
   mutate: boolean,
   edit: number,
-  eq: (x: A, y: A) => boolean,
+  eq: (y: A) => (x: A) => boolean,
   hash: number,
   list: Array<Node<A>>,
   value: A,
@@ -194,7 +194,7 @@ function updateCollisionList<A>(
   const len = list.length;
   for (let i = 0; i < len; ++i) {
     const child = list[i]!;
-    if ("value" in child && eq(child.value, value)) {
+    if ("value" in child && eq(value)(child.value)) {
       if (remove) {
         --size.value;
         return arraySpliceOut(mutate, i, list);
@@ -219,7 +219,7 @@ export class IndexedNode<A> {
   modify(
     remove: boolean,
     edit: number,
-    eq: (x: A, y: A) => boolean,
+    eq: (y: A) => (x: A) => boolean,
     shift: number,
     hash: number,
     value: A,
@@ -267,7 +267,7 @@ export class ArrayNode<A> {
   modify(
     remove: boolean,
     edit: number,
-    eq: (x: A, y: A) => boolean,
+    eq: (y: A) => (x: A) => boolean,
     shift: number,
     hash: number,
     value: A,

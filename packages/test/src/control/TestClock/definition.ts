@@ -139,7 +139,7 @@ export class TestClock extends Clock {
       this.awaitSuspended >
       this.clockState.modify((data) => {
         const end    = f(data.duration);
-        const sorted = data.sleeps.sortWith(([x], [y]) => Number.Ord.compare(x, y));
+        const sorted = data.sleeps.sortWith(([x], [y]) => Number.Ord.compare(y)(x));
         return sorted.head
           .flatMap(([duration, promise]) =>
             duration <= end
