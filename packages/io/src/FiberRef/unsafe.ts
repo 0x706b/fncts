@@ -87,7 +87,7 @@ export const currentLogSpan = FiberRef.unsafeMake<List<LogSpan>>(Nil());
 /**
  * @tsplus static fncts.io.FiberRefOps currentLogAnnotations
  */
-export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>>(HashMap.makeDefault());
+export const currentLogAnnotations = FiberRef.unsafeMake<HashMap<string, string>>(HashMap.empty());
 
 /**
  * @tsplus static fncts.io.FiberRefOps currentScheduler

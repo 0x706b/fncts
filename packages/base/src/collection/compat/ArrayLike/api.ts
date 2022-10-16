@@ -1,7 +1,7 @@
 /**
- * @tsplus getter fncts.ArrayLike asIterable
+ * @tsplus getter fncts.ArrayLike toIterable
  */
-export function asIterable<A>(self: ArrayLike<A>): Iterable<A> {
+export function toIterable<A>(self: ArrayLike<A>): Iterable<A> {
   if (Array.isArray(self)) {
     return self;
   }

@@ -2556,7 +2556,7 @@ export function toArray<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, Read
 export function unique<A, K, R1, E1 = never>(toKey?: (value: A) => K, flushes?: Observable<R1, E1, any>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
     return fa.operate((source, subscriber, environment) => {
-      let distinctKeys = HashSet.makeDefault<A | K>();
+      let distinctKeys = HashSet.empty<A | K>();
       source.provideEnvironment(environment).subscribe(
         operatorSubscriber(subscriber, {
           next: (value) => {
@@ -2571,7 +2571,7 @@ export function unique<A, K, R1, E1 = never>(toKey?: (value: A) => K, flushes?: 
       flushes
         ?.provideEnvironment(environment)
         .subscribe(
-          operatorSubscriber(subscriber, { next: () => (distinctKeys = HashSet.makeDefault()), complete: noop }),
+          operatorSubscriber(subscriber, { next: () => (distinctKeys = HashSet.empty()), complete: noop }),
         );
     });
   };

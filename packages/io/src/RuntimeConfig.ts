@@ -32,4 +32,4 @@ export class RuntimeConfigFlags {
 /**
  * @tsplus static fncts.RuntimeConfigFlags empty
  */
-export const empty = new RuntimeConfigFlags(HashSet.makeDefault());
+export const empty = new RuntimeConfigFlags(HashSet.empty());

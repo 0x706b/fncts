@@ -59,21 +59,21 @@ import {
  * @tsplus pipeable-operator fncts.Vector +
  */
 export function append<A>(a: A) {
-  return (as: Vector<A>): Vector<A> => {
-    const suffixSize = getSuffixSize(as);
+  return (self: Vector<A>): Vector<A> => {
+    const suffixSize = getSuffixSize(self);
     if (suffixSize < 32) {
       return new Vector(
-        incrementSuffix(as.bits),
-        as.offset,
-        as.length + 1,
-        as.prefix,
-        as.root,
-        affixPush(a, as.suffix, suffixSize),
+        incrementSuffix(self.bits),
+        self.offset,
+        self.length + 1,
+        self.prefix,
+        self.root,
+        affixPush(a, self.suffix, suffixSize),
       );
     }
     const newSuffix = [a];
-    const newVector = mutableClone(as);
-    appendNodeToTree(newVector, as.suffix);
+    const newVector = mutableClone(self);
+    appendNodeToTree(newVector, self.suffix);
     newVector.suffix = newSuffix;
     newVector.length++;
     newVector.bits = setSuffix(1, newVector.bits);
@@ -88,8 +88,8 @@ export function append<A>(a: A) {
  * @tsplus pipeable fncts.Vector flatMap
  */
 export function flatMap<A, B>(f: (a: A) => Vector<B>) {
-  return (ma: Vector<A>): Vector<B> => {
-    return ma.map(f).flatten;
+  return (self: Vector<A>): Vector<B> => {
+    return self.map(f).flatten;
   };
 }
 
@@ -99,8 +99,8 @@ export function flatMap<A, B>(f: (a: A) => Vector<B>) {
  * @tsplus pipeable fncts.Vector chunksOf
  */
 export function chunksOf(size: number) {
-  return <A>(as: Vector<A>): Vector<Vector<A>> => {
-    const { buffer, l2 } = as.foldLeft(
+  return <A>(self: Vector<A>): Vector<Vector<A>> => {
+    const { buffer, l2 } = self.foldLeft(
       { l2: Vector.emptyPushable<Vector<A>>(), buffer: Vector.emptyPushable<A>() },
       ({ buffer, l2 }, elem) => {
         buffer.push(elem);
@@ -189,10 +189,10 @@ function containsCb(value: any, state: ContainsState): boolean {
  * @tsplus pipeable fncts.Vector contains
  */
 export function contains<A>(element: A) {
-  return (as: Vector<A>): boolean => {
+  return (self: Vector<A>): boolean => {
     containsState.element = element;
     containsState.result  = false;
-    return foldLeftCb(containsCb, containsState, as).result;
+    return foldLeftCb(containsCb, containsState, self).result;
   };
 }
 
@@ -203,8 +203,8 @@ export function contains<A>(element: A) {
  * @tsplus pipeable fncts.Vector drop
  */
 export function drop(n: number) {
-  return <A>(as: Vector<A>): Vector<A> => {
-    return as.slice(n, as.length);
+  return <A>(self: Vector<A>): Vector<A> => {
+    return self.slice(n, self.length);
   };
 }
 
@@ -215,8 +215,8 @@ export function drop(n: number) {
  * @tsplus pipeable fncts.Vector dropLast
  */
 export function dropLast(n: number) {
-  return <A>(as: Vector<A>): Vector<A> => {
-    return as.slice(0, as.length - n);
+  return <A>(self: Vector<A>): Vector<A> => {
+    return self.slice(0, self.length - n);
   };
 }
 
@@ -226,8 +226,8 @@ export function dropLast(n: number) {
  * @complexity `O(n)`
  * @tsplus getter fncts.Vector dropRepeats
  */
-export function dropRepeats<A>(as: Vector<A>): Vector<A> {
-  return as.dropRepeatsWith(Equatable.strictEquals);
+export function dropRepeats<A>(self: Vector<A>): Vector<A> {
+  return self.dropRepeatsWith(Equatable.strictEquals);
 }
 
 /**
@@ -238,8 +238,8 @@ export function dropRepeats<A>(as: Vector<A>): Vector<A> {
  * @tsplus pipeable fncts.Vector dropRepeatsWith
  */
 export function dropRepeatsWith<A>(predicate: (a: A, b: A) => boolean) {
-  return (as: Vector<A>): Vector<A> => {
-    return as.foldLeft(Vector.emptyPushable(), (acc, a) =>
+  return (self: Vector<A>): Vector<A> => {
+    return self.foldLeft(Vector.emptyPushable(), (acc, a) =>
       acc.length !== 0 && predicate((acc as Vector<A>).unsafeLast!, a) ? acc : acc.push(a),
     );
   };
@@ -268,9 +268,9 @@ function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
  * @tsplus pipeable fncts.Vector dropWhile
  */
 export function dropWhile<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): Vector<A> => {
-    const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, as);
-    return as.slice(index, as.length);
+  return (self: Vector<A>): Vector<A> => {
+    const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, self);
+    return self.slice(index, self.length);
   };
 }
 
@@ -322,11 +322,11 @@ function everyCb<A>(value: A, state: any): boolean {
  * @complexity O(n)
  * @tsplus pipeable fncts.Vector every
  */
-export function every<A, B extends A>(refinement: Refinement<A, B>): (as: Vector<A>) => as is Vector<B>;
-export function every<A>(predicate: Predicate<A>): (as: Vector<A>) => boolean;
+export function every<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => self is Vector<B>;
+export function every<A>(predicate: Predicate<A>): (self: Vector<A>) => boolean;
 export function every<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): boolean => {
-    return foldLeftCb<A, PredState>(everyCb, { predicate, result: true }, as).result;
+  return (self: Vector<A>): boolean => {
+    return foldLeftCb<A, PredState>(everyCb, { predicate, result: true }, self).result;
   };
 }
 
@@ -336,14 +336,14 @@ export function every<A>(predicate: Predicate<A>) {
  * @complexity O(1)
  * @tsplus static fncts.VectorOps empty
  */
-export function empty<A = any>(): Vector<A> {
+export function empty<A = never>(): Vector<A> {
   return new Vector(0, 0, 0, emptyAffix, undefined, emptyAffix);
 }
 
 /**
  * @tsplus static fncts.VectorOps emptyPushable
  */
-export function emptyPushable<A>(): MutableVector<A> {
+export function emptyPushable<A = never>(): MutableVector<A> {
   return new Vector(0, 0, 0, [], undefined, []) as any;
 }
 
@@ -360,8 +360,8 @@ function existsCb<A>(value: A, state: PredState): boolean {
  * @tsplus pipeable fncts.Vector exists
  */
 export function exists<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): boolean => {
-    return foldLeftCb<A, PredState>(existsCb, { predicate, result: false }, as).result;
+  return (self: Vector<A>): boolean => {
+    return foldLeftCb<A, PredState>(existsCb, { predicate, result: false }, self).result;
   };
 }
 
@@ -373,8 +373,8 @@ export function exists<A>(predicate: Predicate<A>) {
  * @tsplus pipeable fncts.Vector find
  */
 export function find<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): Maybe<A> => {
-    return Maybe.fromNullable(as.unsafeFind(predicate));
+  return (self: Vector<A>): Maybe<A> => {
+    return Maybe.fromNullable(self.unsafeFind(predicate));
   };
 }
 
@@ -398,8 +398,8 @@ function findIndexCb<A>(value: A, state: FindIndexState): boolean {
  * @tsplus pipeable fncts.Vector findIndex
  */
 export function findIndex<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): number => {
-    const { found, index } = foldLeftCb<A, FindIndexState>(findIndexCb, { predicate, found: false, index: -1 }, as);
+  return (self: Vector<A>): number => {
+    const { found, index } = foldLeftCb<A, FindIndexState>(findIndexCb, { predicate, found: false, index: -1 }, self);
     return found ? index : -1;
   };
 }
@@ -412,8 +412,8 @@ export function findIndex<A>(predicate: Predicate<A>) {
  * @tsplus pipeable fncts.Vector findLast
  */
 export function findLast<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): Maybe<A> => {
-    return Maybe.fromNullable(as.unsafeFindLast(predicate));
+  return (self: Vector<A>): Maybe<A> => {
+    return Maybe.fromNullable(self.unsafeFindLast(predicate));
   };
 }
 
@@ -426,8 +426,8 @@ export function findLast<A>(predicate: Predicate<A>) {
  * @tsplus pipeable fncts.Vector findLastIndex
  */
 export function findLastIndex<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): number => {
-    const { found, index } = foldRightCb<A, FindIndexState>(findIndexCb, { predicate, found: false, index: -0 }, as);
+  return (self: Vector<A>): number => {
+    const { found, index } = foldRightCb<A, FindIndexState>(findIndexCb, { predicate, found: false, index: -0 }, self);
     return found ? index : -1;
   };
 }
@@ -440,8 +440,8 @@ export function findLastIndex<A>(predicate: Predicate<A>) {
  *
  * @tsplus getter fncts.Vector flatten
  */
-export function flatten<A>(mma: Vector<Vector<A>>): Vector<A> {
-  return mma.foldLeft<Vector<A>, Vector<A>>(Vector.empty(), (acc, a) => acc.concat(a));
+export function flatten<A>(self: Vector<Vector<A>>): Vector<A> {
+  return self.foldLeft<Vector<A>, Vector<A>>(Vector.empty(), (acc, a) => acc.concat(a));
 }
 
 /**
@@ -473,8 +473,8 @@ export function from<A>(sequence: any): Vector<A> {
  * @tsplus pipeable fncts.Vector foldLeft
  */
 export function foldLeft<A, B>(initial: B, f: (acc: B, a: A) => B) {
-  return (fa: Vector<A>): B => {
-    return fa.foldLeftWithIndex(initial, (_, b, a) => f(b, a));
+  return (self: Vector<A>): B => {
+    return self.foldLeftWithIndex(initial, (_, b, a) => f(b, a));
   };
 }
 
@@ -482,14 +482,14 @@ export function foldLeft<A, B>(initial: B, f: (acc: B, a: A) => B) {
  * @tsplus pipeable fncts.Vector foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
-  return (fa: Vector<A>): B => {
-    const suffixSize = getSuffixSize(fa);
-    const prefixSize = getPrefixSize(fa);
-    let [acc, index] = foldLeftPrefix(f, b, fa.prefix, prefixSize);
-    if (fa.root !== undefined) {
-      [acc, index] = foldLeftNode(f, acc, fa.root, getDepth(fa), index);
+  return (self: Vector<A>): B => {
+    const suffixSize = getSuffixSize(self);
+    const prefixSize = getPrefixSize(self);
+    let [acc, index] = foldLeftPrefix(f, b, self.prefix, prefixSize);
+    if (self.root !== undefined) {
+      [acc, index] = foldLeftNode(f, acc, self.root, getDepth(self), index);
     }
-    return foldLeftSuffix(f, acc, fa.suffix, suffixSize, index)[0];
+    return foldLeftSuffix(f, acc, self.suffix, suffixSize, index)[0];
   };
 }
 
@@ -525,11 +525,11 @@ function foldWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolea
  * @tsplus pipeable fncts.Vector foldLeftWhile
  */
 export function foldLeftWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, b: B, a: A) => B) {
-  return (fa: Vector<A>): B => {
+  return (self: Vector<A>): B => {
     if (!cont(b)) {
       return b;
     }
-    return foldLeftCb<A, FoldWhileState<A, B>>(foldWhileCb, { predicate: cont, f, result: b }, fa).result;
+    return foldLeftCb<A, FoldWhileState<A, B>>(foldWhileCb, { predicate: cont, f, result: b }, self).result;
   };
 }
 
@@ -537,11 +537,11 @@ export function foldLeftWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, b: 
  * @tsplus pipeable fncts.Vector foldRightWhile
  */
 export function foldRightWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, a: A, b: B) => B) {
-  return (fa: Vector<A>): B => {
+  return (self: Vector<A>): B => {
     return foldRightCb<A, FoldWhileState<A, B>>(
       foldWhileCb,
       { predicate: cont, result: b, f: (i, b, a) => f(i, a, b) },
-      fa,
+      self,
     ).result;
   };
 }
@@ -571,8 +571,8 @@ export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus au
  * @tsplus pipeable fncts.Vector foldRight
  */
 export function foldRight<A, B>(initial: B, f: (value: A, acc: B) => B) {
-  return (fa: Vector<A>): B => {
-    return fa.foldRightWithIndex(initial, (_, a, b) => f(a, b));
+  return (self: Vector<A>): B => {
+    return self.foldRightWithIndex(initial, (_, a, b) => f(a, b));
   };
 }
 
@@ -583,14 +583,14 @@ export function foldRight<A, B>(initial: B, f: (value: A, acc: B) => B) {
  * @tsplus pipeable fncts.Vector foldRightWithIndex
  */
 export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
-  return (fa: Vector<A>): B => {
-    const suffixSize = getSuffixSize(fa);
-    const prefixSize = getPrefixSize(fa);
-    let [acc, j]     = foldRightSuffix(f, b, fa.suffix, suffixSize, fa.length - 1);
-    if (fa.root !== undefined) {
-      [acc, j] = foldRightNode(f, acc, fa.root, getDepth(fa), j);
+  return (self: Vector<A>): B => {
+    const suffixSize = getSuffixSize(self);
+    const prefixSize = getPrefixSize(self);
+    let [acc, j]     = foldRightSuffix(f, b, self.suffix, suffixSize, self.length - 1);
+    if (self.root !== undefined) {
+      [acc, j] = foldRightNode(f, acc, self.root, getDepth(self), j);
     }
-    return foldRightPrefix(f, acc, fa.prefix, prefixSize, j)[0];
+    return foldRightPrefix(f, acc, self.prefix, prefixSize, j)[0];
   };
 }
 
@@ -607,8 +607,8 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
  * @tsplus pipeable fncts.Vector forEach
  */
 export function forEach<A>(f: (a: A) => void) {
-  return (as: Vector<A>): void => {
-    as.foldLeft(undefined as void, (_, element) => f(element));
+  return (self: Vector<A>): void => {
+    self.foldLeft(undefined as void, (_, element) => f(element));
   };
 }
 
@@ -616,8 +616,8 @@ export function forEach<A>(f: (a: A) => void) {
  * @tsplus pipeable fncts.Vector forEachWithIndex
  */
 export function forEachWithIndex<A>(f: (i: number, a: A) => void) {
-  return (as: Vector<A>): void => {
-    as.foldLeftWithIndex(undefined as void, (index, _, element) => f(index, element));
+  return (self: Vector<A>): void => {
+    self.foldLeftWithIndex(undefined as void, (index, _, element) => f(index, element));
   };
 }
 
@@ -645,10 +645,10 @@ export function get(index: number) {
  * @tsplus pipeable fncts.Vector groupWith
  */
 export function groupWith<A>(f: (a: A, b: A) => boolean) {
-  return (as: Vector<A>): Vector<Vector<A>> => {
+  return (self: Vector<A>): Vector<Vector<A>> => {
     const result = Vector.emptyPushable<MutableVector<A>>();
     let buffer   = Vector.emptyPushable<A>();
-    as.forEach((a) => {
+    self.forEach((a) => {
       if (buffer.length !== 0 && !f(unsafeLast(buffer)!, a)) {
         result.push(buffer);
         buffer = emptyPushable();
@@ -688,9 +688,9 @@ function indexOfCb(value: any, state: IndexOfState): boolean {
  * @tsplus pipeable fncts.Vector indexOf
  */
 export function indexOf<A>(element: A) {
-  return (as: Vector<A>): number => {
+  return (self: Vector<A>): number => {
     const state = { element, found: false, index: -1 };
-    foldLeftCb(indexOfCb, state, as);
+    foldLeftCb(indexOfCb, state, self);
     return state.found ? state.index : -1;
   };
 }
@@ -702,8 +702,8 @@ export function indexOf<A>(element: A) {
  * @tsplus pipeable fncts.Vector insertAt
  */
 export function insertAt<A>(index: number, element: A) {
-  return (as: Vector<A>): Vector<A> => {
-    return as.slice(0, index).append(element).concat(as.slice(index, as.length));
+  return (self: Vector<A>): Vector<A> => {
+    return self.slice(0, index).append(element).concat(self.slice(index, self.length));
   };
 }
 
@@ -714,8 +714,8 @@ export function insertAt<A>(index: number, element: A) {
  * @tsplus pipeable fncts.Vector insertAllAt
  */
 export function insertAllAt<A>(index: number, elements: Vector<A>) {
-  return (as: Vector<A>): Vector<A> => {
-    return as.slice(0, index).concat(elements).concat(as.slice(index, as.length));
+  return (self: Vector<A>): Vector<A> => {
+    return self.slice(0, index).concat(elements).concat(self.slice(index, self.length));
   };
 }
 
@@ -725,23 +725,23 @@ export function insertAllAt<A>(index: number, elements: Vector<A>) {
  * @tsplus pipeable fncts.Vector intersperse
  */
 export function intersperse<A>(separator: A) {
-  return (as: Vector<A>): Vector<A> => {
-    return (as.foldLeft(Vector.emptyPushable(), (l2, a) => l2.push(a).push(separator)) as Vector<A>).pop;
+  return (self: Vector<A>): Vector<A> => {
+    return (self.foldLeft(Vector.emptyPushable(), (l2, a) => l2.push(a).push(separator)) as Vector<A>).pop;
   };
 }
 
 /**
  * @tsplus fluent fncts.Vector isEmpty
  */
-export function isEmpty<A>(l: Vector<A>): boolean {
-  return l.length === 0;
+export function isEmpty<A>(self: Vector<A>): boolean {
+  return self.length === 0;
 }
 
 /**
  * @tsplus fluent fncts.Vector isNonEmpty
  */
-export function isNonEmpty<A>(l: Vector<A>): boolean {
-  return l.length > 0;
+export function isNonEmpty<A>(self: Vector<A>): boolean {
+  return self.length > 0;
 }
 
 /**
@@ -750,8 +750,8 @@ export function isNonEmpty<A>(l: Vector<A>): boolean {
  * @tsplus pipeable fncts.Vector join
  */
 export function join(separator: string) {
-  return (as: Vector<string>): string => {
-    return as.foldLeft("", (a, b) => (a.length === 0 ? b : a + separator + b));
+  return (self: Vector<string>): string => {
+    return self.foldLeft("", (a, b) => (a.length === 0 ? b : a + separator + b));
   };
 }
 
@@ -761,8 +761,8 @@ export function join(separator: string) {
  * @complexity O(1)
  * @tsplus getter fncts.Vector last
  */
-export function last<A>(l: Vector<A>): Maybe<NonNullable<A>> {
-  return Maybe.fromNullable(l.unsafeLast);
+export function last<A>(self: Vector<A>): Maybe<NonNullable<A>> {
+  return Maybe.fromNullable(self.unsafeLast);
 }
 
 /**
@@ -773,10 +773,10 @@ export function last<A>(l: Vector<A>): Maybe<NonNullable<A>> {
  * @tsplus pipeable fncts.Vector lastIndexOf
  */
 export function lastIndexOf<A>(element: A) {
-  return (as: Vector<A>): number => {
+  return (self: Vector<A>): number => {
     const state = { element, found: false, index: 0 };
-    foldRightCb(indexOfCb, state, as);
-    return state.found ? as.length - state.index : -1;
+    foldRightCb(indexOfCb, state, self);
+    return state.found ? self.length - state.index : -1;
   };
 }
 
@@ -799,8 +799,8 @@ export function makeBy<A>(n: number, f: (index: number) => A): Vector<A> {
  * @tsplus pipeable fncts.Vector mapAccum
  */
 export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
-  return (fa: Vector<A>): readonly [Vector<B>, S] => {
-    return fa.foldLeft([Vector.emptyPushable(), s], ([acc, s], a) => {
+  return (self: Vector<A>): readonly [Vector<B>, S] => {
+    return self.foldLeft([Vector.emptyPushable(), s], ([acc, s], a) => {
       const r = f(s, a);
       acc.push(r[0]);
       return [acc, r[1]];
@@ -816,8 +816,8 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
  * @tsplus pipeable fncts.Vector map
  */
 export function map<A, B>(f: (a: A) => B) {
-  return (fa: Vector<A>): Vector<B> => {
-    return fa.mapWithIndex((_, a) => f(a));
+  return (self: Vector<A>): Vector<B> => {
+    return self.mapWithIndex((_, a) => f(a));
   };
 }
 
@@ -829,14 +829,14 @@ export function map<A, B>(f: (a: A) => B) {
  * @tsplus pipeable fncts.Vector mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
-  return (fa: Vector<A>): Vector<B> => {
+  return (self: Vector<A>): Vector<B> => {
     return new Vector(
-      fa.bits,
-      fa.offset,
-      fa.length,
-      mapPrefix(f, fa.prefix, getPrefixSize(fa)),
-      fa.root === undefined ? undefined : mapNode(f, fa.root, getDepth(fa), getPrefixSize(fa), 1)[0],
-      mapAffix(f, fa.suffix, getSuffixSize(fa), fa.length),
+      self.bits,
+      self.offset,
+      self.length,
+      mapPrefix(f, self.prefix, getPrefixSize(self)),
+      self.root === undefined ? undefined : mapNode(f, self.root, getDepth(self), getPrefixSize(self), 1)[0],
+      mapAffix(f, self.suffix, getSuffixSize(self), self.length),
     );
   };
 }
@@ -844,8 +844,8 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 /**
  * @tsplus getter fncts.Vector mutableClone
  */
-export function mutableClone<A>(as: Vector<A>): MutableVector<A> {
-  return new Vector(as.bits, as.offset, as.length, as.prefix, as.root, as.suffix) as any;
+export function mutableClone<A>(self: Vector<A>): MutableVector<A> {
+  return new Vector(self.bits, self.offset, self.length, self.prefix, self.root, self.suffix) as any;
 }
 
 /**
@@ -860,11 +860,11 @@ export function mutableClone<A>(as: Vector<A>): MutableVector<A> {
  * @tsplus pipeable fncts.Vector modifyAt
  */
 export function modifyAt<A>(i: number, f: (a: A) => A) {
-  return (as: Vector<A>): Vector<A> => {
-    if (i < 0 || as.length <= i) {
-      return as;
+  return (self: Vector<A>): Vector<A> => {
+    if (i < 0 || self.length <= i) {
+      return self;
     }
-    return as.updateAt(i, f(as.unsafeGet(i)!));
+    return self.updateAt(i, f(self.unsafeGet(i)!));
   };
 }
 
@@ -877,8 +877,8 @@ export function modifyAt<A>(i: number, f: (a: A) => A) {
  * @tsplus pipeable fncts.Vector none
  */
 export function none<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): boolean => {
-    return !as.exists(predicate);
+  return (self: Vector<A>): boolean => {
+    return !self.exists(predicate);
   };
 }
 
@@ -899,8 +899,8 @@ export function pair<A>(first: A, second: A): Vector<A> {
  * @complexity `O(1)`
  * @tsplus getter fncts.Vector pop
  */
-export function pop<A>(as: Vector<A>): Vector<A> {
-  return as.slice(0, -1);
+export function pop<A>(self: Vector<A>): Vector<A> {
+  return self.slice(0, -1);
 }
 
 /**
@@ -911,20 +911,20 @@ export function pop<A>(as: Vector<A>): Vector<A> {
  * @tsplus pipeable fncts.Vector prepend
  */
 export function prepend<A>(a: A) {
-  return (as: Vector<A>): Vector<A> => {
-    const prefixSize = getPrefixSize(as);
+  return (self: Vector<A>): Vector<A> => {
+    const prefixSize = getPrefixSize(self);
     if (prefixSize < 32) {
       return new Vector<A>(
-        incrementPrefix(as.bits),
-        as.offset,
-        as.length + 1,
-        affixPush(a, as.prefix, prefixSize),
-        as.root,
-        as.suffix,
+        incrementPrefix(self.bits),
+        self.offset,
+        self.length + 1,
+        affixPush(a, self.prefix, prefixSize),
+        self.root,
+        self.suffix,
       );
     } else {
-      const newVector = mutableClone(as);
-      prependNodeToTree(newVector, reverseArray(as.prefix));
+      const newVector = mutableClone(self);
+      prependNodeToTree(newVector, reverseArray(self.prefix));
       const newPrefix  = [a];
       newVector.prefix = newPrefix;
       newVector.length++;
@@ -937,8 +937,8 @@ export function prepend<A>(a: A) {
 /**
  * @tsplus operator fncts.Vector +
  */
-export function prependOperator<A>(a: A, as: Vector<A>): Vector<A> {
-  return as.prepend(a);
+export function prependOperator<A>(a: A, self: Vector<A>): Vector<A> {
+  return self.prepend(a);
 }
 
 /**
@@ -965,8 +965,8 @@ export function range(start: number, end: number): Vector<number> {
  * @tsplus pipeable fncts.Vector remove
  */
 export function remove(from: number, amount: number) {
-  return <A>(as: Vector<A>): Vector<A> => {
-    return as.slice(0, from).concat(as.slice(from + amount, as.length));
+  return <A>(self: Vector<A>): Vector<A> => {
+    return self.slice(0, from).concat(self.slice(from + amount, self.length));
   };
 }
 
@@ -1000,8 +1000,8 @@ export function reverse<A>(self: Vector<A>): Vector<A> {
  * @tsplus pipeable fncts.Vector scanLeft
  */
 export function scanLeft<A, B>(initial: B, f: (acc: B, value: A) => B) {
-  return (as: Vector<A>): Vector<B> => {
-    return as.foldLeft(emptyPushable<B>().push(initial), (l2, a) => l2.push(f((l2 as Vector<B>).unsafeLast!, a)));
+  return (self: Vector<A>): Vector<B> => {
+    return self.foldLeft(emptyPushable<B>().push(initial), (l2, a) => l2.push(f((l2 as Vector<B>).unsafeLast!, a)));
   };
 }
 
@@ -1024,8 +1024,8 @@ export function single<A>(a: A): Vector<A> {
  * @tsplus pipeable fncts.Vector slice
  */
 export function slice(from: number, to: number) {
-  return <A>(as: Vector<A>): Vector<A> => {
-    let { bits, length } = as;
+  return <A>(self: Vector<A>): Vector<A> => {
+    let { bits, length } = self;
     let _to              = to;
     let _from            = from;
     _to                  = Math.min(length, to);
@@ -1042,18 +1042,18 @@ export function slice(from: number, to: number) {
     }
     // Return Vector unchanged if we are slicing nothing off
     if (_from <= 0 && length <= _to) {
-      return as;
+      return self;
     }
     const newLength  = _to - _from;
-    let prefixSize   = getPrefixSize(as);
-    const suffixSize = getSuffixSize(as);
+    let prefixSize   = getPrefixSize(self);
+    const suffixSize = getSuffixSize(self);
     // Both indices lie in the prefix
     if (_to <= prefixSize) {
       return new Vector(
         setPrefix(newLength, 0),
         0,
         newLength,
-        as.prefix.slice(prefixSize - _to, prefixSize - _from),
+        self.prefix.slice(prefixSize - _to, prefixSize - _from),
         undefined,
         emptyAffix,
       );
@@ -1067,19 +1067,19 @@ export function slice(from: number, to: number) {
         newLength,
         emptyAffix,
         undefined,
-        as.suffix.slice(_from - suffixStart, _to - suffixStart),
+        self.suffix.slice(_from - suffixStart, _to - suffixStart),
       );
     }
-    const newVector  = mutableClone(as);
+    const newVector  = mutableClone(self);
     newVector.length = newLength;
     // Both indices lie in the tree
     if (prefixSize <= _from && _to <= suffixStart) {
       sliceTreeVector(
-        _from - prefixSize + as.offset,
-        _to - prefixSize + as.offset - 1,
-        as.root!,
-        getDepth(as),
-        as.offset,
+        _from - prefixSize + self.offset,
+        _to - prefixSize + self.offset - 1,
+        self.root!,
+        getDepth(self),
+        self.offset,
         newVector,
       );
       return newVector;
@@ -1089,13 +1089,13 @@ export function slice(from: number, to: number) {
       if (_from < prefixSize) {
         // shorten the prefix even though it's not strictly needed,
         // so that referenced items can be GC'd
-        newVector.prefix = as.prefix.slice(0, prefixSize - _from);
+        newVector.prefix = self.prefix.slice(0, prefixSize - _from);
         bits             = setPrefix(prefixSize - _from, bits);
       } else {
         // if we're here `_to` can't lie in the tree, so we can set the
         // root
         zeroOffset();
-        newVector.root   = sliceLeft(newVector.root!, getDepth(as), _from - prefixSize, as.offset, true);
+        newVector.root   = sliceLeft(newVector.root!, getDepth(self), _from - prefixSize, self.offset, true);
         newVector.offset = newOffset;
         if (newVector.root === undefined) {
           bits = setDepth(0, bits);
@@ -1111,9 +1111,9 @@ export function slice(from: number, to: number) {
         bits = setSuffix(suffixSize - (length - _to), bits);
         // slice the suffix even though it's not strictly needed,
         // _to allow the removed items _to be GC'd
-        newVector.suffix = as.suffix.slice(0, suffixSize - (length - _to));
+        newVector.suffix = self.suffix.slice(0, suffixSize - (length - _to));
       } else {
-        newVector.root = sliceRight(newVector.root!, getDepth(as), _to - prefixSize - 1, newVector.offset);
+        newVector.root = sliceRight(newVector.root!, getDepth(self), _to - prefixSize - 1, newVector.offset);
         if (newVector.root === undefined) {
           bits             = setDepth(0, bits);
           newVector.offset = 0;
@@ -1148,13 +1148,13 @@ export function sort<A>(/** @tsplus auto */ O: Ord<A>) {
  * @tsplus pipeable fncts.Vector sortWith
  */
 export function sortWith<A>(compare: (a: A, b: A) => Ordering) {
-  return (as: Vector<A>): Vector<A> => {
+  return (self: Vector<A>): Vector<A> => {
     const arr: {
       idx: number;
       elm: A;
     }[] = [];
     let i = 0;
-    as.forEach((elm) => arr.push({ idx: i++, elm }));
+    self.forEach((elm) => arr.push({ idx: i++, elm }));
     arr.sort(({ elm: a, idx: i }, { elm: b, idx: j }) => {
       const c = compare(a, b);
       return c !== 0 ? c : i < j ? -1 : 1;
@@ -1178,8 +1178,8 @@ export function sortWith<A>(compare: (a: A, b: A) => Ordering) {
  * @tsplus pipeable fncts.Vector splitAt
  */
 export function splitAt(index: number) {
-  return <A>(as: Vector<A>): [Vector<A>, Vector<A>] => {
-    return [as.slice(0, index), as.slice(index, as.length)];
+  return <A>(self: Vector<A>): [Vector<A>, Vector<A>] => {
+    return [self.slice(0, index), self.slice(index, self.length)];
   };
 }
 
@@ -1192,9 +1192,9 @@ export function splitAt(index: number) {
  * @tsplus pipeable fncts.Vector splitWhen
  */
 export function splitWhen<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): [Vector<A>, Vector<A>] => {
-    const idx = as.findIndex(predicate);
-    return idx === -1 ? [as, Vector.empty()] : as.splitAt(idx);
+  return (self: Vector<A>): [Vector<A>, Vector<A>] => {
+    const idx = self.findIndex(predicate);
+    return idx === -1 ? [self, Vector.empty()] : self.splitAt(idx);
   };
 }
 
@@ -1206,8 +1206,8 @@ export function splitWhen<A>(predicate: Predicate<A>) {
  *
  * @tsplus getter fncts.Vector tail
  */
-export function tail<A>(as: Vector<A>): Vector<A> {
-  return as.slice(1, as.length);
+export function tail<A>(self: Vector<A>): Vector<A> {
+  return self.slice(1, self.length);
 }
 
 /**
@@ -1217,8 +1217,8 @@ export function tail<A>(as: Vector<A>): Vector<A> {
  * @tsplus pipeable fncts.Vector take
  */
 export function take(n: number) {
-  return <A>(as: Vector<A>): Vector<A> => {
-    return as.slice(0, n);
+  return <A>(self: Vector<A>): Vector<A> => {
+    return self.slice(0, n);
   };
 }
 
@@ -1232,9 +1232,9 @@ export function take(n: number) {
  * @tsplus pipeable fncts.Vector takeWhile
  */
 export function takeWhile<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): Vector<A> => {
-    const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, as);
-    return as.slice(0, index);
+  return (self: Vector<A>): Vector<A> => {
+    const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, self);
+    return self.slice(0, index);
   };
 }
 
@@ -1246,8 +1246,8 @@ export function takeWhile<A>(predicate: Predicate<A>) {
  * @tsplus pipeable fncts.Vector takeLast
  */
 export function takeLast(n: number) {
-  return <A>(as: Vector<A>): Vector<A> => {
-    return as.slice(as.length - n, as.length);
+  return <A>(self: Vector<A>): Vector<A> => {
+    return self.slice(self.length - n, self.length);
   };
 }
 
@@ -1261,9 +1261,9 @@ export function takeLast(n: number) {
  * @tsplus pipeable fncts.Vector takeLastWhile
  */
 export function takeLastWhile<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): Vector<A> => {
-    const { index } = foldRightCb(findNotIndexCb, { predicate, index: 0 }, as);
-    return as.slice(as.length - index, as.length);
+  return (self: Vector<A>): Vector<A> => {
+    const { index } = foldRightCb(findNotIndexCb, { predicate, index: 0 }, self);
+    return self.slice(self.length - index, self.length);
   };
 }
 
@@ -1337,10 +1337,10 @@ export const traverse: Traversable<VectorF>["traverse"] = (G) => (f) => (self) =
  * Eq instance to determine when elements are equal
  *
  * @complexity `O(n)`
- * @tsplus getter fncts.Vector uniq
+ * @tsplus pipeable fncts.Vector uniq
  */
-export function uniq<A>(as: Vector<A>) {
-  return (E: Eq<A>) => as.dropRepeatsWith((a, b) => E.equals(b)(a));
+export function uniq<A>(E: Eq<A>) {
+  return (self: Vector<A>) => self.dropRepeatsWith((a, b) => E.equals(b)(a));
 }
 
 /**
@@ -1380,8 +1380,8 @@ function findCb<A>(value: A, state: PredState): boolean {
  * @tsplus pipeable fncts.Vector unsafeFind
  */
 export function unsafeFind<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): A | undefined => {
-    return foldLeftCb<A, PredState>(findCb, { predicate, result: undefined }, as).result;
+  return (self: Vector<A>): A | undefined => {
+    return foldLeftCb<A, PredState>(findCb, { predicate, result: undefined }, self).result;
   };
 }
 
@@ -1393,8 +1393,8 @@ export function unsafeFind<A>(predicate: Predicate<A>) {
  * @tsplus pipeable fncts.Vector unsafeFindLast
  */
 export function unsafeFindLast<A>(predicate: Predicate<A>) {
-  return (as: Vector<A>): A | undefined => {
-    return foldRightCb<A, PredState>(findCb, { predicate, result: undefined }, as).result;
+  return (self: Vector<A>): A | undefined => {
+    return foldRightCb<A, PredState>(findCb, { predicate, result: undefined }, self).result;
   };
 }
 
@@ -1407,26 +1407,26 @@ export function unsafeFindLast<A>(predicate: Predicate<A>) {
  * @tsplus pipeable-index fncts.Vector
  */
 export function unsafeGet(index: number) {
-  return <A>(l: Vector<A>): A | undefined => {
-    if (index < 0 || l.length <= index) {
+  return <A>(self: Vector<A>): A | undefined => {
+    if (index < 0 || self.length <= index) {
       return undefined;
     }
-    const prefixSize = getPrefixSize(l);
-    const suffixSize = getSuffixSize(l);
+    const prefixSize = getPrefixSize(self);
+    const suffixSize = getSuffixSize(self);
     if (index < prefixSize) {
-      return l.prefix[prefixSize - index - 1];
-    } else if (index >= l.length - suffixSize) {
-      return l.suffix[index - (l.length - suffixSize)];
+      return self.prefix[prefixSize - index - 1];
+    } else if (index >= self.length - suffixSize) {
+      return self.suffix[index - (self.length - suffixSize)];
     }
-    const { offset } = l;
-    const depth      = getDepth(l);
-    return l.root!.sizes === undefined
+    const { offset } = self;
+    const depth      = getDepth(self);
+    return self.root!.sizes === undefined
       ? nodeNthDense(
-          l.root!,
+          self.root!,
           depth,
           offset === 0 ? index - prefixSize : handleOffset(depth, offset, index - prefixSize),
         )
-      : nodeNth(l.root!, depth, offset, index - prefixSize);
+      : nodeNth(self.root!, depth, offset, index - prefixSize);
   };
 }
 
@@ -1437,9 +1437,9 @@ export function unsafeGet(index: number) {
  * @complexity O(1)
  * @tsplus getter fncts.Vector unsafeHead
  */
-export function unsafeHead<A>(l: Vector<A>): A | undefined {
-  const prefixSize = getPrefixSize(l);
-  return prefixSize !== 0 ? l.prefix[prefixSize - 1] : l.length !== 0 ? l.suffix[0] : undefined;
+export function unsafeHead<A>(self: Vector<A>): A | undefined {
+  const prefixSize = getPrefixSize(self);
+  return prefixSize !== 0 ? self.prefix[prefixSize - 1] : self.length !== 0 ? self.suffix[0] : undefined;
 }
 
 /**
@@ -1449,9 +1449,9 @@ export function unsafeHead<A>(l: Vector<A>): A | undefined {
  * @complexity O(1)
  * @tsplus getter fncts.Vector unsafeLast
  */
-export function unsafeLast<A>(l: Vector<A>): A | undefined {
-  const suffixSize = getSuffixSize(l);
-  return suffixSize !== 0 ? l.suffix[suffixSize - 1] : l.length !== 0 ? l.prefix[0] : undefined;
+export function unsafeLast<A>(self: Vector<A>): A | undefined {
+  const suffixSize = getSuffixSize(self);
+  return suffixSize !== 0 ? self.suffix[suffixSize - 1] : self.length !== 0 ? self.prefix[0] : undefined;
 }
 
 /**
@@ -1463,23 +1463,23 @@ export function unsafeLast<A>(l: Vector<A>): A | undefined {
  * @tsplus pipeable fncts.Vector updateAt
  */
 export function updateAt<A>(i: number, a: A) {
-  return (as: Vector<A>): Vector<A> => {
-    if (i < 0 || as.length <= i) {
-      return as;
+  return (self: Vector<A>): Vector<A> => {
+    if (i < 0 || self.length <= i) {
+      return self;
     }
-    const prefixSize = getPrefixSize(as);
-    const suffixSize = getSuffixSize(as);
-    const newVector  = mutableClone(as);
+    const prefixSize = getPrefixSize(self);
+    const suffixSize = getSuffixSize(self);
+    const newVector  = mutableClone(self);
     if (i < prefixSize) {
       const newPrefix                     = copyArray(newVector.prefix);
       newPrefix[newPrefix.length - i - 1] = a;
       newVector.prefix                    = newPrefix;
-    } else if (i >= as.length - suffixSize) {
+    } else if (i >= self.length - suffixSize) {
       const newSuffix = copyArray(newVector.suffix);
-      newSuffix[i - (as.length - suffixSize)] = a;
+      newSuffix[i - (self.length - suffixSize)] = a;
       newVector.suffix = newSuffix;
     } else {
-      newVector.root = updateNode(as.root!, getDepth(as), i - prefixSize, as.offset, a);
+      newVector.root = updateNode(self.root!, getDepth(self), i - prefixSize, self.offset, a);
     }
     return newVector;
   };

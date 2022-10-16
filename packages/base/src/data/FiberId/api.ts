@@ -21,7 +21,7 @@ export function combine(id1: FiberId) {
     if (isComposite(id1)) {
       return new Composite(id1.fiberIds.add(id0));
     }
-    return new Composite(HashSet.fromDefault(id0, id1));
+    return new Composite(HashSet.make(id0, id1));
   };
 }
 
@@ -31,9 +31,9 @@ export function combine(id1: FiberId) {
 export function ids(self: FiberId): HashSet<number> {
   switch (self._tag) {
     case "None":
-      return HashSet.makeDefault();
+      return HashSet.empty();
     case "Runtime":
-      return HashSet.fromDefault(self.id);
+      return HashSet.make(self.id);
     case "Composite":
       return self.fiberIds.map((id) => id.id);
   }

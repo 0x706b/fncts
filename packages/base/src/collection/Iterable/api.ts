@@ -49,9 +49,9 @@ export function append<B>(b: B) {
 }
 
 /**
- * @tsplus getter fncts.Iterable asIterable
+ * @tsplus getter fncts.Iterable toIterable
  */
-export function asIterable<A>(self: Iterable<A>): Iterable<A> {
+export function toIterable<A>(self: Iterable<A>): Iterable<A> {
   return self;
 }
 
@@ -162,9 +162,9 @@ export function corresponds<A, B>(right: Iterable<B>, f: (a: A, b: B) => boolean
 /**
  * @tsplus pipeable fncts.Iterable crossWith
  */
-export function crossWith<A, B, C>(fb: Iterable<B>, f: (a: A, b: B) => C) {
+export function crossWith<A, B, C>(that: Iterable<B>, f: (a: A, b: B) => C) {
   return (self: Iterable<A>): Iterable<C> => {
-    return self.flatMap((a) => fb.map((b) => f(a, b)));
+    return self.flatMap((a) => that.map((b) => f(a, b)));
   };
 }
 
@@ -306,11 +306,11 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
 /**
  * @tsplus pipeable fncts.Iterable find
  */
-export function find<A, B extends A>(refinement: Refinement<A, B>): (ia: Iterable<A>) => Maybe<B>;
-export function find<A>(predicate: Predicate<A>): (ia: Iterable<A>) => Maybe<A>;
+export function find<A, B extends A>(refinement: Refinement<A, B>): (self: Iterable<A>) => Maybe<B>;
+export function find<A>(predicate: Predicate<A>): (self: Iterable<A>) => Maybe<A>;
 export function find<A>(predicate: Predicate<A>) {
-  return (ia: Iterable<A>): Maybe<A> => {
-    for (const value of ia) {
+  return (self: Iterable<A>): Maybe<A> => {
+    for (const value of self) {
       if (predicate(value)) {
         return Just(value);
       }
@@ -339,10 +339,10 @@ export function findIndex<A>(p: Predicate<A>) {
  * @tsplus pipeable fncts.Iterable foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
-  return (fa: Iterable<A>): B => {
+  return (self: Iterable<A>): B => {
     let res = b;
     let i   = -1;
-    for (const value of fa) {
+    for (const value of self) {
       i  += 1;
       res = f(i, res, value);
     }
@@ -479,11 +479,11 @@ function handlePartitionMap<A, B, C>(
 }
 
 function partitionMapWithIndexIterator<A, B, C>(
-  fa: Iterable<A>,
+  self: Iterable<A>,
   f: (i: number, a: A) => Either<B, C>,
   h: "Left" | "Right",
 ): Iterator<B | C> {
-  const ia = fa[Symbol.iterator]();
+  const ia = self[Symbol.iterator]();
   let i    = 0;
   let done = false;
   let va: IteratorResult<A>;
@@ -529,10 +529,10 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
  * @tsplus pipeable fncts.Iterable partitionMapWithIndex
  */
 export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
-  return (fa: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => {
+  return (self: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => {
     return tuple(
-      Iterable.make(() => partitionMapWithIndexIterator(fa, f, "Left")) as Iterable<B>,
-      Iterable.make(() => partitionMapWithIndexIterator(fa, f, "Right")) as Iterable<C>,
+      Iterable.make(() => partitionMapWithIndexIterator(self, f, "Left")) as Iterable<B>,
+      Iterable.make(() => partitionMapWithIndexIterator(self, f, "Right")) as Iterable<C>,
     );
   };
 }
@@ -547,11 +547,11 @@ function handlePartition<A>(
 }
 
 function partitionWithIndexIterator<A>(
-  fa: Iterable<A>,
+  self: Iterable<A>,
   predicate: PredicateWithIndex<number, A>,
   h: boolean,
 ): Iterator<A> {
-  const ia = fa[Symbol.iterator]();
+  const ia = self[Symbol.iterator]();
   let i    = 0;
   let done = false;
   let va: IteratorResult<A>;

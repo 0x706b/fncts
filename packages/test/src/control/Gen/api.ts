@@ -272,7 +272,7 @@ export function unwrap<R, R1, A>(effect: URIO<R, Gen<R1, A>>): Gen<R | R1, A> {
 export function weighted<R, A>(...gens: ReadonlyArray<readonly [Gen<R, A>, number]>): Gen<R, A> {
   const sum   = gens.map(([, weight]) => weight).foldLeft(0, (b, a) => b + a);
   const [map] = gens.foldLeft(tuple(SortedMap.make<number, Gen<R, A>>(Number.Ord), 0), ([map, acc], [gen, d]) => {
-    if ((acc + d) / sum > acc / sum) return tuple(map.insert((acc + d) / sum, gen), acc + d);
+    if ((acc + d) / sum > acc / sum) return tuple(map.set((acc + d) / sum, gen), acc + d);
     else return tuple(map, acc);
   });
   return Gen.uniform.flatMap((n) =>

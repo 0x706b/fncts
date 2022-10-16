@@ -88,7 +88,7 @@ export function analyzeJournal(journal: Journal): JournalAnalysis {
 /**
  * @tsplus static fncts.io.JournalOps emptyTodoMap
  */
-export const emptyTodoMap = HashMap.makeDefault<TxnId, Todo>();
+export const emptyTodoMap = HashMap.empty<TxnId, Todo>();
 
 /**
  * Atomically collects and clears all the todos from any `TRef` that

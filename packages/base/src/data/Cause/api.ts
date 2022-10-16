@@ -711,7 +711,7 @@ export function interruptOption<E>(self: Cause<E>): Maybe<FiberId> {
  * @tsplus getter fncts.Cause interruptors
  */
 export function interruptors<E>(self: Cause<E>): HashSet<FiberId> {
-  return self.foldLeft(HashSet.makeDefault(), (s, c) =>
+  return self.foldLeft(HashSet.empty(), (s, c) =>
     c._tag === CauseTag.Interrupt ? Just(s.add(c.id)) : Nothing(),
   );
 }

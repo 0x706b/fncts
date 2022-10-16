@@ -1039,7 +1039,7 @@ export function distributedWith<A>(
             Conc.range(0, n).map((id) => next.map(([key, queue]) => [[key, id], queue] as const)),
           ).flatMap((entries) => {
             const [mappings, queues] = entries.foldRight(
-              [HashMap.makeDefault<symbol, number>(), Conc.empty<Dequeue<Exit<Maybe<E>, A>>>()] as const,
+              [HashMap.empty<symbol, number>(), Conc.empty<Dequeue<Exit<Maybe<E>, A>>>()] as const,
               ([mapping, queue], [mappings, queues]) => [mappings.set(mapping[0], mapping[1]), queues.append(queue)],
             );
             return p.succeed((a) => decide(a).map((f) => (key: symbol) => f(mappings.get(key).value!))).as(queues);
@@ -1085,7 +1085,7 @@ export function distributedWithDynamic<E, A>(
       });
     return Do((Δ) => {
       const queuesRef = Δ(
-        IO.acquireRelease(Ref.make<HashMap<symbol, Queue<Exit<Maybe<E>, A>>>>(HashMap.makeDefault()), (ref) =>
+        IO.acquireRelease(Ref.make<HashMap<symbol, Queue<Exit<Maybe<E>, A>>>>(HashMap.empty()), (ref) =>
           ref.get.flatMap((qs) => IO.foreach(qs.values, (q) => q.shutdown)),
         ),
       );

@@ -98,10 +98,10 @@ export class TestClock extends Clock {
     return IO.descriptorWith((descriptor) =>
       this.annotations.get(TestAnnotation.Fibers).flatMap((_) =>
         _.match(
-          (_) => IO.succeed(HashSet.makeDefault()),
+          (_) => IO.succeed(HashSet.empty()),
           (fibers) =>
             IO.foreach(fibers, (ref) => ref.get)
-              .map((_) => _.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s0, s1) => s0.union(s1)))
+              .map((_) => _.foldLeft(HashSet.empty<Fiber.Runtime<any, any>>(), (s0, s1) => s0.union(s1)))
               .map((set) => set.filter((f) => !Equatable.strictEquals(f.id, descriptor.id))),
         ),
       ),
@@ -109,7 +109,7 @@ export class TestClock extends Clock {
   }
   private get freeze(): IO<never, void, HashMap<FiberId, FiberStatus>> {
     return this.supervizedFibers.flatMap((fibers) =>
-      IO.foldLeft(fibers, HashMap.makeDefault<FiberId, FiberStatus>(), (map, fiber) =>
+      IO.foldLeft(fibers, HashMap.empty<FiberId, FiberStatus>(), (map, fiber) =>
         fiber.status.flatMap((status) => {
           switch (status._tag) {
             case "Done": {

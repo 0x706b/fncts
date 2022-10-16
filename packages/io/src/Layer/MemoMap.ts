@@ -92,7 +92,7 @@ export function isFresh<R, E, A>(self: Layer<R, E, A>): self is Fresh<R, E, A> {
 }
 
 export function makeMemoMap(__tsplusTrace?: string): UIO<MemoMap> {
-  return Ref.Synchronized.make(HashMap.makeDefault<PropertyKey, readonly [FIO<any, any>, Finalizer]>()).flatMap((ref) =>
+  return Ref.Synchronized.make(HashMap.empty<PropertyKey, readonly [FIO<any, any>, Finalizer]>()).flatMap((ref) =>
     IO.succeedNow(new MemoMap(ref)),
   );
 }

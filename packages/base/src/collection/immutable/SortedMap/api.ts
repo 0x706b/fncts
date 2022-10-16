@@ -52,9 +52,9 @@ export function find<K>(key: K, direction: 0 | 1 = 0) {
  * @tsplus pipeable fncts.SortedMap forEach
  */
 export function forEach<K, V>(visit: (key: K, value: V) => void) {
-  return (m: SortedMap<K, V>): void => {
-    if (m.root) {
-      m.visitFull((k, v) => {
+  return (self: SortedMap<K, V>): void => {
+    if (self.root) {
+      self.visitFull((k, v) => {
         visit(k, v);
         return Nothing();
       });
@@ -66,9 +66,9 @@ export function forEach<K, V>(visit: (key: K, value: V) => void) {
  * @tsplus pipeable fncts.SortedMap forEachBetween
  */
 export function forEachBetween<K, V>(min: K, max: K, visit: (k: K, v: V) => void) {
-  return (m: SortedMap<K, V>): void => {
-    if (m.root) {
-      m.visitBetween(min, max, (k, v) => {
+  return (self: SortedMap<K, V>): void => {
+    if (self.root) {
+      self.visitBetween(min, max, (k, v) => {
         visit(k, v);
         return Nothing();
       });
@@ -80,9 +80,9 @@ export function forEachBetween<K, V>(min: K, max: K, visit: (k: K, v: V) => void
  * @tsplus pipeable fncts.SortedMap forEachLte
  */
 export function forEachLte<K, V>(max: K, visit: (k: K, v: V) => void) {
-  return (m: SortedMap<K, V>): void => {
-    if (m.root) {
-      m.visitLte(max, (k, v) => {
+  return (self: SortedMap<K, V>): void => {
+    if (self.root) {
+      self.visitLte(max, (k, v) => {
         visit(k, v);
         return Nothing();
       });
@@ -94,9 +94,9 @@ export function forEachLte<K, V>(max: K, visit: (k: K, v: V) => void) {
  * @tsplus pipeable fncts.SortedMap forEachLt
  */
 export function forEachLt<K, V>(max: K, visit: (k: K, v: V) => void) {
-  return (m: SortedMap<K, V>): void => {
-    if (m.root) {
-      m.visitLt(max, (k, v) => {
+  return (self: SortedMap<K, V>): void => {
+    if (self.root) {
+      self.visitLt(max, (k, v) => {
         visit(k, v);
         return Nothing();
       });
@@ -108,9 +108,9 @@ export function forEachLt<K, V>(max: K, visit: (k: K, v: V) => void) {
  * @tsplus pipeable fncts.SortedMap forEachGte
  */
 export function forEachGte<K, V>(min: K, visit: (k: K, v: V) => void) {
-  return (m: SortedMap<K, V>): void => {
-    if (m.root) {
-      m.visitGte(min, (k, v) => {
+  return (self: SortedMap<K, V>): void => {
+    if (self.root) {
+      self.visitGte(min, (k, v) => {
         visit(k, v);
         return Nothing();
       });
@@ -122,9 +122,9 @@ export function forEachGte<K, V>(min: K, visit: (k: K, v: V) => void) {
  * @tsplus pipeable fncts.SortedMap forEachGt
  */
 export function forEachGt<K, V>(min: K, visit: (k: K, v: V) => void) {
-  return (m: SortedMap<K, V>): void => {
-    if (m.root) {
-      m.visitGt(min, (k, v) => {
+  return (self: SortedMap<K, V>): void => {
+    if (self.root) {
+      self.visitGt(min, (k, v) => {
         visit(k, v);
         return Nothing();
       });
@@ -138,9 +138,9 @@ export function forEachGt<K, V>(min: K, visit: (k: K, v: V) => void) {
  * @tsplus pipeable fncts.SortedMap get
  */
 export function get<K>(key: K) {
-  return <V>(m: SortedMap<K, V>): Maybe<V> => {
-    const cmp = m.ord.compare;
-    let n     = m.root;
+  return <V>(self: SortedMap<K, V>): Maybe<V> => {
+    const cmp = self.ord.compare;
+    let n     = self.root;
     while (n) {
       const d = cmp(n.key)(key);
       switch (d) {
@@ -167,9 +167,9 @@ export function get<K>(key: K) {
  * @tsplus pipeable fncts.SortedMap getGt
  */
 export function getGt<K>(key: K) {
-  return <V>(m: SortedMap<K, V>): Maybe<V> => {
-    const cmp     = m.ord.compare;
-    let n         = m.root;
+  return <V>(self: SortedMap<K, V>): Maybe<V> => {
+    const cmp     = self.ord.compare;
+    let n         = self.root;
     let lastValue = Nothing<V>();
     while (n) {
       const d = cmp(n.key)(key);
@@ -193,9 +193,9 @@ export function getGt<K>(key: K) {
  * @tsplus pipeable fncts.SortedMap getLt
  */
 export function getLt<K>(key: K) {
-  return <V>(m: SortedMap<K, V>): Maybe<V> => {
-    const cmp     = m.ord.compare;
-    let n         = m.root;
+  return <V>(self: SortedMap<K, V>): Maybe<V> => {
+    const cmp     = self.ord.compare;
+    let n         = self.root;
     let lastValue = Nothing<V>();
     while (n) {
       const d = cmp(n.key)(key);
@@ -218,9 +218,9 @@ export function getLt<K>(key: K) {
  * @tsplus pipeable fncts.SortedMap getLte
  */
 export function getLte<K>(key: K) {
-  return <V>(m: SortedMap<K, V>): Maybe<V> => {
-    const cmp     = m.ord.compare;
-    let n         = m.root;
+  return <V>(self: SortedMap<K, V>): Maybe<V> => {
+    const cmp     = self.ord.compare;
+    let n         = self.root;
     let lastValue = Nothing<V>();
     while (n) {
       const d = cmp(n.key)(key);
@@ -244,9 +244,9 @@ export function getLte<K>(key: K) {
  * @tsplus pipeable fncts.SortedMap getGte
  */
 export function getGte<K>(key: K) {
-  return <V>(m: SortedMap<K, V>): Maybe<V> => {
-    const cmp     = m.ord.compare;
-    let n         = m.root;
+  return <V>(self: SortedMap<K, V>): Maybe<V> => {
+    const cmp     = self.ord.compare;
+    let n         = self.root;
     let lastValue = Nothing<V>();
     while (n) {
       const d = cmp(n.key)(key);
@@ -267,19 +267,19 @@ export function getGte<K>(key: K) {
 /**
  * Inserts an element into the correct position in the map.
  * This function inserts duplicate keys. For one that combines duplicate key's values,
- * see `insertWith_`
+ * see `insertWith`
  *
- * @tsplus pipeable fncts.SortedMap insert
+ * @tsplus pipeable fncts.SortedMap set
  */
-export function insert<K, V>(key: K, value: V) {
-  return (m: SortedMap<K, V>): SortedMap<K, V> => {
-    if (isEmptyNode(m.root)) {
-      return new SortedMap(m.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
+export function set<K, V>(key: K, value: V) {
+  return (self: SortedMap<K, V>): SortedMap<K, V> => {
+    if (isEmptyNode(self.root)) {
+      return new SortedMap(self.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
     }
-    const cmp = m.ord.compare;
+    const cmp = self.ord.compare;
     const nodeStack: Array<Node<K, V>> = [];
     const orderStack: Array<Ordering>  = [];
-    let n: RBNode<K, V>                = m.root;
+    let n: RBNode<K, V>                = self.root;
     while (n) {
       const d = cmp(n.key)(key);
       nodeStack.push(n);
@@ -293,80 +293,79 @@ export function insert<K, V>(key: K, value: V) {
     nodeStack.push(new Node(Color.R, Leaf, key, value, Leaf, 1));
     rebuildModifiedPath(nodeStack, orderStack);
     balanceModifiedPath(nodeStack);
-    return new SortedMap(m.ord, nodeStack[0]!);
+    return new SortedMap(self.ord, nodeStack[0]!);
   };
 }
 
 /**
  * Inserts an element into the correct position in the map, combining the values of keys of equal ordering
  * with a `Semigroup` instance
+ *
+ * @tsplus pipeable fncts.SortedMap setWith
  */
-export function insertWith<K, V>(
-  m: SortedMap<K, V>,
-  key: K,
-  value: V,
-  /** @tsplus auto */ S: Semigroup<V>,
-): SortedMap<K, V> {
-  if (isEmptyNode(m.root)) {
-    return new SortedMap(m.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
-  }
-  const com = S.combine;
-  const cmp = m.ord.compare;
-  const nodeStack: Array<Node<K, V>> = [];
-  const orderStack: Array<1 | -1>    = [];
-  let n: RBNode<K, V>                = m.root;
-  let cv: V | null                   = null;
-  while (n && !cv) {
-    const d = cmp(n.key)(key);
-    nodeStack.push(n);
-    switch (d) {
-      case -1: {
-        orderStack.push(d);
-        n = n.left;
-        break;
-      }
-      case 1: {
-        orderStack.push(d);
-        n = n.right;
-        break;
-      }
-      case 0: {
-        cv = com(value)(n.value);
-        break;
+export function setWith<K, V>(key: K, value: V, /** @tsplus auto */ S: Semigroup<V>) {
+  return (self: SortedMap<K, V>): SortedMap<K, V> => {
+    if (isEmptyNode(self.root)) {
+      return new SortedMap(self.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
+    }
+    const com = S.combine;
+    const cmp = self.ord.compare;
+    const nodeStack: Array<Node<K, V>> = [];
+    const orderStack: Array<1 | -1>    = [];
+    let n: RBNode<K, V>                = self.root;
+    let cv: V | null                   = null;
+    while (n && !cv) {
+      const d = cmp(n.key)(key);
+      nodeStack.push(n);
+      switch (d) {
+        case -1: {
+          orderStack.push(d);
+          n = n.left;
+          break;
+        }
+        case 1: {
+          orderStack.push(d);
+          n = n.right;
+          break;
+        }
+        case 0: {
+          cv = com(value)(n.value);
+          break;
+        }
       }
     }
-  }
-  if (cv) {
-    const u                         = nodeStack[nodeStack.length - 1]!;
-    const updated                   = new Node(u.color, u.left, u.key, cv, u.right, u.count);
-    nodeStack[nodeStack.length - 1] = updated;
-    rebuildModifiedPath(nodeStack, orderStack, 0);
-  } else {
-    nodeStack.push(new Node(Color.R, Leaf, key, value, Leaf, 1));
-    rebuildModifiedPath(nodeStack, orderStack);
-    balanceModifiedPath(nodeStack);
-  }
-  return new SortedMap(m.ord, nodeStack[0]!);
+    if (cv) {
+      const u                         = nodeStack[nodeStack.length - 1]!;
+      const updated                   = new Node(u.color, u.left, u.key, cv, u.right, u.count);
+      nodeStack[nodeStack.length - 1] = updated;
+      rebuildModifiedPath(nodeStack, orderStack, 0);
+    } else {
+      nodeStack.push(new Node(Color.R, Leaf, key, value, Leaf, 1));
+      rebuildModifiedPath(nodeStack, orderStack);
+      balanceModifiedPath(nodeStack);
+    }
+    return new SortedMap(self.ord, nodeStack[0]!);
+  };
 }
 
 /**
  * @tsplus getter fncts.SortedMap isEmpty
  */
-export function isEmpty<K, V>(m: SortedMap<K, V>): boolean {
-  return m.root === Leaf;
+export function isEmpty<K, V>(self: SortedMap<K, V>): boolean {
+  return self.root === Leaf;
 }
 
 /**
  * @tsplus getter fncts.SortedMap isNonEmpty
  */
-export function isNonEmpty<K, V>(m: SortedMap<K, V>): boolean {
-  return m.root !== Leaf;
+export function isNonEmpty<K, V>(self: SortedMap<K, V>): boolean {
+  return self.root !== Leaf;
 }
 
 /**
  * @tsplus static fncts.SortedMapOps make
  */
-export function make<K, V>(ord: Ord<K>) {
+export function make<K, V>(/** @tsplus auto */ ord: Ord<K>) {
   return new SortedMap<K, V>(ord, null);
 }
 
@@ -376,9 +375,9 @@ export function make<K, V>(ord: Ord<K>) {
  * @tsplus pipeable fncts.SortedMap remove
  */
 export function remove<K>(key: K) {
-  return <V>(m: SortedMap<K, V>): SortedMap<K, V> => {
-    const iter = m.find(key)[Symbol.iterator]();
-    return iter.isEmpty ? m : iter.remove();
+  return <V>(self: SortedMap<K, V>): SortedMap<K, V> => {
+    const iter = self.find(key)[Symbol.iterator]();
+    return iter.isEmpty ? self : iter.remove();
   };
 }
 
@@ -386,8 +385,8 @@ export function remove<K>(key: K) {
  * @tsplus pipeable fncts.SortedMap visitFull
  */
 export function visitFull<K, V, A>(visit: (key: K, value: V) => Maybe<A>) {
-  return (m: SortedMap<K, V>): Maybe<A> => {
-    let current: RBNode<K, V>      = m.root;
+  return (self: SortedMap<K, V>): Maybe<A> => {
+    let current: RBNode<K, V>      = self.root;
     const stack: Stack<Node<K, V>> = Stack();
     let done = false;
     while (!done) {
@@ -413,11 +412,11 @@ export function visitFull<K, V, A>(visit: (key: K, value: V) => Maybe<A>) {
  * @tsplus pipeable fncts.SortedMap visitLte
  */
 export function visitLte<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
-  return (m: SortedMap<K, V>): Maybe<A> => {
-    let current: RBNode<K, V>      = m.root;
+  return (self: SortedMap<K, V>): Maybe<A> => {
+    let current: RBNode<K, V>      = self.root;
     const stack: Stack<Node<K, V>> = Stack();
     let done  = false;
-    const cmp = m.ord.compare;
+    const cmp = self.ord.compare;
     while (!done) {
       if (current) {
         stack.push(current);
@@ -444,11 +443,11 @@ export function visitLte<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
  * @tsplus pipeable fncts.SortedMap visitLt
  */
 export function visitLt<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
-  return (m: SortedMap<K, V>): Maybe<A> => {
-    let current: RBNode<K, V>      = m.root;
+  return (self: SortedMap<K, V>): Maybe<A> => {
+    let current: RBNode<K, V>      = self.root;
     const stack: Stack<Node<K, V>> = Stack();
     let done  = false;
-    const cmp = m.ord.compare;
+    const cmp = self.ord.compare;
     while (!done) {
       if (current) {
         stack.push(current);
@@ -475,11 +474,11 @@ export function visitLt<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
  * @tsplus pipeable fncts.SortedMap visitGte
  */
 export function visitGte<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
-  return (m: SortedMap<K, V>): Maybe<A> => {
-    let current: RBNode<K, V>      = m.root;
+  return (self: SortedMap<K, V>): Maybe<A> => {
+    let current: RBNode<K, V>      = self.root;
     const stack: Stack<Node<K, V>> = Stack();
     let done  = false;
-    const cmp = m.ord.compare;
+    const cmp = self.ord.compare;
     while (!done) {
       if (current) {
         stack.push(current);
@@ -509,11 +508,11 @@ export function visitGte<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
  * @tsplus pipeable fncts.SortedMap visitGt
  */
 export function visitGt<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
-  return (m: SortedMap<K, V>): Maybe<A> => {
-    let current: RBNode<K, V>      = m.root;
+  return (self: SortedMap<K, V>): Maybe<A> => {
+    let current: RBNode<K, V>      = self.root;
     const stack: Stack<Node<K, V>> = Stack();
     let done  = false;
-    const cmp = m.ord.compare;
+    const cmp = self.ord.compare;
     while (!done) {
       if (current) {
         stack.push(current);
@@ -543,11 +542,11 @@ export function visitGt<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
  * @tsplus pipeable fncts.SortedMap visitBetween
  */
 export function visitBetween<K, V, A>(min: K, max: K, visit: (k: K, v: V) => Maybe<A>) {
-  return (m: SortedMap<K, V>): Maybe<A> => {
-    let current: RBNode<K, V>      = m.root;
+  return (self: SortedMap<K, V>): Maybe<A> => {
+    let current: RBNode<K, V>      = self.root;
     const stack: Stack<Node<K, V>> = Stack();
     let done  = false;
-    const cmp = m.ord.compare;
+    const cmp = self.ord.compare;
     while (!done) {
       if (current) {
         stack.push(current);

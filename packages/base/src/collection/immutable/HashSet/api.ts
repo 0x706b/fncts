@@ -11,8 +11,8 @@ import { HashEq } from "@fncts/base/typeclass";
  * @tsplus pipeable fncts.HashSet add
  */
 export function add<A>(value: A) {
-  return (set: HashSet<A>): HashSet<A> => {
-    return modifyHash(set, value, set.config.hash(value), false);
+  return (self: HashSet<A>): HashSet<A> => {
+    return modifyHash(self, value, self.config.hash(value), false);
   };
 }
 
@@ -21,8 +21,8 @@ export function add<A>(value: A) {
  *
  * @tsplus getter fncts.HashSet beginMutation
  */
-export function beginMutation<K>(set: HashSet<K>): HashSet<K> {
-  return new HashSet(true, set._edit + 1, set.config, set._root, set._size);
+export function beginMutation<K>(self: HashSet<K>): HashSet<K> {
+  return new HashSet(true, self._edit + 1, self.config, self._root, self._size);
 }
 
 /**
@@ -30,9 +30,9 @@ export function beginMutation<K>(set: HashSet<K>): HashSet<K> {
  *
  * @tsplus getter fncts.HashSet endMutation
  */
-export function endMutation<K>(set: HashSet<K>): HashSet<K> {
-  set._editable = false;
-  return set;
+export function endMutation<K>(self: HashSet<K>): HashSet<K> {
+  self._editable = false;
+  return self;
 }
 
 /**
@@ -41,8 +41,8 @@ export function endMutation<K>(set: HashSet<K>): HashSet<K> {
  * @tsplus pipeable fncts.HashSet forEach
  */
 export function forEach<V>(f: (v: V, m: HashSet<V>) => void) {
-  return (map: HashSet<V>): void => {
-    map.foldLeft(undefined as void, (_, value) => f(value, map));
+  return (self: HashSet<V>): void => {
+    self.foldLeft(undefined as void, (_, value) => f(value, self));
   };
 }
 
@@ -50,30 +50,30 @@ export function forEach<V>(f: (v: V, m: HashSet<V>) => void) {
  * @tsplus pipeable fncts.HashSet has
  */
 export function has<A>(value: A) {
-  return (set: HashSet<A>): boolean => {
-    return hasHash(set, value, set.config.hash(value));
+  return (self: HashSet<A>): boolean => {
+    return hasHash(self, value, self.config.hash(value));
   };
+}
+
+/**
+ * @tsplus static fncts.HashSetOps emptyWith
+ */
+export function emptyWith<A>(config: HashEq<A>): HashSet<A> {
+  return new HashSet(false, 0, config, _EmptyNode, 0);
+}
+
+/**
+ * @tsplus static fncts.HashSetOps empty
+ */
+export function empty<A>(): HashSet<A> {
+  return emptyWith<A>(P.HashEq.StructuralStrict);
 }
 
 /**
  * @tsplus static fncts.HashSetOps make
  */
-export function make<A>(config: P.Hash<A> & P.Eq<A>): HashSet<A> {
-  return new HashSet(false, 0, config, _EmptyNode, 0);
-}
-
-/**
- * @tsplus static fncts.HashSetOps makeDefault
- */
-export function makeDefault<A>(): HashSet<A> {
-  return make<A>(P.HashEq.StructuralStrict);
-}
-
-/**
- * @tsplus static fncts.HashSetOps fromDefault
- */
-export function fromDefault<A>(...values: ReadonlyArray<A>): HashSet<A> {
-  return makeDefault<A>().mutate((set) => {
+export function make<A>(...values: ReadonlyArray<A>): HashSet<A> {
+  return empty<A>().mutate((set) => {
     values.forEach((v) => {
       set.add(v);
     });
@@ -97,8 +97,8 @@ export function mutate<A>(transient: (set: HashSet<A>) => void) {
  * @tsplus pipeable fncts.HashSet remove
  */
 export function remove<A>(value: A) {
-  return (set: HashSet<A>): HashSet<A> => {
-    return modifyHash(set, value, set.config.hash(value), true);
+  return (self: HashSet<A>): HashSet<A> => {
+    return modifyHash(self, value, self.config.hash(value), true);
   };
 }
 
@@ -107,8 +107,8 @@ export function remove<A>(value: A) {
  *
  * @tsplus getter fncts.HashSet size
  */
-export function size<A>(set: HashSet<A>): number {
-  return set._size;
+export function size<A>(self: HashSet<A>): number {
+  return self._size;
 }
 
 /**
@@ -117,16 +117,16 @@ export function size<A>(set: HashSet<A>): number {
  * @tsplus pipeable fncts.HashSet toggle
  */
 export function toggle<A>(a: A) {
-  return (set: HashSet<A>): HashSet<A> => {
-    return set.has(a) ? set.remove(a) : set.add(a);
+  return (self: HashSet<A>): HashSet<A> => {
+    return self.has(a) ? self.remove(a) : self.add(a);
   };
 }
 
 /**
  * Projects a Set through a function
  */
-export function map<B>(C: P.HashEq<B>): <A>(f: (x: A) => B) => (fa: HashSet<A>) => HashSet<B> {
-  const r = make(C);
+export function mapWith<B>(B: P.HashEq<B>): <A>(f: (a: A) => B) => (self: HashSet<A>) => HashSet<B> {
+  const r = emptyWith(B);
   return (f) => (fa) =>
     r.mutate((r) => {
       fa.forEach((e) => {
@@ -144,17 +144,17 @@ export function map<B>(C: P.HashEq<B>): <A>(f: (x: A) => B) => (fa: HashSet<A>) 
  *
  * @tsplus pipeable fncts.HashSet map
  */
-export function mapDefault<A, B>(f: (a: A) => B) {
+export function map<A, B>(f: (a: A) => B) {
   return (self: HashSet<A>): HashSet<B> => {
-    return map(P.HashEq.StructuralStrict as P.HashEq<B>)(f)(self);
+    return mapWith<B>(HashEq.StructuralStrict)(f)(self);
   };
 }
 
 /**
  * Map + Flatten
  */
-export function flatMap<B>(C: P.HashEq<B>): <A>(f: (x: A) => Iterable<B>) => (self: HashSet<A>) => HashSet<B> {
-  const r = make<B>(C);
+export function flatMapWith<B>(C: P.HashEq<B>): <A>(f: (x: A) => Iterable<B>) => (self: HashSet<A>) => HashSet<B> {
+  const r = emptyWith<B>(C);
   return (f) => (self) =>
     r.mutate((r) => {
       self.forEach((e) => {
@@ -171,9 +171,9 @@ export function flatMap<B>(C: P.HashEq<B>): <A>(f: (x: A) => Iterable<B>) => (se
 /**
  * @tsplus pipeable fncts.HashSet flatMap
  */
-export function flatMapDefault<A, B>(f: (a: A) => Iterable<B>) {
+export function flatMap<A, B>(f: (a: A) => Iterable<B>) {
   return (self: HashSet<A>): HashSet<B> => {
-    return flatMap<B>(HashEq.StructuralStrict)(f)(self);
+    return flatMapWith<B>(HashEq.StructuralStrict)(f)(self);
   };
 }
 
@@ -212,7 +212,7 @@ export function filter<A, B extends A>(refinement: Refinement<A, B>): (set: Hash
 export function filter<A>(predicate: Predicate<A>): (set: HashSet<A>) => HashSet<A>;
 export function filter<A>(predicate: Predicate<A>) {
   return (set: HashSet<A>): HashSet<A> => {
-    const r = make(set.config);
+    const r = emptyWith(set.config);
     return r.mutate((r) => {
       set.forEach((v) => {
         if (predicate(v)) {
@@ -223,9 +223,9 @@ export function filter<A>(predicate: Predicate<A>) {
   };
 }
 
-export function filterMap<B>(B: P.HashEq<B>): <A>(f: (a: A) => Maybe<B>) => (fa: HashSet<A>) => HashSet<B> {
+export function filterMapWith<B>(B: P.HashEq<B>): <A>(f: (a: A) => Maybe<B>) => (fa: HashSet<A>) => HashSet<B> {
   return (f) => (fa) => {
-    const out = beginMutation(make(B));
+    const out = beginMutation(emptyWith(B));
     fa.forEach((a) => {
       const ob = f(a);
       if (ob.isJust()) {
@@ -237,6 +237,13 @@ export function filterMap<B>(B: P.HashEq<B>): <A>(f: (a: A) => Maybe<B>) => (fa:
 }
 
 /**
+ * @tsplus pipeable fncts.HashSet filterMap
+ */
+export function filterMap<A, B>(f: (a: A) => Maybe<B>): (self: HashSet<A>) => HashSet<B> {
+  return filterMapWith<B>(HashEq.StructuralStrict)(f);
+}
+
+/**
  * Partition set values using predicate
  *
  * @tsplus pipeable fncts.HashSet partition
@@ -245,8 +252,8 @@ export function partition<A, B extends A>(p: Refinement<A, B>): (self: HashSet<A
 export function partition<A>(p: Predicate<A>): (self: HashSet<A>) => readonly [HashSet<A>, HashSet<A>];
 export function partition<A>(p: Predicate<A>) {
   return (self: HashSet<A>): readonly [HashSet<A>, HashSet<A>] => {
-    const right = beginMutation(make(self.config));
-    const left  = beginMutation(make(self.config));
+    const right = beginMutation(emptyWith(self.config));
+    const left  = beginMutation(emptyWith(self.config));
     self.forEach((v) => {
       if (p(v)) {
         right.add(v);
@@ -261,13 +268,13 @@ export function partition<A>(p: Predicate<A>) {
 /**
  * Partition set values using predicate
  */
-export function partitionMap<B, C>(
+export function partitionMapWith<B, C>(
   B: P.HashEq<B>,
   C: P.HashEq<C>,
 ): <A>(f: (a: A) => Either<B, C>) => (self: HashSet<A>) => readonly [HashSet<B>, HashSet<C>] {
   return (f) => (fa) => {
-    const right = beginMutation(make(C));
-    const left  = beginMutation(make(B));
+    const right = beginMutation(emptyWith(C));
+    const left  = beginMutation(emptyWith(B));
     fa.forEach((v) => {
       f(v).match(
         (b) => {
@@ -283,13 +290,22 @@ export function partitionMap<B, C>(
 }
 
 /**
+ * @tsplus pipeable fncts.HashSet partitionMap
+ */
+export function partitionMap<A, B, C>(
+  f: (a: A) => Either<B, C>,
+): (self: HashSet<A>) => readonly [HashSet<B>, HashSet<C>] {
+  return partitionMapWith<B, C>(HashEq.StructuralStrict, HashEq.StructuralStrict)(f);
+}
+
+/**
  * Reduce a state over the set elements
  *
  * @tsplus pipeable fncts.HashSet foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, v: A) => B) {
-  return (fa: HashSet<A>): B => {
-    const root = fa._root;
+  return (self: HashSet<A>): B => {
+    const root = self._root;
     if (root._tag === "LeafNode") return f(b, root.value);
     if (root._tag === "EmptyNode") return b;
     const toVisit: Stack<Array<Node<A>>> = Stack();
@@ -343,10 +359,10 @@ export function join(separator: string) {
  *
  * @tsplus pipeable fncts.HashSet difference
  */
-export function difference<A>(y: Iterable<A>) {
-  return (x: HashSet<A>): HashSet<A> => {
-    return x.mutate((s) => {
-      for (const k of y) {
+export function difference<A>(that: Iterable<A>) {
+  return (self: HashSet<A>): HashSet<A> => {
+    return self.mutate((s) => {
+      for (const k of that) {
         s.remove(k);
       }
     });
@@ -378,7 +394,7 @@ export function every<A>(predicate: Predicate<A>) {
  */
 export function intersection<A>(that: Iterable<A>) {
   return (self: HashSet<A>): HashSet<A> => {
-    const out = make<A>(self.config);
+    const out = emptyWith<A>(self.config);
     return out.mutate((y) => {
       for (const k of that) {
         if (self.has(k)) {
@@ -396,8 +412,8 @@ export function intersection<A>(that: Iterable<A>) {
  *
  * @tsplus pipeable fncts.HashSet isSubset
  */
-export function isSubset<A>(y: HashSet<A>) {
-  return (x: HashSet<A>): boolean => x.every((a) => y.has(a));
+export function isSubset<A>(that: HashSet<A>) {
+  return (self: HashSet<A>): boolean => self.every((a) => that.has(a));
 }
 
 /**
@@ -406,9 +422,9 @@ export function isSubset<A>(y: HashSet<A>) {
  * @tsplus pipeable fncts.HashSet exists
  */
 export function exists<A>(predicate: Predicate<A>) {
-  return (set: HashSet<A>): boolean => {
+  return (self: HashSet<A>): boolean => {
     let found = false;
-    for (const e of set) {
+    for (const e of self) {
       found = predicate(e);
       if (found) {
         break;
@@ -425,10 +441,10 @@ export function exists<A>(predicate: Predicate<A>) {
  *
  * @tsplus pipeable fncts.HashSet union
  */
-export function union<A>(r: Iterable<A>) {
-  return (l: HashSet<A>): HashSet<A> => {
-    return l.mutate((x) => {
-      for (const a of r) {
+export function union<A>(that: Iterable<A>) {
+  return (self: HashSet<A>): HashSet<A> => {
+    return self.mutate((x) => {
+      for (const a of that) {
         x.add(a);
       }
     });
@@ -436,19 +452,15 @@ export function union<A>(r: Iterable<A>) {
 }
 
 /**
- * @tsplus static fncts.HashSet toArray
+ * @tsplus pipeable fncts.HashSet toArray
  */
-export function toArray<A>(set: HashSet<A>, O: P.Ord<A>): ReadonlyArray<A> {
-  const r: Array<A> = [];
-  set.forEach((a) => r.push(a));
-  return r.sort((a, b) => O.compare(b)(a));
+export function toArray<A>(O: P.Ord<A>) {
+  return (self: HashSet<A>): ReadonlyArray<A> => {
+    const r: Array<A> = [];
+    self.forEach((a) => r.push(a));
+    return r.sort((a, b) => O.compare(b)(a));
+  };
 }
-
-/*
- * -------------------------------------------------------------------------------------------------
- * internal
- * -------------------------------------------------------------------------------------------------
- */
 
 function setTree<A>(set: HashSet<A>, newRoot: Node<A>, newSize: number) {
   if (set._editable) {

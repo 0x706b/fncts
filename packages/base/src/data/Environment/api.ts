@@ -36,7 +36,7 @@ export function getMaybe<S>(tag: Tag<S>) {
  * @tsplus static fncts.EnvironmentOps __call
  */
 export function make(): Environment<never> {
-  return new Environment(HashMap.makeDefault(), HashMap.makeDefault());
+  return new Environment(HashMap.empty(), HashMap.empty());
 }
 
 /**
@@ -54,7 +54,7 @@ export function union<R1>(that: Environment<R1>) {
  */
 export function clean<R>(self: Environment<R>): Environment<R> {
   const [map, index] = self.map.toList.foldLeft(
-    [HashMap.makeDefault<Tag<unknown>, readonly [unknown, number]>(), 0],
+    [HashMap.empty<Tag<unknown>, readonly [unknown, number]>(), 0],
     ([map, index], [tag, service]) => [map.set(tag, [service, index] as const), index + 1],
   );
   return new Environment(map);

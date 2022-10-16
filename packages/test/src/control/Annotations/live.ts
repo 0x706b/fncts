@@ -25,11 +25,11 @@ export class LiveAnnotations extends Annotations {
       .map((m) => m.get(TestAnnotation.Fibers))
       .flatMap((r) =>
         r.match(
-          () => IO.succeed(HashSet.makeDefault<Fiber.Runtime<any, any>>()),
+          () => IO.succeed(HashSet.empty<Fiber.Runtime<any, any>>()),
           (refs) =>
             IO.foreach(refs, (ref) => ref.get)
               .map((fibers) =>
-                fibers.foldLeft(HashSet.makeDefault<Fiber.Runtime<any, any>>(), (s1, s2) => s1.union(s2)),
+                fibers.foldLeft(HashSet.empty<Fiber.Runtime<any, any>>(), (s1, s2) => s1.union(s2)),
               )
               .map((s) => s.filter((f) => Equatable.strictEquals(f.id, descriptor.id))),
         ),

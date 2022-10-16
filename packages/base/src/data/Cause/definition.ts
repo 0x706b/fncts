@@ -477,14 +477,14 @@ function stepLoop<A>(
 }
 
 function step<A>(cause: Cause<A>): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
-  return stepLoop(cause, Nil(), HashSet.makeDefault(), Nil());
+  return stepLoop(cause, Nil(), HashSet.empty(), Nil());
 }
 
 function flattenLoop<A>(causes: List<Cause<A>>, flattened: List<HashSet<Cause<A>>>): List<HashSet<Cause<A>>> {
   // eslint-disable-next-line no-constant-condition
   while (1) {
     const [parallel, sequential] = causes.foldLeft(
-      tuple(HashSet.makeDefault<Cause<A>>(), List.empty<Cause<A>>()),
+      tuple(HashSet.empty<Cause<A>>(), List.empty<Cause<A>>()),
       ([parallel, sequential], cause) => {
         const [set, seq] = step(cause);
         return tuple(parallel.union(set), sequential.concat(seq));

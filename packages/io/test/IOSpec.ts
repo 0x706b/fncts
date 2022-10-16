@@ -346,7 +346,7 @@ class IOSpec extends DefaultRunnableSpec {
         "race of two forks does not interrupt winner",
         Do((Δ) => {
           const ref    = Δ(Ref.make(0));
-          const fibers = Δ(Ref.make(HashSet.makeDefault<Fiber<any, any>>()));
+          const fibers = Δ(Ref.make(HashSet.empty<Fiber<any, any>>()));
           const latch  = Δ(Future.make<never, void>());
           const effect = IO.uninterruptibleMask(({ restore }) =>
             restore(latch.await.onInterrupt(() => ref.update((n) => n + 1))).fork.tap((f) =>

@@ -3,6 +3,6 @@ import type { Queue } from "./definition.js";
 /**
  * @tsplus getter fncts.ImmutableQueue isEmpty
  */
-export function isEmpty<A>(queue: Queue<A>): boolean {
-  return queue._in.isEmpty() && queue._out.isEmpty();
+export function isEmpty<A>(self: Queue<A>): boolean {
+  return self._in.isEmpty() && self._out.isEmpty();
 }

@@ -72,6 +72,8 @@ export function exists<A>(p: Predicate<A>) {
 /**
  * @tsplus pipeable fncts.List filter
  */
+export function filter<A, B extends A>(p: Refinement<A, B>): (self: List<A>) => List<B>;
+export function filter<A>(p: Predicate<A>): (self: List<A>) => List<A>;
 export function filter<A>(p: Predicate<A>) {
   return (self: List<A>): List<A> => {
     return filterCommon(self, p, false);
@@ -254,6 +256,7 @@ export function prependAll<B>(prefix: List<B>) {
     }
   };
 }
+
 /**
  * @tsplus getter fncts.List reverse
  */
@@ -266,6 +269,7 @@ export function reverse<A>(self: List<A>): List<A> {
   }
   return result;
 }
+
 /**
  * @tsplus pipeable fncts.List sort
  */
@@ -274,10 +278,11 @@ export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
     return self.sortWith((x, y) => O.compare(y)(x));
   };
 }
+
 /**
  * @tsplus pipeable fncts.List sortWith
  */
-export function sortWith_<A>(compare: (x: A, y: A) => P.Ordering) {
+export function sortWith<A>(compare: (x: A, y: A) => P.Ordering) {
   return (self: List<A>): List<A> => {
     const len = length(self);
     const b   = new ListBuffer<A>();
@@ -297,16 +302,18 @@ export function sortWith_<A>(compare: (x: A, y: A) => P.Ordering) {
     return b.toList;
   };
 }
+
 /**
  * @tsplus getter fncts.List tail
  */
 export function tail<A>(self: List<A>): Maybe<List<A>> {
   return self.isEmpty() ? Nothing() : Just(self.tail);
 }
+
 /**
  * @tsplus pipeable fncts.List take
  */
-export function take_(n: number) {
+export function take(n: number) {
   return <A>(self: List<A>): List<A> => {
     if (self.isEmpty() || n <= 0) {
       return _Nil;
@@ -329,30 +336,33 @@ export function take_(n: number) {
     }
   };
 }
+
 /**
  * @tsplus getter fncts.List unsafeHead
  */
-export function unsafeHead<A>(list: List<A>): A {
-  if (list.isEmpty()) {
+export function unsafeHead<A>(self: List<A>): A {
+  if (self.isEmpty()) {
     throw new NoSuchElementError("unsafeHead on empty List");
   }
-  return list.head;
+  return self.head;
 }
+
 /**
  * @tsplus getter fncts.List unsafeLast
  */
-export function unsafeLast<A>(list: List<A>): A {
-  if (list.isEmpty()) {
+export function unsafeLast<A>(self: List<A>): A {
+  if (self.isEmpty()) {
     throw new NoSuchElementError("unsafeLast on empty List");
   }
-  let these = list;
-  let scout = list.tail;
+  let these = self;
+  let scout = self.tail;
   while (!scout.isEmpty()) {
     these = scout;
     scout = scout.tail;
   }
   return these.head;
 }
+
 function copyToArrayWithIndex<A>(list: List<A>, arr: Array<[number, A]>): void {
   let these = list;
   let i     = 0;

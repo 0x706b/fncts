@@ -14,13 +14,13 @@ export function zip<B>(fb: Supervisor<B>) {
  */
 export function toSet(self: Supervisor<any>): HashSet<Supervisor<any>> {
   concrete(self);
-  if (self === Supervisor.none) return HashSet.makeDefault();
+  if (self === Supervisor.none) return HashSet.empty();
   else {
     switch (self._tag) {
       case SupervisorTag.Zip:
         return self.first.toSet.union(self.second.toSet);
       default:
-        return HashSet.makeDefault<Supervisor<any>>().add(self);
+        return HashSet.empty<Supervisor<any>>().add(self);
     }
   }
 }

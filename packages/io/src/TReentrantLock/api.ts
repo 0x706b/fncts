@@ -7,13 +7,13 @@ import { LockTag, WriteLock } from "./definition.js";
 /**
  * @tsplus static fncts.io.TReentrantLock.ReadLockOps empty
  */
-export const emptyReadLock: ReadLock = new ReadLock(HashMap.makeDefault());
+export const emptyReadLock: ReadLock = new ReadLock(HashMap.empty());
 
 /**
  * @tsplus static fncts.io.TReentrantLock.ReadLockOps __call
  */
 export function makeReadLock(fiberId: FiberId, count: number, __tsplusTrace?: string): ReadLock {
-  return count <= 0 ? ReadLock.empty : new ReadLock(HashMap.makeDefault<FiberId, number>().set(fiberId, count));
+  return count <= 0 ? ReadLock.empty : new ReadLock(HashMap.empty<FiberId, number>().set(fiberId, count));
 }
 
 /**
@@ -21,7 +21,7 @@ export function makeReadLock(fiberId: FiberId, count: number, __tsplusTrace?: st
  * @tsplus static fncts.io.TReentrantLockOps __call
  */
 export function make(__tsplusTrace?: string): USTM<TReentrantLock> {
-  return TRef.make<LockState>(new ReadLock(HashMap.makeDefault())).map((ref) => new TReentrantLock(ref));
+  return TRef.make<LockState>(new ReadLock(HashMap.empty())).map((ref) => new TReentrantLock(ref));
 }
 
 /**
@@ -72,7 +72,7 @@ export function releaseWrite(self: TReentrantLock, __tsplusTrace?: string): USTM
     let res: LockState | undefined;
     if (lockState._tag === LockTag.WriteLock && lockState.fiberId == fiberId) {
       if (lockState.writeLocks === 1) {
-        res = new ReadLock(HashMap.makeDefault<FiberId, number>().set(fiberId, lockState.readLocks));
+        res = new ReadLock(HashMap.empty<FiberId, number>().set(fiberId, lockState.readLocks));
       }
       if (lockState.writeLocks > 1) {
         res = new WriteLock(lockState.writeLocks - 1, lockState.readLocks, fiberId);

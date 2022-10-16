@@ -114,7 +114,7 @@ function getShowContext(options?: Partial<ShowOptions>) {
     colors: false,
     depth: 3,
     showHidden: true,
-    circular: HashMap.makeDefault<unknown, number>(),
+    circular: HashMap.empty<unknown, number>(),
     seen: [],
     budget: {},
     indentationLevel: options?.indentationLevel ?? 0,

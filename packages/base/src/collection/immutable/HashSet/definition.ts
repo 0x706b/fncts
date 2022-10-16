@@ -12,11 +12,16 @@ import {
 import { identity } from "@fncts/base/data/function";
 import * as P from "@fncts/base/typeclass";
 
+export const TypeId = Symbol.for("fncts.HashSet");
+export type TypeId = typeof TypeId;
+
 /**
  * @tsplus type fncts.HashSet
  * @tsplus companion fncts.HashSetOps
  */
 export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
+  readonly _typeId: TypeId = TypeId;
+
   constructor(
     /**
      * @internal
@@ -54,11 +59,20 @@ export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
 
   [Symbol.equals](other: unknown): boolean {
     return (
-      other instanceof HashSet &&
+      isHashSet(other) &&
       this._size === other._size &&
       (this as Iterable<A>).corresponds(other, P.Equatable.strictEquals)
     );
   }
+}
+
+/**
+ * @tsplus static fncts.HashSetOps is
+ */
+export function isHashSet<A>(u: Iterable<A>): u is HashSet<A>;
+export function isHashSet(u: unknown): u is HashSet<unknown>;
+export function isHashSet(u: unknown): u is HashSet<unknown> {
+  return hasTypeId(u, TypeId);
 }
 
 class HashSetIterator<A, T> implements IterableIterator<T> {

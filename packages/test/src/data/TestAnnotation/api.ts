@@ -22,7 +22,7 @@ export const TaggedTag = Tag<HashSet<string>>("fncts.test.TestAnnotation.Tagged"
 /**
  * @tsplus static fncts.test.TestAnnotationOps Tagged
  */
-export const Tagged = new TestAnnotation(TaggedTag, "tagged", HashSet.makeDefault(), (x, y) => x.union(y));
+export const Tagged = new TestAnnotation(TaggedTag, "tagged", HashSet.empty(), (x, y) => x.union(y));
 
 export const TimingTag = Tag<number>("fncts.test.TestAnnotation.Timing");
 /**

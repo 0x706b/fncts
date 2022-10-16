@@ -4,11 +4,16 @@ import type { Ord } from "@fncts/base/typeclass";
 
 import { forward } from "@fncts/base/collection/immutable/SortedMap/iterator";
 
+export const TypeId = Symbol.for("fncts.SortedMap");
+export type TypeId = typeof TypeId;
+
 /**
  * @tsplus type fncts.SortedMap
  * @tsplus companion fncts.SortedMapOps
  */
 export class SortedMap<K, V> implements SortedMapIterable<K, V> {
+  readonly _typeId: TypeId = TypeId;
+
   constructor(readonly ord: Ord<K>, readonly root: RBNode<K, V>) {}
 
   [Symbol.iterator](): SortedMapIterator<K, V> {

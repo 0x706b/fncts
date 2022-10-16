@@ -8,7 +8,7 @@ export class TestAnnotationMap {
     return new TestAnnotationMap(
       Conc.from(this.map)
         .concat(Conc.from(that.map))
-        .foldLeft(HashMap.makeDefault(), (acc, [k, v]) =>
+        .foldLeft(HashMap.empty(), (acc, [k, v]) =>
           acc.set(
             k,
             acc.get(k).match(
@@ -31,5 +31,5 @@ export class TestAnnotationMap {
   annotate<V>(key: TestAnnotation<V>, value: V): TestAnnotationMap {
     return this.update(key, (_) => key.combine(_, value));
   }
-  static empty: TestAnnotationMap = new TestAnnotationMap(HashMap.makeDefault());
+  static empty: TestAnnotationMap = new TestAnnotationMap(HashMap.empty());
 }

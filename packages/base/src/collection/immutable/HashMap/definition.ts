@@ -13,13 +13,18 @@ export interface HashMapF extends HKT {
   index: this["K"];
 }
 
+export const TypeId = Symbol.for("fncts.HashMap");
+export type TypeId = typeof TypeId;
+
 /**
  * @tsplus type fncts.HashMap
  * @tsplus companion fncts.HashMapOps
  */
 export class HashMap<K, V> implements Iterable<readonly [K, V]>, Hashable, Equatable {
-  readonly _K!: () => K;
-  readonly _A!: () => V;
+  readonly _typeId: TypeId = TypeId;
+
+  declare _K: () => K;
+  declare _A: () => V;
 
   constructor(
     public editable: boolean,
@@ -41,11 +46,20 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]>, Hashable, Equat
 
   [Symbol.equals](other: unknown): boolean {
     return (
-      other instanceof HashMap &&
+      isHashMap(other) &&
       other.size === this.size &&
       (this as Iterable<readonly [K, V]>).corresponds(other, Equatable.strictEquals)
     );
   }
+}
+
+/**
+ * @tsplus static fncts.HashMapOps is
+ */
+export function isHashMap<K, V>(u: Iterable<readonly [K, V]>): u is HashMap<K, V>;
+export function isHashMap(u: unknown): u is HashMap<unknown, unknown>;
+export function isHashMap(u: unknown): u is HashMap<unknown, unknown> {
+  return hasTypeId(u, TypeId);
 }
 
 export class HashMapIterator<K, V, T> implements IterableIterator<T> {
