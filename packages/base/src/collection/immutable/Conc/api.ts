@@ -231,14 +231,14 @@ export function concat<B>(that: Conc<B>) {
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
   return (self: Conc<A>): boolean => {
-    return self.exists((el) => E.equals(a)(el));
+    return self.some((el) => E.equals(a)(el));
   };
 }
 
 /**
- * @tsplus pipeable fncts.Conc exists
+ * @tsplus pipeable fncts.Conc some
  */
-export function exists<A>(predicate: Predicate<A>) {
+export function some<A>(predicate: Predicate<A>) {
   return (as: Conc<A>): boolean => {
     concrete(as);
     const iterator = as.arrayIterator();
@@ -554,7 +554,7 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
     while (!(result = iterator.next()).done) {
       const array = result.value;
       for (let j = array.length - 1; j >= 0; j--) {
-        out = f(i, array[i]!, out);
+        out = f(i, array[j]!, out);
         i--;
       }
     }
@@ -666,7 +666,7 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [S, B]) {
         state = tup[0];
       }
     }
-    return tuple(s, out.result());
+    return tuple(state, out.result());
   };
 }
 

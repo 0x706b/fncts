@@ -347,7 +347,7 @@ export function emptyPushable<A = never>(): MutableVector<A> {
   return new Vector(0, 0, 0, [], undefined, []) as any;
 }
 
-function existsCb<A>(value: A, state: PredState): boolean {
+function someCb<A>(value: A, state: PredState): boolean {
   return !(state.result = state.predicate(value));
 }
 
@@ -357,11 +357,11 @@ function existsCb<A>(value: A, state: PredState): boolean {
  *
  * @complexity O(n)
  *
- * @tsplus pipeable fncts.Vector exists
+ * @tsplus pipeable fncts.Vector some
  */
-export function exists<A>(predicate: Predicate<A>) {
+export function some<A>(predicate: Predicate<A>) {
   return (self: Vector<A>): boolean => {
-    return foldLeftCb<A, PredState>(existsCb, { predicate, result: false }, self).result;
+    return foldLeftCb<A, PredState>(someCb, { predicate, result: false }, self).result;
   };
 }
 
@@ -878,7 +878,7 @@ export function modifyAt<A>(i: number, f: (a: A) => A) {
  */
 export function none<A>(predicate: Predicate<A>) {
   return (self: Vector<A>): boolean => {
-    return !self.exists(predicate);
+    return !self.some(predicate);
   };
 }
 

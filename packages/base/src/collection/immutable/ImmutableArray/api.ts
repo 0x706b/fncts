@@ -401,9 +401,9 @@ export function everyWithIndex<A>(p: PredicateWithIndex<number, A>) {
 }
 
 /**
- * @tsplus pipeable fncts.ImmutableArray exists
+ * @tsplus pipeable fncts.ImmutableArray some
  */
-export function exists<A>(p: Predicate<A>) {
+export function some<A>(p: Predicate<A>) {
   return (self: ImmutableArray<A>): self is ImmutableNonEmptyArray<A> => {
     let result = false;
     let i      = 0;

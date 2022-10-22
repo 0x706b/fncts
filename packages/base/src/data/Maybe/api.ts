@@ -39,9 +39,9 @@ export function elem<A>(elem: A, /** @tsplus auto */ E: Eq<A>) {
 }
 
 /**
- * @tsplus pipeable fncts.Maybe exists
+ * @tsplus pipeable fncts.Maybe some
  */
-export function exists<A>(p: Predicate<A>) {
+export function some<A>(p: Predicate<A>) {
   return (self: Maybe<A>): boolean => {
     self.concrete();
     return self._tag === MaybeTag.Just ? p(self.value) : false;

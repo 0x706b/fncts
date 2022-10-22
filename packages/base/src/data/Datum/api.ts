@@ -112,11 +112,9 @@ export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
 }
 
 /**
- * @tsplus pipeable fncts.Datum exists
+ * @tsplus pipeable fncts.Datum some
  */
-export function exists<A, B extends A>(p: Refinement<A, B>): (self: Datum<A>) => self is Datum<B>;
-export function exists<A>(p: Predicate<A>): (self: Datum<A>) => boolean;
-export function exists<A>(p: Predicate<A>) {
+export function some<A>(p: Predicate<A>) {
   return (self: Datum<A>): boolean => {
     return self.match({
       Initial: () => false,

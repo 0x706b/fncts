@@ -616,6 +616,13 @@ export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
 }
 
 /**
+ * @tsplus static fncts.IterableOps replicate
+ */
+export function replicate<A>(n: number, a: A): Iterable<A> {
+  return Iterable.makeBy(n, () => a);
+}
+
+/**
  * @tsplus getter fncts.Iterable size
  */
 export function size<A>(self: Iterable<A>): number {

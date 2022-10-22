@@ -54,9 +54,9 @@ export function concat<B>(that: List<B>) {
 }
 
 /**
- * @tsplus pipeable fncts.List exists
+ * @tsplus pipeable fncts.List some
  */
-export function exists<A>(p: Predicate<A>) {
+export function some<A>(p: Predicate<A>) {
   return (self: List<A>): boolean => {
     let these = self;
     while (!these.isEmpty()) {

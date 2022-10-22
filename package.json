@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
-    "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.7",
+    "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.8",
     "@0x706b/prettier-eslint-8": "^0.0.3",
     "@babel/cli": "^7.18.10",
     "@babel/core": "^7.19.0",

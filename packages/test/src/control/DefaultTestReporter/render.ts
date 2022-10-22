@@ -79,7 +79,7 @@ function renderLoop<E>(
     }
     case ExecutedSpecCaseTag.Multiple: {
       const specs       = executedSpec.caseValue.specs;
-      const hasFailures = executedSpec.exists((specCase) => {
+      const hasFailures = executedSpec.some((specCase) => {
         if (specCase._tag === ExecutedSpecCaseTag.Test) {
           return specCase.test.isLeft();
         } else {

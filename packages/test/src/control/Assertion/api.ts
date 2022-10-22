@@ -117,8 +117,8 @@ export function containsString(element: string): Assertion<string> {
   return Assertion.make("containsString", [RenderParam(element)], (str) => str.includes(element));
 }
 
-export function exists<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
-  return Assertion.rec("exists", [RenderParam(assertion)], assertion, (ia) => ia.find((a) => assertion.test(a)));
+export function some<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
+  return Assertion.rec("some", [RenderParam(assertion)], assertion, (ia) => ia.find((a) => assertion.test(a)));
 }
 
 export function fails<E>(assertion: Assertion<E>): Assertion<Exit<E, any>> {
@@ -130,9 +130,9 @@ export function fails<E>(assertion: Assertion<E>): Assertion<Exit<E, any>> {
   );
 }
 
-export function forall<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
+export function every<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
   return Assertion.rec(
-    "forall",
+    "every",
     [RenderParam(assertion)],
     assertion,
     (ia) => ia.find((a) => !assertion.test(a)),

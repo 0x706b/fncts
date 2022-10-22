@@ -16,16 +16,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@0x706b/eslint-plugin-module-specifier-extensions@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@0x706b/eslint-plugin-module-specifier-extensions@npm:0.1.7"
-  dependencies:
-    enhanced-resolve: "npm:^5.9.3"
+"@0x706b/eslint-plugin-module-specifier-extensions@npm:^0.1.8":
+  version: 0.1.8
+  resolution: "@0x706b/eslint-plugin-module-specifier-extensions@npm:0.1.8"
   peerDependencies:
-    "@typescript-eslint/parser": ^5.14.0
-    eslint: ^8.11.0
-    typescript: ^4.6.2
-  checksum: c80da3a6d2fd6edb49557e3db37ba1334e59eb5f84a72df9fd7dc1e17380dcf1c33369803988ca510c646957cd5e09688eb619c7e351a032fee3b9eb56779d39
+    "@typescript-eslint/eslint-plugin": ^5.9.1
+    "@typescript-eslint/experimental-utils": ^5.9.1
+    "@typescript-eslint/parser": ^5.9.1
+    eslint: ^8.6.0
+    typescript: ^4.5.4
+  checksum: 0048315ce735b639a241f493ad904312de271950d3e9cab99bcf9ed1830d12ffc6df8ba50f1186a8f040db45c59e5020ef234f4ba92f2edf3d3ffb5b35520ff9
   languageName: node
   linkType: hard
 
@@ -1236,7 +1236,7 @@ __metadata:
   resolution: "@fncts/eslint-config@workspace:packages/eslint-config"
   dependencies:
     "@0x706b/eslint-plugin-align-assignments": "npm:^0.1.2"
-    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.7"
+    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.8"
     "@fncts/codegen": "workspace:*"
     "@fncts/config": "workspace:*"
     "@typescript-eslint/eslint-plugin": "npm:^5.36.2"
@@ -4159,16 +4159,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.9.3":
-  version: 5.9.3
-  resolution: "enhanced-resolve@npm:5.9.3"
-  dependencies:
-    graceful-fs: "npm:^4.2.4"
-    tapable: "npm:^2.2.0"
-  checksum: cecc1d044c3216df18cd2c64a897c1f91df76ef7be8d0c44c072e8c34e68aaed4c14f1046dc7f40fac59e2c52a205cae3131635bd726be751540237537730221
-  languageName: node
-  linkType: hard
-
 "enquirer@npm:^2.3.0, enquirer@npm:^2.3.6":
   version: 2.3.6
   resolution: "enquirer@npm:2.3.6"
@@ -4837,7 +4827,7 @@ __metadata:
   resolution: "fncts@workspace:."
   dependencies:
     "@0x706b/eslint-plugin-align-assignments": "npm:^0.1.2"
-    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.7"
+    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.8"
     "@0x706b/prettier-eslint-8": "npm:^0.0.3"
     "@babel/cli": "npm:^7.18.10"
     "@babel/core": "npm:^7.19.0"

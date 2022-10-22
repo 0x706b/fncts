@@ -1,6 +1,7 @@
 import TestSpec from "./TestSpec.js";
+import ConcSpec from "./ConcSpec.js"
 
-TestSpec.run(TestSpec.spec)
+ConcSpec.run(ConcSpec.spec)
   .provideLayer(TestSpec.runner.bootstrap)
   .unsafeRunWith((exit) =>
     exit.match(

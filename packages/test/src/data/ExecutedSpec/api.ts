@@ -73,14 +73,14 @@ export function transform<E, E1>(f: (_: SpecCase<E, ExecutedSpec<E1>>) => SpecCa
 }
 
 /**
- * @tsplus pipeable fncts.test.data.ExecutedSpec exists
+ * @tsplus pipeable fncts.test.data.ExecutedSpec some
  */
-export function exists<E>(f: (_: SpecCase<E, boolean>) => boolean) {
+export function some<E>(f: (_: SpecCase<E, boolean>) => boolean) {
   return (self: ExecutedSpec<E>): boolean => {
     return self.fold(
       matchTag({
         Labeled: (c) => c.spec || f(c),
-        Multiple: (c) => c.specs.exists(identity) || f(c),
+        Multiple: (c) => c.specs.some(identity) || f(c),
         Test: f,
       }),
     );

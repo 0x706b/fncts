@@ -13,7 +13,7 @@ export abstract class RunnableSpec<R, E> extends AbstractRunnableSpec<R, E> {
     const self = this;
     return Do((_) => {
       const results     = _(self.runSpec(spec));
-      const hasFailures = results.exists(
+      const hasFailures = results.some(
         matchTag(
           {
             Test: ({ test }) => test.isLeft(),
