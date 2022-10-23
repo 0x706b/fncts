@@ -114,11 +114,11 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
- * @tsplus pipeable fncts.ImmutableQueue exists
+ * @tsplus pipeable fncts.ImmutableQueue some
  */
-export function exists<A>(p: Predicate<A>) {
+export function some<A>(p: Predicate<A>) {
   return (self: Queue<A>): boolean => {
-    return self._in.exists(p) || self._out.exists(p);
+    return self._in.some(p) || self._out.some(p);
   };
 }
 

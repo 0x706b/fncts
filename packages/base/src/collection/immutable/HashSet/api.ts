@@ -419,9 +419,9 @@ export function isSubset<A>(that: HashSet<A>) {
 /**
  * true if one or more elements match predicate
  *
- * @tsplus pipeable fncts.HashSet exists
+ * @tsplus pipeable fncts.HashSet some
  */
-export function exists<A>(predicate: Predicate<A>) {
+export function some<A>(predicate: Predicate<A>) {
   return (self: HashSet<A>): boolean => {
     let found = false;
     for (const e of self) {

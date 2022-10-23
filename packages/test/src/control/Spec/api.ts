@@ -153,7 +153,7 @@ export function filterLabels(f: (label: string) => boolean) {
  */
 export function filterTags(f: (tag: string) => boolean) {
   return <R, E, T>(spec: PSpec<R, E, T>): Maybe<PSpec<R, E, T>> => {
-    return spec.filterAnnotations(TestAnnotation.Tagged, (v) => v.exists(f));
+    return spec.filterAnnotations(TestAnnotation.Tagged, (v) => v.some(f));
   };
 }
 

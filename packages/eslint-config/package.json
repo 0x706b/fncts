@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
-    "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.7",
+    "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.8",
     "@fncts/codegen": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/experimental-utils": "^5.36.2",

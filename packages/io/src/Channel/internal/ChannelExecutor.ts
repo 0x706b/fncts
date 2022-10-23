@@ -659,13 +659,13 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
       case "PullAfterNext": {
         return [
           strategy.emitSeparator,
-          !upstreamFinished || queue.exists((_) => _ !== null) ? queue.prepend(null) : queue,
+          !upstreamFinished || queue.some((_) => _ !== null) ? queue.prepend(null) : queue,
         ];
       }
       case "PullAfterAllEnqueued": {
         return [
           strategy.emitSeparator,
-          !upstreamFinished || queue.exists((_) => _ !== null) ? queue.enqueue(null) : queue,
+          !upstreamFinished || queue.some((_) => _ !== null) ? queue.enqueue(null) : queue,
         ];
       }
     }
@@ -789,7 +789,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         }
       },
       (exit) => {
-        if (subexec.activeChildExecutors.exists((_) => _ !== null)) {
+        if (subexec.activeChildExecutors.some((_) => _ !== null)) {
           const drain = new DrainChildExecutors(
             subexec.upstreamExecutor,
             subexec.lastDone,

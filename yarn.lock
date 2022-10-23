@@ -16,16 +16,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@0x706b/eslint-plugin-module-specifier-extensions@npm:^0.1.7":
-  version: 0.1.7
-  resolution: "@0x706b/eslint-plugin-module-specifier-extensions@npm:0.1.7"
-  dependencies:
-    enhanced-resolve: "npm:^5.9.3"
+"@0x706b/eslint-plugin-module-specifier-extensions@npm:^0.1.8":
+  version: 0.1.8
+  resolution: "@0x706b/eslint-plugin-module-specifier-extensions@npm:0.1.8"
   peerDependencies:
-    "@typescript-eslint/parser": ^5.14.0
-    eslint: ^8.11.0
-    typescript: ^4.6.2
-  checksum: c80da3a6d2fd6edb49557e3db37ba1334e59eb5f84a72df9fd7dc1e17380dcf1c33369803988ca510c646957cd5e09688eb619c7e351a032fee3b9eb56779d39
+    "@typescript-eslint/eslint-plugin": ^5.9.1
+    "@typescript-eslint/experimental-utils": ^5.9.1
+    "@typescript-eslint/parser": ^5.9.1
+    eslint: ^8.6.0
+    typescript: ^4.5.4
+  checksum: 0048315ce735b639a241f493ad904312de271950d3e9cab99bcf9ed1830d12ffc6df8ba50f1186a8f040db45c59e5020ef234f4ba92f2edf3d3ffb5b35520ff9
   languageName: node
   linkType: hard
 
@@ -1236,7 +1236,7 @@ __metadata:
   resolution: "@fncts/eslint-config@workspace:packages/eslint-config"
   dependencies:
     "@0x706b/eslint-plugin-align-assignments": "npm:^0.1.2"
-    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.7"
+    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.8"
     "@fncts/codegen": "workspace:*"
     "@fncts/config": "workspace:*"
     "@typescript-eslint/eslint-plugin": "npm:^5.36.2"
@@ -4159,16 +4159,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.9.3":
-  version: 5.9.3
-  resolution: "enhanced-resolve@npm:5.9.3"
-  dependencies:
-    graceful-fs: "npm:^4.2.4"
-    tapable: "npm:^2.2.0"
-  checksum: cecc1d044c3216df18cd2c64a897c1f91df76ef7be8d0c44c072e8c34e68aaed4c14f1046dc7f40fac59e2c52a205cae3131635bd726be751540237537730221
-  languageName: node
-  linkType: hard
-
 "enquirer@npm:^2.3.0, enquirer@npm:^2.3.6":
   version: 2.3.6
   resolution: "enquirer@npm:2.3.6"
@@ -4837,7 +4827,7 @@ __metadata:
   resolution: "fncts@workspace:."
   dependencies:
     "@0x706b/eslint-plugin-align-assignments": "npm:^0.1.2"
-    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.7"
+    "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.8"
     "@0x706b/prettier-eslint-8": "npm:^0.0.3"
     "@babel/cli": "npm:^7.18.10"
     "@babel/core": "npm:^7.19.0"
@@ -8784,43 +8774,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^3.9.10, typescript@npm:^3.9.5, typescript@npm:^3.9.7":
-  version: 3.9.10
-  resolution: "typescript@npm:3.9.10"
+"typescript@https://github.com/0x706b/typescript/raw/c79157ebfb/typescript-4.9.0-tsplus.20221023.tgz":
+  version: 4.9.0-tsplus.20221023
+  resolution: "typescript@https://github.com/0x706b/typescript/raw/c79157ebfb/typescript-4.9.0-tsplus.20221023.tgz"
   bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 2137104612d9b7544db57b0bd202d0f15f9d8d339070fe9af54ae9568bb774e62f666e51378a8c8c627d0fa7b635ac6060d7ff1f6bcb69734c981c29dd3dbea9
+    tsc: ./bin/tsc
+    tsserver: ./bin/tsserver
+  checksum: 4c8e6f8f9db12a9269fef1237173a0eeb151867253a126849ae43d052eb9f67c8c5be1a138a3fdf8ebd13e9a75ad177380e9267b3749dc60a82f3113295634c4
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.8.2":
-  version: 4.8.4
-  resolution: "typescript@npm:4.8.4"
+"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/c79157ebfb/typescript-4.9.0-tsplus.20221023.tgz#optional!builtin<compat/typescript>":
+  version: 4.9.0-tsplus.20221023
+  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/c79157ebfb/typescript-4.9.0-tsplus.20221023.tgz#optional!builtin<compat/typescript>::version=4.9.0-tsplus.20221023&hash=f456af"
   bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 008c336ed785130b6e13254adbfc4084f5dbbe62851df9bac3eaf62fc29e0a396839c00ce47e0d92db44fa9a08b9f7ba4d31304f2b10cf7d42a0817728e822a1
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^3.9.10#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^3.9.5#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^3.9.7#optional!builtin<compat/typescript>":
-  version: 3.9.10
-  resolution: "typescript@patch:typescript@npm%3A3.9.10#optional!builtin<compat/typescript>::version=3.9.10&hash=f456af"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 060f1bcb5c91a16d01b042974be047455b6471aceae5b17651119d0f690ddba45bdfcefdb92a05ca1563a6f0313f8dd63dc4e8cde0ebf221b3e6b435c32d0ddf
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^4.8.2#optional!builtin<compat/typescript>":
-  version: 4.8.4
-  resolution: "typescript@patch:typescript@npm%3A4.8.4#optional!builtin<compat/typescript>::version=4.8.4&hash=f456af"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 696783974850fa4a345b270a7629f37bbb5277504e7262a105e44d3e3776a4337f13b5f0a484ebb0b377449391a7fd270746c8c9f7492bfa389613477fb5ea6a
+    tsc: ./bin/tsc
+    tsserver: ./bin/tsserver
+  checksum: 744e5d9b19104bc591313c02735cc70ad5f5da16c641d2b777bc3f01f574a8245e7343401e496bd5dabf4bdd18607ec00cfd1fd79474b1a7c817ae3413e2355e
   languageName: node
   linkType: hard
 

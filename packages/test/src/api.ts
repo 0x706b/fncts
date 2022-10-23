@@ -50,7 +50,7 @@ export function traverseResult<A>(value: A, assertResult: AssertResult<A>, asser
 }
 
 /**
- * @tsplus pipeable global assert 1
+ * @tsplus pipeable global assert
  */
 export function assert<A>(assertion: Assertion<A>) {
   return (value: A): TestResult => {
@@ -59,7 +59,7 @@ export function assert<A>(assertion: Assertion<A>) {
 }
 
 /**
- * @tsplus pipeable global assert 0
+ * @tsplus pipeable fncts.io.IO assert
  */
 export function assertIO<A>(assertion: AssertionIO<A>) {
   return <R, E>(io: IO<R, E, A>): IO<R, E, TestResult> => {
