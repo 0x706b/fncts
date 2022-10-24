@@ -591,7 +591,10 @@ function fromPushPull<R, E, In, L, Z>(
  *
  * @tsplus static fncts.io.SinkOps fromQueue
  */
-export function fromQueue<In>(queue: Lazy<Enqueue<In>>, __tsplusTrace?: string): Sink<never, never, In, never, void> {
+export function fromQueue<In>(
+  queue: Lazy<Queue.Enqueue<In>>,
+  __tsplusTrace?: string,
+): Sink<never, never, In, never, void> {
   return Sink.unwrap(IO.succeed(queue).map((queue) => Sink.foreachChunk((inp: Conc<In>) => queue.offerAll(inp))));
 }
 
@@ -602,7 +605,7 @@ export function fromQueue<In>(queue: Lazy<Enqueue<In>>, __tsplusTrace?: string):
  * @tsplus static fncts.io.SinkOps fromQueueWithShutdown
  */
 export function fromQueueWithShutdown<In>(
-  queue: Lazy<Enqueue<In>>,
+  queue: Lazy<Queue.Enqueue<In>>,
   __tsplusTrace?: string,
 ): Sink<never, never, In, never, void> {
   return Sink.unwrapScoped(

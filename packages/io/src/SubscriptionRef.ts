@@ -1,14 +1,10 @@
-import { Synchronized } from "@fncts/io/Ref";
+import { PSynchronizedInternal } from "@fncts/io/Ref";
 import { Stream } from "@fncts/io/Stream";
 
 export const SubscriptionRefTypeId = Symbol.for("fncts.io.SubscriptionRef");
 export type SubscriptionRefTypeId = typeof SubscriptionRefTypeId;
 
-/**
- * @tsplus type fncts.io.SubscriptionRef
- * @tsplus companion fncts.io.SubscriptionRefOps
- */
-export class SubscriptionRef<A> extends Synchronized<A> {
+export class SubscriptionRefInternal<A> extends PSynchronizedInternal<never, never, never, never, A, A> {
   readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId = SubscriptionRefTypeId;
   constructor(readonly semaphore: TSemaphore, readonly hub: Hub<A>, readonly ref: Ref<A>) {
     super(semaphore, ref.get, (a) => ref.set(a));
@@ -31,6 +27,24 @@ export class SubscriptionRef<A> extends Synchronized<A> {
 }
 
 /**
+ * @tsplus type fncts.io.SubscriptionRef
+ */
+export interface SubscriptionRef<A> extends PRef.Synchronized<never, never, never, never, A, A> {
+  readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId;
+}
+
+/**
+ * @tsplus type fncts.io.SubscriptionRefOps
+ */
+export interface SubscriptionRefOps {}
+
+export const SubscriptionRef: SubscriptionRefOps = {};
+
+export function concrete<A>(_: SubscriptionRef<A>): asserts _ is SubscriptionRefInternal<A> {
+  //
+}
+
+/**
  * @tsplus static fncts.io.SubscriptionRefOps make
  * @tsplus static fncts.io.SubscriptionRefOps __call
  */
@@ -39,6 +53,6 @@ export function make<A>(value: Lazy<A>): UIO<SubscriptionRef<A>> {
     const semaphore = Δ(TSemaphore.make(1).commit);
     const hub       = Δ(Hub.makeUnbounded<A>());
     const ref       = Δ(Ref.make(value));
-    return new SubscriptionRef(semaphore, hub, ref);
+    return new SubscriptionRefInternal(semaphore, hub, ref);
   });
 }

@@ -677,7 +677,7 @@ export function fromOption<A>(option: Lazy<Maybe<A>>): Channel<never, unknown, u
  * @tsplus static fncts.io.ChannelOps fromQueue
  */
 export function fromQueue<Err, Elem, Done>(
-  queue: Dequeue<Either<Exit<Err, Done>, Elem>>,
+  queue: Queue.Dequeue<Either<Exit<Err, Done>, Elem>>,
 ): Channel<never, unknown, unknown, unknown, Err, Elem, Done> {
   return Channel.fromIO(queue.take).flatMap((_) =>
     _.match(
@@ -1179,11 +1179,11 @@ export function repeated<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
  * @tsplus static fncts.io.ChannelOps toQueue
  */
 export function toQueue<Err, Done, Elem>(
-  queue: Lazy<Enqueue<Either<Exit<Err, Done>, Elem>>>,
+  queue: Lazy<Queue.Enqueue<Either<Exit<Err, Done>, Elem>>>,
 ): Channel<never, Err, Elem, Done, never, never, unknown> {
   return Channel.defer(() => {
     function toQueue<Err, Done, Elem>(
-      queue: Enqueue<Either<Exit<Err, Done>, Elem>>,
+      queue: Queue.Enqueue<Either<Exit<Err, Done>, Elem>>,
     ): Channel<never, Err, Elem, Done, never, never, unknown> {
       return Channel.readWithCause(
         (inp) => Channel.fromIO(queue.offer(Either.right(inp))) > toQueue(queue),

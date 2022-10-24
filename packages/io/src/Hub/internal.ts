@@ -1,11 +1,11 @@
 import type { Hub as HubInternal } from "@fncts/io/internal/Hub";
-import type { Dequeue } from "@fncts/io/Queue";
 
 import { HashSet } from "@fncts/base/collection/mutable/HashSet";
 import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
+import { PHubInternal } from "@fncts/io/Hub/definition";
 import { HashedPair } from "@fncts/io/internal/HashedPair";
 import { MutableQueue } from "@fncts/io/internal/MutableQueue";
-import { QueueTypeId } from "@fncts/io/Queue";
+import { QueueInternal } from "@fncts/io/Queue";
 
 /**
  * A `Strategy<A>` describes the protocol for how publishers and subscribers
@@ -254,9 +254,7 @@ export class Sliding<A> extends Strategy<A> {
   }
 }
 
-class UnsafeSubscription<A> implements Dequeue<A> {
-  readonly [QueueTypeId]: QueueTypeId = QueueTypeId;
-  declare _Out: (_: never) => A;
+class UnsafeSubscription<A> extends QueueInternal<never, never, never, never, A, A> {
   constructor(
     readonly hub: HubInternal<A>,
     readonly subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
@@ -265,92 +263,83 @@ class UnsafeSubscription<A> implements Dequeue<A> {
     readonly shutdownHook: Future<never, void>,
     readonly shutdownFlag: AtomicBoolean,
     readonly strategy: Strategy<A>,
-  ) {}
-
-  get awaitShutdown(): UIO<void> {
-    return this.shutdownHook.await;
+  ) {
+    super();
   }
 
-  get capacity(): number {
-    return this.hub.capacity;
-  }
+  awaitShutdown: UIO<void> = this.shutdownHook.await;
 
-  get isShutdown(): UIO<boolean> {
-    return IO.succeed(() => this.shutdownFlag.get);
-  }
+  capacity: number = this.hub.capacity;
 
-  get shutdown(): UIO<void> {
-    return IO.fiberId.flatMap((fiberId) =>
-      IO.defer(() => {
-        this.shutdownFlag.set(true);
-        return this.pollers.unsafeDequeueAll
-          .traverseIOConcurrent((fiber) => fiber.interruptAs(fiberId))
-          .zipRight(IO.succeed(this.subscription.unsubscribe()))
-          .whenIO(this.shutdownHook.succeed(undefined));
-      }),
-    );
-  }
+  isShutdown: UIO<boolean> = IO.succeed(() => this.shutdownFlag.get);
 
-  get size(): UIO<number> {
-    return IO.defer(() => {
+  shutdown: UIO<void> = IO.fiberId.flatMap((fiberId) =>
+    IO.defer(() => {
+      this.shutdownFlag.set(true);
+      return IO.foreachConcurrent(this.pollers.unsafeDequeueAll, (fiber) => fiber.interruptAs(fiberId))
+        .zipRight(IO.succeed(this.subscription.unsubscribe()))
+        .whenIO(this.shutdownHook.succeed(undefined));
+    }),
+  );
+
+  size: UIO<number> = IO.defer(() => {
+    if (this.shutdownFlag.get) {
+      return IO.interrupt;
+    }
+
+    return IO.succeed(this.subscription.size());
+  });
+
+  offer = (_: never): IO<never, never, boolean> => IO.succeedNow(false);
+
+  offerAll = (_: Iterable<never>): IO<never, never, boolean> => IO.succeedNow(false);
+
+  take: IO<never, never, A> = IO.fiberId.flatMap((fiberId) =>
+    IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
       }
 
-      return IO.succeed(this.subscription.size());
-    });
-  }
+      const empty   = null as unknown as A;
+      const message = this.pollers.isEmpty ? this.subscription.poll(empty) : empty;
 
-  get take(): IO<never, never, A> {
-    return IO.fiberId.flatMap((fiberId) =>
-      IO.defer(() => {
-        if (this.shutdownFlag.get) {
-          return IO.interrupt;
-        }
+      if (message == null) {
+        const future = Future.unsafeMake<never, A>(fiberId);
 
-        const empty   = null as unknown as A;
-        const message = this.pollers.isEmpty ? this.subscription.poll(empty) : empty;
-
-        if (message == null) {
-          const future = Future.unsafeMake<never, A>(fiberId);
-
-          return IO.defer(() => {
-            this.pollers.enqueue(future);
-            this.subscribers.add(new HashedPair(this.subscription, this.pollers));
-            this.strategy.unsafeCompletePollers(this.hub, this.subscribers, this.subscription, this.pollers);
-            if (this.shutdownFlag.get) {
-              return IO.interrupt;
-            } else {
-              return future.await;
-            }
-          }).onInterrupt(() =>
-            IO.succeed(() => {
-              this.pollers.unsafeRemove(future);
-            }),
-          );
-        } else {
-          this.strategy.unsafeOnHubEmptySpace(this.hub, this.subscribers);
-          return IO.succeedNow(message);
-        }
-      }),
-    );
-  }
-
-  get takeAll(): IO<never, never, Conc<A>> {
-    return IO.defer(() => {
-      if (this.shutdownFlag.get) {
-        return IO.interrupt;
+        return IO.defer(() => {
+          this.pollers.enqueue(future);
+          this.subscribers.add(new HashedPair(this.subscription, this.pollers));
+          this.strategy.unsafeCompletePollers(this.hub, this.subscribers, this.subscription, this.pollers);
+          if (this.shutdownFlag.get) {
+            return IO.interrupt;
+          } else {
+            return future.await;
+          }
+        }).onInterrupt(() =>
+          IO.succeed(() => {
+            this.pollers.unsafeRemove(future);
+          }),
+        );
+      } else {
+        this.strategy.unsafeOnHubEmptySpace(this.hub, this.subscribers);
+        return IO.succeedNow(message);
       }
+    }),
+  );
 
-      const as = this.pollers.isEmpty ? this.subscription.unsafePollAll : Conc.empty<A>();
+  takeAll: IO<never, never, Conc<A>> = IO.defer(() => {
+    if (this.shutdownFlag.get) {
+      return IO.interrupt;
+    }
 
-      this.strategy.unsafeOnHubEmptySpace(this.hub, this.subscribers);
+    const as = this.pollers.isEmpty ? this.subscription.unsafePollAll : Conc.empty<A>();
 
-      return IO.succeedNow(as);
-    });
-  }
+    this.strategy.unsafeOnHubEmptySpace(this.hub, this.subscribers);
 
-  takeUpTo(this: this, n: number): IO<never, never, Conc<A>> {
+    return IO.succeedNow(as);
+  });
+
+  takeUpTo = (n: number): IO<never, never, Conc<A>> => {
     return IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;
@@ -361,43 +350,7 @@ class UnsafeSubscription<A> implements Dequeue<A> {
       this.strategy.unsafeOnHubEmptySpace(this.hub, this.subscribers);
       return IO.succeedNow(as);
     });
-  }
-
-  private takeRemainder(min: number, max: number, acc: Conc<A>, __tsplusTrace?: string): UIO<Conc<A>> {
-    if (max < min) return IO.succeedNow(acc);
-    else {
-      return this.takeUpTo(max).flatMap((bs) => {
-        const remaining = min - bs.length;
-        if (remaining === 1) {
-          return this.take.map((b) => acc.concat(bs).append(b));
-        } else if (remaining > 1) {
-          return this.take.flatMap((b) => this.takeRemainder(remaining - 1, max - bs.length, acc.concat(bs).append(b)));
-        } else {
-          return IO.succeedNow(acc.concat(bs));
-        }
-      });
-    }
-  }
-
-  takeBetween(this: this, min: number, max: number, __tsplusTrace?: string): UIO<Conc<A>> {
-    return this.takeRemainder(min, max, Conc());
-  }
-
-  takeN(this: this, n: number, __tsplusTrace?: string): UIO<Conc<A>> {
-    return this.takeBetween(n, n);
-  }
-
-  get poll(): UIO<Maybe<A>> {
-    return this.takeUpTo(1).map((_) => _.head);
-  }
-
-  get isFull(): UIO<boolean> {
-    return this.size.map((size) => size === this.capacity);
-  }
-
-  get isEmpty(): UIO<boolean> {
-    return this.size.map((size) => size === 0);
-  }
+  };
 }
 
 /**
@@ -407,7 +360,7 @@ export function makeSubscription<A>(
   hub: HubInternal<A>,
   subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
   strategy: Strategy<A>,
-): UIO<Dequeue<A>> {
+): UIO<Queue.Dequeue<A>> {
   return Future.make<never, void>().map((future) => {
     return unsafeMakeSubscription(
       hub,
@@ -432,7 +385,7 @@ export function unsafeMakeSubscription<A>(
   shutdownHook: Future<never, void>,
   shutdownFlag: AtomicBoolean,
   strategy: Strategy<A>,
-): Dequeue<A> {
+): Queue.Dequeue<A> {
   return new UnsafeSubscription(hub, subscribers, subscription, pollers, shutdownHook, shutdownFlag, strategy);
 }
 
@@ -440,4 +393,101 @@ export function subscribersHashSet<A>(): HashSet<
   HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>
 > {
   return HashSet.empty<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>();
+}
+
+class UnsafeHub<A> extends PHubInternal<never, never, never, never, A, A> {
+  constructor(
+    readonly hub: HubInternal<A>,
+    readonly subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
+    readonly scope: Scope.Closeable,
+    readonly shutdownHook: Future<never, void>,
+    readonly shutdownFlag: AtomicBoolean,
+    readonly strategy: Strategy<A>,
+  ) {
+    super();
+  }
+
+  awaitShutdown = this.shutdownHook.await;
+
+  capacity = this.hub.capacity;
+
+  isShutdown = IO.succeed(this.shutdownFlag.get);
+
+  shutdown = IO.fiberId.flatMap((fiberId) =>
+    IO.defer(() => {
+      this.shutdownFlag.set(true);
+      return this.scope
+        .close(Exit.interrupt(fiberId))
+        .zipRight(this.strategy.shutdown)
+        .whenIO(this.shutdownHook.succeed(undefined));
+    }),
+  ).uninterruptible;
+
+  size = IO.defer(() => {
+    if (this.shutdownFlag.get) {
+      return IO.interrupt;
+    }
+
+    return IO.succeed(this.hub.size());
+  });
+
+  subscribe: IO<Scope, never, Queue.Dequeue<A>> = IO.acquireRelease(
+    makeSubscription(this.hub, this.subscribers, this.strategy).tap((dequeue) =>
+      this.scope.addFinalizer(dequeue.shutdown),
+    ),
+    (dequeue) => dequeue.shutdown,
+  );
+
+  publish = (a: A): IO<never, never, boolean> =>
+    IO.defer(() => {
+      if (this.shutdownFlag.get) {
+        return IO.interrupt;
+      }
+
+      if (this.hub.publish(a)) {
+        this.strategy.unsafeCompleteSubscribers(this.hub, this.subscribers);
+        return IO.succeedNow(true);
+      }
+
+      return this.strategy.handleSurplus(this.hub, this.subscribers, Conc.single(a), this.shutdownFlag);
+    });
+
+  publishAll = (as: Iterable<A>): IO<never, never, boolean> =>
+    IO.defer(() => {
+      if (this.shutdownFlag.get) {
+        return IO.interrupt;
+      }
+
+      const surplus = this.hub.publishAll(as);
+
+      this.strategy.unsafeCompleteSubscribers(this.hub, this.subscribers);
+
+      if (surplus.isEmpty) {
+        return IO.succeedNow(true);
+      }
+
+      return this.strategy.handleSurplus(this.hub, this.subscribers, surplus, this.shutdownFlag);
+    });
+}
+
+/**
+ * Unsafely creates a hub with the specified strategy.
+ */
+export function unsafeMakeHub<A>(
+  hub: HubInternal<A>,
+  subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
+  scope: Scope.Closeable,
+  shutdownHook: Future<never, void>,
+  shutdownFlag: AtomicBoolean,
+  strategy: Strategy<A>,
+): Hub<A> {
+  return new UnsafeHub(hub, subscribers, scope, shutdownHook, shutdownFlag, strategy).unsafeCoerce();
+}
+
+export function makeHubInternal<A>(hub: HubInternal<A>, strategy: Strategy<A>): UIO<Hub<A>> {
+  return Do((_) => {
+    const scope  = _(Scope.make);
+    const future = _(Future.make<never, void>());
+    return unsafeMakeHub(hub, subscribersHashSet(), scope, future, new AtomicBoolean(false), strategy);
+  });
 }

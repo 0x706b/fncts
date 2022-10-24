@@ -1,108 +1,117 @@
-import type { HashedPair } from "../internal/HashedPair.js";
-import type { MutableQueue } from "../internal/MutableQueue.js";
-import type { UIO } from "../IO.js";
-import type { Dequeue, Enqueue } from "../Queue/definition.js";
-import type { Strategy } from "./internal.js";
-import type { HashSet } from "@fncts/base/collection/mutable/HashSet";
-import type { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
-import type { Hub as HubInternal } from "@fncts/io/internal/Hub";
+import type { IO } from "@fncts/io/IO";
+import type { PDequeue, PEnqueue, PEnqueueInternal } from "@fncts/io/Queue";
 
-import { QueueTypeId } from "../Queue/definition.js";
-import { makeSubscription } from "./internal.js";
+import { EnqueueTypeId, QueueTypeId } from "@fncts/io/Queue";
 
 export const HubTypeId = Symbol.for("fncts.io.Hub");
 export type HubTypeId = typeof HubTypeId;
 
 /**
+ * A `Hub<RA, RB, EA, EB, A, B>` is an asynchronous message hub. Publishers
+ * can publish messages of type `A` to the hub and subscribers can subscribe to
+ * take messages of type `B` from the hub. Publishing messages can require an
+ * environment of type `RA` and fail with an error of type `EA`. Taking
+ * messages can require an environment of type `RB` and fail with an error of
+ * type `EB`.
+ *
  * @tsplus type fncts.io.Hub
- * @tsplus companion fncts.io.HubOps
  */
-export class Hub<A> implements Enqueue<A> {
-  readonly [QueueTypeId]: QueueTypeId = QueueTypeId;
-  readonly [HubTypeId]: HubTypeId     = HubTypeId;
-  declare _In: (_: A) => void;
-  constructor(
-    readonly hub: HubInternal<A>,
-    readonly subscribers: HashSet<HashedPair<HubInternal.Subscription<A>, MutableQueue<Future<never, A>>>>,
-    readonly scope: Scope.Closeable,
-    readonly shutdownHook: Future<never, void>,
-    readonly shutdownFlag: AtomicBoolean,
-    readonly strategy: Strategy<A>,
-  ) {}
+export interface PHub<RA, RB, EA, EB, A, B> extends PEnqueue<RA, RB, EA, EB, A, B> {
+  readonly _typeId: HubTypeId;
+  readonly _RA: () => RA;
+  readonly _RB: () => RB;
+  readonly _EA: () => EA;
+  readonly _EB: () => EB;
+  readonly _A: (_: A) => void;
+  readonly _B: () => B;
+}
 
-  awaitShutdown: UIO<void> = this.shutdownHook.await;
+/**
+ * @tsplus type fncts.io.Hub
+ */
+export interface Hub<A> extends PHub<never, never, never, never, A, A> {}
 
-  get capacity(): number {
-    return this.hub.capacity;
-  }
+/**
+ * @tsplus type fncts.io.HubOps
+ */
+export interface HubOps {}
 
-  isShutdown: UIO<boolean> = IO(this.shutdownFlag.get);
+export const Hub: HubOps = {};
 
-  publish(this: this, a: A, __tsplusTrace?: string): UIO<boolean> {
-    return IO.defer(() => {
-      if (this.shutdownFlag.get) {
-        return IO.interrupt;
-      }
+export declare namespace PHub {}
+export declare namespace Hub {}
 
-      if (this.hub.publish(a)) {
-        this.strategy.unsafeCompleteSubscribers(this.hub, this.subscribers);
-        return IO.succeedNow(true);
-      }
+export abstract class PHubInternal<RA, RB, EA, EB, A, B>
+  implements PHub<RA, RB, EA, EB, A, B>, PEnqueueInternal<RA, RB, EA, EB, A, B>
+{
+  readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
+  readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
+  _typeId: HubTypeId = HubTypeId;
+  readonly _RA!: () => RA;
+  readonly _RB!: () => RB;
+  readonly _EA!: () => EA;
+  readonly _EB!: () => EB;
+  readonly _A!: (_: A) => void;
+  readonly _B!: () => B;
 
-      return this.strategy.handleSurplus(this.hub, this.subscribers, Conc.single(a), this.shutdownFlag);
-    });
-  }
+  /**
+   * Waits for the hub to be shut down.
+   */
+  abstract awaitShutdown: UIO<void>;
 
-  publishAll(this: this, as: Iterable<A>, __tsplusTrace?: string): UIO<boolean> {
-    return IO.defer(() => {
-      if (this.shutdownFlag.get) {
-        return IO.interrupt;
-      }
+  /**
+   * The maximum capacity of the hub.
+   */
+  abstract capacity: number;
 
-      const surplus = this.hub.publishAll(as);
+  /**
+   * Checks whether the hub is shut down.
+   */
+  abstract isShutdown: UIO<boolean>;
 
-      this.strategy.unsafeCompleteSubscribers(this.hub, this.subscribers);
+  /**
+   * Publishes a message to the hub, returning whether the message was
+   * published to the hub.
+   */
+  abstract publish(a: A): IO<RA, EA, boolean>;
 
-      if (surplus.isEmpty) {
-        return IO.succeedNow(true);
-      }
+  /**
+   * Publishes all of the specified messages to the hub, returning whether
+   * they were published to the hub.
+   */
+  abstract publishAll(as: Iterable<A>): IO<RA, EA, boolean>;
 
-      return this.strategy.handleSurplus(this.hub, this.subscribers, surplus, this.shutdownFlag);
-    });
-  }
+  /**
+   * Shuts down the hub.
+   */
+  abstract shutdown: UIO<void>;
 
-  shutdown: UIO<void> = IO.deferWith((_, fiberId) => {
-    this.shutdownFlag.set(true);
-    return this.scope
-      .close(Exit.interrupt(fiberId))
-      .zipRight(this.strategy.shutdown)
-      .whenIO(this.shutdownHook.succeed(undefined));
-  }).uninterruptible;
+  /**
+   * The current number of messages in the hub.
+   */
+  abstract size: UIO<number>;
 
-  size: UIO<number> = IO.defer(() => {
-    if (this.shutdownFlag.get) {
-      return IO.interrupt;
-    }
+  /**
+   * Subscribes to receive messages from the hub. The resulting subscription
+   * can be evaluated multiple times within the scope of the managed to take a
+   * message from the hub each time.
+   */
+  abstract subscribe: IO<Scope, never, PDequeue<RA, RB, EA, EB, A, B>>;
 
-    return IO.succeed(this.hub.size());
-  });
-
-  subscribe: IO<Scope, never, Dequeue<A>> = IO.acquireRelease(
-    makeSubscription(this.hub, this.subscribers, this.strategy).tap((dequeue) =>
-      this.scope.addFinalizer(dequeue.shutdown),
-    ),
-    (dequeue) => dequeue.shutdown,
-  );
-
-  isEmpty: UIO<boolean> = this.size.map((size) => size === 0);
-
-  isFull: UIO<boolean> = this.size.map((size) => size === this.capacity);
-
-  offer(this: this, a: A, __tsplusTrace?: string | undefined): UIO<boolean> {
+  offer(a: A, __tsplusTrace?: string): IO<RA, EA, boolean> {
     return this.publish(a);
   }
 
-  offerAll(this: this, as: Iterable<A>, __tsplusTrace?: string | undefined): UIO<boolean> {
+  offerAll(as: Iterable<A>, __tsplusTrace?: string): IO<RA, EA, boolean> {
     return this.publishAll(as);
   }
+}
+
+/**
+ * @tsplus macro remove
+ */
+export function concrete<RA, RB, EA, EB, A, B>(
+  _: PHub<RA, RB, EA, EB, A, B>,
+): asserts _ is PHubInternal<RA, RB, EA, EB, A, B> {
+  //
 }
