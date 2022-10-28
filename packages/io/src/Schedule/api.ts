@@ -18,7 +18,7 @@ export function make<State, Env, In, Out>(
 /**
  * @tsplus pipeable fncts.io.Schedule addDelay
  */
-export function addDelay<Out>(f: (out: Out) => number, __tsplusTrace?: string) {
+export function addDelay<Out>(f: (out: Out) => Duration, __tsplusTrace?: string) {
   return <State, Env, In>(self: Schedule.WithState<State, Env, In, Out>): Schedule.WithState<State, Env, In, Out> => {
     return self.addDelayIO((out) => IO.succeed(f(out)));
   };
@@ -27,7 +27,7 @@ export function addDelay<Out>(f: (out: Out) => number, __tsplusTrace?: string) {
 /**
  * @tsplus pipeable fncts.io.Schedule addDelayIO
  */
-export function addDelayIO<Out, Env1>(f: (out: Out) => URIO<Env1, number>, __tsplusTrace?: string) {
+export function addDelayIO<Out, Env1>(f: (out: Out) => URIO<Env1, Duration>, __tsplusTrace?: string) {
   return <State, Env, In>(
     self: Schedule.WithState<State, Env, In, Out>,
   ): Schedule.WithState<State, Env | Env1, In, Out> => {
@@ -91,6 +91,15 @@ export function as<Out2>(out2: Lazy<Out2>, __tsplusTrace?: string) {
   ): Schedule.WithState<State, Env, In, Out2> => {
     return self.map(() => out2());
   };
+}
+
+/**
+ * @tsplus getter fncts.io.Schedule asUnit
+ */
+export function asUnit<State, Env, In, Out>(
+  self: Schedule.WithState<State, Env, In, Out>,
+): Schedule.WithState<State, Env, In, void> {
+  return self.as(undefined);
 }
 
 /**
@@ -174,16 +183,16 @@ export function contramapIO<I, R1, I2>(f: (inp: I2) => URIO<R1, I>, __tsplusTrac
  * @tsplus static fncts.io.ScheduleOps delayed
  */
 export function delayed<S, R, I>(
-  schedule: Schedule.WithState<S, R, I, number>,
+  schedule: Schedule.WithState<S, R, I, Duration>,
   __tsplusTrace?: string,
-): Schedule.WithState<S, R, I, number> {
+): Schedule.WithState<S, R, I, Duration> {
   return schedule.addDelay((x) => x);
 }
 
 /**
  * @tsplus pipeable fncts.io.Schedule delayed
  */
-export function delayedSelf(f: (delay: number) => number, __tsplusTrace?: string) {
+export function delayedSelf(f: (delay: Duration) => Duration, __tsplusTrace?: string) {
   return <S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R, I, O> => {
     return self.delayedIO((delay) => IO.succeed(f(delay)));
   };
@@ -192,7 +201,7 @@ export function delayedSelf(f: (delay: number) => number, __tsplusTrace?: string
 /**
  * @tsplus pipeable fncts.io.Schedule delayedIO
  */
-export function delayedIO<R1>(f: (delay: number) => URIO<R1, number>, __tsplusTrace?: string) {
+export function delayedIO<R1>(f: (delay: Duration) => URIO<R1, Duration>, __tsplusTrace?: string) {
   return <S, R, I, O>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<S, R | R1, I, O> => {
     return self.modifyDelayIO((_, delay) => f(delay));
   };
@@ -244,16 +253,16 @@ export function dimapIO<I, O, R1, I2, R2, O2>(
  * @tsplus static fncts.io.ScheduleOps duration
  */
 export function duration(
-  duration: number,
+  duration: Duration,
   __tsplusTrace?: string,
-): Schedule.WithState<boolean, never, unknown, number> {
-  return Schedule<boolean, never, unknown, number>(true, (now, _, state) =>
+): Schedule.WithState<boolean, never, unknown, Duration> {
+  return Schedule<boolean, never, unknown, Duration>(true, (now, _, state) =>
     IO.succeed(() => {
       if (state) {
-        const interval = Interval.after(now + duration);
+        const interval = Interval.after(now + duration.milliseconds);
         return [false, duration, Decision.continueWith(interval)];
       } else {
-        return [false, 0, Decision.Done];
+        return [false, Duration.zero, Decision.Done];
       }
     }),
   );
@@ -287,16 +296,18 @@ export function eitherWith<O, S1, R1, I1, O1, O2>(
 /**
  * @tsplus static fncts.io.ScheduleOps elapsed
  */
-export const elapsed: Schedule.WithState<Maybe<number>, never, unknown, number> = Schedule(Nothing(), (now, _, state) =>
-  IO.succeed(
-    state.match(
-      () => [Just(now), 0, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))],
-      (start) => {
-        const duration = now - start;
-        return [Just(start), duration, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))];
-      },
+export const elapsed: Schedule.WithState<Maybe<number>, never, unknown, Duration> = Schedule(
+  Nothing(),
+  (now, _, state) =>
+    IO.succeed(
+      state.match(
+        () => [Just(now), Duration.zero, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))],
+        (start) => {
+          const duration = Duration.fromInterval(start, now);
+          return [Just(start), duration, Decision.continueWith(Interval(now, Number.MAX_SAFE_INTEGER))];
+        },
+      ),
     ),
-  ),
 );
 
 /**
@@ -319,10 +330,10 @@ export function ensuring(finalizer: UIO<any>, __tsplusTrace?: string) {
  * @tsplus static fncts.io.ScheduleOps exponential
  */
 export function exponential(
-  base: number,
+  base: Duration,
   factor = 2,
   __tsplusTrace?: string,
-): Schedule.WithState<number, never, unknown, number> {
+): Schedule.WithState<number, never, unknown, Duration> {
   return Schedule.delayed(Schedule.forever.map((i) => base * Math.pow(factor, i)));
 }
 
@@ -489,7 +500,7 @@ export function intersectWith<S1, R1, I1, O1>(
 /**
  * @tsplus static fncts.io.Schedule linear
  */
-export function linear(base: number, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, number> {
+export function linear(base: Duration, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, Duration> {
   return Schedule.delayed(Schedule.forever.map((i) => base * (i + 1)));
 }
 
@@ -519,7 +530,7 @@ export function mapIO<Out, Env1, Out1>(f: (out: Out) => URIO<Env1, Out1>, __tspl
  * @tsplus pipeable fncts.io.Schedule modifyDelayIO
  */
 export function modifyDelayIO<Out, Env1>(
-  f: (out: Out, duration: number) => URIO<Env1, number>,
+  f: (out: Out, duration: Duration) => URIO<Env1, Duration>,
   __tsplusTrace?: string,
 ) {
   return <State, Env, In>(
@@ -533,7 +544,7 @@ export function modifyDelayIO<Out, Env1>(
             const delay = Interval(now, interval.start).size;
             return f(out, delay).map((duration) => {
               const oldStart    = interval.start;
-              const newStart    = now + duration;
+              const newStart    = now + duration.milliseconds;
               const delta       = newStart - oldStart;
               const newEnd      = interval.end + delta;
               const newInterval = Interval(newStart, newEnd);
@@ -545,6 +556,16 @@ export function modifyDelayIO<Out, Env1>(
     );
   };
 }
+
+/**
+ * @tsplus static fncts.io.ScheduleOps once
+ */
+export const once: Schedule.WithState<number, never, any, void> = Schedule.recurs(1).asUnit;
+
+/**
+ * @tsplus static fncts.io.ScheduleOps asap
+ */
+export const asap = Schedule.once.delayed(() => (0).milliseconds);
 
 /**
  * @tsplus pipeable fncts.io.Schedule onDecision
@@ -615,21 +636,21 @@ export function reconsiderIO<S, O, R1, O1>(
 }
 
 /**
- * @tsplus static fncts.io.Schedule recurs
+ * @tsplus static fncts.io.ScheduleOps recurs
  */
 export function recurs(n: number, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, number> {
   return Schedule.forever.whileOutput((_) => _ < n);
 }
 
 /**
- * @tsplus static fncts.io.Schedule recurWhile
+ * @tsplus static fncts.io.ScheduleOps recurWhile
  */
 export function recurWhile<A>(f: (a: A) => boolean, __tsplusTrace?: string): Schedule.WithState<void, never, A, A> {
   return identity<A>().whileInput(f);
 }
 
 /**
- * @tsplus static fncts.io.Schedule recurWhileIO
+ * @tsplus static fncts.io.ScheduleOps recurWhileIO
  */
 export function recurWhileIO<R, A>(
   f: (a: A) => URIO<R, boolean>,
@@ -682,7 +703,7 @@ export function repetitions<S, R, I, O>(
 /**
  * @tsplus pipeable fncts.io.Schedule resetAfter
  */
-export function resetAfter(duration: number, __tsplusTrace?: string) {
+export function resetAfter(duration: Duration, __tsplusTrace?: string) {
   return <S, R, I, O>(
     self: Schedule.WithState<S, R, I, O>,
   ): Schedule.WithState<readonly [S, Maybe<number>], R, I, O> => {
@@ -732,7 +753,7 @@ export function run<I>(now: number, input: Iterable<I>, __tsplusTrace?: string) 
 /**
  * @tsplus static fncts.io.Schedule spaced
  */
-export function spaced(duration: number, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, number> {
+export function spaced(duration: Duration, __tsplusTrace?: string): Schedule.WithState<number, never, unknown, number> {
   return Schedule.forever.addDelay(() => duration);
 }
 
@@ -849,9 +870,9 @@ export function untilOutputIO<O, R1>(f: (out: O) => URIO<R1, boolean>, __tsplusT
  * @tsplus static fncts.io.Schedule upTo
  */
 export function upTo(
-  duration: number,
+  duration: Duration,
   __tsplusTrace?: string,
-): Schedule.WithState<Maybe<number>, never, unknown, number> {
+): Schedule.WithState<Maybe<number>, never, unknown, Duration> {
   return Schedule.elapsed.whileOutput((n) => n < duration);
 }
 

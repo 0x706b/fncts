@@ -14,6 +14,10 @@ import { hasTypeId, isByte, isObject } from "@fncts/base/util/predicates";
 /**
  * @tsplus global
  */
+import { CountdownLatch } from "@fncts/io/CountdownLatch";
+/**
+ * @tsplus global
+ */
 import { Cached } from "@fncts/io/Cached/definition";
 /**
  * @tsplus global

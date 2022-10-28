@@ -78,3 +78,8 @@ export function difference(that: Duration) {
 export function fromInterval(start: number, end: number): Duration {
   return Duration.milliseconds(Math.round(end) - Math.round(start));
 }
+
+/**
+ * @tsplus static fncts.DurationOps zero
+ */
+export const zero: Duration = (0).milliseconds;
