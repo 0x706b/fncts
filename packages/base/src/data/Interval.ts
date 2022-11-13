@@ -96,8 +96,8 @@ export function isNonEmpty(self: Interval): boolean {
 /**
  * @tsplus getter fncts.io.Schedule.Interval size
  */
-export function size(self: Interval): number {
-  return self.endMilliseconds - self.startMilliseconds;
+export function size(self: Interval): Duration {
+  return Duration.fromInterval(self.startMilliseconds, self.endMilliseconds);
 }
 
 /**

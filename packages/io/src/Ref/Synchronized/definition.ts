@@ -42,19 +42,17 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
     return this.withPermit(this.unsafeSet(a));
   }
 
-  modify<RA, RB, EA, EB, A, B>(
-    this: PSynchronizedInternal<RA, RB, EA, EB, A, A>,
-    f: (a: A) => readonly [B, A],
+  modify<C>(
+    f: (b: B) => readonly [C, A],
     __tsplusTrace?: string | undefined,
-  ): IO<RA | RB, EA | EB, B> {
+  ): IO<RA | RB, EA | EB, C> {
     return this.modifyIO((a) => IO.succeedNow(f(a)));
   }
 
-  modifyIO<R1, E1, B>(
-    this: PSynchronizedInternal<RA, RB, EA, EB, A, A>,
-    f: (a: A) => IO<R1, E1, readonly [B, A]>,
+  modifyIO<R1, E1, C>(
+    f: (b: B) => IO<R1, E1, readonly [C, A]>,
     __tsplusTrace?: string,
-  ): IO<RA | RB | R1, EA | EB | E1, B> {
+  ): IO<RA | RB | R1, EA | EB | E1, C> {
     return this.withPermit(this.unsafeGet.flatMap(f).flatMap(([b, a]) => this.unsafeSet(a).as(b)));
   }
 

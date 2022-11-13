@@ -72,9 +72,8 @@ export class Derived<EA, EB, A, B> extends RefInternal<never, never, EA, EB, A, 
     return this.use((value, _, setEither) => setEither(a).match(IO.failNow, (s) => value.set(s)));
   }
 
-  modify<EA, EB, A, C>(
-    this: Derived<EA, EB, A, A>,
-    f: (a: A) => readonly [C, A],
+  modify<C>(
+    f: (b: B) => readonly [C, A],
     __tsplusTrace?: string | undefined,
   ): IO<never, EA | EB, C> {
     return this.use(

@@ -1,3 +1,5 @@
+import { AtomicReference } from "@fncts/base/internal/AtomicReference";
+
 import { Atomic } from "./Atomic.js";
 
 /**
@@ -11,5 +13,5 @@ export function make<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<Ref<A>> {
  * @tsplus static fncts.io.RefOps unsafeMake
  */
 export function unsafeMake<A>(a: A, __tsplusTrace?: string): Ref.Atomic<A> {
-  return new Atomic(a);
+  return new Atomic(new AtomicReference(a));
 }

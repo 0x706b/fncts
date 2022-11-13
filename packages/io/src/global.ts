@@ -30,6 +30,10 @@ import { Console } from "@fncts/io/Console/definition";
 /**
  * @tsplus global
  */
+import { CountdownLatch } from "@fncts/io/CountdownLatch";
+/**
+ * @tsplus global
+ */
 import { Fiber } from "@fncts/io/Fiber/definition";
 /**
  * @tsplus global

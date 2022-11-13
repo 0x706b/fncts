@@ -1,7 +1,7 @@
 import type { Atomic as Atomic_ } from "./Atomic.js";
-import type { Derived } from "./Derived.js";
-import type { DerivedAll } from "./DerivedAll.js";
 import type * as Synchro from "./Synchronized/definition.js";
+
+import { _A, _B,_EA, _EB, _RA, _RB } from "./symbols.js";
 
 export const RefTypeId = Symbol.for("fncts.io.Ref");
 export type RefTypeId = typeof RefTypeId;
@@ -11,12 +11,12 @@ export type RefTypeId = typeof RefTypeId;
  */
 export interface PRef<RA, RB, EA, EB, A, B> {
   readonly _U: RefTypeId;
-  readonly _RA: () => RA;
-  readonly _RB: () => RB;
-  readonly _EA: () => EA;
-  readonly _EB: () => EB;
-  readonly _A: (_: A) => void;
-  readonly _B: () => B;
+  readonly [_RA]: () => RA;
+  readonly [_RB]: () => RB;
+  readonly [_EA]: () => EA;
+  readonly [_EB]: () => EB;
+  readonly [_A]: (_: A) => void;
+  readonly [_B]: () => B;
 }
 
 export type Ref<A> = PRef<never, never, never, never, A, A>;
@@ -43,14 +43,44 @@ export interface RefOps {}
 
 export const Ref: RefOps = {};
 
-export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, EA, EB, A, B> {
+export interface ReadableRef<RB, EB, B> {
+  readonly [_RB]: () => RB;
+  readonly [_EB]: () => EB;
+  readonly [_B]: () => B;
+  readonly get: IO<RB, EB, B>;
+}
+
+export interface WritableRef<RA, EA, A> {
+  readonly [_RA]: () => RA;
+  readonly [_EA]: () => EA;
+  readonly [_A]: (_: A) => void;
+  set(a: A, __tsplusTrace?: string): IO<RA, EA, void>;
+}
+
+export interface ModifiableRef<RA, RB, EA, EB, A, B> {
+  readonly [_RA]: () => RA;
+  readonly [_RB]: () => RB;
+  readonly [_EA]: () => EA;
+  readonly [_EB]: () => EB;
+  readonly [_A]: (_: A) => void;
+  readonly [_B]: () => B;
+  modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string): IO<RA | RB, EA | EB, C>;
+}
+
+export abstract class RefInternal<RA, RB, EA, EB, A, B>
+  implements
+    PRef<RA, RB, EA, EB, A, B>,
+    ReadableRef<RB, EB, B>,
+    WritableRef<RA, EA, A>,
+    ModifiableRef<RA, RB, EA, EB, A, B>
+{
   declare _U: RefTypeId;
-  declare _RA: () => RA;
-  declare _RB: () => RB;
-  declare _EA: () => EA;
-  declare _EB: () => EB;
-  declare _A: (_: A) => void;
-  declare _B: () => B;
+  declare [_RA]: () => RA;
+  declare [_RB]: () => RB;
+  declare [_EA]: () => EA;
+  declare [_EB]: () => EB;
+  declare [_A]: (_: A) => void;
+  declare [_B]: () => B;
 
   /**
    * Folds over the error and value types of the `Ref`. This is a highly
@@ -95,7 +125,7 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B> implements PRef<RA, RB, 
    * computes a return value for the modification. This is a more powerful
    * version of `update`.
    */
-  abstract modify<B>(f: (a: A) => readonly [B, A], __tsplusTrace?: string): IO<RA | RB, EA | EB, B>;
+  abstract modify<C>(f: (a: B) => readonly [C, A], __tsplusTrace?: string): IO<RA | RB, EA | EB, C>;
 }
 
 /**

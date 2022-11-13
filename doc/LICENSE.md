@@ -55,6 +55,7 @@ This license is used by the following third-party libraries
 - [monocle-ts](https://github.com/gcanti/monocle-ts)
 - [pure-rand](https://github.com/dubzzz/pure-rand)
 - [ts-pattern](https://github.com/gvergnaud/ts-pattern)
+- [@typed/fx](https://github.com/tylors/typed-fx)
 
 ## [BSD 3-Clause](https://opensource.org/licenses/BSD-3-Clause)
 

@@ -1,4 +1,5 @@
 import type { PRef } from "./definition.js";
+import type { AtomicReference } from "@fncts/base/internal/AtomicReference";
 
 import { IO } from "@fncts/io/IO";
 
@@ -14,7 +15,7 @@ export type AtomicTypeId = typeof AtomicTypeId;
  */
 export class Atomic<A> extends RefInternal<never, never, never, never, A, A> {
   readonly [AtomicTypeId]: AtomicTypeId = AtomicTypeId;
-  constructor(private value: A) {
+  constructor(readonly value: AtomicReference<A>) {
     super();
     this.match    = this.match.bind(this);
     this.matchAll = this.matchAll.bind(this);
@@ -41,20 +42,20 @@ export class Atomic<A> extends RefInternal<never, never, never, never, A, A> {
   }
 
   get unsafeGet(): A {
-    return this.value;
+    return this.value.get;
   }
 
   unsafeSet(a: A): void {
-    this.value = a;
+    this.value.set(a);
   }
 
   get get(): UIO<A> {
-    return IO.succeed(this.value);
+    return IO.succeed(this.value.get);
   }
 
   set(a: A): UIO<void> {
     return IO.succeed(() => {
-      this.value = a;
+      this.value.set(a);
     });
   }
 
