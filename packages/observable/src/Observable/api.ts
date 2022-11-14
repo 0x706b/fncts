@@ -2570,9 +2570,7 @@ export function unique<A, K, R1, E1 = never>(toKey?: (value: A) => K, flushes?: 
       );
       flushes
         ?.provideEnvironment(environment)
-        .subscribe(
-          operatorSubscriber(subscriber, { next: () => (distinctKeys = HashSet.empty()), complete: noop }),
-        );
+        .subscribe(operatorSubscriber(subscriber, { next: () => (distinctKeys = HashSet.empty()), complete: noop }));
     });
   };
 }

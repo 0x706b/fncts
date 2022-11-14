@@ -19,13 +19,13 @@
   },
   "devDependencies": {
     "@babel/plugin-syntax-class-properties": "^7.12.13",
-    "@babel/plugin-syntax-typescript": "^7.18.6",
-    "@babel/types": "^7.19.0",
+    "@babel/plugin-syntax-typescript": "^7.20.0",
+    "@babel/types": "^7.20.2",
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@types/babel__core": "^7.1.19",
-    "@yarnpkg/cli": "4.0.0-rc.18",
-    "@yarnpkg/core": "4.0.0-rc.18",
-    "recast": "^0.21.2"
+    "@types/babel__core": "^7.1.20",
+    "@yarnpkg/cli": "4.0.0-rc.28",
+    "@yarnpkg/core": "4.0.0-rc.28",
+    "recast": "^0.21.5"
   }
 }

@@ -79,10 +79,7 @@ export class DerivedAll<EA, EB, A, B> extends RefInternal<never, never, EA, EB, 
     );
   }
 
-  modify<C>(
-    f: (b: B) => readonly [C, A],
-    __tsplusTrace?: string | undefined,
-  ): IO<never, EA | EB, C> {
+  modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string | undefined): IO<never, EA | EB, C> {
     return this.use(
       (value, getEither, setEither) =>
         value.modify((s) =>

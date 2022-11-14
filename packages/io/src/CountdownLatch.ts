@@ -32,7 +32,7 @@ export class CountdownLatch {
  */
 export function make(n: number): UIO<CountdownLatch> {
   return Do((Δ) => {
-    const count = Δ(Ref.make(n));
+    const count   = Δ(Ref.make(n));
     const waiters = Δ(Future.make<never, void>());
     return new CountdownLatch(count, waiters);
   });

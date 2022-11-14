@@ -48,17 +48,11 @@ export class SynchronizedRefSubjectInternal<R, E, A, B>
     return this.ref.run(emitter);
   }
 
-  modify<C>(
-    f: (b: B) => readonly [C, A],
-    __tsplusTrace?: string | undefined,
-  ): IO<R, never, C> {
+  modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string | undefined): IO<R, never, C> {
     return this.modifyIO((a) => IO.succeedNow(f(a)));
   }
 
-  modifyIO<R1, E1, C>(
-    f: (b: B) => IO<R1, E1, readonly [C, A]>,
-    __tsplusTrace?: string,
-  ): IO<R | R1, E1, C> {
+  modifyIO<R1, E1, C>(f: (b: B) => IO<R1, E1, readonly [C, A]>, __tsplusTrace?: string): IO<R | R1, E1, C> {
     return this.withPermit(this.ref.get.flatMap(f).flatMap(([b, a]) => this.ref.set(a).as(b)));
   }
 

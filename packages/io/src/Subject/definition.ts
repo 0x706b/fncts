@@ -16,4 +16,3 @@ export interface Subject<R, E, A> extends Push<R, E, A>, Emitter<R, E, A> {
 export interface SubjectOps {}
 
 export const Subject: SubjectOps = {};
-
