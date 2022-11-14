@@ -1,7 +1,7 @@
 import type { Atomic as Atomic_ } from "./Atomic.js";
 import type * as Synchro from "./Synchronized/definition.js";
 
-import { _A, _B,_EA, _EB, _RA, _RB } from "./symbols.js";
+import { _A, _B, _EA, _EB, _RA, _RB } from "./symbols.js";
 
 export const RefTypeId = Symbol.for("fncts.io.Ref");
 export type RefTypeId = typeof RefTypeId;
@@ -36,8 +36,7 @@ export declare namespace Ref {
 }
 
 /**
- * @tsplus type fncts.io.Ref
- * @tsplus companion fncts.io.RefOps
+ * @tsplus type fncts.io.RefOps
  */
 export interface RefOps {}
 

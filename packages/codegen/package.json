@@ -2,7 +2,7 @@
   "name": "@fncts/codegen",
   "version": "0.0.14",
   "scripts": {
-    "build": "tsc -b && yarn build-cjs",
+    "build": "yarn org:tsc -b && yarn build-cjs",
     "build-mjs": "yarn org:babel build/esm --config-file ./.babel.mjs.json --out-dir build/mjs --out-file-extension .mjs --source-maps",
     "build-cjs": "yarn org:babel build/esm --config-file ./.babel.cjs.json --out-dir build/cjs --out-file-extension .cjs --source-maps",
     "build-pack": "yarn build && yarn org:concurrently \"yarn build-cjs\" \"yarn build-mjs\" && fncts-pack",
@@ -32,8 +32,7 @@
     "eslint-plugin-codegen": "^0.16.1",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
-    "prettier": "^2.7.1",
-    "typescript": "^4.8.2"
+    "prettier": "^2.7.1"
   },
   "dependencies": {
     "glob": "^8.0.3",

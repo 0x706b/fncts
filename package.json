@@ -19,10 +19,11 @@
     "clean": "ultra -r clean",
     "test": "ultra -r test",
     "circular": "madge --ts-config ./tsconfig.madge.json --circular --warning packages/*/build/esm",
-    "postinstall": "tsplus-install",
+    "postinstall": "echo tsplus-install",
     "org:tsc": "cd $INIT_CWD && tsc",
     "org:babel": "cd $INIT_CWD && babel",
-    "org:concurrently": "cd $INIT_CWD && concurrently"
+    "org:concurrently": "cd $INIT_CWD && concurrently",
+    "org:madge": "cd $INIT_CWD && madge"
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
@@ -50,7 +51,7 @@
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "madge": "^5.0.1",
     "prettier": "^2.7.1",
-    "typescript": "^4.8.2",
+    "typescript": "https://github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz",
     "ultra-runner": "^3.10.5"
   }
 }

@@ -1190,7 +1190,6 @@ __metadata:
     "@fncts/typelevel": "workspace:*"
     "@types/uuid": "npm:^8.3.4"
     madge: "npm:^5.0.1"
-    typescript: "npm:^4.8.2"
     uuid: "npm:^9.0.0"
   languageName: unknown
   linkType: soft
@@ -1221,7 +1220,6 @@ __metadata:
     io-ts-extra: "npm:^0.11.6"
     lodash: "npm:^4.17.21"
     prettier: "npm:^2.7.1"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -1263,7 +1261,6 @@ __metadata:
     "@types/node": "npm:^18.7.15"
     express: "npm:^4.18.1"
     madge: "npm:^5.0.1"
-    typescript: "npm:^4.8.2"
   peerDependencies:
     express: ^4.18.1
   languageName: unknown
@@ -1281,7 +1278,6 @@ __metadata:
     "@fncts/typelevel": "workspace:*"
     madge: "npm:^5.0.1"
     ts-node: "npm:^10.9.1"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -1294,7 +1290,6 @@ __metadata:
     "@fncts/io": "workspace:*"
     "@fncts/scripts": "workspace:*"
     madge: "npm:^5.0.1"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -1307,7 +1302,6 @@ __metadata:
     "@fncts/eslint-config": "workspace:*"
     "@fncts/scripts": "workspace:*"
     madge: "npm:^5.0.1"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -1320,7 +1314,6 @@ __metadata:
     "@fncts/scripts": "workspace:*"
     madge: "npm:^5.0.1"
     ts-pattern: "npm:^4.0.5"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -1334,7 +1327,6 @@ __metadata:
     "@fncts/scripts": "workspace:*"
     "@fncts/typelevel": "workspace:*"
     madge: "npm:^5.0.1"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -1352,7 +1344,6 @@ __metadata:
     "@yarnpkg/core": "npm:4.0.0-rc.18"
     madge: "npm:^5.0.1"
     recast: "npm:^0.21.2"
-    typescript: "npm:^4.8.2"
   bin:
     fncts-pack: ./bin/fncts-pack.js
     fncts-transform: ./bin/fncts-transform.js
@@ -1370,7 +1361,6 @@ __metadata:
     "@fncts/scripts": "workspace:*"
     "@fncts/typelevel": "workspace:*"
     madge: "npm:^5.0.1"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -1384,7 +1374,6 @@ __metadata:
     "@fncts/typelevel": "workspace:*"
     "@types/uuid": "npm:^8.3.4"
     madge: "npm:^5.0.1"
-    typescript: "npm:^4.8.2"
     uuid: "npm:^9.0.0"
   languageName: unknown
   linkType: soft
@@ -1396,7 +1385,6 @@ __metadata:
     "@fncts/config": "workspace:*"
     "@fncts/eslint-config": "workspace:*"
     "@fncts/scripts": "workspace:*"
-    typescript: "npm:^4.8.2"
   languageName: unknown
   linkType: soft
 
@@ -4851,7 +4839,7 @@ __metadata:
     eslint-plugin-simple-import-sort: "npm:^8.0.0"
     madge: "npm:^5.0.1"
     prettier: "npm:^2.7.1"
-    typescript: "npm:^4.8.2"
+    typescript: "https://github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz"
     ultra-runner: "npm:^3.10.5"
   languageName: unknown
   linkType: soft
@@ -8774,6 +8762,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@https://github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz":
+  version: 4.9.0-tsplus.20221113
+  resolution: "typescript@https://github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz"
+  bin:
+    tsc: ./bin/tsc
+    tsserver: ./bin/tsserver
+  checksum: d06ab65987d4cecbc6bc48737cbcc7b7e19671aae0d0dc0bfd6dab346c8203ce9132223d17eb1f71121a2e73846551a9ecfda881af0ccfe7e0f819791bc63259
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^3.9.10, typescript@npm:^3.9.5, typescript@npm:^3.9.7":
   version: 3.9.10
   resolution: "typescript@npm:3.9.10"
@@ -8784,13 +8782,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.8.2":
-  version: 4.8.4
-  resolution: "typescript@npm:4.8.4"
+"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz#optional!builtin<compat/typescript>":
+  version: 4.9.0-tsplus.20221113
+  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz#optional!builtin<compat/typescript>::version=4.9.0-tsplus.20221113&hash=f456af"
   bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 008c336ed785130b6e13254adbfc4084f5dbbe62851df9bac3eaf62fc29e0a396839c00ce47e0d92db44fa9a08b9f7ba4d31304f2b10cf7d42a0817728e822a1
+    tsc: ./bin/tsc
+    tsserver: ./bin/tsserver
+  checksum: e9631151517505d9f101ed2866622098a3edf0a695da7278a15ed53e007d3ab7e3a5a765ed17f180d9d0a64467270eceb734429bf32ef121964e818c03a9da6a
   languageName: node
   linkType: hard
 
@@ -8801,16 +8799,6 @@ __metadata:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 060f1bcb5c91a16d01b042974be047455b6471aceae5b17651119d0f690ddba45bdfcefdb92a05ca1563a6f0313f8dd63dc4e8cde0ebf221b3e6b435c32d0ddf
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^4.8.2#optional!builtin<compat/typescript>":
-  version: 4.8.4
-  resolution: "typescript@patch:typescript@npm%3A4.8.4#optional!builtin<compat/typescript>::version=4.8.4&hash=f456af"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 696783974850fa4a345b270a7629f37bbb5277504e7262a105e44d3e3776a4337f13b5f0a484ebb0b377449391a7fd270746c8c9f7492bfa389613477fb5ea6a
   languageName: node
   linkType: hard
 
