@@ -408,7 +408,7 @@ export function deriveValidation<A extends Brand.Valid<any, any>>(
     : never
 ): Guard<A> {
   const validations = Object.values(brands) as ReadonlyArray<Validation<A, any>>;
-  return Guard((u): u is A => base.is(u) && validations.every((brand) => brand.validate(u)));
+  return Guard((u): u is A => base.is(u) && validations.every((brand) => brand.validate(u as A)));
 }
 
 /**

@@ -605,7 +605,7 @@ export function deriveValidation<A extends Brand.Valid<any, any>>(
             (warning) => These.left(new CompoundError(label, Vector(warning, error))),
           );
         }
-        return These.rightOrBoth(warning, value);
+        return These.rightOrBoth(warning, value as A);
       }),
     label,
   );

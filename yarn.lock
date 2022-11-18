@@ -1520,9 +1520,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.150":
-  version: 0.0.150
-  resolution: "@tsplus/installer@npm:0.0.150"
+"@tsplus/installer@npm:0.0.153":
+  version: 0.0.153
+  resolution: "@tsplus/installer@npm:0.0.153"
   dependencies:
     mkdirp: "npm:^1.0.4"
     rimraf: "npm:^3.0.2"
@@ -1531,7 +1531,7 @@ __metadata:
     zlib: "npm:^1.0.5"
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: 71af8b69c0fa3b8fb5b23a680614ca13f1016e19bfb217a3cd8a26ce7eb2d06ce697ae5d5d2df9814455994eee1926f5ecd891f5beee1a888139362d89f4bc44
+  checksum: e172e9e6ab53d003adb9825f82f0d6d5474c080add1ec5c23a618dc25a11f1a4d3f233ecaee8b8fed9144c3b7111b4c3e00cee1134c4c23365886738f3d08d32
   languageName: node
   linkType: hard
 
@@ -4686,7 +4686,7 @@ __metadata:
     "@babel/plugin-transform-modules-commonjs": "npm:^7.19.6"
     "@changesets/changelog-git": "npm:^0.1.13"
     "@changesets/cli": "npm:^2.25.2"
-    "@tsplus/installer": "npm:0.0.150"
+    "@tsplus/installer": "npm:0.0.153"
     "@types/benchmark": "npm:^2.1.2"
     "@typescript-eslint/eslint-plugin": "npm:^5.42.1"
     "@typescript-eslint/experimental-utils": "npm:^5.42.1"
@@ -4702,7 +4702,7 @@ __metadata:
     eslint-plugin-simple-import-sort: "npm:^8.0.0"
     madge: "npm:^5.0.1"
     prettier: "npm:^2.7.1"
-    typescript: "https://github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz"
+    typescript: "https://cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz"
     ultra-runner: "npm:^3.10.5"
   languageName: unknown
   linkType: soft
@@ -8569,13 +8569,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@https://github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz":
-  version: 4.9.0-tsplus.20221113
-  resolution: "typescript@https://github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz"
+"typescript@https://cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz":
+  version: 5.0.0-tsplus.20221117
+  resolution: "typescript@https://cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: d06ab65987d4cecbc6bc48737cbcc7b7e19671aae0d0dc0bfd6dab346c8203ce9132223d17eb1f71121a2e73846551a9ecfda881af0ccfe7e0f819791bc63259
+  checksum: 60c8db7ca2667361eb9490f8a32a0425c7efdcca651cd499c412c97ffbfd1753ed76e4e76e5fd7de68d530a09c8440a6c22bbca8310c81fb5843f728016f78cd
   languageName: node
   linkType: hard
 
@@ -8589,13 +8589,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz#optional!builtin<compat/typescript>":
-  version: 4.9.0-tsplus.20221113
-  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/db7d3275da/typescript-4.9.0-tsplus.20221113.tgz#optional!builtin<compat/typescript>::version=4.9.0-tsplus.20221113&hash=f456af"
+"typescript@patch:typescript@https%3A//cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz#optional!builtin<compat/typescript>":
+  version: 5.0.0-tsplus.20221117
+  resolution: "typescript@patch:typescript@https%3A//cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz#optional!builtin<compat/typescript>::version=5.0.0-tsplus.20221117&hash=f456af"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: e9631151517505d9f101ed2866622098a3edf0a695da7278a15ed53e007d3ab7e3a5a765ed17f180d9d0a64467270eceb734429bf32ef121964e818c03a9da6a
+  checksum: 831036f8a5fe22ddb6128f8a2f2486138e70e1af6bb23d8c5a9fe45f5c93937152d305f4d1a5223364b2cfb873aca62503850157f5675271e175bd2c0aba3671
   languageName: node
   linkType: hard
 
