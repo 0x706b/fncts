@@ -150,7 +150,7 @@ import { TFuture } from "@fncts/io/TFuture/definition";
 /**
  * @tsplus global
  */
-import { TRef, UTRef } from "@fncts/io/TRef/definition";
+import { PTRef, TRef } from "@fncts/io/TRef/definition";
 /**
  * @tsplus global
  */

@@ -10,7 +10,7 @@ export type RefTypeId = typeof RefTypeId;
  * @tsplus type fncts.io.Ref
  */
 export interface PRef<RA, RB, EA, EB, A, B> {
-  readonly _U: RefTypeId;
+  readonly [RefTypeId]: RefTypeId;
   readonly [_RA]: () => RA;
   readonly [_RB]: () => RB;
   readonly [_EA]: () => EA;
@@ -73,7 +73,7 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B>
     WritableRef<RA, EA, A>,
     ModifiableRef<RA, RB, EA, EB, A, B>
 {
-  declare _U: RefTypeId;
+  readonly [RefTypeId]: RefTypeId = RefTypeId;
   declare [_RA]: () => RA;
   declare [_RB]: () => RB;
   declare [_EA]: () => EA;

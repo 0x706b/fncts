@@ -1,7 +1,12 @@
-import type { Todo } from "../STM/internal/Journal.js";
-import type { Versioned } from "../STM/internal/Versioned.js";
 import type { AtomicReference } from "@fncts/base/internal/AtomicReference";
+import type { Journal, Todo } from "@fncts/io/STM/internal/Journal";
+import type { Versioned } from "@fncts/io/STM/internal/Versioned";
 import type { TxnId } from "@fncts/io/TxnId";
+
+import { STM } from "@fncts/io/STM";
+import { Effect } from "@fncts/io/STM";
+import { Entry } from "@fncts/io/STM/internal/Entry";
+import { _A, _B, _EA, _EB } from "@fncts/io/TRef/symbols";
 export const TRefTypeId = Symbol.for("fncts.io.TRef");
 export type TRefTypeId = typeof TRefTypeId;
 
@@ -22,13 +27,18 @@ export type TRefTypeId = typeof TRefTypeId;
  *
  * @tsplus type fncts.io.TRef
  */
-export interface TRef<EA, EB, A, B> {
+export interface PTRef<out EA, out EB, in A, out B> {
   readonly _typeId: TRefTypeId;
-  readonly _EA: () => EA;
-  readonly _EB: () => EB;
-  readonly _A: (_: A) => void;
-  readonly _B: () => B;
+  readonly [_EA]: () => EA;
+  readonly [_EB]: () => EB;
+  readonly [_A]: (_: A) => void;
+  readonly [_B]: () => B;
 }
+
+/**
+ * @tsplus type fncts.io.TRef
+ */
+export type TRef<A> = PTRef<never, never, A, A>;
 
 /**
  * @tsplus type fncts.io.TRefOps
@@ -37,40 +47,34 @@ export interface TRefOps {}
 
 export const TRef: TRefOps = {};
 
-export abstract class TRefInternal<EA, EB, A, B> implements TRef<EA, EB, A, B> {
+export abstract class TRefInternal<EA, EB, A, B> implements PTRef<EA, EB, A, B> {
   readonly _typeId: TRefTypeId = TRefTypeId;
-  readonly _EA!: () => EA;
-  readonly _EB!: () => EB;
-  readonly _A!: (_: A) => void;
-  readonly _B!: () => B;
+  declare [_EA]: () => EA;
+  declare [_EB]: () => EB;
+  declare [_A]: (_: A) => void;
+  declare [_B]: () => B;
+  abstract get: STM<never, EB, B>;
+  abstract modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string): STM<never, EA | EB, C>;
+  abstract set(a: A, __tsplusTrace?: string): STM<never, EA, void>;
+  abstract unsafeGet(journal: Journal, __tsplusTrace?: string): A;
+  abstract unsafeSet(journal: Journal, a: A, __tsplusTrace?: string): void;
   abstract match<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
     ca: (c: C) => Either<EC, A>,
     bd: (b: B) => Either<ED, D>,
-  ): TRef<EC, ED, C, D>;
+  ): PTRef<EC, ED, C, D>;
   abstract matchAll<EC, ED, C, D>(
     ea: (ea: EA) => EC,
     eb: (ea: EB) => ED,
     ec: (ea: EB) => EC,
     ca: (c: C) => (b: B) => Either<EC, A>,
     bd: (b: B) => Either<ED, D>,
-  ): TRef<EC, ED, C, D>;
+  ): PTRef<EC, ED, C, D>;
 }
-
-/**
- * @tsplus type fncts.io.TRef
- */
-export interface UTRef<A> extends TRef<never, never, A, A> {}
-
-/**
- * @tsplus type fncts.io.TRef
- */
-export interface ETRef<E, A> extends TRef<E, E, A, A> {}
 
 export class Atomic<A> extends TRefInternal<never, never, A, A> {
   readonly _typeId: TRefTypeId     = TRefTypeId;
-  readonly _tag                    = "Atomic";
   readonly atomic: Atomic<unknown> = this as Atomic<unknown>;
   constructor(public versioned: Versioned<A>, readonly todo: AtomicReference<HashMap<TxnId, Todo>>) {
     super();
@@ -80,7 +84,7 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
     _eb: (ea: never) => ED,
     ca: (c: C) => Either<EC, A>,
     bd: (b: A) => Either<ED, D>,
-  ): TRef<EC, ED, C, D> {
+  ): PTRef<EC, ED, C, D> {
     return new Derived((f) => f(bd, ca, this, this.atomic));
   }
   matchAll<EC, ED, C, D>(
@@ -89,14 +93,45 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
     _ec: (ea: never) => EC,
     ca: (c: C) => (b: A) => Either<EC, A>,
     bd: (b: A) => Either<ED, D>,
-  ): TRef<EC, ED, C, D> {
+  ): PTRef<EC, ED, C, D> {
     return new DerivedAll((f) => f(bd, ca, this, this.atomic));
+  }
+
+  get get(): STM<never, never, A> {
+    return new Effect((journal) => {
+      const entry = getOrMakeEntry(this, journal);
+      return entry.use((_) => _.unsafeGet<A>());
+    });
+  }
+
+  set(a: A, __tsplusTrace?: string | undefined): STM<never, never, void> {
+    return new Effect((journal) => {
+      const entry = getOrMakeEntry(this, journal);
+      return entry.use((_) => _.unsafeSet(a));
+    });
+  }
+
+  modify<C>(f: (b: A) => readonly [C, A], __tsplusTrace?: string | undefined): STM<never, never, C> {
+    return new Effect((journal) => {
+      const entry                = getOrMakeEntry(this, journal);
+      const oldValue             = entry.use((_) => _.unsafeGet<A>());
+      const [retValue, newValue] = f(oldValue);
+      entry.use((_) => _.unsafeSet(newValue));
+      return retValue;
+    });
+  }
+
+  unsafeGet(journal: Journal, __tsplusTrace?: string | undefined): A {
+    return getOrMakeEntry(this.atomic, journal).use((entry) => entry.unsafeGet<A>());
+  }
+
+  unsafeSet(journal: Journal, a: A, __tsplusTrace?: string | undefined): void {
+    return getOrMakeEntry(this.atomic, journal).use((entry) => entry.unsafeSet(a));
   }
 }
 
 export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
   readonly _typeId: TRefTypeId = TRefTypeId;
-  readonly _tag                = "Derived";
   constructor(
     readonly use: <X>(
       f: <S>(
@@ -114,7 +149,7 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     eb: (ea: EB) => ED,
     ca: (c: C) => Either<EC, A>,
     bd: (b: B) => Either<ED, D>,
-  ): TRef<EC, ED, C, D> {
+  ): PTRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
         new Derived((f) =>
@@ -133,7 +168,7 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     ec: (ea: EB) => EC,
     ca: (c: C) => (b: B) => Either<EC, A>,
     bd: (b: B) => Either<ED, D>,
-  ): TRef<EC, ED, C, D> {
+  ): PTRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
         new DerivedAll((f) =>
@@ -149,11 +184,49 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         ),
     );
   }
+
+  get get(): STM<never, EB, B> {
+    return this.use((getEither, _setEither, value, _atomic) =>
+      value.get.flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
+    );
+  }
+
+  set(a: A, __tsplusTrace?: string | undefined): STM<never, EA, void> {
+    return this.use((_getEither, setEither, value, _atomic) => setEither(a).match(STM.failNow, (s) => value.set(s)));
+  }
+
+  modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string | undefined): STM<never, EA | EB, C> {
+    return this.use((getEither, setEither, value, _atomic) =>
+      value.modify((s) =>
+        getEither(s).match(
+          (e) => [Either.left<EA | EB, C>(e), s],
+          (a1) => {
+            const [b, a2] = f(a1);
+            return setEither(a2).match(
+              (e) => [Either.left(e), s],
+              (s) => [Either.right(b), s],
+            );
+          },
+        ),
+      ),
+    ).absolve;
+  }
+
+  unsafeGet(journal: Journal, __tsplusTrace?: string | undefined): A {
+    return this.use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal)).use((entry) =>
+      entry.unsafeGet(),
+    );
+  }
+
+  unsafeSet(journal: Journal, a: A, __tsplusTrace?: string | undefined): void {
+    return this.use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal)).use((entry) =>
+      entry.unsafeSet(a),
+    );
+  }
 }
 
 export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
   readonly _typeId: TRefTypeId = TRefTypeId;
-  readonly _tag                = "DerivedAll";
   constructor(
     readonly use: <X>(
       f: <S>(
@@ -171,7 +244,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     eb: (ea: EB) => ED,
     ca: (c: C) => Either<EC, A>,
     bd: (b: B) => Either<ED, D>,
-  ): TRef<EC, ED, C, D> {
+  ): PTRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
         new DerivedAll((f) =>
@@ -190,7 +263,7 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
     ec: (ea: EB) => EC,
     ca: (c: C) => (b: B) => Either<EC, A>,
     bd: (b: B) => Either<ED, D>,
-  ): TRef<EC, ED, C, D> {
+  ): PTRef<EC, ED, C, D> {
     return this.use(
       (getEither, setEither, value, atomic) =>
         new DerivedAll((f) =>
@@ -206,13 +279,68 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
         ),
     );
   }
+
+  get get(): STM<never, EB, B> {
+    return this.use((getEither, _setEither, value, _atomic) =>
+      value.get.flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
+    );
+  }
+
+  set(a: A, __tsplusTrace?: string | undefined): STM<never, EA, void> {
+    return this.use((_getEither, setEither, value, _atomic) =>
+      value.modify((s) =>
+        setEither(a)(s).match(
+          (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
+          (s) => [Either.right(undefined), s],
+        ),
+      ),
+    ).absolve;
+  }
+
+  modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string | undefined): STM<never, EA | EB, C> {
+    return this.use((getEither, setEither, value, atomic) =>
+      value.modify((s) =>
+        getEither(s).match(
+          (e) => [Either.left<EA | EB, C>(e), s],
+          (a1) => {
+            const [b, a2] = f(a1);
+            return setEither(a2)(s).match(
+              (e) => [Either.left(e), s],
+              (s) => [Either.right(b), s],
+            );
+          },
+        ),
+      ),
+    ).absolve;
+  }
+
+  unsafeGet(journal: Journal, __tsplusTrace?: string | undefined): A {
+    return this.use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal)).use((entry) =>
+      entry.unsafeGet(),
+    );
+  }
+
+  unsafeSet(journal: Journal, a: A, __tsplusTrace?: string | undefined): void {
+    return this.use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal)).use((entry) =>
+      entry.unsafeSet(a),
+    );
+  }
 }
 
 /**
  * @tsplus macro remove
  */
 export function concrete<EA, EB, A, B>(
-  _: TRef<EA, EB, A, B>,
+  _: PTRef<EA, EB, A, B>,
 ): asserts _ is (Atomic<A> & Atomic<B>) | Derived<EA, EB, A, B> | DerivedAll<EA, EB, A, B> {
   //
+}
+
+function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal, __tsplusTrace?: string): Entry {
+  if (journal.has(self)) {
+    return journal.get(self)!;
+  }
+  const entry = Entry.make(self, false);
+  journal.set(self, entry);
+  return entry;
 }

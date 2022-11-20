@@ -10,7 +10,7 @@ export interface TSemaphore
     {
       readonly TSemaphore: unique symbol;
     },
-    UTRef<number>
+    TRef<number>
   > {}
 
 /**

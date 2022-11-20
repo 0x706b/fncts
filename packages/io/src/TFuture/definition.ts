@@ -1,4 +1,4 @@
-import type { UTRef } from "../TRef.js";
+import type { TRef } from "../TRef.js";
 interface TFutureN extends HKT {
   readonly type: TFuture<this["E"], this["A"]>;
 }
@@ -11,7 +11,7 @@ export interface TFuture<E, A>
     {
       readonly TFuture: unique symbol;
     },
-    UTRef<Maybe<Either<E, A>>>
+    TRef<Maybe<Either<E, A>>>
   > {}
 
 /**

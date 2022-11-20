@@ -1,4 +1,4 @@
-import type { UTRef } from "./definition.js";
+import type { TRef } from "./definition.js";
 
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 
@@ -13,7 +13,7 @@ import { Atomic } from "./definition.js";
  *
  * @tsplus static fncts.io.TRefOps makeNow
  */
-export function makeNow<A>(a: A, __tsplusTrace?: string): STM<never, never, UTRef<A>> {
+export function makeNow<A>(a: A, __tsplusTrace?: string): STM<never, never, TRef<A>> {
   return new Effect((journal) => {
     const value     = a;
     const versioned = new Versioned(value);
@@ -29,7 +29,7 @@ export function makeNow<A>(a: A, __tsplusTrace?: string): STM<never, never, UTRe
  *
  * @tsplus static fncts.io.TRefOps make
  */
-export function make<A>(a: Lazy<A>, __tsplusTrace?: string): STM<never, never, UTRef<A>> {
+export function make<A>(a: Lazy<A>, __tsplusTrace?: string): STM<never, never, TRef<A>> {
   return new Effect((journal) => {
     const value     = a();
     const versioned = new Versioned(value);
@@ -45,7 +45,7 @@ export function make<A>(a: Lazy<A>, __tsplusTrace?: string): STM<never, never, U
  *
  * @tsplus static fncts.io.TRefOps unsafeMake
  */
-export function unsafeMake<A>(a: A): UTRef<A> {
+export function unsafeMake<A>(a: A): TRef<A> {
   const value     = a;
   const versioned = new Versioned(value);
   const todo      = new AtomicReference(Journal.emptyTodoMap);
@@ -57,13 +57,13 @@ export function unsafeMake<A>(a: A): UTRef<A> {
  *
  * @tsplus static fncts.io.TRefOps makeCommit
  */
-export function makeCommit<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<UTRef<A>> {
+export function makeCommit<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<TRef<A>> {
   return make(a).commit;
 }
 
 /**
  * Makes a new `TRef` that is initialized to the specified value.
  */
-export function makeCommitNow<A>(a: A, __tsplusTrace?: string): UIO<UTRef<A>> {
+export function makeCommitNow<A>(a: A, __tsplusTrace?: string): UIO<TRef<A>> {
   return makeNow(a).commit;
 }

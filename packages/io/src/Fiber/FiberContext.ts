@@ -217,7 +217,7 @@ export class FiberContext<E, A> implements Fiber.Runtime<E, A>, Hashable, Equata
               } else {
                 superviseOps && this.currentSupervisor.unsafeOnEffect(this, current);
                 switch (current._tag) {
-                  case IOTag.Chain: {
+                  case IOTag.FlatMap: {
                     const nested = concrete(current.io);
                     const k      = current.f;
 

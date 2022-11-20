@@ -8,10 +8,10 @@ import { identity, pipe, tuple } from "@fncts/base/data/function";
 import { Stateful } from "@fncts/io/IO/definition";
 import {
   Async,
-  Chain,
   Defer,
   DeferWith,
   Fail,
+  FlatMap,
   Fork,
   IO,
   IOError,
@@ -360,7 +360,7 @@ export function causeAsError(__tsplusTrace?: string) {
  */
 export function flatMap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E>(ma: IO<R, E, A>): IO<R | R1, E | E1, B> => {
-    return new Chain(ma, f, __tsplusTrace);
+    return new FlatMap(ma, f, __tsplusTrace);
   };
 }
 

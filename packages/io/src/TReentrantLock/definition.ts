@@ -18,7 +18,7 @@
  * @tsplus companion fncts.io.TReentrantLockOps
  */
 export class TReentrantLock {
-  constructor(readonly data: UTRef<LockState>) {}
+  constructor(readonly data: TRef<LockState>) {}
 }
 export interface Lock {
   readonly readLocks: number;

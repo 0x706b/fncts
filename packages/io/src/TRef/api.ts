@@ -1,44 +1,16 @@
 import type { Journal } from "../STM/internal/Journal.js";
-import type { Atomic, TRef } from "../TRef/definition.js";
+import type { PTRef } from "../TRef/definition.js";
 
-import { Effect } from "../STM/definition.js";
-import { Entry } from "../STM/internal/Entry.js";
 import { concrete } from "../TRef/definition.js";
-
-function getOrMakeEntry<A>(self: Atomic<A>, journal: Journal, __tsplusTrace?: string): Entry {
-  if (journal.has(self)) {
-    return journal.get(self)!;
-  }
-  const entry = Entry.make(self, false);
-  journal.set(self, entry);
-  return entry;
-}
 
 /**
  * Retrieves the value of the `TRef`.
  *
  * @tsplus getter fncts.io.TRef get
  */
-export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>, __tsplusTrace?: string): STM<never, EB, B> {
+export function get<EA, EB, A, B>(self: PTRef<EA, EB, A, B>, __tsplusTrace?: string): STM<never, EB, B> {
   concrete(self);
-  switch (self._tag) {
-    case "Atomic": {
-      return new Effect((journal) => {
-        const entry = getOrMakeEntry(self, journal);
-        return entry.use((_) => _.unsafeGet<B>());
-      });
-    }
-    case "Derived": {
-      return self.use((getEither, _setEither, value, _atomic) =>
-        get(value).flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
-      );
-    }
-    case "DerivedAll": {
-      return self.use((getEither, _setEither, value, _atomic) =>
-        get(value).flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
-      );
-    }
-  }
+  return self.get;
 }
 
 /**
@@ -48,51 +20,9 @@ export function get<EA, EB, A, B>(self: TRef<EA, EB, A, B>, __tsplusTrace?: stri
  * @tsplus pipeable fncts.io.TRef modify
  */
 export function modify<A, B>(f: (a: A) => readonly [B, A], __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, B> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, B> => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic": {
-        return new Effect((journal) => {
-          const entry                = getOrMakeEntry(self, journal);
-          const oldValue             = entry.use((_) => _.unsafeGet<A>());
-          const [retValue, newValue] = f(oldValue);
-          entry.use((_) => _.unsafeSet(newValue));
-          return retValue;
-        });
-      }
-      case "Derived": {
-        return self.use((getEither, setEither, value, _atomic) =>
-          value.modify((s) =>
-            getEither(s).match(
-              (e) => [Either.left<E, B>(e), s],
-              (a1) => {
-                const [b, a2] = f(a1);
-                return setEither(a2).match(
-                  (e) => [Either.left(e), s],
-                  (s) => [Either.right(b), s],
-                );
-              },
-            ),
-          ),
-        ).absolve;
-      }
-      case "DerivedAll": {
-        return self.use((getEither, setEither, value, atomic) =>
-          value.modify((s) =>
-            getEither(s).match(
-              (e) => [Either.left<E, B>(e), s],
-              (a1) => {
-                const [b, a2] = f(a1);
-                return setEither(a2)(s).match(
-                  (e) => [Either.left(e), s],
-                  (s) => [Either.right(b), s],
-                );
-              },
-            ),
-          ),
-        ).absolve;
-      }
-    }
+    return self.modify(f);
   };
 }
 
@@ -102,31 +32,9 @@ export function modify<A, B>(f: (a: A) => readonly [B, A], __tsplusTrace?: strin
  * @tsplus pipeable fncts.io.TRef set
  */
 export function set<A>(a: A, __tsplusTrace?: string) {
-  return <EA, EB, B>(self: TRef<EA, EB, A, B>): STM<never, EA, void> => {
+  return <EA, EB, B>(self: PTRef<EA, EB, A, B>): STM<never, EA, void> => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic": {
-        return new Effect((journal) => {
-          const entry = getOrMakeEntry(self, journal);
-          return entry.use((_) => _.unsafeSet(a));
-        });
-      }
-      case "Derived": {
-        return self.use((_getEither, setEither, value, _atomic) =>
-          setEither(a).match(STM.failNow, (s) => value.set(s)),
-        );
-      }
-      case "DerivedAll": {
-        return self.use((_getEither, setEither, value, _atomic) =>
-          value.modify((s) =>
-            setEither(a)(s).match(
-              (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
-              (s) => [Either.right(undefined), s],
-            ),
-          ),
-        ).absolve;
-      }
-    }
+    return self.set(a);
   };
 }
 
@@ -136,16 +44,9 @@ export function set<A>(a: A, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.TRef unsafeGet
  */
 export function unsafeGet(journal: Journal, __tsplusTrace?: string) {
-  return <EA, EB, A, B>(self: TRef<EA, EB, A, B>): A => {
+  return <EA, EB, A, B>(self: PTRef<EA, EB, A, B>): A => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic":
-        return getOrMakeEntry(self.atomic, journal).use((entry) => entry.unsafeGet<A>());
-      default:
-        return self
-          .use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal))
-          .use((entry) => entry.unsafeGet());
-    }
+    return self.unsafeGet(journal);
   };
 }
 
@@ -156,7 +57,7 @@ export function unsafeGet(journal: Journal, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.TRef modifyJust
  */
 export function modifyJust<A, B>(b: B, f: (a: A) => Maybe<readonly [B, A]>, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, B> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, B> => {
     return self.modify((a) => f(a).getOrElse([b, a]));
   };
 }
@@ -167,21 +68,9 @@ export function modifyJust<A, B>(b: B, f: (a: A) => Maybe<readonly [B, A]>, __ts
  * @tsplus pipeable fncts.io.TRef getAndSet
  */
 export function getAndSet<A>(a: A, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, A> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, A> => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic": {
-        return new Effect((journal) => {
-          const entry    = getOrMakeEntry(self, journal);
-          const oldValue = entry.use((entry) => entry.unsafeGet<A>());
-          entry.use((entry) => entry.unsafeSet(a));
-          return oldValue;
-        });
-      }
-      default: {
-        return self.modify((oldA) => [oldA, a]);
-      }
-    }
+    return self.modify((oldA) => [oldA, a]);
   };
 }
 
@@ -191,21 +80,9 @@ export function getAndSet<A>(a: A, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.TRef getAndUpdate
  */
 export function getAndUpdate<A>(f: (a: A) => A, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, A> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, A> => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic": {
-        return new Effect((journal) => {
-          const entry    = getOrMakeEntry(self, journal);
-          const oldValue = entry.use((_) => _.unsafeGet<A>());
-          entry.use((_) => _.unsafeSet(f(oldValue)));
-          return oldValue;
-        });
-      }
-      default: {
-        return self.modify((_) => [_, f(_)]);
-      }
-    }
+    return self.modify((_) => [_, f(_)]);
   };
 }
 
@@ -216,29 +93,14 @@ export function getAndUpdate<A>(f: (a: A) => A, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.TRef getAndUpdateJust
  */
 export function getAndUpdateJust<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, A> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, A> => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic": {
-        return new Effect((journal) => {
-          const entry    = getOrMakeEntry(self, journal);
-          const oldValue = entry.use((_) => _.unsafeGet<A>());
-          const v        = f(oldValue);
-          if (v.isJust()) {
-            entry.use((_) => _.unsafeSet(v.value));
-          }
-          return oldValue;
-        });
-      }
-      default: {
-        return self.modify((a) =>
-          f(a).match(
-            () => [a, a],
-            (v) => [a, v],
-          ),
-        );
-      }
-    }
+    return self.modify((a) =>
+      f(a).match(
+        () => [a, a],
+        (v) => [a, v],
+      ),
+    );
   };
 }
 
@@ -248,19 +110,9 @@ export function getAndUpdateJust<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: strin
  * @tsplus pipeable fncts.io.TRef update
  */
 export function update<A>(f: (a: A) => A, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, void> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, void> => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic": {
-        return new Effect((journal) => {
-          const entry    = getOrMakeEntry(self, journal);
-          const newValue = f(entry.use((_) => _.unsafeGet<A>()));
-          entry.use((_) => _.unsafeSet(newValue));
-        });
-      }
-      default:
-        return self.modify((a) => [undefined, f(a)]);
-    }
+    return self.modify((a) => [undefined, f(a)]);
   };
 }
 
@@ -270,7 +122,7 @@ export function update<A>(f: (a: A) => A, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.TRef updateJust
  */
 export function updateJust<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, void> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, void> => {
     return self.update((a) => f(a).getOrElse(a));
   };
 }
@@ -281,25 +133,12 @@ export function updateJust<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.TRef updateAndGet
  */
 export function updateAndGet<A>(f: (a: A) => A, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, A> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, A> => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic": {
-        return new Effect((journal) => {
-          const entry    = getOrMakeEntry(self, journal);
-          const oldValue = entry.use((e) => e.unsafeGet<A>());
-          const newValue = f(oldValue);
-          entry.use((e) => e.unsafeSet(newValue));
-          return newValue;
-        });
-      }
-      default: {
-        return self.modify((a) => {
-          const newValue = f(a);
-          return [newValue, newValue];
-        });
-      }
-    }
+    return self.modify((a) => {
+      const newValue = f(a);
+      return [newValue, newValue];
+    });
   };
 }
 
@@ -309,7 +148,7 @@ export function updateAndGet<A>(f: (a: A) => A, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.TRef updateJustAndGet
  */
 export function updateJustAndGet<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: string) {
-  return <E>(self: TRef<E, E, A, A>): STM<never, E, A> => {
+  return <E>(self: PTRef<E, E, A, A>): STM<never, E, A> => {
     return self.updateAndGet((a) => f(a).getOrElse(a));
   };
 }
@@ -318,15 +157,8 @@ export function updateJustAndGet<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: strin
  * @tsplus pipeable fncts.io.TRef unsafeSet
  */
 export function unsafeSet<A>(journal: Journal, a: A, __tsplusTrace?: string) {
-  return <EA, EB, B>(self: TRef<EA, EB, A, B>): void => {
+  return <EA, EB, B>(self: PTRef<EA, EB, A, B>): void => {
     concrete(self);
-    switch (self._tag) {
-      case "Atomic":
-        return getOrMakeEntry(self.atomic, journal).use((entry) => entry.unsafeSet(a));
-      default:
-        return self
-          .use((_getEither, _setEither, _value, atomic) => getOrMakeEntry(atomic, journal))
-          .use((entry) => entry.unsafeSet(a));
-    }
+    return self.unsafeSet(journal, a);
   };
 }

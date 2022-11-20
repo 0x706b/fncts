@@ -41,27 +41,9 @@ export const IOAspects: IOAspects = {};
 export function unifyIO<X extends IO<any, any, any>>(
   self: X,
 ): IO<
-  [X] extends [
-    {
-      _R: () => infer R;
-    },
-  ]
-    ? R
-    : never,
-  [X] extends [
-    {
-      _E: () => infer E;
-    },
-  ]
-    ? E
-    : never,
-  [X] extends [
-    {
-      _A: () => infer A;
-    },
-  ]
-    ? A
-    : never
+  [X] extends [{ _R: () => infer R }] ? R : never,
+  [X] extends [{ _E: () => infer E }] ? E : never,
+  [X] extends [{ _A: () => infer A }] ? A : never
 > {
   return self;
 }
@@ -74,7 +56,7 @@ export type FIO<E, A> = IO<never, E, A>;
 
 export const enum IOTag {
   SucceedNow = "SucceedNow",
-  Chain = "Chain",
+  FlatMap = "FlatMap",
   Defer = "Defer",
   DeferWith = "DeferWith",
   Succeed = "SucceedLazy",
@@ -97,8 +79,8 @@ export function isIO(u: unknown): u is IO<any, any, any> {
 /**
  * @internal
  */
-export class Chain<R, R1, E, E1, A, A1> extends IO<R | R1, E | E1, A1> {
-  readonly _tag = IOTag.Chain;
+export class FlatMap<R, R1, E, E1, A, A1> extends IO<R | R1, E | E1, A1> {
+  readonly _tag = IOTag.FlatMap;
   constructor(readonly io: IO<R, E, A>, readonly f: (a: A) => IO<R1, E1, A1>, readonly trace?: string) {
     super();
   }
@@ -261,7 +243,7 @@ export class Logged extends IO<never, never, void> {
 }
 
 export type Instruction =
-  | Chain<any, any, any, any, any, any>
+  | FlatMap<any, any, any, any, any, any>
   | SucceedNow<any>
   | Succeed<any>
   | SucceedWith<any>
