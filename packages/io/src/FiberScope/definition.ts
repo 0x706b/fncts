@@ -1,4 +1,7 @@
-import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
+import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
+import type { RuntimeFlags } from "@fncts/io/RuntimeFlags";
+
+import { FiberMessage } from "@fncts/io/Fiber";
 
 /**
  * A `Scope` represents the scope of a fiber lifetime. The scope of a fiber can
@@ -10,29 +13,38 @@ import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
  */
 export abstract class FiberScope {
   abstract fiberId: FiberId;
-  abstract unsafeAdd(child: FiberContext<unknown, unknown>): boolean;
+  abstract unsafeAdd(
+    currentFiber: FiberRuntime<any, any>,
+    runtimeFlags: RuntimeFlags,
+    child: FiberRuntime<any, any>,
+  ): void;
 }
 
 export class Global extends FiberScope {
   get fiberId(): FiberId {
     return FiberId.none;
   }
-  unsafeAdd(_child: FiberContext<any, any>): boolean {
-    return true;
+  unsafeAdd(_currentFiber: FiberRuntime<any, any>, runtimeFlags: RuntimeFlags, child: FiberRuntime<any, any>): void {
+    if (runtimeFlags.fiberRoots) {
+      Fiber._roots.add(child);
+    }
   }
 }
 
 export class Local extends FiberScope {
-  constructor(readonly fiberId: FiberId, private parentRef: WeakRef<FiberContext<unknown, unknown>>) {
+  constructor(readonly fiberId: FiberId, private parentRef: WeakRef<FiberRuntime<unknown, unknown>>) {
     super();
   }
-  unsafeAdd(child: FiberContext<unknown, unknown>): boolean {
+  unsafeAdd(currentFiber: FiberRuntime<any, any>, _runtimeFlags: RuntimeFlags, child: FiberRuntime<any, any>): void {
     const parent = this.parentRef.deref();
     if (parent != null) {
-      parent.unsafeAddChild(child);
-      return true;
+      if (currentFiber === parent) {
+        parent.addChild(child);
+      } else {
+        parent.tell(FiberMessage.Stateful((parentFiber) => parentFiber.addChild(child)));
+      }
     } else {
-      return false;
+      child.tell(FiberMessage.InterruptSignal(Cause.interrupt(currentFiber.id)));
     }
   }
 }

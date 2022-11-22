@@ -1,35 +1,39 @@
-import { Stack } from "@fncts/base/internal/Stack";
-import { FiberContext } from "@fncts/io/Fiber";
-import { concrete } from "@fncts/io/IO/definition";
-import { IOEnv } from "@fncts/io/IOEnv/definition";
+import { FiberMessage, FiberRuntime } from "@fncts/io/Fiber";
+import { FiberRefs } from "@fncts/io/FiberRefs";
+import { RuntimeFlag } from "@fncts/io/RuntimeFlag";
+import { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
 import { StagedScheduler } from "../internal/Scheduler.js";
 
 export class Runtime<R> {
-  constructor(readonly environment: Environment<R>, readonly runtimeConfig: RuntimeConfig) {}
+  constructor(
+    readonly environment: Environment<R>,
+    readonly runtimeFlags: RuntimeFlags,
+    readonly fiberRefs: FiberRefs,
+  ) {}
 
-  unsafeRunFiber = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): FiberContext<E, A> => {
-    const fiberId    = FiberId.unsafeMake(TraceElement.parse(__tsplusTrace));
-    const children   = new Set<FiberContext<any, any>>();
-    const supervisor = this.runtimeConfig.supervisor;
-    const context    = new FiberContext<E, A>(
+  unsafeRunFiber = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): FiberRuntime<E, A> => {
+    const fiberId   = FiberId.unsafeMake(__tsplusTrace);
+    const fiberRefs = this.fiberRefs.updateAs(fiberId, FiberRef.currentEnvironment, this.environment);
+
+    const fiber = new FiberRuntime<E, A>(
       fiberId,
-      this.runtimeConfig,
-      Stack.single(InterruptStatus.interruptible.toBoolean),
-      HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
-        [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
-        [IOEnv.services, Cons([fiberId, IOEnv.environment])],
-      ),
-      children,
+      fiberRefs,
+      RuntimeFlags(RuntimeFlag.Interruption, RuntimeFlag.CooperativeYielding),
     );
-    FiberScope.global.unsafeAdd(context);
-    if (supervisor !== Supervisor.none) {
-      supervisor.unsafeOnStart(this.environment, io, Nothing(), context);
-      context.unsafeOnDone((exit) => supervisor.unsafeOnEnd(exit.flatten, context));
+
+    const supervisor = fiber.getSupervisor();
+
+    if (supervisor != Supervisor.none) {
+      supervisor.unsafeOnStart(this.environment, io, Nothing(), fiber);
+      fiber.addObserver((exit) => supervisor.unsafeOnEnd(exit, fiber));
     }
-    context.nextIO = concrete(io);
-    context.run();
-    return context;
+
+    FiberScope.global.unsafeAdd(null!, fiber.runtimeFlags0, fiber);
+
+    fiber.start(io);
+
+    return fiber;
   };
 
   unsafeRunWith = <E, A>(
@@ -37,9 +41,9 @@ export class Runtime<R> {
     k: (exit: Exit<E, A>) => any,
     __tsplusTrace?: string,
   ): ((fiberId: FiberId) => (f: (exit: Exit<E, A>) => any) => void) => {
-    const context = this.unsafeRunFiber(io);
-    context.unsafeOnDone((exit) => k(exit.flatten));
-    return (fiberId) => (k) => this.unsafeRunAsyncWith(context.interruptAs(fiberId), (exit) => k(exit.flatten));
+    const fiber = this.unsafeRunFiber(io);
+    fiber.tell(FiberMessage.Stateful((fiber) => fiber.addObserver(k)));
+    return (fiberId) => (k) => this.unsafeRunAsyncWith(fiber.interruptAs(fiberId), (exit) => k(exit.flatten));
   };
 
   unsafeRunAsync = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => {
@@ -56,34 +60,33 @@ export class Runtime<R> {
     });
 
   unsafeRunSyncExit = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Exit<E, A> => {
-    const fiberId    = FiberId.unsafeMake(TraceElement.parse(__tsplusTrace));
-    const children   = new Set<FiberContext<any, any>>();
-    const supervisor = this.runtimeConfig.supervisor;
-    const scheduler  = new StagedScheduler();
-    const context    = new FiberContext<E, A>(
+    const fiberId   = FiberId.unsafeMake(__tsplusTrace);
+    const scheduler = new StagedScheduler();
+    const fiberRefs = this.fiberRefs.updateAs(fiberId, FiberRef.currentEnvironment, this.environment);
+    const fiber     = new FiberRuntime<E, A>(
       fiberId,
-      this.runtimeConfig,
-      Stack.single(InterruptStatus.interruptible.toBoolean),
-      HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>(
-        [FiberRef.currentEnvironment, Cons([fiberId, this.environment])],
-        [IOEnv.services, Cons([fiberId, IOEnv.environment])],
-        [FiberRef.currentScheduler, Cons([fiberId, scheduler])],
-      ),
-      children,
+      fiberRefs,
+      RuntimeFlags(RuntimeFlag.Interruption, RuntimeFlag.CooperativeYielding),
     );
-    FiberScope.global.unsafeAdd(context);
-    if (supervisor !== Supervisor.none) {
-      supervisor.unsafeOnStart(this.environment, io, Nothing(), context);
-      context.unsafeOnDone((exit) => supervisor.unsafeOnEnd(exit.flatten, context));
+
+    FiberScope.global.unsafeAdd(null!, fiber.runtimeFlags0, fiber);
+
+    const supervisor = fiber.getSupervisor();
+
+    if (supervisor != Supervisor.none) {
+      supervisor.unsafeOnStart(this.environment, io, Nothing(), fiber);
+      fiber.addObserver((exit) => supervisor.unsafeOnEnd(exit, fiber));
     }
-    context.nextIO = concrete(io);
-    context.run();
+
+    fiber.start(io);
     scheduler.flush();
-    const result = context.unsafePoll();
-    if (result.isJust()) {
-      return result.value;
+
+    const result = fiber.exitValue();
+    if (result !== null) {
+      return result;
     }
-    return Exit.halt(context);
+
+    return Exit.halt(fiber);
   };
 }
 
@@ -91,20 +94,18 @@ export class Runtime<R> {
  * @tsplus static fncts.io.IOOps runtime
  */
 export function runtime<R>(__tsplusTrace?: string): URIO<R, Runtime<R>> {
-  return IO.environmentWithIO((environment: Environment<R>) =>
-    IO.runtimeConfig.map((config) => new Runtime(environment, config)),
+  return IO.withFiberRuntime<R, never, Runtime<R>>((state, status) =>
+    IO(
+      new Runtime<R>(
+        state.getFiberRef(FiberRef.currentEnvironment) as Environment<R>,
+        status.runtimeFlags,
+        state.getFiberRefs(),
+      ),
+    ),
   );
 }
 
-export const defaultRuntimeConfig = new RuntimeConfig({
-  reportFailure: () => undefined,
-  supervisor: Supervisor.unsafeTrack(true),
-  flags: RuntimeConfigFlags.empty,
-  yieldOpCount: 2048,
-  logger: Logger.defaultString.map((s) => console.log(s)).filterLogLevel((level) => level >= LogLevel.Info),
-});
-
-export const defaultRuntime = new Runtime(Environment.empty, defaultRuntimeConfig);
+export const defaultRuntime = new Runtime(Environment.empty, RuntimeFlags.default, FiberRefs(HashMap()));
 
 /**
  * @tsplus fluent fncts.io.IO unsafeRunFiber

@@ -484,12 +484,12 @@ export function makeZip<O extends ReadonlyArray<ObservableInput<any, any>>>(
  */
 export function fromIO<R, E, A>(io: IO<R, E, A>, scheduler: SchedulerLike = asyncScheduler): Observable<R, E, A> {
   return new Observable((s, env) => {
-    let fiber: FiberContext<E, A>;
+    let fiber: FiberRuntime<E, A>;
     const scheduled = scheduler.schedule(() => {
       fiber = io.provideEnvironment(env).unsafeRunFiber();
-      fiber.unsafeOnDone((exit) => {
+      fiber.addObserver((exit) => {
         if (!s.closed) {
-          exit.flatten.match(
+          exit.match(
             (cause) => s.error(cause),
             (a) => s.next(a),
           );

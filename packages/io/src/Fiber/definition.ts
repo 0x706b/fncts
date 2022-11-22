@@ -1,4 +1,10 @@
+import type { FiberId } from "@fncts/base/data/FiberId";
+import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
 import type { FiberStatus } from "@fncts/io/FiberStatus";
+import type { UIO } from "@fncts/io/IO/definition";
+
+import { IterableWeakMap } from "@fncts/base/collection/weak/IterableWeakMap";
+import { IterableWeakSet } from "@fncts/base/collection/weak/IterableWeakSet";
 
 export const FiberTypeId = Symbol.for("fncts.io.Fiber");
 export type FiberTypeId = typeof FiberTypeId;
@@ -11,6 +17,7 @@ export interface Fiber<E, A> {
   readonly _E: () => E;
   readonly _A: () => A;
 }
+
 /**
  * @tsplus type fncts.io.FiberOps
  */
@@ -25,24 +32,31 @@ export declare namespace Fiber {
 
 export interface FiberCommon<E, A> extends Fiber<E, A> {
   readonly id: FiberId;
+
   /**
    * Awaits the fiber, which suspends the awaiting fiber until the result of the
    * fiber has been determined.
    */
   readonly await: UIO<Exit<E, A>>;
+
   /**
    * Inherits values from all {@link FiberRef} instances into current fiber.
    * This will resume immediately.
    */
-  readonly inheritRefs: UIO<void>;
+  readonly inheritAll: UIO<void>;
+
   /**
-   * Interrupts the fiber as if interrupted from the specified fiber.
+   * Interrupts the fiber as if interrupted from the specified fiber. If the
+   * fiber has already exited, the returned effect will resume immediately.
+   * Otherwise, the effect will resume when the fiber exits.
    */
   readonly interruptAsFork: (fiberId: FiberId) => UIO<void>;
+
   /**
    * Tentatively observes the fiber, but returns immediately if it is not already done.
    */
   readonly poll: UIO<Maybe<Exit<E, A>>>;
+
   /**
    * Retrieves the immediate children of the fiber.
    */
@@ -51,28 +65,22 @@ export interface FiberCommon<E, A> extends Fiber<E, A> {
 
 export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
   readonly _tag: "RuntimeFiber";
+
   /**
    * The identity of the Fiber
    */
   readonly id: FiberId.Runtime;
+
   /**
    * The location the fiber was forked from
    */
-  readonly location: TraceElement;
-  /**
-   * Evaluates the specified effect on the fiber. If this is not possible,
-   * because the fiber has already ended life, then the specified alternate
-   * effect will be executed instead.
-   */
-  readonly evalOn: (effect: UIO<any>, orElse: UIO<any>) => UIO<void>;
-  readonly evalOnIO: <R1, E1, B, R2, E2, C>(
-    effect: IO<R1, E1, B>,
-    orElse: IO<R2, E2, C>,
-  ) => IO<R1 | R2, E1 | E2, B | C>;
+  readonly location?: string;
+
   /**
    * The status of the fiber.
    */
   readonly status: UIO<FiberStatus>;
+
   /**
    * The trace of the Fiber
    */
@@ -80,16 +88,18 @@ export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
 }
 
 export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
-  readonly _tag                 = "SyntheticFiber";
+  readonly _tag = "SyntheticFiber";
+
   readonly _typeId: FiberTypeId = FiberTypeId;
   readonly _E!: () => E;
   readonly _A!: () => A;
   readonly await;
+
   constructor(
     readonly id: FiberId,
     wait: UIO<Exit<E, A>>,
     readonly children: UIO<Conc<Fiber.Runtime<any, any>>>,
-    readonly inheritRefs: UIO<void>,
+    readonly inheritAll: UIO<void>,
     readonly poll: UIO<Maybe<Exit<E, A>>>,
     readonly interruptAsFork: (fiberId: FiberId) => UIO<void>,
   ) {
@@ -110,3 +120,8 @@ export function concrete<E, A>(_fiber: Fiber<E, A>): asserts _fiber is ConcreteF
 export function isFiber(u: unknown): u is Fiber<unknown, unknown> {
   return hasTypeId(u, FiberTypeId);
 }
+
+/**
+ * @tsplus static fncts.io.FiberOps _roots
+ */
+export const _roots: IterableWeakSet<FiberRuntime<any, any>> = new IterableWeakSet();

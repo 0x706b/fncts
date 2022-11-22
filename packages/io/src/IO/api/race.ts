@@ -13,20 +13,20 @@ function maybeDisconnect<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R
  *
  * @tsplus pipeable fncts.io.IO race
  */
-export function race<R1, E1, A1>(that: IO<R1, E1, A1>, __tsplusTrace?: string) {
+export function race<R1, E1, A1>(that: IO<R1, E1, A1>) {
   return <R, E, A>(io: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
-    return IO.descriptorWith((descriptor) =>
+    return IO.fiberId.flatMap((id) =>
       maybeDisconnect(io).raceWith(
         maybeDisconnect(that),
         (exit, right) =>
           exit.match(
             (cause) => right.join.mapErrorCause((c) => Cause.both(cause, c)),
-            (a) => right.interruptAs(descriptor.id).as(a),
+            (a) => right.interruptAs(id).as(a),
           ),
         (exit, left) =>
           exit.match(
             (cause) => left.join.mapErrorCause((c) => Cause.both(cause, c)),
-            (a1) => left.interruptAs(descriptor.id).as(a1),
+            (a1) => left.interruptAs(id).as(a1),
           ),
       ),
     );

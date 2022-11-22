@@ -18,7 +18,7 @@ import { isDate, isFunction, isIterable, isObject, isPlain } from "@fncts/base/u
 /**
  * @tsplus global
  */
-import { FiberContext } from "@fncts/io/Fiber";
+import { FiberRuntime } from "@fncts/io/Fiber";
 /**
  * @tsplus global
  */

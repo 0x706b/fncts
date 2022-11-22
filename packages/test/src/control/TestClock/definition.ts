@@ -4,6 +4,7 @@ import type { Live } from "@fncts/test/control/Live";
 
 import { matchTag } from "@fncts/base/util/pattern";
 import { Console } from "@fncts/io/Console";
+import { FiberStatusTag } from "@fncts/io/FiberStatus";
 import { TestAnnotation } from "@fncts/test/data/TestAnnotation";
 
 export class Data {
@@ -95,14 +96,14 @@ export class TestClock extends Clock {
   }
   sleeps = this.clockState.get.map((data) => data.sleeps.map(([_]) => _));
   get supervizedFibers(): UIO<HashSet<Fiber.Runtime<any, any>>> {
-    return IO.descriptorWith((descriptor) =>
+    return IO.fiberId.flatMap((fiberId) =>
       this.annotations.get(TestAnnotation.Fibers).flatMap((_) =>
         _.match(
           (_) => IO.succeed(HashSet.empty()),
           (fibers) =>
             IO.foreach(fibers, (ref) => ref.get)
               .map((_) => _.foldLeft(HashSet.empty<Fiber.Runtime<any, any>>(), (s0, s1) => s0.union(s1)))
-              .map((set) => set.filter((f) => !Equatable.strictEquals(f.id, descriptor.id))),
+              .map((set) => set.filter((f) => !Equatable.strictEquals(f.id, fiberId))),
         ),
       ),
     );
@@ -112,10 +113,10 @@ export class TestClock extends Clock {
       IO.foldLeft(fibers, HashMap.empty<FiberId, FiberStatus>(), (map, fiber) =>
         fiber.status.flatMap((status) => {
           switch (status._tag) {
-            case "Done": {
+            case FiberStatusTag.Done: {
               return IO.succeed(map.set(fiber.id, status));
             }
-            case "Suspended": {
+            case FiberStatusTag.Suspended: {
               return IO.succeed(map.set(fiber.id, status));
             }
             default: {

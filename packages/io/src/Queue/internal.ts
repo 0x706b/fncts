@@ -74,7 +74,7 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
     });
   }
 
-  shutdown: UIO<void> = IO.deferWith((_, id) => {
+  shutdown: UIO<void> = IO.fiberId.flatMap((id) => {
     this.shutdownFlag.set(true);
 
     return IO.foreachConcurrent(unsafePollAll(this.takers), (fiber) => fiber.interruptAs(id))
@@ -90,7 +90,7 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
     }
   });
 
-  take: IO<never, never, A> = IO.deferWith((_, fiberId) =>
+  take: IO<never, never, A> = IO.fiberId.flatMap((fiberId) =>
     IO.defer(() => {
       if (this.shutdownFlag.get) {
         return IO.interrupt;

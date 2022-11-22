@@ -774,7 +774,7 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
           case ConcTag.Slice: {
             let r = Conc.empty<B>();
             for (let i = 0; i < current.length; i++) {
-              r = r.append(f(i + index, current[i]));
+              r = r.append(f(i + index, current.get(i)));
             }
             result = r;
             index += current.length;

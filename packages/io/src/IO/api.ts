@@ -1,26 +1,21 @@
-import type { FiberStatus } from "../FiberStatus.js";
+import type { Running } from "../FiberStatus.js";
 import type * as P from "@fncts/base/typeclass";
 import type { _E, _R } from "@fncts/base/types";
-import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
-import type { Canceler } from "@fncts/io/IO/definition";
+import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
+import type { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
 import { identity, pipe, tuple } from "@fncts/base/data/function";
-import { Stateful } from "@fncts/io/IO/definition";
 import {
   Async,
-  Defer,
-  DeferWith,
-  Fail,
-  FlatMap,
-  Fork,
-  IO,
-  IOError,
-  Logged,
-  Match,
-  Succeed,
-  SucceedNow,
-  Yield,
+  GenerateStackTrace,
+  OnSuccess,
+  OnSuccessAndFailure,
+  Sync,
+  UpdateRuntimeFlags,
+  YieldNow,
 } from "@fncts/io/IO/definition";
+import { Stateful } from "@fncts/io/IO/definition";
+import { Fail, IO, IOError, SucceedNow } from "@fncts/io/IO/definition";
 
 /**
  * Imports an asynchronous side-effect into a `IO`
@@ -32,60 +27,7 @@ export function async<R, E, A>(
   blockingOn: FiberId = FiberId.none,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return IO.asyncMaybe(
-    (cb) => {
-      register(cb);
-      return Nothing();
-    },
-    blockingOn,
-    __tsplusTrace,
-  );
-}
-
-/**
- * Imports an asynchronous effect into a pure `IO`, possibly returning the value synchronously.
- *
- * If the register function returns a value synchronously, then the callback
- * function must not be called. Otherwise the callback function must be called at most once.
- *
- * @tsplus static fncts.io.IOOps asyncMaybe
- */
-export function asyncMaybe<R, E, A>(
-  register: (resolve: (_: IO<R, E, A>) => void) => Maybe<IO<R, E, A>>,
-  blockingOn: FiberId = FiberId.none,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
-  return asyncInterrupt(
-    (cb) => register(cb).match(() => Either.left(IO.unit), Either.right),
-    blockingOn,
-    __tsplusTrace,
-  );
-}
-
-/**
- * Imports an asynchronous side-effect into an IO. The side-effect
- * has the option of returning the value synchronously, which is useful in
- * cases where it cannot be determined if the effect is synchronous or
- * asynchronous until the side-effect is actually executed. The effect also
- * has the option of returning a canceler, which will be used by the runtime
- * to cancel the asynchronous effect if the fiber executing the effect is
- * interrupted.
- *
- * If the register function returns a value synchronously, then the callback
- * function must not be called. Otherwise the callback function must be called
- * at most once.
- *
- * The list of fibers, that may complete the async callback, is used to
- * provide better diagnostics.
- *
- * @tsplus static fncts.io.IOOps asyncInterrupt
- */
-export function asyncInterrupt<R, E, A>(
-  register: (cb: (resolve: IO<R, E, A>) => void) => Either<Canceler<R>, IO<R, E, A>>,
-  blockingOn: FiberId = FiberId.none,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
-  return new Async(register, blockingOn, __tsplusTrace);
+  return new Async(register, () => blockingOn, __tsplusTrace);
 }
 
 /**
@@ -343,33 +285,13 @@ export function catchTag<
 export function cause<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, never, Cause<E>> {
   return ma.matchCauseIO(IO.succeedNow, () => IO.succeedNow(Cause.empty()));
 }
+
 /**
  * @tsplus pipeable fncts.io.IO causeAsError
  */
 export function causeAsError(__tsplusTrace?: string) {
   return <R, E, A>(ma: IO<R, E, A>): IO<R, Cause<E>, A> => {
     return ma.matchCauseIO(IO.failNow, IO.succeedNow);
-  };
-}
-/**
- * Returns an IO that models the execution of this effect, followed by
- * the passing of its value to the specified continuation function `f`,
- * followed by the effect that it returns.
- *
- * @tsplus pipeable fncts.io.IO flatMap
- */
-export function flatMap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
-  return <R, E>(ma: IO<R, E, A>): IO<R | R1, E | E1, B> => {
-    return new FlatMap(ma, f, __tsplusTrace);
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.IO flatMapError
- */
-export function flatMapError<R1, E, E1>(f: (e: E) => IO<R1, never, E1>, __tsplusTrace?: string) {
-  return <R, A>(ma: IO<R, E, A>): IO<R | R1, E1, A> => {
-    return ma.swapWith((effect) => effect.flatMap(f));
   };
 }
 
@@ -383,7 +305,29 @@ export function checkInterruptible<R, E, A>(
   f: (i: InterruptStatus) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return IO.withFiberContext((fiber) => f(InterruptStatus.fromBoolean(fiber.unsafeIsInterruptible)));
+  return IO.withFiberRuntime((_, status) => f(InterruptStatus.fromBoolean(status.runtimeFlags.interruption)));
+}
+
+/**
+ * Returns an IO that models the execution of this effect, followed by
+ * the passing of its value to the specified continuation function `f`,
+ * followed by the effect that it returns.
+ *
+ * @tsplus pipeable fncts.io.IO flatMap
+ */
+export function flatMap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E>(ma: IO<R, E, A>): IO<R | R1, E | E1, B> => {
+    return new OnSuccess(ma, f, __tsplusTrace);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.IO flatMapError
+ */
+export function flatMapError<R1, E, E1>(f: (e: E) => IO<R1, never, E1>, __tsplusTrace?: string) {
+  return <R, A>(ma: IO<R, E, A>): IO<R | R1, E1, A> => {
+    return ma.swapWith((effect) => effect.flatMap(f));
+  };
 }
 
 /**
@@ -425,22 +369,7 @@ export function condIO<R, R1, E, A>(
  * @tsplus static fncts.io.IOOps defer
  */
 export function defer<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, A> {
-  return new Defer(io, __tsplusTrace);
-}
-
-/**
- * Returns a lazily constructed effect, whose construction may itself require
- * effects. The effect must not throw any exceptions. When no environment is required (i.e., when R == unknown)
- * it is conceptually equivalent to `flatten(effectTotal(io))`. If you wonder if the effect throws exceptions,
- * do not use this method, use `IO.deferTryCatchWith`.
- *
- * @tsplus static fncts.io.IOOps deferWith
- */
-export function deferWith<R, E, A>(
-  io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
-  return new DeferWith(io, __tsplusTrace);
+  return IO.succeed(io).flatMap(identity);
 }
 
 /**
@@ -454,28 +383,9 @@ export function deferTry<R, E, A>(io: () => IO<R, E, A>, __tsplusTrace?: string)
     try {
       return io();
     } catch (u) {
-      throw new IOError(Exit.fail(u));
+      throw new IOError(Cause.fail(u));
     }
   }, __tsplusTrace);
-}
-
-/**
- * Returns a lazily constructed effect, whose construction may itself require effects.
- * When no environment is required (i.e., when R == unknown) it is conceptually equivalent to `flatten(effect(io))`.
- *
- * @tsplus static IOOps deferTryWith
- */
-export function deferTryWith<R, E, A>(
-  io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, unknown, A> {
-  return IO.deferWith((runtimeConfig, id) => {
-    try {
-      return io(runtimeConfig, id);
-    } catch (u) {
-      throw new IOError(Exit.fail(u));
-    }
-  });
 }
 
 /**
@@ -495,46 +405,9 @@ export function deferTryCatch<R, E, A, E1>(
     try {
       return io();
     } catch (u) {
-      throw new IOError(Exit.fail(onThrow(u)));
+      throw new IOError(Cause.fail(onThrow(u)));
     }
   });
-}
-
-/**
- * Returns a lazily constructed effect, whose construction may itself require effects,
- * translating any thrown exceptions into typed failed effects and mapping the error.
- *
- * When no environment is required (i.e., when R == unknown) it is conceptually equivalent to `flatten(effect(io))`.
- *
- * @tsplus static IOOps deferTryCatchWith
- */
-export function deferTryCatchWith<R, E, A, E1>(
-  io: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>,
-  onThrow: (error: unknown) => E1,
-  __tsplusTrace?: string,
-): IO<R, E | E1, A> {
-  return IO.deferWith((runtimeConfig, id) => {
-    try {
-      return io(runtimeConfig, id);
-    } catch (u) {
-      throw new IOError(Exit.fail(onThrow(u)));
-    }
-  });
-}
-
-/**
- * @tsplus static fncts.io.IOOps descriptor
- */
-export const descriptor = descriptorWith(IO.succeedNow);
-
-/**
- * Constructs an IO based on information about the current fiber, such as
- * its identity.
- *
- * @tsplus static fncts.io.IOOps descriptorWith
- */
-export function descriptorWith<R, E, A>(f: (d: FiberDescriptor) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.withFiberContext((fiber) => f(fiber.unsafeGetDescriptor()));
 }
 
 /**
@@ -544,18 +417,6 @@ export function descriptorWith<R, E, A>(f: (d: FiberDescriptor) => IO<R, E, A>, 
  */
 export function either<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, Either<E, A>> {
   return ma.match(Either.left, Either.right);
-}
-
-/**
- * @tsplus pipeable fncts.io.IO ensuring
- */
-export function ensuring<R1>(finalizer: IO<R1, never, any>, __tsplusTrace?: string) {
-  return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E, A> => {
-    return IO.withFiberContext((fiber) => {
-      fiber.unsafeAddFinalizer(finalizer);
-      return self;
-    });
-  };
 }
 
 /**
@@ -587,14 +448,21 @@ export function extend<R, E, A, B>(f: (wa: IO<R, E, A>) => B, __tsplusTrace?: st
  * @tsplus static fncts.io.IOOps fail
  */
 export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): FIO<E, never> {
-  return new Fail(() => Cause.fail(e()), __tsplusTrace);
+  return IO.failCause(Cause.fail(e()));
 }
 
 /**
  * @tsplus static fncts.io.IOOps failNow
  */
 export function failNow<E>(e: E, __tsplusTrace?: string): FIO<E, never> {
-  return new Fail(() => Cause.fail(e), __tsplusTrace);
+  return IO.failCause(Cause.fail(e));
+}
+
+/**
+ * @tsplus static fncts.io.IOOps refailCause
+ */
+export function refailCause<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, never> {
+  return new Fail(() => cause, __tsplusTrace);
 }
 
 /**
@@ -612,7 +480,7 @@ export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E,
  * @tsplus static fncts.io.IOOps failCause
  */
 export function failCause<E = never, A = never>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): FIO<E, A> {
-  return new Fail(cause, __tsplusTrace);
+  return IO.stackTrace(__tsplusTrace).flatMap((trace) => IO.refailCause(Cause.traced(cause(), trace)));
 }
 
 /**
@@ -620,7 +488,7 @@ export function failCause<E = never, A = never>(cause: Lazy<Cause<E>>, __tsplusT
  *
  * @tsplus static fncts.io.IOOps fiberId
  */
-export const fiberId: IO<never, never, FiberId> = IO.descriptorWith((d) => IO.succeedNow(d.id));
+export const fiberId: IO<never, never, FiberId> = IO.withFiberRuntime((fiber) => IO.succeed(fiber.id));
 
 /**
  * Filters the collection using the specified effectual predicate.
@@ -915,34 +783,6 @@ export function forever<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R,
 }
 
 /**
- * Returns an IO that forks this IO into its own separate fiber,
- * returning the fiber immediately, without waiting for it to begin executing
- * the IO.
- *
- * You can use the `fork` method whenever you want to execute an IO in a
- * new fiber, concurrently and without "blocking" the fiber executing other
- * IOs. Using fibers can be tricky, so instead of using this method
- * directly, consider other higher-level methods, such as `raceWith`,
- * `zipC`, and so forth.
- *
- * The fiber returned by this method has methods interrupt the fiber and to
- * wait for it to finish executing the IO. See `Fiber` for more
- * information.
- *
- * Whenever you use this method to launch a new fiber, the new fiber is
- * attached to the parent fiber's scope. This means when the parent fiber
- * terminates, the child fiber will be terminated as well, ensuring that no
- * fibers leak. This behavior is called "None supervision", and if this
- * behavior is not desired, you may use the `forkDaemon` or `forkIn`
- * methods.
- *
- * @tsplus getter fncts.io.IO fork
- */
-export function fork<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, FiberContext<E, A>> {
-  return new Fork(ma, Nothing(), __tsplusTrace);
-}
-
-/**
  * Lifts an `Either` into an `IO`
  *
  * @tsplus static fncts.io.IOOps fromEither
@@ -1218,7 +1058,10 @@ export function left<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<Either<A, never
  * @tsplus static fncts.io.IOOps log
  */
 export function log(message: Lazy<string>, __tsplusTrace?: string): UIO<void> {
-  return new Logged(message, Cause.empty(), Nothing(), __tsplusTrace);
+  return IO.withFiberRuntime((fiber) => {
+    fiber.log(message, Cause.empty(), Nothing(), __tsplusTrace);
+    return IO.unit;
+  });
 }
 
 /**
@@ -1362,7 +1205,7 @@ export function matchCauseIO<E, A, R1, E1, A1, R2, E2, A2>(
   __tsplusTrace?: string,
 ) {
   return <R>(self: IO<R, E, A>): IO<R | R1 | R2, E1 | E2, A1 | A2> => {
-    return new Match(self, onFailure, onSuccess, __tsplusTrace);
+    return new OnSuccessAndFailure(self, onFailure, onSuccess, __tsplusTrace);
   };
 }
 
@@ -1440,25 +1283,6 @@ export function mergeAll<R, E, A, B>(
 ): IO<R, E, B> {
   return fas.foldLeft(IO.succeed(b) as IO<R, E, B>, (b, a) => b.zipWith(a, f));
 }
-
-/**
- * Returns a `IO` that will never produce anything. The moral equivalent of
- * `while(true) {}`, only without the wasted CPU cycles.
- *
- * @tsplus static fncts.io.IOOps never
- */
-export const never: UIO<never> = defer(() =>
-  asyncInterrupt<never, never, never>(() => {
-    const interval = setInterval(() => {
-      //
-    }, 60000);
-    return Either.left(
-      IO.succeed(() => {
-        clearInterval(interval);
-      }),
-    );
-  }),
-);
 
 /**
  * Converts an option on errors into an option on values.
@@ -1780,13 +1604,6 @@ export function retryWhileIO<E, R1, E1>(f: (e: E) => IO<R1, E1, boolean>, __tspl
 }
 
 /**
- * Retrieves the runtimeConfig that this effect is running on.
- *
- * @tsplus static fncts.io.IOOps runtimeConfig
- */
-export const runtimeConfig: UIO<RuntimeConfig> = IO.deferWith((runtimeConfig) => IO.succeedNow(runtimeConfig));
-
-/**
  * Exposes the full cause of failure of this effect.
  *
  * @tsplus getter fncts.io.IO sandbox
@@ -1802,14 +1619,6 @@ export function sandboxWith<R, E, A, E1>(f: (_: IO<R, Cause<E>, A>) => IO<R, Cau
   return (ma: IO<R, E, A>): IO<R, E1, A> => {
     return f(ma.sandbox).unsandbox;
   };
-}
-
-/**
- * Sets the runtime configuration to the specified value.
- * @tsplus static fncts.io.IOOps setRuntimeConfig
- */
-export function setRuntimeConfig(runtimeConfig: Lazy<RuntimeConfig>, __tsplusTrace?: string): UIO<void> {
-  return IO.withFiberContext((fiber) => IO((fiber.runtimeConfig = runtimeConfig())));
 }
 
 /**
@@ -1844,7 +1653,7 @@ export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<never, never
  * @tsplus static fncts.io.IOOps __call
  */
 export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): UIO<A> {
-  return new Succeed(effect, __tsplusTrace);
+  return new Sync(effect, __tsplusTrace);
 }
 
 /**
@@ -1899,7 +1708,7 @@ export function tryCatch<E, A>(effect: Lazy<A>, onThrow: (error: unknown) => E, 
     try {
       return effect();
     } catch (u) {
-      throw new IOError(Exit.fail(onThrow(u)));
+      throw new IOError(Cause.fail(onThrow(u)));
     }
   });
 }
@@ -2031,22 +1840,10 @@ export function updateFiberRefs(
   f: (fiberId: FiberId.Runtime, fiberRefs: FiberRefs) => FiberRefs,
   __tsplusTrace?: string,
 ): UIO<void> {
-  return IO.withFiberContext((fiber) =>
-    IO(() => {
-      const newFiberRefs   = f(fiber.fiberId, fiber.fiberRefs);
-      fiber.fiberRefLocals = newFiberRefs.fiberRefLocals;
-    }),
-  );
-}
-
-/**
- * @tsplus static fncts.io.IOOps withFiberContext
- */
-export function withFiberContext<R, E, A>(
-  onState: (fiber: FiberContext<E, A>, status: FiberStatus) => IO<R, E, A>,
-  __tsplusTrace?: string,
-): IO<R, E, A> {
-  return new Stateful(onState, __tsplusTrace);
+  return IO.withFiberRuntime((state) => {
+    state.setFiberRefs(f(state.id, state.getFiberRefs()));
+    return IO.unit;
+  });
 }
 
 /**
@@ -2075,13 +1872,37 @@ export function whenIO<R1, E1>(mb: IO<R1, E1, boolean>, __tsplusTrace?: string) 
 }
 
 /**
+ * @tsplus static fncts.io.IOOps withFiberRuntime
+ */
+export function withFiberRuntime<R, E, A>(
+  onState: (fiber: FiberRuntime<E, A>, status: Running) => IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
+  return new Stateful(onState, __tsplusTrace);
+}
+
+/**
+ * @tsplus static fncts.io.IOOps updateRuntimeFlags
+ */
+export function updateRuntimeFlags(patch: RuntimeFlags.Patch, __tsplusTrace?: string): IO<never, never, void> {
+  return new UpdateRuntimeFlags(patch, __tsplusTrace);
+}
+
+/**
+ * @tsplus static fncts.io.IOOps stackTrace
+ */
+export function stackTrace(__tsplusTrace?: string): UIO<Trace> {
+  return new GenerateStackTrace(__tsplusTrace);
+}
+
+/**
  * Returns an effect that yields to the runtime system, starting on a fresh
  * stack. Manual use of this method can improve fairness, at the cost of
  * overhead.
  *
  * @tsplus static fncts.io.IOOps yieldNow
  */
-export const yieldNow: UIO<void> = new Yield();
+export const yieldNow: UIO<void> = new YieldNow();
 
 /**
  * @tsplus pipeable fncts.io.IO zip

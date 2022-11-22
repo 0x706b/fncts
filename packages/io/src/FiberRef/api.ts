@@ -6,10 +6,10 @@ import { concrete } from "@fncts/io/FiberRef/definition";
 export function modify<A, B>(f: (a: A) => readonly [B, A], __tsplusTrace?: string) {
   return (self: FiberRef<A>): UIO<B> => {
     concrete(self);
-    return IO.withFiberContext((fiber) =>
+    return IO.withFiberRuntime((fiber) =>
       IO(() => {
-        const [result, newValue] = f(fiber.unsafeGetRef(self));
-        fiber.unsafeSetRef(self, newValue);
+        const [result, newValue] = f(fiber.getFiberRef(self));
+        fiber.setFiberRef(self, newValue);
         return result;
       }),
     );
@@ -77,18 +77,11 @@ export function getAndUpdateJust<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: strin
  */
 export function locally<A>(fiberRef: FiberRef<A>, value: A, __tsplusTrace?: string) {
   return <R1, E1, B>(use: IO<R1, E1, B>): IO<R1, E1, B> =>
-    IO.withFiberContext((fiber) =>
-      IO.defer(() => {
-        const oldValue = fiber.unsafeGetRef(fiberRef);
-        fiber.unsafeSetRef(fiberRef, value);
-        fiber.unsafeAddFinalizer(
-          IO(() => {
-            fiber.unsafeSetRef(fiberRef, oldValue);
-          }),
-        );
-        return use;
-      }),
-    );
+    IO.withFiberRuntime((fiberState) => {
+      const oldValue = fiberState.getFiberRef(fiberRef);
+      fiberState.setFiberRef(fiberRef, value);
+      return use.ensuring(IO.succeed(fiberState.setFiberRef(fiberRef, oldValue)));
+    });
 }
 
 /**
@@ -107,7 +100,7 @@ export function locallyWith<A>(self: FiberRef<A>, f: (a: A) => A, __tsplusTrace?
  */
 export function getWith<A, R, E, B>(f: (a: A) => IO<R, E, B>, __tsplusTrace?: string) {
   return (fiberRef: FiberRef<A>): IO<R, E, B> => {
-    return IO.withFiberContext((fiber) => f(fiber.unsafeGetRef(fiberRef)));
+    return fiberRef.get.flatMap(f);
   };
 }
 
@@ -115,7 +108,10 @@ export function getWith<A, R, E, B>(f: (a: A) => IO<R, E, B>, __tsplusTrace?: st
  * @tsplus getter fncts.io.FiberRef remove
  */
 export function remove<A>(self: FiberRef<A>, __tsplusTrace?: string): UIO<void> {
-  return IO.withFiberContext((fiber) => IO(fiber.unsafeDeleteRef(self)));
+  return IO.withFiberRuntime((fiberState) => {
+    fiberState.deleteFiberRef(self);
+    return IO.unit;
+  });
 }
 
 /**

@@ -14,7 +14,4 @@ export abstract class AbstractRunnableSpec<R, E> {
   runSpec(spec: Spec<R, E>): URIO<TestLogger, ExecutedSpec<E>> {
     return this.runner.run(this.aspects.foldLeft(spec, (b, a) => a(b)));
   }
-  get platform() {
-    return this.runner.runtimeConfig;
-  }
 }

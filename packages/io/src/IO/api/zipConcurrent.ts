@@ -15,7 +15,7 @@ export function zipConcurrent<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: st
  */
 export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A, b: B) => C, __tsplusTrace?: string) {
   return <R, E>(self: IO<R, E, A>): IO<R | R1, E | E1, C> => {
-    return IO.descriptorWith((descriptor) =>
+    return IO.fiberId.flatMap((fiberId) =>
       IO.uninterruptibleMask(({ restore }) => {
         const future = Future.unsafeMake<void, C>(FiberId.none);
         const ref    = new AtomicReference<Maybe<Either<A, B>>>(Nothing());
@@ -54,8 +54,8 @@ export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A
               restore(future.await).matchCauseIO(
                 (cause) =>
                   left
-                    .interruptAs(descriptor.id)
-                    .zipConcurrent(right.interruptAs(descriptor.id))
+                    .interruptAs(fiberId)
+                    .zipConcurrent(right.interruptAs(fiberId))
                     .flatMap(([left, right]) =>
                       left.zipConcurrent(right).match(IO.failCauseNow, () => IO.failCauseNow(cause.stripFailures)),
                     ),

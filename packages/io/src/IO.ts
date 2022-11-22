@@ -3,6 +3,7 @@ export * from "./IO/api.js";
 export * from "./IO/definition.js";
 export * from "./IO/runtime.js";
 // codegen:end
+
 // codegen:start { preset: barrel, include: IO/api/*.ts }
 export * from "./IO/api/acquireRelease.js";
 export * from "./IO/api/acquireReleaseExit.js";
@@ -10,6 +11,7 @@ export * from "./IO/api/acquireReleaseInterruptible.js";
 export * from "./IO/api/acquireReleaseInterruptibleExit.js";
 export * from "./IO/api/addFinalizer.js";
 export * from "./IO/api/addFinalizerExit.js";
+export * from "./IO/api/asyncInterrupt.js";
 export * from "./IO/api/asyncIO.js";
 export * from "./IO/api/bracket.js";
 export * from "./IO/api/bracketExit.js";
@@ -23,6 +25,7 @@ export * from "./IO/api/ensuringChildren.js";
 export * from "./IO/api/environment.js";
 export * from "./IO/api/foreachConcurrent.js";
 export * from "./IO/api/foreachExec.js";
+export * from "./IO/api/fork.js";
 export * from "./IO/api/forkAll.js";
 export * from "./IO/api/forkIn.js";
 export * from "./IO/api/forkScoped.js";
@@ -52,6 +55,5 @@ export * from "./IO/api/withChildren.js";
 export * from "./IO/api/withEarlyRelease.js";
 export * from "./IO/api/withFinalizer.js";
 export * from "./IO/api/withFinalizerExit.js";
-export * from "./IO/api/withRuntimeConfig.js";
 export * from "./IO/api/zipConcurrent.js";
 // codegen:end

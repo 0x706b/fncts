@@ -1,11 +1,19 @@
-export const FiberRefsTypeId = Symbol.for("fncts.io.FiberRefs");
-export type FiberRefsTypeId = typeof FiberRefsTypeId;
+export interface FiberRefsN extends HKT {
+  readonly type: FiberRefs;
+}
 
 /**
  * @tsplus type fncts.io.FiberRefs
- * @tsplus companion fncts.io.FiberRefsOps
  */
-export class FiberRefs {
-  readonly _typeId: FiberRefsTypeId = FiberRefsTypeId;
-  constructor(readonly fiberRefLocals: HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>) {}
-}
+export interface FiberRefs
+  extends Newtype<
+    { readonly FiberRefs: unique symbol },
+    HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>
+  > {}
+
+/**
+ * @tsplus type fncts.io.FiberRefsOps
+ */
+export interface FiberRefsOps extends NewtypeIso<FiberRefsN> {}
+
+export const FiberRefs: FiberRefsOps = Newtype();

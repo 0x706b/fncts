@@ -73,7 +73,7 @@ export const makeExpressApp: IO<Scope | ExpressAppConfig, never, ExpressApp> = D
         }[number]
       >
     >()
-      .map((r) => new Runtime(r.environment, r.runtimeConfig))
+      .map((r) => new Runtime(r.environment, r.runtimeFlags, r.fiberRefs))
       .map((r) =>
         handlers.map(
           (handler): RequestHandler =>

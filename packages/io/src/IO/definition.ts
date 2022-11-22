@@ -1,6 +1,10 @@
-import type { FiberStatus } from "../FiberStatus.js";
-import type { Trace as Trace_ } from "@fncts/base/data/Trace";
-import type { FiberContext } from "@fncts/io/Fiber/FiberContext";
+import type { FiberRuntime } from "../Fiber/FiberRuntime.js";
+import type { Running } from "../FiberStatus.js";
+import type { RuntimeFlagsPatch } from "../RuntimeFlags.js";
+import type { Trace } from "@fncts/base/data/Trace";
+
+import { RuntimeFlag } from "../RuntimeFlag.js";
+import { RuntimeFlags } from "../RuntimeFlags.js";
 
 export const IOTypeId = Symbol.for("fncts.io.IO");
 export type IOTypeId = typeof IOTypeId;
@@ -55,34 +59,97 @@ export type URIO<R, A> = IO<R, never, A>;
 export type FIO<E, A> = IO<never, E, A>;
 
 export const enum IOTag {
-  SucceedNow = "SucceedNow",
-  FlatMap = "FlatMap",
-  Defer = "Defer",
-  DeferWith = "DeferWith",
-  Succeed = "SucceedLazy",
-  SucceedWith = "SucceedLazyWith",
-  Async = "Async",
-  Match = "Match",
-  Fork = "Fork",
-  Fail = "Fail",
-  Yield = "Yield",
-  Race = "Race",
-  Trace = "Trace",
-  Logged = "Logged",
-  Stateful = "Stateful",
+  SucceedNow,
+  Fail,
+  Sync,
+  Async,
+  OnSuccessAndFailure,
+  OnSuccess,
+  OnFailure,
+  UpdateRuntimeFlags,
+  UpdateRuntimeFlagsWithin,
+  GenerateStackTrace,
+  Stateful,
+  WhileLoop,
+  YieldNow,
 }
 
 export function isIO(u: unknown): u is IO<any, any, any> {
   return hasTypeId(u, IOTypeId);
 }
 
+export class Sync<A> extends IO<never, never, A> {
+  readonly _tag = IOTag.Sync;
+  constructor(readonly evaluate: () => A, readonly trace?: string) {
+    super();
+  }
+}
+
+export class Async<R, E, A> extends IO<R, E, A> {
+  readonly _tag = IOTag.Async;
+  constructor(
+    readonly registerCallback: (f: (_: IO<R, E, A>) => void) => any,
+    readonly blockingOn: () => FiberId,
+    readonly trace?: string,
+  ) {
+    super();
+  }
+}
+
 /**
  * @internal
  */
-export class FlatMap<R, R1, E, E1, A, A1> extends IO<R | R1, E | E1, A1> {
-  readonly _tag = IOTag.FlatMap;
-  constructor(readonly io: IO<R, E, A>, readonly f: (a: A) => IO<R1, E1, A1>, readonly trace?: string) {
+export class OnSuccessAndFailure<R, E, A, R1, E1, B, R2, E2, C> extends IO<R | R1 | R2, E1 | E2, B | C> {
+  readonly _tag = IOTag.OnSuccessAndFailure;
+
+  constructor(
+    readonly first: IO<R, E, A>,
+    readonly failureK: (cause: Cause<E>) => IO<R1, E1, B>,
+    readonly successK: (a: A) => IO<R2, E2, C>,
+    readonly trace?: string,
+  ) {
     super();
+  }
+
+  onFailure(c: Cause<E>): IO<R | R1 | R2, E1 | E2, B | C> {
+    return this.failureK(c);
+  }
+  onSuccess(a: A): IO<R | R1 | R2, E1 | E2, B | C> {
+    return this.successK(a);
+  }
+}
+
+export class OnFailure<R, E, A, R1, E1, B> extends IO<R | R1, E1, A | B> {
+  readonly _tag = IOTag.OnFailure;
+  constructor(
+    readonly first: IO<R, E, A>,
+    readonly failureK: (cause: Cause<E>) => IO<R1, E1, B>,
+    readonly trace?: string,
+  ) {
+    super();
+  }
+
+  onFailure(c: Cause<E>): IO<R | R1, E1, A | B> {
+    return this.failureK(c);
+  }
+  onSuccess(a: A): IO<R | R1, E1, A | B> {
+    return new SucceedNow(a);
+  }
+}
+
+/**
+ * @internal
+ */
+export class OnSuccess<R, R1, E, E1, A, A1> extends IO<R | R1, E | E1, A1> {
+  readonly _tag = IOTag.OnSuccess;
+  constructor(readonly first: IO<R, E, A>, readonly successK: (a: A) => IO<R1, E1, A1>, readonly trace?: string) {
+    super();
+  }
+  onFailure(c: Cause<E>): IO<R | R1, E | E1, A1> {
+    return new Fail(c);
+  }
+  onSuccess(a: A): IO<R | R1, E | E1, A1> {
+    return this.successK(a);
   }
 }
 
@@ -96,68 +163,81 @@ export class SucceedNow<A> extends IO<never, never, A> {
   }
 }
 
-/**
- * @internal
- */
-export class Succeed<A> extends IO<never, never, A> {
-  readonly _tag = IOTag.Succeed;
-  constructor(readonly effect: () => A, readonly trace?: string) {
+export class UpdateRuntimeFlags extends IO<never, never, void> {
+  readonly _tag = IOTag.UpdateRuntimeFlags;
+  constructor(readonly update: RuntimeFlags.Patch, readonly trace?: string) {
     super();
   }
 }
 
-export class SucceedWith<A> extends IO<never, never, A> {
-  readonly _tag = IOTag.SucceedWith;
-  constructor(readonly effect: (runtimeConfig: RuntimeConfig, fiberId: FiberId) => A, readonly trace?: string) {
+export class Interruptible<R, E, A> extends IO<R, E, A> {
+  readonly _tag = IOTag.UpdateRuntimeFlagsWithin;
+  constructor(readonly effect: IO<R, E, A>, readonly trace?: string) {
     super();
+  }
+
+  readonly update: RuntimeFlags.Patch = RuntimeFlags.enable(RuntimeFlag.Interruption);
+  scope(oldRuntimeFlags: RuntimeFlags): IO<R, E, A> {
+    return this.effect;
   }
 }
 
-export class Trace extends IO<never, never, Trace_> {
-  readonly _tag = IOTag.Trace;
+export class Uninterruptible<R, E, A> extends IO<R, E, A> {
+  readonly _tag = IOTag.UpdateRuntimeFlagsWithin;
+  constructor(readonly effect: IO<R, E, A>, readonly trace?: string) {
+    super();
+  }
+
+  readonly update: RuntimeFlags.Patch = RuntimeFlags.disable(RuntimeFlag.Interruption);
+  scope(oldRuntimeFlags: RuntimeFlags): IO<R, E, A> {
+    return this.effect;
+  }
+}
+
+export class Dynamic<R, E, A> extends IO<R, E, A> {
+  readonly _tag = IOTag.UpdateRuntimeFlagsWithin;
+  constructor(
+    readonly update: RuntimeFlagsPatch,
+    readonly f: (oldRuntimeFlags: RuntimeFlags) => IO<R, E, A>,
+    readonly trace?: string,
+  ) {
+    super();
+  }
+
+  scope(oldRuntimeFlags: RuntimeFlags): IO<R, E, A> {
+    return this.f(oldRuntimeFlags);
+  }
+}
+
+export class GenerateStackTrace extends IO<never, never, Trace> {
+  readonly _tag = IOTag.GenerateStackTrace;
   constructor(readonly trace?: string) {
     super();
   }
 }
 
-/**
- * @internal
- */
-export class Async<R, E, A, R1> extends IO<R | R1, E, A> {
-  readonly _tag = IOTag.Async;
+export class Stateful<R, E, A> extends IO<R, E, A> {
+  readonly _tag = IOTag.Stateful;
+  constructor(readonly onState: (fiber: FiberRuntime<E, A>, status: Running) => IO<R, E, A>, readonly trace?: string) {
+    super();
+  }
+}
+
+export class WhileLoop<R, E, A> extends IO<R, E, void> {
+  readonly _tag = IOTag.WhileLoop;
   constructor(
-    readonly register: (f: (_: IO<R, E, A>) => void) => Either<Canceler<R1>, IO<R, E, A>>,
-    readonly blockingOn: FiberId,
+    readonly check: () => boolean,
+    readonly body: () => IO<R, E, A>,
+    readonly process: (a: A) => any,
     readonly trace?: string,
   ) {
     super();
   }
 }
 
-/**
- * @internal
- */
-export class Match<R, E, A, R1, E1, B, R2, E2, C> extends IO<R | R1 | R2, E1 | E2, B | C> {
-  readonly _tag = IOTag.Match;
-
-  constructor(
-    readonly io: IO<R, E, A>,
-    readonly onFailure: (cause: Cause<E>) => IO<R1, E1, B>,
-    readonly apply: (a: A) => IO<R2, E2, C>,
-    readonly trace?: string,
-  ) {
-    super();
-  }
-}
-
-export type FailureReporter = (e: Cause<unknown>) => void;
-
-/**
- * @internal
- */
-export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
-  readonly _tag = IOTag.Fork;
-  constructor(readonly io: IO<R, E, A>, readonly scope: Maybe<FiberScope>, readonly trace?: string) {
+export class YieldNow extends IO<never, never, void> {
+  readonly _tag = IOTag.YieldNow;
+  constructor(readonly trace?: string) {
     super();
   }
 }
@@ -167,116 +247,55 @@ export class Fork<R, E, A> extends IO<R, never, FiberContext<E, A>> {
  */
 export class Fail<E> extends IO<never, E, never> {
   readonly _tag = IOTag.Fail;
+
   constructor(readonly cause: Lazy<Cause<E>>, readonly trace?: string) {
     super();
   }
 }
 
-/**
- * @internal
- */
-export class Yield extends IO<never, never, void> {
-  readonly _tag = IOTag.Yield;
-  constructor(readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class Defer<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.Defer;
-  constructor(readonly make: () => IO<R, E, A>, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class DeferWith<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.DeferWith;
-  constructor(readonly make: (runtimeConfig: RuntimeConfig, id: FiberId) => IO<R, E, A>, readonly trace?: string) {
-    super();
-  }
-}
-
-/**
- * @internal
- */
-export class Race<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3> extends IO<R | R1 | R2 | R3, E2 | E3, A2 | A3> {
-  readonly _tag = "Race";
-  constructor(
-    readonly left: IO<R, E, A>,
-    readonly right: IO<R1, E1, A1>,
-    readonly leftWins: (exit: Fiber<E, A>, fiber: Fiber<E1, A1>) => IO<R2, E2, A2>,
-    readonly rightWins: (exit: Fiber<E1, A1>, fiber: Fiber<E, A>) => IO<R3, E3, A3>,
-    readonly trace?: string,
-  ) {
-    super();
-  }
-}
-
-export class Stateful<R, E, A> extends IO<R, E, A> {
-  readonly _tag = IOTag.Stateful;
-  constructor(
-    readonly onState: (fiber: FiberContext<E, A>, status: FiberStatus) => IO<R, E, A>,
-    readonly trace?: string,
-  ) {
-    super();
-  }
-}
-
-export class Logged extends IO<never, never, void> {
-  readonly _tag = IOTag.Logged;
-  constructor(
-    readonly message: () => string,
-    readonly cause: Cause<any>,
-    readonly overrideLogLevel: Maybe<LogLevel>,
-    readonly trace?: string,
-    readonly overrideRef1: FiberRef<unknown> | null = null,
-    readonly overrideValue1: unknown | null = null,
-  ) {
-    super();
-  }
-}
-
-export type Instruction =
-  | FlatMap<any, any, any, any, any, any>
+export type Concrete =
+  | OnSuccessAndFailure<any, any, any, any, any, any, any, any, any>
+  | OnFailure<any, any, any, any, any, any>
+  | OnSuccess<any, any, any, any, any, any>
+  | UpdateRuntimeFlagsWithin
+  | Sync<any>
+  | Async<any, any, any>
   | SucceedNow<any>
-  | Succeed<any>
-  | SucceedWith<any>
-  | Async<any, any, any, any>
-  | Match<any, any, any, any, any, any, any, any, any>
-  | Fork<any, any, any>
-  | Fail<any>
-  | Yield
-  | Defer<any, any, any>
-  | DeferWith<any, any, any>
+  | UpdateRuntimeFlags
+  | GenerateStackTrace
   | Stateful<any, any, any>
-  | Race<any, any, any, any, any, any, any, any, any, any, any, any>
-  | Trace
-  | Logged;
+  | WhileLoop<any, any, any>
+  | YieldNow
+  | Fail<any>;
 
 /**
+ * @tsplus static fncts.io.IOOps concrete
  * @tsplus macro identity
  */
-export function concrete(_: IO<any, any, any>): Instruction {
-  // @ts-expect-error
-  return _;
+export function concrete(io: IO<any, any, any>): Concrete {
+  return io as Concrete;
 }
+
+export type EvaluationStep =
+  | OnSuccessAndFailure<any, any, any, any, any, any, any, any, any>
+  | OnFailure<any, any, any, any, any, any>
+  | OnSuccess<any, any, any, any, any, any>;
+
+export type UpdateRuntimeFlagsWithin =
+  | Interruptible<any, any, any>
+  | Uninterruptible<any, any, any>
+  | Dynamic<any, any, any>;
 
 export type Canceler<R> = URIO<R, void>;
 
 export const IOErrorTypeId = Symbol.for("fncts.io.IO.IOError");
 export type IOErrorTypeId = typeof IOErrorTypeId;
 
-export class IOError<E, A> {
+export class IOError<E> {
   readonly _typeId: IOErrorTypeId = IOErrorTypeId;
-  constructor(readonly exit: Exit<E, A>) {}
+  constructor(readonly cause: Cause<E>) {}
 }
 
-export function isIOError(u: unknown): u is IOError<unknown, unknown> {
+export function isIOError(u: unknown): u is IOError<unknown> {
   return hasTypeId(u, IOErrorTypeId);
 }

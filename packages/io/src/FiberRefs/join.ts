@@ -3,8 +3,8 @@
  */
 export function join(fiberId: FiberId.Runtime, that: FiberRefs) {
   return (self: FiberRefs): FiberRefs => {
-    const parentFiberRefs = self.fiberRefLocals;
-    const childFiberRefs  = that.fiberRefLocals;
+    const parentFiberRefs = FiberRefs.reverseGet(self);
+    const childFiberRefs  = FiberRefs.reverseGet(that);
     const fiberRefLocals  = childFiberRefs.foldLeftWithIndex(parentFiberRefs, (ref, parentFiberRefs, childStack) => {
       const childValue = childStack.head[1];
       if (childStack.head[0] == fiberId) {
@@ -37,7 +37,7 @@ export function join(fiberId: FiberId.Runtime, that: FiberRefs) {
         },
       );
     });
-    return FiberRefs(fiberRefLocals);
+    return FiberRefs.get(fiberRefLocals);
   };
 }
 

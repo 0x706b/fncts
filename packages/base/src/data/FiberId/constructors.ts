@@ -10,11 +10,11 @@ const _fiberCounter = new AtomicNumber(0);
 /**
  * @tsplus static fncts.FiberIdOps unsafeMake
  */
-export function unsafeMake(location: TraceElement): Runtime {
-  return new Runtime(_fiberCounter.getAndIncrement(), new Date().getTime(), location);
+export function unsafeMake(__tsplusTrace?: string): Runtime {
+  return new Runtime(_fiberCounter.getAndIncrement(), new Date().getTime(), __tsplusTrace);
 }
 
 /**
  * @tsplus static fncts.FiberIdOps synthetic
  */
-export const synthetic = new Runtime(-1, -1, TraceElement.NoLocation);
+export const synthetic = new Runtime(-1, -1, undefined);

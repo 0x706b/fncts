@@ -6,5 +6,5 @@
  * @tsplus getter fncts.io.Fiber interruptFork
  */
 export function interruptFork<E, A>(fiber: Fiber<E, A>, __tsplusTrace?: string): UIO<void> {
-  return IO.descriptorWith(({ id }) => fiber.interruptAsFork(id));
+  return IO.fiberId.flatMap((id) => fiber.interruptAsFork(id));
 }

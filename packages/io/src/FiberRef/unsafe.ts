@@ -65,6 +65,11 @@ export const forkScopeOverride = FiberRef.unsafeMake<Maybe<FiberScope>>(
 );
 
 /**
+ * @tsplus static fncts.io.FiberRefOps interruptedCause
+ */
+export const interruptedCause = FiberRef.unsafeMake(Cause.empty<never>(), identity, (parent, _) => parent);
+
+/**
  * @tsplus static fncts.io.FiberRefOps currentEnvironment
  */
 export const currentEnvironment = FiberRef.unsafeMakeEnvironment<unknown>(Environment.empty);
