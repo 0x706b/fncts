@@ -1,5 +1,11 @@
 # @fncts/eslint-config
 
+## 0.0.14
+
+### Patch Changes
+
+- 276cb31: test: add Conc tests
+
 ## 0.0.13
 
 ### Patch Changes

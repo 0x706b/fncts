@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.15
+
+### Patch Changes
+
+- 17b8af7: feat: add Schema
+
 ## 0.0.14
 
 ### Patch Changes

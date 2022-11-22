@@ -1,5 +1,12 @@
 # @fncts/transformers
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [17b8af7]
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.3
 
 ### Patch Changes
