@@ -1,5 +1,29 @@
 # @fncts/io
 
+## 0.0.22
+
+### Patch Changes
+
+- 30f12ca: refactor: make Eq, Ord, and Semigroup pipeable
+- 690636b: refactor: standardize collections
+- 14c84ad: refactor: re-add polymorphic Ref, Queue, and Hub
+- 5b8927f: feat: implement FiberRuntime
+- 4ac202c: refactor: rename combinators
+- 276cb31: test: add Conc tests
+- 029401e: feat: add push-based streams
+- 3f04341: feat: add node stream module
+- Updated dependencies [fe257b5]
+- Updated dependencies [30f12ca]
+- Updated dependencies [690636b]
+- Updated dependencies [17b8af7]
+- Updated dependencies [5b8927f]
+- Updated dependencies [4ac202c]
+- Updated dependencies [276cb31]
+- Updated dependencies [029401e]
+  - @fncts/base@0.0.22
+  - @fncts/typelevel@0.0.15
+  - @fncts/transformers@0.0.4
+
 ## 0.0.21
 
 ### Patch Changes

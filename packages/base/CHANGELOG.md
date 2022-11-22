@@ -1,5 +1,20 @@
 # @fncts/base
 
+## 0.0.22
+
+### Patch Changes
+
+- fe257b5: chore: update tsplus
+- 30f12ca: refactor: make Eq, Ord, and Semigroup pipeable
+- 690636b: refactor: standardize collections
+- 17b8af7: feat: add Schema
+- 5b8927f: feat: implement FiberRuntime
+- 4ac202c: refactor: rename combinators
+- 276cb31: test: add Conc tests
+- 029401e: feat: add push-based streams
+- Updated dependencies [17b8af7]
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.21
 
 ### Patch Changes

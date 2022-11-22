@@ -1,5 +1,12 @@
 # @fncts/config
 
+## 0.0.13
+
+### Patch Changes
+
+- 17b8af7: feat: add Schema
+- 4ac202c: refactor: rename combinators
+
 ## 0.0.12
 
 ### Patch Changes
