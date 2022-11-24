@@ -736,3 +736,23 @@ export function zipWith<A, R1, E1, B, C>(that: STM<R1, E1, B>, f: (a: A, b: B) =
     return self.flatMap((a) => that.map((b) => f(a, b)));
   };
 }
+
+/**
+ * @tsplus pipeable fncts.io.STM zipLeft
+ * @tsplus opipeable-operator fncts.io.STM <
+ */
+export function zipLeft<R1, E1, B>(that: STM<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E, A>(self: STM<R, E, A>): STM<R | R1, E | E1, A> => {
+    return self.flatMap((a) => that.as(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.STM zipRight
+ * @tsplus pipeable-operator fncts.io.STM >
+ */
+export function zipRight<R1, E1, B>(that: STM<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E, A>(self: STM<R, E, A>): STM<R | R1, E | E1, B> => {
+    return self.flatMap(() => that);
+  };
+}
