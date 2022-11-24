@@ -16,12 +16,18 @@ export type MVarTypeId = typeof MVarTypeId;
  * Andrew Gordon and Sigbjorn Finne.
  *
  * @tsplus type fncts.io.MVar
- * @tsplus companion fncts.io.MVarOps
  */
 export interface MVar<in out A> {
   readonly _A: (_: A) => A;
   readonly _typeId: MVarTypeId;
 }
+
+/**
+ * @tsplus type fncts.io.MVarOps
+ */
+export interface MVarOps {}
+
+export const MVar: MVarOps = {};
 
 export class MVarInternal<in out A> implements MVar<A> {
   readonly _typeId: MVarTypeId = MVarTypeId;

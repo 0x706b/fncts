@@ -86,6 +86,10 @@ import { LogLevel } from "@fncts/io/LogLevel";
 /**
  * @tsplus global
  */
+import { MVar } from "@fncts/io/MVar/definition";
+/**
+ * @tsplus global
+ */
 import { PQueue, Queue } from "@fncts/io/Queue/definition";
 /**
  * @tsplus global

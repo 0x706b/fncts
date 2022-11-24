@@ -59,7 +59,14 @@ export function modify<A, B>(self: MVar<A>, f: (a: A) => readonly [B, A]): UIO<B
  */
 export function put<A>(self: MVar<A>, value: A): UIO<void> {
   concrete(self);
-  return (self.content.get.filterMap(Function.identity) > self.content.set(Just(value))).commit;
+  return (
+    self.content.get.filterMap((value) =>
+      value.match(
+        () => Just(undefined),
+        () => Nothing(),
+      ),
+    ) > self.content.set(Just(value))
+  ).commit;
 }
 
 /**
