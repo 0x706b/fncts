@@ -2,6 +2,21 @@ import { Dynamic, Interruptible, Uninterruptible } from "@fncts/io/IO/definition
 import { RuntimeFlag } from "@fncts/io/RuntimeFlag";
 import { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
+export interface InterruptibilityRestorer {
+  readonly restore: <R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => IO<R, E, A>;
+  readonly force: <R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => IO<R, E, A>;
+}
+
+const RestoreInterruptible: InterruptibilityRestorer = {
+  restore: (io, __tsplusTrace) => io.interruptible,
+  force: (io, __tsplusTrace) => io.interruptible,
+};
+
+const RestoreUninterruptible: InterruptibilityRestorer = {
+  restore: (io, __tsplusTrace) => io.uninterruptible,
+  force: (io, __tsplusTrace) => io.uninterruptible.disconnect.interruptible,
+};
+
 /**
  * Returns an effect that is interrupted as if by the specified fiber.
  *
@@ -51,7 +66,6 @@ export const interrupt: IO<never, never, never> = IO.fiberId.flatMap(IO.interrup
  */
 export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new Interruptible(self, __tsplusTrace);
-  // return self.setInterruptStatus(InterruptStatus.interruptible);
 }
 
 /**
@@ -67,7 +81,6 @@ export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string
  */
 export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return new Uninterruptible(self, __tsplusTrace);
-  // return self.setInterruptStatus(InterruptStatus.uninterruptible);
 }
 
 /**
@@ -77,9 +90,9 @@ export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: stri
  *
  * @tsplus static fncts.io.IOOps uninterruptibleMask
  */
-export function uninterruptibleMask<R, E, A>(f: (restore: InterruptStatusRestore) => IO<R, E, A>): IO<R, E, A> {
+export function uninterruptibleMask<R, E, A>(f: (restore: InterruptibilityRestorer) => IO<R, E, A>): IO<R, E, A> {
   return new Dynamic(RuntimeFlags.disable(RuntimeFlag.Interruption), (oldFlags) =>
-    f(new InterruptStatusRestore(InterruptStatus.fromBoolean(oldFlags.interruption))),
+    f(oldFlags.interruption ? RestoreInterruptible : RestoreUninterruptible),
   );
 }
 
@@ -109,52 +122,72 @@ export function ensuring<R1>(finalizer: IO<R1, never, any>, __tsplusTrace?: stri
  * @tsplus static fncts.io.IOOps interruptibleMask
  */
 export function interruptibleMask<R, E, A>(
-  k: (restore: InterruptStatusRestore) => IO<R, E, A>,
+  k: (restore: InterruptibilityRestorer) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return IO.checkInterruptible((flag) => k(new InterruptStatusRestore(flag)).interruptible);
+  return IO.checkInterruptible(
+    (flag) => k(flag.isInterruptible ? RestoreInterruptible : RestoreUninterruptible).interruptible,
+  );
 }
 
 /**
  * Calls the specified function, and runs the effect it returns, if this
  * effect is interrupted.
  *
- * @tsplus fluent fncts.io.IO onInterrupt
+ * @tsplus pipeable fncts.io.IO onInterrupt
  */
-export function onInterrupt_<R, E, A, R1>(
-  ma: IO<R, E, A>,
-  cleanup: (interruptors: HashSet<FiberId>) => IO<R1, never, any>,
-  __tsplusTrace?: string,
-): IO<R | R1, E, A> {
-  return uninterruptibleMask(({ restore }) =>
-    restore(ma).matchCauseIO(
-      (cause) =>
-        cause.interrupted ? cleanup(cause.interruptors).zipRight(IO.failCauseNow(cause)) : IO.failCauseNow(cause),
-      IO.succeedNow,
-    ),
-  );
+export function onInterrupt<R1, E1>(cleanup: Lazy<IO<R1, E1, any>>, __tsplusTrace?: string) {
+  return <R, E, A>(ma: IO<R, E, A>): IO<R | R1, E | E1, A> => {
+    return ma.onExit((exit) =>
+      exit.match(
+        (cause) => (cause.isInterruptedOnly ? cleanup() : IO.unit),
+        () => IO.unit,
+      ),
+    );
+  };
 }
 
 /**
  * Calls the specified function, and runs the effect it returns, if this
- * effect is interrupted (allows for expanding error).
+ * effect is interrupted.
  *
- * @tsplus fluent fncts.io.IO onInterruptExtended
+ * @tsplus pipeable fncts.io.IO onInterrupt
  */
-export function onInterruptExtended_<R, E, A, R2, E2>(
-  self: IO<R, E, A>,
-  cleanup: Lazy<IO<R2, E2, any>>,
+export function onInterruptWith<R1, E1>(
+  cleanup: (interruptors: HashSet<FiberId>) => IO<R1, E1, any>,
   __tsplusTrace?: string,
-): IO<R | R2, E | E2, A> {
-  return uninterruptibleMask(({ restore }) =>
-    restore(self).matchCauseIO(
-      (cause) =>
-        cause.interrupted
-          ? cleanup().matchCauseIO(IO.failCauseNow, () => IO.failCauseNow(cause))
-          : IO.failCauseNow(cause),
-      IO.succeedNow,
-    ),
-  );
+) {
+  return <R, E, A>(ma: IO<R, E, A>): IO<R | R1, E | E1, A> => {
+    return ma.onExit((exit) =>
+      exit.match(
+        (cause) => (cause.isInterruptedOnly ? cleanup(cause.interruptors) : IO.unit),
+        () => IO.unit,
+      ),
+    );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.IO onExit
+ */
+export function onExit<E, A, R1, E1>(cleanup: (exit: Exit<E, A>) => IO<R1, E1, any>, __tsplusTrace?: string) {
+  return <R>(self: IO<R, E, A>): IO<R | R1, E | E1, A> => {
+    return IO.uninterruptibleMask(({ restore }) =>
+      restore(self).matchCauseIO(
+        (failure1) => {
+          const result = Exit.failCause(failure1);
+          return cleanup(result).matchCauseIO(
+            (failure2) => IO.failCauseNow(Cause.then(failure1, failure2)),
+            () => IO.fromExitNow(result),
+          );
+        },
+        (success) => {
+          const result = Exit.succeed(success);
+          return cleanup(result) > IO.fromExitNow(result);
+        },
+      ),
+    );
+  };
 }
 
 /**
@@ -174,27 +207,11 @@ export function onInterruptExtended_<R, E, A, R2, E2>(
  */
 export function disconnect<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return uninterruptibleMask(({ restore }) =>
-    IO.fiberId.flatMap((id) =>
-      restore(self).forkDaemon.flatMap((fiber) =>
-        restore(fiber.join).onInterrupt(() => fiber.interruptAs(id).forkDaemon),
-      ),
+    IO.fiberId.flatMap((fiberId) =>
+      Do((Δ) => {
+        const fiber = Δ(restore(self).forkDaemon);
+        return Δ(restore(fiber.join).onInterrupt(fiber.interruptAsFork(fiberId)));
+      }),
     ),
   );
-}
-
-/**
- * Used to restore the inherited interruptibility
- */
-export class InterruptStatusRestore {
-  constructor(readonly flag: InterruptStatus) {}
-
-  restore = <R, E, A>(io: IO<R, E, A>): IO<R, E, A> =>
-    this.flag.isInterruptible ? io.interruptible : io.uninterruptible;
-
-  force = <R, E, A>(io: IO<R, E, A>): IO<R, E, A> => {
-    if (this.flag.isUninteruptible) {
-      return io.uninterruptible.disconnect.interruptible;
-    }
-    return io.interruptible;
-  };
 }

@@ -411,6 +411,21 @@ export function deferTryCatch<R, E, A, E1>(
 }
 
 /**
+ * @tsplus static fncts.io.IOOps descriptorWith
+ */
+export function descriptorWith<R, E, A>(f: (descriptor: FiberDescriptor) => IO<R, E, A>): IO<R, E, A> {
+  return IO.withFiberRuntime((fiber, status) => {
+    const descriptor = new FiberDescriptor(fiber.id, status, fiber.getFiberRef(FiberRef.interruptedCause).interruptors);
+    return f(descriptor);
+  });
+}
+
+/**
+ * @tsplus static fncts.io.IOOps descriptor
+ */
+export const descriptor: UIO<FiberDescriptor> = IO.descriptorWith((descriptor) => IO.succeedNow(descriptor));
+
+/**
  * Folds an `IO` that may fail with `E` or succeed with `A` into one that never fails but succeeds with `Either<E, A>`
  *
  * @tsplus getter fncts.io.IO either
@@ -488,7 +503,14 @@ export function failCause<E = never, A = never>(cause: Lazy<Cause<E>>, __tsplusT
  *
  * @tsplus static fncts.io.IOOps fiberId
  */
-export const fiberId: IO<never, never, FiberId> = IO.withFiberRuntime((fiber) => IO.succeed(fiber.id));
+export const fiberId: IO<never, never, FiberId> = IO.fiberIdWith((id) => IO.succeedNow(id));
+
+/**
+ * @tsplus static fncts.io.IOOps fiberIdWith
+ */
+export function fiberIdWith<R, E, A>(f: (id: FiberId.Runtime) => IO<R, E, A>): IO<R, E, A> {
+  return IO.withFiberRuntime((fiber) => f(fiber.id));
+}
 
 /**
  * Filters the collection using the specified effectual predicate.

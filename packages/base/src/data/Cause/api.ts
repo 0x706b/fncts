@@ -664,6 +664,30 @@ export function isInterrupted<E>(self: Cause<E>): boolean {
 }
 
 /**
+ * Determines if the `Cause` contains only interruptions and not any `Die` or
+ * `Fail` causes.
+ * @tsplus getter fncts.Cause isInterruptedOnly
+ */
+export function isInterruptedOnly<E>(self: Cause<E>): boolean {
+  return self.fold({
+    Empty: () => true,
+    Fail: () => false,
+    Halt: () => false,
+    Interrupt: () => true,
+    Both: (left, right) => left && right,
+    Then: (left, right) => left && right,
+    Stackless: (value) => value,
+  });
+}
+
+/**
+ * @tsplus getter fncts.Cause isFailure
+ */
+export function isFailure<E>(self: Cause<E>): boolean {
+  return self.failureMaybe.isJust();
+}
+
+/**
  * A type-guard matching `Traced`
  *
  * @tsplus getter fncts.Cause isTraced

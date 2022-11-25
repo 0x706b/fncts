@@ -33,7 +33,6 @@ export * from "./IO/api/fulfill.js";
 export * from "./IO/api/interrupt.js";
 export * from "./IO/api/memoize.js";
 export * from "./IO/api/once.js";
-export * from "./IO/api/onExit.js";
 export * from "./IO/api/onTermination.js";
 export * from "./IO/api/provideLayer.js";
 export * from "./IO/api/provideSomeLayer.js";
