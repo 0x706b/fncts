@@ -169,3 +169,17 @@ export function update<A>(self: MVar<A>, f: (a: A) => A): UIO<void> {
   concrete(self);
   return self.content.get.filterMap((value) => value.map(f)).flatMap((a) => self.content.set(Just(a))).commit;
 }
+
+/**
+ * @tsplus static fncts.io.MVarOps unsafeEmpty
+ */
+export function unsafeEmpty<A>(): MVar<A> {
+  return new MVarInternal(TRef.unsafeMake<Maybe<A>>(Nothing()))
+}
+
+/**
+ * @tsplus static fncts.io.MVarOps unsafeMake
+ */
+export function unsafeMake<A>(value: A): MVar<A> {
+  return new MVarInternal(TRef.unsafeMake<Maybe<A>>(Just(value)))
+}

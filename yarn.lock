@@ -8569,43 +8569,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@https://cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz":
-  version: 5.0.0-tsplus.20221117
-  resolution: "typescript@https://cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz"
+"typescript@https://github.com/0x706b/typescript/raw/d8c6dc1204/typescript-5.0.0-tsplus.20221124.tgz":
+  version: 5.0.0-tsplus.20221124
+  resolution: "typescript@https://github.com/0x706b/typescript/raw/d8c6dc1204/typescript-5.0.0-tsplus.20221124.tgz"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 60c8db7ca2667361eb9490f8a32a0425c7efdcca651cd499c412c97ffbfd1753ed76e4e76e5fd7de68d530a09c8440a6c22bbca8310c81fb5843f728016f78cd
+  checksum: a487f6f144ec0e72d7c9367f097401ba6d7ad92a2aa8050a7eac3f251b0cca0ef438822e18a0e7d93de2ea76a90065824f6304054e1f654cab5a3a7d7807ba71
   languageName: node
   linkType: hard
 
-"typescript@npm:^3.9.10, typescript@npm:^3.9.5, typescript@npm:^3.9.7":
-  version: 3.9.10
-  resolution: "typescript@npm:3.9.10"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 2137104612d9b7544db57b0bd202d0f15f9d8d339070fe9af54ae9568bb774e62f666e51378a8c8c627d0fa7b635ac6060d7ff1f6bcb69734c981c29dd3dbea9
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@https%3A//cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz#optional!builtin<compat/typescript>":
-  version: 5.0.0-tsplus.20221117
-  resolution: "typescript@patch:typescript@https%3A//cdn.jsdelivr.net/npm/@tsplus/installer@0.0.153/compiler/typescript.tgz#optional!builtin<compat/typescript>::version=5.0.0-tsplus.20221117&hash=f456af"
+"typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/d8c6dc1204/typescript-5.0.0-tsplus.20221124.tgz#optional!builtin<compat/typescript>":
+  version: 5.0.0-tsplus.20221124
+  resolution: "typescript@patch:typescript@https%3A//github.com/0x706b/typescript/raw/d8c6dc1204/typescript-5.0.0-tsplus.20221124.tgz#optional!builtin<compat/typescript>::version=5.0.0-tsplus.20221124&hash=f456af"
   bin:
     tsc: ./bin/tsc
     tsserver: ./bin/tsserver
-  checksum: 831036f8a5fe22ddb6128f8a2f2486138e70e1af6bb23d8c5a9fe45f5c93937152d305f4d1a5223364b2cfb873aca62503850157f5675271e175bd2c0aba3671
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@npm%3A^3.9.10#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^3.9.5#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^3.9.7#optional!builtin<compat/typescript>":
-  version: 3.9.10
-  resolution: "typescript@patch:typescript@npm%3A3.9.10#optional!builtin<compat/typescript>::version=3.9.10&hash=f456af"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 060f1bcb5c91a16d01b042974be047455b6471aceae5b17651119d0f690ddba45bdfcefdb92a05ca1563a6f0313f8dd63dc4e8cde0ebf221b3e6b435c32d0ddf
+  checksum: 986fa7a729b70f25a42ac1939f6bfe6666268a48647a0578d8662f8b4c0133f6583e60a7c91df972caff9a652cc3ec8b4991d3d96c42cd88f4165e32bc66cfe4
   languageName: node
   linkType: hard
 

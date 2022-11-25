@@ -56,6 +56,7 @@
     "ultra-runner": "^3.10.5"
   },
   "resolutions": {
-    "@babel/types": "^7.20.2"
+    "@babel/types": "^7.20.2",
+    "typescript": "https://github.com/0x706b/typescript/raw/d8c6dc1204/typescript-5.0.0-tsplus.20221124.tgz"
   }
 }
