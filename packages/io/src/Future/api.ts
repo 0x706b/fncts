@@ -194,17 +194,26 @@ export function unsafeSucceed<A>(a: A, __tsplusTrace?: string) {
  * @tsplus getter fncts.io.Future await
  */
 export function wait<E, A>(future: Future<E, A>, __tsplusTrace?: string): IO<never, E, A> {
-  return IO.asyncInterrupt<never, E, A>((k) => {
+  return IO.defer(() => {
     switch (future.state._tag) {
       case FutureStateTag.Done: {
-        return Either.right(future.state.value);
+        return future.state.value;
       }
       case FutureStateTag.Pending: {
-        future.state = new Pending(future.state.joiners.prepend(k));
-        return Either.left(interruptJoiner(future, k));
+        return IO.asyncInterrupt<never, E, A>((k) => {
+          switch (future.state._tag) {
+            case FutureStateTag.Done: {
+              return Either.right(future.state.value);
+            }
+            case FutureStateTag.Pending: {
+              future.state = new Pending(future.state.joiners.prepend(k));
+              return Either.left(interruptJoiner(future, k));
+            }
+          }
+        }, future.blockingOn);
       }
     }
-  }, future.blockingOn);
+  });
 }
 
 function interruptJoiner<E, A>(
