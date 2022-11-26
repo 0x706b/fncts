@@ -8,12 +8,12 @@ export const enum SinkEndReasonTag {
 export const SinkEndReasonTypeId = Symbol.for("fncts.io.Stream.SinkEndReason");
 
 export class ScheduleEnd {
-  readonly _typeId: typeof SinkEndReasonTypeId = SinkEndReasonTypeId;
+  readonly [SinkEndReasonTypeId]: typeof SinkEndReasonTypeId = SinkEndReasonTypeId;
   readonly _tag = SinkEndReasonTag.ScheduleEnd;
 }
 
 export class UpstreamEnd {
-  readonly _typeId: typeof SinkEndReasonTypeId = SinkEndReasonTypeId;
+  readonly [SinkEndReasonTypeId]: typeof SinkEndReasonTypeId = SinkEndReasonTypeId;
   readonly _tag = SinkEndReasonTag.UpstreamEnd;
 }
 

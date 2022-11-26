@@ -1,3 +1,6 @@
+export const EvalVariance = Symbol.for("fncts.Eval.Variance");
+export type EvalVariance = typeof EvalVariance;
+
 export const EvalTypeId = Symbol.for("@fncts/control/Eval");
 export type EvalTypeId = typeof EvalTypeId;
 
@@ -12,8 +15,10 @@ export interface EvalF extends HKT {
  * @tsplus type fncts.control.Eval
  */
 export interface Eval<A> {
-  readonly _typeId: EvalTypeId;
-  readonly _A: () => A;
+  readonly [EvalTypeId]: EvalTypeId;
+  readonly [EvalVariance]: {
+    readonly _A: (_: never) => A;
+  };
 }
 
 /**
@@ -30,23 +35,30 @@ export const enum EvalTag {
 }
 
 export class Value<A> implements Eval<A> {
-  readonly _tag                = EvalTag.Value;
-  readonly _typeId: EvalTypeId = EvalTypeId;
-  readonly _A!: () => A;
+  readonly _tag                     = EvalTag.Value;
+  readonly [EvalTypeId]: EvalTypeId = EvalTypeId;
+  declare [EvalVariance]: {
+    readonly _A: (_: never) => A;
+  };
   constructor(readonly value: A) {}
 }
 
 export class Defer<A> implements Eval<A> {
-  readonly _typeId: EvalTypeId = EvalTypeId;
-  readonly _tag                = EvalTag.Defer;
+  readonly [EvalTypeId]: EvalTypeId = EvalTypeId;
+  declare [EvalVariance]: {
+    readonly _A: (_: never) => A;
+  };
+  readonly _tag = EvalTag.Defer;
   readonly _A!: () => A;
   constructor(readonly make: () => Eval<A>) {}
 }
 
 export class Chain<A, B> implements Eval<B> {
-  readonly _typeId: EvalTypeId = EvalTypeId;
-  readonly _tag                = EvalTag.Chain;
-  readonly _A!: () => B;
+  readonly [EvalTypeId]: EvalTypeId = EvalTypeId;
+  declare [EvalVariance]: {
+    readonly _A: (_: never) => B;
+  };
+  readonly _tag = EvalTag.Chain;
   constructor(readonly self: Eval<A>, readonly f: (a: A) => Eval<B>) {}
 }
 

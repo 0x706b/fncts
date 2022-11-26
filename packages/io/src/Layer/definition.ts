@@ -1,3 +1,6 @@
+export const LayerVariance = Symbol.for("fncts.io.Layer.Variance");
+export type LayerVariance = typeof LayerVariance;
+
 export const LayerHash = Symbol.for("fncts.io.Layer.Hash");
 export type LayerHash = typeof LayerHash;
 
@@ -6,9 +9,11 @@ export type LayerHash = typeof LayerHash;
  * @tsplus companion fncts.io.LayerOps
  */
 export abstract class Layer<RIn, E, ROut> {
-  readonly _R!: () => RIn;
-  readonly _E!: () => E;
-  readonly _A!: () => ROut;
+  declare [LayerVariance]: {
+    readonly _RIn: (_: never) => RIn;
+    readonly _E: (_: never) => E;
+    readonly _ROut: (_: never) => ROut;
+  };
 
   [LayerHash]: PropertyKey = Symbol();
 
@@ -25,7 +30,7 @@ export type Concrete =
   | Defer<any, any, any>
   | To<any, any, any, any, any>
   | ZipWith<any, any, any, any, any, any, any>
-  | ZipWithC<any, any, any, any, any, any, any>;
+  | ZipWithConcurrent<any, any, any, any, any, any, any>;
 
 /**
  * @tsplus fluent fncts.io.Layer concrete
@@ -35,13 +40,13 @@ export function concrete(self: Layer<any, any, any>): asserts self is Concrete {
 }
 
 export const enum LayerTag {
-  Fold = "Fold",
-  Fresh = "Fresh",
-  Scoped = "Scoped",
-  Defer = "Defer",
-  To = "To",
-  ZipWith = "ZipWith",
-  ZipWithC = "ZipWithC",
+  Fold,
+  Fresh,
+  Scoped,
+  Defer,
+  To,
+  ZipWith,
+  ZipWithConcurrent,
 }
 
 export class Fold<RIn, E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2> extends Layer<
@@ -100,8 +105,8 @@ export class ZipWith<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn | R
   }
 }
 
-export class ZipWithC<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn | RIn1, E | E1, ROut2> {
-  readonly _tag = LayerTag.ZipWithC;
+export class ZipWithConcurrent<RIn, E, ROut, RIn1, E1, ROut1, ROut2> extends Layer<RIn | RIn1, E | E1, ROut2> {
+  readonly _tag = LayerTag.ZipWithConcurrent;
   constructor(
     readonly self: Layer<RIn, E, ROut>,
     readonly that: Layer<RIn1, E1, ROut1>,

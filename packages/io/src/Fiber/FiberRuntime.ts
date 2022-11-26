@@ -3,7 +3,7 @@ import type { OnFailure, OnSuccess, OnSuccessAndFailure, UIO } from "../IO/defin
 import type { RuntimeFlags } from "../RuntimeFlags.js";
 
 import { Trace } from "@fncts/base/data/Trace";
-import { FiberTypeId } from "@fncts/io/Fiber/definition";
+import { FiberTypeId, FiberVariance } from "@fncts/io/Fiber/definition";
 import { StackTraceBuilder } from "@fncts/io/internal/StackTraceBuilder";
 
 import { Done, Suspended } from "../FiberStatus.js";
@@ -12,23 +12,18 @@ import { FiberStatusTag } from "../FiberStatus.js";
 import { LinkedQueue } from "../internal/MutableQueue.js";
 import { isIO } from "../IO/definition.js";
 import { WhileLoop } from "../IO/definition.js";
-import { IOTag } from "../IO/definition.js";
+import { IOOpCode } from "../IO/definition.js";
 import { isIOError } from "../IO/definition.js";
 import { RuntimeFlag } from "../RuntimeFlag.js";
 import { FiberMessage, FiberMessageTag } from "./FiberMessage.js";
 
-const enum ContinuationTag {
-  RevertFlags = "RevertFlags",
-  UpdateTrace = "UpdateTrace",
-}
-
 export class RevertFlags {
-  readonly _tag = ContinuationTag.RevertFlags;
+  readonly ioOpCode = IOOpCode.RevertFlags;
   constructor(readonly patch: RuntimeFlags.Patch, readonly trace?: string) {}
 }
 
 export class UpdateTrace {
-  readonly _tag = ContinuationTag.UpdateTrace;
+  readonly ioOpCode = IOOpCode.UpdateTrace;
   constructor(readonly trace?: string) {}
 }
 
@@ -44,10 +39,13 @@ export type Continuation =
  * @tsplus type fncts.io.Fiber
  */
 export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
-  readonly _E!: () => E;
-  readonly _A!: () => A;
-  readonly _typeId: FiberTypeId = FiberTypeId;
-  readonly _tag                 = "RuntimeFiber";
+  readonly [FiberTypeId]: FiberTypeId = FiberTypeId;
+  declare [FiberVariance]: {
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
+  readonly _tag = "RuntimeFiber";
+
   constructor(readonly fiberId: FiberId.Runtime, fiberRefs0: FiberRefs, readonly runtimeFlags0: RuntimeFlags) {
     this._fiberRefs    = fiberRefs0;
     this._runtimeFlags = runtimeFlags0;
@@ -269,7 +267,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
           }
         } catch (e) {
           if (isIO(e)) {
-            if (IO.concrete(e)._tag === IOTag.YieldNow) {
+            if (IO.concrete(e).ioOpCode === IOOpCode.YieldNow) {
               if (this._runtimeFlags.cooperativeYielding) {
                 this.tell(FiberMessage.YieldNow);
                 this.tell(FiberMessage.Resume(IO.unit));
@@ -277,10 +275,10 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
               } else {
                 effect = IO.unit;
               }
-            } else if (IO.concrete(e)._tag === IOTag.Async) {
+            } else if (IO.concrete(e).ioOpCode === IOOpCode.Async) {
               effect = null!;
             } else {
-              throw new Error(`Unhandled op ${IO.concrete(e)._tag}`);
+              throw new Error(`Unhandled op ${IO.concrete(e).ioOpCode}`);
             }
           } else {
             throw e;
@@ -317,18 +315,18 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
         cur          = IO.concrete(IO.yieldNow.flatMap(() => oldCur, trace));
       }
       try {
-        switch (cur._tag) {
-          case IOTag.Sync: {
+        switch (cur.ioOpCode) {
+          case IOOpCode.Sync: {
             const value = cur.evaluate();
             const cont  = this.getNextSuccessCont();
             if (cont) {
-              switch (cont._tag) {
-                case IOTag.OnSuccess:
-                case IOTag.OnSuccessAndFailure: {
+              switch (cont.ioOpCode) {
+                case IOOpCode.OnSuccess:
+                case IOOpCode.OnSuccessAndFailure: {
                   cur = IO.concrete(cont.successK(value));
                   break;
                 }
-                case IOTag.WhileLoop: {
+                case IOOpCode.WhileLoop: {
                   cont.process(value);
                   if (cont.check()) {
                     this.stack.push(cont);
@@ -338,7 +336,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
                   }
                   break;
                 }
-                case ContinuationTag.RevertFlags: {
+                case IOOpCode.RevertFlags: {
                   this.patchRuntimeFlags(this._runtimeFlags, cont.patch);
                   if (this._runtimeFlags.interruptible && this.isInterrupted()) {
                     cur = IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
@@ -347,7 +345,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
                   }
                   break;
                 }
-                case ContinuationTag.UpdateTrace: {
+                case IOOpCode.UpdateTrace: {
                   if (cont.trace !== undefined) lastTrace = cont.trace;
                   cur = IO.concrete(IO.unit);
                   break;
@@ -358,20 +356,20 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
             }
             break;
           }
-          case IOTag.OnSuccessAndFailure:
-          case IOTag.OnFailure:
-          case IOTag.OnSuccess: {
+          case IOOpCode.OnSuccessAndFailure:
+          case IOOpCode.OnFailure:
+          case IOOpCode.OnSuccess: {
             this.stack.push(cur);
             cur = IO.concrete(cur.first);
             break;
           }
-          case IOTag.Async: {
+          case IOOpCode.Async: {
             this.asyncTrace     = lastTrace;
             this.asyncBlockinOn = cur.blockingOn();
             this.initiateAsync(this._runtimeFlags, cur.registerCallback);
             throw cur;
           }
-          case IOTag.UpdateRuntimeFlagsWithin: {
+          case IOOpCode.UpdateRuntimeFlagsWithin: {
             const updateFlags     = cur.update;
             const oldRuntimeFlags = this._runtimeFlags;
             const newRuntimeFlags = updateFlags.patch(oldRuntimeFlags);
@@ -390,25 +388,25 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
             }
             break;
           }
-          case IOTag.GenerateStackTrace: {
+          case IOOpCode.GenerateStackTrace: {
             cur = IO.concrete(IO.succeedNow(this.generateStackTrace()));
             break;
           }
-          case IOTag.Stateful: {
+          case IOOpCode.Stateful: {
             cur = IO.concrete(cur.onState(this, new Running(this._runtimeFlags, lastTrace)));
             break;
           }
-          case IOTag.SucceedNow: {
+          case IOOpCode.SucceedNow: {
             const oldCur = cur;
             const cont   = this.getNextSuccessCont();
             if (cont) {
-              switch (cont._tag) {
-                case IOTag.OnSuccess:
-                case IOTag.OnSuccessAndFailure: {
+              switch (cont.ioOpCode) {
+                case IOOpCode.OnSuccess:
+                case IOOpCode.OnSuccessAndFailure: {
                   cur = IO.concrete(cont.successK(oldCur.value));
                   break;
                 }
-                case IOTag.WhileLoop: {
+                case IOOpCode.WhileLoop: {
                   cont.process(oldCur.value);
                   if (cont.check()) {
                     this.stack.push(cont);
@@ -418,14 +416,14 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
                   }
                   break;
                 }
-                case ContinuationTag.RevertFlags: {
+                case IOOpCode.RevertFlags: {
                   this.patchRuntimeFlags(this._runtimeFlags, cont.patch);
                   if (this._runtimeFlags.interruptible && this.isInterrupted()) {
                     cur = IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
                   }
                   break;
                 }
-                case ContinuationTag.UpdateTrace: {
+                case IOOpCode.UpdateTrace: {
                   if (cont.trace !== undefined) lastTrace = cont.trace;
                   cur = IO.concrete(IO.unit);
                   break;
@@ -436,13 +434,13 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
             }
             break;
           }
-          case IOTag.Fail: {
+          case IOOpCode.Fail: {
             const cause = cur.cause();
             const cont  = this.getNextFailCont();
             if (cont) {
-              switch (cont._tag) {
-                case IOTag.OnFailure:
-                case IOTag.OnSuccessAndFailure: {
+              switch (cont.ioOpCode) {
+                case IOOpCode.OnFailure:
+                case IOOpCode.OnSuccessAndFailure: {
                   if (!(this._runtimeFlags.interruptible && this.isInterrupted())) {
                     cur = IO.concrete(cont.failureK(cause));
                   } else {
@@ -450,7 +448,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
                   }
                   break;
                 }
-                case ContinuationTag.RevertFlags: {
+                case IOOpCode.RevertFlags: {
                   this.patchRuntimeFlags(this._runtimeFlags, cont.patch);
                   if (this._runtimeFlags.interruptible && this.isInterrupted()) {
                     const interruptedCause = this.getInterruptedCause();
@@ -462,7 +460,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
                   }
                   break;
                 }
-                case ContinuationTag.UpdateTrace: {
+                case IOOpCode.UpdateTrace: {
                   if (cont.trace !== undefined) lastTrace = cont.trace;
                   cur = IO.concrete(IO.unit);
                   break;
@@ -473,12 +471,12 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
             }
             break;
           }
-          case IOTag.UpdateRuntimeFlags: {
+          case IOOpCode.UpdateRuntimeFlags: {
             this.patchRuntimeFlags(this._runtimeFlags, cur.update);
             cur = IO.concrete(IO.unit);
             break;
           }
-          case IOTag.WhileLoop: {
+          case IOOpCode.WhileLoop: {
             const iterate = cur;
             const check   = iterate.check;
             const body    = iterate.body;
@@ -490,14 +488,20 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
             }
             break;
           }
-          case IOTag.YieldNow: {
+          case IOOpCode.YieldNow: {
             throw cur;
+          }
+          case IOOpCode.Commit: {
+            cur = IO.concrete(cur.commit);
           }
         }
       } catch (e) {
         if (isIOError(e)) {
           cur = IO.concrete(IO.failCauseNow(e.cause));
-        } else if (isIO(e) && (IO.concrete(e)._tag === IOTag.Async || IO.concrete(e)._tag === IOTag.YieldNow)) {
+        } else if (
+          isIO(e) &&
+          (IO.concrete(e).ioOpCode === IOOpCode.Async || IO.concrete(e).ioOpCode === IOOpCode.YieldNow)
+        ) {
           throw e;
         } else if (isInterruptedException(e)) {
           cur = IO.concrete(IO.failCauseNow(Cause.both(Cause.halt(e), Cause.interrupt(FiberId.none))));
@@ -795,7 +799,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
   getNextSuccessCont() {
     while (this.stack.hasNext) {
       const frame = this.stack.pop()!;
-      if (frame._tag !== IOTag.OnFailure) {
+      if (frame.ioOpCode !== IOOpCode.OnFailure) {
         return frame;
       }
     }
@@ -804,7 +808,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
   getNextFailCont() {
     while (this.stack.hasNext) {
       const frame = this.stack.pop()!;
-      if (frame._tag !== IOTag.OnSuccess && frame._tag !== IOTag.WhileLoop) {
+      if (frame.ioOpCode !== IOOpCode.OnSuccess && frame.ioOpCode !== IOOpCode.WhileLoop) {
         return frame;
       }
     }

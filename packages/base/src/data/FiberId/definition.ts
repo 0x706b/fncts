@@ -1,13 +1,11 @@
-import { hasTypeId } from "../../util/predicates.js";
-
 export const FiberIdTypeId = Symbol.for("fncts.FiberId");
 export type FiberIdTypeId = typeof FiberIdTypeId;
 
 const _hashNone = Hashable.string("fncts.FiberId.None");
 
 export class None implements Hashable, Equatable {
-  readonly _typeId: FiberIdTypeId = FiberIdTypeId;
-  readonly _tag                   = "None";
+  readonly [FiberIdTypeId]: FiberIdTypeId = FiberIdTypeId;
+  readonly _tag = "None";
   [Symbol.equals](that: unknown) {
     return isFiberId(that) && isNone(that);
   }
@@ -19,8 +17,8 @@ export class None implements Hashable, Equatable {
 const _hashRuntime = Hashable.string("fncts.FiberId.Runtime");
 
 export class Runtime implements Hashable, Equatable {
-  readonly _typeId: FiberIdTypeId = FiberIdTypeId;
-  readonly _tag                   = "Runtime";
+  readonly [FiberIdTypeId]: FiberIdTypeId = FiberIdTypeId;
+  readonly _tag = "Runtime";
   constructor(readonly id: number, readonly startTime: number, readonly location?: string) {}
   get [Symbol.hash]() {
     return Hashable.combine(Hashable.combine(_hashRuntime, Hashable.number(this.id)), Hashable.unknown(this.location));
@@ -33,8 +31,8 @@ export class Runtime implements Hashable, Equatable {
 const _hashComposite = Hashable.string("fncts.FiberId.Composite");
 
 export class Composite implements Hashable, Equatable {
-  readonly _typeId: FiberIdTypeId = FiberIdTypeId;
-  readonly _tag                   = "Composite";
+  readonly [FiberIdTypeId]: FiberIdTypeId = FiberIdTypeId;
+  readonly _tag = "Composite";
   constructor(readonly fiberIds: HashSet<Runtime>) {}
   [Symbol.equals](that: unknown) {
     return isFiberId(that) && isComposite(that) && this.fiberIds == that.fiberIds;
@@ -66,7 +64,7 @@ export declare namespace FiberId {
  * @tsplus static fncts.FiberIdOps isFiberId
  */
 export function isFiberId(u: unknown): u is FiberId {
-  return hasTypeId(u, FiberIdTypeId);
+  return isObject(u) && FiberIdTypeId in u;
 }
 
 /**

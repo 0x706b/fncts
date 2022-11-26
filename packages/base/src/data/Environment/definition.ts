@@ -1,19 +1,20 @@
 import type { EnvironmentPatch } from "@fncts/base/data/EnvironmentPatch";
 
-/**
- * @tsplus static fncts.prelude.builtin.SymbolOps env
- */
-export const EnvSymbol = Symbol.for("fncts.Env");
+export const EnvironmentVariance = Symbol.for("fncts.Environment.Variance");
+export type EnvironmentVariance = typeof EnvironmentVariance;
 
-export type EnvSymbol = typeof EnvSymbol;
+export const EnvironmentTypeId = Symbol.for("fncts.Environment");
+export type EnvironmentTypeId = typeof EnvironmentTypeId;
 
 /**
  * @tsplus type fncts.Environment
  * @tsplus companion fncts.EnvironmentOps
  */
 export class Environment<R> implements Hashable, Equatable {
-  readonly _typeId: EnvSymbol = EnvSymbol;
-  readonly [EnvSymbol]!: (_: never) => R;
+  readonly [EnvironmentTypeId]: EnvironmentTypeId = EnvironmentTypeId;
+  declare [EnvironmentVariance]: {
+    _R: (_: never) => R;
+  };
   constructor(readonly map: HashMap<Tag<any>, unknown>, public cache: HashMap<Tag<any>, unknown> = HashMap.empty()) {}
 
   get [Symbol.hash](): number {
@@ -30,5 +31,5 @@ export declare namespace Environment {
 }
 
 export function isEnvironment(u: unknown): u is Environment<unknown> {
-  return hasTypeId(u, EnvSymbol);
+  return isObject(u) && EnvironmentTypeId in u;
 }

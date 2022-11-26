@@ -2,6 +2,9 @@ import type { Brand, Validation } from "@fncts/base/data/Branded";
 import type { Schemable as S, SchemableKind } from "@fncts/schema/Schemable";
 import type { Literal } from "@fncts/typelevel/Any";
 
+export const SchemaVariance = Symbol.for("fncts.schema.Schema.Variance");
+export type SchemaVariance = typeof SchemaVariance;
+
 export const SchemaTypeId = Symbol.for("fncts.schema.Schema");
 export type SchemaTypeId = typeof SchemaTypeId;
 
@@ -28,8 +31,10 @@ export interface SchemaF extends HKT {
 }
 
 export abstract class Schema<in out A> {
-  readonly _typeId: SchemaTypeId = SchemaTypeId;
-  declare _A: (_: A) => A;
+  readonly [SchemaTypeId]: SchemaTypeId = SchemaTypeId;
+  declare [SchemaVariance]: {
+    _A: (_: A) => A;
+  };
 }
 
 export class UnknownSchema extends Schema<unknown> {

@@ -1,6 +1,6 @@
 import type { CachedInternal } from "@fncts/io/Cached/internal";
 
-import { CachedTypeId } from "@fncts/io/Cached/internal";
+import { CachedTypeId , CachedVariance } from "@fncts/io/Cached/internal";
 
 /**
  * A Cached is a possibly resourceful value that is loaded into memory, and
@@ -10,9 +10,11 @@ import { CachedTypeId } from "@fncts/io/Cached/internal";
  * @tsplus companion fncts.io.CachedOps
  */
 export class Cached<Error, Resource> {
-  readonly _E!: () => Error;
-  readonly _A!: () => Resource;
-  readonly _typeId: CachedTypeId = CachedTypeId;
+  readonly [CachedTypeId]: CachedTypeId = CachedTypeId;
+  declare [CachedVariance]: {
+    readonly _E: (_: never) => Error;
+    readonly _A: (_: never) => Resource;
+  };
 }
 
 /**

@@ -6,7 +6,7 @@ export type CountdownLatchTypeId = typeof CountdownLatchTypeId;
  * @tsplus companion fncts.io.CountdownLatchOps
  */
 export class CountdownLatch {
-  readonly _typeId: CountdownLatchTypeId = CountdownLatchTypeId;
+  readonly [CountdownLatchTypeId]: CountdownLatchTypeId = CountdownLatchTypeId;
   constructor(private _count: Ref<number>, private _waiters: Future<never, void>) {}
 
   readonly await: UIO<void> = this._waiters.await;

@@ -2,7 +2,7 @@ import type { _A, _E, _R } from "@fncts/base/types";
 
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 
-import { Emitter, Push } from "./definition.js";
+import { Emitter, Push, PushTypeId, PushVariance } from "./definition.js";
 import { earlyExit, onEarlyExit } from "./internal.js";
 
 /**
@@ -223,9 +223,12 @@ interface MulticastObserver<E, A> {
 }
 
 export class Multicast<R, E, A> implements Push<R, E, A>, Emitter<never, E, A> {
-  declare _R: () => R;
-  declare _E: () => E;
-  declare _A: () => A;
+  readonly [PushTypeId]: PushTypeId = PushTypeId;
+  declare [PushVariance]: {
+    readonly _R: (_: never) => R;
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
   protected observers: Array<MulticastObserver<E, A>> = [];
   protected fiber: Fiber<never, unknown> | undefined;
   constructor(readonly push: Push<R, E, A>) {}

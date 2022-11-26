@@ -12,15 +12,21 @@ import {
 import { identity } from "@fncts/base/data/function";
 import * as P from "@fncts/base/typeclass";
 
-export const TypeId = Symbol.for("fncts.HashSet");
-export type TypeId = typeof TypeId;
+export const HashSetVariance = Symbol.for("fncts.HashSet.Variance");
+export type HashSetVariance = typeof HashSetVariance;
+
+export const HashSetTypeId = Symbol.for("fncts.HashSet");
+export type HashSetTypeId = typeof HashSetTypeId;
 
 /**
  * @tsplus type fncts.HashSet
  * @tsplus companion fncts.HashSetOps
  */
-export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
-  readonly _typeId: TypeId = TypeId;
+export class HashSet<in out A> implements Iterable<A>, P.Hashable, P.Equatable {
+  readonly [HashSetTypeId]: HashSetTypeId = HashSetTypeId;
+  declare [HashSetVariance]: {
+    readonly _A: (_: A) => A;
+  };
 
   constructor(
     /**
@@ -72,7 +78,7 @@ export class HashSet<A> implements Iterable<A>, P.Hashable, P.Equatable {
 export function isHashSet<A>(u: Iterable<A>): u is HashSet<A>;
 export function isHashSet(u: unknown): u is HashSet<unknown>;
 export function isHashSet(u: unknown): u is HashSet<unknown> {
-  return hasTypeId(u, TypeId);
+  return isObject(u) && HashSetTypeId in u;
 }
 
 class HashSetIterator<A, T> implements IterableIterator<T> {

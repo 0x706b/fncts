@@ -1,7 +1,14 @@
 import type { UIO } from "@fncts/io/IO";
 import type { PDequeue, PDequeueInternal, PEnqueue, PEnqueueInternal } from "@fncts/io/Queue/definition";
 
-import { concrete, DequeueTypeId, EnqueueTypeId, QueueInternal, QueueTypeId } from "@fncts/io/Queue/definition";
+import {
+  concrete,
+  DequeueTypeId,
+  EnqueueTypeId,
+  QueueInternal,
+  QueueTypeId,
+  QueueVariance,
+} from "@fncts/io/Queue/definition";
 
 class DimapIO<RA, RB, EA, EB, A, B, RC, EC, C, RD, ED, D> extends QueueInternal<
   RC | RA,
@@ -125,12 +132,14 @@ export function map<B, C>(f: (b: B) => C, __tsplusTrace?: string) {
 class ContramapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PEnqueueInternal<RA | RC, RB, EA | EC, EB, C, B> {
   readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
-  declare _RA: () => RA | RC;
-  declare _RB: () => RB;
-  declare _EA: () => EA | EC;
-  declare _EB: () => EB;
-  declare _A: (_: C) => void;
-  declare _B: () => B;
+  declare [QueueVariance]: {
+    readonly _RA: (_: never) => RA | RC;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA | EC;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: C) => void;
+    readonly _B: (_: never) => B;
+  };
   constructor(readonly queue: PEnqueueInternal<RA, RB, EA, EB, A, B>, readonly f: (c: C) => IO<RC, EC, A>) {}
 
   awaitShutdown: UIO<void> = this.queue.awaitShutdown;
@@ -167,12 +176,14 @@ export function contramapEnqueueIO<A, RC, EC, C>(f: (c: C) => IO<RC, EC, A>, __t
 class MapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PDequeueInternal<RA, RB | RC, EA, EB | EC, A, C> {
   readonly [DequeueTypeId]: DequeueTypeId = DequeueTypeId;
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
-  declare _RA: () => RA;
-  declare _RB: () => RB | RC;
-  declare _EA: () => EA;
-  declare _EB: () => EB | EC;
-  declare _A: (_: A) => void;
-  declare _B: () => C;
+  declare [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB | RC;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB | EC;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => C;
+  };
   constructor(readonly queue: PDequeueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RC, EC, C>) {}
 
   awaitShutdown: UIO<void> = this.queue.awaitShutdown;

@@ -6,7 +6,10 @@ import type { TxnId } from "@fncts/io/TxnId";
 import { STM } from "@fncts/io/STM";
 import { Effect } from "@fncts/io/STM";
 import { Entry } from "@fncts/io/STM/internal/Entry";
-import { _A, _B, _EA, _EB } from "@fncts/io/TRef/symbols";
+
+export const TRefVariance = Symbol.for("fncts.io.TRef.Variance");
+export type TRefVariance = typeof TRefVariance;
+
 export const TRefTypeId = Symbol.for("fncts.io.TRef");
 export type TRefTypeId = typeof TRefTypeId;
 
@@ -28,11 +31,13 @@ export type TRefTypeId = typeof TRefTypeId;
  * @tsplus type fncts.io.TRef
  */
 export interface PTRef<out EA, out EB, in A, out B> {
-  readonly _typeId: TRefTypeId;
-  readonly [_EA]: () => EA;
-  readonly [_EB]: () => EB;
-  readonly [_A]: (_: A) => void;
-  readonly [_B]: () => B;
+  readonly [TRefTypeId]: TRefTypeId;
+  readonly [TRefVariance]: {
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
 }
 
 /**
@@ -48,11 +53,13 @@ export interface TRefOps {}
 export const TRef: TRefOps = {};
 
 export abstract class TRefInternal<EA, EB, A, B> implements PTRef<EA, EB, A, B> {
-  readonly _typeId: TRefTypeId = TRefTypeId;
-  declare [_EA]: () => EA;
-  declare [_EB]: () => EB;
-  declare [_A]: (_: A) => void;
-  declare [_B]: () => B;
+  readonly [TRefTypeId]: TRefTypeId = TRefTypeId;
+  declare [TRefVariance]: {
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
   abstract get: STM<never, EB, B>;
   abstract modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string): STM<never, EA | EB, C>;
   abstract set(a: A, __tsplusTrace?: string): STM<never, EA, void>;
@@ -74,7 +81,6 @@ export abstract class TRefInternal<EA, EB, A, B> implements PTRef<EA, EB, A, B> 
 }
 
 export class Atomic<A> extends TRefInternal<never, never, A, A> {
-  readonly _typeId: TRefTypeId     = TRefTypeId;
   readonly atomic: Atomic<unknown> = this as Atomic<unknown>;
   constructor(public versioned: Versioned<A>, readonly todo: AtomicReference<HashMap<TxnId, Todo>>) {
     super();
@@ -131,7 +137,6 @@ export class Atomic<A> extends TRefInternal<never, never, A, A> {
 }
 
 export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
-  readonly _typeId: TRefTypeId = TRefTypeId;
   constructor(
     readonly use: <X>(
       f: <S>(
@@ -226,7 +231,6 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
 }
 
 export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
-  readonly _typeId: TRefTypeId = TRefTypeId;
   constructor(
     readonly use: <X>(
       f: <S>(

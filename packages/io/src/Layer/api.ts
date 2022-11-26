@@ -1,7 +1,7 @@
 import type { Spreadable } from "@fncts/base/types";
 import type { Erase } from "@fncts/typelevel/Intersection";
 
-import { Fold, Fresh, FromScoped, Layer, To, ZipWithC } from "@fncts/io/Layer/definition";
+import { Fold, Fresh, FromScoped, Layer, To, ZipWithConcurrent } from "@fncts/io/Layer/definition";
 import { DecisionTag } from "@fncts/io/Schedule";
 
 /**
@@ -9,7 +9,7 @@ import { DecisionTag } from "@fncts/io/Schedule";
  */
 export function and<RIn1, E1, ROut1>(that: Layer<RIn1, E1, ROut1>, __tsplusTrace?: string) {
   return <RIn, E, ROut>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1, E | E1, ROut | ROut1> => {
-    return new ZipWithC(self, that, (a, b) => a.union(b), __tsplusTrace);
+    return new ZipWithConcurrent(self, that, (a, b) => a.union(b), __tsplusTrace);
   };
 }
 

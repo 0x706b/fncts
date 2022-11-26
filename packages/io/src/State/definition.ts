@@ -1,5 +1,6 @@
-import type { StateInternal } from "./internal.js";
+import type { StateInternal} from "./internal.js";
 
+import { StateVariance } from "./internal.js";
 import { StateTypeId } from "./internal.js";
 
 /**
@@ -7,8 +8,10 @@ import { StateTypeId } from "./internal.js";
  * @tsplus companion fncts.io.StateOps
  */
 export abstract class State<S> {
-  readonly _A!: () => S;
-  readonly _typeId: StateTypeId = StateTypeId;
+  readonly [StateTypeId]: StateTypeId = StateTypeId;
+  declare [StateVariance]: {
+    readonly _S: (_: S) => S;
+  };
 }
 
 /**

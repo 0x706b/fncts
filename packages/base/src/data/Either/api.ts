@@ -1,9 +1,7 @@
 import type * as P from "../../typeclass.js";
 import type { EitherF } from "./definition.js";
 
-import { hasTypeId } from "../../util/predicates.js";
 import { identity } from "../function.js";
-import { concrete } from "./definition.js";
 import { EitherTag, EitherTypeId, Left, Right } from "./definition.js";
 
 /**
@@ -128,7 +126,7 @@ export function getOrElse<E, B>(orElse: (e: E) => B) {
  * @tsplus static fncts.EitherOps isEither
  */
 export function isEither(u: unknown): u is Either<unknown, unknown> {
-  return hasTypeId(u, EitherTypeId);
+  return isObject(u) && EitherTypeId in u;
 }
 
 /**

@@ -1,7 +1,8 @@
 import type { Atomic as Atomic_ } from "./Atomic.js";
 import type * as Synchro from "./Synchronized/definition.js";
 
-import { _A, _B, _EA, _EB, _RA, _RB } from "./symbols.js";
+export const RefVariance = Symbol.for("fncts.io.Ref.Variance");
+export type RefVariance = typeof RefVariance;
 
 export const RefTypeId = Symbol.for("fncts.io.Ref");
 export type RefTypeId = typeof RefTypeId;
@@ -11,12 +12,14 @@ export type RefTypeId = typeof RefTypeId;
  */
 export interface PRef<RA, RB, EA, EB, A, B> {
   readonly [RefTypeId]: RefTypeId;
-  readonly [_RA]: () => RA;
-  readonly [_RB]: () => RB;
-  readonly [_EA]: () => EA;
-  readonly [_EB]: () => EB;
-  readonly [_A]: (_: A) => void;
-  readonly [_B]: () => B;
+  readonly [RefVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
 }
 
 export type Ref<A> = PRef<never, never, never, never, A, A>;
@@ -43,26 +46,32 @@ export interface RefOps {}
 export const Ref: RefOps = {};
 
 export interface ReadableRef<RB, EB, B> {
-  readonly [_RB]: () => RB;
-  readonly [_EB]: () => EB;
-  readonly [_B]: () => B;
+  readonly [RefVariance]: {
+    readonly _RB: (_: never) => RB;
+    readonly _EB: (_: never) => EB;
+    readonly _B: (_: never) => B;
+  };
   readonly get: IO<RB, EB, B>;
 }
 
 export interface WritableRef<RA, EA, A> {
-  readonly [_RA]: () => RA;
-  readonly [_EA]: () => EA;
-  readonly [_A]: (_: A) => void;
+  readonly [RefVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _EA: (_: never) => EA;
+    readonly _A: (_: A) => void;
+  };
   set(a: A, __tsplusTrace?: string): IO<RA, EA, void>;
 }
 
 export interface ModifiableRef<RA, RB, EA, EB, A, B> {
-  readonly [_RA]: () => RA;
-  readonly [_RB]: () => RB;
-  readonly [_EA]: () => EA;
-  readonly [_EB]: () => EB;
-  readonly [_A]: (_: A) => void;
-  readonly [_B]: () => B;
+  readonly [RefVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
   modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string): IO<RA | RB, EA | EB, C>;
 }
 
@@ -74,12 +83,14 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B>
     ModifiableRef<RA, RB, EA, EB, A, B>
 {
   readonly [RefTypeId]: RefTypeId = RefTypeId;
-  declare [_RA]: () => RA;
-  declare [_RB]: () => RB;
-  declare [_EA]: () => EA;
-  declare [_EB]: () => EB;
-  declare [_A]: (_: A) => void;
-  declare [_B]: () => B;
+  declare [RefVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
 
   /**
    * Folds over the error and value types of the `Ref`. This is a highly

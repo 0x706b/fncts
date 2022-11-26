@@ -14,11 +14,11 @@ export const EarlyExitTypeId = Symbol.for("fncts.io.Push.EarlyExit");
 export type EarlyExitTypeId = typeof EarlyExitTypeId;
 
 export class EarlyExit {
-  readonly _typeId: EarlyExitTypeId = EarlyExitTypeId;
+  readonly [EarlyExitTypeId]: EarlyExitTypeId = EarlyExitTypeId;
 }
 
 export function isEarlyExit(u: unknown): u is EarlyExit {
-  return hasTypeId(u, EarlyExitTypeId);
+  return isObject(u) && EarlyExitTypeId in u;
 }
 
 export const earlyExit = IO.haltNow(new EarlyExit());

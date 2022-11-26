@@ -45,9 +45,9 @@ export function hasTypeId<X extends symbol>(
   value: unknown,
   typeId: X,
 ): value is {
-  readonly _typeId: X;
+  readonly [K in X]: X;
 } & Record<PropertyKey, unknown> {
-  return isObject(value) && "_typeId" in value && value["_typeId"] === typeId;
+  return isObject(value) && typeId in value;
 }
 
 export function isFunction(value: unknown): value is Function {

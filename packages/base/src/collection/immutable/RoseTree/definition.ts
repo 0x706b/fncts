@@ -1,3 +1,6 @@
+export const RoseTreeVariance = Symbol.for("fncts.RoseTree.Variance");
+export type RoseTreeVariance = typeof RoseTreeVariance;
+
 export const RoseTreeTypeId = Symbol.for("fncts.RoseTree");
 export type RoseTreeTypeId = typeof RoseTreeTypeId;
 
@@ -13,8 +16,10 @@ export interface RoseTreeF extends HKT {
  * @tsplus companion fncts.RoseTreeOps
  */
 export class RoseTree<A> implements Hashable, Equatable {
-  readonly _typeId: RoseTreeTypeId = RoseTreeTypeId;
-  declare _A: () => A;
+  readonly [RoseTreeTypeId]: RoseTreeTypeId = RoseTreeTypeId;
+  declare [RoseTreeVariance]: {
+    readonly _A: (_: never) => A;
+  };
   constructor(readonly value: A, readonly forest: Vector<RoseTree<A>>) {}
 
   [Symbol.equals](that: unknown): boolean {
@@ -30,5 +35,5 @@ export class RoseTree<A> implements Hashable, Equatable {
 }
 
 export function isRoseTree(u: unknown): u is RoseTree<unknown> {
-  return hasTypeId(u, RoseTreeTypeId);
+  return isObject(u) && RoseTreeTypeId in u;
 }

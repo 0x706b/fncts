@@ -1019,12 +1019,12 @@ export function pipeTo<OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1, OutDon
 
 const ChannelFailureTypeId = Symbol.for("@principia/base/Channel/ChannelFailure");
 class ChannelFailure<E> {
-  readonly _typeId = ChannelFailureTypeId;
+  readonly [ChannelFailureTypeId] = ChannelFailureTypeId;
   constructor(readonly error: E) {}
 }
 
 function isChannelFailure<E>(u: unknown): u is ChannelFailure<E> {
-  return hasTypeId(u, ChannelFailureTypeId);
+  return isObject(u) && ChannelFailureTypeId in u;
 }
 
 /**

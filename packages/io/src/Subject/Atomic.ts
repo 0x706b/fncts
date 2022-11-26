@@ -1,14 +1,18 @@
-import type { Emitter } from "@fncts/io/Push";
+import type { Emitter} from "@fncts/io/Push/definition";
 import type { Subject } from "@fncts/io/Subject/definition";
 
 import { Multicast, Push } from "@fncts/io/Push";
+import { PushTypeId, PushVariance } from "@fncts/io/Push/definition";
 import { SubjectTypeId } from "@fncts/io/Subject/definition";
 
 export class AtomicSubject<E, A> implements Subject<never, E, A> {
   readonly [SubjectTypeId]: SubjectTypeId = SubjectTypeId;
-  declare _R: (_: never) => never;
-  declare _E: (_: never) => E;
-  declare _A: (_: never) => A;
+  readonly [PushTypeId]: PushTypeId       = PushTypeId;
+  declare [PushVariance]: {
+    readonly _R: (_: never) => never;
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
 
   readonly stream = new Multicast<never, E, A>(Push.never);
 

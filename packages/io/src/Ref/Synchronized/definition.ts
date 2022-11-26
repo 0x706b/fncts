@@ -4,11 +4,14 @@ import { IO } from "@fncts/io/IO";
 
 import { RefInternal } from "../definition.js";
 
+export const SynchronizedTypeId = Symbol.for("fncts.io.Ref.Synchronized");
+export type SynchronizedTypeId = typeof SynchronizedTypeId;
+
 /**
  * @tsplus type fncts.io.Ref.Synchronized
  */
 export interface PSynchronized<RA, RB, EA, EB, A, B> extends PRef<RA, RB, EA, EB, A, B> {
-  readonly _tag: "Synchronized";
+  readonly [SynchronizedTypeId]: SynchronizedTypeId;
 }
 
 /**
@@ -25,7 +28,7 @@ export const Synchronized: PSynchronizedOps = {};
  * @tsplus type fncts.io.Ref.Synchronized
  */
 export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA, RB, EA, EB, A, B> {
-  readonly _tag = "Synchronized";
+  readonly [SynchronizedTypeId]: SynchronizedTypeId = SynchronizedTypeId;
   constructor(
     readonly semaphore: TSemaphore,
     readonly unsafeGet: IO<RB, EB, B>,

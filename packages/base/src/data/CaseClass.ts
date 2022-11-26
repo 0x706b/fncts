@@ -21,7 +21,7 @@ export interface CaseConstructor {
 }
 
 export function isCaseClass(u: unknown): u is CaseConstructor {
-  return hasTypeId(u, CaseClassTypeId);
+  return isObject(u) && CaseClassTypeId in u;
 }
 
 const hash0 = Hashable.string("fncts.CaseClass");

@@ -30,7 +30,7 @@ export interface ConcF extends HKT {
 export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
   declare _A: () => A;
 
-  readonly _typeId: ConcTypeId = ConcTypeId;
+  readonly [ConcTypeId]: ConcTypeId = ConcTypeId;
   abstract readonly length: number;
   abstract [Symbol.iterator](): Iterator<A>;
 
@@ -44,7 +44,7 @@ export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
 }
 
 abstract class ConcImplementation<A> implements Iterable<A> {
-  readonly _typeId: ConcTypeId = ConcTypeId;
+  readonly [ConcTypeId]: ConcTypeId = ConcTypeId;
   declare _A: () => A;
   get [Symbol.hash](): number {
     return Hashable.iterator(this[Symbol.iterator]());
@@ -731,7 +731,7 @@ export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
 export function isConc<A>(u: Iterable<A>): u is Conc<A>;
 export function isConc(u: unknown): u is Conc<unknown>;
 export function isConc(u: unknown): u is Conc<unknown> {
-  return isObject(u) && "_typeId" in u && u["_typeId" as keyof typeof u] === ConcTypeId;
+  return isObject(u) && ConcTypeId in u;
 }
 
 /**

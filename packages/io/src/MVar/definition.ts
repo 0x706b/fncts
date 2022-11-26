@@ -1,15 +1,18 @@
+export const MVarVariance = Symbol.for("fncts.io.MVar.Variance");
+export type MVarVariance = typeof MVarVariance;
+
 export const MVarTypeId = Symbol.for("fncts.io.MVar");
 export type MVarTypeId = typeof MVarTypeId;
 
 /**
- * An `MVar[A]` is a mutable location that is either empty or contains a value
+ * An `MVar<A>` is a mutable location that is either empty or contains a value
  * of type `A`. It has two fundamental operations: `put` which fills an `MVar`
  * if it is empty and blocks otherwise, and `take` which empties an `MVar` if it
  * is full and blocks otherwise. They can be used in multiple different ways:
  *
  *   - As synchronized mutable variables,
  *   - As channels, with `take` and `put` as `receive` and `send`, and
- *   - As a binary semaphore `MVar[Unit]`, with `take` and `put` as `wait` and
+ *   - As a binary semaphore `MVar<void>`, with `take` and `put` as `wait` and
  *     `signal`.
  *
  * They were introduced in the paper "Concurrent Haskell" by Simon Peyton Jones,
@@ -19,13 +22,17 @@ export type MVarTypeId = typeof MVarTypeId;
  * @tsplus companion fncts.io.MVarOps
  */
 export interface MVar<in out A> {
-  readonly _A: (_: A) => A;
-  readonly _typeId: MVarTypeId;
+  readonly [MVarVariance]: {
+    _A: (_: A) => A;
+  };
+  readonly [MVarTypeId]: MVarTypeId;
 }
 
 export class MVarInternal<in out A> implements MVar<A> {
-  readonly _typeId: MVarTypeId = MVarTypeId;
-  declare _A: (_: A) => A;
+  readonly [MVarTypeId]: MVarTypeId = MVarTypeId;
+  declare [MVarVariance]: {
+    _A: (_: A) => A;
+  };
   constructor(readonly content: TRef<Maybe<A>>) {}
 }
 

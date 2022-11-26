@@ -12,7 +12,7 @@ export type IsFatalTypeId = typeof IsFatalTypeId;
  * @tsplus companion fncts.io.IsFatalOps
  */
 export abstract class IsFatal {
-  readonly _typeId: IsFatalTypeId = IsFatalTypeId;
+  readonly [IsFatalTypeId]: IsFatalTypeId = IsFatalTypeId;
 
   apply(t: unknown): boolean {
     concrete(this);

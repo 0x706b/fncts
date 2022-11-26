@@ -1,6 +1,9 @@
 import type { Decision } from "./Decision.js";
 import type { Driver as Driver_ } from "./Driver.js";
 
+export const ScheduleVariance = Symbol.for("fncts.io.Schedule.Variance");
+export type ScheduleVariance = typeof ScheduleVariance;
+
 /**
  * A `Schedule<Env, In, Out>` defines a recurring schedule, which consumes
  * values of type `In`, and which returns values of type `Out`.
@@ -32,9 +35,11 @@ import type { Driver as Driver_ } from "./Driver.js";
  * @tsplus companion fncts.io.ScheduleOps
  */
 export abstract class Schedule<Env, In, Out> {
-  readonly _Env!: () => Env;
-  readonly _In!: (_: In) => void;
-  readonly _Out!: () => Out;
+  declare [ScheduleVariance]: {
+    readonly _Env: (_: never) => Env;
+    readonly _In: (_: In) => void;
+    readonly _Out: (_: never) => Out;
+  };
   readonly _State!: unknown;
   abstract readonly initial: this["_State"];
   abstract step(

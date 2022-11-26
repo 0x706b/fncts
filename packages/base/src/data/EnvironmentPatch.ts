@@ -6,6 +6,9 @@ export const enum EnvironmentPatchTag {
   Empty,
 }
 
+export const EnvironmentPatchVariance = Symbol.for("fncts.Environment.Patch.Variance");
+export type EnvironmentPatchVariance = typeof EnvironmentPatchVariance;
+
 export const EnvironmentPatchTypeId = Symbol.for("fncts.Environment.Patch");
 export type EnvironmentPatchTypeId = typeof EnvironmentPatchTypeId;
 
@@ -14,9 +17,11 @@ export type EnvironmentPatchTypeId = typeof EnvironmentPatchTypeId;
  * @tsplus companion fncts.Environment.PatchOps
  */
 export abstract class EnvironmentPatch<In, Out> {
-  readonly _typeId: EnvironmentPatchTypeId = EnvironmentPatchTypeId;
-  readonly _R!: (_: In) => void;
-  readonly _A!: () => Out;
+  readonly [EnvironmentPatchTypeId]: EnvironmentPatchTypeId = EnvironmentPatchTypeId;
+  declare [EnvironmentPatchVariance]: {
+    readonly _R: (_: In) => void;
+    readonly _A: (_: never) => Out;
+  };
 }
 
 export class AddService<Env, Service> extends EnvironmentPatch<Env, Env & Has<Service>> {

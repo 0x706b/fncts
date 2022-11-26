@@ -1,5 +1,7 @@
 import * as P from "../../typeclass.js";
-import { hasTypeId } from "../../util/predicates.js";
+
+export const ExitVariance = Symbol.for("fncts.Exit");
+export type ExitVariance = typeof ExitVariance;
 
 export const ExitTypeId = Symbol.for("fncts.Exit");
 export type ExitTypeId = typeof ExitTypeId;
@@ -29,11 +31,12 @@ const _successHash = Hashable.string("fncts.Exit.Success");
  * @tsplus companion fncts.Exit.FailureOps
  */
 export class Failure<E> {
-  readonly _E!: () => E;
-  readonly _A!: () => never;
-
-  readonly _typeId: ExitTypeId = ExitTypeId;
-  readonly _tag                = ExitTag.Failure;
+  readonly [ExitTypeId]: ExitTypeId = ExitTypeId;
+  declare [ExitVariance]: {
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => never;
+  };
+  readonly _tag = ExitTag.Failure;
   constructor(readonly cause: Cause<E>) {}
 
   get [Symbol.hash](): number {
@@ -49,11 +52,12 @@ export class Failure<E> {
  * @tsplus companion fncts.Exit.SuccessOps
  */
 export class Success<A> implements P.Hashable, P.Equatable {
-  readonly _E!: () => never;
-  readonly _A!: () => A;
-
-  readonly _typeId: ExitTypeId = ExitTypeId;
-  readonly _tag                = ExitTag.Success;
+  readonly [ExitTypeId]: ExitTypeId = ExitTypeId;
+  declare [ExitVariance]: {
+    readonly _E: (_: never) => never;
+    readonly _A: (_: never) => A;
+  };
+  readonly _tag = ExitTag.Success;
   constructor(readonly value: A) {}
 
   get [Symbol.hash](): number {
@@ -68,7 +72,7 @@ export class Success<A> implements P.Hashable, P.Equatable {
  * @tsplus static fncts.ExitOps isExit
  */
 export function isExit(u: unknown): u is Exit<unknown, unknown> {
-  return hasTypeId(u, ExitTypeId);
+  return isObject(u) && ExitTypeId in u;
 }
 
 /**

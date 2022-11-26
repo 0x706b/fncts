@@ -1,5 +1,4 @@
 import * as P from "@fncts/base/typeclass";
-import { hasTypeId } from "@fncts/base/util/predicates";
 
 /**
  * @tsplus type fncts.TExit
@@ -33,12 +32,12 @@ const _failHash = Hashable.string("fncts.TExit.Fail");
  * @tsplus static fncts.TExitOps isTExit
  */
 export function isTExit(u: unknown): u is TExit<unknown, unknown> {
-  return hasTypeId(u, TExitTypeId);
+  return isObject(u) && TExitTypeId in u;
 }
 
 export class Fail<E> {
-  readonly _typeId: TExitTypeId = TExitTypeId;
-  readonly _tag                 = TExitTag.Fail;
+  readonly [TExitTypeId]: TExitTypeId = TExitTypeId;
+  readonly _tag = TExitTag.Fail;
   constructor(readonly value: E) {}
   get [Symbol.hash](): number {
     return Hashable.combine(_failHash, Hashable.unknown(this.value));
@@ -58,8 +57,8 @@ export function isFail<E, A>(self: TExit<E, A>): self is Fail<E> {
 const _succeedHash = P.Hashable.string("fncts.TExit.Succeed");
 
 export class Succeed<A> {
-  readonly _typeId: TExitTypeId = TExitTypeId;
-  readonly _tag                 = TExitTag.Succeed;
+  readonly [TExitTypeId]: TExitTypeId = TExitTypeId;
+  readonly _tag = TExitTag.Succeed;
   constructor(readonly value: A) {}
   get [Symbol.hash](): number {
     return P.Hashable.combine(_succeedHash, Hashable.unknown(this.value));
@@ -79,8 +78,8 @@ export function isSucceed<E, A>(self: TExit<E, A>): self is Succeed<A> {
 const _haltHash = Hashable.string("fncts.TExit.Halt");
 
 export class Halt {
-  readonly _typeId: TExitTypeId = TExitTypeId;
-  readonly _tag                 = TExitTag.Halt;
+  readonly [TExitTypeId]: TExitTypeId = TExitTypeId;
+  readonly _tag = TExitTag.Halt;
   constructor(readonly value: unknown) {}
   get [Symbol.hash](): number {
     return Hashable.combine(_haltHash, Hashable.unknown(this.value));
@@ -100,8 +99,8 @@ export function isHalt<E, A>(self: TExit<E, A>): self is Halt {
 const _interruptHash = Hashable.string("fncts.dete.TExit.Interrupt");
 
 export class Interrupt {
-  readonly _typeId = TExitTypeId;
-  readonly _tag    = TExitTag.Interrupt;
+  readonly [TExitTypeId] = TExitTypeId;
+  readonly _tag          = TExitTag.Interrupt;
   constructor(readonly fiberId: FiberId) {}
   get [Symbol.hash](): number {
     return Hashable.combine(_interruptHash, Hashable.unknown(this.fiberId));
@@ -121,8 +120,8 @@ export function isInterrupt<E, A>(self: TExit<E, A>): self is Interrupt {
 const _retryHash = Hashable.string("fncts.TExit.Retry");
 
 export class Retry {
-  readonly _typeId: TExitTypeId = TExitTypeId;
-  readonly _tag                 = TExitTag.Retry;
+  readonly [TExitTypeId]: TExitTypeId = TExitTypeId;
+  readonly _tag = TExitTag.Retry;
   get [Symbol.hash](): number {
     return _retryHash;
   }

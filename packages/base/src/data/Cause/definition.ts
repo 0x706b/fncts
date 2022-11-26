@@ -3,6 +3,9 @@ import { Hashable } from "../../typeclass.js";
 import { isObject } from "../../util/predicates.js";
 import { tuple } from "../function.js";
 
+export const CauseVariance = Symbol.for("fncts.Cause.Variance");
+export type CauseVariance = typeof CauseVariance;
+
 export const CauseTypeId = Symbol.for("fncts.Cause");
 export type CauseTypeId = typeof CauseTypeId;
 
@@ -38,9 +41,10 @@ const _emptyHash = Hashable.string("fncts.Cause");
  * @tsplus companion fncts.Cause.EmptyOps
  */
 export class Empty {
-  readonly _E!: () => never;
-
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  declare [CauseVariance]: {
+    readonly _E: (_: never) => never;
+  };
   readonly _tag = CauseTag.Empty;
 
   get [Symbol.hash](): number {
@@ -71,9 +75,10 @@ export const _Empty = new Empty();
  * @tsplus companion fncts.Cause.FailOps
  */
 export class Fail<E> {
-  readonly _E!: () => E;
-
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  declare [CauseVariance]: {
+    readonly _E: (_: never) => E;
+  };
   readonly _tag = CauseTag.Fail;
 
   constructor(readonly value: E, readonly trace: Trace) {}
@@ -108,9 +113,10 @@ export class Fail<E> {
  * @tsplus companion fncts.Cause.HaltOps
  */
 export class Halt {
-  readonly _E!: () => never;
-
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  declare [CauseVariance]: {
+    readonly _E: (_: never) => never;
+  };
   readonly _tag = CauseTag.Halt;
 
   constructor(readonly value: unknown, readonly trace: Trace) {}
@@ -145,9 +151,10 @@ export class Halt {
  * @tsplus companion fncts.Cause.InterruptOps
  */
 export class Interrupt {
-  readonly _E!: () => never;
-
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  declare [CauseVariance]: {
+    readonly _E: (_: never) => never;
+  };
   readonly _tag = CauseTag.Interrupt;
 
   constructor(readonly id: FiberId, readonly trace: Trace) {}
@@ -183,9 +190,10 @@ export class Interrupt {
  * @tsplus companion fncts.Cause.ThenOps
  */
 export class Then<E> {
-  readonly _E!: () => E;
-
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  declare [CauseVariance]: {
+    readonly _E: (_: never) => E;
+  };
   readonly _tag = CauseTag.Then;
 
   constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
@@ -216,9 +224,10 @@ export class Then<E> {
  * @tsplus companion fncts.Cause.BothOps
  */
 export class Both<E> {
-  readonly _E!: () => E;
-
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  declare [CauseVariance]: {
+    readonly _E: (_: never) => E;
+  };
   readonly _tag = CauseTag.Both;
 
   constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
@@ -249,9 +258,10 @@ export class Both<E> {
  * @tsplus companion fncts.Cause.StacklessOps
  */
 export class Stackless<E> {
-  readonly _E!: () => E;
-
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
+  declare [CauseVariance]: {
+    readonly _E: (_: never) => E;
+  };
   readonly _tag = CauseTag.Stackless;
 
   constructor(readonly cause: Cause<E>, readonly stackless: boolean) {}
@@ -279,7 +289,7 @@ export class Unified {
  * -------------------------------------------------------------------------------------------------
  */
 
-function structuralSymmetric<Id, A>(
+function structuralSymmetric<A>(
   f: (x: Cause<A>, y: Cause<A>) => Eval<boolean>,
 ): (x: Cause<A>, y: Cause<A>) => Eval<boolean> {
   return (x, y) => f(x, y).zipWith(f(y, x), (a, b) => a || b);

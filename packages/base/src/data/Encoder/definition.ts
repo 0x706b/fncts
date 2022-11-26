@@ -7,7 +7,7 @@ export type EncoderTypeId = typeof EncoderTypeId;
  * @tsplus derive nominal
  */
 export class Encoder<in out A> {
-  readonly _typeId: EncoderTypeId = EncoderTypeId;
+  readonly [EncoderTypeId]: EncoderTypeId = EncoderTypeId;
   constructor(readonly encode: (inp: A) => unknown) {}
 }
 

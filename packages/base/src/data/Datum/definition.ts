@@ -34,6 +34,7 @@ const initialHash     = Hashable.combine(datumHash, Hashable.string(DatumTag.Ini
  */
 export class Initial implements Hashable, Equatable {
   readonly _tag = DatumTag.Initial;
+  readonly [DatumTypeId]: DatumTypeId = DatumTypeId;
   get [Symbol.hash](): number {
     return initialHash;
   }
@@ -49,8 +50,8 @@ const pendingHash = Hashable.combine(datumHash, Hashable.string(DatumTag.Pending
  * @tsplus companion fncts.Datum.PendingOps
  */
 export class Pending implements Hashable, Equatable {
-  readonly _typeId: DatumTypeId = DatumTypeId;
-  readonly _tag                 = DatumTag.Pending;
+  readonly [DatumTypeId]: DatumTypeId = DatumTypeId;
+  readonly _tag = DatumTag.Pending;
   get [Symbol.hash](): number {
     return pendingHash;
   }
@@ -64,8 +65,8 @@ export class Pending implements Hashable, Equatable {
  * @tsplus companion fncts.Datum.RefreshOps
  */
 export class Refresh<A> implements Hashable, Equatable {
-  readonly _typeId: DatumTypeId = DatumTypeId;
-  readonly _tag                 = DatumTag.Refresh;
+  readonly [DatumTypeId]: DatumTypeId = DatumTypeId;
+  readonly _tag = DatumTag.Refresh;
   constructor(readonly value: A) {}
   get [Symbol.hash](): number {
     return Hashable.combine(Hashable.combine(datumHash, Hashable.string(this._tag)), Hashable.unknown(this.value));
@@ -80,8 +81,8 @@ export class Refresh<A> implements Hashable, Equatable {
  * @tsplus companion fncts.Datum.RepleteOps
  */
 export class Replete<A> implements Hashable, Equatable {
-  readonly _typeId: DatumTypeId = DatumTypeId;
-  readonly _tag                 = DatumTag.Replete;
+  readonly [DatumTypeId]: DatumTypeId = DatumTypeId;
+  readonly _tag = DatumTag.Replete;
   constructor(readonly value: A) {}
   get [Symbol.hash](): number {
     return Hashable.combine(Hashable.combine(datumHash, Hashable.string(this._tag)), Hashable.unknown(this.value));
@@ -95,5 +96,5 @@ export class Replete<A> implements Hashable, Equatable {
  * @tsplus static fncts.DatumOps is
  */
 export function isDatum(u: unknown): u is Datum<unknown> {
-  return hasTypeId(u, DatumTypeId);
+  return isObject(u) && DatumTypeId in u;
 }

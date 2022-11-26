@@ -1,6 +1,6 @@
 import type { PDequeue, PDequeueInternal } from "@fncts/io/Queue/definition";
 
-import { concrete, DequeueTypeId, QueueInternal, QueueTypeId } from "@fncts/io/Queue/definition";
+import { concrete, DequeueTypeId, QueueInternal, QueueTypeId , QueueVariance } from "@fncts/io/Queue/definition";
 
 class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, RB | RB1, EA, EB | EB1, A, B> {
   constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RB1, EB1, boolean>) {
@@ -78,12 +78,14 @@ class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1>
 {
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
   readonly [DequeueTypeId]: DequeueTypeId = DequeueTypeId;
-  declare _RA: () => RA;
-  declare _RB: () => RB | RB1;
-  declare _EA: () => EA;
-  declare _EB: () => EB | EB1;
-  declare _A: (_: A) => void;
-  declare _B: () => B;
+  declare [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB | RB1;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB | EB1;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
   constructor(readonly queue: PDequeueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RB1, EB1, boolean>) {}
 
   awaitShutdown: UIO<void> = this.queue.awaitShutdown;

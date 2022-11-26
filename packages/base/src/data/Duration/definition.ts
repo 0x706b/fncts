@@ -1,5 +1,3 @@
-import { hasTypeId } from "../../util/predicates.js";
-
 export const DurationTypeId = Symbol.for("fncts.Duration");
 export type DurationTypeId = typeof DurationTypeId;
 
@@ -8,7 +6,7 @@ export type DurationTypeId = typeof DurationTypeId;
  * @tsplus companion fncts.DurationOps
  */
 export class Duration implements Equatable, Hashable {
-  readonly _typeId: DurationTypeId = DurationTypeId;
+  readonly [DurationTypeId]: DurationTypeId = DurationTypeId;
   constructor(readonly milliseconds: number) {}
 
   [Symbol.equals](that: unknown): boolean {
@@ -21,5 +19,5 @@ export class Duration implements Equatable, Hashable {
 }
 
 export function isDuration(u: unknown): u is Duration {
-  return hasTypeId(u, DurationTypeId);
+  return isObject(u) && DurationTypeId in u;
 }

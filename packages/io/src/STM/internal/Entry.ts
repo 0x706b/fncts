@@ -10,7 +10,7 @@ export type EntryTypeId = typeof EntryTypeId;
  * @tsplus companion fncts.io.EntryOps
  */
 export class Entry {
-  readonly _typeId: EntryTypeId = EntryTypeId;
+  readonly [EntryTypeId]: EntryTypeId = EntryTypeId;
   constructor(readonly use: <X>(f: <S>(entry: ConcreteEntry<S>) => X) => X) {}
 }
 
@@ -27,7 +27,7 @@ export const ConcreteEntryTypeId = Symbol.for("fncts.io.ConcreteEntry");
 export type ConcreteEntryTypeId = typeof ConcreteEntryTypeId;
 
 export class ConcreteEntry<S> {
-  readonly _typeId: ConcreteEntryTypeId = ConcreteEntryTypeId;
+  readonly [ConcreteEntryTypeId]: ConcreteEntryTypeId = ConcreteEntryTypeId;
   constructor(
     readonly tref: Atomic<S>,
     readonly expected: Versioned<S>,

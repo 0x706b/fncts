@@ -12,7 +12,7 @@ export type TypeId = typeof TypeId;
  * @tsplus companion fncts.SortedMapOps
  */
 export class SortedMap<K, V> implements SortedMapIterable<K, V> {
-  readonly _typeId: TypeId = TypeId;
+  readonly [TypeId]: TypeId = TypeId;
 
   constructor(readonly ord: Ord<K>, readonly root: RBNode<K, V>) {}
 

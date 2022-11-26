@@ -174,12 +174,12 @@ export function update<A>(self: MVar<A>, f: (a: A) => A): UIO<void> {
  * @tsplus static fncts.io.MVarOps unsafeEmpty
  */
 export function unsafeEmpty<A>(): MVar<A> {
-  return new MVarInternal(TRef.unsafeMake<Maybe<A>>(Nothing()))
+  return new MVarInternal(TRef.unsafeMake<Maybe<A>>(Nothing()));
 }
 
 /**
  * @tsplus static fncts.io.MVarOps unsafeMake
  */
 export function unsafeMake<A>(value: A): MVar<A> {
-  return new MVarInternal(TRef.unsafeMake<Maybe<A>>(Just(value)))
+  return new MVarInternal(TRef.unsafeMake<Maybe<A>>(Just(value)));
 }

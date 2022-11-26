@@ -1,5 +1,9 @@
 import type { _A, _E, _R } from "@fncts/base/types";
-export const StreamTypeId = Symbol.for("@principia/base/IO/Stream");
+
+export const StreamVariance = Symbol.for("fncts.io.Stream.Variance");
+export type StreamVariance = typeof StreamVariance;
+
+export const StreamTypeId = Symbol.for("fncts.io.Steam");
 export type StreamTypeId = typeof StreamTypeId;
 
 /**
@@ -24,16 +28,24 @@ export type StreamTypeId = typeof StreamTypeId;
  */
 export class Stream<R, E, A> {
   readonly [StreamTypeId]: StreamTypeId = StreamTypeId;
-  declare _R: () => R;
-  declare _E: () => E;
-  declare _A: () => A;
+  declare [StreamVariance]: {
+    readonly _R: (_: never) => R;
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
   constructor(readonly channel: Channel<R, unknown, unknown, unknown, E, Conc<A>, unknown>) {}
 }
 
 /**
  * @tsplus unify fncts.io.Stream
  */
-export function unifyStream<X extends Stream<any, any, any>>(_: X): Stream<_R<X>, _E<X>, _A<X>> {
+export function unifyStream<X extends Stream<any, any, any>>(
+  _: X,
+): Stream<
+  [X] extends [{ [StreamVariance]: { _R: (_: never) => infer R } }] ? R : never,
+  [X] extends [{ [StreamVariance]: { _E: (_: never) => infer E } }] ? E : never,
+  [X] extends [{ [StreamVariance]: { _A: (_: never) => infer A } }] ? A : never
+> {
   return _;
 }
 

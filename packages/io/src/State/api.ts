@@ -6,7 +6,7 @@ import { StateInternal } from "./internal.js";
 /**
  * @tsplus getter fncts.io.State get
  */
-export function get_<S>(self: State<S>, __tsplusTrace?: string): UIO<S> {
+export function get<S>(self: State<S>, __tsplusTrace?: string): UIO<S> {
   concrete(self);
   return self.get;
 }

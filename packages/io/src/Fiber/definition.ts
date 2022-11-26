@@ -3,8 +3,10 @@ import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
 import type { FiberStatus } from "@fncts/io/FiberStatus";
 import type { UIO } from "@fncts/io/IO/definition";
 
-import { IterableWeakMap } from "@fncts/base/collection/weak/IterableWeakMap";
 import { IterableWeakSet } from "@fncts/base/collection/weak/IterableWeakSet";
+
+export const FiberVariance = Symbol.for("fncts.io.Fiber.Variance");
+export type FiberVariance = typeof FiberVariance;
 
 export const FiberTypeId = Symbol.for("fncts.io.Fiber");
 export type FiberTypeId = typeof FiberTypeId;
@@ -13,9 +15,11 @@ export type FiberTypeId = typeof FiberTypeId;
  * @tsplus type fncts.io.Fiber
  */
 export interface Fiber<E, A> {
-  readonly _typeId: FiberTypeId;
-  readonly _E: () => E;
-  readonly _A: () => A;
+  readonly [FiberTypeId]: FiberTypeId;
+  readonly [FiberVariance]: {
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
 }
 
 /**
@@ -90,9 +94,12 @@ export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
 export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
   readonly _tag = "SyntheticFiber";
 
-  readonly _typeId: FiberTypeId = FiberTypeId;
-  readonly _E!: () => E;
-  readonly _A!: () => A;
+  readonly [FiberTypeId]: FiberTypeId = FiberTypeId;
+  declare [FiberVariance]: {
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
+
   readonly await;
 
   constructor(
@@ -118,7 +125,7 @@ export function concrete<E, A>(_fiber: Fiber<E, A>): asserts _fiber is ConcreteF
 }
 
 export function isFiber(u: unknown): u is Fiber<unknown, unknown> {
-  return hasTypeId(u, FiberTypeId);
+  return isObject(u) && FiberTypeId in u;
 }
 
 /**

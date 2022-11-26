@@ -11,7 +11,7 @@ import {
   unsafeMakeHub,
 } from "@fncts/io/Hub/internal";
 import { Hub as HubInternal } from "@fncts/io/internal/Hub";
-import { EnqueueTypeId, QueueTypeId } from "@fncts/io/Queue";
+import { EnqueueTypeId, QueueTypeId , QueueVariance } from "@fncts/io/Queue";
 
 /**
  * Waits for the hub to be shut down.
@@ -275,12 +275,14 @@ export function mapIO<B, RC, EC, C>(f: (b: B) => IO<RC, EC, C>, __tsplusTrace?: 
 class ToQueue<RA, RB, EA, EB, A, B> implements PEnqueue<RA, RB, EA, EB, A, B> {
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
   readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
-  declare _RA: () => RA;
-  declare _RB: () => RB;
-  declare _EA: () => EA;
-  declare _EB: () => EB;
-  declare _A: (_: A) => void;
-  declare _B: () => B;
+  declare [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
   constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>) {}
   awaitShutdown = this.source.awaitShutdown;
   capacity      = this.source.capacity;

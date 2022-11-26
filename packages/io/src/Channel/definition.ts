@@ -21,18 +21,27 @@ export const enum ChannelTag {
   Provide = "Provide",
 }
 
+export const ChannelVariance = Symbol.for("fncts.io.Channel.Variance");
+export type ChannelVariance = typeof ChannelVariance;
+
+export const ChannelTypeId = Symbol.for("fncts.io.Channel");
+export type ChannelTypeId = typeof ChannelTypeId;
+
 /**
  * @tsplus type fncts.io.Channel
  * @tsplus companion fncts.io.ChannelOps
  */
 export abstract class Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
-  declare _Env: () => Env;
-  declare _InErr: (_: InErr) => void;
-  declare _InElem: (_: InElem) => void;
-  declare _InDone: (_: InDone) => void;
-  declare _OutErr: () => OutErr;
-  declare _OutElem: () => OutElem;
-  declare _OutDone: () => OutDone;
+  readonly [ChannelTypeId]: ChannelTypeId = ChannelTypeId;
+  declare [ChannelVariance]: {
+    _Env: () => Env;
+    _InErr: (_: InErr) => void;
+    _InElem: (_: InElem) => void;
+    _InDone: (_: InDone) => void;
+    _OutErr: () => OutErr;
+    _OutElem: () => OutElem;
+    _OutDone: () => OutDone;
+  };
 }
 
 /**
@@ -43,49 +52,63 @@ export function unifyChannel<X extends Channel<any, any, any, any, any, any, any
 ): Channel<
   [X] extends [
     {
-      _Env: () => infer Env;
+      [ChannelVariance]: {
+        _Env: () => infer Env;
+      };
     },
   ]
     ? Env
     : never,
   [X] extends [
     {
-      _InErr: (_: infer InErr) => void;
+      [ChannelVariance]: {
+        _InErr: (_: infer InErr) => void;
+      };
     },
   ]
     ? InErr
     : never,
   [X] extends [
     {
-      _InElem: (_: infer InElem) => void;
+      [ChannelVariance]: {
+        _InElem: (_: infer InElem) => void;
+      };
     },
   ]
     ? InElem
     : never,
   [X] extends [
     {
-      _InDone: (_: infer InDone) => void;
+      [ChannelVariance]: {
+        _InDone: (_: infer InDone) => void;
+      };
     },
   ]
     ? InDone
     : never,
   [X] extends [
     {
-      _OutErr: () => infer OutErr;
+      [ChannelVariance]: {
+        _OutErr: () => infer OutErr;
+      };
     },
   ]
     ? OutErr
     : never,
   [X] extends [
     {
-      _OutElem: () => infer OutElem;
+      [ChannelVariance]: {
+        _OutElem: () => infer OutElem;
+      };
     },
   ]
     ? OutElem
     : never,
   [X] extends [
     {
-      _OutDone: () => infer OutDone;
+      [ChannelVariance]: {
+        _OutDone: () => infer OutDone;
+      };
     },
   ]
     ? OutDone

@@ -3,12 +3,14 @@ import type { Push } from "../Push.js";
 import type { ModifiableRef, ReadableRef, WritableRef } from "../Ref.js";
 import type { SynchronizedRefSubject } from "@fncts/io/RefSubject/Synchronized/definition";
 
+import { PushTypeId } from "../Push.js";
+import { PushVariance } from "../Push.js";
+import { RefVariance } from "../Ref.js";
+
 /**
  * @tsplus type fncts.io.Push.RefSubject
  */
-export interface RefSubject<out R, in out E, in A, out B> extends Push<R, E, B>, Emitter<R, E, A> {
-  readonly _A: (_: A) => B;
-}
+export interface RefSubject<out R, in out E, in A, out B> extends Push<R, E, B>, Emitter<R, E, A> {}
 
 /**
  * @tsplus type fncts.io.Push.RefSubjectOps
@@ -29,15 +31,20 @@ export abstract class RefSubjectInternal<R, E, A, B>
     Push<R, E, B>,
     Emitter<R, E, A>
 {
-  declare [Ref._RA]: () => R;
-  declare [Ref._RB]: () => R;
-  declare [Ref._EA]: () => never;
-  declare [Ref._EB]: () => never;
-  declare [Ref._A]: (_: A) => void;
-  declare [Ref._B]: () => B;
-  declare _R: (_: never) => R;
-  declare _E: (_: never) => E;
-  declare _A: (_: A) => B;
+  readonly [PushTypeId]: PushTypeId = PushTypeId;
+  declare [RefVariance]: {
+    readonly _RA: (_: never) => R;
+    readonly _RB: (_: never) => R;
+    readonly _EA: (_: never) => never;
+    readonly _EB: (_: never) => never;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
+  declare [PushVariance]: {
+    readonly _R: (_: never) => R;
+    readonly _E: (_: never) => E;
+    readonly _A: (_: A) => B;
+  };
 
   abstract get get(): IO<R, never, B>;
 

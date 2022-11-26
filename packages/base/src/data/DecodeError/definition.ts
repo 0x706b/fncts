@@ -6,7 +6,7 @@ export const DecodeErrorTypeId = Symbol.for("fncts.DecodeError");
 export type DecodeErrorTypeId = typeof DecodeErrorTypeId;
 
 export abstract class DecodeError {
-  readonly _typeId: DecodeErrorTypeId = DecodeErrorTypeId;
+  readonly [DecodeErrorTypeId]: DecodeErrorTypeId = DecodeErrorTypeId;
   abstract render: Eval<RoseTree<string>>;
 }
 

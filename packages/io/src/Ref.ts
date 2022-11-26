@@ -5,7 +5,6 @@ export * from "./Ref/constructors.js";
 export * from "./Ref/definition.js";
 export * from "./Ref/Derived.js";
 export * from "./Ref/DerivedAll.js";
-export * from "./Ref/symbols.js";
 export * from "./Ref/Synchronized.js";
 // codegen:end
 

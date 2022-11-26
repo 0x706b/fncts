@@ -1,7 +1,10 @@
 import type { IO } from "@fncts/io/IO";
 import type { PDequeue, PEnqueue, PEnqueueInternal } from "@fncts/io/Queue";
 
-import { EnqueueTypeId, QueueTypeId } from "@fncts/io/Queue";
+import { EnqueueTypeId, QueueTypeId, QueueVariance } from "@fncts/io/Queue/definition";
+
+export const HubVariance = Symbol.for("fncts.io.Hub.Variance");
+export type HubVariance = typeof HubVariance;
 
 export const HubTypeId = Symbol.for("fncts.io.Hub");
 export type HubTypeId = typeof HubTypeId;
@@ -17,13 +20,15 @@ export type HubTypeId = typeof HubTypeId;
  * @tsplus type fncts.io.Hub
  */
 export interface PHub<RA, RB, EA, EB, A, B> extends PEnqueue<RA, RB, EA, EB, A, B> {
-  readonly _typeId: HubTypeId;
-  readonly _RA: () => RA;
-  readonly _RB: () => RB;
-  readonly _EA: () => EA;
-  readonly _EB: () => EB;
-  readonly _A: (_: A) => void;
-  readonly _B: () => B;
+  readonly [HubTypeId]: HubTypeId;
+  readonly [HubVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
 }
 
 /**
@@ -46,13 +51,23 @@ export abstract class PHubInternal<RA, RB, EA, EB, A, B>
 {
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
   readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
-  _typeId: HubTypeId = HubTypeId;
-  readonly _RA!: () => RA;
-  readonly _RB!: () => RB;
-  readonly _EA!: () => EA;
-  readonly _EB!: () => EB;
-  readonly _A!: (_: A) => void;
-  readonly _B!: () => B;
+  readonly [HubTypeId]: HubTypeId         = HubTypeId;
+  declare [HubVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
+  declare [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
 
   /**
    * Waits for the hub to be shut down.

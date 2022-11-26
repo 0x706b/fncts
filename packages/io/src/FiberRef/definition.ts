@@ -1,6 +1,9 @@
 import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
 
-export const FiberRefTypeId = Symbol.for("fncts.FiberRef");
+export const FiberRefVariance = Symbol.for("fncts.io.FiberRef.Variance");
+export type FiberRefVariance = typeof FiberRefVariance;
+
+export const FiberRefTypeId = Symbol.for("fncts.io.FiberRef");
 export type FiberRefTypeId = typeof FiberRefTypeId;
 
 /**
@@ -8,8 +11,10 @@ export type FiberRefTypeId = typeof FiberRefTypeId;
  * @tsplus companion fncts.io.FiberRefOps
  */
 export abstract class FiberRef<Value> {
-  readonly _typeId: FiberRefTypeId = FiberRefTypeId;
-  readonly _A!: () => Value;
+  readonly [FiberRefTypeId]: FiberRefTypeId = FiberRefTypeId;
+  declare [FiberRefVariance]: {
+    readonly _Value: (_: Value) => Value;
+  };
   readonly _Patch!: unknown;
 }
 
@@ -50,7 +55,7 @@ export class FiberRefInternal<Value, Patch> extends FiberRef<Value> implements H
 }
 
 export function isFiberRef(u: unknown): u is FiberRef<unknown> {
-  return hasTypeId(u, FiberRefTypeId);
+  return isObject(u) && FiberRefTypeId in u;
 }
 
 type Concrete<Value, Patch> = FiberRefInternal<Value, Patch>;

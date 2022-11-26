@@ -10,7 +10,7 @@ export type AssertionDataTypeId = typeof AssertionDataTypeId;
  * @tsplus type fncts.test.data.AssertionData
  */
 export class AssertionData<A> {
-  readonly _typeId: AssertionDataTypeId = AssertionDataTypeId;
+  readonly [AssertionDataTypeId]: AssertionDataTypeId = AssertionDataTypeId;
   constructor(readonly value: A, readonly assertion: Assertion<A>) {}
 }
 

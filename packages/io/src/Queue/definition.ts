@@ -4,6 +4,9 @@ export type EnqueueTypeId = typeof EnqueueTypeId;
 export const DequeueTypeId = Symbol.for("fncts.io.Queue.Dequeue");
 export type DequeueTypeId = typeof DequeueTypeId;
 
+export const QueueVariance = Symbol.for("fncts.io.Queue.Variance");
+export type QueueVariance = typeof QueueVariance;
+
 export const QueueTypeId = Symbol.for("fncts.io.Queue");
 export type QueueTypeId = typeof QueueTypeId;
 
@@ -23,12 +26,14 @@ export interface PQueue<RA, RB, EA, EB, A, B> extends PEnqueue<RA, RB, EA, EB, A
  */
 export interface PQueueCommon<RA, RB, EA, EB, A, B> {
   readonly [QueueTypeId]: QueueTypeId;
-  readonly _RA: () => RA;
-  readonly _RB: () => RB;
-  readonly _EA: () => EA;
-  readonly _EB: () => EB;
-  readonly _A: (_: A) => void;
-  readonly _B: () => B;
+  readonly [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
 }
 
 /**
@@ -86,12 +91,14 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B>
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
   readonly [DequeueTypeId]: DequeueTypeId = DequeueTypeId;
   readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
-  readonly _RA!: () => RA;
-  readonly _RB!: () => RB;
-  readonly _EA!: () => EA;
-  readonly _EB!: () => EB;
-  readonly _A!: (_: A) => void;
-  readonly _B!: () => B;
+  declare [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
   /**
    * Waits until the queue is shutdown.
    * The `IO` returned by this method will not resume until the queue has been shutdown.
@@ -176,13 +183,15 @@ export declare namespace Queue {
 }
 
 export interface PQueueCommonInternal<RA, RB, EA, EB, A, B> {
-  readonly _RA: () => RA;
-  readonly _RB: () => RB;
-  readonly _EA: () => EA;
-  readonly _EB: () => EB;
-  readonly _A: (_: A) => void;
-  readonly _B: () => B;
   readonly [QueueTypeId]: QueueTypeId;
+  readonly [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
   /**
    * Waits until the queue is shutdown.
    * The `IO` returned by this method will not resume until the queue has been shutdown.

@@ -11,8 +11,8 @@ export type TheseTypeId = typeof TheseTypeId;
  * @tsplus type fncts.These.Left
  */
 export class Left<E> {
-  readonly _typeId: TheseTypeId = TheseTypeId;
-  readonly _tag                 = TheseTag.Left;
+  readonly [TheseTypeId]: TheseTypeId = TheseTypeId;
+  readonly _tag = TheseTag.Left;
   constructor(readonly left: E) {}
 }
 
@@ -20,8 +20,8 @@ export class Left<E> {
  * @tsplus type fncts.These.Right
  */
 export class Right<A> {
-  readonly _typeId: TheseTypeId = TheseTypeId;
-  readonly _tag                 = TheseTag.Right;
+  readonly [TheseTypeId]: TheseTypeId = TheseTypeId;
+  readonly _tag = TheseTag.Right;
   constructor(readonly right: A) {}
 }
 
@@ -29,8 +29,8 @@ export class Right<A> {
  * @tsplus type fncts.These.Both
  */
 export class Both<E, A> {
-  readonly _typeId: TheseTypeId = TheseTypeId;
-  readonly _tag                 = TheseTag.Both;
+  readonly [TheseTypeId]: TheseTypeId = TheseTypeId;
+  readonly _tag = TheseTag.Both;
   constructor(readonly left: E, readonly right: A) {}
 }
 
@@ -50,5 +50,5 @@ export const These: TheseOps = {};
  * @tsplus static fncts.TheseOps isThese
  */
 export function isThese(u: unknown): u is These<unknown, unknown> {
-  return hasTypeId(u, TheseTypeId);
+  return isObject(u) && TheseTypeId in u;
 }

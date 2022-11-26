@@ -50,17 +50,6 @@ export function union<R1>(that: Environment<R1>) {
 }
 
 /**
- * @tsplus getter fncts.Environment clean
- */
-export function clean<R>(self: Environment<R>): Environment<R> {
-  const [map, index] = self.map.toList.foldLeft(
-    [HashMap.empty<Tag<unknown>, readonly [unknown, number]>(), 0],
-    ([map, index], [tag, service]) => [map.set(tag, [service, index] as const), index + 1],
-  );
-  return new Environment(map);
-}
-
-/**
  * @tsplus pipeable fncts.Environment unsafeGet
  */
 export function unsafeGet<S>(tag: Tag<S>) {

@@ -8,7 +8,7 @@ export type AssertionValueTypeId = typeof AssertionValueTypeId;
  * @tsplus companion fncts.test.data.AssertionValueOps
  */
 export class AssertionValue<A> {
-  readonly _typeId: AssertionValueTypeId = AssertionValueTypeId;
+  readonly [AssertionValueTypeId]: AssertionValueTypeId = AssertionValueTypeId;
   constructor(
     readonly assertion: LazyValue<AssertionIO<A>>,
     readonly value: A,

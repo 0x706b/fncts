@@ -1,4 +1,4 @@
-export const ScopeTypeId = Symbol.for("fncts.base.control.Scope");
+export const ScopeTypeId = Symbol.for("fncts.io.Scope");
 export type ScopeTypeId = typeof ScopeTypeId;
 
 /**
@@ -6,7 +6,7 @@ export type ScopeTypeId = typeof ScopeTypeId;
  * @tsplus companion fncts.io.ScopeOps
  */
 export abstract class Scope {
-  readonly _typeId: ScopeTypeId = ScopeTypeId;
+  readonly [ScopeTypeId]: ScopeTypeId = ScopeTypeId;
   abstract addFinalizerExit(finalizer: Finalizer): UIO<void>;
   abstract fork: UIO<Scope.Closeable>;
 }

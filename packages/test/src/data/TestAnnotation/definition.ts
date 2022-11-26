@@ -1,4 +1,5 @@
-import { hasTypeId } from "@fncts/base/util/predicates";
+export const TestAnnotationVariance = Symbol.for("fncts.test.TestAnnotation.Variance");
+export type TestAnnotationVariance = typeof TestAnnotationVariance;
 
 export const TestAnnotationTypeId = Symbol.for("fncts.test.TestAnnotation");
 export type TestAnnotationTypeId = typeof TestAnnotationTypeId;
@@ -8,8 +9,10 @@ export type TestAnnotationTypeId = typeof TestAnnotationTypeId;
  * @tsplus companion fncts.test.TestAnnotationOps
  */
 export class TestAnnotation<V> implements Hashable, Equatable {
-  readonly _typeId: TestAnnotationTypeId = TestAnnotationTypeId;
-  readonly _V!: () => V;
+  readonly [TestAnnotationTypeId]: TestAnnotationTypeId = TestAnnotationTypeId;
+  declare [TestAnnotationVariance]: {
+    readonly _V: (_: never) => V;
+  };
   constructor(
     readonly tag: Tag<V>,
     readonly identifier: string,
@@ -30,5 +33,5 @@ export class TestAnnotation<V> implements Hashable, Equatable {
 }
 
 export function isTestAnnotation(u: unknown): u is TestAnnotation<unknown> {
-  return hasTypeId(u, TestAnnotationTypeId);
+  return isObject(u) && TestAnnotationTypeId in u;
 }

@@ -16,7 +16,7 @@ export interface DecoderF extends HKT {
  * @tsplus derive nominal
  */
 export class Decoder<in out A> {
-  readonly _typeId: DecoderTypeId = DecoderTypeId;
+  readonly [DecoderTypeId]: DecoderTypeId = DecoderTypeId;
   constructor(readonly decode: (input: unknown) => These<DecodeError, A>, readonly label: string) {}
 }
 

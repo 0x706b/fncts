@@ -11,13 +11,13 @@ export const enum TryCommitTag {
 }
 
 export class Done<E, A> {
-  readonly _typeId: TryCommitTypeId = TryCommitTypeId;
-  readonly _tag                     = TryCommitTag.Done;
+  readonly [TryCommitTypeId]: TryCommitTypeId = TryCommitTypeId;
+  readonly _tag = TryCommitTag.Done;
   constructor(readonly exit: Exit<E, A>) {}
 }
 
 export class Suspend {
-  readonly _typeId: TryCommitTypeId = TryCommitTypeId;
-  readonly _tag                     = TryCommitTag.Suspend;
+  readonly [TryCommitTypeId]: TryCommitTypeId = TryCommitTypeId;
+  readonly _tag = TryCommitTag.Suspend;
   constructor(readonly journal: Journal) {}
 }

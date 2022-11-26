@@ -1,11 +1,20 @@
+export const PushVariance = Symbol.for("fncts.io.Push.Variance");
+export type PushVariance = typeof PushVariance;
+
+export const PushTypeId = Symbol.for("fncts.io.Push");
+export type PushTypeId = typeof PushTypeId;
+
 /**
  * @tsplus type fncts.io.Push
  * @tsplus companion fncts.io.PushOps
  */
 export class Push<R, E, A> {
-  declare _R: (_: never) => R;
-  declare _E: (_: never) => E;
-  declare _A: (_: never) => A;
+  readonly [PushTypeId]: PushTypeId = PushTypeId;
+  declare [PushVariance]: {
+    readonly _R: (_: never) => R;
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
   constructor(readonly run: <R1>(emitter: Emitter<R1, E, A>) => IO<R | R1 | Scope, never, unknown>) {}
 }
 

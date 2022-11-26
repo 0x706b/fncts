@@ -1,5 +1,3 @@
-import { hasTypeId } from "../../util/predicates.js";
-
 export interface ZF extends HKT {
   type: Z<this["W"], this["S"], this["S"], this["R"], this["E"], this["A"]>;
   variance: {
@@ -11,7 +9,10 @@ export interface ZF extends HKT {
   };
 }
 
-export const ZTypeId = Symbol.for("@principia/base/Z");
+export const ZVariance = Symbol.for("fncts.Z.Variance");
+export type ZVariance = typeof ZVariance;
+
+export const ZTypeId = Symbol.for("fncts.Z");
 export type ZTypeId = typeof ZTypeId;
 
 /**
@@ -28,13 +29,15 @@ export type ZTypeId = typeof ZTypeId;
  * @tsplus companion fncts.control.ZOps
  */
 export abstract class Z<W, S1, S2, R, E, A> {
-  readonly _typeId: ZTypeId = ZTypeId;
-  readonly _W!: () => W;
-  readonly _S1!: (_: S1) => void;
-  readonly _S2!: () => S2;
-  readonly _R!: () => R;
-  readonly _E!: () => E;
-  readonly _A!: () => A;
+  readonly [ZTypeId]: ZTypeId = ZTypeId;
+  declare [ZVariance]: {
+    readonly _W: (_: never) => W;
+    readonly _S1: (_: S1) => void;
+    readonly _S2: (_: never) => S2;
+    readonly _R: (_: never) => R;
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
 }
 
 /**
@@ -57,7 +60,7 @@ export function unifyZ<X extends Z<any, any, any, any, any, any>>(
  * @tsplus static fncts.control.ZOps isZ
  */
 export function isZ(u: unknown): u is Z<unknown, unknown, unknown, unknown, unknown, unknown> {
-  return hasTypeId(u, ZTypeId);
+  return isObject(u) && ZTypeId in u;
 }
 
 export const enum ZTag {
@@ -183,14 +186,14 @@ export function concrete(_: Z<any, any, any, any, any, any>): asserts _ is Concr
   //
 }
 
-export const ZErrorTypeId = Symbol.for("@principia/base/Z/ZError");
+export const ZErrorTypeId = Symbol.for("fncts.Z.ZError");
 export type ZErrorTypeId = typeof ZErrorTypeId;
 
 export class ZError<E> {
-  readonly _typeId: ZErrorTypeId = ZErrorTypeId;
+  readonly [ZErrorTypeId]: ZErrorTypeId = ZErrorTypeId;
   constructor(readonly cause: Cause<E>) {}
 }
 
 export function isZError(u: unknown): u is ZError<unknown> {
-  return hasTypeId(u, ZErrorTypeId);
+  return isObject(u) && ZErrorTypeId in u;
 }

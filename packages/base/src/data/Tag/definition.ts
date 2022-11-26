@@ -1,4 +1,5 @@
-import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
+export const TagVariance = Symbol.for("fncts.Tag.Variance");
+export type TagVariance = typeof TagVariance;
 
 export const TagTypeId = Symbol.for("fncts.Tag");
 export type TagTypeId = typeof TagTypeId;
@@ -12,8 +13,10 @@ const _tagHash = Hashable.string("fncts.Tag");
  * @tsplus companion fncts.TagOps
  */
 export class Tag<in out T> implements Hashable, Equatable {
-  declare _T: (_: T) => T;
-  readonly _typeId: TagTypeId = TagTypeId;
+  readonly [TagTypeId]: TagTypeId = TagTypeId;
+  declare [TagVariance]: {
+    readonly _T: (_: T) => T;
+  };
 
   constructor(readonly id: string) {}
 
@@ -27,5 +30,5 @@ export class Tag<in out T> implements Hashable, Equatable {
 }
 
 export function isTag(u: unknown): u is Tag<unknown> {
-  return hasTypeId(u, TagTypeId);
+  return isObject(u) && TagTypeId in u;
 }

@@ -7,8 +7,11 @@ import { IO } from "@fncts/io/IO";
 import { RefInternal } from "./definition.js";
 import { DerivedAll } from "./DerivedAll.js";
 
+export const DerivedTypeId = Symbol.for("fncts.io.Ref.Derived");
+export type DerivedTypeId = typeof DerivedTypeId;
+
 export class Derived<EA, EB, A, B> extends RefInternal<never, never, EA, EB, A, B> {
-  readonly _tag = "Derived";
+  readonly [DerivedTypeId]: DerivedTypeId = DerivedTypeId;
 
   constructor(
     readonly use: <X>(

@@ -1,11 +1,16 @@
 import { IterableWeakMap } from "@fncts/base/collection/weak/IterableWeakMap";
 
+export const ReloadableVariance = Symbol.for("fncts.io.Reloadable");
+export type ReloadableVariance = typeof ReloadableVariance;
+
 /**
  * @tsplus type fncts.io.Reloadable
  * @tsplus companion fncts.io.ReloadableOps
  */
 export class Reloadable<Service> {
-  declare _Service: (_: never) => Service;
+  declare [ReloadableVariance]: {
+    readonly _Service: (_: never) => Service;
+  };
   constructor(readonly scopedRef: ScopedRef<Service>, readonly reload: IO<never, unknown, void>) {}
 
   get get(): UIO<Service> {

@@ -25,12 +25,12 @@ export class STMDriver<R, E, A> {
     let result: Erased | undefined = undefined;
     while (this.contStack.hasNext && !result) {
       const cont = this.contStack.pop()!;
-      if (cont._tag === STMTag.OnFailure) {
+      if (cont.stmOpCode === STMTag.OnFailure) {
         if (!isRetry) {
           result = cont.onFailure(error);
         }
       }
-      if (cont._tag === STMTag.OnRetry) {
+      if (cont.stmOpCode === STMTag.OnRetry) {
         if (isRetry) {
           result = cont.onRetry;
         }
@@ -46,7 +46,7 @@ export class STMDriver<R, E, A> {
     while (!exit && curr) {
       const k = curr;
       concrete(k);
-      switch (k._tag) {
+      switch (k.stmOpCode) {
         case STMTag.Succeed: {
           const a = k.a();
           if (!this.contStack.hasNext) {

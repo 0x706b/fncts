@@ -5,6 +5,9 @@ import type { Node } from "@fncts/base/collection/immutable/Vector/internal";
 import { foldLeftCb } from "@fncts/base/collection/immutable/Vector/internal";
 import { ForwardVectorIterator } from "@fncts/base/collection/immutable/Vector/internal";
 
+export const VectorVariance = Symbol.for("fncts.Vector.Variance");
+export type VectorVariance = typeof VectorVariance;
+
 export const VectorTypeId = Symbol.for("fncts.Vector");
 export type VectorTypeId = typeof VectorTypeId;
 
@@ -23,8 +26,10 @@ export interface VectorF extends HKT {
  * @tsplus companion fncts.VectorOps
  */
 export class Vector<A> implements Iterable<A> {
-  readonly _typeId: VectorTypeId = VectorTypeId;
-  readonly _A!: () => A;
+  readonly [VectorTypeId]: VectorTypeId = VectorTypeId;
+  declare [VectorVariance]: {
+    readonly _A: (_: never) => A;
+  };
   constructor(
     /** @private */
     readonly bits: number,
@@ -53,8 +58,10 @@ export class Vector<A> implements Iterable<A> {
  * @tsplus type fncts.MutableVector
  */
 export interface MutableVector<A> {
-  readonly _typeId: VectorTypeId;
-  readonly _A: () => A;
+  readonly [VectorTypeId]: VectorTypeId;
+  readonly [VectorVariance]: {
+    readonly _A: (_: never) => A;
+  };
   bits: number;
   offset: number;
   length: number;
@@ -72,7 +79,7 @@ export interface MutableVector<A> {
 }
 
 export function isVector(u: unknown): u is Vector<unknown> {
-  return hasTypeId(u, VectorTypeId);
+  return isObject(u) && VectorTypeId in u;
 }
 
 /**

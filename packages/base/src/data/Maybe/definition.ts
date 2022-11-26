@@ -5,8 +5,11 @@ export const enum MaybeTag {
   Nothing = "Nothing",
 }
 
+export const MaybeVariance = Symbol.for("fncts.Maybe.Variance");
+export type MaybeVariance = typeof MaybeVariance;
+
 export const MaybeTypeId = Symbol.for("fncts.Maybe");
-export type MaybeTypdId = typeof MaybeTypeId;
+export type MaybeTypeId = typeof MaybeTypeId;
 
 export interface MaybeF extends HKT {
   type: Maybe<this["A"]>;
@@ -22,9 +25,11 @@ const _nothingHash = Hashable.string("fncts.Nothing");
  * @tsplus type fncts.Maybe
  * @tsplus companion fncts.MaybeOps
  */
-export class Maybe<A> {
-  declare _A: () => A;
-  readonly _typeId: MaybeTypdId = MaybeTypeId;
+export abstract class Maybe<A> {
+  declare [MaybeVariance]: {
+    readonly _A: (_: never) => A;
+  };
+  readonly [MaybeTypeId]: MaybeTypeId = MaybeTypeId;
 }
 
 /**
@@ -63,15 +68,7 @@ export class Nothing extends Maybe<never> {
  */
 export function unifyMaybe<X extends Maybe<any>>(
   self: X,
-): Maybe<
-  [X] extends [
-    {
-      _A: () => infer A;
-    },
-  ]
-    ? A
-    : never
-> {
+): Maybe<[X] extends [{ [MaybeVariance]: { _A: (_: never) => infer A } }] ? A : never> {
   return self;
 }
 
@@ -79,11 +76,7 @@ export function unifyMaybe<X extends Maybe<any>>(
  * @tsplus static fncts.MaybeOps isMaybe
  */
 export function isMaybe(u: unknown): u is Maybe<unknown> {
-  return (
-    isObject(u) &&
-    (MaybeTypeId in u ||
-      ("_tag" in u && typeof u["_tag"] === "string" && (u["_tag"] === "Nothing" || u["_tag"] === "Just")))
-  );
+  return isObject(u) && MaybeTypeId in u;
 }
 
 /**

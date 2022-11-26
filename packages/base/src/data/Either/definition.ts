@@ -3,6 +3,9 @@ export const enum EitherTag {
   Right = "Right",
 }
 
+export const EitherVariance = Symbol.for("fncts.Either.Variance");
+export type EitherVariance = typeof EitherVariance;
+
 export const EitherTypeId = Symbol.for("fncts.data.Either");
 export type EitherTypeId = typeof EitherTypeId;
 
@@ -19,9 +22,11 @@ export interface EitherF extends HKT {
  * @tsplus companion fncts.EitherOps
  */
 export class Either<E, A> {
-  readonly _typeId: EitherTypeId = EitherTypeId;
-  readonly _E!: () => E;
-  readonly _A!: () => A;
+  readonly [EitherTypeId]: EitherTypeId = EitherTypeId;
+  declare [EitherVariance]: {
+    readonly _E: (_: never) => E;
+    readonly _A: (_: never) => A;
+  };
 }
 
 /**

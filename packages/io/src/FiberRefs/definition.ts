@@ -8,7 +8,7 @@ export interface FiberRefsN extends HKT {
 export interface FiberRefs
   extends Newtype<
     { readonly FiberRefs: unique symbol },
-    HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>>
+    HashMap<FiberRef<any>, Cons<readonly [FiberId.Runtime, unknown]>>
   > {}
 
 /**

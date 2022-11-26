@@ -13,7 +13,7 @@ export const enum SupervisorPatchTag {
  * @tsplus companion fncts.io.SupervisorPatchOps
  */
 export abstract class SupervisorPatch {
-  readonly _typeId: SupervisorPatchTypeId = SupervisorPatchTypeId;
+  readonly [SupervisorPatchTypeId]: SupervisorPatchTypeId = SupervisorPatchTypeId;
 }
 
 export class AddSupervisor extends SupervisorPatch {

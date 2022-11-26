@@ -81,6 +81,6 @@ export function remove(self: FiberRefs, fiberRef: FiberRef<any>): FiberRefs {
  * @tsplus getter fncts.io.FiberRefs unFiberRefs
  * @tsplus macro identity
  */
-export function unFiberRefs(self: FiberRefs): HashMap<FiberRef<unknown>, Cons<readonly [FiberId.Runtime, unknown]>> {
+export function unFiberRefs(self: FiberRefs): HashMap<FiberRef<any>, Cons<readonly [FiberId.Runtime, unknown]>> {
   return FiberRefs.reverseGet(self);
 }

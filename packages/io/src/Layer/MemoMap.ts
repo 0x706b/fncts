@@ -162,7 +162,7 @@ export function scope(scope: Scope, __tsplusTrace?: string) {
               .zipWith(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
         );
       }
-      case LayerTag.ZipWithC: {
+      case LayerTag.ZipWithConcurrent: {
         return IO.succeed(
           () => (memoMap: MemoMap) =>
             memoMap

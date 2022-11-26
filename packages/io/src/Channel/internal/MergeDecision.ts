@@ -3,6 +3,9 @@ export const enum MergeDecisionTag {
   Await = "Await",
 }
 
+export const MergeDecisionVariance = Symbol.for("fncts.io.Channel.MergeDecision.Variance");
+export type MergeDecisionVariance = typeof MergeDecisionVariance;
+
 export const MergeDecisionTypeId = Symbol.for("fncts.io.Channel.MergeDecision");
 export type MergeDecisionTypeId = typeof MergeDecisionTypeId;
 
@@ -11,12 +14,14 @@ export type MergeDecisionTypeId = typeof MergeDecisionTypeId;
  * @tsplus companion fncts.io.Channel.MergeDecisionOps
  */
 export abstract class MergeDecision<R, E0, Z0, E, Z> {
-  readonly _typeId: MergeDecisionTypeId = MergeDecisionTypeId;
-  readonly _R!: () => R;
-  readonly _E0!: (_: E0) => void;
-  readonly _Z0!: (_: Z0) => void;
-  readonly _E!: () => E;
-  readonly _Z!: () => Z;
+  readonly [MergeDecisionTypeId]: MergeDecisionTypeId = MergeDecisionTypeId;
+  declare [MergeDecisionVariance]: {
+    readonly _R: (_: never) => R;
+    readonly _E0: (_: E0) => void;
+    readonly _Z0: (_: Z0) => void;
+    readonly _E: (_: never) => E;
+    readonly _Z: (_: never) => Z;
+  };
 }
 
 /**

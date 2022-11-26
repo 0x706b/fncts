@@ -6,7 +6,7 @@ export type ScopedRefTypeId = typeof ScopedRefTypeId;
  * @tsplus companion fncts.io.ScopedRefOps
  */
 export abstract class ScopedRef<A> {
-  readonly _typeId: ScopedRefTypeId = ScopedRefTypeId;
+  readonly [ScopedRefTypeId]: ScopedRefTypeId = ScopedRefTypeId;
   abstract set<R, E>(acquire: IO<R | Scope, E, A>, __tsplusTrace?: string): IO<Exclude<R, Scope>, E, void>;
   abstract get: UIO<A>;
 }
