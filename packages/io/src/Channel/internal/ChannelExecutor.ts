@@ -1049,17 +1049,28 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     this.doneStack = this.doneStack.prepend(new ContinuationFinalizer(f));
   }
 
+  private provide<Env, OutErr, OutDone>(
+    io: IO<Env, OutErr, OutDone>,
+    __tsplusTrace?: string,
+  ): IO<Env, OutErr, OutDone> {
+    if (this.providedEnv === null) {
+      return io;
+    } else {
+      return io.provideEnvironment(this.providedEnv);
+    }
+  }
+
   private runBracketOut(bracketOut: BracketOut<Env, unknown, unknown, unknown>): ChannelState<Env, unknown> | null {
     return new State.Effect(
-      IO.uninterruptibleMask(({ restore }) =>
-        restore(bracketOut.acquire).matchCauseIO(
+      IO.uninterruptible(
+        this.provide(bracketOut.acquire).matchCauseIO(
           (cause) =>
             IO.succeed(() => {
               this.currentChannel = Channel.failCause(cause);
             }),
           (out) =>
             IO.succeed(() => {
-              this.addFinalizer((e) => bracketOut.finalizer(out, e));
+              this.addFinalizer((e) => this.provide(bracketOut.finalizer(out, e)));
               this.currentChannel = Channel.write(() => out);
             }),
         ),

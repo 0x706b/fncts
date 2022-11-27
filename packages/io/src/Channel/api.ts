@@ -83,21 +83,21 @@ export function acquireReleaseExitWith<Env, InErr, InElem, InDone, OutErr, OutEl
 /**
  * Construct a resource Channel with Acquire / Release
  *
- * @tsplus static fncts.io.ChannelOps acquireReleaseOut
+ * @tsplus static fncts.io.ChannelOps acquireReleaseOutWith
  */
-export function acquireReleaseOut<Env, OutErr, Acquired, Z>(
+export function acquireReleaseOutWith<Env, OutErr, Acquired, Z>(
   acquire: IO<Env, OutErr, Acquired>,
   release: (a: Acquired) => URIO<Env, Z>,
 ): Channel<Env, unknown, unknown, unknown, OutErr, Acquired, void> {
-  return Channel.acquireReleaseOutExit(acquire, (z, _) => release(z));
+  return Channel.acquireReleaseOutExitWith(acquire, (z, _) => release(z));
 }
 
 /**
  * Construct a resource Channel with Acquire / Release
  *
- * @tsplus static fncts.io.ChannelOps acquireReleaseOutExit
+ * @tsplus static fncts.io.ChannelOps acquireReleaseOutExitWith
  */
-export function acquireReleaseOutExit<R, R2, E, Z>(
+export function acquireReleaseOutExitWith<R, R2, E, Z>(
   self: IO<R, E, Z>,
   release: (z: Z, e: Exit<unknown, unknown>) => URIO<R2, unknown>,
 ): Channel<R | R2, unknown, unknown, unknown, E, Z, void> {
@@ -752,17 +752,16 @@ export function interrupt(fiberId: FiberId): Channel<never, unknown, unknown, un
 export function scoped<R, E, A>(
   io: Lazy<IO<R, E, A>>,
 ): Channel<Exclude<R, Scope>, unknown, unknown, unknown, E, A, unknown> {
-  return Channel.acquireReleaseOutExit(
-    Scope.make.flatMap((scope) =>
-      IO.uninterruptibleMask(({ restore }) =>
-        restore(scope.extend(io)).matchCauseIO(
-          (cause) => scope.close(Exit.failCause(cause)) > IO.failCauseNow(cause),
-          (out) => IO.succeedNow(tuple(out, scope)),
+  return Channel.unwrap(
+    IO.uninterruptibleMask(({ restore }) =>
+      Scope.make.map((scope) =>
+        Channel.acquireReleaseOutExitWith(
+          restore(scope.extend(io)).tapErrorCause((cause) => scope.close(Exit.failCause(cause))),
+          (_, exit) => scope.close(exit),
         ),
       ),
     ),
-    ([_, scope], exit) => scope.close(exit),
-  ).mapOut(([a]) => a);
+  );
 }
 
 /**
