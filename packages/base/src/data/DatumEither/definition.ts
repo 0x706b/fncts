@@ -8,7 +8,6 @@ export interface DatumEitherF extends HKT {
 
 /**
  * @tsplus type fncts.DatumEither
- * @tsplus no-inherit fncts.Datum
  */
 export type DatumEither<E, A> = Datum<Either<E, A>>;
 
