@@ -1,5 +1,12 @@
 # @fncts/base
 
+## 0.0.23
+
+### Patch Changes
+
+- b17a529: fix: DatumEither exports
+- 7d755a2: chore: clean up type ids and variance symbols
+
 ## 0.0.22
 
 ### Patch Changes
