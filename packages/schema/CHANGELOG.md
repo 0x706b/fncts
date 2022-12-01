@@ -1,5 +1,14 @@
 # @fncts/schema
 
+## 0.0.2
+
+### Patch Changes
+
+- 7d755a2: chore: clean up type ids and variance symbols
+- Updated dependencies [b17a529]
+- Updated dependencies [7d755a2]
+  - @fncts/base@0.0.23
+
 ## 0.0.1
 
 ### Patch Changes

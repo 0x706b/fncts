@@ -1,5 +1,18 @@
 # @fncts/test
 
+## 0.0.23
+
+### Patch Changes
+
+- 7d755a2: chore: clean up type ids and variance symbols
+- Updated dependencies [9d84807]
+- Updated dependencies [b17a529]
+- Updated dependencies [8024090]
+- Updated dependencies [d268ec8]
+- Updated dependencies [7d755a2]
+  - @fncts/io@0.0.23
+  - @fncts/base@0.0.23
+
 ## 0.0.22
 
 ### Patch Changes

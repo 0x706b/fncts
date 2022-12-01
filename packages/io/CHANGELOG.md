@@ -1,5 +1,18 @@
 # @fncts/io
 
+## 0.0.23
+
+### Patch Changes
+
+- 9d84807: refactor(Channel): execute acquire uninterruptibly
+- b17a529: fix: DatumEither exports
+- 8024090: refactor: optimize Future#await
+- d268ec8: feat: implement MVar
+- 7d755a2: chore: clean up type ids and variance symbols
+- Updated dependencies [b17a529]
+- Updated dependencies [7d755a2]
+  - @fncts/base@0.0.23
+
 ## 0.0.22
 
 ### Patch Changes
