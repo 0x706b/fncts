@@ -1,5 +1,11 @@
 # @fncts/io
 
+## 0.0.24
+
+### Patch Changes
+
+- f01acb1: fix: FiberRef circular dependency
+
 ## 0.0.23
 
 ### Patch Changes
