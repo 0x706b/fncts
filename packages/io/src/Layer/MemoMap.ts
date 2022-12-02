@@ -35,7 +35,7 @@ export class MemoMap {
           const observers    = _(Ref.make(0));
           const future       = _(Future.make<E, Environment<A>>());
           const finalizerRef = _(Ref.make<Finalizer>(Finalizer.noop));
-          const resource     = IO.uninterruptibleMask(({ restore }) =>
+          const resource     = IO.uninterruptibleMask((restore) =>
             Do((_) => {
               const outerScope = scope;
               const innerScope = _(Scope.make);

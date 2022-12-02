@@ -5,7 +5,5 @@ export function forkScoped<R, E, A>(
   self: IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R | Scope, never, Fiber.Runtime<E, A>> {
-  return IO.uninterruptibleMask(({ restore }) =>
-    restore(self).forkDaemon.tap((fiber) => IO.addFinalizer(fiber.interrupt)),
-  );
+  return IO.uninterruptibleMask((restore) => restore(self).forkDaemon.tap((fiber) => IO.addFinalizer(fiber.interrupt)));
 }

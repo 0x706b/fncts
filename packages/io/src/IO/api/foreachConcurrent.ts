@@ -62,7 +62,7 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
     if (size === 0) {
       return IO.unit;
     }
-    return IO.uninterruptibleMask(({ restore }) => {
+    return IO.uninterruptibleMask((restore) => {
       const future = Future.unsafeMake<void, void>(FiberId.none);
       const ref    = new AtomicNumber(0);
       return IO.transplant((graft) =>

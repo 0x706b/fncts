@@ -16,7 +16,7 @@ export function zipConcurrent<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: st
 export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A, b: B) => C, __tsplusTrace?: string) {
   return <R, E>(self: IO<R, E, A>): IO<R | R1, E | E1, C> => {
     return IO.fiberId.flatMap((fiberId) =>
-      IO.uninterruptibleMask(({ restore }) => {
+      IO.uninterruptibleMask((restore) => {
         const future = Future.unsafeMake<void, C>(FiberId.none);
         const ref    = new AtomicReference<Maybe<Either<A, B>>>(Nothing());
         return IO.transplant((graft) =>

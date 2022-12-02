@@ -1,7 +1,3 @@
-function maybeDisconnect<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.uninterruptibleMask((restore) => restore.force(io));
-}
-
 /**
  * Returns an IO that races this effect with the specified effect,
  * returning the first successful `A` from the faster side. If one effect
@@ -14,10 +10,24 @@ function maybeDisconnect<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R
  * @tsplus pipeable fncts.io.IO race
  */
 export function race<R1, E1, A1>(that: IO<R1, E1, A1>) {
-  return <R, E, A>(io: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
-    return IO.fiberId.flatMap((id) =>
-      maybeDisconnect(io).raceWith(
-        maybeDisconnect(that),
+  return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
+    return IO.checkInterruptible((status) => disconnect(self, status).raceAwait(disconnect(that, status)));
+  };
+}
+
+function disconnect<R, E, A>(io: IO<R, E, A>, interruptStatus: InterruptStatus, __tsplusTrace?: string): IO<R, E, A> {
+  if (interruptStatus.isInterruptible) return io.disconnect;
+  else return io.uninterruptible.disconnect.interruptible;
+}
+
+/**
+ * @tsplus pipeable fncts.io.IO raceAwait
+ */
+export function raceAwait<R1, E1, A1>(that: IO<R1, E1, A1>) {
+  return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
+    return IO.fiberIdWith((id) =>
+      self.raceWith(
+        that,
         (exit, right) =>
           exit.match(
             (cause) => right.join.mapErrorCause((c) => Cause.both(cause, c)),

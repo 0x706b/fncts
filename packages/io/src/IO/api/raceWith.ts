@@ -2,17 +2,6 @@ import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
 
 import { ExitTag } from "@fncts/base/data/Exit";
 import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
-import { unsafeMakeChildFiber } from "@fncts/io/IO/api/fork";
-
-import { FiberScope } from "../../FiberScope.js";
-import { IO } from "../definition.js";
-
-/**
- * @tsplus getter fncts.io.IO daemonChildren
- */
-export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return FiberRef.forkScopeOverride.locally(Just(FiberScope.global))(self);
-}
 
 /**
  * @tsplus pipeable fncts.io.IO raceFibersWith
@@ -40,8 +29,8 @@ export function raceFibersWith<R, E, A, R1, E1, B, R2, E2, C, R3, E3, D>(
       }
 
       const raceIndicator = new AtomicBoolean(true);
-      const leftFiber     = unsafeMakeChildFiber(left, parentState, parentRuntimeFlags, null, __tsplusTrace);
-      const rightFiber    = unsafeMakeChildFiber(right0, parentState, parentRuntimeFlags, null, __tsplusTrace);
+      const leftFiber     = IO.unsafeMakeChildFiber(left, parentState, parentRuntimeFlags, null, __tsplusTrace);
+      const rightFiber    = IO.unsafeMakeChildFiber(right0, parentState, parentRuntimeFlags, null, __tsplusTrace);
       leftFiber.setFiberRef(FiberRef.forkScopeOverride, Just(parentState.scope));
       rightFiber.setFiberRef(FiberRef.forkScopeOverride, Just(parentState.scope));
 
@@ -90,35 +79,4 @@ export function raceWith<R, E, A, R1, E1, A1, R2, E2, A2, R3, E3, A3>(
         }),
     );
   };
-}
-
-export type Grafter = <R, E, A>(effect: IO<R, E, A>) => IO<R, E, A>;
-
-/**
- * Transplants specified effects so that when those effects fork other
- * effects, the forked effects will be governed by the scope of the
- * fiber that executes this effect.
- *
- * This can be used to "graft" deep grandchildren onto a higher-level
- * scope, effectively extending their lifespans into the parent scope.
- *
- * @tsplus static fncts.io.IOOps transplant
- */
-export function transplant<R, E, A>(f: (_: Grafter) => IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.withFiberRuntime((fiberState) => {
-    const scopeOverride = fiberState.getFiberRef(FiberRef.forkScopeOverride);
-    const scope         = scopeOverride.getOrElse(fiberState.scope);
-    return f(FiberRef.forkScopeOverride.locally(Just(scope)));
-  });
-}
-
-/**
- * Forks the effect into a new fiber attached to the global scope. Because the
- * new fiber is attached to the global scope, when the fiber executing the
- * returned effect terminates, the forked fiber will continue running.
- *
- * @tsplus getter fncts.io.IO forkDaemon
- */
-export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, FiberRuntime<E, A>> {
-  return ma.fork.daemonChildren;
 }

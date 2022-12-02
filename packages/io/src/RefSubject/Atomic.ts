@@ -3,7 +3,7 @@ import type { Emitter } from "@fncts/io/Push";
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { Hold, Push } from "@fncts/io/Push";
 import { Atomic } from "@fncts/io/Ref";
-import { RefSubjectInternal } from "@fncts/io/RefSubject";
+import { RefSubjectInternal } from "@fncts/io/RefSubject/definition";
 
 export class AtomicRefSubject<E, A> extends RefSubjectInternal<never, E, A, A> {
   readonly stream   = new Hold<never, E, A>(Push.never);

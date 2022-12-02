@@ -7,6 +7,6 @@
  */
 export function fulfill<E, A>(p: Future<E, A>, __tsplusTrace?: string) {
   return <R>(effect: IO<R, E, A>): IO<R, never, boolean> => {
-    return IO.uninterruptibleMask(({ restore }) => restore(effect).result.flatMap((exit) => p.done(exit)));
+    return IO.uninterruptibleMask((restore) => restore(effect).result.flatMap((exit) => p.done(exit)));
   };
 }

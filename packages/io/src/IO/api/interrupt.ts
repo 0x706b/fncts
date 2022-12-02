@@ -2,20 +2,11 @@ import { Dynamic, Interruptible, Uninterruptible } from "@fncts/io/IO/definition
 import { RuntimeFlag } from "@fncts/io/RuntimeFlag";
 import { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
-export interface InterruptibilityRestorer {
-  readonly restore: <R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => IO<R, E, A>;
-  readonly force: <R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => IO<R, E, A>;
-}
+export type InterruptibilityRestorer = <R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => IO<R, E, A>;
 
-const RestoreInterruptible: InterruptibilityRestorer = {
-  restore: (io, __tsplusTrace) => io.interruptible,
-  force: (io, __tsplusTrace) => io.interruptible,
-};
+const RestoreInterruptible: InterruptibilityRestorer = (io, __tsplusTrace) => io.interruptible;
 
-const RestoreUninterruptible: InterruptibilityRestorer = {
-  restore: (io, __tsplusTrace) => io.uninterruptible,
-  force: (io, __tsplusTrace) => io.uninterruptible.disconnect.interruptible,
-};
+const RestoreUninterruptible: InterruptibilityRestorer = (io, __tsplusTrace) => io.uninterruptible;
 
 /**
  * Returns an effect that is interrupted as if by the specified fiber.
@@ -33,22 +24,6 @@ export function interruptAs(fiberId: FiberId, __tsplusTrace?: string): FIO<never
  * @tsplus static fncts.io.IOOps interrupt
  */
 export const interrupt: IO<never, never, never> = IO.fiberId.flatMap(IO.interruptAs);
-
-// /**
-//  * Switches the interrupt status for this effect. If `true` is used, then the
-//  * effect becomes interruptible (the default), while if `false` is used, then
-//  * the effect becomes uninterruptible. These changes are compositional, so
-//  * they only affect regions of the effect.
-//  *
-//  * @tsplus fluent fncts.io.IO setInterruptStatus
-//  */
-// export function setInterruptStatus_<R, E, A>(
-//   self: IO<R, E, A>,
-//   flag: InterruptStatus,
-//   __tsplusTrace?: string,
-// ): IO<R, E, A> {
-//   return new SetInterrupt(self, flag, __tsplusTrace);
-// }
 
 /**
  * Returns a new effect that performs the same operations as this effect, but
@@ -101,7 +76,7 @@ export function uninterruptibleMask<R, E, A>(f: (restore: InterruptibilityRestor
  */
 export function ensuring<R1>(finalizer: IO<R1, never, any>, __tsplusTrace?: string) {
   return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E, A> => {
-    return IO.uninterruptibleMask(({ restore }) =>
+    return IO.uninterruptibleMask((restore) =>
       restore(self).matchCauseIO(
         (cause1) =>
           finalizer.matchCauseIO(
@@ -172,7 +147,7 @@ export function onInterruptWith<R1, E1>(
  */
 export function onExit<E, A, R1, E1>(cleanup: (exit: Exit<E, A>) => IO<R1, E1, any>, __tsplusTrace?: string) {
   return <R>(self: IO<R, E, A>): IO<R | R1, E | E1, A> => {
-    return IO.uninterruptibleMask(({ restore }) =>
+    return IO.uninterruptibleMask((restore) =>
       restore(self).matchCauseIO(
         (failure1) => {
           const result = Exit.failCause(failure1);
@@ -188,30 +163,4 @@ export function onExit<E, A, R1, E1>(cleanup: (exit: Exit<E, A>) => IO<R1, E1, a
       ),
     );
   };
-}
-
-/**
- * Returns an IO whose interruption will be disconnected from the
- * fiber's own interruption, being performed in the background without
- * slowing down the fiber's interruption.
- *
- * This method is useful to create "fast interrupting" effects. For
- * example, if you call this on a bracketed effect, then even if the
- * effect is "stuck" in acquire or release, its interruption will return
- * immediately, while the acquire / release are performed in the
- * background.
- *
- * See timeout and race for other applications.
- *
- * @tsplus getter fncts.io.IO disconnect
- */
-export function disconnect<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return uninterruptibleMask(({ restore }) =>
-    IO.fiberId.flatMap((fiberId) =>
-      Do((Δ) => {
-        const fiber = Δ(restore(self).forkDaemon);
-        return Δ(restore(fiber.join).onInterrupt(fiber.interruptAsFork(fiberId)));
-      }),
-    ),
-  );
 }

@@ -49,7 +49,7 @@ export function failCause<E>(cause: Cause<E>, __tsplusTrace?: string) {
  */
 export function fulfill<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) {
   return (future: Future<E, A>): IO<R, never, boolean> => {
-    return IO.uninterruptibleMask(({ restore }) => restore(io).result.flatMap((exit) => future.done(exit)));
+    return IO.uninterruptibleMask((restore) => restore(io).result.flatMap((exit) => future.done(exit)));
   };
 }
 

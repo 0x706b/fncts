@@ -348,7 +348,7 @@ class IOSpec extends DefaultRunnableSpec {
           const ref    = Δ(Ref.make(0));
           const fibers = Δ(Ref.make(HashSet.empty<Fiber<any, any>>()));
           const latch  = Δ(Future.make<never, void>());
-          const effect = IO.uninterruptibleMask(({ restore }) =>
+          const effect = IO.uninterruptibleMask((restore) =>
             restore(latch.await.onInterrupt(() => ref.update((n) => n + 1))).fork.tap((f) =>
               fibers.update((set) => set.add(f)),
             ),

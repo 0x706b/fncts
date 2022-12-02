@@ -56,7 +56,7 @@ export function releaseN(n: number, __tsplusTrace?: string) {
 export function withPermits(self: TSemaphore, __tsplusTrace?: string) {
   return (n: number) =>
     <R, E, A>(io: IO<R, E, A>) =>
-      IO.uninterruptibleMask(({ restore }) =>
+      IO.uninterruptibleMask((restore) =>
         restore(self.acquireN(n).commit).zipRight(restore(io).ensuring(self.releaseN(n).commit)),
       );
 }

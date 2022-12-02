@@ -753,7 +753,7 @@ export function scoped<R, E, A>(
   io: Lazy<IO<R, E, A>>,
 ): Channel<Exclude<R, Scope>, unknown, unknown, unknown, E, A, unknown> {
   return Channel.unwrap(
-    IO.uninterruptibleMask(({ restore }) =>
+    IO.uninterruptibleMask((restore) =>
       Scope.make.map((scope) =>
         Channel.acquireReleaseOutExitWith(
           restore(scope.extend(io)).tapErrorCause((cause) => scope.close(Exit.failCause(cause))),

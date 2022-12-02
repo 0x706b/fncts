@@ -55,6 +55,9 @@ export function unsafeFork<R, E, A, E1, B>(
   return fiber;
 }
 
+/**
+ * @tsplus static fncts.io.IOOps unsafeMakeChildFiber
+ */
 export function unsafeMakeChildFiber<R, E, A, E1, B>(
   effect: IO<R, E, A>,
   parentFiber: FiberRuntime<E1, B>,

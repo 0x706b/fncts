@@ -21,7 +21,7 @@ export function atomically<R, E, A>(stm: STM<R, E, A>, __tsplusTrace?: string): 
             const id    = TxnId.make();
             const state = new AtomicReference<CommitState<E, A>>(CommitState.Running);
             const async = IO.async(tryCommitAsync(result.journal, fiberId, stm, id, state, r, scheduler));
-            return IO.uninterruptibleMask(({ restore }) =>
+            return IO.uninterruptibleMask((restore) =>
               restore(async).catchAllCause((cause) => {
                 state.compareAndSet(CommitState.Running, CommitState.Interrupted);
                 const newState = state.get;
