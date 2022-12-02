@@ -1,5 +1,11 @@
 # @fncts/io
 
+## 0.0.25
+
+### Patch Changes
+
+- 8dfac9a: fix: circular imports
+
 ## 0.0.24
 
 ### Patch Changes
