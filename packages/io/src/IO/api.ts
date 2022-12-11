@@ -1292,6 +1292,11 @@ export function mergeAll<R, E, A, B>(
 }
 
 /**
+ * @tsplus static fncts.io.IOOps nothing
+ */
+export const nothing = IO.succeedNow(Nothing());
+
+/**
  * Converts an option on errors into an option on values.
  *
  * @tsplus getter fncts.io.IO optional
@@ -1871,10 +1876,11 @@ export function when(b: Lazy<boolean>, __tsplusTrace?: string) {
  * The moral equivalent of `if (p) exp` when `p` has side-effects
  *
  * @tsplus pipeable fncts.io.IO whenIO
+ * @tsplus static fncts.io.IOOps whenIO
  */
 export function whenIO<R1, E1>(mb: IO<R1, E1, boolean>, __tsplusTrace?: string) {
-  return <R, E, A>(ma: IO<R, E, A>): IO<R1 | R, E | E1, void> => {
-    return mb.flatMap((b) => (b ? ma.asUnit : IO.unit));
+  return <R, E, A>(ma: IO<R, E, A>): IO<R1 | R, E | E1, Maybe<A>> => {
+    return mb.flatMap((b) => (b ? ma.asJust : IO.nothing));
   };
 }
 

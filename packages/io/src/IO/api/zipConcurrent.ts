@@ -1,4 +1,8 @@
+import type { InterruptibilityRestorer } from "./interrupt.js";
+import type { Grafter } from "./transplant.js";
+
 import { tuple } from "@fncts/base/data/function";
+import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 
 /**
@@ -17,53 +21,47 @@ export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A
   return <R, E>(self: IO<R, E, A>): IO<R | R1, E | E1, C> => {
     return IO.fiberId.flatMap((fiberId) =>
       IO.uninterruptibleMask((restore) => {
-        const future = Future.unsafeMake<void, C>(FiberId.none);
-        const ref    = new AtomicReference<Maybe<Either<A, B>>>(Nothing());
-        return IO.transplant((graft) =>
-          graft(
-            restore(self).matchCauseIO(
-              (cause) => future.fail(undefined) > IO.failCauseNow(cause),
-              (a) =>
-                ref.getAndSet(Just(Either.left(a))).match(
-                  () => IO.unit,
-                  (value) =>
-                    value.match(
-                      () => IO.unit,
-                      (b) => future.succeed(f(a, b)).asUnit,
-                    ),
-                ),
-            ),
-          )
-            .forkDaemon.zip(
-              graft(
-                restore(that).matchCauseIO(
-                  (cause) => future.fail(undefined) > IO.failCauseNow(cause),
-                  (b) =>
-                    ref.getAndSet(Just(Either.right(b))).match(
-                      () => IO.unit,
-                      (value) =>
-                        value.match(
-                          (a) => future.succeed(f(a, b)).asUnit,
-                          () => IO.unit,
-                        ),
-                    ),
-                ),
-              ).forkDaemon,
-            )
+        return IO.transplant((graft) => {
+          const future = Future.unsafeMake<void, void>(FiberId.none);
+          const ref    = new AtomicBoolean(false);
+          return fork(self, restore, graft, future, ref)
+            .zip(fork(that, restore, graft, future, ref))
             .flatMap(([left, right]) =>
               restore(future.await).matchCauseIO(
                 (cause) =>
-                  left
-                    .interruptAs(fiberId)
-                    .zipConcurrent(right.interruptAs(fiberId))
-                    .flatMap(([left, right]) =>
-                      left.zipConcurrent(right).match(IO.failCauseNow, () => IO.failCauseNow(cause.stripFailures)),
-                    ),
-                (c) => left.inheritRefs.zip(right.inheritRefs).as(c),
+                  left.interruptFork >
+                  right.interruptFork >
+                  left.await.zip(right.await).flatMap(([left, right]) =>
+                    left
+                      .zipWithCause(right, f, (a, b) => Cause.both(a, b))
+                      .match(
+                        (causes) => IO.refailCause(Cause.both(cause.stripFailures, causes)),
+                        () => IO.refailCause(cause.stripFailures),
+                      ),
+                  ),
+                () => left.join.zipWith(right.join, f),
               ),
-            ),
-        );
+            );
+        });
       }),
     );
   };
+}
+
+function fork<R, E, A, C>(
+  io: Lazy<IO<R, E, A>>,
+  restore: InterruptibilityRestorer,
+  graft: Grafter,
+  future: Future<void, void>,
+  ref: AtomicBoolean,
+): IO<R, never, Fiber<E, A>> {
+  return graft(restore(io())).matchCauseIO(
+    (cause) => future.fail(undefined) > IO.refailCause(cause),
+    (a) => {
+      if (ref.getAndSet(true)) {
+        future.unsafeDone(IO.unit);
+      }
+      return IO.succeedNow(a);
+    },
+  ).forkDaemon;
 }
