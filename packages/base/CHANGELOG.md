@@ -1,5 +1,11 @@
 # @fncts/base
 
+## 0.0.24
+
+### Patch Changes
+
+- 729617c: feat: implement whenRef and whenFiberRef
+
 ## 0.0.23
 
 ### Patch Changes
