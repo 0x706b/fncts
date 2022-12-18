@@ -103,6 +103,19 @@ export function remove<A>(value: A) {
 }
 
 /**
+ * @tsplus pipeable fncts.HashSet removeMany
+ */
+export function removeMany<A>(values: Iterable<A>) {
+  return (self: HashSet<A>): HashSet<A> => {
+    const out = self.beginMutation
+    for (const v of values) {
+      out.remove(v)
+    }
+    return out.endMutation
+  }
+}
+
+/**
  * Calculate the number of keys pairs in a set
  *
  * @tsplus getter fncts.HashSet size
