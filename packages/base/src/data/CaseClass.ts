@@ -66,7 +66,8 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
 
       while (result && i < len) {
         result =
-          this[keysSymbol][i] === thatKeys[i] && (this[this[keysSymbol]![i]!] as {}) == (that as T)[thatKeys[i]!];
+          this[keysSymbol][i] === thatKeys[i] &&
+          Equatable.strictEquals(this[this[keysSymbol]![i]!] as {}, (that as T)[thatKeys[i]!]);
         i++;
       }
 

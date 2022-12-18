@@ -1062,6 +1062,16 @@ export function left<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<Either<A, never
 }
 
 /**
+ * @tsplus getter fncts.io.IO just
+ */
+export function just<R, E, A>(self: IO<R, E, Maybe<A>>): IO<R, Maybe<E>, A> {
+  return self.matchIO(
+    (e) => IO.fail(Just(e)),
+    (a) => a.match(() => IO.fail(Nothing()), IO.succeedNow),
+  );
+}
+
+/**
  * @tsplus static fncts.io.IOOps log
  */
 export function log(message: Lazy<string>, __tsplusTrace?: string): UIO<void> {

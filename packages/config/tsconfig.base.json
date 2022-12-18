@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "moduleResolution": "node",
+    "ignoreDeprecations": "5.0",
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/src/*"],
       "@fncts/typelevel": ["../typelevel/src/index"],
@@ -30,7 +31,9 @@
       "@fncts/express/*": ["../express/src/*"],
       "@fncts/express": ["../express/src/index"],
       "@fncts/schema/*": ["../schema/src/*"],
-      "@fncts/schema": ["../schema/src/index"]
+      "@fncts/schema": ["../schema/src/index"],
+      "@fncts/query/*": ["../query/src/*"],
+      "@fncts/query": ["../query/src/index"]
     }
   },
   "exclude": ["node_modules", "build"],
