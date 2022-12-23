@@ -1,5 +1,11 @@
 # @fncts/io
 
+## 0.0.27
+
+### Patch Changes
+
+- 6928dcf: feat: add unsafeGet to RefSubject
+
 ## 0.0.26
 
 ### Patch Changes
