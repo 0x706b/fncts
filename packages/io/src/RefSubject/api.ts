@@ -83,6 +83,10 @@ class Dimap<R, E, A, B, C, D> extends RefSubjectInternal<R, E, C, D> {
   }
 
   end: IO<R, never, void> = this.ref.end;
+
+  get unsafeGet(): D {
+    return this.g(this.ref.unsafeGet);
+  }
 }
 
 /**

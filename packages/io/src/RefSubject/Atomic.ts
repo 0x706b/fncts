@@ -63,6 +63,10 @@ export class AtomicRefSubject<E, A> extends RefSubjectInternal<never, E, A, A> {
   unsafeEnd(): void {
     return this.stream.end.unsafeRunAsync();
   }
+
+  get unsafeGet(): A {
+    return this.ref.unsafeGet;
+  }
 }
 
 class AtomicDimapRef<A, B> extends Atomic<B> {

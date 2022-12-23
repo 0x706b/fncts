@@ -69,4 +69,8 @@ export class SynchronizedRefSubjectInternal<R, E, A, B>
   withPermit<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
     return this.semaphore.withPermit(io);
   }
+
+  get unsafeGet(): B {
+    return this.ref.unsafeGet;
+  }
 }

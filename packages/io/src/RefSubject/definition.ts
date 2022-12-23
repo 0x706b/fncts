@@ -59,6 +59,8 @@ export abstract class RefSubjectInternal<R, E, A, B>
   abstract emit(value: A): IO<R, never, void>;
 
   abstract end: IO<R, never, void>;
+
+  abstract get unsafeGet(): B;
 }
 
 /**
