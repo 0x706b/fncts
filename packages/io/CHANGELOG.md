@@ -1,5 +1,11 @@
 # @fncts/io
 
+## 0.0.30
+
+### Patch Changes
+
+- 31e20f6: fix(IO): export provideScope
+
 ## 0.0.29
 
 ### Patch Changes
