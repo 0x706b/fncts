@@ -353,7 +353,16 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
  * @tsplus getter fncts.Datum toPending
  */
 export function toPending<A>(self: Datum<A>): Datum<A> {
-  return self.isEmpty() ? self : Refresh(self.value);
+  switch (self._tag) {
+    case DatumTag.Initial:
+      return Pending();
+    case DatumTag.Pending:
+    case DatumTag.Refresh:
+      return self;
+    case DatumTag.Replete:
+      return Refresh(self.value);
+  }
+  // return self.isEmpty() ? self : Refresh(self.value);
 }
 
 /**

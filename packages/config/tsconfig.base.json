@@ -33,7 +33,9 @@
       "@fncts/schema/*": ["../schema/src/*"],
       "@fncts/schema": ["../schema/src/index"],
       "@fncts/query/*": ["../query/src/*"],
-      "@fncts/query": ["../query/src/index"]
+      "@fncts/query": ["../query/src/index"],
+      "@fncts/react/*": ["../react/src/*"],
+      "@fncts/react": ["../react/src/index"]
     }
   },
   "exclude": ["node_modules", "build"],
