@@ -1,5 +1,11 @@
 # @fncts/io
 
+## 0.0.28
+
+### Patch Changes
+
+- e9a03cd: chore(RefSubject): add unsafeGet extension
+
 ## 0.0.27
 
 ### Patch Changes
