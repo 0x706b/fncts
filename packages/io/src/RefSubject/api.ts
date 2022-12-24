@@ -242,3 +242,11 @@ export function updateJustAndGet<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: strin
     });
   };
 }
+
+/**
+ * @tsplus getter fncts.io.Push.RefSubject unsafeGet
+ */
+export function unsafeGet<R, E, A, B>(self: RefSubject<R, E, A, B>): B {
+  concrete(self);
+  return self.unsafeGet;
+}
