@@ -1,5 +1,12 @@
 # @fncts/test
 
+## 0.0.28
+
+### Patch Changes
+
+- Updated dependencies [e9a03cd]
+  - @fncts/io@0.0.28
+
 ## 0.0.27
 
 ### Patch Changes
