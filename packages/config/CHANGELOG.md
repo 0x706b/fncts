@@ -1,5 +1,11 @@
 # @fncts/config
 
+## 0.0.14
+
+### Patch Changes
+
+- 97d36b5: feat: add react package
+
 ## 0.0.13
 
 ### Patch Changes

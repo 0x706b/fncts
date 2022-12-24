@@ -1,5 +1,15 @@
 # @fncts/io
 
+## 0.0.29
+
+### Patch Changes
+
+- 97d36b5: feat: add react package
+- Updated dependencies [97d36b5]
+  - @fncts/base@0.0.25
+  - @fncts/transformers@0.0.4
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.28
 
 ### Patch Changes
