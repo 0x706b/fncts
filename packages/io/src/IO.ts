@@ -38,6 +38,7 @@ export * from "./IO/api/memoize.js";
 export * from "./IO/api/once.js";
 export * from "./IO/api/onTermination.js";
 export * from "./IO/api/provideLayer.js";
+export * from "./IO/api/provideScope.js";
 export * from "./IO/api/provideSomeLayer.js";
 export * from "./IO/api/race.js";
 export * from "./IO/api/raceFirst.js";
