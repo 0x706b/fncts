@@ -1,5 +1,12 @@
 # @fncts/base
 
+## 0.0.25
+
+### Patch Changes
+
+- 97d36b5: feat: add react package
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.24
 
 ### Patch Changes
