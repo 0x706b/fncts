@@ -58,7 +58,7 @@ export const bigint: Decoder<bigint> = fromGuard(BigInt.Guard, (u) => new Primit
  * @tsplus static fncts.DecoderOps object
  * @tsplus implicit
  */
-export const object: Decoder<{}> = fromGuard(Object.Guard, (u) => new PrimitiveError(u, "{}"), "{}");
+export const object: Decoder<object> = fromGuard(Object.Guard, (u) => new PrimitiveError(u, "{}"), "{}");
 
 /**
  * @tsplus static fncts.DecoderOps unknown
@@ -449,7 +449,7 @@ export function deriveRecord<A extends Record<string, any>>(
     : never
 ): Decoder<A> {
   return Decoder((u) => {
-    const recordResult = Derive<Decoder<{}>>().decode(u);
+    const recordResult = Derive<Decoder<object>>().decode(u);
     if (recordResult.isLeft()) {
       return recordResult;
     }
