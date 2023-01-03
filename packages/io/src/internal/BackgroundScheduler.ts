@@ -1,17 +1,21 @@
 import type { Scheduler } from "@fncts/io/internal/Scheduler";
 
-/** @internal */
-declare global {
-  interface Navigator {
-    scheduling:
-      | {
-          isInputPending: (() => boolean) | undefined;
-        }
-      | undefined;
-  }
-  function cancelAnimationFrame(handle: number | undefined): void;
-  function cancelIdleCallback(handle: number | undefined): void;
+interface IdleDeadline {
+  timeRemaining(): number;
+  readonly didTimeout: boolean;
 }
+
+declare const requestIdleCallback: ((callback: (deadline: IdleDeadline) => void) => number) | undefined;
+declare const cancelIdleCallback: ((handle: number | undefined) => void) | undefined;
+declare const requestAnimationFrame: ((callback: (time: number) => void) => void) | undefined;
+interface Navigator {
+  scheduling:
+    | {
+        isInputPending: (() => boolean) | undefined;
+      }
+    | undefined;
+}
+declare const navigator: Navigator;
 
 interface WhenReady<T> {
   promise: () => Promise<T>;
@@ -199,6 +203,7 @@ export class BackgroundScheduler implements Scheduler {
     if (this.callbacks.length === 0) {
       const channel = new MessageChannel();
       channel.port2.postMessage(undefined);
+      // @ts-expect-error
       channel.port1.onmessage = (): void => {
         channel.port1.close();
         channel.port2.close();

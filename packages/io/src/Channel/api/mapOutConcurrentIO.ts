@@ -19,7 +19,7 @@ export function mapOutConcurrentIO<OutElem, Env1, OutErr1, OutElem1>(
             ),
           );
           const errorSignal = Δ(Future.make<OutErr1, never>());
-          const permits     = Δ(TSemaphore.make(n).commit);
+          const permits     = Δ(Semaphore(n));
           const pull        = Δ(self.toPull);
           Δ(
             pull.matchCauseIO(

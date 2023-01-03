@@ -122,6 +122,10 @@ import { ScopedRef } from "@fncts/io/ScopedRef/definition";
 /**
  * @tsplus global
  */
+import { Semaphore } from "@fncts/io/Semaphore";
+/**
+ * @tsplus global
+ */
 import { Sink } from "@fncts/io/Sink/definition";
 /**
  * @tsplus global

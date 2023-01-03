@@ -35,7 +35,7 @@ export function mergeAllWith<OutDone>(
           const cancelers    = Δ(IO.acquireRelease(Queue.makeUnbounded<Future<never, void>>(), (queue) => queue.shutdown));
           const lastDone     = Δ(Ref.make<Maybe<OutDone>>(Nothing()));
           const errorSignal  = Δ(Future.make<never, void>());
-          const permits      = Δ(TSemaphore.make(n).commit);
+          const permits      = Δ(Semaphore(n));
           const pull         = Δ(channels.toPull);
           const evaluatePull = (pull: IO<Env | Env1, OutErr | OutErr1, Either<OutDone, OutElem>>) =>
             pull

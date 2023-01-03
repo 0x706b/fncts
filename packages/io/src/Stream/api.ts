@@ -1092,7 +1092,7 @@ export function distributedWithDynamic<E, A>(
       );
       const add = Δ(
         Do((Δ) => {
-          const queuesLock = Δ(TSemaphore.make(1).commit);
+          const queuesLock = Δ(Semaphore(1));
           const newQueue   = Δ(
             Ref.make<UIO<readonly [symbol, Queue<Exit<Maybe<E>, A>>]>>(
               Do((Δ) => {

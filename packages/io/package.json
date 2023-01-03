@@ -34,7 +34,6 @@
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@fncts/scripts": "workspace:*",
-    "@types/requestidlecallback": "^0.3.5"
+    "@fncts/scripts": "workspace:*"
   }
 }

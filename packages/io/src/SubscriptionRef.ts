@@ -6,7 +6,7 @@ export type SubscriptionRefTypeId = typeof SubscriptionRefTypeId;
 
 export class SubscriptionRefInternal<A> extends PSynchronizedInternal<never, never, never, never, A, A> {
   readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId = SubscriptionRefTypeId;
-  constructor(readonly semaphore: TSemaphore, readonly hub: Hub<A>, readonly ref: Ref<A>) {
+  constructor(readonly semaphore: Semaphore, readonly hub: Hub<A>, readonly ref: Ref<A>) {
     super(semaphore, ref.get, (a) => ref.set(a));
   }
   changes: Stream<never, never, A> = Stream.unwrapScoped(
@@ -50,7 +50,7 @@ export function concrete<A>(_: SubscriptionRef<A>): asserts _ is SubscriptionRef
  */
 export function make<A>(value: Lazy<A>): UIO<SubscriptionRef<A>> {
   return Do((Δ) => {
-    const semaphore = Δ(TSemaphore.make(1).commit);
+    const semaphore = Δ(Semaphore(1));
     const hub       = Δ(Hub.makeUnbounded<A>());
     const ref       = Δ(Ref.make(value));
     return new SubscriptionRefInternal(semaphore, hub, ref);

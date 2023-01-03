@@ -30,7 +30,7 @@ export const Synchronized: PSynchronizedOps = {};
 export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA, RB, EA, EB, A, B> {
   readonly [SynchronizedTypeId]: SynchronizedTypeId = SynchronizedTypeId;
   constructor(
-    readonly semaphore: TSemaphore,
+    readonly semaphore: Semaphore,
     readonly unsafeGet: IO<RB, EB, B>,
     readonly unsafeSet: (a: A) => IO<RA, EA, void>,
   ) {
