@@ -1,4 +1,5 @@
 import { Iterable } from "../../Iterable/definition.js";
+export const MAX_CONC_DEPTH     = 256;
 export const BUFFER_SIZE        = 64;
 export const UPDATE_BUFFER_SIZE = 256;
 export const ConcTypeId         = Symbol.for("fncts.Conc");
@@ -303,7 +304,7 @@ class AppendN<A> extends ConcImplementation<A> {
   readonly _tag = ConcTag.AppendN;
 
   length: number;
-  depth = 0;
+  depth = this.start.depth + 1;
   left  = _Empty;
   right = _Empty;
 
@@ -382,6 +383,7 @@ class PrependN<A> extends ConcImplementation<A> {
   readonly _tag = ConcTag.PrependN;
 
   length: number;
+  depth: number;
   left  = _Empty;
   right = _Empty;
 
@@ -392,6 +394,10 @@ class PrependN<A> extends ConcImplementation<A> {
     readonly binary: boolean,
   ) {
     super();
+    if (this.end.depth >= MAX_CONC_DEPTH) {
+      this.end = this.end.materialize();
+    }
+    this.depth  = this.end.depth + 1;
     this.length = this.end.length + this.bufferUsed;
   }
 
@@ -466,6 +472,7 @@ class Update<A> extends ConcImplementation<A> {
   readonly _tag = ConcTag.Update;
 
   length: number;
+  depth: number;
   left  = _Empty;
   right = _Empty;
 
@@ -477,6 +484,10 @@ class Update<A> extends ConcImplementation<A> {
     readonly binary: boolean,
   ) {
     super();
+    if (this.conc.depth >= MAX_CONC_DEPTH) {
+      this.conc = this.conc.materialize();
+    }
+    this.depth  = this.conc.depth + 1;
     this.length = this.conc.length;
   }
 
@@ -573,12 +584,16 @@ export class Slice<A> extends ConcImplementation<A> {
 
   length: number;
   binary: boolean;
-  depth = 0;
+  depth: number;
   left  = _Empty;
   right = _Empty;
 
   constructor(readonly conc: ConcImplementation<A>, readonly offset: number, readonly l: number) {
     super();
+    if (this.conc.depth >= MAX_CONC_DEPTH) {
+      this.conc = this.conc.materialize();
+    }
+    this.depth  = this.conc.depth + 1;
     this.binary = this.conc.binary;
     this.length = this.l;
   }
