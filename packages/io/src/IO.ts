@@ -13,6 +13,7 @@ export * from "./IO/api/addFinalizer.js";
 export * from "./IO/api/addFinalizerExit.js";
 export * from "./IO/api/asyncInterrupt.js";
 export * from "./IO/api/asyncIO.js";
+export * from "./IO/api/blocking.js";
 export * from "./IO/api/bracket.js";
 export * from "./IO/api/bracketExit.js";
 export * from "./IO/api/clockWith.js";
