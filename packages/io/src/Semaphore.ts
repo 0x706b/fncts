@@ -3,51 +3,60 @@
  * @tsplus companion fncts.io.SemaphoreOps
  */
 export class Semaphore {
-  constructor(readonly leases: number) {}
+  constructor(readonly permits: number) {}
 
-  running   = 0;
-  observers = new Set<() => void>();
+  taken   = 0;
+  waiters = new Set<() => void>();
+
+  get free(): number {
+    return this.permits - this.taken;
+  }
 
   runNext() {
-    const next = this.observers.values().next();
+    const next = this.waiters.values().next();
     if (!next.done) {
-      this.observers.delete(next.value);
+      this.waiters.delete(next.value);
       next.value();
     }
   }
 
+  take(n: number) {
+    return IO.asyncInterrupt<never, never, number>((cb) => {
+      if (this.free < n) {
+        const observer = () => {
+          if (this.free >= n) {
+            this.waiters.delete(observer);
+            this.taken += n;
+            cb(IO.succeedNow(n));
+          }
+        };
+        this.waiters.add(observer);
+        return Either.left(
+          IO(() => {
+            this.waiters.delete(observer);
+          }),
+        );
+      }
+      this.taken += n;
+      return Either.right(IO.succeedNow(n));
+    });
+  }
+
+  release(n: number) {
+    return IO.withFiberRuntime<never, never, void>((fiber) => {
+      this.taken -= n;
+      fiber.getFiberRef(FiberRef.currentScheduler).scheduleTask(() => {
+        this.waiters.forEach((wake) => wake());
+      });
+      return IO.unit;
+    });
+  }
+
   withPermits(permits: number) {
     return <R, E, A>(io: IO<R, E, A>): IO<R, E, A> => {
-      return IO.asyncInterrupt<R, E, A>((cb) => {
-        const finalized =
-          IO((this.running += permits)) >
-          io.ensuring(
-            IO(() => {
-              this.running = this.running - permits;
-              this.runNext();
-            }),
-          );
-
-        if (this.running + permits <= this.leases) {
-          return Either.right(finalized);
-        } else {
-          let interrupted = false;
-          const observer  = () => {
-            if (!interrupted) {
-              cb(finalized);
-            } else {
-              this.runNext();
-            }
-          };
-          this.observers.add(observer);
-          return Either.left(
-            IO(() => {
-              interrupted = true;
-              this.observers.delete(observer);
-            }),
-          );
-        }
-      });
+      return IO.uninterruptibleMask((restore) =>
+        restore(this.take(permits)).flatMap((permits) => restore(io).ensuring(this.release(permits))),
+      );
     };
   }
 
