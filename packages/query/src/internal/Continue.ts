@@ -54,7 +54,7 @@ function concrete<R, E, A>(_: Continue<R, E, A>): asserts _ is Concrete<R, E, A>
 
 /**
  * @tsplus static fncts.query.Continue.EffectOps __call
- * @tsplus static fncts.query.Continue effect
+ * @tsplus static fncts.query.ContinueOps effect
  */
 export function effect<R, E, A>(query: Query<R, E, A>): Continue<R, E, A> {
   return new Effect(query);
@@ -62,7 +62,7 @@ export function effect<R, E, A>(query: Query<R, E, A>): Continue<R, E, A> {
 
 /**
  * @tsplus static fncts.query.Continue.GetOps __call
- * @tsplus static fncts.query.Continue get
+ * @tsplus static fncts.query.ContinueOps get
  */
 export function get<E, A>(io: FIO<E, A>): Continue<never, E, A> {
   return new Get(io);
