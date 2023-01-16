@@ -73,6 +73,11 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     return n ? Just(n.value) : Nothing();
   }
 
+  clear(): void {
+    this.table.fill(undefined);
+    this.contentSize = 0;
+  }
+
   updateWith(key: K, f: (v: Maybe<V>) => Maybe<V>): Maybe<V> {
     const hash                               = this.computeHash(key);
     const indexedHash                        = this.index(hash);
