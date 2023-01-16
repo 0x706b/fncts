@@ -1,5 +1,19 @@
 # @fncts/io
 
+## 0.0.31
+
+### Patch Changes
+
+- abb301c: feat: add BackgroundScheduler
+- e243270: feat: add non-transactional Semaphore
+- f50edd8: fix(Semaphore): refactor based on @effect/io
+- Updated dependencies [7893dfb]
+- Updated dependencies [abb301c]
+- Updated dependencies [c976656]
+  - @fncts/base@0.0.26
+  - @fncts/transformers@0.0.4
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.30
 
 ### Patch Changes

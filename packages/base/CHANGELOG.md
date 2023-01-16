@@ -1,5 +1,14 @@
 # @fncts/base
 
+## 0.0.26
+
+### Patch Changes
+
+- 7893dfb: fix: Conc memory leak
+- abb301c: feat: add BackgroundScheduler
+- c976656: feat: add cache package
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.25
 
 ### Patch Changes
