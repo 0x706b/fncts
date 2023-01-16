@@ -1,5 +1,11 @@
 # @fncts/config
 
+## 0.0.15
+
+### Patch Changes
+
+- c976656: feat: add cache package
+
 ## 0.0.14
 
 ### Patch Changes
