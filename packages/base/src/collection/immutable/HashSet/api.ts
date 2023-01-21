@@ -107,12 +107,12 @@ export function remove<A>(value: A) {
  */
 export function removeMany<A>(values: Iterable<A>) {
   return (self: HashSet<A>): HashSet<A> => {
-    const out = self.beginMutation
+    const out = self.beginMutation;
     for (const v of values) {
-      out.remove(v)
+      out.remove(v);
     }
-    return out.endMutation
-  }
+    return out.endMutation;
+  };
 }
 
 /**

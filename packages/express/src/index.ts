@@ -43,7 +43,7 @@ export const methods = [
   "unsubscribe",
 ] as const;
 
-export type Methods = typeof methods[number];
+export type Methods = (typeof methods)[number];
 
 export type PathParams = string | RegExp | Array<string | RegExp>;
 

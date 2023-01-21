@@ -1,4 +1,4 @@
-import type { StateInternal} from "./internal.js";
+import type { StateInternal } from "./internal.js";
 
 import { StateVariance } from "./internal.js";
 import { StateTypeId } from "./internal.js";

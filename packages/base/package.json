@@ -35,6 +35,6 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/uuid": "^8.3.4"
+    "@types/uuid": "^9.0.0"
   }
 }

@@ -11,7 +11,7 @@ import {
   unsafeMakeHub,
 } from "@fncts/io/Hub/internal";
 import { Hub as HubInternal } from "@fncts/io/internal/Hub";
-import { EnqueueTypeId, QueueTypeId , QueueVariance } from "@fncts/io/Queue";
+import { EnqueueTypeId, QueueTypeId, QueueVariance } from "@fncts/io/Queue";
 
 /**
  * Waits for the hub to be shut down.

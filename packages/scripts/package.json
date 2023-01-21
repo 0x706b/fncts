@@ -20,12 +20,12 @@
   "devDependencies": {
     "@babel/plugin-syntax-class-properties": "^7.12.13",
     "@babel/plugin-syntax-typescript": "^7.20.0",
-    "@babel/types": "^7.20.2",
+    "@babel/types": "^7.20.7",
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@types/babel__core": "^7.1.20",
+    "@types/babel__core": "^7.20.0",
     "@yarnpkg/cli": "4.0.0-rc.28",
     "@yarnpkg/core": "4.0.0-rc.28",
-    "recast": "^0.21.5"
+    "recast": "^0.22.0"
   }
 }

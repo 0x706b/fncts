@@ -1,4 +1,4 @@
-import type { Emitter} from "@fncts/io/Push/definition";
+import type { Emitter } from "@fncts/io/Push/definition";
 import type { Subject } from "@fncts/io/Subject/definition";
 
 import { Multicast, Push } from "@fncts/io/Push";

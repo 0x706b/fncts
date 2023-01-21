@@ -1501,9 +1501,7 @@ export function exhaustMapWithIndex<A, R1, E1, B>(f: (i: number, a: A) => Observ
                   isComplete && subscriber.complete();
                 },
               });
-              from(f(index++, outerValue))
-                .provideEnvironment(environment)
-                .subscribe(innerSub);
+              from(f(index++, outerValue)).provideEnvironment(environment).subscribe(innerSub);
             }
           },
           complete: () => {

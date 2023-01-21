@@ -1,6 +1,6 @@
 import type { CachedInternal } from "@fncts/io/Cached/internal";
 
-import { CachedTypeId , CachedVariance } from "@fncts/io/Cached/internal";
+import { CachedTypeId, CachedVariance } from "@fncts/io/Cached/internal";
 
 /**
  * A Cached is a possibly resourceful value that is loaded into memory, and

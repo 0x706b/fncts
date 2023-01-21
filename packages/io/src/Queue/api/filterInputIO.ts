@@ -1,6 +1,6 @@
 import type { PEnqueue, PEnqueueInternal } from "@fncts/io/Queue/definition";
 
-import { concrete, EnqueueTypeId, QueueInternal, QueueTypeId , QueueVariance } from "@fncts/io/Queue/definition";
+import { concrete, EnqueueTypeId, QueueInternal, QueueTypeId, QueueVariance } from "@fncts/io/Queue/definition";
 
 class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends QueueInternal<RA | R2, RB, EA | E2, EB, A1, B> {
   constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (_: A1) => IO<R2, E2, boolean>) {

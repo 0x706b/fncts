@@ -42,8 +42,8 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/react": "^18.0.26",
-    "@types/uuid": "^8.3.4",
+    "@types/react": "^18.0.27",
+    "@types/uuid": "^9.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }

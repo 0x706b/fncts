@@ -38,6 +38,7 @@ export type {} from "./data/Predicate.js";
 export type {} from "./data/Refinement.js";
 export type {} from "./data/Showable.js";
 export type {} from "./data/string.js";
+export type {} from "./data/Struct.js";
 export type {} from "./data/Tag.js";
 export type {} from "./data/These.js";
 export type {} from "./data/Trace.js";
