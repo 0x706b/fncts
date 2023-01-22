@@ -26,7 +26,7 @@ export class InterruptSignal {
 /**
  * @tsplus static fncts.io.FiberMessageOps InterruptSignal
  */
-export function mkInterruptSignal(cause: Cause<never>): FiberMessage {
+export function interruptSignal(cause: Cause<never>): FiberMessage {
   return new InterruptSignal(cause);
 }
 
@@ -38,7 +38,7 @@ export class GenStackTrace {
 /**
  * @tsplus static fncts.io.FiberMessageOps GenStackTrace
  */
-export function mkGenStackTrace(onTrace: (trace: Trace) => void): FiberMessage {
+export function genStackTrace(onTrace: (trace: Trace) => void): FiberMessage {
   return new GenStackTrace(onTrace);
 }
 
@@ -50,7 +50,7 @@ export class Stateful {
 /**
  * @tsplus static fncts.io.FiberMessageOps Stateful
  */
-export function mkStateful(onFiber: (fiber: FiberRuntime<any, any>, status: FiberStatus) => void): FiberMessage {
+export function stateful(onFiber: (fiber: FiberRuntime<any, any>, status: FiberStatus) => void): FiberMessage {
   return new Stateful(onFiber);
 }
 
@@ -62,7 +62,7 @@ export class Resume {
 /**
  * @tsplus static fncts.io.FiberMessageOps Resume
  */
-export function mkResume(cont: IO<any, any, any>): FiberMessage {
+export function resume(cont: IO<any, any, any>): FiberMessage {
   return new Resume(cont);
 }
 

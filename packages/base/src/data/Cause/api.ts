@@ -7,38 +7,10 @@ import { _Empty, Both, Cause, CauseTag, Empty, Fail, Halt, Interrupt, Stackless,
 /**
  * @tsplus pipeable fncts.Cause as
  */
-export function as_<B>(b: Lazy<B>) {
+export function as<B>(b: Lazy<B>) {
   return <A>(self: Cause<A>): Cause<B> => {
     return self.map(() => b());
   };
-}
-
-/**
- * @internal
- */
-function chainEval<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Eval<Cause<D>> {
-  switch (self._tag) {
-    case CauseTag.Empty:
-      return Eval.now(Cause.empty());
-    case CauseTag.Fail:
-      return Eval.now(Cause.traced(f(self.value), self.trace));
-    case CauseTag.Halt:
-      return Eval.now(self);
-    case CauseTag.Interrupt:
-      return Eval.now(self);
-    case CauseTag.Then:
-      return Eval.defer(() => chainEval(self.left, f)).zipWith(
-        Eval.defer(() => chainEval(self.right, f)),
-        Cause.then,
-      );
-    case CauseTag.Both:
-      return Eval.defer(() => chainEval(self.left, f)).zipWith(
-        Eval.defer(() => chainEval(self.right, f)),
-        Cause.both,
-      );
-    case CauseTag.Stackless:
-      return Eval.defer(chainEval(self.cause, f));
-  }
 }
 
 /**
@@ -60,8 +32,36 @@ export function both<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
  */
 export function flatMap<E, D>(f: (e: E) => Cause<D>) {
   return (self: Cause<E>): Cause<D> => {
-    return chainEval(self, f).run;
+    return flatMapEval(self, f).run;
   };
+}
+
+/**
+ * @internal
+ */
+function flatMapEval<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Eval<Cause<D>> {
+  switch (self._tag) {
+    case CauseTag.Empty:
+      return Eval.now(Cause.empty());
+    case CauseTag.Fail:
+      return Eval.now(Cause.traced(f(self.value), self.trace));
+    case CauseTag.Halt:
+      return Eval.now(self);
+    case CauseTag.Interrupt:
+      return Eval.now(self);
+    case CauseTag.Then:
+      return Eval.defer(() => flatMapEval(self.left, f)).zipWith(
+        Eval.defer(() => flatMapEval(self.right, f)),
+        Cause.then,
+      );
+    case CauseTag.Both:
+      return Eval.defer(() => flatMapEval(self.left, f)).zipWith(
+        Eval.defer(() => flatMapEval(self.right, f)),
+        Cause.both,
+      );
+    case CauseTag.Stackless:
+      return Eval.defer(flatMapEval(self.cause, f));
+  }
 }
 
 /**

@@ -506,7 +506,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
         } else if (isInterruptedException(e)) {
           cur = IO.concrete(IO.failCauseNow(Cause.both(Cause.halt(e), Cause.interrupt(FiberId.none))));
         } else {
-          cur = IO.concrete(IO.failCauseNow(Cause.halt(e)));
+          cur = IO.concrete(IO.failCauseNow(Cause.halt(e, Trace(this.fiberId, Conc(TraceElement.parse(lastTrace))))));
         }
       }
     }
