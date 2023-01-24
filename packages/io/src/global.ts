@@ -102,10 +102,6 @@ import { PRef, Ref } from "@fncts/io/Ref/definition";
 /**
  * @tsplus global
  */
-import { RuntimeConfig } from "@fncts/io/RuntimeConfig";
-/**
- * @tsplus global
- */
 import { Schedule } from "@fncts/io/Schedule/definition";
 /**
  * @tsplus global

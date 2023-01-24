@@ -32,3 +32,11 @@ export function strictEquals<A>(a: A, b: unknown): boolean {
   }
   return sameValueZeroEqual(a, b);
 }
+
+/**
+ * @tsplus static fncts.EquatableOps strictNotEquals
+ * @tsplus operator fncts.Equatable !=
+ */
+export function strictNotEquals<A>(a: A, b: unknown): boolean {
+  return !strictEquals(a, b)
+}

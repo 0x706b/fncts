@@ -28,7 +28,6 @@ export type {} from "./Random.js";
 export type {} from "./Ref.js";
 export type {} from "./RefSubject.js";
 export type {} from "./Reloadable.js";
-export type {} from "./RuntimeConfig.js";
 export type {} from "./RuntimeFlag.js";
 export type {} from "./RuntimeFlags.js";
 export type {} from "./Schedule.js";

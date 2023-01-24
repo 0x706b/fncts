@@ -9,5 +9,5 @@ export function stateful<S, R, E, A>(
   tag: Tag<State<S>>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return IO.defer(io)(IO.$.provideSomeLayer(State.initial(s, tag)));
+  return IO.defer(io).provideSomeLayer(State.initial(s, tag));
 }

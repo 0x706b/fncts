@@ -73,6 +73,6 @@ export interface YieldNow {
 /**
  * @tsplus static fncts.io.FiberMessageOps YieldNow
  */
-export const YieldNow: FiberMessage = {
+export const yieldNow: FiberMessage = {
   _tag: FiberMessageTag.YieldNow,
 };

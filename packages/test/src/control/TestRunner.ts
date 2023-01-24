@@ -1,4 +1,3 @@
-import type { RuntimeConfig } from "@fncts/io/RuntimeConfig";
 import type { Annotations } from "@fncts/test/control/Annotations";
 import type { TestReporter } from "@fncts/test/control/DefaultTestReporter/render";
 import type { Spec } from "@fncts/test/control/Spec";
