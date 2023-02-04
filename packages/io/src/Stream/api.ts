@@ -991,6 +991,13 @@ export function debounce(duration: Lazy<Duration>, __tsplusTrace?: string) {
   };
 }
 
+/**
+ * @tsplus static fncts.io.StreamOps defer
+ */
+export function defer<R, E, A>(self: Lazy<Stream<R, E, A>>): Stream<R, E, A> {
+  return new Stream(Channel.defer(self().channel));
+}
+
 function defaultIfEmptyWriter<R, E, A, R1, E1, B>(
   fb: Stream<R1, E1, B>,
   __tsplusTrace?: string,
@@ -2604,6 +2611,27 @@ export function runIntoQueueScoped<RA, RB, EA, EB, E1, A, B>(
 }
 
 /**
+ * Like runIntoQueue, but provides the result as a scoped IO
+ * to allow for scope composition.
+ *
+ * @tsplus pipeable fncts.io.Stream runIntoQueueElementsScoped
+ */
+export function runIntoQueueElementsScoped<E, A>(queue: Lazy<Queue.Enqueue<Exit<Maybe<E>, A>>>) {
+  return <R>(self: Stream<R, E, A>): IO<R | Scope, never, void> => {
+    return IO.defer(() => {
+      const queue0 = queue();
+      const writer: Channel<R, E, Conc<A>, any, never, Exit<Maybe<E>, A>, any> = Channel.readWithCause(
+        (inp: Conc<A>) => Channel.fromIO(queue0.offerAll(inp.map((a) => Exit.succeed(a)))) > writer,
+        (cause) => Channel.fromIO(queue0.offer(Exit.failCause(cause.map((e) => Just(e))))),
+        () => Channel.fromIO(queue0.offer(Exit.fail(Nothing()))),
+      );
+
+      return (self.channel >>> writer).drain.runScoped.asUnit;
+    });
+  };
+}
+
+/**
  * Like `Stream#runIntoHub`, but provides the result as a `Managed` to allow for scope
  * composition.
  *
@@ -2947,7 +2975,7 @@ export function toQueueOfElements(capacity = 2, __tsplusTrace?: string) {
   return <R, E, A>(stream: Stream<R, E, A>): IO<R | Scope, never, Queue.Dequeue<Exit<Maybe<E>, A>>> => {
     return Do((Δ) => {
       const queue = Δ(IO.acquireRelease(Queue.makeBounded<Exit<Maybe<E>, A>>(capacity), (_) => _.shutdown));
-      Δ(stream.runIntoElementsScoped(queue).fork);
+      Δ(stream.runIntoQueueElementsScoped(queue).forkScoped);
       return queue;
     });
   };
