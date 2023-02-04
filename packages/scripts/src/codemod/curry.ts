@@ -79,7 +79,7 @@ export const curry =
         }
       }
       return node;
-    });
+    }) as ts.NodeArray<ts.Statement>;
     return context.factory.updateSourceFile(
       sourceFile,
       newStatements,

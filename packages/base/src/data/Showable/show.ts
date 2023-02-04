@@ -490,12 +490,12 @@ function reduceToSingleString(
   value?: any,
 ): string {
   let output = input;
-  if (context.compact >= 1) {
+  if (Number(context.compact) >= 1) {
     const entries = output.length;
     if (extrasType === ARRAY_EXTRAS_TYPE && entries > 6) {
       output = groupElements(context, output, value);
     }
-    if (context.currentDepth - context.recurseTimes < context.compact && entries === output.length) {
+    if (context.currentDepth - context.recurseTimes < Number(context.compact) && entries === output.length) {
       const start = output.length + context.indentationLevel + braces[0].length + base.length + 10;
       if (isBelowBreakLength(context, output, start, base)) {
         return `${base ? `${base} ` : ""}${braces[0]} ${output.join(", ")} ${braces[1]}`;

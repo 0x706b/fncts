@@ -198,7 +198,6 @@ function createPipeableFunctionDeclaration(
   );
 
   const pipeableFunctionDeclaration = ts.factory.createFunctionDeclaration(
-    [],
     ts.factory.createModifiersFromModifierFlags(ts.ModifierFlags.Export),
     undefined,
     pipeableIdentifier,
@@ -308,7 +307,6 @@ function createPipeableConstrainedFunctionDeclaration(
   );
 
   const pipeableFunctionDeclaration = ts.factory.createFunctionDeclaration(
-    [],
     ts.factory.createModifiersFromModifierFlags(ts.ModifierFlags.Export),
     undefined,
     pipeableIdentifier,
