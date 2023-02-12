@@ -24,8 +24,8 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@types/babel__core": "^7.20.0",
-    "@yarnpkg/cli": "4.0.0-rc.28",
-    "@yarnpkg/core": "4.0.0-rc.28",
+    "@yarnpkg/cli": "4.0.0-rc.39",
+    "@yarnpkg/core": "4.0.0-rc.39",
     "recast": "^0.22.0"
   }
 }

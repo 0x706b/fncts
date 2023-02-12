@@ -23,16 +23,16 @@
     "@types/glob": "^8.0.1",
     "@types/lodash": "^4.14.191",
     "@types/prettier": "^2.7.2",
-    "@typescript-eslint/eslint-plugin": "^5.50.0",
-    "@typescript-eslint/experimental-utils": "^5.50.0",
-    "@typescript-eslint/parser": "^5.50.0",
+    "@typescript-eslint/eslint-plugin": "^5.51.0",
+    "@typescript-eslint/experimental-utils": "^5.51.0",
+    "@typescript-eslint/parser": "^5.51.0",
     "benchmark": "^2.1.4",
-    "eslint": "^8.33.0",
+    "eslint": "^8.34.0",
     "eslint-import-resolver-typescript": "^3.5.3",
     "eslint-plugin-codegen": "^0.17.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "prettier": "^2.8.3"
+    "prettier": "^2.8.4"
   },
   "dependencies": {
     "glob": "^8.1.0",
