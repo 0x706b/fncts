@@ -29,6 +29,8 @@ export class Either<E, A> {
   };
 }
 
+const leftHash = Hashable.string(EitherTag.Left);
+
 /**
  * @tsplus type fncts.Either.Left
  * @tsplus companion fncts.Either.LeftOps
@@ -38,7 +40,17 @@ export class Left<E> extends Either<E, never> {
   constructor(readonly left: E) {
     super();
   }
+
+  get [Symbol.hash](): number {
+    return Hashable.combine(leftHash, Hashable.unknown(this.left));
+  }
+
+  [Symbol.equals](that: unknown): boolean {
+    return Either.isEither(that) && that.isLeft() && Equatable.strictEquals(this.left, that.left);
+  }
 }
+
+const rightHash = Hashable.string(EitherTag.Right);
 
 /**
  * @tsplus type fncts.Either.Right
@@ -48,6 +60,14 @@ export class Right<A> extends Either<never, A> {
   readonly _tag = EitherTag.Right;
   constructor(readonly right: A) {
     super();
+  }
+
+  get [Symbol.hash](): number {
+    return Hashable.combine(rightHash, Hashable.unknown(this.left));
+  }
+
+  [Symbol.equals](that: unknown): boolean {
+    return Either.isEither(that) && that.isRight() && Equatable.strictEquals(this.right, that.right);
   }
 }
 

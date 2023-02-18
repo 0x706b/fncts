@@ -1,11 +1,9 @@
-import TestSpec from "./TestSpec.js";
-import ConcSpec from "./ConcSpec.js"
+import ConcSpec from "./ConcSpec.js";
+import EitherSpec from "./EitherSpec.js";
 
-ConcSpec.run(ConcSpec.spec)
-  .provideLayer(TestSpec.runner.bootstrap)
-  .unsafeRunWith((exit) =>
-    exit.match(
-      () => process.exit(1),
-      (code) => process.exit(code),
-    ),
-  );
+(ConcSpec + EitherSpec).run().unsafeRunWith((exit) =>
+  exit.match(
+    () => process.exit(1),
+    (code) => process.exit(code),
+  ),
+);

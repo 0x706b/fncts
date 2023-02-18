@@ -1,12 +1,8 @@
-import { RunnableSpec } from "@fncts/test/control/RunnableSpec";
+import { AbstractRunnableSpec } from "@fncts/test/control/AbstractRunnableSpec";
 import { timeoutWarning } from "@fncts/test/control/TestAspect";
 import { TestEnvironment } from "@fncts/test/control/TestEnvironment";
-import { defaultTestExecutor } from "@fncts/test/control/TestExecutor";
-import { TestRunner } from "@fncts/test/control/TestRunner";
 
-const defaultTestRunner = new TestRunner(defaultTestExecutor(TestEnvironment));
-
-export abstract class DefaultRunnableSpec extends RunnableSpec<TestEnvironment, any> {
+export abstract class DefaultRunnableSpec extends AbstractRunnableSpec<TestEnvironment, any> {
   aspects = [timeoutWarning((1).minutes)];
-  runner  = defaultTestRunner;
+  bootstrap: Layer<never, never, TestEnvironment> = TestEnvironment;
 }

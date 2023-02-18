@@ -1,15 +1,14 @@
 import type { InterruptibilityRestorer } from "./interrupt.js";
 import type { Grafter } from "./transplant.js";
 
-import { tuple } from "@fncts/base/data/function";
 import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
 
 /**
  * @tsplus pipeable fncts.io.IO zipConcurrent
  */
 export function zipConcurrent<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: string) {
-  return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E | E1, readonly [A, B]> => {
-    return self.zipWithConcurrent(that, tuple);
+  return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E | E1, Zipped.Make<A, B>> => {
+    return self.zipWithConcurrent(that, (a, b) => Zipped(a, b));
   };
 }
 

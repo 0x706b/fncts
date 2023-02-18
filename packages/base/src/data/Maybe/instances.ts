@@ -6,25 +6,43 @@ import { MaybeJson } from "@fncts/base/json/MaybeJson";
 import { filter, filterMap, flatMap, foldLeft, foldRight, map, partition, partitionMap, zip, zipWith } from "./api.js";
 import { just } from "./constructors.js";
 
+/**
+ * @tsplus static fncts.MaybeOps Functor
+ */
 export const Functor = HKT.instance<P.Functor<MaybeF>>({ map });
 
+/**
+ * @tsplus static fncts.MaybeOps Apply
+ */
 export const Apply = HKT.instance<P.Apply<MaybeF>>({ ...Functor, zip, zipWith });
 
+/**
+ * @tsplus static fncts.MaybeOps Applicative
+ */
 export const Applicative = HKT.instance<P.Applicative<MaybeF>>({
   ...Apply,
   pure: just,
 });
 
+/**
+ * @tsplus static fncts.MaybeOps Monad
+ */
 export const Monad = HKT.instance<P.Monad<MaybeF>>({
   ...Applicative,
   flatMap,
 });
 
+/**
+ * @tsplus static fncts.MaybeOps Foldable
+ */
 export const Foldable = HKT.instance<P.Foldable<MaybeF>>({
   foldLeft,
   foldRight,
 });
 
+/**
+ * @tsplus static fncts.MaybeOps Filterable
+ */
 export const Filterable = HKT.instance<P.Filterable<MaybeF>>({
   ...Functor,
   filter,
