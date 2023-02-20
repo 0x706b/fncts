@@ -23,7 +23,11 @@ function runScopedInterpret<Env, InErr, InDone, OutErr, OutDone>(
         return IO.fromExit(exec.getDone());
       }
       case ChannelStateTag.Read: {
-        return readUpstream(channelState, () => runScopedInterpret(exec.run(), exec));
+        return readUpstream(
+          channelState,
+          () => runScopedInterpret(exec.run(), exec),
+          (cause) => IO.refailCause(cause),
+        );
       }
     }
   }
@@ -38,8 +42,29 @@ function runScopedInterpret<Env, InErr, InDone, OutErr, OutDone>(
 export function runScoped<Env, InErr, InDone, OutErr, OutDone>(
   self: Channel<Env, InErr, unknown, InDone, OutErr, never, OutDone>,
 ): IO<Env | Scope, OutErr, OutDone> {
-  return IO.acquireReleaseExit(
-    IO.succeed(new ChannelExecutor(() => self, null, identity)),
-    (exec, exit) => exec.close(exit) ?? IO.unit,
-  ).flatMap((exec) => IO.defer(runScopedInterpret(exec.run(), exec)));
+  const run = (channelFuture: Future<OutErr, OutDone>, scopeFuture: Future<never, void>, scope: Scope) =>
+    IO.acquireReleaseExit(IO.succeed(new ChannelExecutor(() => self, null, identity)), (exec, exit) => {
+      const finalize = exec.close(exit);
+      if (finalize !== null) {
+        return finalize.tapErrorCause((cause) => scope.addFinalizer(IO.refailCause(cause)));
+      } else {
+        return IO.unit;
+      }
+    }).flatMap((exec) =>
+      IO.defer(runScopedInterpret(exec.run(), exec).fulfill(channelFuture) > channelFuture.await < scopeFuture.await),
+    );
+
+  return IO.uninterruptibleMask((restore) =>
+    Do((Δ) => {
+      const parent        = Δ(IO.scope);
+      const child         = Δ(parent.fork);
+      const channelFuture = Δ(Future.make<OutErr, OutDone>());
+      const scopeFuture   = Δ(Future.make<never, void>());
+      const fiber         = Δ(restore(run(channelFuture, scopeFuture, child)).forkScoped);
+      Δ(IO.addFinalizer(scopeFuture.succeed(undefined)));
+      const done = Δ(restore(channelFuture.await));
+      Δ(fiber.inheritAll);
+      return done;
+    }),
+  );
 }

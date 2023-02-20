@@ -31,15 +31,13 @@ export function raceFibersWith<R, E, A, R1, E1, B, R2, E2, C, R3, E3, D>(
       const raceIndicator = new AtomicBoolean(true);
       const leftFiber     = IO.unsafeMakeChildFiber(left, parentState, parentRuntimeFlags, null, __tsplusTrace);
       const rightFiber    = IO.unsafeMakeChildFiber(right0, parentState, parentRuntimeFlags, null, __tsplusTrace);
-      leftFiber.setFiberRef(FiberRef.forkScopeOverride, Just(parentState.scope));
-      rightFiber.setFiberRef(FiberRef.forkScopeOverride, Just(parentState.scope));
 
       return IO.async((cb) => {
         leftFiber.addObserver(() => complete(leftFiber, rightFiber, leftWins, raceIndicator, cb));
         rightFiber.addObserver(() => complete(rightFiber, leftFiber, rightWins, raceIndicator, cb));
         leftFiber.startFork(left);
         rightFiber.startFork(right0);
-      });
+      }, leftFiber.fiberId.combine(rightFiber.fiberId));
     });
   };
 }

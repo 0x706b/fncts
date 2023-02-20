@@ -59,7 +59,7 @@ export class Runtime<R> {
       this.unsafeRunAsyncWith(io, resolve);
     });
 
-  unsafeRunSyncExit = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Exit<E, A> => {
+  unsafeRunOrFork = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Either<Fiber.Runtime<E, A>, Exit<E, A>> => {
     const fiberId   = FiberId.unsafeMake(__tsplusTrace);
     const scheduler = new StagedScheduler();
     const fiberRefs = this.fiberRefs.updateAs(fiberId, FiberRef.currentEnvironment, this.environment);
@@ -83,10 +83,10 @@ export class Runtime<R> {
 
     const result = fiber.exitValue();
     if (result !== null) {
-      return result;
+      return Either.right(result);
     }
 
-    return Exit.halt(fiber);
+    return Either.left(fiber);
   };
 }
 
@@ -135,4 +135,4 @@ export const unsafeRunWith = defaultRuntime.unsafeRunWith;
 /**
  * @tsplus getter fncts.io.IO unsafeRunSyncExit
  */
-export const unsafeRunSyncExit = defaultRuntime.unsafeRunSyncExit;
+export const unsafeRunOrFork = defaultRuntime.unsafeRunOrFork;

@@ -32,7 +32,7 @@ function toPullInterpret<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
       return done.match(IO.failCauseNow, (outDone) => IO.succeedNow(Either.left(outDone)));
     }
     case ChannelStateTag.Read: {
-      return readUpstream(channelState, () => toPullInterpret(exec.run(), exec));
+      return readUpstream(channelState, () => toPullInterpret(exec.run(), exec), IO.refailCause);
     }
   }
 }

@@ -132,7 +132,7 @@ function checkStreamC<R, E, A, R1>(
   return TestConfig.shrinks.flatMap((shrinks) =>
     shrinkStream(
       stream.zipWithIndex
-        .mapIOC(concurrency, ([initial, index]) =>
+        .mapIOConcurrently(concurrency, ([initial, index]) =>
           initial
             .foreach(
               (input) =>

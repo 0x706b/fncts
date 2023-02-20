@@ -360,6 +360,21 @@ class IOSpec extends DefaultRunnableSpec {
         }),
       ),
       testIO(
+        "child can outlive parent in race",
+        Do((Δ) => {
+          const future = Δ(Future.make<never, void>());
+          const race   = IO.unit.raceWith(
+            future.await,
+            (_, fiber) => IO.succeed(fiber),
+            (_, fiber) => IO.succeed(fiber),
+          );
+          const fiber = Δ(IO.transplant((graft) => graft(race).fork.flatMap((fiber) => fiber.join)));
+          Δ(future.succeed(undefined));
+          const exit = Δ(fiber.await);
+          return exit.isSuccess().assert(isTrue);
+        }),
+      ),
+      testIO(
         "raceFirst interrupts loser on success",
         Do((Δ) => {
           const s      = Δ(Future.make<never, void>());

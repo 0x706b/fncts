@@ -812,9 +812,10 @@ function combineChunksProducer<Err, Elem>(
 ): Channel<never, Err, Conc<Elem>, unknown, never, never, any> {
   return Channel.fromIO(latch.take).zipRight(
     Channel.readWithCause(
-      (chunk) => Channel.fromIO(handoff.offer(Take.chunk(chunk))).zipRight(combineChunksProducer(handoff, latch)),
+      (chunk: Conc<Elem>) =>
+        Channel.fromIO(handoff.offer(Take.chunk(chunk))).zipRight(combineChunksProducer(handoff, latch)),
       (cause) => Channel.fromIO(handoff.offer(Take.failCause(cause))),
-      () => Channel.fromIO(handoff.offer(Take.end)).zipRight(combineChunksProducer(handoff, latch)),
+      () => Channel.fromIO(handoff.offer(Take.end)),
     ),
   );
 }
@@ -2196,11 +2197,24 @@ function mapIOLoop<R, E, A, R1, E1, B>(
  *
  * @note This combinator destroys the chunking structure. It's recommended to use chunkN afterwards.
  *
- * @tsplus pipeable fncts.io.Stream mapIOC
+ * @tsplus pipeable fncts.io.Stream mapIOConcurrently
  */
-export function mapIOC<A, R1, E1, B>(n: number, f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
+export function mapIOConcurrently<A, R1, E1, B>(n: number, f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E>(stream: Stream<R, E, A>): Stream<R | R1, E | E1, B> => {
     return new Stream(stream.channel.concatMap(Channel.writeChunk).mapOutConcurrentIO(n, f).mapOut(Conc.single));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Stream mapIOConcurrentlyUnordered
+ */
+export function mapIOConcurrentlyUnordered<A, R1, E1, B>(n: number, f: (a: A) => IO<R1, E1, B>) {
+  return <R, E>(self: Stream<R, E, A>): Stream<R | R1, E | E1, B> => {
+    return self.pipeThroughChannelOrFail(
+      Channel.id<never, Conc<A>, any>()
+        .concatMap((chunk) => Channel.writeChunk(chunk))
+        .mergeMap((inp) => Stream.fromIO(f(inp)).channel, n, 16),
+    );
   };
 }
 
@@ -2250,7 +2264,7 @@ export function mergeEither<R1, E1, B>(fb: Stream<R1, E1, B>, __tsplusTrace?: st
   };
 }
 
-export function mergeWithHandler<R, E>(
+function mergeWithHandler<R, E>(
   terminate: boolean,
   __tsplusTrace?: string,
 ): (exit: Exit<E, unknown>) => MergeDecision<R, E, unknown, E, unknown> {
@@ -2370,6 +2384,15 @@ export function orElseSucceed<A1>(a: Lazy<A1>, __tsplusTrace?: string) {
 export function pipeThrough<A, R1, E1, L, Z>(sa: Sink<R1, E1, A, L, Z>, __tsplusTrace?: string) {
   return <R, E>(ma: Stream<R, E, A>): Stream<R | R1, E | E1, L> => {
     return new Stream(ma.channel.pipeToOrFail(sa.channel));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Stream pipeThroughChannelOrFail
+ */
+export function pipeThroughChannelOrFail<A, R1, E1, B>(channel: Channel<R1, never, Conc<A>, any, E1, Conc<B>, any>) {
+  return <R, E>(self: Stream<R, E, A>): Stream<R | R1, E | E1, B> => {
+    return new Stream(self.channel >>> channel);
   };
 }
 

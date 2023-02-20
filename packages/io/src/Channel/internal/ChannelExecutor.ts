@@ -184,9 +184,13 @@ class Emit<R> {
  * ChannelExecutor
  * -------------------------------------------------------------------------------------------------
  */
-export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, A>): IO<R, E, A> {
+export function readUpstream<R, E, A, E1>(
+  r: State.Read<R, E>,
+  cont: () => IO<R, E1, A>,
+  onFailure: (cause: Cause<E>) => IO<R, E1, A>,
+): IO<R, E1, A> {
   const readStack: Stack<State.Read<any, any>> = Stack.single(r);
-  const read = (): IO<R, E, A> => {
+  const read = (): IO<R, E1, A> => {
     const current = readStack.pop()!;
     if (current.upstream === null) {
       return IO.defer(cont);
@@ -199,13 +203,13 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
           if (emitEffect === null) {
             return IO.defer(cont());
           } else {
-            return emitEffect.flatMap(() => cont());
+            return emitEffect.matchCauseIO(onFailure, () => cont());
           }
         } else {
           if (emitEffect === null) {
             return IO.defer(read());
           } else {
-            return emitEffect.flatMap(() => read());
+            return emitEffect.matchCauseIO(onFailure, () => read());
           }
         }
       }
@@ -215,13 +219,13 @@ export function readUpstream<R, E, A>(r: State.Read<R, E>, cont: () => IO<R, E, 
           if (doneEffect === null) {
             return IO.defer(cont());
           } else {
-            return doneEffect.flatMap(() => cont());
+            return doneEffect.matchCauseIO(onFailure, () => cont());
           }
         } else {
           if (doneEffect === null) {
             return IO.defer(read());
           } else {
-            return doneEffect.flatMap(() => read());
+            return doneEffect.matchCauseIO(onFailure, () => read());
           }
         }
       }
@@ -321,8 +325,10 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                           );
                         }
                         case State.ChannelStateTag.Read: {
-                          return readUpstream(state, () => drainer).catchAllCause((cause) =>
-                            currentChannel.input.error(cause),
+                          return readUpstream(
+                            state,
+                            () => drainer,
+                            (cause: Cause<any>) => currentChannel.input.error(cause),
                           );
                         }
                       }
@@ -492,26 +498,24 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 
   private popAllFinalizers(exit: Exit<unknown, unknown>): URIO<Env, any> {
     /**
-     * @tsplus tailrec
+     * @tsplus tailRec
      */
-    const unwind = (
-      acc: IO<Env, never, Exit<never, any>>,
-      conts: List<ErasedContinuation<Env>>,
-    ): IO<Env, never, Exit<never, unknown>> => {
-      if (conts.isEmpty()) {
-        return acc;
+    const unwind = (acc: List<Finalizer<Env>>): List<Finalizer<Env>> => {
+      if (this.doneStack.isEmpty()) {
+        return acc.reverse;
       } else {
-        const head = conts.unsafeHead!;
+        const head     = this.doneStack.unsafeHead;
+        this.doneStack = this.doneStack.unsafeTail;
         concreteContinuation(head);
         if (head._tag === ChannelTag.ContinuationK) {
-          return unwind(acc, conts.unsafeTail);
+          return unwind(acc);
         } else {
-          return unwind(acc.zipRight(head.finalizer(exit).result), conts.unsafeTail);
+          return unwind(acc.prepend(head.finalizer));
         }
       }
     };
-    const effect   = unwind(IO.succeedNow(Exit.succeed(undefined)), this.doneStack).flatMap(IO.fromExitNow);
-    this.doneStack = Nil();
+    const finalizers = unwind(List.empty());
+    const effect     = finalizers.isEmpty() ? IO.unit : this.runFinalizers(finalizers, exit);
     this.storeInProgressFinalizer(effect);
     return effect;
   }

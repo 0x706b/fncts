@@ -1028,6 +1028,7 @@ function isChannelFailure<E>(u: unknown): u is ChannelFailure<E> {
 
 /**
  * @tsplus pipeable fncts.io.Channel pipeToOrFail
+ * @tsplus pipeable-operator fncts.io.Channel >>>
  */
 export function pipeToOrFail<OutElem, OutDone, Env1, OutErr1, OutElem1, OutDone1>(
   right: Channel<Env1, never, OutElem, OutDone, OutErr1, OutElem1, OutDone1>,
