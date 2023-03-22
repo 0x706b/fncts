@@ -4,9 +4,9 @@ import { ByteChunk, Chunk, Singleton } from "./definition.js";
 /**
  * @tsplus static fncts.ConcOps from
  */
-export function from<A>(as: Iterable<A>): Conc<A> {
-  if (Array.isArray(as)) return new Chunk(as);
-  return new Chunk(Array.from(as));
+export function from<A>(values: Iterable<A>): Conc<A> {
+  if (Array.isArray(values)) return new Chunk(values);
+  return new Chunk(Array.from(values));
 }
 
 /**
@@ -19,8 +19,8 @@ export function fromBuffer(bytes: Uint8Array): Conc<Byte> {
 /**
  * @tsplus static fncts.ConcOps __call
  */
-export function make<A>(...as: ReadonlyArray<A>): Conc<A> {
-  return new Chunk(as);
+export function make<A extends ReadonlyArray<any>>(...values: ReadonlyArray<A>): Conc<A[number]> {
+  return new Chunk(values);
 }
 
 /**
