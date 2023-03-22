@@ -284,6 +284,16 @@ export function partition<E, A>(p: Predicate<A>, /** @tsplus auto */ M: P.Monoid
   };
 }
 
+/**
+ * @tsplus getter fncts.Either toMaybe
+ */
+export function toMaybe<E, A>(self: Either<E, A>): Maybe<A> {
+  return self.match(
+    () => Nothing(),
+    (a) => Just(a),
+  );
+}
+
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/align.js";
 export * from "./api/alignWith.js";

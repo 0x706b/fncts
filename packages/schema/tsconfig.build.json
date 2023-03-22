@@ -18,6 +18,9 @@
       "path": "../base/tsconfig.build.json"
     },
     {
+      "path": "../test/tsconfig.build.json"
+    },
+    {
       "path": "../transformers/tsconfig.build.json"
     }
   ]

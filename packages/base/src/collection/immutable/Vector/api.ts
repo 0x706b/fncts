@@ -82,6 +82,53 @@ export function append<A>(a: A) {
 }
 
 /**
+ * @tsplus pipeable fncts.Vector filterMapWithIndex
+ */
+export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
+  return (self: Vector<A>): Vector<B> => {
+    return self.foldLeftWithIndex(Vector.emptyPushable(), (i, acc, a) =>
+      f(i, a).match(
+        () => acc,
+        (b) => acc.push(b),
+      ),
+    );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Vector filterMap
+ */
+export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
+  return (self: Vector<A>): Vector<B> => {
+    return self.filterMapWithIndex((_, a) => f(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Vector filterWithIndex
+ */
+export function filterWithIndex<A, B extends A>(
+  refinement: RefinementWithIndex<number, A, B>,
+): (self: Vector<A>) => Vector<B>;
+export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>): (self: Vector<A>) => Vector<A>;
+export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
+  return (self: Vector<A>): Vector<A> => {
+    return self.foldLeftWithIndex(Vector.emptyPushable(), (i, acc, a) => (predicate(i, a) ? acc.push(a) : acc));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Vector filter
+ */
+export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => Vector<B>;
+export function filter<A>(predicate: Predicate<A>): (self: Vector<A>) => Vector<A>;
+export function filter<A>(predicate: Predicate<A>) {
+  return (self: Vector<A>): Vector<A> => {
+    return self.filterWithIndex((_, a) => predicate(a));
+  };
+}
+
+/**
  * Maps a function over a Vector and concatenates all the resulting
  * Vectors together.
  *
@@ -667,6 +714,19 @@ export function groupWith<A>(f: (a: A, b: A) => boolean) {
  */
 export function head<A>(self: Vector<A>): Maybe<NonNullable<A>> {
   return Maybe.fromNullable(self.unsafeHead);
+}
+
+/**
+ * @tsplus pipeable fncts.Vector includes
+ */
+export function includes<A>(element: A) {
+  return (self: Vector<A>): boolean => {
+    return self.foldLeftWhile(
+      false,
+      (found) => !found,
+      (_, __, a) => a === element,
+    );
+  };
 }
 
 type IndexOfState = {
@@ -1488,8 +1548,10 @@ export function updateAt<A>(i: number, a: A) {
 /**
  * @tsplus static fncts.VectorOps __call
  */
-export function vector<A>(...elements: ReadonlyArray<A>): Vector<A> {
-  const v = Vector.emptyPushable<A>();
+export function vector<A extends ReadonlyArray<any>>(
+  ...elements: A
+): Vector<[A] extends [ReadonlyArray<infer X>] ? X : never> {
+  const v = Vector.emptyPushable<any>();
   for (const element of elements) {
     v.push(element);
   }

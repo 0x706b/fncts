@@ -52,7 +52,7 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "madge": "^6.0.0",
     "prettier": "^2.8.4",
-    "typescript": "https://cdn.jsdelivr.net/npm/@tsplus/installer@0.0.170/compiler/typescript.tgz",
+    "typescript": "https://github.com/0x706b/typescript/raw/23f2ac220f/typescript-5.0.0-tsplus.20230306.tgz",
     "ultra-runner": "^3.10.5"
   },
   "resolutions": {

@@ -43,6 +43,17 @@ export function make<K, V>(...items: ReadonlyArray<readonly [K, V]>): HashMap<K,
 }
 
 /**
+ * @tsplus static fncts.HashMapOps from
+ */
+export function from<K, V>(items: Iterable<readonly [K, V]>): HashMap<K, V> {
+  return HashMap.empty<K, V>().mutate((map) => {
+    for (const [key, value] of items) {
+      map.set(key, value);
+    }
+  });
+}
+
+/**
  * Make a new map that has randomly cached hash and structural equality
  *
  * @tsplus static fncts.HashMapOps empty

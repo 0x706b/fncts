@@ -225,7 +225,7 @@ function updateCollisionList<K, V>(
   return arrayUpdate(mutate, len, new LeafNode(edit, hash, key, newValue), list);
 }
 
-class IndexedNode<K, V> {
+export class IndexedNode<K, V> {
   readonly _tag = "IndexedNode";
   constructor(public edit: number, public mask: number, public children: Array<Node<K, V>>) {}
 

@@ -41,6 +41,10 @@ export function isObject<A>(value: A | Primitive): boolean {
   return typeof value === "object" && value !== null;
 }
 
+export function isRecord(value: unknown): value is object & Record<PropertyKey, unknown> {
+  return isObject(value) && !Array.isArray(value);
+}
+
 export function hasTypeId<X extends symbol>(
   value: unknown,
   typeId: X,

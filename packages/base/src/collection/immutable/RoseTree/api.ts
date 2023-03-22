@@ -21,7 +21,7 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
   return (self: RoseTree<A>): B => {
-    return self.foldLeft(Vector<A>(), (b, a) => b.prepend(a)).foldLeft(b, (b, a) => f(a, b));
+    return self.foldLeft(Vector.empty<A>(), (b, a) => b.prepend(a)).foldLeft(b, (b, a) => f(a, b));
   };
 }
 

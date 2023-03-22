@@ -4,7 +4,6 @@ import type { ArrayInt64 } from "@fncts/base/util/rand";
 
 import { SortedMap } from "@fncts/base/collection/immutable/SortedMap";
 import { IllegalArgumentError, NoSuchElementError } from "@fncts/base/data/exceptions";
-import { tuple } from "@fncts/base/data/function";
 import { identity } from "@fncts/base/data/function";
 
 import {
@@ -59,6 +58,7 @@ export function alphaNumericStringWith(constraints: LengthConstraints = {}): Gen
 export const alphaNumericString: Gen<Sized, string> = alphaNumericChar.string();
 
 /**
+ * @tsplus static fncts.test.GenOps array
  * @tsplus getter fncts.test.Gen array
  */
 export function array<R, A>(self: Gen<R, A>): Gen<R | Sized, ReadonlyArray<A>> {
@@ -183,6 +183,7 @@ export function concWith(constraints: LengthConstraints = {}) {
 
 /**
  * @tsplus getter fncts.test.Gen conc
+ * @tsplus static fncts.test.GenOps conc
  */
 export function conc<R, A>(self: Gen<R, A>): Gen<R | Sized, Conc<A>> {
   return self.conc();
@@ -348,6 +349,11 @@ export function floatWith(constraints: NumberConstraints & FloatConstraints = {}
 }
 
 /**
+ * @tsplus static fncts.test.GenOps float
+ */
+export const float: Gen<never, number> = floatWith();
+
+/**
  * @tsplus static fncts.test.GenOps fullUnicodeChar
  */
 export const fullUnicodeChar: Gen<never, string> = _char(0x0000, 0x10ffff - gapSize, unicodeToCharCode);
@@ -463,6 +469,9 @@ export function oneOf<A extends ReadonlyArray<Gen<any, any>>>(...gens: A): Gen<_
   else return Gen.intWith({ min: 0, max: gens.length - 1 }).flatMap((i) => gens[i]!);
 }
 
+/**
+ * @tsplus static fncts.test.GenOps partial
+ */
 export function partial<P extends Record<string, Gen<any, any>>>(
   properties: P,
 ): Gen<
@@ -540,6 +549,9 @@ export function stringN(n: number) {
   };
 }
 
+/**
+ * @tsplus static fncts.test.GenOps struct
+ */
 export function struct<P extends Record<string, Gen<any, any>>>(
   properties: P,
 ): Gen<
@@ -626,10 +638,13 @@ export function unwrap<R, R1, A>(effect: URIO<R, Gen<R1, A>>): Gen<R | R1, A> {
  */
 export function weighted<R, A>(...gens: ReadonlyArray<readonly [Gen<R, A>, number]>): Gen<R, A> {
   const sum   = gens.map(([, weight]) => weight).foldLeft(0, (b, a) => b + a);
-  const [map] = gens.foldLeft(tuple(SortedMap.make<number, Gen<R, A>>(Number.Ord), 0), ([map, acc], [gen, d]) => {
-    if ((acc + d) / sum > acc / sum) return tuple(map.set((acc + d) / sum, gen), acc + d);
-    else return tuple(map, acc);
-  });
+  const [map] = gens.foldLeft(
+    Function.tuple(SortedMap.make<number, Gen<R, A>>(Number.Ord), 0),
+    ([map, acc], [gen, d]) => {
+      if ((acc + d) / sum > acc / sum) return Function.tuple(map.set((acc + d) / sum, gen), acc + d);
+      else return Function.tuple(map, acc);
+    },
+  );
   return Gen.uniform.flatMap((n) =>
     map.getGte(n).getOrElse(() => {
       throw new NoSuchElementError("Gen.weighted");
@@ -651,8 +666,22 @@ export function zipWith<A, R1, B, C>(that: Gen<R1, B>, f: (a: A, b: B) => C) {
  */
 export function zip<R1, B>(that: Gen<R1, B>) {
   return <R, A>(self: Gen<R, A>): Gen<R | R1, readonly [A, B]> => {
-    return self.zipWith(that, tuple);
+    return self.zipWith(that, Function.tuple);
   };
+}
+
+/**
+ * @tsplus static fncts.test.GenOps tuple
+ */
+export function tuple<A extends [...Gen<any, any>[]]>(
+  ...components: A
+): Gen<
+  { [K in keyof A]: [A[K]] extends [Gen<infer R, any>] ? R : never }[keyof A & number],
+  { [K in keyof A]: [A[K]] extends [Gen<any, infer A>] ? A : never }
+> {
+  return components.foldLeft(Gen.constant<Array<any>>([]) as Gen<any, ReadonlyArray<any>>, (b, a) =>
+    b.zipWith(a, (vs, v) => [...vs, v]),
+  ) as any;
 }
 
 function _char(min: number, max: number, mapToCode: (v: number) => number): Gen<never, string> {

@@ -32,7 +32,7 @@ export * from "./typeclass/WitherableWithIndex.js";
 
 export { Eq } from "./data/Eq.js";
 export { Equatable } from "./data/Equatable.js";
-export { Guard } from "./data/Guard.js";
+export { Guard } from "./data/Guard/definition.js";
 export { Hash } from "./data/Hash.js";
 export { Hashable } from "./data/Hashable.js";
 export { HashEq } from "./data/HashEq.js";

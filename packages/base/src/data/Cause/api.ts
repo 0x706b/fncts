@@ -79,16 +79,9 @@ export function contains<E, E1 extends E = E>(that: Cause<E1>) {
  * @internal
  */
 function containsEval<E, E1 extends E = E>(self: Cause<E>, that: Cause<E1>): Eval<boolean> {
-  return Eval.gen(function* (_) {
-    if (yield* _(self.equalsEval(that))) {
-      return true;
-    }
-    return yield* _(
-      self.foldLeft(Eval.now(false), (computation, c) =>
-        Just(computation.flatMap((b) => (b ? Eval.now(b) : c.equalsEval(that)))),
-      ),
-    );
-  });
+  return self.foldLeft(self.equalsEval(that), (computation, innerCause) =>
+    Just(computation.flatMap((b) => (b ? Eval.now(b) : innerCause.equalsEval(that)))),
+  );
 }
 
 /**
