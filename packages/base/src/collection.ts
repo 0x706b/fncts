@@ -1,4 +1,5 @@
 // codegen:start { preset: type-barrel, include: ./collection/*.ts }
+export type {} from "./collection/AsyncIterable.js";
 export type {} from "./collection/compat.js";
 export type {} from "./collection/immutable.js";
 export type {} from "./collection/Iterable.js";

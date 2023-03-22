@@ -1488,7 +1488,7 @@ export function updateAt<A>(i: number, a: A) {
 /**
  * @tsplus static fncts.VectorOps __call
  */
-export function vector<A>(...elements: ReadonlyArray<A>): Vector<A> {
+export function vector<A extends ReadonlyArray<any>>(...elements: A): Vector<A[number]> {
   const v = Vector.emptyPushable<A>();
   for (const element of elements) {
     v.push(element);
