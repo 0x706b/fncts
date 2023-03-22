@@ -1,5 +1,16 @@
 # @fncts/schema
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [09bf7a1]
+- Updated dependencies [fdf9ee4]
+- Updated dependencies [99852d6]
+- Updated dependencies [02f20fe]
+  - @fncts/base@0.0.27
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.5
 
 ### Patch Changes

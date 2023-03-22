@@ -1,5 +1,15 @@
 # @fncts/base
 
+## 0.0.27
+
+### Patch Changes
+
+- 09bf7a1: chore: update dependencies
+- fdf9ee4: chore: cleanup
+- 99852d6: fix(io): tracing of thrown exceptions
+- 02f20fe: chore: update dependencies
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.26
 
 ### Patch Changes

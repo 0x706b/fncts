@@ -1,5 +1,12 @@
 # @fncts/transformers
 
+## 0.0.5
+
+### Patch Changes
+
+- 09bf7a1: chore: update dependencies
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.4
 
 ### Patch Changes

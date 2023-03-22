@@ -1,5 +1,17 @@
 # @fncts/eslint-config
 
+## 0.0.15
+
+### Patch Changes
+
+- 09bf7a1: chore: update dependencies
+- 0875ef6: chore: update dependencies
+- 02f20fe: chore: update dependencies
+- Updated dependencies [09bf7a1]
+- Updated dependencies [0875ef6]
+- Updated dependencies [02f20fe]
+  - @fncts/codegen@0.0.15
+
 ## 0.0.14
 
 ### Patch Changes
