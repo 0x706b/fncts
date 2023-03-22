@@ -42,12 +42,12 @@ export declare namespace Brand {
  * @tsplus derive nominal
  */
 export class Validation<in out A, in out K extends string> {
-  constructor(readonly validate: Refinement<A, A & Brand.Valid<A, K>>) {}
+  constructor(readonly validate: Refinement<A, A & Brand.Valid<A, K>>, readonly name: K) {}
 }
 
 /**
  * @tsplus static fncts.ValidationOps __call
  */
-export function makeValidation<A, K extends string>(p: Predicate<A>): Validation<A, K> {
-  return new Validation(p as Refinement<A, A & Brand.Valid<A, K>>);
+export function makeValidation<A, K extends string>(p: Predicate<A>, name: K): Validation<A, K> {
+  return new Validation(p as Refinement<A, A & Brand.Valid<A, K>>, name);
 }

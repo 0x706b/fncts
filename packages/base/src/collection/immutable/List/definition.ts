@@ -12,12 +12,16 @@
  * for more information regarding copyright ownership
  */
 
+export const ListTypeId = Symbol.for("fncts.List");
+export type ListTypeId = typeof ListTypeId;
+
 /**
  * @tsplus type fncts.List.Cons
  * @tsplus companion fncts.ConsOps
  */
 export class Cons<A> implements Iterable<A> {
-  readonly _tag = "Cons";
+  readonly _tag                     = "Cons";
+  readonly [ListTypeId]: ListTypeId = ListTypeId;
   constructor(readonly head: A, public tail: List<A> = _Nil) {}
 
   [Symbol.iterator](): Iterator<A> {
@@ -52,7 +56,8 @@ export class Cons<A> implements Iterable<A> {
  * @tsplus companion fncts.NilOps
  */
 export class Nil<A> implements Iterable<A> {
-  readonly _tag = "Nil";
+  readonly _tag                     = "Nil";
+  readonly [ListTypeId]: ListTypeId = ListTypeId;
   [Symbol.iterator](): Iterator<A> {
     return {
       next() {
@@ -60,6 +65,13 @@ export class Nil<A> implements Iterable<A> {
       },
     };
   }
+}
+
+/**
+ * @tsplus static fncts.ListOps is
+ */
+export function isList(u: unknown): u is List<unknown> {
+  return isObject(u) && ListTypeId in u;
 }
 
 export const _Nil = new Nil<never>();
