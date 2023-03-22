@@ -1,5 +1,23 @@
 # @fncts/io
 
+## 0.0.32
+
+### Patch Changes
+
+- 09bf7a1: chore: update dependencies
+- fdf9ee4: chore: cleanup
+- 99852d6: fix(io): tracing of thrown exceptions
+- 1f1bd68: perf: speed up toQueueOfElements
+- fdf9ee4: chore: cleanup
+- 3a90ed8: chore: updates via ZIO
+- Updated dependencies [09bf7a1]
+- Updated dependencies [fdf9ee4]
+- Updated dependencies [99852d6]
+- Updated dependencies [02f20fe]
+  - @fncts/transformers@0.0.5
+  - @fncts/base@0.0.27
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.31
 
 ### Patch Changes

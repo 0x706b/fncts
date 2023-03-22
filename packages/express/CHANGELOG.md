@@ -1,5 +1,20 @@
 # @fncts/express
 
+## 0.0.25
+
+### Patch Changes
+
+- 09bf7a1: chore: update dependencies
+- 0875ef6: chore: update dependencies
+- 02f20fe: chore: update dependencies
+- Updated dependencies [09bf7a1]
+- Updated dependencies [fdf9ee4]
+- Updated dependencies [99852d6]
+- Updated dependencies [1f1bd68]
+- Updated dependencies [fdf9ee4]
+- Updated dependencies [3a90ed8]
+  - @fncts/io@0.0.32
+
 ## 0.0.24
 
 ### Patch Changes

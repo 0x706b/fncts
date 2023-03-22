@@ -1,5 +1,13 @@
 # @fncts/scripts
 
+## 0.0.18
+
+### Patch Changes
+
+- 09bf7a1: chore: update dependencies
+- 0875ef6: chore: update dependencies
+- 02f20fe: chore: update dependencies
+
 ## 0.0.17
 
 ### Patch Changes

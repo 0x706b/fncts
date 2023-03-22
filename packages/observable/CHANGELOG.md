@@ -1,5 +1,16 @@
 # @fncts/pattern
 
+## 0.0.16
+
+### Patch Changes
+
+- 09bf7a1: chore: update dependencies
+- Updated dependencies [09bf7a1]
+- Updated dependencies [fdf9ee4]
+- Updated dependencies [99852d6]
+- Updated dependencies [02f20fe]
+  - @fncts/base@0.0.27
+
 ## 0.0.15
 
 ### Patch Changes
