@@ -1,4 +1,11 @@
-import type { EqConstraint, FloatConstraints, LengthConstraints, NumberConstraints } from "./constraints.js";
+import type {
+  DateConstraints,
+  EqConstraint,
+  FloatConstraints,
+  LengthConstraints,
+  NumberConstraints,
+  ObjectConstraints,
+} from "./constraints.js";
 import type { _A, _R } from "@fncts/base/types.js";
 import type { ArrayInt64 } from "@fncts/base/util/rand";
 
@@ -25,6 +32,89 @@ import { Sized } from "../Sized.js";
 import { Gen } from "./definition.js";
 
 const gapSize = 0xdfff + 1 - 0xd800;
+
+/**
+ * @tsplus static fncts.test.GenOps anything
+ */
+export function anything<C extends ObjectConstraints>(
+  constraints: C = {} as C,
+): Gen<
+  ObjectConstraints extends C
+    ? Sized
+    : unknown extends C["key"]
+    ? Sized
+    : _R<C["key"]> | C["values"] extends Array<infer A>
+    ? _R<A>
+    : Sized,
+  unknown
+> {
+  const key      = constraints.key ?? Gen.alphaNumericString;
+  const maxDepth = constraints.maxDepth ?? 2;
+  const maxKeys  = constraints.maxKeys ?? 5;
+  const values   = constraints.values ?? [
+    Gen.boolean,
+    Gen.alphaNumericString,
+    Gen.double,
+    Gen.int,
+    Gen.oneOf(Gen.alphaNumericString, Gen.constant(null), Gen.constant(undefined)),
+  ];
+
+  function mapOf<R, K, R1, V>(key: Gen<R, K>, value: Gen<R1, V>) {
+    return Gen.tuple(key, value)
+      .uniqueConc({
+        eq: Eq({
+          equals:
+            ([k1]) =>
+            ([k]) =>
+              Equatable.strictEquals(k, k1),
+        }),
+        maxLength: maxKeys,
+      })
+      .map((pairs) => new Map(pairs));
+  }
+
+  function setOf<R, V>(value: Gen<R, V>) {
+    return value
+      .uniqueConc({ eq: Eq({ equals: (v1) => (v) => Equatable.strictEquals(v, v1) }), maxLength: maxKeys })
+      .map((values) => new Set(values));
+  }
+
+  const base       = Gen.oneOf(...values);
+  const arrayBase  = Gen.oneOf(...values.map((gen) => gen.arrayWith({ maxLength: maxKeys })));
+  const arrayGen   = Gen.memo((n) => Gen.oneOf(arrayBase, gen(n).arrayWith({ maxLength: maxKeys })));
+  const objectBase = Gen.oneOf(...values.map((gen) => Gen.record(key, gen)));
+  const objectGen  = Gen.memo((n) => Gen.oneOf(objectBase, Gen.record(key, gen(n))));
+  const setBase    = Gen.oneOf(...values.map(setOf));
+  const setGen     = Gen.memo((n) => Gen.oneOf(setBase, setOf(gen(n))));
+  const mapBase    = Gen.oneOf(...values.map((value) => mapOf(key, value)));
+  const mapGen     = Gen.memo((n) => Gen.oneOf(mapBase, mapOf(Gen.oneOf(key, gen(n)), gen(n))));
+
+  const gen: (n: number) => Gen<any, any> = Gen.memo((n) => {
+    if (n <= 0) return base;
+    return Gen.oneOf(
+      base,
+      arrayGen(),
+      objectGen(),
+      ...(constraints.withDate ? [Gen.date()] : []),
+      ...(constraints.withSet ? [setGen()] : []),
+      ...(constraints.withMap ? [mapGen()] : []),
+      ...(constraints.withTypedArray
+        ? [
+            Gen.oneOf(
+              Gen.int8Array(),
+              Gen.uint8Array(),
+              Gen.int16Array(),
+              Gen.uint16Array(),
+              Gen.int32Array(),
+              Gen.uint32Array(),
+            ),
+          ]
+        : []),
+    );
+  });
+
+  return gen(maxDepth);
+}
 
 /**
  * @tsplus static fncts.test.GenOps size
@@ -682,6 +772,81 @@ export function tuple<A extends [...Gen<any, any>[]]>(
   return components.foldLeft(Gen.constant<Array<any>>([]) as Gen<any, ReadonlyArray<any>>, (b, a) =>
     b.zipWith(a, (vs, v) => [...vs, v]),
   ) as any;
+}
+
+/**
+ * @tsplus static fncts.test.GenOps record
+ */
+export function record<R, R1, A>(
+  key: Gen<R, string>,
+  value: Gen<R1, A>,
+  constraints?: LengthConstraints,
+): Gen<Sized | R | R1, Record<string, A>> {
+  return Gen.tuple(key, value)
+    .uniqueConc({ eq: String.Eq.contramap(([k]) => k), ...constraints })
+    .map((pairs) => pairs.foldLeft({} as Record<string, A>, (b, [k, v]) => ({ ...b, [k]: v })));
+}
+
+/**
+ * @tsplus static fncts.test.GenOps date
+ */
+export function date(constraints: DateConstraints = {}): Gen<never, Date> {
+  const min = constraints.min ? constraints.min.getTime() : -8_640_000_000_000_000;
+  const max = constraints.max ? constraints.max.getTime() : 8_640_000_000_000_000;
+  return Gen.intWith({ min, max }).map((n) => new Date(n));
+}
+
+function typedArray<A>(
+  constraints: LengthConstraints & NumberConstraints,
+  minBound: number,
+  maxBound: number,
+  ctor: { new (arg: ReadonlyArray<number>): A },
+): Gen<Sized, A> {
+  const min = constraints.min ? clamp(constraints.min, minBound, maxBound) : minBound;
+  const max = constraints.max ? clamp(constraints.max, minBound, maxBound) : maxBound;
+  return Gen.array(Gen.intWith({ min, max })).map((n) => new ctor(n));
+}
+
+/**
+ * @tsplus static fncts.test.GenOps int8Array
+ */
+export function int8Array(constraints: LengthConstraints & NumberConstraints = {}): Gen<Sized, Int8Array> {
+  return typedArray(constraints, -128, 127, Int8Array);
+}
+
+/**
+ * @tsplus static fncts.test.GenOps int16Array
+ */
+export function int16Array(constraints: LengthConstraints & NumberConstraints = {}): Gen<Sized, Int16Array> {
+  return typedArray(constraints, -32768, 32767, Int16Array);
+}
+
+/**
+ * @tsplus static fncts.test.GenOps int32Array
+ */
+export function int32Array(constraints: LengthConstraints & NumberConstraints = {}): Gen<Sized, Int32Array> {
+  return typedArray(constraints, -0x80000000, 0x7fffffff, Int32Array);
+}
+
+/**
+ * @tsplus static fncts.test.GenOps uint8Array
+ */
+export function uint8Array(constraints: LengthConstraints & NumberConstraints = {}): Gen<Sized, Uint8Array> {
+  return typedArray(constraints, 0, 255, Uint8Array);
+}
+
+/**
+ * @tsplus static fncts.test.GenOps uint16Array
+ */
+export function uint16Array(constraints: LengthConstraints & NumberConstraints = {}): Gen<Sized, Uint16Array> {
+  return typedArray(constraints, 0, 65535, Uint16Array);
+}
+
+/**
+ * @tsplus static fncts.test.GenOps uint32Array
+ */
+export function uint32Array(constraints: LengthConstraints & NumberConstraints = {}): Gen<Sized, Uint32Array> {
+  return typedArray(constraints, 0, 0xffffffff, Uint32Array);
 }
 
 function _char(min: number, max: number, mapToCode: (v: number) => number): Gen<never, string> {

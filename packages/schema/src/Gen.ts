@@ -58,11 +58,9 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
     case ASTTag.NeverKeyword:
       return Gen.fromIO(IO.haltNow(new InvalidInterpretationError("cannot build a Gen for `never`")));
     case ASTTag.UnknownKeyword:
-      // TODO: Gen.anything
-      return Gen.constant("unknown");
+      return Gen.anything();
     case ASTTag.AnyKeyword:
-      // TODO: Gen.anything
-      return Gen.constant("any");
+      return Gen.anything();
     case ASTTag.StringKeyword:
       return Gen.fullUnicodeString();
     case ASTTag.NumberKeyword:
@@ -74,8 +72,7 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
     case ASTTag.SymbolKeyword:
       return Gen.fullUnicodeString().map((s) => Symbol.for(s));
     case ASTTag.ObjectKeyword:
-      // TODO: Gen.anything
-      return Gen.constant({});
+      return Gen.anything();
     case ASTTag.TemplateLiteral: {
       const components: Array<Gen<Sized, string>> = [Gen.constant(ast.head)];
       for (const span of ast.spans) {
