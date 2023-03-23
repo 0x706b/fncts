@@ -144,7 +144,7 @@ class IOSpec extends DefaultRunnableSpec {
           );
         }
         const io = stackIOs(17);
-        return Live.Live(io).assert(strictEqualTo(42));
+        return Live.live(io).assert(strictEqualTo(42));
       }),
       testIO(
         "interrupt of asyncIO register",
@@ -184,7 +184,7 @@ class IOSpec extends DefaultRunnableSpec {
               )
               .ensuring(unexpectedPlace.update((_) => 2 + _)).forkDaemon,
           );
-          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout((1).seconds)));
+          const result     = Δ(Live.withLive(fork.interrupt)((io) => io.timeout((1).seconds)));
           const unexpected = Δ(unexpectedPlace.get);
           return unexpected.assert(isEmpty) && result.assert(isNothing);
         }),
@@ -208,12 +208,12 @@ class IOSpec extends DefaultRunnableSpec {
               )
               .ensuring(unexpectedPlace.update((_) => 2 + _)).uninterruptible.forkDaemon,
           );
-          const result     = Δ(Live.withLive(fork.interrupt, (io) => io.timeout((1).seconds)));
+          const result     = Δ(Live.withLive(fork.interrupt)((io) => io.timeout((1).seconds)));
           const unexpected = Δ(unexpectedPlace.get);
           return unexpected.assert(isEmpty) && result.assert(isNothing);
         }),
       ),
-      testIO("sleep 0 must return", Live.Live(Clock.sleep((0).milliseconds)).assert(isUnit)),
+      testIO("sleep 0 must return", Live.live(Clock.sleep((0).milliseconds)).assert(isUnit)),
       testIO("shallow bind of async chain", () => {
         const io = Iterable.range(0, 9).foldLeft(IO.succeed(0), (acc, _) =>
           acc.flatMap((n) => IO.async<never, never, number>((k) => k(IO.succeed(n + 1)))),
@@ -448,7 +448,7 @@ class IOSpec extends DefaultRunnableSpec {
           );
           return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
         });
-        return Live.Live(io).assert(strictEqualTo(42));
+        return Live.live(io).assert(strictEqualTo(42));
       }),
       testIO("bracketExit is uninterruptible", () => {
         const io = Do((Δ) => {
@@ -462,7 +462,7 @@ class IOSpec extends DefaultRunnableSpec {
           );
           return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
         });
-        return Live.Live(io).assert(strictEqualTo(42));
+        return Live.live(io).assert(strictEqualTo(42));
       }),
       testIO(
         "bracket use is interruptible",

@@ -102,14 +102,14 @@ export function timeoutWarning(duration: Duration): TestAspect<Live, any> {
 
 function warn<R, E>(labels: Vector<string>, test: IO<R, TestFailure<E>, TestSuccess>, duration: Duration) {
   return test.raceWith(
-    Live.withLive(showWarning(labels, duration), (io) => Clock.sleep(duration) > io),
+    Live.withLive(showWarning(labels, duration))((io) => Clock.sleep(duration) > io),
     (result, fiber) => fiber.interrupt > IO.fromExitNow(result),
     (_, fiber) => fiber.join,
   );
 }
 
 function showWarning(labels: Vector<string>, duration: Duration) {
-  return Live.Live(Console.print(renderWarning(labels, duration)));
+  return Console.print(renderWarning(labels, duration));
 }
 
 function renderWarning(labels: Vector<string>, duration: Duration) {

@@ -21,23 +21,22 @@ export abstract class Live {
     ),
     LiveTag,
   );
-  static Live<R extends Live, E, A>(io: IO<R, E, A>): IO<R | Live, E, A> {
+  static live<R extends Live, E, A>(io: IO<R, E, A>): IO<R | Live, E, A> {
     return IO.serviceWithIO((live) => live.provide(io), LiveTag);
   }
 }
 
 /**
- * @tsplus static fncts.test.LiveOps withLive
+ * @tsplus static fncts.io.IOOps liveWith
  */
-export function withLive_<R, E, A, E1, B>(
-  io: IO<R, E, A>,
-  f: (_: IO<never, E, A>) => IO<IOEnv, E1, B>,
-): IO<Exclude<R, Live>, E | E1, B> {
-  // @ts-expect-error
-  return IO.environment<R | Live>().flatMap((r) => Live.Live(f(io.provideEnvironment(r))));
+export function liveWith<R, E, A>(f: (live: Live) => IO<R, E, A>): IO<R | Live, E, A> {
+  return IO.environmentWithIO((environment) => f(environment.get(Live.Tag)));
 }
 
+/**
+ * @tsplus static fncts.test.LiveOps withLive
+ */
 export function withLive<R extends Live, E, A>(io: IO<R, E, A>) {
   return <E1, B>(f: (_: IO<R, E, A>) => IO<R, E1, B>): IO<R | Live, E1, B> =>
-    IOEnv.services.getWith((services) => Live.Live(f(IOEnv.services.locally(services)(io))));
+    IOEnv.services.getWith((services) => Live.live(f(IOEnv.services.locally(services)(io))));
 }
