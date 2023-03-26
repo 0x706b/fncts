@@ -952,6 +952,18 @@ export function separate<E, A>(self: Conc<Either<E, A>>): readonly [Conc<E>, Con
 }
 
 /**
+ * @tsplus pipeable fncts.Conc slice
+ */
+export function slice(from: number, to: number) {
+  return <A>(self: Conc<A>): Conc<A> => {
+    concrete(self);
+    const start = from < 0 ? 0 : from > self.length ? self.length : from;
+    const end   = to < start ? start : to > self.length ? self.length : to;
+    return new Slice(self, start, end - start);
+  };
+}
+
+/**
  * @tsplus pipeable fncts.Conc splitAt
  */
 export function splitAt(n: number) {

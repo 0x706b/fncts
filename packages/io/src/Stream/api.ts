@@ -1157,7 +1157,7 @@ export function distributedWithDynamic<E, A>(
  *
  * @tsplus getter fncts.io.Stream drain
  */
-export function drain<R, E, A>(fa: Stream<R, E, A>, __tsplusTrace?: string): Stream<R, E, void> {
+export function drain<R, E, A>(fa: Stream<R, E, A>, __tsplusTrace?: string): Stream<R, E, never> {
   return new Stream(fa.channel.drain);
 }
 
@@ -1310,6 +1310,15 @@ export function environmentWithStream<R0, R, E, A>(
   __tsplusTrace?: string,
 ): Stream<R0 | R, E, A> {
   return Stream.environment<R0>().flatMap(f);
+}
+
+/**
+ * Creates a stream that executes the specified effect but emits no elements.
+ *
+ * @tsplus static fncts.io.StreamOps execute
+ */
+export function execute<R, E>(io: IO<R, E, any>, __tsplusTrace?: string): Stream<R, E, never> {
+  return Stream.fromIO(io).drain;
 }
 
 /**
@@ -1582,6 +1591,65 @@ export function fromChunk<O>(c: Lazy<Conc<O>>, __tsplusTrace?: string): Stream<n
  */
 export function scoped<R, E, A>(stream: Lazy<IO<R, E, A>>, __tsplusTrace?: string): Stream<Exclude<R, Scope>, E, A> {
   return new Stream(Channel.scoped(stream().map(Conc.single)));
+}
+
+/**
+ * Emits a sliding window of n elements.
+ *
+ * @tsplus pipeable fncts.io.Stream sliding
+ */
+export function sliding(chunkSize: number, stepSize: number, __tsplusTrace?: string) {
+  return <R, E, A>(self: Stream<R, E, A>): Stream<R, E, Conc<A>> => {
+    return Stream.defer(() => {
+      function slidingChunk(chunk: Conc<A>, input: Conc<A>): [Conc<A>, Conc<Conc<A>>] {
+        const updatedChunk = chunk.concat(input);
+        const length       = updatedChunk.length;
+        if (length >= chunkSize) {
+          const array    = new Array<Conc<A>>((length - chunkSize) / stepSize + 1);
+          let arrayIndex = 0;
+          let chunkIndex = 0;
+          while (chunkIndex + chunkSize <= length) {
+            array[arrayIndex] = updatedChunk.slice(chunkIndex, chunkIndex + chunkSize);
+            arrayIndex       += 1;
+            chunkIndex       += stepSize;
+          }
+          return [updatedChunk.drop(chunkIndex), Conc.fromArray(array)];
+        } else {
+          return [updatedChunk, Conc.empty()];
+        }
+      }
+      function sliding(chunk: Conc<A>, written: boolean): Channel<never, E, Conc<A>, any, E, Conc<Conc<A>>, any> {
+        return Channel.readWithCause(
+          (input) => {
+            const [updatedChunk, out] = slidingChunk(chunk, input);
+            if (out.isEmpty) {
+              return sliding(updatedChunk, written);
+            } else {
+              return Channel.writeNow(out) > sliding(updatedChunk, true);
+            }
+          },
+          (err) => {
+            const index = written && chunkSize > stepSize ? chunkSize - stepSize : 0;
+            if (index >= chunk.length) {
+              return Channel.failCauseNow(err);
+            } else {
+              return Channel.writeNow(Conc.single(chunk)) > Channel.failCauseNow(err);
+            }
+          },
+          (done) => {
+            const index = written && chunkSize > stepSize ? chunkSize - stepSize : 0;
+            if (index >= chunk.length) {
+              return Channel.succeedNow(done);
+            } else {
+              return Channel.writeNow(Conc.single(chunk)) > Channel.succeedNow(done);
+            }
+          },
+        );
+      }
+
+      return new Stream(self.channel >>> sliding(Conc.empty(), false));
+    });
+  };
 }
 
 /**
@@ -2219,6 +2287,84 @@ export function mapIOConcurrentlyUnordered<A, R1, E1, B>(n: number, f: (a: A) =>
 }
 
 /**
+ * Merges this stream and the specified stream together.
+ *
+ * New produced stream will terminate when both specified stream terminate if
+ * no termination strategy is specified.
+ *
+ * @tsplus pipeable fncts.io.Stream merge
+ */
+export function merge<R1, E1, B>(
+  that: Stream<R1, E1, B>,
+  strategy: TerminationStrategy = "Both",
+  __tsplusTrace?: string,
+) {
+  return <R, E, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A | B> => {
+    return self.mergeWith(that, identity, identity, strategy);
+  };
+}
+
+/**
+ * Merges this stream and the specified stream together. New produced stream
+ * will terminate when either stream terminates.
+ *
+ * @tsplus pipeable fncts.io.Stream mergeHaltEither
+ */
+export function mergeHaltEither<R1, E1, B>(that: Stream<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A | B> => {
+    return self.merge(that, "Either");
+  };
+}
+
+/**
+ * Merges this stream and the specified stream together. New produced stream
+ * will terminate when this stream terminates.
+ *
+ * @tsplus pipeable fncts.io.Stream mergeHaltLeft
+ */
+export function mergeHaltLeft<R1, E1, B>(that: Stream<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A | B> => {
+    return self.merge(that, "Left");
+  };
+}
+
+/**
+ * Merges this stream and the specified stream together. New produced stream
+ * will terminate when the specified stream terminates.
+ *
+ * @tsplus pipeable fncts.io.Stream mergeHaltRight
+ */
+export function mergeHaltRight<R1, E1, B>(that: Stream<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A | B> => {
+    return self.merge(that, "Right");
+  };
+}
+
+/**
+ * Merges this stream and the specified stream together, discarding the values
+ * from the right stream.
+ *
+ * @tsplus pipeable fncts.io.Stream mergeLeft
+ */
+export function mergeLeft<R1, E1, B>(that: Stream<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A> => {
+    return self.merge(that.drain);
+  };
+}
+
+/**
+ * Merges this stream and the specified stream together, discarding the values
+ * from the left stream.
+ *
+ * @tsplus pipeable fncts.io.Stream mergeRight
+ */
+export function mergeRight<R1, E1, B>(that: Stream<R1, E1, B>, __tsplusTrace?: string) {
+  return <R, E, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, B> => {
+    return self.drain.merge(that);
+  };
+}
+
+/**
  * Maps each element of this stream to another stream and returns the
  * non-deterministic merge of those streams, executing up to `n` inner streams
  * concurrently. Up to `bufferSize` elements of the produced streams may be
@@ -2734,6 +2880,40 @@ export function scanReduceIO<A extends B, R1, E1, B>(f: (b: B, a: A) => IO<R1, E
 }
 
 /**
+ * @tsplus pipeable fncts.io.Stream split
+ */
+export function split<A>(predicate: Predicate<A>, __tsplusTrace?: string) {
+  return <R, E>(self: Stream<R, E, A>): Stream<R, E, Conc<A>> => {
+    function split(leftovers: Conc<A>, input: Conc<A>): Channel<R, E, Conc<A>, any, E, Conc<Conc<A>>, any> {
+      const [chunk, remaining] = leftovers.concat(input).splitWhere(predicate);
+      if (chunk.isEmpty || remaining.isEmpty) {
+        return loop(chunk.concat(remaining.drop(1)));
+      } else {
+        return Channel.writeNow(Conc.single(chunk)) > split(Conc.empty(), remaining.drop(1));
+      }
+    }
+
+    function loop(leftovers: Conc<A>): Channel<R, E, Conc<A>, any, E, Conc<Conc<A>>, any> {
+      return Channel.readWith(
+        (input) => split(leftovers, input),
+        Channel.failNow,
+        (_) => {
+          if (leftovers.isEmpty) {
+            return Channel.unit;
+          } else if (leftovers.find(predicate).isNothing()) {
+            return Channel.writeNow(Conc.single(leftovers)) > Channel.unit;
+          } else {
+            return split(Conc.empty(), leftovers) > Channel.unit;
+          }
+        },
+      );
+    }
+
+    return new Stream(self.channel >>> loop(Conc.empty()));
+  };
+}
+
+/**
  * Creates a single-valued pure stream
  *
  * @tsplus static fncts.io.StreamOps succeedNow
@@ -2853,6 +3033,70 @@ export function takeUntil<A>(p: Predicate<A>, __tsplusTrace?: string) {
 export function tap<A, R1, E1>(f: (a: A) => IO<R1, E1, any>, __tsplusTrace?: string) {
   return <R, E>(ma: Stream<R, E, A>): Stream<R | R1, E | E1, A> => {
     return ma.mapIO((a) => f(a).as(a));
+  };
+}
+
+/**
+ * Returns a stream that effectfully "peeks" at the failure and adds an effect
+ * to consumption of every element of the stream
+ *
+ * @tsplus pipeable fncts.io.Stream tapBoth
+ */
+export function tapBoth<E, A, R1, E1, R2, E2>(
+  f: (e: E) => IO<R1, E1, any>,
+  g: (a: A) => IO<R2, E2, any>,
+  __tsplusTrace?: string,
+) {
+  return <R>(self: Stream<R, E, A>): Stream<R | R1 | R2, E | E1 | E2, A> => {
+    return self.tapError(f).tap(g);
+  };
+}
+
+/**
+ * Returns a stream that effectfully "peeks" at the failure of the stream.
+ *
+ * @tsplus pipeable fncts.io.Stream tapError
+ */
+export function tapError<E, R1, E1>(f: (e: E) => IO<R1, E1, any>, __tsplusTrace?: string) {
+  return <R, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A> => {
+    return self.catchAll((e) => Stream.fromIO(f(e)));
+  };
+}
+
+/**
+ * Returns a stream that effectfully "peeks" at the cause of failure of the
+ * stream.
+ *
+ * @tsplus pipeable fncts.io.Stream tapErrorCause
+ */
+export function tapErrorCause<E, R1, E1>(f: (cause: Cause<E>) => IO<R1, E1, any>, __tsplusTrace?: string) {
+  return <R, A>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A> => {
+    return self.catchAllCause((e) => Stream.fromIO(f(e) > IO.refailCause(e)));
+  };
+}
+
+/**
+ * Sends all elements emitted by this stream to the specified sink in addition
+ * to emitting them.
+ *
+ * @tsplus pipeable fncts.io.Stream tapSink
+ */
+export function tapSink<A, R1, E1>(sink: Sink<R1, E1, A, any, any>, __tsplusTrace?: string) {
+  return <R, E>(self: Stream<R, E, A>): Stream<R | R1, E | E1, A> => {
+    return Stream.fromIO(Queue.makeBounded<Take<E | E1, A>>(1).zip(Future.make<never, void>())).flatMap(
+      ([queue, future]) => {
+        const right = Stream.fromQueue(queue, 1).flattenTake;
+        const loop: Channel<R | R1, E, Conc<A>, any, E1, Conc<A>, any> = Channel.readWithCause(
+          (chunk: Conc<A>) => Channel.fromIO(queue.offer(Take.chunk(chunk))) > Channel.writeNow(chunk) > loop,
+          (cause: Cause<E>) => Channel.fromIO(queue.offer(Take.failCause(cause))),
+          () => Channel.fromIO(queue.offer(Take.end)),
+        );
+        return new Stream((self.channel >>> loop).ensuring(queue.offer(Take.end).forkDaemon > future.await)).merge(
+          Stream.execute(right.run(sink).ensuring(future.succeed(undefined))),
+          "Both",
+        );
+      },
+    );
   };
 }
 
