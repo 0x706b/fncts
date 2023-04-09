@@ -247,7 +247,11 @@ export function asyncInterrupt<R, E, A>(
         IO.succeed(() =>
           register((k, cb) => {
             const effect = Take.fromPull(k).flatMap((a) => output.offer(a));
-            return runtime.unsafeRunAsyncWith(effect, cb || constVoid);
+            const fiber  = runtime.makeFiber(effect);
+            if (cb) {
+              fiber.addObserver(cb);
+            }
+            fiber.start(effect);
           }),
         ),
       );
@@ -317,12 +321,14 @@ export function asyncIO<R, E, A, R1 = R, E1 = E>(
         const output  = Δ(IO.acquireRelease(Queue.makeBounded<Take<E, A>>(outputBuffer), (_) => _.shutdown));
         const runtime = Δ(IO.runtime<R>());
         Δ(
-          register((k, cb) =>
-            runtime.unsafeRunAsyncWith(
-              Take.fromPull(k).flatMap((a) => output.offer(a)),
-              cb || constVoid,
-            ),
-          ),
+          register((k, cb) => {
+            const io    = Take.fromPull(k).flatMap((a) => output.offer(a));
+            const fiber = runtime.makeFiber(io);
+            if (cb) {
+              fiber.addObserver(cb);
+            }
+            fiber.start(io);
+          }),
         );
         const loop: Channel<never, unknown, unknown, unknown, E, Conc<A>, void> = Channel.unwrap(
           output.take

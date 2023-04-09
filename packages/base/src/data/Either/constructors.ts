@@ -6,16 +6,16 @@ import { Either, Left, Right } from "./definition.js";
  * @tsplus static fncts.EitherOps left
  * @tsplus static fncts.Either.LeftOps __call
  */
-export function left<E = never, A = never>(e: E): Either<E, A> {
-  return new Left(e);
+export function left<E = never, A = never>(e: E, __tsplusTrace?: string): Either<E, A> {
+  return new Left(e, __tsplusTrace);
 }
 
 /**
  * @tsplus static fncts.EitherOps right
  * @tsplus static fncts.Either.RightOps __call
  */
-export function right<E = never, A = never>(a: A): Either<E, A> {
-  return new Right(a);
+export function right<E = never, A = never>(a: A, __tsplusTrace?: string): Either<E, A> {
+  return new Right(a, __tsplusTrace);
 }
 
 /**

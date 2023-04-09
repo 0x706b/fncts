@@ -174,11 +174,11 @@ class IOSpec extends DefaultRunnableSpec {
           const runtime         = Δ(IO.runtime<Live>());
           const fork            = Δ(
             IO.async<never, never, void>((k) => {
-              runtime.unsafeRunAsync(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
+              runtime.unsafeRunFiber(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
             })
               .ensuring(
                 IO.async<never, never, void>(() => {
-                  runtime.unsafeRunAsync(step.succeed(undefined));
+                  runtime.unsafeRunFiber(step.succeed(undefined));
                   // never complete
                 }),
               )
@@ -197,12 +197,12 @@ class IOSpec extends DefaultRunnableSpec {
           const runtime         = Δ(IO.runtime<Live>());
           const fork            = Δ(
             IO.asyncMaybe<never, never, void>((k) => {
-              runtime.unsafeRunAsync(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
+              runtime.unsafeRunFiber(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
               return Just(IO.unit);
             })
               .flatMap(() =>
                 IO.async<never, never, void>(() => {
-                  runtime.unsafeRunAsync(step.succeed(undefined));
+                  runtime.unsafeRunFiber(step.succeed(undefined));
                   // never complete
                 }),
               )
@@ -259,7 +259,7 @@ class IOSpec extends DefaultRunnableSpec {
           const latch   = Δ(Future.make<never, void>());
           const runtime = Δ(IO.runtime<never>());
           const async   = IO.asyncInterrupt<never, never, never>(() => {
-            runtime.unsafeRunAsync(latch.succeed(undefined));
+            runtime.unsafeRunFiber(latch.succeed(undefined));
             return Either.left(release.succeed(42).asUnit);
           });
           const fiber = Δ(async.fork);

@@ -1,3 +1,5 @@
+import type { EqualsContext } from "@fncts/base/data/Equatable";
+
 export const enum EitherTag {
   Left = "Left",
   Right = "Right",
@@ -17,12 +19,17 @@ export interface EitherF extends HKT {
   };
 }
 
+const IOTypeId = Symbol.for("fncts.io.IO");
+type IOTypeId = typeof IOTypeId;
+
 /**
  * @tsplus type fncts.Either
  * @tsplus companion fncts.EitherOps
  */
 export class Either<E, A> {
   readonly [EitherTypeId]: EitherTypeId = EitherTypeId;
+  readonly [IOTypeId]: IOTypeId         = IOTypeId;
+  readonly trace?: string | undefined   = undefined;
   declare [EitherVariance]: {
     readonly _E: (_: never) => E;
     readonly _A: (_: never) => A;
@@ -37,7 +44,7 @@ const leftHash = Hashable.string(EitherTag.Left);
  */
 export class Left<E> extends Either<E, never> {
   readonly _tag = EitherTag.Left;
-  constructor(readonly left: E) {
+  constructor(readonly left: E, readonly trace?: string) {
     super();
   }
 
@@ -45,8 +52,8 @@ export class Left<E> extends Either<E, never> {
     return Hashable.combine(leftHash, Hashable.unknown(this.left));
   }
 
-  [Symbol.equals](that: unknown): boolean {
-    return Either.isEither(that) && that.isLeft() && Equatable.strictEquals(this.left, that.left);
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return Either.isEither(that) && that.isLeft() && context.comparator(this.left, that.left);
   }
 }
 
@@ -58,7 +65,7 @@ const rightHash = Hashable.string(EitherTag.Right);
  */
 export class Right<A> extends Either<never, A> {
   readonly _tag = EitherTag.Right;
-  constructor(readonly right: A) {
+  constructor(readonly right: A, readonly trace?: string) {
     super();
   }
 
@@ -66,8 +73,8 @@ export class Right<A> extends Either<never, A> {
     return Hashable.combine(rightHash, Hashable.unknown(this.left));
   }
 
-  [Symbol.equals](that: unknown): boolean {
-    return Either.isEither(that) && that.isRight() && Equatable.strictEquals(this.right, that.right);
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return Either.isEither(that) && that.isRight() && context.comparator(this.right, that.right);
   }
 }
 

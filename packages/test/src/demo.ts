@@ -14,4 +14,4 @@ class DemoSpec extends DefaultRunnableSpec {
     test("Demo failure", { a: { b: { c: { d: 100 } } } }.assert(strictEqualTo({ a: { b: { c: { d: 0 } } } }))),
   );
 }
-new DemoSpec().run().unsafeRunAsync()
+new DemoSpec().run().unsafeRunFiber();

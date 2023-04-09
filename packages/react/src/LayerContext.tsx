@@ -20,8 +20,8 @@ export function makeLayerContext<R>(layer: Layer<never, never, R>): LayerContext
       const fiber  = effect.unsafeRunFiber();
 
       return () => {
-        fiber.interruptAs(FiberId.none).unsafeRunAsync();
-        scope.close(Exit.interrupt(FiberId.none)).unsafeRunAsync();
+        fiber.interruptAs(FiberId.none).unsafeRunFiber();
+        scope.close(Exit.interrupt(FiberId.none)).unsafeRunFiber();
       };
     }, []);
 

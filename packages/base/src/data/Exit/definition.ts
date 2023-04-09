@@ -23,6 +23,9 @@ export const enum ExitTag {
   Failure = "Failure",
 }
 
+const IOTypeId = Symbol.for("fncts.io.IO");
+type IOTypeId = typeof IOTypeId;
+
 const _failureHash = Hashable.string("fncts.Exit.Failure");
 const _successHash = Hashable.string("fncts.Exit.Success");
 
@@ -36,8 +39,9 @@ export class Failure<E> {
     readonly _E: (_: never) => E;
     readonly _A: (_: never) => never;
   };
-  readonly _tag = ExitTag.Failure;
-  constructor(readonly cause: Cause<E>) {}
+  readonly [IOTypeId]: IOTypeId = IOTypeId;
+  readonly _tag                 = ExitTag.Failure;
+  constructor(readonly cause: Cause<E>, readonly trace?: string) {}
 
   get [Symbol.hash](): number {
     return Hashable.combine(_failureHash, Hashable.unknown(this.cause));
@@ -57,8 +61,9 @@ export class Success<A> implements P.Hashable, P.Equatable {
     readonly _E: (_: never) => never;
     readonly _A: (_: never) => A;
   };
-  readonly _tag = ExitTag.Success;
-  constructor(readonly value: A) {}
+  readonly [IOTypeId]: IOTypeId = IOTypeId;
+  readonly _tag                 = ExitTag.Success;
+  constructor(readonly value: A, readonly trace?: string) {}
 
   get [Symbol.hash](): number {
     return Hashable.combine(_successHash, Hashable.unknown(this.value));

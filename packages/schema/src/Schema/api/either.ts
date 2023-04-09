@@ -1,6 +1,7 @@
 import type { EitherJson } from "@fncts/base/json/EitherJson";
 
 import { EitherTypeId, EitherVariance } from "@fncts/base/data/Either";
+import { IOTypeId } from "@fncts/io/IO";
 
 /**
  * @tsplus static fncts.schema.SchemaOps either
@@ -89,5 +90,7 @@ function eitherInline<E, A>(_left: Schema<E>, _right: Schema<A>): Schema<Either<
   return Schema.struct({
     [EitherTypeId]: Schema.uniqueSymbol(EitherTypeId),
     [EitherVariance]: Schema.any,
-  });
+    [IOTypeId]: Schema.uniqueSymbol(IOTypeId),
+    trace: Schema.undefined,
+  }) as unknown as Schema<Either<E, A>>;
 }

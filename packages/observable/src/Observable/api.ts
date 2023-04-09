@@ -499,7 +499,7 @@ export function fromIO<R, E, A>(io: IO<R, E, A>, scheduler: SchedulerLike = asyn
     });
     return () => {
       scheduled.unsubscribe();
-      fiber && fiber.interrupt.unsafeRunAsync();
+      fiber && fiber.interrupt.unsafeRunFiber();
     };
   });
 }

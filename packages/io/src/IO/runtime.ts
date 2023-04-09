@@ -1,4 +1,5 @@
-import { FiberMessage, FiberRuntime } from "@fncts/io/Fiber";
+import { IOError } from "@fncts/base/data/exceptions";
+import { FiberRuntime } from "@fncts/io/Fiber";
 import { FiberRefs } from "@fncts/io/FiberRefs";
 import { RuntimeFlag } from "@fncts/io/RuntimeFlag";
 import { RuntimeFlags } from "@fncts/io/RuntimeFlags";
@@ -12,7 +13,7 @@ export class Runtime<R> {
     readonly fiberRefs: FiberRefs,
   ) {}
 
-  unsafeRunFiber = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): FiberRuntime<E, A> => {
+  makeFiber = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): FiberRuntime<E, A> => {
     const fiberId   = FiberId.unsafeMake(__tsplusTrace);
     const fiberRefs = this.fiberRefs.updateAs(fiberId, FiberRef.currentEnvironment, this.environment);
 
@@ -31,33 +32,37 @@ export class Runtime<R> {
 
     FiberScope.global.unsafeAdd(null!, fiber.runtimeFlags0, fiber);
 
-    fiber.start(io);
-
     return fiber;
   };
 
-  unsafeRunWith = <E, A>(
-    io: IO<R, E, A>,
-    k: (exit: Exit<E, A>) => any,
-    __tsplusTrace?: string,
-  ): ((fiberId: FiberId) => (f: (exit: Exit<E, A>) => any) => void) => {
-    const fiber = this.unsafeRunFiber(io);
-    fiber.tell(FiberMessage.Stateful((fiber) => fiber.addObserver(k)));
-    return (fiberId) => (k) => this.unsafeRunAsyncWith(fiber.interruptAs(fiberId), (exit) => k(exit.flatten));
+  unsafeRunFiber = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): FiberRuntime<E, A> => {
+    const fiber = this.makeFiber(io);
+    fiber.start(io);
+    return fiber;
   };
 
-  unsafeRunAsync = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string) => {
-    this.unsafeRunAsyncWith(io, () => void 0);
-  };
-
-  unsafeRunAsyncWith = <E, A>(io: IO<R, E, A>, k: (exit: Exit<E, A>) => any, __tsplusTrace?: string) => {
-    this.unsafeRunWith(io, k);
-  };
-
-  unsafeRunPromiseExit = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Promise<Exit<E, A>> =>
-    new Promise((resolve) => {
-      this.unsafeRunAsyncWith(io, resolve);
+  unsafeRunPromiseExit = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Promise<Exit<E, A>> => {
+    return new Promise((resolve) => {
+      const fiber = this.makeFiber(io);
+      fiber.addObserver((exit) => {
+        resolve(exit);
+      });
+      fiber.start(io);
     });
+  };
+
+  unsafeRunPromise = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Promise<A> => {
+    return new Promise((resolve, reject) => {
+      const fiber = this.makeFiber(io);
+      fiber.addObserver((exit) => {
+        if (exit.isFailure()) {
+          reject(new IOError(exit.cause));
+        } else {
+          resolve(exit.value);
+        }
+      });
+    });
+  };
 
   unsafeRunOrFork = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Either<Fiber.Runtime<E, A>, Exit<E, A>> => {
     const fiberId   = FiberId.unsafeMake(__tsplusTrace);
@@ -88,6 +93,12 @@ export class Runtime<R> {
 
     return Either.left(fiber);
   };
+
+  unsafeRun = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Exit<E, A> => {
+    return this.unsafeRunOrFork(io).match(() => {
+      throw new Error("Encountered async boundary");
+    }, Function.identity);
+  };
 }
 
 /**
@@ -113,26 +124,16 @@ export const defaultRuntime = new Runtime(Environment.empty, RuntimeFlags.defaul
 export const unsafeRunFiber = defaultRuntime.unsafeRunFiber;
 
 /**
- * @tsplus fluent fncts.io.IO unsafeRunAsync
- */
-export const unsafeRunAsync = defaultRuntime.unsafeRunAsync;
-
-/**
- * @tsplus fluent fncts.io.IO unsafeRunAsyncWith
- */
-export const unsafeRunAsyncWith = defaultRuntime.unsafeRunAsyncWith;
-
-/**
  * @tsplus fluent fncts.io.IO unsafeRunPromiseExit
  */
 export const unsafeRunPromiseExit = defaultRuntime.unsafeRunPromiseExit;
 
 /**
- * @tsplus fluent fncts.io.IO unsafeRunWith
- */
-export const unsafeRunWith = defaultRuntime.unsafeRunWith;
-
-/**
- * @tsplus getter fncts.io.IO unsafeRunSyncExit
+ * @tsplus getter fncts.io.IO unsafeRunOrFork
  */
 export const unsafeRunOrFork = defaultRuntime.unsafeRunOrFork;
+
+/**
+ * @tsplus getter fncts.io.IO unsafeRun
+ */
+export const unsafeRun = defaultRuntime.unsafeRun;

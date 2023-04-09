@@ -4,18 +4,16 @@ import type { Nullable } from "@fncts/base/types";
  * @tsplus static fncts.MaybeOps just
  * @tsplus static fncts.JustOps __call
  */
-export function just<A>(a: A): Maybe<A> {
-  return new Just(a);
+export function just<A>(a: A, __tsplusTrace?: string): Maybe<A> {
+  return new Just(a, __tsplusTrace);
 }
-
-const _Nothing = new Nothing();
 
 /**
  * @tsplus static fncts.MaybeOps nothing
  * @tsplus static fncts.NothingOps __call
  */
-export function nothing<A = never>(): Maybe<A> {
-  return _Nothing;
+export function nothing<A = never>(__tsplusTrace?: string): Maybe<A> {
+  return new Nothing(__tsplusTrace);
 }
 
 /**

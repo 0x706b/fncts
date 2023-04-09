@@ -53,15 +53,15 @@ export class AtomicRefSubject<E, A> extends RefSubjectInternal<never, E, A, A> {
   end: IO<never, never, void> = this.stream.end;
 
   unsafeEmit(value: A): void {
-    return this.stream.emit(value).unsafeRunAsync();
+    this.stream.emit(value).unsafeRunFiber();
   }
 
   unsafeFailCause(cause: Cause<E>): void {
-    return this.stream.failCause(cause).unsafeRunAsync();
+    this.stream.failCause(cause).unsafeRunFiber();
   }
 
   unsafeEnd(): void {
-    return this.stream.end.unsafeRunAsync();
+    this.stream.end.unsafeRunFiber();
   }
 
   get unsafeGet(): A {
@@ -111,7 +111,7 @@ class AtomicEmitRef<E, A> extends Atomic<A> {
 
   unsafeSet(value: A) {
     this.ref.unsafeSet(value);
-    this.emitter.emit(value).unsafeRunAsync();
+    this.emitter.emit(value).unsafeRunFiber();
   }
 
   set(value: A, __tsplusTrace?: string) {

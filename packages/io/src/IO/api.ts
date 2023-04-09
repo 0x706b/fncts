@@ -4,6 +4,7 @@ import type { _E, _R } from "@fncts/base/types";
 import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
 import type { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
+import { IOError } from "@fncts/base/data/exceptions";
 import { identity, pipe, tuple } from "@fncts/base/data/function";
 import {
   Async,
@@ -15,7 +16,7 @@ import {
   YieldNow,
 } from "@fncts/io/IO/definition";
 import { Stateful } from "@fncts/io/IO/definition";
-import { Fail, IO, IOError, SucceedNow } from "@fncts/io/IO/definition";
+import { Fail, IO, SucceedNow } from "@fncts/io/IO/definition";
 
 /**
  * Imports an asynchronous side-effect into a `IO`
@@ -851,8 +852,8 @@ export function fromMaybe<A>(maybe: Lazy<Maybe<A>>, __tsplusTrace?: string): FIO
  * @tsplus static fncts.io.IOOps fromMaybeNow
  * @tsplus getter fncts.Maybe toIO
  */
-export function fromMaybeNow<A = never>(maybe: Maybe<A>, __tsplusTrace?: string): IO<unknown, Maybe<never>, A> {
-  return maybe.match(() => IO.failNow(Nothing()), IO.succeedNow);
+export function fromMaybeNow<A = never>(maybe: Maybe<A>, __tsplusTrace?: string): IO<never, NoSuchElementError, A> {
+  return maybe.match(() => IO.failNow(new NoSuchElementError("IO.fromMaybeNow")), IO.succeedNow);
 }
 
 /**

@@ -571,7 +571,7 @@ export function watchFile(
       const queue   = _(Queue.makeUnbounded<[fs.BigIntStats | fs.Stats, fs.BigIntStats | fs.Stats]>());
       const runtime = _(IO.runtime<never>());
       fs.watchFile(filename, options ?? {}, (curr, prev) => {
-        runtime.unsafeRunAsync(queue.offer([curr, prev]));
+        runtime.unsafeRunFiber(queue.offer([curr, prev]));
       });
       return queue;
     }),

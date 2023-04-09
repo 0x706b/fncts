@@ -1,3 +1,5 @@
+import { IOError } from "@fncts/base/data/exceptions";
+
 import { identity, tuple } from "../function.js";
 import { ExitTag } from "./definition.js";
 
@@ -200,4 +202,28 @@ export function zipWithCause<E, A, G, B, C>(
       }
     }
   };
+}
+
+/**
+ * Returns the Exit's Success value if it exists
+ *
+ * @tsplus getter fncts.Exit value
+ */
+export function value<E, A>(self: Exit<E, A>): A | undefined {
+  if (self.isFailure()) {
+    return undefined;
+  }
+  return self.value;
+}
+
+/**
+ * Returns the Exit's Success value if it exists, or throws the pretty-printed Cause if it doesn't
+ *
+ * @tsplus getter fncts.Exit valueOrThrow
+ */
+export function valueOrThrow<E, A>(self: Exit<E, A>): A {
+  if (self.isFailure()) {
+    throw new IOError(self.cause);
+  }
+  return self.value;
 }

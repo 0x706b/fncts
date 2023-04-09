@@ -11,6 +11,9 @@ export type MaybeVariance = typeof MaybeVariance;
 export const MaybeTypeId = Symbol.for("fncts.Maybe");
 export type MaybeTypeId = typeof MaybeTypeId;
 
+const IOTypeId = Symbol.for("fncts.io.IO");
+type IOTypeId = typeof IOTypeId;
+
 export interface MaybeF extends HKT {
   type: Maybe<this["A"]>;
   variance: {
@@ -30,6 +33,8 @@ export abstract class Maybe<A> {
     readonly _A: (_: never) => A;
   };
   readonly [MaybeTypeId]: MaybeTypeId = MaybeTypeId;
+  readonly [IOTypeId]: IOTypeId       = IOTypeId;
+  readonly trace?: string | undefined = undefined;
 }
 
 /**
@@ -38,7 +43,7 @@ export abstract class Maybe<A> {
  */
 export class Just<A> extends Maybe<A> {
   readonly _tag = MaybeTag.Just;
-  constructor(readonly value: A) {
+  constructor(readonly value: A, readonly trace?: string) {
     super();
   }
   [Symbol.equals](that: unknown): boolean {
@@ -55,6 +60,9 @@ export class Just<A> extends Maybe<A> {
  */
 export class Nothing extends Maybe<never> {
   readonly _tag = MaybeTag.Nothing;
+  constructor(readonly trace?: string) {
+    super();
+  }
   [Symbol.equals](that: unknown): boolean {
     return isMaybe(that) && that.isNothing();
   }

@@ -59,7 +59,7 @@ export function assert<A>(assertion: Assertion<A>) {
 }
 
 /**
- * @tsplus pipeable fncts.io.IO assert
+ * @tsplus pipeable global assert
  */
 export function assertIO<A>(assertion: AssertionIO<A>) {
   return <R, E>(io: IO<R, E, A>): IO<R, E, TestResult> => {

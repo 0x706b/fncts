@@ -5,7 +5,7 @@ export function useScope(): Scope.Closeable {
 
   React.useEffect(() => {
     return () => {
-      scope.current.close(Exit.interrupt(FiberId.none)).unsafeRunAsync();
+      scope.current.close(Exit.interrupt(FiberId.none)).unsafeRunFiber();
     };
   }, []);
 

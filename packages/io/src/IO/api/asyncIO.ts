@@ -10,7 +10,7 @@ export function asyncIO<R, E, A>(
     const r = Δ(IO.runtime<R>());
     const a = Δ(
       IO.uninterruptibleMask((restore) => {
-        const io = register((k) => r.unsafeRunAsync(k.fulfill(f)));
+        const io = register((k) => r.unsafeRunFiber(k.fulfill(f)));
         return restore(io.catchAllCause((cause) => f.failCause(cause))).fork > restore(f.await);
       }),
     );
