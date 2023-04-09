@@ -1,5 +1,15 @@
 # @fncts/express
 
+## 0.0.26
+
+### Patch Changes
+
+- 7e5877a: feat: make Either, Maybe, and Exit valid IOs
+- Updated dependencies [c509183]
+- Updated dependencies [e5ceaf2]
+- Updated dependencies [7e5877a]
+  - @fncts/io@0.0.33
+
 ## 0.0.25
 
 ### Patch Changes

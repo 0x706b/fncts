@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.12
+
+### Patch Changes
+
+- 7e5877a: feat: make Either, Maybe, and Exit valid IOs
+
 ## 0.0.11
 
 ### Patch Changes

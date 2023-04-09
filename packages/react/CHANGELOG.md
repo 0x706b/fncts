@@ -1,5 +1,18 @@
 # @fncts/react
 
+## 0.0.5
+
+### Patch Changes
+
+- 7e5877a: feat: make Either, Maybe, and Exit valid IOs
+- Updated dependencies [c509183]
+- Updated dependencies [e5ceaf2]
+- Updated dependencies [7e5877a]
+- Updated dependencies [1bee01b]
+- Updated dependencies [1a28bfe]
+  - @fncts/base@0.0.28
+  - @fncts/io@0.0.33
+
 ## 0.0.4
 
 ### Patch Changes
