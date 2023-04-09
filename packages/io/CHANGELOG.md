@@ -1,5 +1,19 @@
 # @fncts/io
 
+## 0.0.33
+
+### Patch Changes
+
+- c509183: feat(stream): add combinators
+- e5ceaf2: feat: add Gen.anything
+- 7e5877a: feat: make Either, Maybe, and Exit valid IOs
+- Updated dependencies [c509183]
+- Updated dependencies [e5ceaf2]
+- Updated dependencies [7e5877a]
+- Updated dependencies [1bee01b]
+- Updated dependencies [1a28bfe]
+  - @fncts/base@0.0.28
+
 ## 0.0.32
 
 ### Patch Changes

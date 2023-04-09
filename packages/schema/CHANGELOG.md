@@ -1,5 +1,19 @@
 # @fncts/schema
 
+## 0.0.7
+
+### Patch Changes
+
+- e5ceaf2: feat: add Gen.anything
+- 7e5877a: feat: make Either, Maybe, and Exit valid IOs
+- 1bee01b: feat(schema): add Either schema
+- Updated dependencies [c509183]
+- Updated dependencies [e5ceaf2]
+- Updated dependencies [7e5877a]
+- Updated dependencies [1bee01b]
+- Updated dependencies [1a28bfe]
+  - @fncts/base@0.0.28
+
 ## 0.0.6
 
 ### Patch Changes

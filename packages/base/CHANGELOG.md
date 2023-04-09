@@ -1,5 +1,15 @@
 # @fncts/base
 
+## 0.0.28
+
+### Patch Changes
+
+- c509183: feat(stream): add combinators
+- e5ceaf2: feat: add Gen.anything
+- 7e5877a: feat: make Either, Maybe, and Exit valid IOs
+- 1bee01b: feat(base): add CompletablePromise
+- 1a28bfe: core: delete temporary file
+
 ## 0.0.27
 
 ### Patch Changes
