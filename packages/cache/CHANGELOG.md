@@ -1,5 +1,16 @@
 # @fncts/cache
 
+## 0.0.4
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+- Updated dependencies [3811aff]
+  - @fncts/transformers@0.0.6
+  - @fncts/base@0.0.29
+  - @fncts/io@0.0.34
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.3
 
 ### Patch Changes

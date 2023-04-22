@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.19
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+
 ## 0.0.18
 
 ### Patch Changes

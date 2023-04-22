@@ -1,5 +1,12 @@
 # @fncts/transformers
 
+## 0.0.6
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.5
 
 ### Patch Changes

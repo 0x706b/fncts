@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.16
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+- Updated dependencies [3811aff]
+  - @fncts/codegen@0.0.16
+
 ## 0.0.15
 
 ### Patch Changes
