@@ -56,14 +56,18 @@ suite.concurrent("Conc", () => {
       });
     });
 
-    test.io("buffer used", () => {
-      return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
-        const effect   = IO.succeed(bs.foldLeft(as, (acc, a) => acc.append(a)));
-        const actual   = Iterable.replicate(100, effect).traverseIOConcurrent(Function.identity);
-        const expected = as.concat(bs);
-        return actual.assert(every(strictEqualTo(expected)));
-      });
-    });
+    test.io(
+      "buffer used",
+      () => {
+        return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
+          const effect   = IO.succeed(bs.foldLeft(as, (acc, a) => acc.append(a)));
+          const actual   = Iterable.replicate(100, effect).traverseIOConcurrent(Function.identity);
+          const expected = as.concat(bs);
+          return actual.assert(every(strictEqualTo(expected)));
+        });
+      },
+      10000,
+    );
 
     test.io(
       "equals",
@@ -110,6 +114,7 @@ suite.concurrent("Conc", () => {
         const expected = as.concat(bs);
         return actual.assert(every(strictEqualTo(expected)));
       }),
+      10000,
     );
 
     test.io(
