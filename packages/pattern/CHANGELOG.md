@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.13
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+
 ## 0.0.12
 
 ### Patch Changes

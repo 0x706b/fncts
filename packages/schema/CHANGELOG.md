@@ -1,5 +1,14 @@
 # @fncts/schema
 
+## 0.0.8
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+- Updated dependencies [3811aff]
+  - @fncts/base@0.0.29
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.7
 
 ### Patch Changes

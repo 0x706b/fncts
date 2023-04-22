@@ -1,5 +1,12 @@
 # @fncts/base
 
+## 0.0.29
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+  - @fncts/typelevel@0.0.15
+
 ## 0.0.28
 
 ### Patch Changes

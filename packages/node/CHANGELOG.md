@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.27
+
+### Patch Changes
+
+- 3811aff: chore: use vitest as test runner
+- Updated dependencies [3811aff]
+  - @fncts/io@0.0.34
+
 ## 0.0.26
 
 ### Patch Changes
