@@ -1,3 +1,6 @@
+import { deepEqualTo } from "@fncts/test/control/Assertion";
+import { test } from "@fncts/test/vitest";
+
 import { withLatch } from "./Latch.js";
 
 suite.concurrent("IO", () => {
@@ -38,7 +41,7 @@ suite.concurrent("IO", () => {
       "runs effects in parallel",
       Do((Δ) => {
         const f     = Δ(Future.make<never, void>());
-        const fiber = Δ(IO.foreachConcurrent([IO.never, f.succeed(undefined)], Function.identity).fork);
+        const fiber = Δ(IO.allConcurrent([IO.never, f.succeed(undefined)]).fork);
         Δ(f.await);
         Δ(fiber.interrupt);
         return true;
@@ -62,7 +65,7 @@ suite.concurrent("IO", () => {
           IO.fail("C"),
           future.await > ref.set(true),
         );
-        const e = Δ(IO.foreachConcurrent(actions, Function.identity).swap);
+        const e = Δ(IO.allConcurrent(actions).swap);
         const v = Δ(ref.get);
         return e.assert(strictEqualTo("C")) && v.assert(isFalse);
       }),
@@ -564,6 +567,32 @@ suite.concurrent("IO", () => {
         Δ(fiber.interrupt);
         return true.assert(completes);
       }),
+    );
+  });
+
+  suite.concurrent("all", () => {
+    test.io(
+      "iterable",
+      IO.all([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assert(strictEqualTo(Conc(1, 2, 3))),
+    );
+    test.io(
+      "struct",
+      IO.all({ a: IO.succeedNow(1), b: IO.succeedNow(2), c: IO.succeedNow(3) }).assert(
+        deepEqualTo({ a: 1, b: 2, c: 3 }),
+      ),
+    );
+  });
+
+  suite.concurrent("allConcurrent", () => {
+    test.io(
+      "iterable",
+      IO.allConcurrent([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assert(strictEqualTo(Conc(1, 2, 3))),
+    );
+    test.io(
+      "struct",
+      IO.allConcurrent({ a: IO.succeedNow(1), b: IO.succeedNow(2), c: IO.succeedNow(3) }).assert(
+        deepEqualTo({ a: 1, b: 2, c: 3 }),
+      ),
     );
   });
 });

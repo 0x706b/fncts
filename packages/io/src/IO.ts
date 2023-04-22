@@ -11,6 +11,7 @@ export * from "./IO/api/acquireReleaseInterruptible.js";
 export * from "./IO/api/acquireReleaseInterruptibleExit.js";
 export * from "./IO/api/addFinalizer.js";
 export * from "./IO/api/addFinalizerExit.js";
+export * from "./IO/api/all.js";
 export * from "./IO/api/asyncInterrupt.js";
 export * from "./IO/api/asyncIO.js";
 export * from "./IO/api/blocking.js";

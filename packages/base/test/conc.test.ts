@@ -61,7 +61,7 @@ suite.concurrent("Conc", () => {
       () => {
         return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
           const effect   = IO.succeed(bs.foldLeft(as, (acc, a) => acc.append(a)));
-          const actual   = Iterable.replicate(100, effect).traverseIOConcurrent(Function.identity);
+          const actual   = IO.allConcurrent(Iterable.replicate(100, effect));
           const expected = as.concat(bs);
           return actual.assert(every(strictEqualTo(expected)));
         });
@@ -110,7 +110,7 @@ suite.concurrent("Conc", () => {
       "buffer used",
       Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
         const effect   = IO.succeed(as.foldRight(bs, (n, ns) => ns.prepend(n)));
-        const actual   = Iterable.replicate(100, effect).traverseIOConcurrent(Function.identity);
+        const actual   = IO.allConcurrent(Iterable.replicate(100, effect));
         const expected = as.concat(bs);
         return actual.assert(every(strictEqualTo(expected)));
       }),
