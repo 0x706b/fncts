@@ -21,7 +21,7 @@ export function bracketExit<R, E, A, E1, R1, A1, R2, E2>(
           (cause2) =>
             IO.failCause(
               exit.match(
-                (cause1) => Cause.then(cause1, cause2),
+                (cause1) => Cause.sequential(cause1, cause2),
                 () => cause2,
               ),
             ),

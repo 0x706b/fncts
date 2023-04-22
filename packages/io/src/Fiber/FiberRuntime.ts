@@ -456,7 +456,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
                     if (cause.contains(interruptedCause)) {
                       cur = IO.concrete(IO.failCauseNow(cause));
                     } else {
-                      cur = IO.concrete(IO.failCauseNow(Cause.then(cause, this.getInterruptedCause())));
+                      cur = IO.concrete(IO.failCauseNow(Cause.sequential(cause, this.getInterruptedCause())));
                     }
                   }
                   break;
@@ -527,7 +527,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
         } else if (isIO(e) && (IO.concrete(e)._tag === IOOpCode.Async || IO.concrete(e)._tag === IOOpCode.YieldNow)) {
           throw e;
         } else if (isInterruptedException(e)) {
-          cur = IO.concrete(IO.failCauseNow(Cause.both(Cause.halt(e), Cause.interrupt(FiberId.none))));
+          cur = IO.concrete(IO.failCauseNow(Cause.parallel(Cause.halt(e), Cause.interrupt(FiberId.none))));
         } else {
           cur = IO.concrete(IO.failCauseNow(Cause.halt(e, Trace(this.fiberId, Conc(TraceElement.parse(lastTrace))))));
         }
@@ -663,7 +663,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
     if (oldSC.contains(cause)) {
       return;
     }
-    this.setFiberRef(FiberRef.interruptedCause, Cause.then(oldSC, cause));
+    this.setFiberRef(FiberRef.interruptedCause, Cause.sequential(oldSC, cause));
   }
 
   private processNewInterruptSignal(cause: Cause<never>): void {

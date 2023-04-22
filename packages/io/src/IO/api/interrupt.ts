@@ -80,7 +80,7 @@ export function ensuring<R1>(finalizer: IO<R1, never, any>, __tsplusTrace?: stri
       restore(self).matchCauseIO(
         (cause1) =>
           finalizer.matchCauseIO(
-            (cause2) => IO.failCauseNow(Cause.then(cause1, cause2)),
+            (cause2) => IO.failCauseNow(Cause.sequential(cause1, cause2)),
             () => IO.failCauseNow(cause1),
           ),
         (a) => finalizer.map(() => a),
@@ -152,7 +152,7 @@ export function onExit<E, A, R1, E1>(cleanup: (exit: Exit<E, A>) => IO<R1, E1, a
         (failure1) => {
           const result = Exit.failCause(failure1);
           return cleanup(result).matchCauseIO(
-            (failure2) => IO.failCauseNow(Cause.then(failure1, failure2)),
+            (failure2) => IO.failCauseNow(Cause.sequential(failure1, failure2)),
             () => IO.fromExitNow(result),
           );
         },

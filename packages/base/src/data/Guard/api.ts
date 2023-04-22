@@ -453,5 +453,5 @@ export function deriveTuple<A extends ReadonlyArray<unknown>>(
  * @tsplus static fncts.GuardOps tuple
  */
 export function tuple<A extends ReadonlyArray<unknown>>(...components: { [K in keyof A]: Guard<A[K]> }): Guard<A> {
-  return deriveTuple(components.unsafeCoerce()).unsafeCoerce();
+  return deriveTuple(components as [never]).unsafeCoerce();
 }

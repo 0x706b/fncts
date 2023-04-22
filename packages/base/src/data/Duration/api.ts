@@ -83,3 +83,13 @@ export function fromInterval(start: number, end: number): Duration {
  * @tsplus static fncts.DurationOps zero
  */
 export const zero: Duration = (0).milliseconds;
+
+/**
+ * @tsplus fluent fncts.Duration lessThanOrEqualTo
+ * @tsplus pipeable-operator fncts.Duration <=
+ */
+export function lessThanOrEqualTo(that: Duration) {
+  return (self: Duration): boolean => {
+    return self.milliseconds <= that.milliseconds;
+  };
+}

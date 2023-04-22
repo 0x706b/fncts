@@ -1,4 +1,4 @@
-// codegen:start { preset: type-barrel, include: ./*.ts }
+// codegen:start { preset: type-barrel, include: ./*.ts, exclude: ./vitest.ts }
 export type {} from "./api.js";
 export type {} from "./control.js";
 export type {} from "./data.js";

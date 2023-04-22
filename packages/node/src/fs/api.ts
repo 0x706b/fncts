@@ -130,7 +130,7 @@ export function createWriteSink<InErr>(
         if (!st && maybeError.isJust()) {
           const reader = Channel.readWith(
             (_: Conc<Byte>) => Channel.fail(maybeError.value) > Channel.end(undefined),
-            (err: InErr) => Channel.failCause(Cause.then(Cause.fail(maybeError.value), Cause.fail(err))),
+            (err: InErr) => Channel.failCause(Cause.sequential(Cause.fail(maybeError.value), Cause.fail(err))),
             (_: unknown) => Channel.fail(maybeError.value),
           );
           return reader;

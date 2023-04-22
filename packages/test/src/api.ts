@@ -107,18 +107,18 @@ export function checkIO<A, R1, E>(test: (a: A) => IO<R1, E, TestResult>) {
 }
 
 /**
- * @tsplus pipeable fncts.test.Gen checkAllC
+ * @tsplus pipeable fncts.test.Gen checkAllConcurrently
  */
-export function checkAllC<A>(concurrency: number, test: (a: A) => TestResult) {
+export function checkAllConcurrently<A>(concurrency: number, test: (a: A) => TestResult) {
   return <R>(rv: Gen<R, A>): IO<R | TestConfig, never, TestResult> => {
     return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, (a) => IO.succeed(test(a)));
   };
 }
 
 /**
- * @tsplus pipeable fncts.test.Gen checkAllC
+ * @tsplus pipeable fncts.test.Gen checkAllConcurrently
  */
-export function checkAllIOC<A, R1, E>(concurrency: number, test: (a: A) => IO<R1, E, TestResult>) {
+export function checkAllIOConcurrently<A, R1, E>(concurrency: number, test: (a: A) => IO<R1, E, TestResult>) {
   return <R>(rv: Gen<R, A>): IO<R | R1 | TestConfig, E, TestResult> => {
     return checkStreamC(rv.sample.forever.filterMap(identity), concurrency, test);
   };

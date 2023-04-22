@@ -39,6 +39,20 @@ export function render(
   });
 }
 
+/**
+ * @tsplus static fncts.test.ConsoleRenderer renderSingle
+ */
+export function renderSingle(result: ExecutionResult, testAnnotationRenderer: TestAnnotationRenderer): string {
+  const message = new Message(Vector.from(result.lines));
+  const output  = matchTag_(result.resultType, {
+    Suite: () => renderSuite(result.status, result.offset, message),
+    Test: () => renderTest(result.status, result.offset, message),
+    Other: () => new Message(Vector.from(result.lines)),
+  });
+  const renderedAnnotations = renderAnnotations(result.annotations, testAnnotationRenderer);
+  return renderToStringLines(output + renderedAnnotations).join("");
+}
+
 function renderSuite(status: Status, offset: number, message: Message) {
   return matchTag_(status, {
     Passed: () => (info("+") + sp).withOffset(offset).toMessage + message,

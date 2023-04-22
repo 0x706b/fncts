@@ -8,7 +8,6 @@
     "tsBuildInfoFile": "build/tsbuildinfo/test.tsbuildinfo"
   },
   "include": ["./test/**/*"],
-  "files": ["./prelude.test.d.ts"],
   "references": [
     {
       "path": "./tsconfig.build.json"

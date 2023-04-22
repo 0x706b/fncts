@@ -16,3 +16,4 @@ dist
 .ultra.cache.json
 *.tsbuildinfo
 .DS_Store
+.cache

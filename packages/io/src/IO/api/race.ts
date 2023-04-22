@@ -30,12 +30,12 @@ export function raceAwait<R1, E1, A1>(that: IO<R1, E1, A1>) {
         that,
         (exit, right) =>
           exit.match(
-            (cause) => right.join.mapErrorCause((c) => Cause.both(cause, c)),
+            (cause) => right.join.mapErrorCause((c) => Cause.parallel(cause, c)),
             (a) => right.interruptAs(id).as(a),
           ),
         (exit, left) =>
           exit.match(
-            (cause) => left.join.mapErrorCause((c) => Cause.both(cause, c)),
+            (cause) => left.join.mapErrorCause((c) => Cause.parallel(cause, c)),
             (a1) => left.interruptAs(id).as(a1),
           ),
       ),

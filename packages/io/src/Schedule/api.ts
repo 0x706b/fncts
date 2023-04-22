@@ -131,7 +131,7 @@ export function checkIO<In, Out, Env1>(test: (inp: In, out: Out) => URIO<Env1, b
 }
 
 /**
- * @tsplus pipeable fncts.io.Schedule compose_
+ * @tsplus pipeable fncts.io.Schedule compose
  */
 export function compose<O, S1, R1, O2>(that: Schedule.WithState<S1, R1, O, O2>, __tsplusTrace?: string) {
   return <S, R, I>(self: Schedule.WithState<S, R, I, O>): Schedule.WithState<readonly [S, S1], R | R1, I, O2> => {

@@ -3,14 +3,11 @@
   "compilerOptions": {
     "rootDir": "./test",
     "outDir": "./build/test",
-    "declaration": true,
-    "declarationDir": "./build/dts",
     "sourceMap": true,
     "tsPlusConfig": "../config/tsplus.config.json",
     "tsBuildInfoFile": "build/tsbuildinfo/test.tsbuildinfo"
   },
   "include": ["./test/**/*"],
-  "files": ["./prelude.test.d.ts"],
   "references": [
     {
       "path": "./tsconfig.build.json"

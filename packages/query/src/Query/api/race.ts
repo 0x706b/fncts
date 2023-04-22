@@ -14,7 +14,7 @@ export function race<R1, E1, A1>(that: Lazy<Query<R1, E1, A1>>, __tsplusTrace?: 
       fiber: Fiber<never, Result<R | R1, E | E1, A | A1>>,
     ): IO<R | R1, never, Result<R | R1, E | E1, A | A1>> {
       return exit.match(
-        (cause) => fiber.join.map((result) => result.mapErrorCause((c0) => Cause.both(c0, cause))),
+        (cause) => fiber.join.map((result) => result.mapErrorCause((c0) => Cause.parallel(c0, cause))),
         (result) =>
           result.matchType({
             Blocked: (blockedRequests, cont) =>
@@ -24,7 +24,7 @@ export function race<R1, E1, A1>(that: Lazy<Query<R1, E1, A1>>, __tsplusTrace?: 
                   IO.succeedNow(Result.blocked(blockedRequests, Continue.effect(race(Query.fromIO(io), fiber)))),
               }),
             Done: (value) => fiber.interrupt > IO.succeed(Result.done(value)),
-            Fail: (cause) => fiber.join.map((result) => result.mapErrorCause((c0) => Cause.both(c0, cause))),
+            Fail: (cause) => fiber.join.map((result) => result.mapErrorCause((c0) => Cause.parallel(c0, cause))),
           }),
       );
     }

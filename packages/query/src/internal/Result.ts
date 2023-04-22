@@ -204,7 +204,7 @@ export function collectAllConcurrent<R, E, A>(
     });
     return Result.blocked<R, E, Conc<A>>(blockedRequests, cont);
   } else {
-    return Result.fail(fails.map(([cause]) => cause).foldLeft(Cause.empty(), (b, a) => Cause.both(b, a)));
+    return Result.fail(fails.map(([cause]) => cause).foldLeft(Cause.empty(), (b, a) => Cause.parallel(b, a)));
   }
 }
 

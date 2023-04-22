@@ -47,9 +47,9 @@ function foldLoop<E, Z>(
         return foldLoop(cases, causes, out.prepend(Either.right(cases.Halt(head.value, head.trace))));
       case CauseTag.Interrupt:
         return foldLoop(cases, causes, out.prepend(Either.right(cases.Interrupt(head.id, head.trace))));
-      case CauseTag.Both:
+      case CauseTag.Parallel:
         return foldLoop(cases, Cons(head.left, Cons(head.right, causes)), out.prepend(Either.left(_BothCase)));
-      case CauseTag.Then:
+      case CauseTag.Sequential:
         return foldLoop(cases, Cons(head.left, Cons(head.right, causes)), out.prepend(Either.left(_ThenCase)));
       case CauseTag.Stackless:
         return foldLoop(cases, causes.prepend(head.cause), out.prepend(Either.left(new StacklessCase(head.stackless))));

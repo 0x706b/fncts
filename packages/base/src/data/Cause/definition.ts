@@ -12,7 +12,7 @@ export type CauseTypeId = typeof CauseTypeId;
 /**
  * @tsplus type fncts.Cause
  */
-export type Cause<E> = Empty | Halt | Interrupt | Fail<E> | Then<E> | Both<E> | Stackless<E>;
+export type Cause<E> = Empty | Halt | Interrupt | Fail<E> | Sequential<E> | Parallel<E> | Stackless<E>;
 
 /**
  * @tsplus type fncts.CauseOps
@@ -30,8 +30,8 @@ export const enum CauseTag {
   Fail = "Fail",
   Halt = "Halt",
   Interrupt = "Interrupt",
-  Then = "Then",
-  Both = "Both",
+  Sequential = "Sequential",
+  Parallel = "Parallel",
   Stackless = "Stackless",
 }
 
@@ -40,7 +40,7 @@ const _emptyHash = Hashable.string("fncts.Cause");
 /**
  * @tsplus companion fncts.Cause.EmptyOps
  */
-export class Empty {
+export class Empty implements Equatable {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   declare [CauseVariance]: {
     readonly _E: (_: never) => never;
@@ -58,8 +58,8 @@ export class Empty {
     switch (that._tag) {
       case CauseTag.Empty:
         return Eval.now(true);
-      case CauseTag.Then:
-      case CauseTag.Both:
+      case CauseTag.Sequential:
+      case CauseTag.Parallel:
         return this.equalsEval(that.left).zipWith(this.equalsEval(that.right), (x, y) => x && y);
       case CauseTag.Stackless:
         return this.equalsEval(that.cause);
@@ -74,7 +74,7 @@ export const _Empty = new Empty();
 /**
  * @tsplus companion fncts.Cause.FailOps
  */
-export class Fail<E> {
+export class Fail<E> implements Equatable {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   declare [CauseVariance]: {
     readonly _E: (_: never) => E;
@@ -97,8 +97,8 @@ export class Fail<E> {
       switch (that._tag) {
         case CauseTag.Fail:
           return P.Equatable.strictEquals(self.value, that.value);
-        case CauseTag.Both:
-        case CauseTag.Then:
+        case CauseTag.Parallel:
+        case CauseTag.Sequential:
           return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
         case CauseTag.Stackless:
           return yield* _(self.equalsEval(that.cause));
@@ -112,7 +112,7 @@ export class Fail<E> {
 /**
  * @tsplus companion fncts.Cause.HaltOps
  */
-export class Halt {
+export class Halt implements Equatable {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   declare [CauseVariance]: {
     readonly _E: (_: never) => never;
@@ -135,8 +135,8 @@ export class Halt {
       switch (that._tag) {
         case CauseTag.Halt:
           return P.Equatable.strictEquals(self.value, that.value);
-        case CauseTag.Then:
-        case CauseTag.Both:
+        case CauseTag.Sequential:
+        case CauseTag.Parallel:
           return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
         case CauseTag.Stackless:
           return yield* _(self.equalsEval(that.cause));
@@ -150,7 +150,7 @@ export class Halt {
 /**
  * @tsplus companion fncts.Cause.InterruptOps
  */
-export class Interrupt {
+export class Interrupt implements Equatable {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   declare [CauseVariance]: {
     readonly _E: (_: never) => never;
@@ -174,8 +174,8 @@ export class Interrupt {
       switch (that._tag) {
         case CauseTag.Interrupt:
           return P.Equatable.strictEquals(self.id, that.id);
-        case CauseTag.Then:
-        case CauseTag.Both:
+        case CauseTag.Sequential:
+        case CauseTag.Parallel:
           return yield* _(structuralSymmetric(structuralEqualEmpty)(self, that));
         case CauseTag.Stackless:
           return yield* _(self.equalsEval(that.cause));
@@ -187,14 +187,14 @@ export class Interrupt {
 }
 
 /**
- * @tsplus companion fncts.Cause.ThenOps
+ * @tsplus companion fncts.Cause.SequentialOps
  */
-export class Then<E> {
+export class Sequential<E> implements Equatable {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   declare [CauseVariance]: {
     readonly _E: (_: never) => E;
   };
-  readonly _tag = CauseTag.Then;
+  readonly _tag = CauseTag.Sequential;
 
   constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
 
@@ -221,14 +221,14 @@ export class Then<E> {
 }
 
 /**
- * @tsplus companion fncts.Cause.BothOps
+ * @tsplus companion fncts.Cause.ParallelOps
  */
-export class Both<E> {
+export class Parallel<E> implements Equatable {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   declare [CauseVariance]: {
     readonly _E: (_: never) => E;
   };
-  readonly _tag = CauseTag.Both;
+  readonly _tag = CauseTag.Parallel;
 
   constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
 
@@ -257,7 +257,7 @@ export class Both<E> {
 /**
  * @tsplus companion fncts.Cause.StacklessOps
  */
-export class Stackless<E> {
+export class Stackless<E> implements Equatable {
   readonly [CauseTypeId]: CauseTypeId = CauseTypeId;
   declare [CauseVariance]: {
     readonly _E: (_: never) => E;
@@ -296,7 +296,7 @@ function structuralSymmetric<A>(
 }
 
 function structuralEqualEmpty<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
-  if (l._tag === CauseTag.Then || l._tag === CauseTag.Both) {
+  if (l._tag === CauseTag.Sequential || l._tag === CauseTag.Parallel) {
     if (l.left._tag === CauseTag.Empty) {
       return l.right.equalsEval(r);
     } else if (l.right._tag === CauseTag.Empty) {
@@ -311,10 +311,10 @@ function structuralEqualEmpty<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 
 function structuralThenAssociate<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
-    l._tag === CauseTag.Then &&
-    l.left._tag === CauseTag.Then &&
-    r._tag === CauseTag.Then &&
-    r.right._tag === CauseTag.Then
+    l._tag === CauseTag.Sequential &&
+    l.left._tag === CauseTag.Sequential &&
+    r._tag === CauseTag.Sequential &&
+    r.right._tag === CauseTag.Sequential
   ) {
     return l.left.left
       .equalsEval(r.left)
@@ -327,11 +327,11 @@ function structuralThenAssociate<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 
 function strcturalThenDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
-    l._tag === CauseTag.Then &&
-    l.right._tag === CauseTag.Both &&
-    r._tag === CauseTag.Both &&
-    r.right._tag === CauseTag.Then &&
-    r.left._tag === CauseTag.Then
+    l._tag === CauseTag.Sequential &&
+    l.right._tag === CauseTag.Parallel &&
+    r._tag === CauseTag.Parallel &&
+    r.right._tag === CauseTag.Sequential &&
+    r.left._tag === CauseTag.Sequential
   ) {
     return r.left.left
       .equalsEval(r.right.left)
@@ -339,11 +339,11 @@ function strcturalThenDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
       .and(l.right.left.equalsEval(r.left.right))
       .and(l.right.right.equalsEval(r.right.right));
   } else if (
-    l._tag === CauseTag.Then &&
-    l.left._tag === CauseTag.Both &&
-    r._tag === CauseTag.Both &&
-    r.left._tag === CauseTag.Then &&
-    r.right._tag === CauseTag.Then
+    l._tag === CauseTag.Sequential &&
+    l.left._tag === CauseTag.Parallel &&
+    r._tag === CauseTag.Parallel &&
+    r.left._tag === CauseTag.Sequential &&
+    r.right._tag === CauseTag.Sequential
   ) {
     return r.left.right
       .equalsEval(r.right.right)
@@ -356,7 +356,7 @@ function strcturalThenDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 }
 
 function structuralEqualThen<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
-  if (l._tag === CauseTag.Then && r._tag === CauseTag.Then) {
+  if (l._tag === CauseTag.Sequential && r._tag === CauseTag.Sequential) {
     return l.left.equalsEval(r.left).zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
   } else {
     return Eval.now(false);
@@ -365,10 +365,10 @@ function structuralEqualThen<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 
 function structuralBothAssociate<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
-    l._tag === CauseTag.Both &&
-    l.left._tag === CauseTag.Both &&
-    r._tag === CauseTag.Both &&
-    r.right._tag === CauseTag.Both
+    l._tag === CauseTag.Parallel &&
+    l.left._tag === CauseTag.Parallel &&
+    r._tag === CauseTag.Parallel &&
+    r.right._tag === CauseTag.Parallel
   ) {
     return l.left.left
       .equalsEval(r.left)
@@ -381,11 +381,11 @@ function structuralBothAssociate<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 
 function structuralBothDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
   if (
-    l._tag === CauseTag.Both &&
-    l.left._tag === CauseTag.Then &&
-    l.right._tag === CauseTag.Then &&
-    r._tag === CauseTag.Then &&
-    r.right._tag === CauseTag.Both
+    l._tag === CauseTag.Parallel &&
+    l.left._tag === CauseTag.Sequential &&
+    l.right._tag === CauseTag.Sequential &&
+    r._tag === CauseTag.Sequential &&
+    r.right._tag === CauseTag.Parallel
   ) {
     return l.left.left
       .equalsEval(l.right.left)
@@ -393,11 +393,11 @@ function structuralBothDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
       .and(l.left.right.equalsEval(r.right.left))
       .and(l.right.right.equalsEval(r.right.right));
   } else if (
-    l._tag === CauseTag.Both &&
-    l.left._tag === CauseTag.Then &&
-    l.right._tag === CauseTag.Then &&
-    r._tag === CauseTag.Then &&
-    r.left._tag === CauseTag.Both
+    l._tag === CauseTag.Parallel &&
+    l.left._tag === CauseTag.Sequential &&
+    l.right._tag === CauseTag.Sequential &&
+    r._tag === CauseTag.Sequential &&
+    r.left._tag === CauseTag.Parallel
   ) {
     return l.left.right
       .equalsEval(l.right.right)
@@ -410,7 +410,7 @@ function structuralBothDistribute<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
 }
 
 function structuralEqualBoth<A>(l: Cause<A>, r: Cause<A>): Eval<boolean> {
-  if (l._tag === CauseTag.Both && r._tag === CauseTag.Both) {
+  if (l._tag === CauseTag.Parallel && r._tag === CauseTag.Parallel) {
     return l.left.equalsEval(r.left).zipWith(l.right.equalsEval(r.right), (a, b) => a && b);
   } else {
     return Eval.now(false);
@@ -442,7 +442,7 @@ function stepLoop<A>(
         }
         break;
       }
-      case CauseTag.Then: {
+      case CauseTag.Sequential: {
         const left  = cause.left;
         const right = cause.right;
         switch (left._tag) {
@@ -450,12 +450,12 @@ function stepLoop<A>(
             cause = right;
             break;
           }
-          case CauseTag.Then: {
-            cause = new Then(left.left, new Then(left.right, right));
+          case CauseTag.Sequential: {
+            cause = new Sequential(left.left, new Sequential(left.right, right));
             break;
           }
-          case CauseTag.Both: {
-            cause = new Both(new Then(left.left, right), new Then(left.right, right));
+          case CauseTag.Parallel: {
+            cause = new Parallel(new Sequential(left.left, right), new Sequential(left.right, right));
             break;
           }
           default: {
@@ -465,7 +465,7 @@ function stepLoop<A>(
         }
         break;
       }
-      case CauseTag.Both: {
+      case CauseTag.Parallel: {
         stack = stack.prepend(cause.right);
         cause = cause.left;
         break;

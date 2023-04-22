@@ -56,11 +56,12 @@ export class Runtime<R> {
       const fiber = this.makeFiber(io);
       fiber.addObserver((exit) => {
         if (exit.isFailure()) {
-          reject(new IOError(exit.cause));
+          reject(exit.cause.squashWith(Function.identity));
         } else {
           resolve(exit.value);
         }
       });
+      fiber.start(io);
     });
   };
 
@@ -127,6 +128,11 @@ export const unsafeRunFiber = defaultRuntime.unsafeRunFiber;
  * @tsplus fluent fncts.io.IO unsafeRunPromiseExit
  */
 export const unsafeRunPromiseExit = defaultRuntime.unsafeRunPromiseExit;
+
+/**
+ * @tsplus fluent fncts.io.IO unsafeRunPromise
+ */
+export const unsafeRunPromise = defaultRuntime.unsafeRunPromise;
 
 /**
  * @tsplus getter fncts.io.IO unsafeRunOrFork

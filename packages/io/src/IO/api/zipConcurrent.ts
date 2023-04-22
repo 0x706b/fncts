@@ -30,9 +30,9 @@ export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A
                 right.interruptFork >
                 left.await.zip(right.await).flatMap(([left, right]) =>
                   left
-                    .zipWithCause(right, f, (a, b) => Cause.both(a, b))
+                    .zipWithCause(right, f, (a, b) => Cause.parallel(a, b))
                     .match(
-                      (causes) => IO.refailCause(Cause.both(cause.stripFailures, causes)),
+                      (causes) => IO.refailCause(Cause.parallel(cause.stripFailures, causes)),
                       () => IO.refailCause(cause.stripFailures),
                     ),
                 ),
