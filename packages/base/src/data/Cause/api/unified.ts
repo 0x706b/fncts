@@ -44,9 +44,9 @@ function unifyLoop<E>(
   switch (head._tag) {
     case CauseTag.Empty:
       return unifyLoop(more, fiberId, stackless, result);
-    case CauseTag.Both:
+    case CauseTag.Parallel:
       return unifyLoop(Cons(head.left, Cons(head.right, more)), fiberId, stackless, result);
-    case CauseTag.Then:
+    case CauseTag.Sequential:
       return unifyLoop(Cons(head.left, Cons(head.right, more)), fiberId, stackless, result);
     case CauseTag.Stackless:
       return unifyLoop(Cons(head.cause, more), fiberId, head.stackless, result);

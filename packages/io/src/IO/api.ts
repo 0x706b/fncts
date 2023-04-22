@@ -1576,7 +1576,7 @@ export function result<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, 
 /**
  * Recover from the unchecked failure of the `IO`. (opposite of `orHalt`)
  *
- * @trace call
+ * @tsplus getter fncts.io.IO resurrect
  */
 export function resurrect<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, unknown, A> {
   return io.unrefineWith(Maybe.just, identity);

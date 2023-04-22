@@ -89,7 +89,7 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
                 () => IO.failCauseNow(cause.stripFailures),
                 (exit) =>
                   exit.isFailure()
-                    ? IO.failCauseNow(Cause.both(cause.stripFailures, exit.cause))
+                    ? IO.failCauseNow(Cause.parallel(cause.stripFailures, exit.cause))
                     : IO.failCauseNow(cause.stripFailures),
               ),
             ),

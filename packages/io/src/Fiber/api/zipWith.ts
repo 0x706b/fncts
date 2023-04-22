@@ -15,9 +15,9 @@ export function zipWith<A, E1, B, C>(that: Fiber<E1, B>, f: (a: A, b: B) => C, _
       self.children,
       that.inheritRefs > self.inheritRefs,
       self.poll.zipWith(that.poll, (ma, mb) =>
-        ma.isJust() && mb.isJust() ? Just(ma.value.zipWithCause(mb.value, f, Cause.then)) : Nothing(),
+        ma.isJust() && mb.isJust() ? Just(ma.value.zipWithCause(mb.value, f, Cause.sequential)) : Nothing(),
       ),
-      (id) => self.interruptAs(id).zipWith(that.interruptAs(id), (ea, eb) => ea.zipWithCause(eb, f, Cause.then)),
+      (id) => self.interruptAs(id).zipWith(that.interruptAs(id), (ea, eb) => ea.zipWithCause(eb, f, Cause.sequential)),
     );
   };
 }

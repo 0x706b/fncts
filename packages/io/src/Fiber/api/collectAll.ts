@@ -22,7 +22,7 @@ export function sequenceIterable<E, A>(
           (ra) =>
             b.match(
               () => Nothing(),
-              (rb) => Just(ra.zipWithCause(rb, (a, as) => as.prepend(a), Cause.both)),
+              (rb) => Just(ra.zipWithCause(rb, (a, as) => as.prepend(a), Cause.parallel)),
             ),
         ),
       ),

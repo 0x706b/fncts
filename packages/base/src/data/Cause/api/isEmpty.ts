@@ -23,12 +23,12 @@ export function isEmpty<E>(cause: Cause<E>): boolean {
       case CauseTag.Interrupt: {
         return false;
       }
-      case CauseTag.Then: {
+      case CauseTag.Sequential: {
         causes.push(current.right);
         current = current.left;
         break;
       }
-      case CauseTag.Both: {
+      case CauseTag.Parallel: {
         causes.push(current.right);
         current = current.left;
         break;

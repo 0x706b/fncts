@@ -130,6 +130,9 @@ export function fails<E>(assertion: Assertion<E>): Assertion<Exit<E, any>> {
   );
 }
 
+/**
+ * @tsplus getter fncts.test.Assertion every
+ */
 export function every<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
   return Assertion.rec(
     "every",

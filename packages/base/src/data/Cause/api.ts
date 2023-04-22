@@ -2,7 +2,18 @@ import { EitherTag } from "@fncts/base/data/Either";
 
 import { Stack } from "../../internal/Stack.js";
 import { identity } from "../function.js";
-import { _Empty, Both, Cause, CauseTag, Empty, Fail, Halt, Interrupt, Stackless, Then } from "./definition.js";
+import {
+  _Empty,
+  Cause,
+  CauseTag,
+  Empty,
+  Fail,
+  Halt,
+  Interrupt,
+  Parallel,
+  Sequential,
+  Stackless,
+} from "./definition.js";
 
 /**
  * @tsplus pipeable fncts.Cause as
@@ -18,11 +29,11 @@ export function as<B>(b: Lazy<B>) {
  *
  * @note If one of the `Cause`s is `Empty`, the non-empty `Cause` is returned
  *
- * @tsplus static fncts.CauseOps both
- * @tsplus static fncts.Cause.BothOps __call
+ * @tsplus static fncts.CauseOps parallel
+ * @tsplus static fncts.Cause.ParallelOps __call
  */
-export function both<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
-  return left.isEmpty ? right : right.isEmpty ? left : new Both<E | E1>(left, right);
+export function parallel<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
+  return left.isEmpty ? right : right.isEmpty ? left : new Parallel<E | E1>(left, right);
 }
 
 /**
@@ -49,15 +60,15 @@ function flatMapEval<E, D>(self: Cause<E>, f: (e: E) => Cause<D>): Eval<Cause<D>
       return Eval.now(self);
     case CauseTag.Interrupt:
       return Eval.now(self);
-    case CauseTag.Then:
+    case CauseTag.Sequential:
       return Eval.defer(() => flatMapEval(self.left, f)).zipWith(
         Eval.defer(() => flatMapEval(self.right, f)),
-        Cause.then,
+        Cause.sequential,
       );
-    case CauseTag.Both:
+    case CauseTag.Parallel:
       return Eval.defer(() => flatMapEval(self.left, f)).zipWith(
         Eval.defer(() => flatMapEval(self.right, f)),
-        Cause.both,
+        Cause.parallel,
       );
     case CauseTag.Stackless:
       return Eval.defer(flatMapEval(self.cause, f));
@@ -191,7 +202,7 @@ export function filterDefects(p: Predicate<unknown>) {
       Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
       Then: (l, r) => {
         if (l.isJust() && r.isJust()) {
-          return Just(Then(l.value, r.value));
+          return Just(Sequential(l.value, r.value));
         } else if (l.isJust() && r.isNothing()) {
           return Just(l.value);
         } else if (l.isNothing() && r.isJust()) {
@@ -202,7 +213,7 @@ export function filterDefects(p: Predicate<unknown>) {
       },
       Both: (l, r) => {
         if (l.isJust() && r.isJust()) {
-          return Just(Both(l.value, r.value));
+          return Just(Parallel(l.value, r.value));
         } else if (l.isJust() && r.isNothing()) {
           return Just(l.value);
         } else if (l.isNothing() && r.isJust()) {
@@ -225,8 +236,8 @@ function findLoop<A, B>(self: Cause<A>, f: (cause: Cause<A>) => Maybe<B>, stack:
   switch (r._tag) {
     case MaybeTag.Nothing: {
       switch (self._tag) {
-        case CauseTag.Both:
-        case CauseTag.Then: {
+        case CauseTag.Parallel:
+        case CauseTag.Sequential: {
           return findLoop(self.left, f, stack.prepend(self.right));
         }
         default: {
@@ -268,25 +279,25 @@ class FCEStackFrameDone {
 class FCEStackFrameThenLeft<E, A> {
   readonly _tag = "FCEStackFrameThenLeft";
 
-  constructor(readonly cause: Then<Either<E, A>>) {}
+  constructor(readonly cause: Sequential<Either<E, A>>) {}
 }
 
 class FCEStackFrameThenRight<E, A> {
   readonly _tag = "FCEStackFrameThenRight";
 
-  constructor(readonly cause: Then<Either<E, A>>, readonly leftResult: Either<Cause<E>, A>) {}
+  constructor(readonly cause: Sequential<Either<E, A>>, readonly leftResult: Either<Cause<E>, A>) {}
 }
 
 class FCEStackFrameBothLeft<E, A> {
   readonly _tag = "FCEStackFrameBothLeft";
 
-  constructor(readonly cause: Both<Either<E, A>>) {}
+  constructor(readonly cause: Parallel<Either<E, A>>) {}
 }
 
 class FCEStackFrameBothRight<E, A> {
   readonly _tag = "FCEStackFrameBothRight";
 
-  constructor(readonly cause: Both<Either<E, A>>, readonly leftResult: Either<Cause<E>, A>) {}
+  constructor(readonly cause: Parallel<Either<E, A>>, readonly leftResult: Either<Cause<E>, A>) {}
 }
 
 type FCEStackFrame<E, A> =
@@ -327,11 +338,11 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
             (r) => Either.right(r),
           );
           break pushing;
-        case CauseTag.Then:
+        case CauseTag.Sequential:
           stack.push(new FCEStackFrameThenLeft(c));
           c = c.left;
           continue pushing;
-        case CauseTag.Both:
+        case CauseTag.Parallel:
           stack.push(new FCEStackFrameBothLeft(c));
           c = c.left;
           continue pushing;
@@ -353,7 +364,7 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
           const l = top.leftResult;
 
           if (l.isLeft() && result.isLeft()) {
-            result = Either.left(Cause.then(l.left, result.left));
+            result = Either.left(Cause.sequential(l.left, result.left));
           }
 
           if (l.isRight()) {
@@ -374,7 +385,7 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
           const l = top.leftResult;
 
           if (l.isLeft() && result.isLeft()) {
-            result = Either.left(Cause.both(l.left, result.left));
+            result = Either.left(Cause.parallel(l.left, result.left));
           }
 
           if (l.isRight()) {
@@ -401,25 +412,25 @@ class FCOStackFrameDone {
 class FCOStackFrameThenLeft<E> {
   readonly _tag = "FCOStackFrameThenLeft";
 
-  constructor(readonly cause: Then<Maybe<E>>) {}
+  constructor(readonly cause: Sequential<Maybe<E>>) {}
 }
 
 class FCOStackFrameThenRight<E> {
   readonly _tag = "FCOStackFrameThenRight";
 
-  constructor(readonly cause: Then<Maybe<E>>, readonly leftResult: Maybe<Cause<E>>) {}
+  constructor(readonly cause: Sequential<Maybe<E>>, readonly leftResult: Maybe<Cause<E>>) {}
 }
 
 class FCOStackFrameBothLeft<E> {
   readonly _tag = "FCOStackFrameBothLeft";
 
-  constructor(readonly cause: Both<Maybe<E>>) {}
+  constructor(readonly cause: Parallel<Maybe<E>>) {}
 }
 
 class FCOStackFrameBothRight<E> {
   readonly _tag = "FCOStackFrameBothRight";
 
-  constructor(readonly cause: Both<Maybe<E>>, readonly leftResult: Maybe<Cause<E>>) {}
+  constructor(readonly cause: Parallel<Maybe<E>>, readonly leftResult: Maybe<Cause<E>>) {}
 }
 
 type FCOStackFrame<E> =
@@ -460,11 +471,11 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
             (r) => Just(Cause.fail(r, Trace.none)),
           );
           break pushing;
-        case CauseTag.Then:
+        case CauseTag.Sequential:
           stack.push(new FCOStackFrameThenLeft(c));
           c = c.left;
           continue pushing;
-        case CauseTag.Both:
+        case CauseTag.Parallel:
           stack.push(new FCOStackFrameBothLeft(c));
           c = c.left;
           continue pushing;
@@ -486,7 +497,7 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
           const l = top.leftResult;
 
           if (l.isJust() && result.isJust()) {
-            result = Just(Cause.then(l.value, result.value));
+            result = Just(Cause.sequential(l.value, result.value));
           }
 
           if (l.isNothing() && result.isJust()) {
@@ -509,7 +520,7 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
           const l = top.leftResult;
 
           if (l.isJust() && result.isJust()) {
-            result = Just(Cause.both(l.value, result.value));
+            result = Just(Cause.parallel(l.value, result.value));
           }
 
           if (l.isNothing() && result.isJust()) {
@@ -550,8 +561,8 @@ function foldLeftLoop<A, B>(self: Cause<A>, b: B, f: (b: B, a: Cause<A>) => Mayb
   const z = f(b, self).getOrElse(b);
 
   switch (self._tag) {
-    case CauseTag.Both:
-    case CauseTag.Then: {
+    case CauseTag.Parallel:
+    case CauseTag.Sequential: {
       return foldLeftLoop(self.left, z, f, stack.prepend(self.right));
     }
     default: {
@@ -609,8 +620,8 @@ export function interrupt(id: FiberId, trace: Trace = Trace.none): Cause<never> 
  *
  * @tsplus fluent fncts.Cause isBoth
  */
-export function isBoth<E>(self: Cause<E>): self is Both<E> {
-  return self._tag === CauseTag.Both;
+export function isBoth<E>(self: Cause<E>): self is Parallel<E> {
+  return self._tag === CauseTag.Parallel;
 }
 
 /**
@@ -634,8 +645,8 @@ export function isHalt<E>(self: Cause<E>): self is Halt {
  *
  * @tsplus fluent fncts.Cause isThen
  */
-export function isThen<E>(self: Cause<E>): self is Then<E> {
-  return self._tag === CauseTag.Then;
+export function isThen<E>(self: Cause<E>): self is Sequential<E> {
+  return self._tag === CauseTag.Sequential;
 }
 
 /**
@@ -755,7 +766,7 @@ export function keepDefects<E>(self: Cause<E>): Maybe<Cause<never>> {
     Interrupt: () => Nothing(),
     Then: (l, r) => {
       if (l.isJust() && r.isJust()) {
-        return Just(Then(l.value, r.value));
+        return Just(Sequential(l.value, r.value));
       } else if (l.isJust() && r.isNothing()) {
         return Just(l.value);
       } else if (l.isNothing() && r.isJust()) {
@@ -766,7 +777,7 @@ export function keepDefects<E>(self: Cause<E>): Maybe<Cause<never>> {
     },
     Both: (l, r) => {
       if (l.isJust() && r.isJust()) {
-        return Just(Both(l.value, r.value));
+        return Just(Parallel(l.value, r.value));
       } else if (l.isJust() && r.isNothing()) {
         return Just(l.value);
       } else if (l.isNothing() && r.isJust()) {
@@ -798,8 +809,8 @@ export function mapTrace(f: (trace: Trace) => Trace) {
       Fail: (e, trace) => Cause.fail(e, f(trace)),
       Halt: (u, trace) => Cause.halt(u, f(trace)),
       Interrupt: (id, trace) => Cause.interrupt(id, f(trace)),
-      Then: Cause.then,
-      Both: Cause.both,
+      Then: Cause.sequential,
+      Both: Cause.parallel,
       Stackless: Cause.stackless,
     });
   };
@@ -824,8 +835,8 @@ export function stripFailures<A>(self: Cause<A>): Cause<never> {
     Fail: () => Empty(),
     Halt: (u, trace) => Halt(u, trace),
     Interrupt: (fiberId, trace) => Interrupt(fiberId, trace),
-    Then: (l, r) => Then(l, r),
-    Both: (l, r) => Both(l, r),
+    Then: (l, r) => Sequential(l, r),
+    Both: (l, r) => Parallel(l, r),
     Stackless: (c, stackless) => Stackless(c, stackless),
   });
 }
@@ -846,7 +857,7 @@ export function stripSomeDefects(p: Predicate<unknown>) {
       Interrupt: (fiberId, trace) => Just(Interrupt(fiberId, trace)),
       Then: (l, r) =>
         l.isJust() && r.isJust()
-          ? Just(Then(l.value, r.value))
+          ? Just(Sequential(l.value, r.value))
           : l.isJust()
           ? Just(l.value)
           : r.isJust()
@@ -854,7 +865,7 @@ export function stripSomeDefects(p: Predicate<unknown>) {
           : Nothing(),
       Both: (l, r) =>
         l.isJust() && r.isJust()
-          ? Just(Then(l.value, r.value))
+          ? Just(Sequential(l.value, r.value))
           : l.isJust()
           ? Just(l.value)
           : r.isJust()
@@ -884,7 +895,7 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
     case CauseTag.Halt: {
       return Eval.now(Either.left(self));
     }
-    case CauseTag.Then: {
+    case CauseTag.Sequential: {
       return Eval.defer(() => sequenceCauseEitherEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseEitherEval(self.right)),
         (lefts, rights) => {
@@ -893,12 +904,12 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
           return lefts._tag === EitherTag.Left
             ? rights._tag === EitherTag.Right
               ? Either.right(rights.right)
-              : Either.left(Cause.then(lefts.left, rights.left))
+              : Either.left(Cause.sequential(lefts.left, rights.left))
             : Either.right(lefts.right);
         },
       );
     }
-    case CauseTag.Both: {
+    case CauseTag.Parallel: {
       return Eval.defer(() => sequenceCauseEitherEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseEitherEval(self.right)),
         (lefts, rights) => {
@@ -907,7 +918,7 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
           return lefts._tag === EitherTag.Left
             ? rights._tag === EitherTag.Right
               ? Either.right(rights.right)
-              : Either.left(Cause.both(lefts.left, rights.left))
+              : Either.left(Cause.parallel(lefts.left, rights.left))
             : Either.right(lefts.right);
         },
       );
@@ -943,7 +954,7 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
     case CauseTag.Halt: {
       return Eval.now(Maybe.just(self));
     }
-    case CauseTag.Then: {
+    case CauseTag.Sequential: {
       return Eval.defer(() => sequenceCauseMaybeEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseMaybeEval(self.right)),
         (lefts, rights) => {
@@ -951,7 +962,7 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
           Maybe.concrete(rights);
           return lefts._tag === MaybeTag.Just
             ? rights._tag === MaybeTag.Just
-              ? Maybe.just(Cause.then(lefts.value, rights.value))
+              ? Maybe.just(Cause.sequential(lefts.value, rights.value))
               : lefts
             : rights._tag === MaybeTag.Just
             ? rights
@@ -959,7 +970,7 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
         },
       );
     }
-    case CauseTag.Both: {
+    case CauseTag.Parallel: {
       return Eval.defer(() => sequenceCauseMaybeEval(self.left)).zipWith(
         Eval.defer(() => sequenceCauseMaybeEval(self.right)),
         (lefts, rights) => {
@@ -967,7 +978,7 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
           Maybe.concrete(rights);
           return lefts._tag === MaybeTag.Just
             ? rights._tag === MaybeTag.Just
-              ? Maybe.just(Cause.both(lefts.value, rights.value))
+              ? Maybe.just(Cause.parallel(lefts.value, rights.value))
               : lefts
             : rights._tag === MaybeTag.Just
             ? rights
@@ -1025,11 +1036,11 @@ export function squashWith<E>(f: (e: E) => unknown) {
  *
  * @note If one of the `Cause`s is `Empty`, the non-empty `Cause` is returned
  *
- * @tsplus static fncts.CauseOps then
- * @tsplus static fncts.Cause.ThenOps __call
+ * @tsplus static fncts.CauseOps sequential
+ * @tsplus static fncts.Cause.SequentialOps __call
  */
-export function then<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
-  return left.isEmpty ? right : right.isEmpty ? left : new Then<E | E1>(left, right);
+export function sequential<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
+  return left.isEmpty ? right : right.isEmpty ? left : new Sequential<E | E1>(left, right);
 }
 
 /**

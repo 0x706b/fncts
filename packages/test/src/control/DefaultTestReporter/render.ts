@@ -159,7 +159,7 @@ function renderFailure(label: string, offset: number, details: AssertionResult):
   return renderFailureLabel(label, offset).toMessage + renderAssertionResult(details, offset);
 }
 
-function renderAssertionResult(assertionResult: AssertionResult, offset: number): Message {
+export function renderAssertionResult(assertionResult: AssertionResult, offset: number): Message {
   return (
     renderGenFailureDetails(assertionResult.genFailureDetails, offset) +
     renderAssertionFailureDetails(assertionResult.failureDetails.assertion, offset)
@@ -170,16 +170,7 @@ function renderFailureLabel(label: string, offset: number): Line {
   return error("- " + label).toLine.withOffset(offset);
 }
 
-function renderAssertFailure(result: TestResult, label: string, depth: number): ExecutionResult {
-  return result.fold({
-    Value: (details) => rendered(Test, label, Failed, depth, List.from(renderFailure(label, depth, details).lines)),
-    And: (l, r) => l && r,
-    Or: (l, r) => l || r,
-    Not: (v) => v.invert,
-  });
-}
-
-function renderAssertionFailureDetails(failureDetails: Cons<AssertionValue<any>>, offset: number): Message {
+export function renderAssertionFailureDetails(failureDetails: Cons<AssertionValue<any>>, offset: number): Message {
   /**
    * @tsplus tailrec
    */
@@ -214,7 +205,7 @@ function renderGenFailureDetails(failureDetails: Maybe<GenFailureDetails>, offse
   );
 }
 
-function renderFragment<A>(fragment: AssertionValue<A>, offset: number): Message {
+export function renderFragment<A>(fragment: AssertionValue<A>, offset: number): Message {
   return (
     (primary(renderValue(fragment, offset + 1)) + renderSatisfied(fragment)).withOffset(offset).toMessage +
     Message(

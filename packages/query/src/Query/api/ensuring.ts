@@ -6,7 +6,7 @@ export function ensuring<R1>(finalizer: Query<R1, never, any>, __tsplusTrace?: s
     return self.matchCauseQuery(
       (cause1) =>
         finalizer.matchCauseQuery(
-          (cause2) => Query.failCauseNow(Cause.then(cause1, cause2)),
+          (cause2) => Query.failCauseNow(Cause.sequential(cause1, cause2)),
           () => Query.failCauseNow(cause1),
         ),
       (value) =>

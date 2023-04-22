@@ -17,7 +17,7 @@ export function ap<E, A>(that: Exit<E, A>) {
  */
 export function zipLeft<G, B>(that: Exit<G, B>) {
   return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
-    return self.zipWithCause(that, (a, _) => a, Cause.then);
+    return self.zipWithCause(that, (a, _) => a, Cause.sequential);
   };
 }
 
@@ -26,7 +26,7 @@ export function zipLeft<G, B>(that: Exit<G, B>) {
  */
 export function zipRight<G, B>(that: Exit<G, B>) {
   return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
-    return self.zipWithCause(that, (_, b) => b, Cause.then);
+    return self.zipWithCause(that, (_, b) => b, Cause.sequential);
   };
 }
 
@@ -35,7 +35,7 @@ export function zipRight<G, B>(that: Exit<G, B>) {
  */
 export function zipLeftConcurrent<G, B>(that: Exit<G, B>) {
   return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
-    return self.zipWithCause(that, (a, _) => a, Cause.both);
+    return self.zipWithCause(that, (a, _) => a, Cause.parallel);
   };
 }
 
@@ -44,7 +44,7 @@ export function zipLeftConcurrent<G, B>(that: Exit<G, B>) {
  */
 export function zipRightConcurrent<G, B>(that: Exit<G, B>) {
   return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
-    return self.zipWithCause(that, (_, b) => b, Cause.both);
+    return self.zipWithCause(that, (_, b) => b, Cause.parallel);
   };
 }
 
@@ -71,7 +71,9 @@ export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
  */
 export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
   return exits.head.map((head) =>
-    exits.drop(1).foldLeft(head.map(Conc.single), (acc, el) => acc.zipWithCause(el, (c, a) => c.append(a), Cause.then)),
+    exits
+      .drop(1)
+      .foldLeft(head.map(Conc.single), (acc, el) => acc.zipWithCause(el, (c, a) => c.append(a), Cause.sequential)),
   );
 }
 
@@ -80,7 +82,9 @@ export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>
  */
 export function collectAllConcurrent<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
   return exits.head.map((head) =>
-    exits.drop(1).foldLeft(head.map(Conc.single), (acc, el) => acc.zipWithCause(el, (c, a) => c.append(a), Cause.both)),
+    exits
+      .drop(1)
+      .foldLeft(head.map(Conc.single), (acc, el) => acc.zipWithCause(el, (c, a) => c.append(a), Cause.parallel)),
   );
 }
 
@@ -139,7 +143,7 @@ export function match<E, A, B, C>(onFailure: (e: Cause<E>) => B, onSuccess: (a: 
  */
 export function zipWith<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
   return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
-    return fa.zipWithCause(fb, f, Cause.then);
+    return fa.zipWithCause(fb, f, Cause.sequential);
   };
 }
 
@@ -157,7 +161,7 @@ export function zip<EB, B>(that: Exit<EB, B>) {
  */
 export function zipWithConcurrent<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
   return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
-    return fa.zipWithCause(fb, f, Cause.both);
+    return fa.zipWithCause(fb, f, Cause.parallel);
   };
 }
 

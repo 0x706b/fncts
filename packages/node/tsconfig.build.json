@@ -12,7 +12,7 @@
   "include": ["./src/**/*"],
   "references": [
     {
-      "path": "../io/tsconfig.json"
+      "path": "../io/tsconfig.build.json"
     }
   ]
 }

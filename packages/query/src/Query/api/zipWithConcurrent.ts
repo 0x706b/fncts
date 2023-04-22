@@ -36,7 +36,7 @@ export function zipWithConcurrent<A, R1, E1, B, C>(
             r2.matchType({
               Blocked: () => Result.fail(cause),
               Done: () => Result.fail(cause),
-              Fail: (cause2) => Result.fail(Cause.both(cause, cause2)),
+              Fail: (cause2) => Result.fail(Cause.parallel(cause, cause2)),
             }),
         }),
       ),
