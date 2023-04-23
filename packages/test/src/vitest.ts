@@ -17,8 +17,11 @@ export const describe = V.describe;
 export const suite = V.suite;
 
 export const it = (() => {
-  function runTest(test: Lazy<TestResult>) {
+  function runTest(test: Lazy<TestResult | void>) {
     const result = test();
+    if (!result) {
+      return;
+    }
     if (result.isFailure) {
       const lines = (assertionValues: Cons<AssertionValue<any>>) =>
         assertionValues.flatMap((value) => List.from(renderFragment(value, 0).lines));
@@ -37,7 +40,7 @@ export const it = (() => {
     }
   }
 
-  function it(name: string, test: Lazy<TestResult>, timeout = 5_000) {
+  function it(name: string, test: Lazy<TestResult | void>, timeout = 5_000) {
     return V.it.concurrent(name, () => runTest(test), timeout);
   }
 
@@ -75,10 +78,10 @@ export const it = (() => {
   }
 
   return Object.assign(it, {
-    skip: (name: string, test: Lazy<TestResult>, timeout = 5_000) => {
+    skip: (name: string, test: Lazy<TestResult | void>, timeout = 5_000) => {
       return V.it.skip(name, () => runTest(test), timeout);
     },
-    only: (name: string, test: Lazy<TestResult>, timeout = 5_000) => {
+    only: (name: string, test: Lazy<TestResult | void>, timeout = 5_000) => {
       return V.it.only(name, () => runTest(test), timeout);
     },
     check: check,
