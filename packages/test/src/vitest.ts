@@ -8,9 +8,10 @@ import { Gen } from "@fncts/test/control/Gen";
 import { TestAnnotationRenderer } from "@fncts/test/control/TestAnnotationRenderer";
 import { TestEnvironment } from "@fncts/test/control/TestEnvironment";
 import { ConsoleRenderer } from "@fncts/test/control/TestRenderer/ConsoleRenderer";
-import { Failed, rendered, Test } from "@fncts/test/data/ExecutionResult";
+import { Failed, Passed, rendered, Test } from "@fncts/test/data/ExecutionResult";
 import { TestConfig } from "@fncts/test/data/TestConfig";
 import * as V from "vitest";
+import { GenerateStackTrace } from "@fncts/io/IO";
 
 export const describe = V.describe;
 
@@ -50,11 +51,12 @@ export const it = (() => {
       return Δ(
         IO.defer(() => {
           if (result.isFailure) {
-            const lines = (assertionValues: Cons<AssertionValue<any>>) =>
-              assertionValues.flatMap((value) => List.from(renderFragment(value, 0).lines));
+            const lines = (assertionValues: Cons<AssertionValue<any>>) => {
+              return assertionValues.flatMap((value) => List.from(renderFragment(value, 0).lines));
+            }
             const renderedResult = ConsoleRenderer.renderSingle(
-              result.invert.fold({
-                Value: (details) => rendered(Test, "", Failed, 0, lines(details.failureDetails.assertion)),
+              result.fold({
+                Value: (details) => rendered(Test, "", Passed, 0, lines(details.failureDetails.assertion)),
                 And: (l, r) => l && r,
                 Or: (l, r) => l || r,
                 Not: (v) => v.invert,
@@ -89,6 +91,9 @@ export const it = (() => {
     checkAll: checkAllConcurrently,
     checkAllIO: checkAllIOConcurrently,
     io: Object.assign(itIO, {
+      scoped: <E>(name: string, io: Lazy<IO<TestEnvironment | Scope, E, TestResult>>, timeout = 5_000) => {
+        return itIO(name, io().scoped, timeout)
+      },
       skip: <E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, timeout = 5_000) => {
         return V.it.skip(name, () => runTestIO(io), timeout);
       },

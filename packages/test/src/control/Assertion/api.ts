@@ -164,7 +164,7 @@ export function equals<A>(expected: A, E: Eq<A>): Assertion<A> {
   return Assertion.make("equals", [RenderParam(expected)], E.equals(expected));
 }
 
-export const isFalse: Assertion<boolean> = Assertion.make("isFale", [], (b) => !b);
+export const isFalse: Assertion<boolean> = Assertion.make("isFalse", [], (b) => !b);
 
 export const isInterrupted: Assertion<Exit<any, any>> = Assertion.make("isInterrupted", [], (exit) =>
   exit.match(

@@ -4,6 +4,115 @@ import { test } from "@fncts/test/vitest";
 import { withLatch } from "./Latch.js";
 
 suite.concurrent("IO", () => {
+  suite.concurrent("bracket", () => {
+    test.io(
+      "bracket happy path",
+      Do((Δ) => {
+        const release = Δ(Ref.make(false));
+        const result  = Δ(
+          IO.bracket(
+            IO.succeed(42),
+            (n) => IO.succeed(n + 1),
+            () => release.set(true),
+          ),
+        );
+        const released = Δ(release.get);
+        return result.assert(strictEqualTo(43)) && released.assert(isTrue);
+      }),
+    );
+
+    test.io("bracketExit error handling", () => {
+      const releaseHalted: unknown = new Error("release halted");
+
+      return Do((Δ) => {
+        const exit = Δ(
+          IO.bracketExit(
+            IO.succeed(42),
+            () => IO.fail("use failed"),
+            (_value, _exit) => IO.halt(releaseHalted),
+          ).result,
+        );
+        const cause = Δ(
+          exit.matchCauseIO(
+            (cause) => IO.succeed(cause),
+            () => IO.fail("effect should have failed"),
+          ),
+        );
+        return (
+          cause.failures.assert(deepEqualTo(List("use failed"))) &&
+          cause.defects.assert(deepEqualTo(List(releaseHalted)))
+        );
+      });
+    });
+  });
+
+  suite.concurrent("bracketExit + disconnect", () => {
+    test.io(
+      "bracketExit happy path",
+      Do((Δ) => {
+        const release = Δ(Ref.make(false));
+        const result  = Δ(
+          IO.bracket(
+            IO.succeed(42),
+            (a) => IO.succeed(a + 1),
+            () => release.set(true),
+          ).disconnect,
+        );
+        const released = Δ(release.get);
+        return result.assert(strictEqualTo(43)) && released.assert(isTrue);
+      }),
+    );
+
+    test.io("bracketExit error handling", () => {
+      const releaseHalted: unknown = new Error("release halted");
+
+      return Do((Δ) => {
+        const exit = Δ(
+          IO.bracketExit(
+            IO.succeed(42),
+            () => IO.fail("use failed"),
+            (_value, _exit) => IO.halt(releaseHalted),
+          ).disconnect.result,
+        );
+        const cause = Δ(
+          exit.matchCauseIO(
+            (cause) => IO.succeed(cause),
+            () => IO.fail("effect should have failed"),
+          ),
+        );
+        return (
+          cause.failures.assert(deepEqualTo(List("use failed"))) &&
+          cause.defects.assert(deepEqualTo(List(releaseHalted)))
+        );
+      });
+    });
+
+    test.io("bracketExit beast mode error handling", () => {
+      const releaseHalted: unknown = new Error("release halted");
+
+      return Do((Δ) => {
+        const released = Δ(Ref.make(false));
+        const exit     = Δ(
+          IO.bracketExit(
+            IO.succeed(42),
+            () => released.set(true),
+            (_value, _exit): IO<never, never, never> => {
+              throw releaseHalted;
+            },
+          ).disconnect.result,
+        );
+        const cause = Δ(
+          exit.matchCauseIO(
+            (cause) => IO.succeed(cause),
+            () => IO.fail("effect should have failed"),
+          ),
+        );
+        const isReleased = Δ(released.get);
+        return cause.defects.assert(deepEqualTo(List(releaseHalted))) && isReleased.assert(isTrue);
+      });
+    });
+  });
+
   suite.concurrent("repeatUntil", () => {
     it.io(
       "repeats until condition is true",
