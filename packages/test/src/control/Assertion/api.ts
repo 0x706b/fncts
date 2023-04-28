@@ -121,7 +121,7 @@ export function some<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
   return Assertion.rec("some", [RenderParam(assertion)], assertion, (ia) => ia.find((a) => assertion.test(a)));
 }
 
-export function fails<E>(assertion: Assertion<E>): Assertion<Exit<E, any>> {
+export function fails<E>(assertion: Assertion<E>): Assertion<Exit<any, any>> {
   return Assertion.rec("fails", [RenderParam(assertion)], assertion, (exit) =>
     exit.match(
       (cause) => cause.failures.head,
@@ -152,7 +152,7 @@ export function halts(assertion: Assertion<any>): Assertion<Exit<any, any>> {
   );
 }
 
-export function strictEqualTo<A>(expected: A): Assertion<A> {
+export function strictEqualTo(expected: unknown): Assertion<unknown> {
   return Assertion.make("strictEqualTo", [RenderParam(expected)], (actual) => Equatable.strictEquals(actual, expected));
 }
 

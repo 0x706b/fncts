@@ -63,7 +63,7 @@ suite.concurrent("Conc", () => {
           const effect   = IO.succeed(bs.foldLeft(as, (acc, a) => acc.append(a)));
           const actual   = IO.allConcurrent(Iterable.replicate(100, effect));
           const expected = as.concat(bs);
-          return actual.assert(every(strictEqualTo(expected)));
+          return actual.assertIO(every(strictEqualTo(expected)));
         });
       },
       10000,
@@ -112,7 +112,7 @@ suite.concurrent("Conc", () => {
         const effect   = IO.succeed(as.foldRight(bs, (n, ns) => ns.prepend(n)));
         const actual   = IO.allConcurrent(Iterable.replicate(100, effect));
         const expected = as.concat(bs);
-        return actual.assert(every(strictEqualTo(expected)));
+        return actual.assertIO(every(strictEqualTo(expected)));
       }),
       10000,
     );

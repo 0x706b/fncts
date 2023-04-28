@@ -1,9 +1,41 @@
-import { deepEqualTo } from "@fncts/test/control/Assertion";
+import { deepEqualTo, halts } from "@fncts/test/control/Assertion";
 import { test } from "@fncts/test/vitest";
 
 import { withLatch } from "./Latch.js";
 
 suite.concurrent("IO", () => {
+  suite.concurrent("heap", () => {
+    test.io(
+      "unit.forever is safe",
+      Do((Δ) => {
+        const fiber = Δ(IO.unit.forever.fork);
+        Δ(Live.live(IO.sleep((5).seconds)));
+        Δ(fiber.interrupt);
+        return true.assert(completes);
+      }),
+      6000,
+    );
+  });
+  suite.concurrent("absorbWith", () => {
+    test.io(
+      "on fail",
+      IO.fail("fail")
+        .absorbWith(Function.identity)
+        .result.assertIO(fails(strictEqualTo("fail"))),
+    );
+    test.io(
+      "on halt",
+      IO.halt("halt")
+        .absorbWith(Function.identity)
+        .result.assertIO(fails(strictEqualTo("halt"))),
+    );
+    test.io(
+      "on success",
+      IO.succeed(1)
+        .absorbWith(() => "fails")
+        .assertIO(strictEqualTo(1)),
+    );
+  });
   suite.concurrent("bracket", () => {
     test.io(
       "bracket happy path",
@@ -113,6 +145,61 @@ suite.concurrent("IO", () => {
     });
   });
 
+  suite.concurrent("catchJustDefect", () => {
+    test.io("recovers from some defects", () => {
+      const s  = "division by zero";
+      const io = IO.halt(s);
+      return io
+        .catchJustDefect((e) => (typeof e === "string" ? Just(IO.succeed(e)) : Nothing()))
+        .assertIO(strictEqualTo(s));
+    });
+
+    test.io("leaves the rest", () => {
+      const t  = "division by zero";
+      const io = IO.halt(t);
+      return io
+        .catchJustDefect((e) => (typeof e !== "string" ? Just(IO.succeed(e)) : Nothing()))
+        .result.assertIO(halts(strictEqualTo(t)));
+    });
+
+    test.io("leaves errors", () => {
+      const t  = "division by zero";
+      const io = IO.fail(t);
+      return io.catchJustDefect((_) => Just(IO.succeed(_))).result.assertIO(fails(strictEqualTo(t)));
+    });
+
+    test.io("leaves values", () => {
+      const t  = "division by zero";
+      const io = IO.succeed(t);
+      return io.catchJustDefect((_) => Just(IO.fail(_))).assertIO(strictEqualTo(t));
+    });
+  });
+
+  suite.concurrent("collect", () => {
+    test.io(
+      "returns failure ignoring value",
+      Do((Δ) => {
+        const goodCase = Δ(
+          IO.succeed(0).collect(
+            "value was not 0",
+            Maybe.partial((miss) => (n) => n === 0 ? n : miss()),
+          ).sandbox.either,
+        );
+        const badCase = Δ(
+          IO.succeed(1)
+            .collect(
+              "value was not 0",
+              Maybe.partial((miss) => (n) => n === 0 ? n : miss()),
+            )
+            .sandbox.either.map((either) => either.mapLeft((cause) => cause.failureOrCause)),
+        );
+        return (
+          goodCase.assert(isRight(strictEqualTo(0))) && badCase.assert(isLeft(isLeft(strictEqualTo("value was not 0"))))
+        );
+      }),
+    );
+  });
+
   suite.concurrent("repeatUntil", () => {
     it.io(
       "repeats until condition is true",
@@ -154,13 +241,13 @@ suite.concurrent("IO", () => {
         Δ(f.await);
         Δ(fiber.interrupt);
         return true;
-      }).assert(isTrue),
+      }).assertIO(isTrue),
     );
 
     it.io("propagates error", () => {
       const ints = List(1, 2, 3, 4, 5, 6);
       const odds = IO.foreachConcurrent(ints, (n) => (n % 2 !== 0 ? IO.succeed(n) : IO.fail("not odd")));
-      return odds.swap.assert(strictEqualTo("not odd"));
+      return odds.swap.assertIO(strictEqualTo("not odd"));
     });
 
     it.io(
@@ -203,7 +290,7 @@ suite.concurrent("IO", () => {
       );
 
       return Do((Δ) => {
-        const a1 = Δ(io.result.assert(fails(strictEqualTo("error"))));
+        const a1 = Δ(io.result.assertIO(fails(strictEqualTo("error"))));
         const a2 = finalized.assert(isTrue);
         return a1 && a2;
       });
@@ -217,7 +304,7 @@ suite.concurrent("IO", () => {
 
       const expectedCause = Cause.sequential(Cause.fail("error"), Cause.sequential(Cause.halt(e2), Cause.halt(e3)));
 
-      return io.sandbox.swap.map((c) => c.untraced).assert(strictEqualTo(expectedCause));
+      return io.sandbox.swap.map((c) => c.untraced).assertIO(strictEqualTo(expectedCause));
     });
 
     it.io("finalizer errors reported", () => {
@@ -243,11 +330,11 @@ suite.concurrent("IO", () => {
   suite.concurrent("RTS asynchronous correctness", () => {
     it.io("simple async must return", () => {
       const io = IO.async<never, never, number>((k) => k(IO.succeed(42)));
-      return io.assert(strictEqualTo(42));
+      return io.assertIO(strictEqualTo(42));
     });
     it.io("simple asyncIO must return", () => {
       const io = IO.asyncIO<never, never, number>((k) => IO.succeed(k(IO.succeed(42))));
-      return io.assert(strictEqualTo(42));
+      return io.assertIO(strictEqualTo(42));
     });
     it.io("deep asyncIO doesn't block", () => {
       function stackIOs(count: number): UIO<number> {
@@ -260,7 +347,7 @@ suite.concurrent("IO", () => {
         );
       }
       const io = stackIOs(17);
-      return Live.live(io).assert(strictEqualTo(42));
+      return Live.live(io).assertIO(strictEqualTo(42));
     });
     it.io(
       "interrupt of asyncIO register",
@@ -279,7 +366,7 @@ suite.concurrent("IO", () => {
         Δ(acquire.await);
         Δ(fiber.interruptFork);
         const a = Δ(release.await);
-        return a.assert(strictEqualTo<void>(undefined));
+        return a.assert(strictEqualTo(undefined));
       }),
     );
     it.io(
@@ -329,16 +416,16 @@ suite.concurrent("IO", () => {
         return unexpected.assert(isEmpty) && result.assert(isNothing);
       }),
     );
-    it.io("sleep 0 must return", Live.live(Clock.sleep((0).milliseconds)).assert(isUnit));
+    it.io("sleep 0 must return", Live.live(Clock.sleep((0).milliseconds)).assertIO(isUnit));
     it.io("shallow bind of async chain", () => {
       const io = Iterable.range(0, 9).foldLeft(IO.succeed(0), (acc, _) =>
         acc.flatMap((n) => IO.async<never, never, number>((k) => k(IO.succeed(n + 1)))),
       );
-      return io.assert(strictEqualTo(10));
+      return io.assertIO(strictEqualTo(10));
     });
     it.io("asyncIO can fail before registering", () => {
       const io = IO.asyncIO<never, string, never>(() => IO.fail("Ouch")).swap;
-      return io.assert(strictEqualTo("Ouch"));
+      return io.assertIO(strictEqualTo("Ouch"));
     });
     it.io("asyncIO can defect before registering", () => {
       const io = IO.asyncIO<never, string, void>(() =>
@@ -351,7 +438,7 @@ suite.concurrent("IO", () => {
           () => Nothing(),
         ),
       );
-      return io.assert(isJust(strictEqualTo("Ouch")));
+      return io.assertIO(isJust(strictEqualTo("Ouch")));
     });
   });
   suite.concurrent("RTS concurrency correctness", () => {
@@ -365,7 +452,7 @@ suite.concurrent("IO", () => {
     );
     it.io("deep fork/join identity", () => {
       const n = 20n;
-      return concurrentFib(n).assert(strictEqualTo(fib(n)));
+      return concurrentFib(n).assertIO(strictEqualTo(fib(n)));
     });
     it.io(
       "asyncInterrupt runs cancel token on interrupt",
@@ -435,27 +522,27 @@ suite.concurrent("IO", () => {
         return Δ(counter.get);
       });
 
-      return io.assert(strictEqualTo(2));
+      return io.assertIO(strictEqualTo(2));
     });
     it.io("race of fail with success", () => {
       const io = IO.fail(42).race(IO.succeed(24)).either;
-      return io.assert(isRight(strictEqualTo(24)));
+      return io.assertIO(isRight(strictEqualTo(24)));
     });
     it.io("race of terminate with success", () => {
       const io = IO.halt(new Error()).race(IO.succeed(24));
-      return io.assert(strictEqualTo(24));
+      return io.assertIO(strictEqualTo(24));
     });
     it.io("race of fail with fail", () => {
       const io = IO.fail(42).race(IO.fail(42)).either;
-      return io.assert(isLeft(strictEqualTo(42)));
+      return io.assertIO(isLeft(strictEqualTo(42)));
     });
     it.io("race of value and never", () => {
       const io = IO.succeed(42).race(IO.never);
-      return io.assert(strictEqualTo(42));
+      return io.assertIO(strictEqualTo(42));
     });
     it.io("race in uninterruptible region", () => {
       const effect = IO.unit.race(IO.never).uninterruptible;
-      return effect.assert(isUnit);
+      return effect.assertIO(isUnit);
     });
     it.io(
       "race of two forks does not interrupt winner",
@@ -523,7 +610,7 @@ suite.concurrent("IO", () => {
     );
     it.io("mergeAll", () => {
       const io = IO.mergeAll(List("a", "aa", "aaa", "aaaa").map(IO.succeedNow), 0, (b, a) => b + a.length);
-      return io.assert(strictEqualTo(10));
+      return io.assertIO(strictEqualTo(10));
     });
   });
   suite.concurrent("RTS interruption", () => {
@@ -531,16 +618,16 @@ suite.concurrent("IO", () => {
       IO.succeed(1)
         .forever.fork.flatMap((f) => f.interrupt)
         .as(true)
-        .assert(strictEqualTo(true)),
+        .assertIO(strictEqualTo(true)),
     );
     it.io("interrupt of never is interrupted with cause", () =>
-      IO.never.fork.flatMap((f) => f.interrupt).assert(isOnlyInterrupted),
+      IO.never.fork.flatMap((f) => f.interrupt).assertIO(isOnlyInterrupted),
     );
     it.io("asyncIO is interruptible", () =>
       IO.asyncIO<never, never, never>(() => IO.never)
         .fork.flatMap((f) => f.interrupt)
         .as(42)
-        .assert(strictEqualTo(42)),
+        .assertIO(strictEqualTo(42)),
     );
     it.io("async is interruptible", () =>
       IO.async<never, never, never>(() => {
@@ -548,7 +635,7 @@ suite.concurrent("IO", () => {
       })
         .fork.flatMap((f) => f.interrupt)
         .as(42)
-        .assert(strictEqualTo(42)),
+        .assertIO(strictEqualTo(42)),
     );
     it.io("bracket is uninterruptible", () => {
       const io = Do((Δ) => {
@@ -562,7 +649,7 @@ suite.concurrent("IO", () => {
         );
         return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
       });
-      return Live.live(io).assert(strictEqualTo(42));
+      return Live.live(io).assertIO(strictEqualTo(42));
     });
     it.io("bracketExit is uninterruptible", () => {
       const io = Do((Δ) => {
@@ -576,7 +663,7 @@ suite.concurrent("IO", () => {
         );
         return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
       });
-      return Live.live(io).assert(strictEqualTo(42));
+      return Live.live(io).assertIO(strictEqualTo(42));
     });
     it.io(
       "bracket use is interruptible",
@@ -621,7 +708,7 @@ suite.concurrent("IO", () => {
         Δ(fiber.interrupt);
         Δ(f2.await);
       });
-      return io.timeoutTo((1).seconds, 42, () => 0).assert(strictEqualTo(0));
+      return io.timeoutTo((1).seconds, 42, () => 0).assertIO(strictEqualTo(0));
     });
     it.io(
       "bracketExit release called on interrupt",
@@ -682,11 +769,11 @@ suite.concurrent("IO", () => {
   suite.concurrent("all", () => {
     test.io(
       "iterable",
-      IO.all([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assert(strictEqualTo(Conc(1, 2, 3))),
+      IO.all([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assertIO(strictEqualTo(Conc(1, 2, 3))),
     );
     test.io(
       "struct",
-      IO.all({ a: IO.succeedNow(1), b: IO.succeedNow(2), c: IO.succeedNow(3) }).assert(
+      IO.all({ a: IO.succeedNow(1), b: IO.succeedNow(2), c: IO.succeedNow(3) }).assertIO(
         deepEqualTo({ a: 1, b: 2, c: 3 }),
       ),
     );
@@ -695,14 +782,105 @@ suite.concurrent("IO", () => {
   suite.concurrent("allConcurrent", () => {
     test.io(
       "iterable",
-      IO.allConcurrent([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assert(strictEqualTo(Conc(1, 2, 3))),
+      IO.allConcurrent([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assertIO(strictEqualTo(Conc(1, 2, 3))),
     );
     test.io(
       "struct",
-      IO.allConcurrent({ a: IO.succeedNow(1), b: IO.succeedNow(2), c: IO.succeedNow(3) }).assert(
+      IO.allConcurrent({ a: IO.succeedNow(1), b: IO.succeedNow(2), c: IO.succeedNow(3) }).assertIO(
         deepEqualTo({ a: 1, b: 2, c: 3 }),
       ),
     );
+  });
+
+  suite.concurrent("RTS synchronous correctness", () => {
+    test.io(
+      "deferTry must catch",
+      IO.deferTry(() => {
+        throw "error";
+      }).either.assertIO(isLeft(strictEqualTo("error"))),
+    );
+
+    test.io(
+      "defer must not catch",
+      IO.defer(() => {
+        throw "error";
+      }).sandbox.either.assertIO(isLeft(strictEqualTo(Cause.halt("error")))),
+    );
+
+    test.io("defer must be evaluatable", IO.defer(IO.succeed(42)).assertIO(strictEqualTo(42)));
+
+    test.io("point, bind, map", () => {
+      const fibIO = (n: bigint): UIO<bigint> => {
+        if (n <= 1) return IO.succeed(n);
+        else {
+          return Do((Δ) => {
+            const a = Δ(fibIO(n - 1n));
+            const b = Δ(fibIO(n - 2n));
+            return a + b;
+          });
+        }
+      };
+
+      return fibIO(10n).assertIO(strictEqualTo(fib(10n)));
+    });
+
+    test.io("effect, bind, map", () => {
+      const fibIO = (n: bigint): FIO<unknown, bigint> => {
+        if (n <= 1) return IO.attempt(n);
+        else {
+          return Do((Δ) => {
+            const a = Δ(fibIO(n - 1n));
+            const b = Δ(fibIO(n - 2n));
+            return a + b;
+          });
+        }
+      };
+
+      return fibIO(10n).assertIO(strictEqualTo(fib(10n)));
+    });
+
+    test.io("effect, bind, map, redeem", () => {
+      const fibIO = (n: bigint): FIO<unknown, bigint> => {
+        if (n <= 1)
+          return IO.attempt<bigint>(() => {
+            throw new Error("error");
+          }).catchAll(() => IO.attempt(n));
+        else {
+          return Do((Δ) => {
+            const a = Δ(fibIO(n - 1n));
+            const b = Δ(fibIO(n - 2n));
+            return a + b;
+          });
+        }
+      };
+
+      return fibIO(10n).assertIO(strictEqualTo(fib(10n)));
+    });
+
+    test.io("deep effects", () => {
+      const incLeft = (n: number, ref: Ref<number>): UIO<number> => {
+        if (n <= 0) return ref.get;
+        else return incLeft(n - 1, ref) < ref.update((n) => n + 1);
+      };
+      const incRight = (n: number, ref: Ref<number>): UIO<number> => {
+        if (n <= 0) return ref.get;
+        else return ref.update((n) => n + 1) > incRight(n - 1, ref);
+      };
+
+      const l = Do((Δ) => {
+        const ref = Δ(Ref.make(0));
+        const v   = Δ(incLeft(100, ref));
+        return v === 0;
+      });
+
+      const r = Do((Δ) => {
+        const ref = Δ(Ref.make(0));
+        const v   = Δ(incRight(1000, ref));
+        return v === 1000;
+      });
+
+      return l.zipWith(r, (a, b) => a === b).assertIO(isTrue);
+    });
   });
 });
 

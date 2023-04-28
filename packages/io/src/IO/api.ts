@@ -369,7 +369,7 @@ export function condIO<R, R1, E, A>(
  *
  * @tsplus static fncts.io.IOOps defer
  */
-export function defer<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, A> {
+export function defer<R = never, E = never, A = never>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.succeed(io).flatMap(identity);
 }
 
@@ -379,7 +379,10 @@ export function defer<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): I
  *
  * @tsplus static fncts.io.IOOps deferTry
  */
-export function deferTry<R, E, A>(io: () => IO<R, E, A>, __tsplusTrace?: string): IO<R, unknown, A> {
+export function deferTry<R = never, E = never, A = never>(
+  io: () => IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, unknown, A> {
   return IO.defer(() => {
     try {
       return io();
@@ -1722,16 +1725,41 @@ export function timedWith<R1, E1>(msTime: IO<R1, E1, number>, __tsplusTrace?: st
 }
 
 /**
+ * @tsplus static fncts.io.IOOps attempt
+ */
+export function attempt<A>(effect: Lazy<A>, __tsplusTrace?: string): FIO<unknown, A> {
+  return IO.defer(() => {
+    try {
+      return Exit.succeed(effect());
+    } catch (u) {
+      return IO.withFiberRuntime((fiberState) => {
+        if (!fiberState.isFatal(u)) {
+          throw new IOError(Cause.fail(u));
+        } else {
+          throw u;
+        }
+      });
+    }
+  });
+}
+
+/**
  * Creates a `IO` that has succeeded with a pure value
  *
  * @tsplus static fncts.io.IOOps tryCatch
  */
 export function tryCatch<E, A>(effect: Lazy<A>, onThrow: (error: unknown) => E, __tsplusTrace?: string): FIO<E, A> {
-  return IO.succeed(() => {
+  return IO.defer(() => {
     try {
-      return effect();
+      return Exit.succeed(effect());
     } catch (u) {
-      throw new IOError(Cause.fail(onThrow(u)));
+      return IO.withFiberRuntime((fiberState) => {
+        if (!fiberState.isFatal(u)) {
+          throw new IOError(Cause.fail(u));
+        } else {
+          throw u;
+        }
+      });
     }
   });
 }
