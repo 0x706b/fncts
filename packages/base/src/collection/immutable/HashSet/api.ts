@@ -8,6 +8,17 @@ import * as P from "@fncts/base/typeclass";
 import { HashEq } from "@fncts/base/typeclass";
 
 /**
+ * @tsplus static fncts.HashSetOps from
+ */
+export function from<A>(items: Iterable<A>): HashSet<A> {
+  return HashSet.empty<A>().mutate((set) => {
+    for (const value of items) {
+      set.add(value);
+    }
+  });
+}
+
+/**
  * @tsplus pipeable fncts.HashSet add
  */
 export function add<A>(value: A) {
@@ -511,7 +522,7 @@ function tryGetHash<A>(set: HashSet<A>, value: A, hash: number): Maybe<A> {
         }
         return Nothing();
       }
-      case "IndexNode": {
+      case "IndexedNode": {
         const frag = hashFragment(shift, hash);
         const bit  = toBitmap(frag);
         if (node.mask & bit) {

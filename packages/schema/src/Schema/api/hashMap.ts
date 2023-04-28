@@ -4,8 +4,8 @@ import type {
   EmptyNode,
   IndexedNode,
   LeafNode,
+  Node,
 } from "@fncts/base/collection/immutable/HashMap/internal";
-import type { Node } from "@fncts/base/collection/immutable/HashMap/internal";
 import type { Sized } from "@fncts/test/control/Sized";
 import type { Check } from "@fncts/typelevel";
 
@@ -86,7 +86,7 @@ function hashMapParser<K, V>(key: Schema<K>, value: Schema<V>): Parser<HashMap<K
       const tv = value.decode(v, options);
       Either.concrete(tv);
       if (tv.isLeft()) {
-        errors.push(ParseError.KeyError(key.ast, k, tv.left));
+        errors.push(ParseError.TypeError(value.ast, tv.left));
         if (!allErrors) {
           return ParseResult.failures(errors);
         }

@@ -233,7 +233,7 @@ export function isLeaf<A>(node: Node<A>): node is EmptyNode<A> | LeafNode<A> | C
 }
 
 export class IndexedNode<A> {
-  readonly _tag = "IndexNode";
+  readonly _tag = "IndexedNode";
   constructor(public edit: number, public mask: number, public children: Array<Node<A>>) {}
 
   modify(
@@ -411,7 +411,7 @@ function visitLazy<V, A>(
     }
     case "CollisionNode":
     case "ArrayNode":
-    case "IndexNode": {
+    case "IndexedNode": {
       const children = node.children;
       return visitLazyChildren(children.length, children, 0, f, cont);
     }

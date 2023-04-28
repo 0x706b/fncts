@@ -8,6 +8,7 @@ export * from "./Schema/derivations.js";
 export * from "./Schema/api/conc.js";
 export * from "./Schema/api/either.js";
 export * from "./Schema/api/hashMap.js";
+export * from "./Schema/api/hashSet.js";
 export * from "./Schema/api/immutableArray.js";
 export * from "./Schema/api/list.js";
 export * from "./Schema/api/maybe.js";
