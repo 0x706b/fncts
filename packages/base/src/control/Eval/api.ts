@@ -1,6 +1,6 @@
 import type { _A } from "@fncts/base/types";
 
-import { Chain } from "@fncts/base/control/Eval/definition";
+import { EvalPrimitive, EvalTag } from "@fncts/base/control/Eval/definition";
 import { identity, tuple } from "@fncts/base/data/function";
 
 /**
@@ -17,7 +17,10 @@ export function and(that: Eval<boolean>) {
  */
 export function flatMap<A, B>(f: (a: A) => Eval<B>) {
   return (self: Eval<A>): Eval<B> => {
-    return new Chain(self, f);
+    const primitive = new EvalPrimitive(EvalTag.Chain) as any;
+    primitive.i0    = self;
+    primitive.i1    = f;
+    return primitive;
   };
 }
 

@@ -1,6 +1,6 @@
 import { identity } from "../../data/function.js";
 import { Stack } from "../../internal/Stack.js";
-import { concrete, isZError, ZTag } from "./definition.js";
+import { concrete, isZError, ZPrimitive, ZTag } from "./definition.js";
 
 class MatchFrame {
   readonly _zTag = "MatchFrame";
@@ -53,20 +53,20 @@ export function unsafeRunAll<S1>(s: S1) {
           concrete(currZ);
           switch (currZ._tag) {
             case ZTag.Chain: {
-              const nested       = currZ.ma;
-              const continuation = currZ.f;
+              const nested       = currZ.i0;
+              const continuation = currZ.i1;
               concrete(nested);
               switch (nested._tag) {
                 case ZTag.SucceedNow: {
-                  current = continuation(nested.value);
+                  current = continuation(nested.i0);
                   break;
                 }
                 case ZTag.Succeed: {
-                  current = continuation(nested.effect());
+                  current = continuation(nested.i0());
                   break;
                 }
                 case ZTag.Modify: {
-                  const updated = nested.run(s0);
+                  const updated = nested.i0(s0);
                   result        = updated[0];
                   s0            = updated[1];
                   current       = continuation(result);
@@ -81,7 +81,7 @@ export function unsafeRunAll<S1>(s: S1) {
               break;
             }
             case ZTag.Succeed: {
-              result                = currZ.effect();
+              result                = currZ.i0();
               const nextInstruction = stack.pop();
               if (nextInstruction) {
                 current = nextInstruction.apply(result);
@@ -91,11 +91,11 @@ export function unsafeRunAll<S1>(s: S1) {
               break;
             }
             case ZTag.Defer: {
-              current = currZ.make();
+              current = currZ.i0();
               break;
             }
             case ZTag.SucceedNow: {
-              result          = currZ.value;
+              result          = currZ.i0;
               const nextInstr = stack.pop();
               if (nextInstr) {
                 current = nextInstr.apply(result);
@@ -108,26 +108,26 @@ export function unsafeRunAll<S1>(s: S1) {
               unsafeUnwindStack();
               const nextInst = stack.pop();
               if (nextInst) {
-                current = nextInst.apply(currZ.cause);
+                current = nextInst.apply(currZ.i0);
               } else {
                 failed  = true;
-                result  = currZ.cause;
+                result  = currZ.i0;
                 current = undefined;
               }
               break;
             }
             case ZTag.Match: {
-              current     = currZ.z;
+              current     = currZ.i0;
               const state = s0;
               stack.push(
                 new MatchFrame(
                   (cause: Cause<any>) => {
-                    const m = Z.put(state).flatMap(() => currZ.onFailure(log, cause));
+                    const m = Z.put(state).flatMap(() => currZ.i1(log, cause));
                     log     = Conc.empty();
                     return m;
                   },
                   (a) => {
-                    const m = currZ.onSuccess(log, a);
+                    const m = currZ.i2(log, a);
                     log     = Conc.empty();
                     return m;
                   },
@@ -136,19 +136,19 @@ export function unsafeRunAll<S1>(s: S1) {
               break;
             }
             case ZTag.Access: {
-              current = currZ.asks(environment.peek() ?? Environment());
+              current = currZ.i0(environment.peek() ?? Environment());
               break;
             }
             case ZTag.Provide: {
-              environment.push(currZ.env);
-              current = currZ.ma.match(
-                (e) => Z.succeedNow(environment.pop()).flatMap(() => Z.failNow(e)),
-                (a) => Z.succeedNow(environment.pop()).flatMap(() => Z.succeedNow(a)),
-              );
+              environment.push(currZ.i1);
+              current             = new ZPrimitive(ZTag.Match) as any;
+              (current as any).i0 = currZ;
+              (current as any).i1 = (e: any) => Z.succeedNow(environment.pop()).flatMap(() => Z.failNow(e));
+              (current as any).i2 = (a: any) => Z.succeedNow(environment.pop()).flatMap(() => Z.succeedNow(a));
               break;
             }
             case ZTag.Modify: {
-              const updated  = currZ.run(s0);
+              const updated  = currZ.i0(s0);
               s0             = updated[1];
               result         = updated[0];
               const nextInst = stack.pop();
@@ -160,7 +160,7 @@ export function unsafeRunAll<S1>(s: S1) {
               break;
             }
             case ZTag.Tell: {
-              log            = currZ.log;
+              log            = currZ.i0;
               const nextInst = stack.pop();
               if (nextInst) {
                 current = nextInst.apply(result);
@@ -170,15 +170,15 @@ export function unsafeRunAll<S1>(s: S1) {
               break;
             }
             case ZTag.MapLog: {
-              current = currZ.ma;
+              current = currZ.i0;
               stack.push(
                 new MatchFrame(
                   (cause: Cause<any>) => {
-                    log = currZ.modifyLog(log);
+                    log = currZ.i1(log);
                     return Z.failCauseNow(cause);
                   },
                   (a) => {
-                    log = currZ.modifyLog(log);
+                    log = currZ.i1(log);
                     return Z.succeedNow(a);
                   },
                 ),

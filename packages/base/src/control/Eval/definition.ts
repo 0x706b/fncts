@@ -4,6 +4,21 @@ export type EvalVariance = typeof EvalVariance;
 export const EvalTypeId = Symbol.for("@fncts/control/Eval");
 export type EvalTypeId = typeof EvalTypeId;
 
+export class EvalPrimitive {
+  readonly [EvalTypeId]: EvalTypeId = EvalTypeId;
+  declare [EvalVariance]: {
+    readonly _A: (_: never) => never;
+  };
+  constructor(readonly _tag: unknown) {}
+  readonly i0: unknown = undefined;
+  readonly i1: unknown = undefined;
+}
+
+export type EvalOp<Tag extends number, Body = {}> = EvalPrimitive &
+  Body & {
+    _tag: Tag;
+  };
+
 export interface EvalF extends HKT {
   type: Eval<this["A"]>;
   variance: {
@@ -34,40 +49,37 @@ export const enum EvalTag {
   Chain,
 }
 
-export class Value<A> implements Eval<A> {
-  readonly _tag                     = EvalTag.Value;
-  readonly [EvalTypeId]: EvalTypeId = EvalTypeId;
-  declare [EvalVariance]: {
-    readonly _A: (_: never) => A;
-  };
-  constructor(readonly value: A) {}
-}
+export interface Value
+  extends EvalOp<
+    EvalTag.Value,
+    {
+      readonly i0: any;
+    }
+  > {}
 
-export class Defer<A> implements Eval<A> {
-  readonly [EvalTypeId]: EvalTypeId = EvalTypeId;
-  declare [EvalVariance]: {
-    readonly _A: (_: never) => A;
-  };
-  readonly _tag = EvalTag.Defer;
-  readonly _A!: () => A;
-  constructor(readonly make: () => Eval<A>) {}
-}
+export interface Defer
+  extends EvalOp<
+    EvalTag.Defer,
+    {
+      readonly i0: () => Primitive;
+    }
+  > {}
 
-export class Chain<A, B> implements Eval<B> {
-  readonly [EvalTypeId]: EvalTypeId = EvalTypeId;
-  declare [EvalVariance]: {
-    readonly _A: (_: never) => B;
-  };
-  readonly _tag = EvalTag.Chain;
-  constructor(readonly self: Eval<A>, readonly f: (a: A) => Eval<B>) {}
-}
+export interface FlatMap
+  extends EvalOp<
+    EvalTag.Chain,
+    {
+      readonly i0: Primitive;
+      readonly i1: (a: any) => Primitive;
+    }
+  > {}
 
-type Concrete = Value<any> | Defer<any> | Chain<any, any>;
+type Primitive = Value | Defer | FlatMap;
 
 /**
  * @tsplus smart:remove
  */
-export function concrete(_: Eval<any>): asserts _ is Concrete {
+export function concrete(_: Eval<any>): asserts _ is Primitive {
   //
 }
 

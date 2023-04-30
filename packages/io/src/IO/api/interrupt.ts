@@ -1,4 +1,4 @@
-import { Dynamic, Interruptible, Uninterruptible } from "@fncts/io/IO/definition";
+import { IOPrimitive,IOTag } from "@fncts/io/IO/definition";
 import { RuntimeFlag } from "@fncts/io/RuntimeFlag";
 import { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
@@ -40,7 +40,11 @@ export const interrupt: IO<never, never, never> = IO.fiberId.flatMap(IO.interrup
  * @tsplus static fncts.io.IOOps interruptible
  */
 export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return new Interruptible(self, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.UpdateRuntimeFlagsWithin) as any;
+  io.i0    = RuntimeFlags.enable(RuntimeFlag.Interruption);
+  io.i1    = () => self;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -55,7 +59,11 @@ export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string
  * @tsplus static fncts.io.IOOps uninterruptible
  */
 export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
-  return new Uninterruptible(self, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.UpdateRuntimeFlagsWithin) as any;
+  io.i0    = RuntimeFlags.disable(RuntimeFlag.Interruption);
+  io.i1    = () => self;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -65,10 +73,15 @@ export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: stri
  *
  * @tsplus static fncts.io.IOOps uninterruptibleMask
  */
-export function uninterruptibleMask<R, E, A>(f: (restore: InterruptibilityRestorer) => IO<R, E, A>): IO<R, E, A> {
-  return new Dynamic(RuntimeFlags.disable(RuntimeFlag.Interruption), (oldFlags) =>
-    f(oldFlags.interruption ? RestoreInterruptible : RestoreUninterruptible),
-  );
+export function uninterruptibleMask<R, E, A>(
+  f: (restore: InterruptibilityRestorer) => IO<R, E, A>,
+  __tsplusTrace?: string,
+): IO<R, E, A> {
+  const io = new IOPrimitive(IOTag.UpdateRuntimeFlagsWithin) as any;
+  io.i0    = RuntimeFlags.disable(RuntimeFlag.Interruption);
+  io.i1    = (oldFlags: RuntimeFlags) => f(oldFlags.interruption ? RestoreInterruptible : RestoreUninterruptible);
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**

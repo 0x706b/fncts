@@ -56,6 +56,22 @@ export function unifyZ<X extends Z<any, any, any, any, any, any>>(
   return _;
 }
 
+export class ZPrimitive {
+  readonly [ZTypeId]: ZTypeId = ZTypeId;
+  declare [ZVariance]: {
+    readonly _W: (_: never) => never;
+    readonly _S1: (_: unknown) => void;
+    readonly _S2: (_: never) => never;
+    readonly _R: (_: never) => never;
+    readonly _E: (_: never) => never;
+    readonly _A: (_: never) => never;
+  };
+  constructor(readonly _tag: unknown) {}
+  readonly i0: unknown = undefined;
+  readonly i1: unknown = undefined;
+  readonly i2: unknown = undefined;
+}
+
 /**
  * @tsplus static fncts.control.ZOps isZ
  */
@@ -64,125 +80,135 @@ export function isZ(u: unknown): u is Z<unknown, unknown, unknown, unknown, unkn
 }
 
 export const enum ZTag {
-  SucceedNow = "SucceedNow",
-  Succeed = "Succeed",
-  Defer = "Defer",
-  Fail = "Fail",
-  Modify = "Modify",
-  Chain = "Chain",
-  Match = "Match",
-  Access = "Access",
-  Provide = "Provide",
-  Tell = "Tell",
-  Listen = "Listen",
-  MapLog = "MapLog",
+  SucceedNow,
+  Succeed,
+  Defer,
+  Fail,
+  Modify,
+  Chain,
+  Match,
+  Access,
+  Provide,
+  Tell,
+  Listen,
+  MapLog,
 }
 
-export class SucceedNow<A> extends Z<never, unknown, never, never, never, A> {
-  readonly _tag = ZTag.SucceedNow;
-  constructor(readonly value: A) {
-    super();
-  }
-}
+export type ZOp<Tag extends number, Body = {}> = ZPrimitive &
+  Body & {
+    _tag: Tag;
+  };
 
-export class Succeed<A> extends Z<never, unknown, never, never, never, A> {
-  readonly _tag = ZTag.Succeed;
-  constructor(readonly effect: () => A) {
-    super();
-  }
-}
+export interface SucceedNow
+  extends ZOp<
+    ZTag.SucceedNow,
+    {
+      readonly i0: any;
+    }
+  > {}
 
-export class Defer<W, S1, S2, R, E, A> extends Z<W, S1, S2, R, E, A> {
-  readonly _tag = ZTag.Defer;
-  constructor(readonly make: () => Z<W, S1, S2, R, E, A>) {
-    super();
-  }
-}
+export interface Succeed
+  extends ZOp<
+    ZTag.Succeed,
+    {
+      readonly i0: () => any;
+    }
+  > {}
 
-export class Fail<E> extends Z<never, unknown, never, never, E, never> {
-  readonly _tag = ZTag.Fail;
-  constructor(readonly cause: Cause<E>) {
-    super();
-  }
-}
+export interface Defer
+  extends ZOp<
+    ZTag.Defer,
+    {
+      readonly i0: () => Primitive;
+    }
+  > {}
 
-export class Modify<S1, S2, A> extends Z<never, S1, S2, never, never, A> {
-  readonly _tag = ZTag.Modify;
-  constructor(readonly run: (s1: S1) => readonly [A, S2]) {
-    super();
-  }
-}
+export interface Fail
+  extends ZOp<
+    ZTag.Fail,
+    {
+      readonly i0: Cause<unknown>;
+    }
+  > {}
 
-export class Chain<W, S1, S2, R, E, A, W1, S3, Q, D, B> extends Z<W | W1, S1, S3, Q & R, D | E, B> {
-  readonly _tag = ZTag.Chain;
-  constructor(readonly ma: Z<W, S1, S2, R, E, A>, readonly f: (a: A) => Z<W1, S2, S3, Q, D, B>) {
-    super();
-  }
-}
+export interface Modify
+  extends ZOp<
+    ZTag.Modify,
+    {
+      readonly i0: (s1: any) => readonly [any, any];
+    }
+  > {}
 
-export class Match<W, S1, S2, S5, R, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C> extends Z<
-  W1 | W2,
-  S1 & S5,
-  S3 | S4,
-  R & R1 & R2,
-  E1 | E2,
-  B | C
-> {
-  readonly _tag = ZTag.Match;
-  constructor(
-    readonly z: Z<W, S1, S2, R, E, A>,
-    readonly onFailure: (ws: Conc<W>, e: Cause<E>) => Z<W1, S5, S3, R1, E1, B>,
-    readonly onSuccess: (ws: Conc<W>, a: A) => Z<W2, S2, S4, R2, E2, C>,
-  ) {
-    super();
-  }
-}
+export interface FlatMap
+  extends ZOp<
+    ZTag.Chain,
+    {
+      readonly i0: Primitive;
+      readonly i1: (a: any) => Primitive;
+    }
+  > {}
 
-export class Access<W, R0, S1, S2, R, E, A> extends Z<W, S1, S2, R0 | R, E, A> {
-  readonly _tag = ZTag.Access;
-  constructor(readonly asks: (r: Environment<R0>) => Z<W, S1, S2, R, E, A>) {
-    super();
-  }
-}
+export interface Match
+  extends ZOp<
+    ZTag.Match,
+    {
+      readonly i0: Primitive;
+      readonly i1: (ws: Conc<any>, e: Cause<unknown>) => Primitive;
+      readonly i2: (ws: Conc<any>, a: any) => Primitive;
+    }
+  > {}
 
-export class Provide<W, S1, S2, R, E, A> extends Z<W, S1, S2, never, E, A> {
-  readonly _tag = ZTag.Provide;
-  constructor(readonly ma: Z<W, S1, S2, R, E, A>, readonly env: Environment<R>) {
-    super();
-  }
-}
+export interface Access
+  extends ZOp<
+    ZTag.Access,
+    {
+      readonly i0: (r: Environment<any>) => Primitive;
+    }
+  > {}
 
-export class Tell<W> extends Z<W, unknown, never, never, never, void> {
-  readonly _tag = ZTag.Tell;
-  constructor(readonly log: Conc<W>) {
-    super();
-  }
-}
+export interface Provide
+  extends ZOp<
+    ZTag.Provide,
+    {
+      readonly i0: Primitive;
+      readonly i1: Environment<any>;
+    }
+  > {}
 
-export class MapLog<W, S1, S2, R, E, A, W1> extends Z<W1, S1, S2, R, E, A> {
-  readonly _tag = ZTag.MapLog;
-  constructor(readonly ma: Z<W, S1, S2, R, E, A>, readonly modifyLog: (ws: Conc<W>) => Conc<W1>) {
-    super();
-  }
-}
+export interface Tell
+  extends ZOp<
+    ZTag.Tell,
+    {
+      readonly i0: Conc<any>;
+    }
+  > {}
 
-export type Concrete =
-  | SucceedNow<any>
-  | Fail<any>
-  | Modify<any, any, any>
-  | Chain<any, any, any, any, any, any, any, any, any, any, any>
-  | Match<any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any, any>
-  | Access<any, any, any, any, any, any, any>
-  | Provide<any, any, any, any, any, any>
-  | Defer<any, any, any, any, any, any>
-  | Succeed<any>
-  | Tell<any>
-  | MapLog<any, any, any, any, any, any, any>;
+export interface MapLog
+  extends ZOp<
+    ZTag.MapLog,
+    {
+      readonly i0: Primitive;
+      readonly i1: (ws: Conc<any>) => Conc<any>;
+    }
+  > {}
+
+export type Primitive =
+  | SucceedNow
+  | Fail
+  | Modify
+  | FlatMap
+  | Match
+  | Access
+  | Provide
+  | Defer
+  | Succeed
+  | Tell
+  | MapLog;
 
 /**
  * @tsplus static fncts.control.ZOps concrete
  */
-export function concrete(_: Z<any, any, any, any, any, any>): asserts _ is Concrete {
+export function concrete(_: Z<any, any, any, any, any, any>): asserts _ is Primitive {
   //
 }
 

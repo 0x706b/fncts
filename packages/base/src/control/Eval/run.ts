@@ -13,22 +13,22 @@ export function run<A>(computation: Eval<A>): A {
     concrete(cur);
     switch (cur._tag) {
       case EvalTag.Chain:
-        concrete(cur.self);
-        switch (cur.self._tag) {
+        concrete(cur.i0);
+        switch (cur.i0._tag) {
           case EvalTag.Value:
-            cur = cur.f(cur.self.value);
+            cur = cur.i1(cur.i0.i0);
             break;
           default:
-            frames.push(cur.f);
-            cur = cur.self;
+            frames.push(cur.i1);
+            cur = cur.i0;
             break;
         }
         break;
       case EvalTag.Defer:
-        cur = cur.make();
+        cur = cur.i0();
         break;
       case EvalTag.Value:
-        out = cur.value;
+        out = cur.i0;
         if (frames.hasNext) {
           cur = frames.pop()!(out);
         } else {

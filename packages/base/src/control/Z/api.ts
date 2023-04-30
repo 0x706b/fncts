@@ -1,5 +1,6 @@
+import { ZPrimitive, ZTag } from "@fncts/base/control/Z/definition";
+
 import { identity, tuple } from "../../data/function.js";
-import { Access, Chain, Defer, Fail, MapLog, Match, Modify, Provide, Succeed, SucceedNow, Tell } from "./definition.js";
 
 /**
  * @tsplus getter fncts.control.Z absolve
@@ -72,7 +73,10 @@ export function catchJust<W, S1, E, S3, R1, E1, B>(f: (e: E) => Maybe<Z<W, S1, S
  */
 export function flatMap<S2, A, W1, S3, R1, E1, B>(f: (a: A) => Z<W1, S2, S3, R1, E1, B>) {
   return <W, S1, R, E>(ma: Z<W, S1, S2, R, E, A>): Z<W | W1, S1, S3, R1 & R, E1 | E, B> => {
-    return new Chain(ma, f);
+    const z = new ZPrimitive(ZTag.Chain) as any;
+    z.i0    = ma;
+    z.i1    = f;
+    return z;
   };
 }
 
@@ -122,7 +126,9 @@ export function defer<W, S1, S2, R, E, A>(
   ma: Lazy<Z<W, S1, S2, R, E, A>>,
   __tsplusTrace?: string,
 ): Z<W, S1, S2, R, E, A> {
-  return new Defer(ma);
+  const z = new ZPrimitive(ZTag.Defer) as any;
+  z.i0    = ma;
+  return z;
 }
 
 /**
@@ -140,14 +146,18 @@ export function either<W, S1, S2, R, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, 
  * @tsplus static fncts.control.ZOps environment
  */
 export function environment<R>(): Z<never, unknown, never, R, never, Environment<R>> {
-  return new Access((r) => Z.succeedNow(r));
+  const z = new ZPrimitive(ZTag.Access) as any;
+  z.i0    = (r: any) => Z.succeedNow(r);
+  return z;
 }
 
 /**
  * @tsplus static fncts.control.ZOps environmentWith
  */
 export function environmentWith<R0, A>(f: (r: Environment<R0>) => A): Z<never, unknown, never, R0, never, A> {
-  return new Access((r) => succeed(f(r)));
+  const z = new ZPrimitive(ZTag.Access) as any;
+  z.i0    = (r: any) => Z.succeedNow(f(r));
+  return z;
 }
 
 /**
@@ -156,7 +166,9 @@ export function environmentWith<R0, A>(f: (r: Environment<R0>) => A): Z<never, u
 export function environmentWithZ<R0, W, S1, S2, R, E, A>(
   f: (r: Environment<R0>) => Z<W, S1, S2, R, E, A>,
 ): Z<W, S1, S2, R | R0, E, A> {
-  return new Access(f);
+  const z = new ZPrimitive(ZTag.Access) as any;
+  z.i0    = f;
+  return z;
 }
 
 /**
@@ -193,7 +205,9 @@ export function failCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): Z<n
  * @tsplus static fncts.control.ZOps failCauseNow
  */
 export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Z<never, unknown, never, never, E, never> {
-  return new Fail(cause);
+  const z = new ZPrimitive(ZTag.Fail) as any;
+  z.i0    = cause;
+  return z;
 }
 
 /**
@@ -286,7 +300,10 @@ export function mapError<E, G>(f: (e: E) => G) {
  */
 export function mapLog<W, W1>(f: (ws: Conc<W>) => Conc<W1>) {
   return <S1, S2, R, E, A>(wa: Z<W, S1, S2, R, E, A>): Z<W1, S1, S2, R, E, A> => {
-    return new MapLog(wa, f);
+    const z = new ZPrimitive(ZTag.MapLog) as any;
+    z.i0    = wa;
+    z.i1    = f;
+    return z;
   };
 }
 
@@ -377,7 +394,11 @@ export function matchLogCauseZ<W, S2, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E
   onSuccess: (ws: Conc<W>, a: A) => Z<W2, S2, S4, R2, E2, C>,
 ) {
   return <S1, R>(fa: Z<W, S1, S2, R, E, A>): Z<W1 | W2, S0 & S1, S3 | S4, R & R1 & R2, E1 | E2, B | C> => {
-    return new Match(fa, onFailure, onSuccess);
+    const z = new ZPrimitive(ZTag.Match) as any;
+    z.i0    = fa;
+    z.i1    = onFailure;
+    z.i2    = onSuccess;
+    return z;
   };
 }
 
@@ -387,7 +408,9 @@ export function matchLogCauseZ<W, S2, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E
  * @tsplus static fncts.control.ZOps modify
  */
 export function modify<S1, S2, A>(f: (s: S1) => readonly [A, S2]): Z<never, S1, S2, never, never, A> {
-  return new Modify(f);
+  const z = new ZPrimitive(ZTag.Modify) as any;
+  z.i0    = f;
+  return z;
 }
 
 /**
@@ -430,7 +453,10 @@ export function orElseEither<W, S3, S4, R1, E1, A1>(that: Lazy<Z<W, S3, S4, R1, 
  */
 export function provideEnvironment<R>(r: Environment<R>) {
   return <W, S1, S2, E, A>(fa: Z<W, S1, S2, R, E, A>): Z<W, S1, S2, never, E, A> => {
-    return new Provide(fa, r);
+    const z = new ZPrimitive(ZTag.Provide) as any;
+    z.i0    = fa;
+    z.i1    = r;
+    return z;
   };
 }
 
@@ -474,7 +500,9 @@ export function succeed<A, W = never, S1 = unknown, S2 = never>(
   effect: Lazy<A>,
   __tsplusTrace?: string,
 ): Z<W, S1, S2, never, never, A> {
-  return new Succeed(effect);
+  const z = new ZPrimitive(ZTag.Succeed) as any;
+  z.i0    = effect;
+  return z;
 }
 
 /**
@@ -484,7 +512,9 @@ export function succeedNow<A, W = never, S1 = unknown, S2 = never>(
   a: A,
   __tsplusTrace?: string,
 ): Z<W, S1, S2, never, never, A> {
-  return new SucceedNow(a);
+  const z = new ZPrimitive(ZTag.SucceedNow) as any;
+  z.i0    = a;
+  return z;
 }
 
 /**
@@ -507,7 +537,9 @@ export function tell<W>(w: W): Z<W, unknown, never, never, never, void> {
  * @tsplus static fncts.control.ZOps tellAll
  */
 export function tellAll<W>(ws: Conc<W>): Z<W, unknown, never, never, never, void> {
-  return new Tell(ws);
+  const z = new ZPrimitive(ZTag.Tell) as any;
+  z.i0    = ws;
+  return z;
 }
 
 /**

@@ -1,7 +1,7 @@
 import type { Journal } from "./internal/Journal.js";
 import type { _A, _E, _R } from "@fncts/base/types";
 
-import { IOOpCode, IOTypeId, IOVariance } from "@fncts/io/IO/definition";
+import { IOTag, IOTypeId, IOVariance } from "@fncts/io/IO/definition";
 
 export const enum STMTag {
   Effect = "Effect",
@@ -25,7 +25,7 @@ export type STMTypeId = typeof STMTypeId;
  */
 export abstract class STM<R, E, A> {
   readonly [IOTypeId]: IOTypeId = IOTypeId;
-  readonly _tag                 = IOOpCode.Commit;
+  readonly _tag                 = IOTag.Commit;
   readonly trace?: string;
   readonly [STMTypeId]: STMTypeId = STMTypeId;
   declare [IOVariance]: {

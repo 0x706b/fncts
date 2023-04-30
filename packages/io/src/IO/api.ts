@@ -6,17 +6,8 @@ import type { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
 import { IOError } from "@fncts/base/data/exceptions";
 import { identity, pipe, tuple } from "@fncts/base/data/function";
-import {
-  Async,
-  GenerateStackTrace,
-  OnSuccess,
-  OnSuccessAndFailure,
-  Sync,
-  UpdateRuntimeFlags,
-  YieldNow,
-} from "@fncts/io/IO/definition";
-import { Stateful } from "@fncts/io/IO/definition";
-import { Fail, IO, SucceedNow } from "@fncts/io/IO/definition";
+import { IOPrimitive,IOTag } from "@fncts/io/IO/definition";
+import { IO } from "@fncts/io/IO/definition";
 
 /**
  * Imports an asynchronous side-effect into a `IO`
@@ -28,7 +19,11 @@ export function async<R, E, A>(
   blockingOn: FiberId = FiberId.none,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return new Async(register, () => blockingOn, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.Async) as any;
+  io.i0    = register;
+  io.i1    = () => blockingOn;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -318,7 +313,11 @@ export function checkInterruptible<R, E, A>(
  */
 export function flatMap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E>(ma: IO<R, E, A>): IO<R | R1, E | E1, B> => {
-    return new OnSuccess(ma, f, __tsplusTrace);
+    const io = new IOPrimitive(IOTag.OnSuccess) as any;
+    io.i0    = ma;
+    io.i1    = f;
+    io.trace = __tsplusTrace;
+    return io;
   };
 }
 
@@ -466,7 +465,10 @@ export function failNow<E>(e: E, __tsplusTrace?: string): FIO<E, never> {
  * @tsplus static fncts.io.IOOps refailCause
  */
 export function refailCause<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, never> {
-  return new Fail(() => cause, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.Fail) as any;
+  io.i0    = () => cause;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -475,7 +477,10 @@ export function refailCause<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, 
  * @tsplus static fncts.io.IOOps failCauseNow
  */
 export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, never> {
-  return new Fail(() => cause, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.Fail) as any;
+  io.i0    = () => cause;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -1226,7 +1231,12 @@ export function matchCauseIO<E, A, R1, E1, A1, R2, E2, A2>(
   __tsplusTrace?: string,
 ) {
   return <R>(self: IO<R, E, A>): IO<R | R1 | R2, E1 | E2, A1 | A2> => {
-    return new OnSuccessAndFailure(self, onFailure, onSuccess, __tsplusTrace);
+    const io = new IOPrimitive(IOTag.OnSuccessAndFailure) as any;
+    io.i0    = self;
+    io.i1    = onFailure;
+    io.i2    = onSuccess;
+    io.trace = __tsplusTrace;
+    return io;
   };
 }
 
@@ -1667,7 +1677,10 @@ export function sequenceIterableDiscard<R, E, A>(as: Iterable<IO<R, E, A>>, __ts
  * @tsplus static fncts.io.IOOps succeedNow
  */
 export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<never, never, A> {
-  return new SucceedNow(value, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.SucceedNow) as any;
+  io.i0    = value;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -1679,7 +1692,10 @@ export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<never, never
  * @tsplus static fncts.io.IOOps __call
  */
 export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): UIO<A> {
-  return new Sync(effect, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.Sync) as any;
+  io.i0    = effect;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -1930,21 +1946,29 @@ export function withFiberRuntime<R, E, A>(
   onState: (fiber: FiberRuntime<E, A>, status: Running) => IO<R, E, A>,
   __tsplusTrace?: string,
 ): IO<R, E, A> {
-  return new Stateful(onState, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.Stateful) as any;
+  io.i0    = onState;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
  * @tsplus static fncts.io.IOOps updateRuntimeFlags
  */
 export function updateRuntimeFlags(patch: RuntimeFlags.Patch, __tsplusTrace?: string): IO<never, never, void> {
-  return new UpdateRuntimeFlags(patch, __tsplusTrace);
+  const io = new IOPrimitive(IOTag.UpdateRuntimeFlags) as any;
+  io.i0    = patch;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
  * @tsplus static fncts.io.IOOps stackTrace
  */
 export function stackTrace(__tsplusTrace?: string): UIO<Trace> {
-  return new GenerateStackTrace(__tsplusTrace);
+  const io = new IOPrimitive(IOTag.GenerateStackTrace) as any;
+  io.trace = __tsplusTrace;
+  return io;
 }
 
 /**
@@ -1954,7 +1978,7 @@ export function stackTrace(__tsplusTrace?: string): UIO<Trace> {
  *
  * @tsplus static fncts.io.IOOps yieldNow
  */
-export const yieldNow: UIO<void> = new YieldNow();
+export const yieldNow: UIO<void> = new IOPrimitive(IOTag.YieldNow) as any;
 
 /**
  * @tsplus pipeable fncts.io.IO zip
