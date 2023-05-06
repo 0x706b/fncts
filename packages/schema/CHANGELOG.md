@@ -1,5 +1,15 @@
 # @fncts/schema
 
+## 0.0.9
+
+### Patch Changes
+
+- 3b33357: feat(schema): add HashSet schema
+- Updated dependencies [e285588]
+- Updated dependencies [3b33357]
+- Updated dependencies [46e73ac]
+  - @fncts/base@0.0.30
+
 ## 0.0.8
 
 ### Patch Changes
