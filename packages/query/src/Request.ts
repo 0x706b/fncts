@@ -39,9 +39,9 @@ export abstract class SimpleRequest<X extends Record<PropertyKey, any>, E, A> ex
 
   get [Symbol.showable](): ShowComputationExternal {
     return showComputationComplex({
-      base: Z.succeedNow(`Request (${this.constructor.name})`),
+      base: Pure.succeedNow(`Request (${this.constructor.name})`),
       braces: ["{", "}"],
-      keys: this[CaseClassTypeId].traverse(Z.Applicative)((key) => showProperty(this, key, 0)).map(Conc.from),
+      keys: this[CaseClassTypeId].traverse(Pure.Applicative)((key) => showProperty(this, key, 0)).map(Conc.from),
     });
   }
 }

@@ -14,6 +14,49 @@ export function as<B>(b: Lazy<B>) {
   };
 }
 
+interface UnsafeEmitter<E, A> {
+  emit: (value: A) => void;
+  failCause: (cause: Cause<E>) => void;
+  end: () => void;
+}
+
+/**
+ * @tsplus static fncts.io.PushOps asyncInterrupt
+ */
+export function asyncInterrupt<R, E, A>(
+  make: (emitter: UnsafeEmitter<E, A>) => Either<IO<R, never, void>, Push<R, E, A>>,
+): Push<R, E, A> {
+  return Push<R, E, A>(<R1>(emitter: Emitter<R | R1, E, A>) =>
+    Do((Δ) => {
+      const future  = Δ(Future.make<never, void>());
+      const scope   = Δ(IO.scope);
+      const runtime = Δ(IO.runtime<R | R1 | R1>());
+      const unsafeEmitter: UnsafeEmitter<E, A> = {
+        emit: (value) => runtime.unsafeRunOrFork(emitter.emit(value).forkIn(scope)),
+        failCause: (cause) => runtime.unsafeRunOrFork(emitter.failCause(cause).fulfill(future).forkIn(scope)),
+        end: () => runtime.unsafeRunOrFork(emitter.end > future.succeed(undefined)),
+      };
+      const eitherPush = Δ(IO(make(unsafeEmitter)));
+      Δ(
+        eitherPush.match(
+          (canceller) => future.await.onInterrupt(canceller),
+          (push) => push.run(emitter),
+        ),
+      );
+    }),
+  );
+}
+
+/**
+ * @tsplus static fncts.io.PushOps async
+ */
+export function async<E, A>(make: (emitter: UnsafeEmitter<E, A>) => void): Push<never, E, A> {
+  return Push.asyncInterrupt((emitter) => {
+    make(emitter);
+    return Either.left(IO.unit);
+  });
+}
+
 /**
  * @tsplus static fncts.io.PushOps combineLatest
  */
@@ -79,7 +122,7 @@ export function debounce(duration: Lazy<Duration>) {
               (cause) => emitter.failCause(cause),
               latch.countDown,
             ),
-          ),
+          ).forkScoped,
         );
         Δ(latch.await > emitter.end);
       }),
@@ -101,7 +144,7 @@ export function flatMapConcurrentBounded<A, R1, E1, B>(f: (a: A) => Push<R1, E1,
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
     return Push(<R2>(emitter: Emitter<R | R1 | R2, E | E1, B>) =>
       Do((Δ) => {
-        const semaphore = Δ(TSemaphore(concurrency).commit);
+        const semaphore = Δ(Semaphore(concurrency));
         Δ(self.flatMapConcurrentUnbounded((a) => f(a).transform((io) => semaphore.withPermit(io))).run(emitter));
       }),
     );
@@ -124,7 +167,7 @@ export function flatMapConcurrentUnbounded<A, R1, E1, B>(f: (a: A) => Push<R1, E
               emitter.failCause,
               latch.countDown,
             ),
-          ),
+          ).forkScoped,
         );
         Δ(latch.await > emitter.end);
       }),
@@ -467,7 +510,7 @@ export function merge<R1, E1, B>(that: Push<R1, E1, B>) {
  */
 export function mergeAll<A extends ReadonlyArray<Push<any, any, any>>>(
   streams: [...A],
-): Push<_R<A[number]>, _E<A[number]>, _A<A[number]>>;
+): Push<Push.EnvironmentOf<A[number]>, Push.ErrorOf<A[number]>, Push.ValueOf<A[number]>>;
 export function mergeAll<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, A>;
 export function mergeAll<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, A> {
   return Push((emitter) =>
@@ -488,6 +531,29 @@ export function mergeAll<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, 
       Δ(latch.await > emitter.end);
     }),
   );
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push observe
+ */
+export function observe<A, R1, E1>(f: (a: A) => IO<R1, E1, void>, __tsplusTrace?: string) {
+  return <R, E>(self: Push<R, E, A>): IO<R | R1 | Scope, E | E1, void> => {
+    return Do((Δ) => {
+      const future = Δ(Future.make<E | E1, void>());
+      const fiber  = Δ(
+        self.run(
+          Emitter(
+            (a) => f(a).catchAllCause((cause) => future.failCause(cause)),
+            (cause) => future.failCause(cause),
+            future.succeed(undefined),
+          ),
+        ).forkScoped,
+      );
+
+      Δ(future.await);
+      Δ(fiber.interruptFork);
+    });
+  };
 }
 
 /**

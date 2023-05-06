@@ -2,5 +2,5 @@
 export type {} from "./control/CompletablePromise.js";
 export type {} from "./control/Eval.js";
 export type {} from "./control/LazyValue.js";
-export type {} from "./control/Z.js";
+export type {} from "./control/Pure.js";
 // codegen:end

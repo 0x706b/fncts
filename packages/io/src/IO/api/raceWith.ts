@@ -10,6 +10,8 @@ export function raceFibersWith<R, E, A, R1, E1, B, R2, E2, C, R3, E3, D>(
   right: Lazy<IO<R1, E1, B>>,
   leftWins: (winner: FiberRuntime<E, A>, loser: FiberRuntime<E1, B>) => IO<R2, E2, C>,
   rightWins: (winner: FiberRuntime<E1, B>, loser: FiberRuntime<E, A>) => IO<R3, E3, D>,
+  leftScope: FiberScope | null = null,
+  rightScope: FiberScope | null = null,
   __tsplusTrace?: string,
 ) {
   return (left: IO<R, E, A>): IO<R | R1 | R2 | R3, E2 | E3, C | D> => {
@@ -29,8 +31,8 @@ export function raceFibersWith<R, E, A, R1, E1, B, R2, E2, C, R3, E3, D>(
       }
 
       const raceIndicator = new AtomicBoolean(true);
-      const leftFiber     = IO.unsafeMakeChildFiber(left, parentState, parentRuntimeFlags, null, __tsplusTrace);
-      const rightFiber    = IO.unsafeMakeChildFiber(right0, parentState, parentRuntimeFlags, null, __tsplusTrace);
+      const leftFiber     = IO.unsafeMakeChildFiber(left, parentState, parentRuntimeFlags, leftScope, __tsplusTrace);
+      const rightFiber    = IO.unsafeMakeChildFiber(right0, parentState, parentRuntimeFlags, rightScope, __tsplusTrace);
 
       return IO.async((cb) => {
         leftFiber.addObserver(() => complete(leftFiber, rightFiber, leftWins, raceIndicator, cb));

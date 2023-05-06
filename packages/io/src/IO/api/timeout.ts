@@ -3,7 +3,27 @@
  */
 export function timeoutTo<A, B, B1>(duration: Lazy<Duration>, b: Lazy<B>, f: (a: A) => B1, __tsplusTrace?: string) {
   return <R, E>(self: IO<R, E, A>): IO<R, E, B | B1> => {
-    return self.map(f).raceFirst(IO.sleep(duration).interruptible.as(b));
+    return IO.fiberIdWith((parentFiberId) =>
+      self.raceFibersWith(
+        IO.sleep(duration).interruptible,
+        (winner, loser) =>
+          winner.await.flatMap((exit) =>
+            exit.match(
+              (cause) => loser.interruptAs(parentFiberId) > IO.refailCause(cause),
+              (a) => winner.inheritAll > loser.interruptAs(parentFiberId).as(f(a)),
+            ),
+          ),
+        (winner, loser) =>
+          winner.await.flatMap((exit) =>
+            exit.match(
+              (cause) => loser.interruptAs(parentFiberId) > IO.refailCause(cause),
+              () => winner.inheritAll > loser.interruptAs(parentFiberId).as(b),
+            ),
+          ),
+        null,
+        FiberScope.global,
+      ),
+    );
   };
 }
 

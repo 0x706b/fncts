@@ -110,6 +110,7 @@ const enum BlockedRequestsCase {
   BothCase,
   ThenCase,
 }
+
 /**
  * @tsplus tailRef
  */
@@ -283,6 +284,9 @@ export function flatten<R>(blockedRequests: BlockedRequests<R>): List<Sequential
   return flattenLoop(List(blockedRequests), List.empty());
 }
 
+/**
+ * @tsplus tailRec
+ */
 function flattenLoop<R>(
   blockedRequests: List<BlockedRequests<R>>,
   flattened: List<Sequential<R>>,

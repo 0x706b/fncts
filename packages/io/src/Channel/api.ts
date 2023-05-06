@@ -827,10 +827,10 @@ export function mapOut<OutElem, OutElem2>(f: (o: OutElem) => OutElem2) {
 const mapOutIOReader = <Env, Env1, OutErr, OutErr1, OutElem, OutElem1, OutDone>(
   f: (o: OutElem) => IO<Env1, OutErr1, OutElem1>,
 ): Channel<Env | Env1, OutErr, OutElem, OutDone, OutErr | OutErr1, OutElem1, OutDone> =>
-  Channel.readWith(
+  Channel.readWithCause(
     (out) => Channel.fromIO(f(out)).flatMap(Channel.writeNow).zipRight(mapOutIOReader(f)),
-    Channel.failNow,
-    Channel.endNow,
+    Channel.failCauseNow,
+    Channel.succeedNow,
   );
 
 /**

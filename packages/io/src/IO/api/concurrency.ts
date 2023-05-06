@@ -41,3 +41,36 @@ export function withConcurrency(n: number, __tsplusTrace?: string) {
 export function withConcurrencyUnbounded<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return IO.defer(Concurrency.locally(Nothing())(ma));
 }
+
+export type ConcurrencyRestorer = <R, E, A>(io: IO<R, E, A>) => IO<R, E, A>;
+
+const MakeConcurrent =
+  (n: number): ConcurrencyRestorer =>
+  (io) =>
+    io.withConcurrency(n);
+
+const MakeConcurrentUnbounded: ConcurrencyRestorer = (io) => io.withConcurrencyUnbounded;
+
+/**
+ * @tsplus static fncts.io.IOOps withConcurrencyMask
+ */
+export function withConcurrencyMask<R, E, A>(n: number, f: (restore: ConcurrencyRestorer) => IO<R, E, A>): IO<R, E, A> {
+  return Concurrency.getWith((concurrency) =>
+    concurrency.match(
+      () => Concurrency.locally(Just(n))(f(MakeConcurrentUnbounded)),
+      (n0) => Concurrency.locally(Just(n))(f(MakeConcurrent(n0))),
+    ),
+  );
+}
+
+/**
+ * @tsplus static fncts.io.IOOps withConcurrencyUnboundedMask
+ */
+export function withConcurrencyUnboundedMask<R, E, A>(f: (restore: ConcurrencyRestorer) => IO<R, E, A>): IO<R, E, A> {
+  return Concurrency.getWith((concurrency) =>
+    concurrency.match(
+      () => Concurrency.locally(Nothing())(f(MakeConcurrentUnbounded)),
+      (n0) => Concurrency.locally(Nothing())(f(MakeConcurrent(n0))),
+    ),
+  );
+}

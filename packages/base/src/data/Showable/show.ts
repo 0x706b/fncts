@@ -71,7 +71,7 @@ export interface ShowOptions {
 }
 
 export class ShowContext extends CaseClass<ShowContextArgs> {}
-export type ShowComputationZ<A> = Z<never, ShowContext, ShowContext, never, never, A>;
+export type ShowComputationZ<A> = Pure<never, ShowContext, ShowContext, never, never, A>;
 export type ShowComputation = ShowComputationZ<string>;
 export type ShowComputationChunk = ShowComputationZ<Conc<string>>;
 
@@ -134,24 +134,24 @@ export function showWithOptions(value: unknown, options: Partial<ShowOptions>): 
 }
 
 export function _show(value: unknown): ShowComputation {
-  return Z.getsZ((context) => {
+  return Pure.getsPure((context) => {
     if (value === undefined) {
-      return Z.succeedNow(context.stylize("undefined", "undefined"));
+      return Pure.succeedNow(context.stylize("undefined", "undefined"));
     }
     if (value === null) {
-      return Z.succeedNow(context.stylize("null", "null"));
+      return Pure.succeedNow(context.stylize("null", "null"));
     }
     if (!isObject(value) && !isFunction(value)) {
-      return Z.succeedNow(_showPrimitive(context, value as Primitive));
+      return Pure.succeedNow(_showPrimitive(context, value as Primitive));
     }
     return showValue(value);
   });
 }
 
 function showValue(value: object): ShowComputation {
-  return Z.getsZ((context) => {
+  return Pure.getsPure((context) => {
     if (context.seen.findIndex((v) => v === value) !== -1) {
-      return Z.modify((context: ShowContext) =>
+      return Pure.modify((context: ShowContext) =>
         context.circular.get(value).match(
           () => [
             context.circular.size + 1,
@@ -224,7 +224,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
   let keys       = [] as Array<PropertyKey>;
   let tag        = value[Symbol.toStringTag as keyof typeof value] as string;
   let base       = "";
-  let formatter  = (_: any) => Z.succeedNow(Conc.empty<string>()) as ShowComputationChunk;
+  let formatter  = (_: any) => Pure.succeedNow(Conc.empty<string>()) as ShowComputationChunk;
   let braces     = ["", ""] as [string, string];
   let noIterator = true;
   let extrasType = OBJECT_TYPE;
@@ -342,7 +342,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
       return inspectionEarlyReturn(`${getPrefix(constructor, tag, "WeakSet")}{}`);
     } else if (isWeakMap(value)) {
       return inspectionEarlyReturn(`${getPrefix(constructor, tag, "WeakMap")}{}`);
-    } else if (Z.isZ(value)) {
+    } else if (Pure.isPure(value)) {
       return constructor !== null ? inspectionEarlyReturn(`Z (${constructor}) {}`) : inspectionEarlyReturn("Z {}");
     } else {
       if (keys.length === 0) {
@@ -369,28 +369,28 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
  * into a human-readable, formatted string
  */
 function showRaw(value: object, typedArray?: string): ShowComputation {
-  return Z.gets((context: ShowContext) => tuple(context, getInspectionInfo(context, value, typedArray))).flatMap(
+  return Pure.gets((context: ShowContext) => tuple(context, getInspectionInfo(context, value, typedArray))).flatMap(
     ([context, info]) => {
       if (info._tag === "InspectionInfo" && context.recurseTimes > context.depth) {
         let constructorName = getPrefix(info.constructor, info.tag, "Object").slice(0, -1);
         if (info.constructor !== null) {
           constructorName = `[${constructorName}]`;
         }
-        return Z.update((context: ShowContext) =>
+        return Pure.update((context: ShowContext) =>
           context.copy({
             recurseTimes: context.recurseTimes - 1,
             currentDepth: context.currentDepth - 1,
           }),
-        ).zipRight(Z.succeedNow(context.stylize(constructorName, "special")));
+        ).zipRight(Pure.succeedNow(context.stylize(constructorName, "special")));
       }
       if (info._tag === "InspectionEarlyReturn") {
-        return Z.succeedNow(info.shown);
+        return Pure.succeedNow(info.shown);
       } else {
-        return Z.update((context: ShowContext) => {
+        return Pure.update((context: ShowContext) => {
           context.seen.push(value);
           return context;
         }).zipRight(
-          Z.defer(() => {
+          Pure.defer(() => {
             let keys: ShowComputationChunk;
             let indices: ShowComputationChunk;
             let base: ShowComputation;
@@ -398,11 +398,11 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
             let extrasType: number;
             switch (info._tag) {
               case "InspectionInfo": {
-                base = Z.succeedNow(info.base);
+                base = Pure.succeedNow(info.base);
                 keys = Conc.from(info.keys)
-                  .traverse(Z.Applicative)((key) => showProperty(value, key, info.extrasType))
+                  .traverse(Pure.Applicative)((key) => showProperty(value, key, info.extrasType))
                   .crossWith(
-                    info.protoProps.traverse(Z.Applicative)((key) => showProperty(value, key, PROTO_TYPE)),
+                    info.protoProps.traverse(Pure.Applicative)((key) => showProperty(value, key, PROTO_TYPE)),
                     (k1, k2) => k1.concat(k2),
                   );
                 indices    = info.formatter(value);
@@ -413,15 +413,15 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
               case "InspectionExternal": {
                 const externalComputation = info.computation;
                 if (externalComputation._tag === "Primitive") {
-                  return Z.getsZ((context) =>
+                  return Pure.getsPure((context) =>
                     externalComputation.computation.map((str) =>
                       str.replace(/\n/g, `\n${" ".repeat(context.indentationLevel)}`),
                     ),
                   );
                 } else {
-                  base       = externalComputation.base || Z.succeedNow("");
-                  keys       = externalComputation.keys || Z.succeedNow(Conc.empty());
-                  indices    = externalComputation.indices || Z.succeedNow(Conc.empty());
+                  base       = externalComputation.base || Pure.succeedNow("");
+                  keys       = externalComputation.keys || Pure.succeedNow(Conc.empty());
+                  indices    = externalComputation.indices || Pure.succeedNow(Conc.empty());
                   braces     = externalComputation.braces || ["", ""];
                   extrasType = externalComputation.extrasType || OBJECT_TYPE;
                 }
@@ -429,7 +429,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
               }
             }
             const output      = indices.crossWith(keys, (idxs, ks) => idxs.concat(ks));
-            const baseWithRef = Z.getsZ((context: ShowContext) =>
+            const baseWithRef = Pure.getsPure((context: ShowContext) =>
               context.circular.get(value).match(
                 () => base,
                 (index) =>
@@ -439,7 +439,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                   }),
               ),
             );
-            return Z.update((_: ShowContext) =>
+            return Pure.update((_: ShowContext) =>
               _.copy({
                 recurseTimes: context.recurseTimes + 1,
                 currentDepth: _.recurseTimes + 1,
@@ -448,7 +448,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
               .zipRight(output)
               .cross(baseWithRef)
               .flatMap(([output, base]) =>
-                Z.modify((context) => {
+                Pure.modify((context) => {
                   const res       = reduceToSingleString(context, output, base, braces, extrasType, value);
                   const budget    = context.budget[context.indentationLevel] || 0;
                   const newLength = budget + res.length;
@@ -463,7 +463,7 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                 }),
               )
               .zipLeft(
-                Z.update((context: ShowContext) => {
+                Pure.update((context: ShowContext) => {
                   context.seen.pop();
                   return context.copy({
                     recurseTimes: context.recurseTimes - 1,
@@ -531,20 +531,20 @@ function removeColors(str: string): string {
 }
 
 function showSet(value: Set<unknown>): ShowComputationChunk {
-  return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
-    .zipRight((value as Iterable<unknown>).traverseToConc(Z.Applicative)(_show))
-    .zipLeft(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
+  return Pure.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
+    .zipRight((value as Iterable<unknown>).traverseToConc(Pure.Applicative)(_show))
+    .zipLeft(Pure.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
 }
 
 function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
-  return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
+  return Pure.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
     .zipRight(
-      (value as Iterable<[unknown, unknown]>).traverseToConc(Z.Applicative)(([k, v]) =>
+      (value as Iterable<[unknown, unknown]>).traverseToConc(Pure.Applicative)(([k, v]) =>
         _show(k).crossWith(_show(v), (k, v) => `${k} => ${v}`),
       ),
     )
     .zipLeft(
-      Z.update((_: ShowContext) =>
+      Pure.update((_: ShowContext) =>
         _.copy({
           indentationLevel: _.indentationLevel - 2,
         }),
@@ -553,8 +553,8 @@ function showMap(value: Map<unknown, unknown>): ShowComputationChunk {
 }
 
 function showTypedArray(value: TypedArray): ShowComputationChunk {
-  return Z.getsZ((context) =>
-    Z.defer(() => {
+  return Pure.getsPure((context) =>
+    Pure.defer(() => {
       const maxLength = Math.min(Math.max(0, context.maxArrayLength), value.length);
       const remaining = value.length - maxLength;
       let output      = Conc.empty<string>();
@@ -567,26 +567,26 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
         output = output.append(`... ${remaining} more item${pluralize(remaining)}`);
       }
       if (context.showHidden) {
-        return Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
+        return Pure.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel + 2 }))
           .zipRight(
-            Z.succeedNow(output).flatMap((output) =>
+            Pure.succeedNow(output).flatMap((output) =>
               Conc("BYTES_PER_ELEMENT", "length", "byteLength", "byteOffset", "buffer")
-                .traverse(Z.Applicative)((key) =>
+                .traverse(Pure.Applicative)((key) =>
                   _show(value[key as keyof TypedArray]).map((shown) => `[${key}]: ${shown}`),
                 )
                 .map((shownKeys) => output.concat(shownKeys)),
             ),
           )
-          .zipLeft(Z.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
+          .zipLeft(Pure.update((_: ShowContext) => _.copy({ indentationLevel: _.indentationLevel - 2 })));
       } else {
-        return Z.succeedNow(output);
+        return Pure.succeedNow(output);
       }
     }),
   );
 }
 
 function showArrayBuffer(value: ArrayBuffer | SharedArrayBuffer): ShowComputationChunk {
-  return Z.gets((context: ShowContext) => {
+  return Pure.gets((context: ShowContext) => {
     let buffer;
     try {
       buffer = new Uint8Array(value);
@@ -613,7 +613,7 @@ function showSpecialArray(
   currentIndex: number,
   currentLength: number,
 ): ShowComputationChunk {
-  return Z.getsZ((context) => {
+  return Pure.getsPure((context) => {
     const keys       = Object.keys(value);
     let index        = currentIndex;
     let i            = currentIndex;
@@ -657,7 +657,7 @@ function showSpecialArray(
 }
 
 function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
-  return Z.gets((context: ShowContext) => {
+  return Pure.gets((context: ShowContext) => {
     let chunk       = Conc.from(value);
     const valLen    = chunk.length;
     const len       = Math.min(Math.max(0, context.maxArrayLength), valLen);
@@ -665,7 +665,7 @@ function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
     chunk           = chunk.take(len);
     return tuple(remaining, chunk);
   }).flatMap(([remaining, chunk]) => {
-    let computation = Z.succeedNow(Conc.empty()) as ShowComputationChunk;
+    let computation = Pure.succeedNow(Conc.empty()) as ShowComputationChunk;
     for (let i = 0; i < chunk.length; i++) {
       if (!Object.prototype.hasOwnProperty.call(value, i)) {
         return showSpecialArray(value, chunk.length, computation, i, i);
@@ -680,7 +680,7 @@ function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
 }
 
 function showChunk(value: Conc<unknown>): ShowComputationChunk {
-  return Z.gets((context: ShowContext) => {
+  return Pure.gets((context: ShowContext) => {
     const valLen    = value.length;
     const len       = Math.min(Math.max(0, context.maxArrayLength), valLen);
     const remaining = valLen - len;
@@ -688,7 +688,7 @@ function showChunk(value: Conc<unknown>): ShowComputationChunk {
     return tuple(remaining, chunk);
   }).flatMap(([remaining, chunk]) =>
     chunk
-      .traverse(Z.Applicative)(_show)
+      .traverse(Pure.Applicative)(_show)
       .map((chunk) => (remaining > 0 ? chunk.append(`... ${remaining} more item${pluralize(remaining)}`) : chunk)),
   );
 }
@@ -699,8 +699,8 @@ export function showProperty(
   type: number,
   desc?: PropertyDescriptor,
 ): ShowComputation {
-  return Z.getsZ((context: ShowContext) =>
-    Z.defer(() => {
+  return Pure.getsPure((context: ShowContext) =>
+    Pure.defer(() => {
       const descriptor = desc ||
         Object.getOwnPropertyDescriptor(value, key) || {
           value: value[key as keyof typeof value],
@@ -708,22 +708,24 @@ export function showProperty(
         };
       if (isDefined(descriptor.value)) {
         const diff = context.compact !== true || (type !== OBJECT_TYPE && type !== PROTO_TYPE) ? 2 : 3;
-        return Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel + diff }))
+        return Pure.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel + diff }))
           .zipRight(_show(descriptor.value))
           .flatMap((shown: string) =>
-            Z.gets((_: ShowContext) =>
+            Pure.gets((_: ShowContext) =>
               diff === 3 && _.breakLength < getStringWidth(shown, _.colors)
                 ? tuple(descriptor, `\n${" ".repeat(_.indentationLevel)}`, shown)
                 : tuple(descriptor, " ", shown),
             ),
           )
-          .zipLeft(Z.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel - diff })));
+          .zipLeft(
+            Pure.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel - diff })),
+          );
       } else if (isDefined(descriptor.get)) {
-        return Z.succeedNow(tuple(descriptor, " ", `[${descriptor.set ? "Getter/Settter" : "Getter"}]`));
+        return Pure.succeedNow(tuple(descriptor, " ", `[${descriptor.set ? "Getter/Settter" : "Getter"}]`));
       } else if (isDefined(descriptor.set)) {
-        return Z.succeedNow(tuple(descriptor, " ", "Setter"));
+        return Pure.succeedNow(tuple(descriptor, " ", "Setter"));
       } else {
-        return Z.succeedNow(tuple(descriptor, " ", "undefined"));
+        return Pure.succeedNow(tuple(descriptor, " ", "undefined"));
       }
     }).map(([descriptor, extra, shown]) => {
       if (type === ARRAY_TYPE) {

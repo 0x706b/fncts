@@ -1,5 +1,5 @@
-export interface ZF extends HKT {
-  type: Z<this["W"], this["S"], this["S"], this["R"], this["E"], this["A"]>;
+export interface PureF extends HKT {
+  type: Pure<this["W"], this["S"], this["S"], this["R"], this["E"], this["A"]>;
   variance: {
     W: "+";
     S: "_";
@@ -9,28 +9,25 @@ export interface ZF extends HKT {
   };
 }
 
-export const ZVariance = Symbol.for("fncts.Z.Variance");
-export type ZVariance = typeof ZVariance;
+export const PureVariance = Symbol.for("fncts.Pure.Variance");
+export type PureVariance = typeof PureVariance;
 
-export const ZTypeId = Symbol.for("fncts.Z");
-export type ZTypeId = typeof ZTypeId;
+export const PureTypeId = Symbol.for("fncts.Pure");
+export type PureTypeId = typeof PureTypeId;
 
 /**
- * `Z<W, S1, S2, R, E, A>` is a purely functional description of a synchronous computation
+ * `Pure<W, S1, S2, R, E, A>` is a purely functional description of a synchronous computation
  * that requires an environment `R` and an initial state `S1` and may either
  * fail with an `E` or succeed with an updated state `S2` and an `A`. Because
  * of its polymorphism `Z` can be used to model a variety of effects
  * including context, state, failure, and logging.
  *
- * @note named `Z` in honor of `ZIO` and because it is, surely, the last synchronous effect type
- * one will ever need
- *
- * @tsplus type fncts.control.Z
- * @tsplus companion fncts.control.ZOps
+ * @tsplus type fncts.control.Pure
+ * @tsplus companion fncts.control.PureOps
  */
-export abstract class Z<W, S1, S2, R, E, A> {
-  readonly [ZTypeId]: ZTypeId = ZTypeId;
-  declare [ZVariance]: {
+export abstract class Pure<W, S1, S2, R, E, A> {
+  readonly [PureTypeId]: PureTypeId = PureTypeId;
+  declare [PureVariance]: {
     readonly _W: (_: never) => W;
     readonly _S1: (_: S1) => void;
     readonly _S2: (_: never) => S2;
@@ -41,24 +38,24 @@ export abstract class Z<W, S1, S2, R, E, A> {
 }
 
 /**
- * @tsplus unify fncts.control.Z
+ * @tsplus unify fncts.control.Pure
  */
-export function unifyZ<X extends Z<any, any, any, any, any, any>>(
+export function unifyPure<X extends Pure<any, any, any, any, any, any>>(
   _: X,
-): Z<
-  [X] extends [Z<infer W, any, any, any, any, any>] ? W : never,
-  [X] extends [Z<any, infer S1, any, any, any, any>] ? S1 : never,
-  [X] extends [Z<any, any, infer S2, any, any, any>] ? S2 : never,
-  [X] extends [Z<any, any, any, infer R, any, any>] ? R : never,
-  [X] extends [Z<any, any, any, any, infer E, any>] ? E : never,
-  [X] extends [Z<any, any, any, any, any, infer A>] ? A : never
+): Pure<
+  [X] extends [Pure<infer W, any, any, any, any, any>] ? W : never,
+  [X] extends [Pure<any, infer S1, any, any, any, any>] ? S1 : never,
+  [X] extends [Pure<any, any, infer S2, any, any, any>] ? S2 : never,
+  [X] extends [Pure<any, any, any, infer R, any, any>] ? R : never,
+  [X] extends [Pure<any, any, any, any, infer E, any>] ? E : never,
+  [X] extends [Pure<any, any, any, any, any, infer A>] ? A : never
 > {
   return _;
 }
 
-export class ZPrimitive {
-  readonly [ZTypeId]: ZTypeId = ZTypeId;
-  declare [ZVariance]: {
+export class PurePrimitive {
+  readonly [PureTypeId]: PureTypeId = PureTypeId;
+  declare [PureVariance]: {
     readonly _W: (_: never) => never;
     readonly _S1: (_: unknown) => void;
     readonly _S2: (_: never) => never;
@@ -73,13 +70,13 @@ export class ZPrimitive {
 }
 
 /**
- * @tsplus static fncts.control.ZOps isZ
+ * @tsplus static fncts.control.PureOps isPure
  */
-export function isZ(u: unknown): u is Z<unknown, unknown, unknown, unknown, unknown, unknown> {
-  return isObject(u) && ZTypeId in u;
+export function isPure(u: unknown): u is Pure<unknown, unknown, unknown, unknown, unknown, unknown> {
+  return isObject(u) && PureTypeId in u;
 }
 
-export const enum ZTag {
+export const enum PureTag {
   SucceedNow,
   Succeed,
   Defer,
@@ -94,54 +91,54 @@ export const enum ZTag {
   MapLog,
 }
 
-export type ZOp<Tag extends number, Body = {}> = ZPrimitive &
+export type PureOp<Tag extends number, Body = {}> = PurePrimitive &
   Body & {
     _tag: Tag;
   };
 
 export interface SucceedNow
-  extends ZOp<
-    ZTag.SucceedNow,
+  extends PureOp<
+    PureTag.SucceedNow,
     {
       readonly i0: any;
     }
   > {}
 
 export interface Succeed
-  extends ZOp<
-    ZTag.Succeed,
+  extends PureOp<
+    PureTag.Succeed,
     {
       readonly i0: () => any;
     }
   > {}
 
 export interface Defer
-  extends ZOp<
-    ZTag.Defer,
+  extends PureOp<
+    PureTag.Defer,
     {
       readonly i0: () => Primitive;
     }
   > {}
 
 export interface Fail
-  extends ZOp<
-    ZTag.Fail,
+  extends PureOp<
+    PureTag.Fail,
     {
       readonly i0: Cause<unknown>;
     }
   > {}
 
 export interface Modify
-  extends ZOp<
-    ZTag.Modify,
+  extends PureOp<
+    PureTag.Modify,
     {
       readonly i0: (s1: any) => readonly [any, any];
     }
   > {}
 
 export interface FlatMap
-  extends ZOp<
-    ZTag.Chain,
+  extends PureOp<
+    PureTag.Chain,
     {
       readonly i0: Primitive;
       readonly i1: (a: any) => Primitive;
@@ -149,8 +146,8 @@ export interface FlatMap
   > {}
 
 export interface Match
-  extends ZOp<
-    ZTag.Match,
+  extends PureOp<
+    PureTag.Match,
     {
       readonly i0: Primitive;
       readonly i1: (ws: Conc<any>, e: Cause<unknown>) => Primitive;
@@ -159,16 +156,16 @@ export interface Match
   > {}
 
 export interface Access
-  extends ZOp<
-    ZTag.Access,
+  extends PureOp<
+    PureTag.Access,
     {
       readonly i0: (r: Environment<any>) => Primitive;
     }
   > {}
 
 export interface Provide
-  extends ZOp<
-    ZTag.Provide,
+  extends PureOp<
+    PureTag.Provide,
     {
       readonly i0: Primitive;
       readonly i1: Environment<any>;
@@ -176,16 +173,16 @@ export interface Provide
   > {}
 
 export interface Tell
-  extends ZOp<
-    ZTag.Tell,
+  extends PureOp<
+    PureTag.Tell,
     {
       readonly i0: Conc<any>;
     }
   > {}
 
 export interface MapLog
-  extends ZOp<
-    ZTag.MapLog,
+  extends PureOp<
+    PureTag.MapLog,
     {
       readonly i0: Primitive;
       readonly i1: (ws: Conc<any>) => Conc<any>;
@@ -206,20 +203,20 @@ export type Primitive =
   | MapLog;
 
 /**
- * @tsplus static fncts.control.ZOps concrete
+ * @tsplus static fncts.control.PureOps concrete
  */
-export function concrete(_: Z<any, any, any, any, any, any>): asserts _ is Primitive {
+export function concrete(_: Pure<any, any, any, any, any, any>): asserts _ is Primitive {
   //
 }
 
-export const ZErrorTypeId = Symbol.for("fncts.Z.ZError");
-export type ZErrorTypeId = typeof ZErrorTypeId;
+export const PureErrorTypeId = Symbol.for("fncts.Pure.ZError");
+export type PureErrorTypeId = typeof PureErrorTypeId;
 
-export class ZError<E> {
-  readonly [ZErrorTypeId]: ZErrorTypeId = ZErrorTypeId;
+export class PureError<E> {
+  readonly [PureErrorTypeId]: PureErrorTypeId = PureErrorTypeId;
   constructor(readonly cause: Cause<E>) {}
 }
 
-export function isZError(u: unknown): u is ZError<unknown> {
-  return isObject(u) && ZErrorTypeId in u;
+export function isPureError(u: unknown): u is PureError<unknown> {
+  return isObject(u) && PureErrorTypeId in u;
 }

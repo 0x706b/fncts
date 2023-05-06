@@ -18,6 +18,12 @@ export class Push<R, E, A> {
   constructor(readonly run: <R1>(emitter: Emitter<R1, E, A>) => IO<R | R1 | Scope, never, unknown>) {}
 }
 
+export declare namespace Push {
+  export type EnvironmentOf<X> = [X] extends [{ [PushVariance]: { readonly _R: (_: never) => infer R } }] ? R : never;
+  export type ErrorOf<X> = [X] extends [{ [PushVariance]: { readonly _E: (_: never) => infer E } }] ? E : never;
+  export type ValueOf<X> = [X] extends [{ [PushVariance]: { readonly _A: (_: never) => infer A } }] ? A : never;
+}
+
 /**
  * @tsplus type fncts.io.Push.Emitter
  * @tsplus companion fncts.io.Push.EmitterOps

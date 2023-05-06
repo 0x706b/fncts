@@ -1,18 +1,18 @@
 import { identity } from "../../data/function.js";
 import { Stack } from "../../internal/Stack.js";
-import { concrete, isZError, ZPrimitive, ZTag } from "./definition.js";
+import { concrete, isPureError, PurePrimitive, PureTag } from "./definition.js";
 
 class MatchFrame {
-  readonly _zTag = "MatchFrame";
+  readonly _tag = "MatchFrame";
   constructor(
-    readonly failure: (e: any) => Z<any, any, any, any, any, any>,
-    readonly apply: (a: any) => Z<any, any, any, any, any, any>,
+    readonly failure: (e: any) => Pure<any, any, any, any, any, any>,
+    readonly apply: (a: any) => Pure<any, any, any, any, any, any>,
   ) {}
 }
 
 class ApplyFrame {
-  readonly _zTag = "ApplyFrame";
-  constructor(readonly apply: (e: any) => Z<any, any, any, any, any, any>) {}
+  readonly _tag = "ApplyFrame";
+  constructor(readonly apply: (e: any) => Pure<any, any, any, any, any, any>) {}
 }
 
 type Frame = MatchFrame | ApplyFrame;
@@ -21,16 +21,16 @@ type Frame = MatchFrame | ApplyFrame;
  * Runs this computation with the specified initial state, returning either a
  * failure or the updated state and the result
  *
- * @tsplus pipeable fncts.control.Z unsafeRunAll
+ * @tsplus pipeable fncts.control.Pure unsafeRunAll
  */
 export function unsafeRunAll<S1>(s: S1) {
-  return <W, S2, E, A>(ma: Z<W, S1, S2, never, E, A>): readonly [Conc<W>, Exit<E, readonly [S2, A]>] => {
+  return <W, S2, E, A>(ma: Pure<W, S1, S2, never, E, A>): readonly [Conc<W>, Exit<E, readonly [S2, A]>] => {
     const stack: Stack<Frame> = Stack();
     let s0                    = s as any;
     let result: any           = null;
     const environment         = Stack<Environment<unknown>>();
     let failed                = false;
-    let current               = ma as Z<any, any, any, any, any, any> | undefined;
+    let current               = ma as Pure<any, any, any, any, any, any> | undefined;
     let log                   = Conc.empty<W>();
     function unsafeUnwindStack() {
       let unwinding = true;
@@ -39,7 +39,7 @@ export function unsafeRunAll<S1>(s: S1) {
         if (next == null) {
           unwinding = false;
         } else {
-          if (next._zTag === "MatchFrame") {
+          if (next._tag === "MatchFrame") {
             unwinding = false;
             stack.push(new ApplyFrame(next.failure));
           }
@@ -49,23 +49,23 @@ export function unsafeRunAll<S1>(s: S1) {
     while (current != null) {
       try {
         while (current != null) {
-          const currZ: Z<any, any, any, any, any, any> = current;
-          concrete(currZ);
-          switch (currZ._tag) {
-            case ZTag.Chain: {
-              const nested       = currZ.i0;
-              const continuation = currZ.i1;
+          const currPure: Pure<any, any, any, any, any, any> = current;
+          concrete(currPure);
+          switch (currPure._tag) {
+            case PureTag.Chain: {
+              const nested       = currPure.i0;
+              const continuation = currPure.i1;
               concrete(nested);
               switch (nested._tag) {
-                case ZTag.SucceedNow: {
+                case PureTag.SucceedNow: {
                   current = continuation(nested.i0);
                   break;
                 }
-                case ZTag.Succeed: {
+                case PureTag.Succeed: {
                   current = continuation(nested.i0());
                   break;
                 }
-                case ZTag.Modify: {
+                case PureTag.Modify: {
                   const updated = nested.i0(s0);
                   result        = updated[0];
                   s0            = updated[1];
@@ -80,8 +80,8 @@ export function unsafeRunAll<S1>(s: S1) {
               }
               break;
             }
-            case ZTag.Succeed: {
-              result                = currZ.i0();
+            case PureTag.Succeed: {
+              result                = currPure.i0();
               const nextInstruction = stack.pop();
               if (nextInstruction) {
                 current = nextInstruction.apply(result);
@@ -90,12 +90,12 @@ export function unsafeRunAll<S1>(s: S1) {
               }
               break;
             }
-            case ZTag.Defer: {
-              current = currZ.i0();
+            case PureTag.Defer: {
+              current = currPure.i0();
               break;
             }
-            case ZTag.SucceedNow: {
-              result          = currZ.i0;
+            case PureTag.SucceedNow: {
+              result          = currPure.i0;
               const nextInstr = stack.pop();
               if (nextInstr) {
                 current = nextInstr.apply(result);
@@ -104,30 +104,30 @@ export function unsafeRunAll<S1>(s: S1) {
               }
               break;
             }
-            case ZTag.Fail: {
+            case PureTag.Fail: {
               unsafeUnwindStack();
               const nextInst = stack.pop();
               if (nextInst) {
-                current = nextInst.apply(currZ.i0);
+                current = nextInst.apply(currPure.i0);
               } else {
                 failed  = true;
-                result  = currZ.i0;
+                result  = currPure.i0;
                 current = undefined;
               }
               break;
             }
-            case ZTag.Match: {
-              current     = currZ.i0;
+            case PureTag.Match: {
+              current     = currPure.i0;
               const state = s0;
               stack.push(
                 new MatchFrame(
                   (cause: Cause<any>) => {
-                    const m = Z.put(state).flatMap(() => currZ.i1(log, cause));
+                    const m = Pure.put(state).flatMap(() => currPure.i1(log, cause));
                     log     = Conc.empty();
                     return m;
                   },
                   (a) => {
-                    const m = currZ.i2(log, a);
+                    const m = currPure.i2(log, a);
                     log     = Conc.empty();
                     return m;
                   },
@@ -135,20 +135,20 @@ export function unsafeRunAll<S1>(s: S1) {
               );
               break;
             }
-            case ZTag.Access: {
-              current = currZ.i0(environment.peek() ?? Environment());
+            case PureTag.Access: {
+              current = currPure.i0(environment.peek() ?? Environment());
               break;
             }
-            case ZTag.Provide: {
-              environment.push(currZ.i1);
-              current             = new ZPrimitive(ZTag.Match) as any;
-              (current as any).i0 = currZ;
-              (current as any).i1 = (e: any) => Z.succeedNow(environment.pop()).flatMap(() => Z.failNow(e));
-              (current as any).i2 = (a: any) => Z.succeedNow(environment.pop()).flatMap(() => Z.succeedNow(a));
+            case PureTag.Provide: {
+              environment.push(currPure.i1);
+              current             = new PurePrimitive(PureTag.Match) as any;
+              (current as any).i0 = currPure;
+              (current as any).i1 = (e: any) => Pure.succeedNow(environment.pop()).flatMap(() => Pure.failNow(e));
+              (current as any).i2 = (a: any) => Pure.succeedNow(environment.pop()).flatMap(() => Pure.succeedNow(a));
               break;
             }
-            case ZTag.Modify: {
-              const updated  = currZ.i0(s0);
+            case PureTag.Modify: {
+              const updated  = currPure.i0(s0);
               s0             = updated[1];
               result         = updated[0];
               const nextInst = stack.pop();
@@ -159,8 +159,8 @@ export function unsafeRunAll<S1>(s: S1) {
               }
               break;
             }
-            case ZTag.Tell: {
-              log            = currZ.i0;
+            case PureTag.Tell: {
+              log            = currPure.i0;
               const nextInst = stack.pop();
               if (nextInst) {
                 current = nextInst.apply(result);
@@ -169,17 +169,17 @@ export function unsafeRunAll<S1>(s: S1) {
               }
               break;
             }
-            case ZTag.MapLog: {
-              current = currZ.i0;
+            case PureTag.MapLog: {
+              current = currPure.i0;
               stack.push(
                 new MatchFrame(
                   (cause: Cause<any>) => {
-                    log = currZ.i1(log);
-                    return Z.failCauseNow(cause);
+                    log = currPure.i1(log);
+                    return Pure.failCauseNow(cause);
                   },
                   (a) => {
-                    log = currZ.i1(log);
-                    return Z.succeedNow(a);
+                    log = currPure.i1(log);
+                    return Pure.succeedNow(a);
                   },
                 ),
               );
@@ -187,8 +187,8 @@ export function unsafeRunAll<S1>(s: S1) {
           }
         }
       } catch (e) {
-        if (isZError(e)) {
-          current = Z.failCauseNow(e.cause);
+        if (isPureError(e)) {
+          current = Pure.failCauseNow(e.cause);
         } else {
           failed = true;
           result = Cause.halt(e);
@@ -206,13 +206,12 @@ export function unsafeRunAll<S1>(s: S1) {
  * Runs this computation with the specified initial state, returning both
  * the updated state and the result.
  *
- * @tsplus pipeable fncts.control.Z unsafeRun
+ * @tsplus pipeable fncts.control.Pure unsafeRun
  */
 export function unsafeRun<S1>(s: S1) {
-  return <W, S2, A>(ma: Z<W, S1, S2, never, never, A>): readonly [S2, A] => {
+  return <W, S2, A>(ma: Pure<W, S1, S2, never, never, A>): readonly [S2, A] => {
     return ma.unsafeRunAll(s)[1].match((cause) => {
-      // throw cause.squash
-      throw new Error();
+      throw cause.squashWith(Function.identity);
     }, identity);
   };
 }
@@ -220,19 +219,19 @@ export function unsafeRun<S1>(s: S1) {
 /**
  * Runs this computation, returning the result.
  *
- * @tsplus getter fncts.control.Z unsafeRunResult
+ * @tsplus getter fncts.control.Pure unsafeRunResult
  */
-export function unsafeRunResult<W, A>(ma: Z<W, unknown, unknown, never, never, A>): A {
+export function unsafeRunResult<W, A>(ma: Pure<W, unknown, unknown, never, never, A>): A {
   return ma.unsafeRun({})[1];
 }
 
 /**
  * Runs this computation with the given environment, returning the result.
  *
- * @tsplus pipeable fncts.control.Z unsafeRunReader
+ * @tsplus pipeable fncts.control.Pure unsafeRunReader
  */
 export function unsafeRunReader<R>(r: Environment<R>) {
-  return <W, A>(ma: Z<W, unknown, never, R, never, A>): A => {
+  return <W, A>(ma: Pure<W, unknown, never, R, never, A>): A => {
     return unsafeRunResult(ma.provideEnvironment(r));
   };
 }
@@ -241,10 +240,10 @@ export function unsafeRunReader<R>(r: Environment<R>) {
  * Runs this computation with the specified initial state, returning the
  * updated state and discarding the result.
  *
- * @tsplus pipeable fncts.control.Z unsafeRunState
+ * @tsplus pipeable fncts.control.Pure unsafeRunState
  */
 export function unsafeRunState<S1>(s: S1) {
-  return <W, S2, A>(ma: Z<W, S1, S2, never, never, A>): S2 => {
+  return <W, S2, A>(ma: Pure<W, S1, S2, never, never, A>): S2 => {
     return ma.unsafeRun(s)[0];
   };
 }
@@ -253,14 +252,13 @@ export function unsafeRunState<S1>(s: S1) {
  * Runs this computation with the specified initial state, returning the
  * result and discarding the updated state.
  *
- * @tsplus pipeable fncts.control.Z unsafeRunStateResult
+ * @tsplus pipeable fncts.control.Pure unsafeRunStateResult
  */
 export function unsafeRunStateResult<S1>(s: S1) {
-  return <W, S2, A>(ma: Z<W, S1, S2, never, never, A>): A => {
+  return <W, S2, A>(ma: Pure<W, S1, S2, never, never, A>): A => {
     return ma.unsafeRunAll(s)[1].match(
       (cause) => {
-        // throw cause.squash
-        throw new Error();
+        throw cause.squashWith(Function.identity);
       },
       ([_, a]) => a,
     );
@@ -270,22 +268,21 @@ export function unsafeRunStateResult<S1>(s: S1) {
 /**
  * Runs this computation returning either the result or error
  *
- * @tsplus getter fncts.control.Z unsafeRunExit
+ * @tsplus getter fncts.control.Pure unsafeRunExit
  */
-export function unsafeRunExit<E, A>(ma: Z<never, unknown, unknown, never, E, A>): Exit<E, A> {
+export function unsafeRunExit<E, A>(ma: Pure<never, unknown, unknown, never, E, A>): Exit<E, A> {
   return ma.unsafeRunAll({} as never)[1].map(([_, a]) => a);
 }
 
 /**
  *
- * @tsplus getter fncts.control.Z unsafeRunWriter
+ * @tsplus getter fncts.control.Pure unsafeRunWriter
  */
-export function unsafeRunWriter<W, A>(ma: Z<W, unknown, unknown, never, never, A>): readonly [Conc<W>, A] {
+export function unsafeRunWriter<W, A>(ma: Pure<W, unknown, unknown, never, never, A>): readonly [Conc<W>, A] {
   const [w, exit] = ma.unsafeRunAll({});
   return exit.match(
-    () => {
-      // throw cause.squash
-      throw new Error();
+    (cause) => {
+      throw cause.squashWith(Function.identity);
     },
     ([_, a]) => [w, a],
   );

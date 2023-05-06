@@ -82,7 +82,7 @@ import { LazyValue } from "@fncts/base/control/LazyValue";
 /**
  * @tsplus global
  */
-import { Z } from "@fncts/base/control/Z/definition";
+import { Pure } from "@fncts/base/control/Pure/definition";
 /**
  * @tsplus global
  */
