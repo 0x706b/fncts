@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.30
+
+### Patch Changes
+
+- e285588: feat: add IO.all and IO.allConcurrent
+- 3b33357: feat(schema): add HashSet schema
+- 46e73ac: perf: monomorphic effect primitives
+
 ## 0.0.29
 
 ### Patch Changes

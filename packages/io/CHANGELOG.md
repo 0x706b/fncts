@@ -1,5 +1,17 @@
 # @fncts/io
 
+## 0.0.35
+
+### Patch Changes
+
+- e285588: feat: add IO.all and IO.allConcurrent
+- e9aab4d: refactor: optimize conc methods
+- 46e73ac: perf: monomorphic effect primitives
+- Updated dependencies [e285588]
+- Updated dependencies [3b33357]
+- Updated dependencies [46e73ac]
+  - @fncts/base@0.0.30
+
 ## 0.0.34
 
 ### Patch Changes
