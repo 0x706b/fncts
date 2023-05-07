@@ -15,7 +15,7 @@ export class Push<R, E, A> {
     readonly _E: (_: never) => E;
     readonly _A: (_: never) => A;
   };
-  constructor(readonly run: <R1>(emitter: Emitter<R1, E, A>) => IO<R | R1 | Scope, never, unknown>) {}
+  constructor(readonly run: <R1>(emitter: Sink<R1, E, A>) => IO<R | R1, never, unknown>) {}
 }
 
 export declare namespace Push {
@@ -25,33 +25,29 @@ export declare namespace Push {
 }
 
 /**
- * @tsplus type fncts.io.Push.Emitter
- * @tsplus companion fncts.io.Push.EmitterOps
+ * @tsplus type fncts.io.Push.Sink
+ * @tsplus companion fncts.io.Push.SinkOps
  */
-export class Emitter<R, E, A> {
+export class Sink<R, E, A> {
   constructor(
-    readonly emit: (value: A) => IO<R, never, unknown>,
-    readonly failCause: (cause: Cause<E>) => IO<R, never, void>,
-    readonly end: IO<R, never, void>,
+    readonly event: (value: A) => IO<R, never, void>,
+    readonly error: (cause: Cause<E>) => IO<R, never, void>,
   ) {}
 }
 
 /**
  * @tsplus static fncts.io.PushOps __call
  */
-export function makePush<R, E, A>(
-  run: <R1>(emitter: Emitter<R1, E, A>) => IO<R | R1 | Scope, never, unknown>,
-): Push<R, E, A> {
+export function makePush<R, E, A>(run: <R1>(sink: Sink<R1, E, A>) => IO<R | R1, never, unknown>): Push<R, E, A> {
   return new Push(run);
 }
 
 /**
- * @tsplus static fncts.io.Push.EmitterOps __call
+ * @tsplus static fncts.io.Push.SinkOps __call
  */
-export function makeEmitter<R, E, A>(
-  emit: (value: A) => IO<R, never, unknown>,
-  failCause: (cause: Cause<E>) => IO<R, never, unknown>,
-  end: IO<R, never, unknown>,
-): Emitter<R, E, A> {
-  return new Emitter(emit, failCause, end);
+export function makeSink<R, E, A>(
+  value: (value: A) => IO<R, never, unknown>,
+  error: (cause: Cause<E>) => IO<R, never, unknown>,
+): Sink<R, E, A> {
+  return new Sink(value, error);
 }

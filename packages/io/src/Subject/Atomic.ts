@@ -1,4 +1,4 @@
-import type { Emitter } from "@fncts/io/Push/definition";
+import type { Sink } from "@fncts/io/Push/definition";
 import type { Subject } from "@fncts/io/Subject/definition";
 
 import { Multicast, Push } from "@fncts/io/Push";
@@ -16,17 +16,15 @@ export class AtomicSubject<E, A> implements Subject<never, E, A> {
 
   readonly stream = new Multicast<never, E, A>(Push.never);
 
-  run<R>(emitter: Emitter<R, E, A>): IO<R | Scope, never, unknown> {
+  run<R>(emitter: Sink<R, E, A>): IO<R, never, unknown> {
     return this.stream.run(emitter);
   }
 
-  emit(value: A): IO<never, never, void> {
-    return this.stream.emit(value);
+  event(value: A): IO<never, never, void> {
+    return this.stream.event(value);
   }
 
-  failCause(cause: Cause<E>): IO<never, never, void> {
-    return this.stream.failCause(cause);
+  error(cause: Cause<E>): IO<never, never, void> {
+    return this.stream.error(cause);
   }
-
-  end = this.stream.end;
 }

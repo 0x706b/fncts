@@ -4,7 +4,6 @@ import type { RuntimeFlagsPatch } from "../RuntimeFlags.js";
 import type { RuntimeFlags } from "../RuntimeFlags.js";
 import type { Left, Right } from "@fncts/base/data/Either";
 import type { Failure, Success } from "@fncts/base/data/Exit";
-import type { Trace } from "@fncts/base/data/Trace";
 
 export const IOVariance = Symbol.for("fncts.io.IO.Variance");
 export type IOVariance = typeof IOVariance;

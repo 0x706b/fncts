@@ -1,4 +1,4 @@
-import type { Emitter, Push } from "../Push.js";
+import type { Push,Sink } from "../Push.js";
 
 export const SubjectTypeId = Symbol.for("fncts.io.Push.Subject");
 export type SubjectTypeId = typeof SubjectTypeId;
@@ -6,7 +6,7 @@ export type SubjectTypeId = typeof SubjectTypeId;
 /**
  * @tsplus type fncts.io.Push.Subject
  */
-export interface Subject<R, E, A> extends Push<R, E, A>, Emitter<R, E, A> {
+export interface Subject<R, E, A> extends Push<R, E, A>, Sink<R, E, A> {
   readonly [SubjectTypeId]: SubjectTypeId;
 }
 

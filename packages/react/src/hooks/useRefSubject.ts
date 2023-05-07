@@ -11,11 +11,10 @@ export function useRefSubject<R, E, A, B>(
   const runStream         = React.useMemo(
     () =>
       stream.run({
-        emit: (value) => IO(setValue(value)),
-        failCause: (cause) => {
+        event: (value) => IO(setValue(value)),
+        error: (cause) => {
           throw new Error(cause.prettyPrint);
         },
-        end: IO.unit,
       }),
     [stream],
   );

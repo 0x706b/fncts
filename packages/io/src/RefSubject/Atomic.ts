@@ -1,4 +1,4 @@
-import type { Emitter } from "@fncts/io/Push";
+import type { Sink } from "@fncts/io/Push";
 
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { Hold, Push } from "@fncts/io/Push";
@@ -7,7 +7,7 @@ import { RefSubjectInternal } from "@fncts/io/RefSubject/definition";
 
 export class AtomicRefSubject<E, A> extends RefSubjectInternal<never, E, A, A> {
   readonly stream   = new Hold<never, E, A>(Push.never);
-  readonly maybeRef = new Atomic(this.stream.value);
+  readonly maybeRef = new Atomic(this.stream.current);
   readonly ref      = new AtomicEmitRef(
     new AtomicDimapRef(
       this.maybeRef,
@@ -19,7 +19,7 @@ export class AtomicRefSubject<E, A> extends RefSubjectInternal<never, E, A, A> {
 
   constructor(readonly initial: A) {
     super();
-    this.stream.value.set(Just(initial));
+    this.stream.current.set(Just(initial));
   }
 
   get get() {
@@ -38,30 +38,24 @@ export class AtomicRefSubject<E, A> extends RefSubjectInternal<never, E, A, A> {
     return this.ref.modify(f);
   }
 
-  run<R>(emitter: Emitter<R, E, A>): IO<Scope | R, never, unknown> {
+  run<R>(emitter: Sink<R, E, A>): IO<R, never, unknown> {
     return this.stream.run(emitter);
   }
 
-  emit(value: A): IO<never, never, void> {
-    return this.stream.emit(value);
+  event(value: A): IO<never, never, void> {
+    return this.stream.event(value);
   }
 
-  failCause(cause: Cause<E>): IO<never, never, void> {
-    return this.stream.failCause(cause);
+  error(cause: Cause<E>): IO<never, never, void> {
+    return this.stream.error(cause);
   }
 
-  end: IO<never, never, void> = this.stream.end;
-
-  unsafeEmit(value: A): void {
-    this.stream.emit(value).unsafeRunFiber();
+  unsafeEvent(value: A): void {
+    this.stream.event(value).unsafeRunFiber();
   }
 
-  unsafeFailCause(cause: Cause<E>): void {
-    this.stream.failCause(cause).unsafeRunFiber();
-  }
-
-  unsafeEnd(): void {
-    this.stream.end.unsafeRunFiber();
+  unsafeError(cause: Cause<E>): void {
+    this.stream.error(cause).unsafeRunFiber();
   }
 
   get unsafeGet(): A {
@@ -97,7 +91,7 @@ class AtomicDimapRef<A, B> extends Atomic<B> {
 }
 
 class AtomicEmitRef<E, A> extends Atomic<A> {
-  constructor(readonly ref: Atomic<A>, readonly emitter: Emitter<never, E, A>) {
+  constructor(readonly ref: Atomic<A>, readonly sink: Sink<never, E, A>) {
     super(ref.value);
   }
 
@@ -111,14 +105,14 @@ class AtomicEmitRef<E, A> extends Atomic<A> {
 
   unsafeSet(value: A) {
     this.ref.unsafeSet(value);
-    this.emitter.emit(value).unsafeRunFiber();
+    this.sink.event(value).unsafeRunFiber();
   }
 
   set(value: A, __tsplusTrace?: string) {
-    return this.ref.set(value) < this.emitter.emit(value);
+    return this.ref.set(value) < this.sink.event(value);
   }
 
   modify<B>(f: (a: A) => readonly [B, A], __tsplusTrace?: string) {
-    return this.ref.modify(f) < this.ref.get.flatMap((value) => this.emitter.emit(value));
+    return this.ref.modify(f) < this.ref.get.flatMap((value) => this.sink.event(value));
   }
 }

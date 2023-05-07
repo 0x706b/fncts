@@ -1,5 +1,5 @@
 import { tuple } from "@fncts/base/data/function";
-import { Emitter } from "@fncts/io/Push";
+import { Sink } from "@fncts/io/Push";
 import { AtomicRefSubject } from "@fncts/io/RefSubject/Atomic";
 
 import { RefSubject } from "./definition.js";
@@ -64,25 +64,22 @@ class Dimap<R, E, A, B, C, D> extends RefSubjectInternal<R, E, C, D> {
     });
   }
 
-  run<R1>(emitter: Emitter<R1, E, D>): IO<Scope | R | R1, never, void> {
+  run<R1>(emitter: Sink<R1, E, D>): IO<R | R1, never, void> {
     return this.ref.run(
-      Emitter(
-        (value) => emitter.emit(this.g(value)),
-        (cause) => emitter.failCause(cause),
-        emitter.end,
+      Sink(
+        (value) => emitter.event(this.g(value)),
+        (cause) => emitter.error(cause),
       ),
     );
   }
 
-  emit(value: C): IO<R, never, void> {
-    return this.ref.emit(this.f(value));
+  event(value: C): IO<R, never, void> {
+    return this.ref.event(this.f(value));
   }
 
-  failCause(cause: Cause<E>): IO<R, never, void> {
-    return this.ref.failCause(cause);
+  error(cause: Cause<E>): IO<R, never, void> {
+    return this.ref.error(cause);
   }
-
-  end: IO<R, never, void> = this.ref.end;
 
   get unsafeGet(): D {
     return this.g(this.ref.unsafeGet);

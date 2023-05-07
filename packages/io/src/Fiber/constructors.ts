@@ -41,3 +41,8 @@ export function interrupted(id: FiberId, __tsplusTrace?: string): Fiber<never, n
 export function succeed<A>(a: A, __tsplusTrace?: string): Fiber<never, A> {
   return done(Exit.succeed(a));
 }
+
+/**
+ * @tsplus static fncts.io.FiberOps unit
+ */
+export const unit: Fiber<never, void> = succeed(undefined);

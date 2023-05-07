@@ -1,4 +1,4 @@
-import type { Emitter } from "../Push.js";
+import type { Sink } from "../Push.js";
 import type { Push } from "../Push.js";
 import type { ModifiableRef, ReadableRef, WritableRef } from "../Ref.js";
 import type { SynchronizedRefSubject } from "@fncts/io/RefSubject/Synchronized/definition";
@@ -10,7 +10,7 @@ import { RefVariance } from "../Ref.js";
 /**
  * @tsplus type fncts.io.Push.RefSubject
  */
-export interface RefSubject<out R, in out E, in A, out B> extends Push<R, E, B>, Emitter<R, E, A> {}
+export interface RefSubject<out R, in out E, in A, out B> extends Push<R, E, B>, Sink<R, E, A> {}
 
 /**
  * @tsplus type fncts.io.Push.RefSubjectOps
@@ -29,7 +29,7 @@ export abstract class RefSubjectInternal<R, E, A, B>
     WritableRef<R, never, A>,
     ModifiableRef<R, R, never, never, A, B>,
     Push<R, E, B>,
-    Emitter<R, E, A>
+    Sink<R, E, A>
 {
   readonly [PushTypeId]: PushTypeId = PushTypeId;
   declare [RefVariance]: {
@@ -52,13 +52,11 @@ export abstract class RefSubjectInternal<R, E, A, B>
 
   abstract modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string): IO<R, never, C>;
 
-  abstract run<R1>(emitter: Emitter<R1, E, B>): IO<Scope | R | R1, never, void>;
+  abstract run<R1>(emitter: Sink<R1, E, B>): IO<R | R1, never, void>;
 
-  abstract failCause(cause: Cause<E>): IO<R, never, void>;
+  abstract error(cause: Cause<E>): IO<R, never, void>;
 
-  abstract emit(value: A): IO<R, never, void>;
-
-  abstract end: IO<R, never, void>;
+  abstract event(value: A): IO<R, never, void>;
 
   abstract get unsafeGet(): B;
 }

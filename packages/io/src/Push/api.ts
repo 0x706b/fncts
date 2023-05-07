@@ -1,9 +1,11 @@
 import type { _A, _E, _R } from "@fncts/base/types";
+import type { RuntimeFiber } from "@fncts/io/Fiber";
 
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
+import { IO } from "@fncts/io/IO";
+import { withSwitch, withUnboundedConcurrency } from "@fncts/io/Push/internal";
 
-import { Emitter, Push, PushTypeId, PushVariance } from "./definition.js";
-import { earlyExit, onEarlyExit } from "./internal.js";
+import { Push, PushTypeId, PushVariance, Sink } from "./definition.js";
 
 /**
  * @tsplus pipeable fncts.io.Push as
@@ -14,45 +16,44 @@ export function as<B>(b: Lazy<B>) {
   };
 }
 
-interface UnsafeEmitter<E, A> {
-  emit: (value: A) => void;
-  failCause: (cause: Cause<E>) => void;
-  end: () => void;
+interface UnsafeSink<E, A> {
+  event: (value: A) => void;
+  error: (cause: Cause<E>) => void;
 }
 
 /**
  * @tsplus static fncts.io.PushOps asyncInterrupt
  */
 export function asyncInterrupt<R, E, A>(
-  make: (emitter: UnsafeEmitter<E, A>) => Either<IO<R, never, void>, Push<R, E, A>>,
+  make: (emitter: UnsafeSink<E, A>) => Either<IO<R, never, void>, Push<R, E, A>>,
 ): Push<R, E, A> {
-  return Push<R, E, A>(<R1>(emitter: Emitter<R | R1, E, A>) =>
-    Do((Δ) => {
-      const future  = Δ(Future.make<never, void>());
-      const scope   = Δ(IO.scope);
-      const runtime = Δ(IO.runtime<R | R1 | R1>());
-      const unsafeEmitter: UnsafeEmitter<E, A> = {
-        emit: (value) => runtime.unsafeRunOrFork(emitter.emit(value).forkIn(scope)),
-        failCause: (cause) => runtime.unsafeRunOrFork(emitter.failCause(cause).fulfill(future).forkIn(scope)),
-        end: () => runtime.unsafeRunOrFork(emitter.end > future.succeed(undefined)),
-      };
-      const eitherPush = Δ(IO(make(unsafeEmitter)));
-      Δ(
-        eitherPush.match(
-          (canceller) => future.await.onInterrupt(canceller),
-          (push) => push.run(emitter),
-        ),
-      );
-    }),
+  return Push<R, E, A>(
+    <R1>(sink: Sink<R | R1, E, A>) =>
+      Do((Δ) => {
+        const future  = Δ(Future.make<never, void>());
+        const scope   = Δ(IO.scope);
+        const runtime = Δ(IO.runtime<R | R1 | R1>());
+        const unsafeSink: UnsafeSink<E, A> = {
+          event: (value) => runtime.unsafeRunOrFork(sink.event(value).forkIn(scope)),
+          error: (cause) => runtime.unsafeRunOrFork(sink.error(cause).fulfill(future).forkIn(scope)),
+        };
+        const eitherPush = Δ(IO(make(unsafeSink)));
+        Δ(
+          eitherPush.match(
+            (canceller) => future.await.onInterrupt(canceller),
+            (push) => push.run(sink),
+          ),
+        );
+      }).scoped,
   );
 }
 
 /**
  * @tsplus static fncts.io.PushOps async
  */
-export function async<E, A>(make: (emitter: UnsafeEmitter<E, A>) => void): Push<never, E, A> {
-  return Push.asyncInterrupt((emitter) => {
-    make(emitter);
+export function async<E, A>(make: (sink: UnsafeSink<E, A>) => void): Push<never, E, A> {
+  return Push.asyncInterrupt((sink) => {
+    make(sink);
     return Either.left(IO.unit);
   });
 }
@@ -69,24 +70,19 @@ export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R
     Do((Δ) => {
       const size          = streams.size;
       const ref: Array<A> = Δ(IO(Array(size)));
-      const latch         = Δ(CountdownLatch(size));
       const emitIfReady   = IO(ref.filter((a) => a != null)).flatMap((as) =>
-        as.length === size ? emitter.emit(as) : IO.unit,
+        as.length === size ? emitter.event(as) : IO.unit,
       );
       Δ(
-        IO.foreachWithIndex(
-          streams,
-          (i, stream) =>
-            stream.run(
-              Emitter(
-                (value) => IO((ref[i] = value)) > emitIfReady,
-                (cause) => emitter.failCause(cause),
-                latch.countDown,
-              ),
-            ).forkScoped,
+        IO.foreachConcurrent(streams.zipWithIndex, ([i, stream]) =>
+          stream.run(
+            Sink(
+              (value) => IO((ref[i] = value)) > emitIfReady,
+              (cause) => emitter.error(cause),
+            ),
+          ),
         ),
       );
-      Δ(latch.await > emitter.end);
     }),
   );
 }
@@ -105,28 +101,7 @@ export function combineLatestWith<A, R1, E1, B, C>(that: Push<R1, E1, B>, f: (a:
  */
 export function debounce(duration: Lazy<Duration>) {
   return <R, E, A>(self: Push<R, E, A>): Push<R, E, A> => {
-    return Push((emitter) =>
-      Do((Δ) => {
-        const ref   = Δ(Ref.Synchronized.make<Fiber<never, unknown> | null>(null));
-        const latch = Δ(CountdownLatch(1));
-        Δ(
-          self.run(
-            Emitter(
-              (value) =>
-                ref.updateIO((previous) =>
-                  Do((Δ) => {
-                    Δ(IO.defer(previous ? previous.interrupt : latch.increment));
-                    return Δ(IO.acquireRelease(emitter.emit(value).delay(duration), () => latch.countDown).forkScoped);
-                  }),
-                ),
-              (cause) => emitter.failCause(cause),
-              latch.countDown,
-            ),
-          ).forkScoped,
-        );
-        Δ(latch.await > emitter.end);
-      }),
-    );
+    return self.switchMapIO((a) => IO.succeedNow(a).delay(duration));
   };
 }
 
@@ -142,7 +117,7 @@ export function defer<R, E, A>(self: Lazy<Push<R, E, A>>): Push<R, E, A> {
  */
 export function flatMapConcurrentBounded<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>, concurrency: number) {
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push(<R2>(emitter: Emitter<R | R1 | R2, E | E1, B>) =>
+    return Push(<R2>(emitter: Sink<R | R1 | R2, E | E1, B>) =>
       Do((Δ) => {
         const semaphore = Δ(Semaphore(concurrency));
         Δ(self.flatMapConcurrentUnbounded((a) => f(a).transform((io) => semaphore.withPermit(io))).run(emitter));
@@ -156,22 +131,7 @@ export function flatMapConcurrentBounded<A, R1, E1, B>(f: (a: A) => Push<R1, E1,
  */
 export function flatMapConcurrentUnbounded<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push((emitter) =>
-      Do((Δ) => {
-        const latch = Δ(CountdownLatch(1));
-        Δ(
-          self.run(
-            Emitter(
-              (value) =>
-                latch.increment > f(value).run(Emitter(emitter.emit, emitter.failCause, latch.countDown)).forkScoped,
-              emitter.failCause,
-              latch.countDown,
-            ),
-          ).forkScoped,
-        );
-        Δ(latch.await > emitter.end);
-      }),
-    );
+    return Push((sink) => withUnboundedConcurrency((fork) => self.run(Sink((a) => fork(f(a).run(sink)), sink.error))));
   };
 }
 
@@ -211,12 +171,11 @@ export function flatten<R, E, R1, E1, A>(self: Push<R, E, Push<R1, E1, A>>): Pus
  * @tsplus static fncts.io.PushOps fromIO
  */
 export function fromIO<R, E, A>(io: Lazy<IO<R, E, A>>): Push<R, E, A> {
-  return Push(
-    (emitter) =>
-      IO.defer(io).matchCauseIO(
-        (cause) => emitter.failCause(cause),
-        (value) => emitter.emit(value),
-      ) > emitter.end,
+  return Push((emitter) =>
+    IO.defer(io).matchCauseIO(
+      (cause) => emitter.error(cause),
+      (value) => emitter.event(value),
+    ),
   );
 }
 
@@ -224,17 +183,20 @@ export function fromIO<R, E, A>(io: Lazy<IO<R, E, A>>): Push<R, E, A> {
  * @tsplus static fncts.io.PushOps fromAsyncIterable
  */
 export function fromAsyncIterable<A>(iterable: AsyncIterable<A>): Push<never, never, A> {
-  return Push((emitter) => IO.defer(fromAsyncIterableLoop(iterable[Symbol.asyncIterator](), emitter)));
+  return Push(<R>(sink: Sink<R, never, A>) =>
+    IO.asyncIO<R, never, void>((cb) => IO.defer(fromAsyncIterableLoop(iterable[Symbol.asyncIterator](), sink, cb))),
+  );
 }
 
 function fromAsyncIterableLoop<A, R>(
   iterator: AsyncIterator<A>,
-  emitter: Emitter<R, never, A>,
+  sink: Sink<R, never, A>,
+  cb: (io: UIO<void>) => void,
   __tsplusTrace?: string,
 ): IO<R, never, void> {
   return IO.fromPromiseHalt(iterator.next).matchCauseIO(
-    (cause) => emitter.failCause(cause) > emitter.end,
-    (result) => (result.done ? emitter.end : emitter.emit(result.value) > fromAsyncIterableLoop(iterator, emitter)),
+    (cause) => sink.error(cause),
+    (result) => (result.done ? IO(cb(IO.unit)) : sink.event(result.value) > fromAsyncIterableLoop(iterator, sink, cb)),
   );
 }
 
@@ -242,13 +204,19 @@ function fromAsyncIterableLoop<A, R>(
  * @tsplus static fncts.io.PushOps fromIterable
  */
 export function fromIterable<A>(iterable: Iterable<A>): Push<never, never, A> {
-  return Push((emitter) => IO.defer(fromIterableLoop(iterable[Symbol.iterator](), emitter)));
+  return Push(<R>(sink: Sink<R, never, A>) =>
+    IO.asyncIO<R, never, void>((cb) => IO.defer(fromIterableLoop(iterable[Symbol.iterator](), sink, cb))),
+  );
 }
 
-function fromIterableLoop<A, R>(iterator: Iterator<A>, emitter: Emitter<R, never, A>): IO<R, never, void> {
+function fromIterableLoop<A, R>(
+  iterator: Iterator<A>,
+  sink: Sink<R, never, A>,
+  cb: (io: UIO<void>) => void,
+): IO<R, never, void> {
   return IO.defer(() => {
     const value = iterator.next();
-    return value.done ? emitter.end : emitter.emit(value.value) > fromIterableLoop(iterator, emitter);
+    return value.done ? IO(cb(IO.unit)) : sink.event(value.value) > fromIterableLoop(iterator, sink, cb);
   });
 }
 
@@ -260,12 +228,11 @@ export function multicast<R, E, A>(self: Push<R, E, A>): Push<R, E, A> {
 }
 
 interface MulticastObserver<E, A> {
-  readonly emitter: Emitter<any, E, A>;
+  readonly sink: Sink<any, E, A>;
   readonly environment: Environment<any>;
-  readonly future: Future<never, void>;
 }
 
-export class Multicast<R, E, A> implements Push<R, E, A>, Emitter<never, E, A> {
+export class Multicast<R, E, A> implements Push<R, E, A>, Sink<never, E, A> {
   readonly [PushTypeId]: PushTypeId = PushTypeId;
   declare [PushVariance]: {
     readonly _R: (_: never) => R;
@@ -276,67 +243,59 @@ export class Multicast<R, E, A> implements Push<R, E, A>, Emitter<never, E, A> {
   protected fiber: Fiber<never, unknown> | undefined;
   constructor(readonly push: Push<R, E, A>) {}
 
-  run<R1>(emitter: Emitter<R1, E, A>): IO<R | R1 | Scope, never, unknown> {
+  run<R1>(sink: Sink<R1, E, A>): IO<R | R1, never, void> {
     return Do((Δ) => {
       const environment = Δ(IO.environment<R1>());
-      const future      = Δ(Future.make<never, void>());
       Δ(
         IO.defer(() => {
-          this.observers.push({ emitter, environment, future });
-          if (this.fiber) {
-            return IO.unit;
-          } else {
-            return this.push
-              .run(this)
-              .schedule(Schedule.asap)
-              .forkScoped.tap((fiber) => IO((this.fiber = fiber)));
+          let io: URIO<R, void> = IO.unit;
+          if (this.observers.push({ sink: sink, environment }) === 1) {
+            io = this.push.run(this).forkDaemon.flatMap((fiber) => IO((this.fiber = fiber)));
           }
+          return io > this.fiber!.await.ensuring(this.removeSink(sink));
         }),
       );
-      return Δ(future.await);
     });
   }
 
-  emit(value: A) {
-    return IO.defer(IO.foreachDiscard(this.observers.slice(), (observer) => this.runEvent(value, observer)));
+  event(value: A) {
+    return IO.defer(IO.foreachDiscard(this.observers.slice(), (observer) => this.runValue(value, observer)));
   }
 
-  failCause(cause: Cause<E>) {
-    return (
-      IO.defer(IO.foreachDiscard(this.observers.slice(), (observer) => this.runFailCause(cause, observer))) >
-      IO.defer(this.cleanup())
-    );
+  error(cause: Cause<E>) {
+    return IO.defer(IO.foreachDiscard(this.observers.slice(), (observer) => this.runError(cause, observer)));
   }
 
-  get end() {
-    return (
-      IO.defer(IO.foreachDiscard(this.observers.slice(), (observer) => this.runEnd(observer))) >
-      IO.defer(this.cleanup())
-    );
+  protected runValue(value: A, observer: MulticastObserver<E, A>) {
+    return observer.sink
+      .event(value)
+      .provideEnvironment(observer.environment)
+      .catchAllCause(() => this.removeSink(observer.sink));
   }
 
-  protected runEvent(value: A, observer: MulticastObserver<E, A>) {
-    return observer.emitter
-      .emit(value)
-      .tapErrorCause((cause) => this.runFailCause(cause, observer))
-      .provideEnvironment(observer.environment);
+  protected runError(cause: Cause<E>, observer: MulticastObserver<E, A>) {
+    return observer.sink
+      .error(cause)
+      .provideEnvironment(observer.environment)
+      .catchAllCause(() => this.removeSink(observer.sink));
   }
 
-  protected runFailCause(cause: Cause<E>, observer: MulticastObserver<E, A>) {
-    this.observers.splice(this.observers.indexOf(observer), 1);
-    return observer.emitter.failCause(cause).fulfill(observer.future).provideEnvironment(observer.environment);
-  }
-
-  protected runEnd(observer: MulticastObserver<E, A>) {
-    this.observers.splice(this.observers.indexOf(observer), 1);
-    return observer.emitter.end.fulfill(observer.future).provideEnvironment(observer.environment);
-  }
-
-  protected cleanup() {
-    if (this.fiber) {
-      return this.fiber.interrupt > IO((this.fiber = undefined));
-    }
-    return IO.unit;
+  protected removeSink(sink: Sink<any, E, A>) {
+    return IO.defer(() => {
+      if (this.observers.length === 0) {
+        return IO.unit;
+      }
+      const index = this.observers.findIndex((observer) => observer.sink === sink);
+      if (index > -1) {
+        this.observers.splice(index, 1);
+        if (this.observers.length === 0) {
+          const interrupt = this.fiber!.interrupt;
+          this.fiber      = undefined;
+          return interrupt;
+        }
+      }
+      return IO.unit;
+    });
   }
 }
 
@@ -348,87 +307,26 @@ export function hold<R, E, A>(self: Push<R, E, A>): Push<R, E, A> {
 }
 
 export class Hold<R, E, A> extends Multicast<R, E, A> {
-  readonly value = new AtomicReference(Nothing<A>());
-  protected pendingEmitters: Array<readonly [Emitter<unknown, E, A>, Array<A>]> = [];
-  protected scheduledFiber: Fiber<any, any> | null = null;
+  readonly current = new AtomicReference(Nothing<A>());
 
-  constructor(readonly push: Push<R, E, A>) {
+  constructor(public push: Push<R, E, A>) {
     super(push);
   }
 
-  run<R1>(emitter: Emitter<R1, E, A>): IO<R | R1 | Scope, never, void> {
-    if (this.shouldScheduleFlush()) {
-      return this.scheduleFlush(emitter).flatMap(() => super.run(emitter));
+  run<R1>(sink: Sink<R1, E, A>): IO<R | R1, never, void> {
+    const current = this.current.get;
+
+    if (current.isJust()) {
+      return sink.event(current.value) > super.run(sink);
     }
 
-    const value = this.value.get;
-    if (value.isJust() && this.observers.length === 0) {
-      return emitter.emit(value.value).flatMap(() => super.run(emitter));
-    }
-
-    return super.run(emitter);
+    return super.run(sink);
   }
 
-  emit(value: A) {
+  event(value: A): IO<never, never, void> {
     return IO.defer(() => {
-      this.addValue(value);
-      return this.flushPending().flatMap(() => super.emit(value));
-    });
-  }
-
-  failCause(cause: Cause<E>) {
-    return IO.defer(this.flushPending().flatMap(() => super.failCause(cause)));
-  }
-
-  get end() {
-    return IO.defer(this.flushPending().flatMap(() => super.end));
-  }
-
-  protected shouldScheduleFlush() {
-    return this.value.get.isJust() && this.observers.length > 0;
-  }
-
-  protected scheduleFlush<R>(observer: Emitter<R, E, A>) {
-    this.pendingEmitters.push([
-      observer,
-      this.value.get.match(
-        () => [],
-        (a) => [a],
-      ),
-    ]);
-
-    const interrupt     = this.scheduledFiber ? this.scheduledFiber.interruptAsFork(FiberId.none) : IO.unit;
-    this.scheduledFiber = null;
-
-    return (IO.yieldNow > interrupt.flatMap(() => this.flushPending())).forkScoped.tap((fiber) =>
-      IO((this.scheduledFiber = fiber)),
-    );
-  }
-
-  protected flushPending() {
-    if (this.pendingEmitters.length === 0) {
-      return IO.unit;
-    }
-
-    const emitters       = this.pendingEmitters;
-    this.pendingEmitters = [];
-
-    return IO.foreachDiscard(emitters, (pendingEmitter) => {
-      return IO.defer(() => {
-        const [emitter, values] = pendingEmitter;
-        const observer          = this.observers.find((observer) => observer.emitter === emitter);
-        if (!observer) {
-          return IO.unit;
-        }
-        return IO.foreachDiscard(values, (value) => this.runEvent(value, observer));
-      });
-    });
-  }
-
-  protected addValue(value: A) {
-    this.value.set(Just(value));
-    this.pendingEmitters.forEach(([, values]) => {
-      values.push(value);
+      this.current.set(Just(value));
+      return super.event(value);
     });
   }
 }
@@ -449,10 +347,9 @@ export function mapError<E, E1>(f: (e: E) => E1) {
   return <R, A>(self: Push<R, E, A>): Push<R, E1, A> => {
     return Push((emitter) =>
       self.run(
-        Emitter(
-          (value) => emitter.emit(value),
-          (cause) => emitter.failCause(cause.map(f)),
-          emitter.end,
+        Sink(
+          (value) => emitter.event(value),
+          (cause) => emitter.error(cause.map(f)),
         ),
       ),
     );
@@ -466,10 +363,9 @@ export function mapErrorCause<E, E1>(f: (cause: Cause<E>) => Cause<E1>) {
   return <R, A>(self: Push<R, E, A>): Push<R, E1, A> => {
     return Push((emitter) =>
       self.run(
-        Emitter(
-          (value) => emitter.emit(value),
-          (cause) => emitter.failCause(f(cause)),
-          emitter.end,
+        Sink(
+          (value) => emitter.event(value),
+          (cause) => emitter.error(f(cause)),
         ),
       ),
     );
@@ -483,14 +379,13 @@ export function mapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> =>
     Push((emitter) =>
       self.run(
-        Emitter(
+        Sink(
           (value) =>
             f(value).matchCauseIO(
-              (cause) => emitter.failCause(cause),
-              (b) => emitter.emit(b),
+              (cause) => emitter.error(cause),
+              (b) => emitter.event(b),
             ),
-          (cause) => emitter.failCause(cause),
-          emitter.end,
+          (cause) => emitter.error(cause),
         ),
       ),
     );
@@ -513,23 +408,10 @@ export function mergeAll<A extends ReadonlyArray<Push<any, any, any>>>(
 ): Push<Push.EnvironmentOf<A[number]>, Push.ErrorOf<A[number]>, Push.ValueOf<A[number]>>;
 export function mergeAll<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, A>;
 export function mergeAll<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, A> {
-  return Push((emitter) =>
-    Do((Δ) => {
-      const latch = Δ(CountdownLatch(streams.size));
-      Δ(
-        streams.traverseIOConcurrent(
-          (stream) =>
-            stream.run(
-              Emitter(
-                (value) => emitter.emit(value),
-                (cause) => emitter.failCause(cause),
-                latch.countDown,
-              ),
-            ).forkScoped,
-        ),
-      );
-      Δ(latch.await > emitter.end);
-    }),
+  return Push((sink) =>
+    IO.foreachConcurrentDiscard(streams, (stream) =>
+      stream.run(Sink(sink.event, (cause) => (cause.isInterruptedOnly ? IO.unit : sink.error(cause)))),
+    ),
   );
 }
 
@@ -541,13 +423,14 @@ export function observe<A, R1, E1>(f: (a: A) => IO<R1, E1, void>, __tsplusTrace?
     return Do((Δ) => {
       const future = Δ(Future.make<E | E1, void>());
       const fiber  = Δ(
-        self.run(
-          Emitter(
-            (a) => f(a).catchAllCause((cause) => future.failCause(cause)),
-            (cause) => future.failCause(cause),
-            future.succeed(undefined),
-          ),
-        ).forkScoped,
+        self
+          .run(
+            Sink(
+              (a) => f(a).catchAllCause((cause) => future.failCause(cause)),
+              (cause) => future.failCause(cause),
+            ),
+          )
+          .flatMap(() => future.succeed(undefined)).forkScoped,
       );
 
       Δ(future.await);
@@ -573,18 +456,7 @@ export function repeatIOMaybe<R, E, A>(io: IO<R, Maybe<E>, A>, __tsplusTrace?: s
 export function runCollect<R, E, A>(self: Push<R, E, A>): IO<R | Scope, E, Conc<A>> {
   return IO.defer(() => {
     const out: Array<A> = [];
-    return Future.make<E, void>().flatMap(
-      (future) =>
-        self.run(
-          Emitter(
-            (value) => IO(out.push(value)),
-            (cause) => future.failCause(cause),
-            future.succeed(undefined),
-          ),
-        ) >
-        future.await >
-        IO(Conc.fromArray(out)),
-    );
+    return self.observe((a) => IO(out.push(a))).as(Conc.fromArray(out));
   });
 }
 
@@ -592,28 +464,18 @@ export function runCollect<R, E, A>(self: Push<R, E, A>): IO<R | Scope, E, Conc<
  * @tsplus getter fncts.io.Push runDrain
  */
 export function runDrain<R, E, A>(self: Push<R, E, A>): IO<R | Scope, E, void> {
-  return Future.make<E, void>().flatMap(
-    (future) =>
-      self.run(
-        Emitter(
-          () => IO.unit,
-          (cause) => future.failCause(cause),
-          future.succeed(undefined),
-        ),
-      ) > future.await,
-  );
+  return self.observe(() => IO.unit);
 }
 
 /**
  * @tsplus static fncts.io.PushOps scoped
  */
 export function scoped<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): Push<Exclude<R, Scope>, E, A> {
-  return Push(
-    (emitter) =>
-      IO.defer(io).scoped.matchCauseIO(
-        (cause) => emitter.failCause(cause),
-        (value) => emitter.emit(value),
-      ) > emitter.end,
+  return Push((emitter) =>
+    IO.defer(io).scoped.matchCauseIO(
+      (cause) => emitter.error(cause),
+      (value) => emitter.event(value),
+    ),
   );
 }
 
@@ -625,34 +487,20 @@ export function succeed<A>(value: Lazy<A>): Push<never, never, A> {
 }
 
 /**
- * @tsplus pipeable fncts.io.PushOps switchMap
+ * @tsplus pipeable fncts.io.Push switchMap
  */
 export function switchMap<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push(<R2>(emitter: Emitter<R2, E | E1, B>) =>
-      Do((Δ) => {
-        const current      = Δ(Ref.Synchronized.make<Fiber<never, void> | null>(null));
-        const latch        = Δ(CountdownLatch(1));
-        const innerEmitter = Emitter<R2, E | E1, B>(
-          (value) => emitter.emit(value),
-          (cause) => current.set(null) > emitter.failCause(cause),
-          latch.countDown,
-        );
-        Δ(
-          self.run(
-            Emitter(
-              (value) =>
-                current.updateIO((fiber) =>
-                  (fiber ? fiber.interrupt : latch.increment).zipRight(f(value).run(innerEmitter).forkScoped),
-                ),
-              (cause) => emitter.failCause(cause),
-              latch.countDown,
-            ),
-          ),
-        );
-        Δ(latch.await > emitter.end);
-      }),
-    );
+    return Push((sink) => withSwitch((fork) => self.run(Sink((a) => fork(f(a).run(sink)), sink.error))));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push switchMapIO
+ */
+export function switchMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
+    return self.switchMap((a) => Push.fromIO(f(a)));
   };
 }
 
@@ -666,11 +514,11 @@ export function transform<R1 = never>(f: <R, E, A>(io: IO<R, E, A>) => IO<R | R1
 function unfoldLoop<S, A, R1>(
   s: S,
   f: (s: S) => Maybe<readonly [A, S]>,
-  emitter: Emitter<R1, never, A>,
+  emitter: Sink<R1, never, A>,
 ): IO<R1, never, void> {
   return f(s).match(
-    () => emitter.end,
-    ([a, s]) => emitter.emit(a) > unfoldLoop(s, f, emitter),
+    () => IO.unit,
+    ([a, s]) => emitter.event(a) > unfoldLoop(s, f, emitter),
   );
 }
 
@@ -684,16 +532,16 @@ export function unfold<S, A>(s: S, f: (s: S) => Maybe<readonly [A, S]>): Push<ne
 function unfoldIOLoop<S, R, E, A, R1>(
   s: S,
   f: (s: S) => IO<R, E, Maybe<readonly [A, S]>>,
-  emitter: Emitter<R1, E, A>,
+  emitter: Sink<R1, E, A>,
 ): IO<R | R1, never, void> {
   return f(s)
     .flatMap((result) =>
       result.match(
-        () => emitter.end,
-        ([a, s]) => emitter.emit(a) > unfoldIOLoop(s, f, emitter),
+        () => IO.unit,
+        ([a, s]) => emitter.event(a) > unfoldIOLoop(s, f, emitter),
       ),
     )
-    .catchAllCause((cause) => emitter.failCause(cause));
+    .catchAllCause((cause) => emitter.error(cause));
 }
 
 /**
@@ -708,18 +556,21 @@ export function unfoldIO<S, R, E, A>(s: S, f: (s: S) => IO<R, E, Maybe<readonly 
  */
 export function untilFuture<E1, B>(future: Future<E1, B>) {
   return <R, E, A>(self: Push<R, E, A>): Push<R, E | E1, A> => {
-    return Push((emitter) =>
-      Do((Δ) => {
-        const futureFiber = Δ(
-          future.await
-            .matchCauseIO(
-              (cause) => emitter.failCause(cause),
-              () => IO.unit,
-            )
-            .zipRight(earlyExit).forkScoped,
-        );
-        const streamFiber = Δ(self.run(emitter).forkScoped);
-        Δ(Fiber.joinAll([futureFiber, streamFiber])(onEarlyExit(emitter.end)));
+    return Push(<R1>(sink: Sink<R1, E | E1, A>) =>
+      IO.asyncIO<R | R1, never, void>((cb) => {
+        const exit = IO(cb(IO.unit));
+        return Do((Δ) => {
+          const streamFiber = Δ(self.run(sink).fork);
+          const futureFiber = Δ(
+            future.await
+              .matchCauseIO(
+                (cause) => sink.error(cause),
+                () => IO.unit,
+              )
+              .zipRight(exit).fork,
+          );
+          Δ(Fiber.joinAll([streamFiber, futureFiber]));
+        });
       }),
     );
   };
@@ -730,19 +581,21 @@ export function untilFuture<E1, B>(future: Future<E1, B>) {
  */
 export function untilPush<R1, E1, B>(signal: Push<R1, E1, B>) {
   return <R, E, A>(self: Push<R, E, A>): Push<R | R1, E | E1, A> => {
-    return Push((emitter) =>
-      Do((Δ) => {
-        const signalFiber = Δ(
-          signal.run(
-            Emitter(
-              () => earlyExit,
-              (cause) => emitter.failCause(cause),
-              earlyExit,
-            ),
-          ).forkScoped,
-        );
-        const streamFiber = Δ(self.run(emitter).forkScoped);
-        Δ(Fiber.joinAll([signalFiber, streamFiber])(onEarlyExit(emitter.end)));
+    return Push(<R2>(sink: Sink<R2, E | E1, A>) =>
+      IO.asyncIO<R | R1 | R2, never, void>((cb) => {
+        const exit = IO(cb(IO.unit));
+        return Do((Δ) => {
+          const signalFiber = Δ(
+            signal.run(
+              Sink(
+                () => exit,
+                (cause) => sink.error(cause),
+              ),
+            ).fork,
+          );
+          const streamFiber = Δ(self.run(sink).fork);
+          Δ(Fiber.joinAll([signalFiber, streamFiber]));
+        });
       }),
     );
   };

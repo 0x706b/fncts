@@ -18,13 +18,13 @@ export function usePush<R, E, A>(
   const [value, setValue] = React.useState(initial);
   const runStream         = React.useMemo(
     () =>
-      stream.run({
-        emit: (value) => IO(setValue(value)),
-        failCause: (cause) => {
-          throw new Error(cause.prettyPrint);
-        },
-        end: IO.unit,
-      }),
+      stream
+        .observe((value) => IO(setValue(value)))
+        .catchAllCause((cause) =>
+          IO(() => {
+            throw new Error(cause.prettyPrint);
+          }),
+        ),
     [stream],
   );
   const [io, _, { interrupt }] = useIO(runStream);

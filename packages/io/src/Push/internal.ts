@@ -1,39 +1,50 @@
-export function withCountdownLatch<R, E, A, R1, E1, B>(
-  n: number,
-  f: (latch: CountdownLatch) => IO<R, E, A>,
-  onEnd: IO<R1, E1, B>,
-): IO<R | R1, E | E1, B> {
-  return Do((Δ) => {
-    const latch = Δ(CountdownLatch(n));
-    Δ(f(latch));
-    return Δ(latch.await > onEnd);
-  });
+import type { RuntimeFiber } from "@fncts/io/Fiber";
+
+export function withScopedFork<R, E, A>(
+  f: (fork: <R, E, A>(io: IO<R, E, A>) => IO<R, never, RuntimeFiber<E, A>>) => IO<R, E, A>,
+): IO<R, E, A> {
+  return IO.bracketExit(
+    Scope.make,
+    (scope) => f((io) => io.forkIn(scope)),
+    (scope, exit) => scope.close(exit),
+  );
 }
 
-export const EarlyExitTypeId = Symbol.for("fncts.io.Push.EarlyExit");
-export type EarlyExitTypeId = typeof EarlyExitTypeId;
+export function withSwitch<R, E, A>(f: (fork: <R>(io: URIO<R, void>) => URIO<R, void>) => IO<R, E, A>) {
+  return withScopedFork((fork) =>
+    Do((Δ) => {
+      const ref = Δ(Ref.Synchronized.make<Fiber<never, void>>(Fiber.unit));
 
-export class EarlyExit {
-  readonly [EarlyExitTypeId]: EarlyExitTypeId = EarlyExitTypeId;
+      const switchFork = <R>(io: URIO<R, void>) => {
+        return ref.updateIO((currentFiber) => currentFiber.interruptFork.flatMap(() => fork(io)));
+      };
+
+      Δ(f(switchFork));
+
+      const fiber = Δ(ref.get);
+
+      Δ(fiber.join.when(fiber !== undefined));
+    }),
+  );
 }
 
-export function isEarlyExit(u: unknown): u is EarlyExit {
-  return isObject(u) && EarlyExitTypeId in u;
-}
-
-export const earlyExit = IO.haltNow(new EarlyExit());
-
-export function onEarlyExit<R1, E1, B>(onEarlyExit: IO<R1, E1, B>) {
-  return <R, E, A>(self: IO<R, E, A>): IO<R | R1, E | E1, A | B> => {
-    return self.matchCauseIO(
-      (cause) =>
-        cause
-          .find((cause) => (cause.isHalt() && isEarlyExit(cause.value) ? Just(cause) : Nothing()))
-          .match(
-            () => IO.failCauseNow(cause),
-            () => onEarlyExit,
-          ),
-      IO.succeedNow,
-    );
-  };
+export function withUnboundedConcurrency<R, E, A>(
+  f: (fork: <R>(io: URIO<R, void>) => URIO<R, RuntimeFiber<never, void>>) => IO<R, E, A>,
+) {
+  return withScopedFork((fork) =>
+    Do((Δ) => {
+      const fibers = Δ(IO.succeed(new Set<RuntimeFiber<never, void>>()));
+      Δ(
+        f((io) =>
+          Do((Δ) => {
+            const fiber = Δ(fork(io));
+            Δ(IO(fibers.add(fiber)));
+            Δ(fork(fiber.join.ensuring(IO(fibers.delete(fiber)))));
+            return fiber;
+          }),
+        ),
+      );
+      Δ(Fiber.joinAll(fibers));
+    }),
+  );
 }

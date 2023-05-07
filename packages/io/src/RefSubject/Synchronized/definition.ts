@@ -1,7 +1,6 @@
 import type { RefSubject } from "../definition.js";
 import type { Cause } from "@fncts/base/data/Cause";
-import type { Emitter } from "@fncts/io/Push";
-import type { Scope } from "@fncts/io/Scope";
+import type { Sink } from "@fncts/io/Push";
 
 import { IO } from "@fncts/io/IO";
 
@@ -44,7 +43,7 @@ export class SynchronizedRefSubjectInternal<R, E, A, B>
     return this.withPermit(this.ref.set(a));
   }
 
-  run<R1>(emitter: Emitter<R1, E, B>): IO<Scope | R | R1, never, void> {
+  run<R1>(emitter: Sink<R1, E, B>): IO<R | R1, never, void> {
     return this.ref.run(emitter);
   }
 
@@ -56,15 +55,13 @@ export class SynchronizedRefSubjectInternal<R, E, A, B>
     return this.withPermit(this.ref.get.flatMap(f).flatMap(([b, a]) => this.ref.set(a).as(b)));
   }
 
-  emit(value: A): IO<R, never, void> {
-    return this.withPermit(this.ref.emit(value));
+  event(value: A): IO<R, never, void> {
+    return this.withPermit(this.ref.event(value));
   }
 
-  failCause(cause: Cause<E>): IO<R, never, void> {
-    return this.withPermit(this.ref.failCause(cause));
+  error(cause: Cause<E>): IO<R, never, void> {
+    return this.withPermit(this.ref.error(cause));
   }
-
-  end: IO<R, never, void> = this.withPermit(this.ref.end);
 
   withPermit<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
     return this.semaphore.withPermit(io);
