@@ -48,3 +48,24 @@ export function withUnboundedConcurrency<R, E, A>(
     }),
   );
 }
+
+export function withExhaust<R, E, A>(f: (fork: <R>(io: URIO<R, void>) => URIO<R, void>) => IO<R, E, A>) {
+  return withScopedFork((fork) =>
+    Do((Δ) => {
+      const ref   = Δ(Ref.make<RuntimeFiber<never, void> | null>(null));
+      const reset = ref.set(null);
+
+      const exhaustFork = <R>(io: IO<R, never, void>) =>
+        io
+          .ensuring(reset)
+          .fork.flatMap((fiber) => ref.set(fiber))
+          .whenRef(ref, (fiber) => fiber === null).asUnit;
+
+      Δ(f(exhaustFork));
+
+      const fiber = Δ(ref.get);
+
+      Δ(IO.defer(fiber === null ? IO.unit : fiber.join));
+    }),
+  );
+}

@@ -40,6 +40,12 @@ export abstract class STM<R, E, A> {
   };
 }
 
+export declare namespace STM {
+  type EnvironmentOf<X> = [X] extends [{ [STMVariance]: { _R: () => infer R } }] ? R : never;
+  type ErrorOf<X> = [X] extends [{ [STMVariance]: { _E: () => infer E } }] ? E : never;
+  type ValueOf<X> = [X] extends [{ [STMVariance]: { _A: () => infer A } }] ? A : never;
+}
+
 /**
  * @tsplus unify fncts.io.STM
  */

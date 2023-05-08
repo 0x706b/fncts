@@ -1,9 +1,6 @@
-import type { _A, _E, _R } from "@fncts/base/types";
-import type { RuntimeFiber } from "@fncts/io/Fiber";
-
 import { AtomicReference } from "@fncts/base/internal/AtomicReference";
 import { IO } from "@fncts/io/IO";
-import { withSwitch, withUnboundedConcurrency } from "@fncts/io/Push/internal";
+import { withExhaust, withSwitch, withUnboundedConcurrency } from "@fncts/io/Push/internal";
 
 import { Push, PushTypeId, PushVariance, Sink } from "./definition.js";
 
@@ -32,7 +29,7 @@ export function asyncInterrupt<R, E, A>(
       Do((Δ) => {
         const future  = Δ(Future.make<never, void>());
         const scope   = Δ(IO.scope);
-        const runtime = Δ(IO.runtime<R | R1 | R1>());
+        const runtime = Δ(IO.runtime<R | R1>());
         const unsafeSink: UnsafeSink<E, A> = {
           event: (value) => runtime.unsafeRunOrFork(sink.event(value).forkIn(scope)),
           error: (cause) => runtime.unsafeRunOrFork(sink.error(cause).fulfill(future).forkIn(scope)),
@@ -63,7 +60,7 @@ export function async<E, A>(make: (sink: UnsafeSink<E, A>) => void): Push<never,
  */
 export function combineLatest<A extends ReadonlyArray<Push<any, any, any>>>(
   streams: [...A],
-): Push<_R<A[number]>, _E<A[number]>, { [K in keyof A]: [A[K]] extends [Push<any, any, infer A>] ? A : never }>;
+): Push<Push.EnvironmentOf<A[number]>, Push.ErrorOf<A[number]>, { [K in keyof A]: Push.ValueOf<A[K]> }>;
 export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, ReadonlyArray<A>>;
 export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, ReadonlyArray<A>> {
   return Push((emitter) =>
@@ -110,6 +107,82 @@ export function debounce(duration: Lazy<Duration>) {
  */
 export function defer<R, E, A>(self: Lazy<Push<R, E, A>>): Push<R, E, A> {
   return Push((emitter) => IO(self).flatMap((push) => push.run(emitter)));
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push exhaustMap
+ */
+export function exhaustMap<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
+    return Push((sink) => withExhaust((fork) => self.run(Sink((a) => fork(f(a).run(sink)), sink.error))));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push exhaustMapIO
+ */
+export function exhaustMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
+    return self.exhaustMap((a) => Push.fromIO(f(a)));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push filterIO
+ */
+export function filterIO<A, R1, E1>(predicate: (a: A) => IO<R1, E1, boolean>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, A> => {
+    return Push((sink) =>
+      self.run(
+        Sink(
+          (a) =>
+            predicate(a)
+              .flatMap((b) => (b ? sink.event(a) : IO.unit))
+              .catchAllCause(sink.error),
+          sink.error,
+        ),
+      ),
+    );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push filterMapIO
+ */
+export function filterMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, Maybe<B>>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
+    return Push((sink) =>
+      self.run(
+        Sink(
+          (a) =>
+            f(a)
+              .flatMap((mb) => mb.match(() => IO.unit, sink.event))
+              .catchAllCause(sink.error),
+          sink.error,
+        ),
+      ),
+    );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push filter
+ */
+export function filter<A, B extends A>(refinement: Refinement<A, B>): <R, E>(self: Push<R, E, A>) => Push<R, E, B>;
+export function filter<A>(predicate: Predicate<A>): <R, E>(self: Push<R, E, A>) => Push<R, E, A>;
+export function filter<A>(predicate: Predicate<A>) {
+  return <R, E>(self: Push<R, E, A>): Push<R, E, A> => {
+    return Push((sink) => self.run(Sink((a) => (predicate(a) ? sink.event(a) : IO.unit), sink.error)));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push filterMap
+ */
+export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R, E, B> => {
+    return Push((sink) => self.run(Sink((a) => f(a).match(() => IO.unit, sink.event), sink.error)));
+  };
 }
 
 /**
@@ -501,6 +574,15 @@ export function switchMap<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
 export function switchMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
     return self.switchMap((a) => Push.fromIO(f(a)));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push tap
+ */
+export function tap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, A> => {
+    return Push((sink) => self.run(Sink((a) => f(a).matchCauseIO(sink.error, () => sink.event(a)), sink.error)));
   };
 }
 

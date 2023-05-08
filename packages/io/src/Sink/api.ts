@@ -17,7 +17,7 @@ export function zipLeft<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
 }
 
 /**
- * Like {@link zipC}, but keeps only the result from this sink
+ * Like {@link zipConcurrent}, but keeps only the result from this sink
  *
  * @tsplus pipeable fncts.io.Sink zipLeftC
  */
@@ -26,7 +26,7 @@ export function zipLeftC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   __tsplusTrace?: string,
 ) {
   return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z> => {
-    return self.zipWithC(that, (z, _) => z);
+    return self.zipWithConcurrent(that, (z, _) => z);
   };
 }
 
@@ -45,7 +45,7 @@ export function zipRight<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
 }
 
 /**
- * Like {@link zipC}, but keeps only the result from the `that` sink
+ * Like {@link zipConcurrent}, but keeps only the result from the `that` sink
  *
  * @tsplus pipeable fncts.io.Sink zipRightC
  */
@@ -54,7 +54,7 @@ export function zipRightC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   __tsplusTrace?: string,
 ) {
   return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, Z1> => {
-    return self.zipWithC(that, (_, z1) => z1);
+    return self.zipWithConcurrent(that, (_, z1) => z1);
   };
 }
 
@@ -1704,14 +1704,14 @@ export function zip<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
  * Runs both sinks in parallel on the input and combines the results in a
  * tuple.
  *
- * @tsplus pipeable fncts.io.Sink zipC
+ * @tsplus pipeable fncts.io.Sink zipConcurrent
  */
-export function zipC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
+export function zipConcurrent<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
 ) {
   return <R, E, Z>(self: Sink<R, E, In, L, Z>): Sink<R | R1, E | E1, In & In1, L | L1, readonly [Z, Z1]> => {
-    return self.zipWithC(that, Function.tuple);
+    return self.zipWithConcurrent(that, Function.tuple);
   };
 }
 
@@ -1736,9 +1736,9 @@ export function zipWith<In, L, Z, R1, E1, In1 extends In, L1 extends L, Z1, Z2>(
  * Runs both sinks in parallel on the input and combines the results using the
  * provided function.
  *
- * @tsplus pipeable fncts.io.Sink zipWithC
+ * @tsplus pipeable fncts.io.Sink zipWithConcurrent
  */
-export function zipWithC<Z, R1, E1, In1, L1, Z1, Z2>(
+export function zipWithConcurrent<Z, R1, E1, In1, L1, Z1, Z2>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   f: (z: Z, z1: Z1) => Z2,
   __tsplusTrace?: string,

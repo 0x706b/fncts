@@ -1,5 +1,4 @@
 import type { Spreadable } from "@fncts/base/types";
-import type { Erase } from "@fncts/typelevel/Intersection";
 
 import { Fold, Fresh, FromScoped, Layer, To, ZipWithConcurrent } from "@fncts/io/Layer/definition";
 import { DecisionTag } from "@fncts/io/Schedule";
