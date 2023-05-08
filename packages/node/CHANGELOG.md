@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.29
+
+### Patch Changes
+
+- Updated dependencies [9db9163]
+- Updated dependencies [dc06677]
+  - @fncts/io@0.0.36
+
 ## 0.0.28
 
 ### Patch Changes
