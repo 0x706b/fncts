@@ -1,5 +1,14 @@
 # @fncts/react
 
+## 0.0.8
+
+### Patch Changes
+
+- dc06677: refactor: base Push on typed-fp
+- Updated dependencies [9db9163]
+- Updated dependencies [dc06677]
+  - @fncts/io@0.0.36
+
 ## 0.0.7
 
 ### Patch Changes

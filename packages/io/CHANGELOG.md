@@ -1,5 +1,12 @@
 # @fncts/io
 
+## 0.0.36
+
+### Patch Changes
+
+- 9db9163: feat: add Push operators
+- dc06677: refactor: base Push on typed-fp
+
 ## 0.0.35
 
 ### Patch Changes
