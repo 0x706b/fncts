@@ -1,5 +1,13 @@
 # @fncts/schema
 
+## 0.0.10
+
+### Patch Changes
+
+- a680338: feat: add Date schema
+- Updated dependencies [a680338]
+  - @fncts/base@0.0.31
+
 ## 0.0.9
 
 ### Patch Changes

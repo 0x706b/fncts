@@ -1,5 +1,11 @@
 # @fncts/express
 
+## 0.0.30
+
+### Patch Changes
+
+- @fncts/io@0.0.37
+
 ## 0.0.29
 
 ### Patch Changes
