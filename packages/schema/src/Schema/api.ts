@@ -164,6 +164,26 @@ export const symbol: Schema<symbol> = Schema.fromAST(AST.symbolKeyword);
 export const object: Schema<object> = Schema.fromAST(AST.objectKeyword);
 
 /**
+ * @tsplus static fncts.schema.SchemaOps date
+ */
+export const date: Schema<Date> = Schema.object.instanceOf(Date);
+
+/**
+ * @tsplus implicit
+ */
+export const implicitDate: Schema<Date> = Schema.unknown.transformOrFail(
+  Schema.date,
+  (input, options) => {
+    if (typeof input === "string" || typeof input === "number") {
+      return ParseResult.succeed(new Date(input));
+    } else {
+      return Schema.date.decode(input, options);
+    }
+  },
+  (input) => ParseResult.succeed(input),
+);
+
+/**
  * @tsplus static fncts.schema.SchemaOps union
  * @tsplus derive fncts.schema.Schema<|> 30
  */
