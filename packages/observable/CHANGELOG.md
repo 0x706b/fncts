@@ -1,5 +1,12 @@
 # @fncts/pattern
 
+## 0.0.20
+
+### Patch Changes
+
+- Updated dependencies [a680338]
+  - @fncts/base@0.0.31
+
 ## 0.0.19
 
 ### Patch Changes
