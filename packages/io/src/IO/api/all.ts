@@ -1,5 +1,4 @@
 import type { _A, _E, _R } from "@fncts/base/types";
-import type { EnvironmentOf, ErrorOf, IOVariance, ValueOf } from "@fncts/io/IO";
 
 /**
  * @tsplus static fncts.io.IOOps all
@@ -7,19 +6,19 @@ import type { EnvironmentOf, ErrorOf, IOVariance, ValueOf } from "@fncts/io/IO";
 export function all<T extends ReadonlyArray<IO<any, any, any>>>(
   ios: [...T],
 ): IO<
-  { [K in number]: EnvironmentOf<T[K]> }[number],
-  { [K in number]: ErrorOf<T[K]> }[number],
-  { [K in keyof T]: ValueOf<T[K]> }
+  { [K in number]: IO.EnvironmentOf<T[K]> }[number],
+  { [K in number]: IO.ErrorOf<T[K]> }[number],
+  { [K in keyof T]: IO.ValueOf<T[K]> }
 >;
 export function all<T extends Iterable<IO<any, any, any>>>(
   ios: T,
-): [T] extends [Iterable<infer A>] ? IO<EnvironmentOf<A>, ErrorOf<A>, Conc<ValueOf<A>>> : never;
+): [T] extends [Iterable<infer A>] ? IO<IO.EnvironmentOf<A>, IO.ErrorOf<A>, Conc<IO.ValueOf<A>>> : never;
 export function all<T extends Record<string, IO<any, any, any>>>(
   ios: T,
 ): IO<
-  { [K in keyof T]: EnvironmentOf<T[K]> }[keyof T],
-  { [K in keyof T]: ErrorOf<T[K]> }[keyof T],
-  { [K in keyof T]: ValueOf<T[K]> }
+  { [K in keyof T]: IO.EnvironmentOf<T[K]> }[keyof T],
+  { [K in keyof T]: IO.ErrorOf<T[K]> }[keyof T],
+  { [K in keyof T]: IO.ValueOf<T[K]> }
 >;
 export function all(ios: Record<string, IO<any, any, any>> | Iterable<IO<any, any, any>>): IO<any, any, any> {
   if (Symbol.iterator in ios) {
@@ -38,19 +37,19 @@ export function all(ios: Record<string, IO<any, any, any>> | Iterable<IO<any, an
 export function allConcurrent<T extends ReadonlyArray<IO<any, any, any>>>(
   ios: [...T],
 ): IO<
-  { [K in number]: EnvironmentOf<T[K]> }[number],
-  { [K in number]: ErrorOf<T[K]> }[number],
-  { [K in keyof T]: ValueOf<T[K]> }
+  { [K in number]: IO.EnvironmentOf<T[K]> }[number],
+  { [K in number]: IO.ErrorOf<T[K]> }[number],
+  { [K in keyof T]: IO.ValueOf<T[K]> }
 >;
 export function allConcurrent<T extends Iterable<IO<any, any, any>>>(
   ios: T,
-): [T] extends [Iterable<infer A>] ? IO<EnvironmentOf<A>, ErrorOf<A>, Conc<ValueOf<A>>> : never;
+): [T] extends [Iterable<infer A>] ? IO<IO.EnvironmentOf<A>, IO.ErrorOf<A>, Conc<IO.ValueOf<A>>> : never;
 export function allConcurrent<T extends Record<string, IO<any, any, any>>>(
   ios: T,
 ): IO<
-  { [K in keyof T]: EnvironmentOf<T[K]> }[keyof T],
-  { [K in keyof T]: ErrorOf<T[K]> }[keyof T],
-  { [K in keyof T]: ValueOf<T[K]> }
+  { [K in keyof T]: IO.EnvironmentOf<T[K]> }[keyof T],
+  { [K in keyof T]: IO.ErrorOf<T[K]> }[keyof T],
+  { [K in keyof T]: IO.ValueOf<T[K]> }
 >;
 export function allConcurrent(ios: Record<string, IO<any, any, any>> | Iterable<IO<any, any, any>>): IO<any, any, any> {
   if (Symbol.iterator in ios) {

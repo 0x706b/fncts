@@ -57,7 +57,7 @@ export function match(method: Methods): {
     ...handlers: never extends Handlers ? Array<RequestHandlerIO<any, Route, RouteParameters<Route>>> : Handlers
   ): URIO<
     | ExpressEnv
-    | _R<
+    | IO.EnvironmentOf<
         {
           [k in keyof Handlers]: [Handlers[k]] extends [ErasedRequestHandlerIO<infer R>] ? URIO<R, void> : never;
         }[number]

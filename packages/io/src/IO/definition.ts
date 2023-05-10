@@ -33,9 +33,11 @@ export abstract class IO<R, E, A> {
   };
 }
 
-export type EnvironmentOf<T> = [T] extends [{ [IOVariance]: { _R: () => infer R } }] ? R : never;
-export type ErrorOf<T> = [T] extends [{ [IOVariance]: { _E: () => infer E } }] ? E : never;
-export type ValueOf<T> = [T] extends [{ [IOVariance]: { _A: () => infer A } }] ? A : never;
+export declare namespace IO {
+  export type EnvironmentOf<T> = [T] extends [{ [IOVariance]: { _R: () => infer R } }] ? R : never;
+  export type ErrorOf<T> = [T] extends [{ [IOVariance]: { _E: () => infer E } }] ? E : never;
+  export type ValueOf<T> = [T] extends [{ [IOVariance]: { _A: () => infer A } }] ? A : never;
+}
 
 declare module "@fncts/base/data/Either/definition" {
   interface Either<E, A> extends IO<never, E, A> {}
