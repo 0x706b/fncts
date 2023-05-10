@@ -1,5 +1,11 @@
 # @fncts/io
 
+## 0.0.38
+
+### Patch Changes
+
+- 2841f39: fix: express route environment
+
 ## 0.0.37
 
 ### Patch Changes
