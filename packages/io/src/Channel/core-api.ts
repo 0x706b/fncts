@@ -1,6 +1,6 @@
 import { tuple } from "@fncts/base/data/function";
 
-import { ContinuationK, Done, Fail, Fold } from "./definition.js";
+import { ChannelPrimitive, ChannelTag, ContinuationK, Done, Fail, Fold } from "./definition.js";
 
 /**
  * Halt a channel with the specified cause
@@ -8,7 +8,9 @@ import { ContinuationK, Done, Fail, Fold } from "./definition.js";
  * @tsplus static fncts.io.ChannelOps failCause
  */
 export function failCause<E>(result: Lazy<Cause<E>>): Channel<never, unknown, unknown, unknown, E, never, never> {
-  return new Fail(result);
+  const op = new ChannelPrimitive(ChannelTag.Halt);
+  op.i0    = result;
+  return op as any;
 }
 
 /**
@@ -26,7 +28,9 @@ export function failCauseNow<E>(result: Cause<E>): Channel<never, unknown, unkno
  * @tsplus static fncts.io.ChannelOps end
  */
 export function end<OutDone>(result: Lazy<OutDone>): Channel<never, unknown, unknown, unknown, never, never, OutDone> {
-  return new Done(result);
+  const op = new ChannelPrimitive(ChannelTag.Done);
+  op.i0    = result;
+  return op as any;
 }
 
 /**
@@ -93,17 +97,16 @@ export function flatMap<OutDone, Env1, InErr1, InElem1, InDone1, OutErr1, OutEle
     OutElem | OutElem1,
     OutDone2
   > => {
-    return new Fold<
-      Env | Env1,
-      InErr & InErr1,
-      InElem & InElem1,
-      InDone & InDone1,
-      OutErr | OutErr1,
-      OutErr | OutErr1,
-      OutElem | OutElem1,
-      OutDone,
-      OutDone2
-    >(channel, new ContinuationK(f, Channel.failCauseNow));
+    const op = new ChannelPrimitive(ChannelTag.Fold);
+
+    const continuation = new ChannelPrimitive(ChannelTag.ContinuationK);
+    continuation.i0    = f;
+    continuation.i1    = Channel.failCauseNow;
+
+    op.i0 = channel;
+    op.i1 = continuation;
+
+    return op as any;
   };
 }
 

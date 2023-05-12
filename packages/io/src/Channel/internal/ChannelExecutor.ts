@@ -1,12 +1,12 @@
 import type { ChildExecutorDecision } from "@fncts/io/Channel/ChildExecutorDecision";
-import type { BracketOut, Continuation, Ensuring } from "@fncts/io/Channel/definition";
+import type { BracketOut, Continuation, ContinuationFinalizer, Ensuring } from "@fncts/io/Channel/definition";
 import type { ChannelState } from "@fncts/io/Channel/internal/ChannelState";
 import type { UpstreamPullStrategy } from "@fncts/io/Channel/UpstreamPullStrategy";
 
 import { Queue } from "@fncts/base/collection/immutable/Queue";
 import { identity } from "@fncts/base/data/function";
 import { Stack } from "@fncts/base/internal/Stack";
-import { ChannelTag, concrete, concreteContinuation, ContinuationFinalizer } from "@fncts/io/Channel/definition";
+import { ChannelPrimitive, ChannelTag, concrete, concreteContinuation } from "@fncts/io/Channel/definition";
 import * as State from "@fncts/io/Channel/internal/ChannelState";
 import { UpstreamPullRequest } from "@fncts/io/Channel/UpstreamPullRequest";
 
@@ -14,7 +14,7 @@ type ErasedChannel<R> = Channel<R, unknown, unknown, unknown, unknown, unknown, 
 export type ErasedExecutor<R> = ChannelExecutor<R, unknown, unknown, unknown, unknown, unknown, unknown>;
 type ErasedContinuation<R> = Continuation<R, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown>;
 
-type Finalizer<R> = (exit: Exit<unknown, unknown>) => URIO<R, unknown>;
+type Finalizer = (exit: Exit<unknown, unknown>) => URIO<any, any>;
 
 /*
  * -------------------------------------------------------------------------------------------------
@@ -303,7 +303,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 if (this.input !== null) {
                   const inputExecutor = this.input;
                   this.input          = null;
-                  const drainer: URIO<Env, unknown> = currentChannel.input.awaitRead.zipRight(
+                  const drainer: URIO<Env, unknown> = currentChannel.i0.awaitRead.zipRight(
                     IO.defer(() => {
                       const state = inputExecutor.run();
 
@@ -311,16 +311,16 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                         case State.ChannelStateTag.Done: {
                           const done = inputExecutor.getDone();
                           return done.match(
-                            (cause) => currentChannel.input.error(cause),
-                            (value) => currentChannel.input.done(value),
+                            (cause) => currentChannel.i0.error(cause),
+                            (value) => currentChannel.i0.done(value),
                           );
                         }
                         case State.ChannelStateTag.Emit: {
-                          return currentChannel.input.emit(inputExecutor.getEmit()).flatMap(() => drainer);
+                          return currentChannel.i0.emit(inputExecutor.getEmit()).flatMap(() => drainer);
                         }
                         case State.ChannelStateTag.Effect: {
                           return state.effect.matchCauseIO(
-                            (cause) => currentChannel.input.error(cause),
+                            (cause) => currentChannel.i0.error(cause),
                             () => drainer,
                           );
                         }
@@ -328,7 +328,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                           return readUpstream(
                             state,
                             () => drainer,
-                            (cause: Cause<any>) => currentChannel.input.error(cause),
+                            (cause: Cause<any>) => currentChannel.i0.error(cause),
                           );
                         }
                       }
@@ -357,7 +357,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               }
               case ChannelTag.PipeTo: {
                 const previousInput = this.input;
-                const leftExec      = new ChannelExecutor(currentChannel.left, this.providedEnv, (_) =>
+                const leftExec      = new ChannelExecutor(currentChannel.i0, this.providedEnv, (_) =>
                   this.executeCloseLastSubstream(_),
                 );
                 leftExec.input = previousInput;
@@ -370,7 +370,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                     return IO.unit;
                   }
                 });
-                this.currentChannel = currentChannel.right();
+                this.currentChannel = currentChannel.i1();
                 break;
               }
               case ChannelTag.Read: {
@@ -379,29 +379,29 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                   this.input,
                   identity,
                   (out) => {
-                    this.currentChannel = read.more(out);
+                    this.currentChannel = read.i0(out);
                     return null;
                   },
                   (exit) => {
-                    this.currentChannel = read.done.onExit(exit);
+                    this.currentChannel = exit.match(read.i1.i1, read.i1.i0);
                     return null;
                   },
                 );
                 break;
               }
               case ChannelTag.Done: {
-                result = this.doneSucceed(currentChannel.terminal());
+                result = this.doneSucceed(currentChannel.i0());
                 break;
               }
               case ChannelTag.Halt: {
-                result = this.doneHalt(currentChannel.cause());
+                result = this.doneHalt(currentChannel.i0());
                 break;
               }
               case ChannelTag.FromIO: {
                 const pio =
                   this.providedEnv === null
-                    ? currentChannel.io
-                    : currentChannel.io.provideEnvironment(this.providedEnv as Environment<Env>);
+                    ? currentChannel.i0
+                    : currentChannel.i0.provideEnvironment(this.providedEnv as Environment<Env>);
                 result = new State.Effect(
                   pio.matchCauseIO(
                     (cause) => {
@@ -425,11 +425,11 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                 break;
               }
               case ChannelTag.Defer: {
-                this.currentChannel = currentChannel.effect();
+                this.currentChannel = currentChannel.i0();
                 break;
               }
               case ChannelTag.Emit: {
-                this.emitted        = currentChannel.out();
+                this.emitted        = currentChannel.i0();
                 this.currentChannel = this.activeSubexecutor !== null ? null : Channel.endNow(undefined);
                 result              = State._Emit;
                 break;
@@ -444,25 +444,25 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
                     const prevLastClose     = this.closeLastSubstream === null ? IO.unit : this.closeLastSubstream;
                     this.closeLastSubstream = prevLastClose.flatMap(() => f);
                   });
-                const exec             = new ChannelExecutor(() => currentChannel.value, this.providedEnv, innerExecuteLastClose);
+                const exec             = new ChannelExecutor(() => currentChannel.i4, this.providedEnv, innerExecuteLastClose);
                 exec.input             = this.input;
                 this.activeSubexecutor = new PullFromUpstream(
                   exec,
-                  currentChannel.k,
+                  currentChannel.i5,
                   null,
                   Queue.empty(),
-                  currentChannel.combineInners,
-                  currentChannel.combineAll,
-                  currentChannel.onPull,
-                  currentChannel.onEmit,
+                  currentChannel.i0,
+                  currentChannel.i1,
+                  currentChannel.i2,
+                  currentChannel.i3,
                 );
                 this.closeLastSubstream = null;
                 this.currentChannel     = null;
                 break;
               }
               case ChannelTag.Fold: {
-                this.doneStack      = this.doneStack.prepend(currentChannel.k);
-                this.currentChannel = currentChannel.value;
+                this.doneStack      = this.doneStack.prepend(currentChannel.i1);
+                this.currentChannel = currentChannel.i0;
                 break;
               }
               case ChannelTag.BracketOut: {
@@ -471,8 +471,8 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
               }
               case ChannelTag.Provide: {
                 const previousEnv   = this.providedEnv;
-                this.providedEnv    = currentChannel.environment;
-                this.currentChannel = currentChannel.inner;
+                this.providedEnv    = currentChannel.i0;
+                this.currentChannel = currentChannel.i1;
                 this.addFinalizer(() =>
                   IO.succeed(() => {
                     this.providedEnv = previousEnv;
@@ -500,7 +500,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     /**
      * @tsplus tailRec
      */
-    const unwind = (acc: List<Finalizer<Env>>): List<Finalizer<Env>> => {
+    const unwind = (acc: List<Finalizer>): List<Finalizer> => {
       if (this.doneStack.isEmpty()) {
         return acc.reverse;
       } else {
@@ -510,7 +510,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         if (head._tag === ChannelTag.ContinuationK) {
           return unwind(acc);
         } else {
-          return unwind(acc.prepend(head.finalizer));
+          return unwind(acc.prepend(head.i0));
         }
       }
     };
@@ -520,8 +520,8 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     return effect;
   }
 
-  private popNextFinalizers(): List<ContinuationFinalizer<Env, unknown, unknown>> {
-    const builder = new ListBuffer<ContinuationFinalizer<Env, unknown, unknown>>();
+  private popNextFinalizers(): List<ContinuationFinalizer> {
+    const builder = new ListBuffer<ContinuationFinalizer>();
     /**
      * @tsplus tailrec
      */
@@ -980,7 +980,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 
     if (head._tag === ChannelTag.ContinuationK) {
       this.doneStack      = this.doneStack.unsafeTail;
-      this.currentChannel = head.onSuccess(z);
+      this.currentChannel = head.i0(z);
       return null;
     } else {
       const finalizers = this.popNextFinalizers();
@@ -992,7 +992,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         return State._Done;
       } else {
         const finalizerEffect = this.runFinalizers(
-          finalizers.map((_) => _.finalizer),
+          finalizers.map((_) => _.i0),
           Exit.succeed(z),
         );
         this.storeInProgressFinalizer(finalizerEffect);
@@ -1020,7 +1020,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
 
     if (head._tag === ChannelTag.ContinuationK) {
       this.doneStack      = this.doneStack.unsafeTail;
-      this.currentChannel = head.onHalt(cause);
+      this.currentChannel = head.i1(cause);
       return null;
     } else {
       const finalizers = this.popNextFinalizers();
@@ -1032,7 +1032,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
         return State._Done;
       } else {
         const finalizerEffect = this.runFinalizers(
-          finalizers.map((_) => _.finalizer),
+          finalizers.map((_) => _.i0),
           Exit.failCause(cause),
         );
         this.storeInProgressFinalizer(finalizerEffect);
@@ -1049,8 +1049,10 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     }
   }
 
-  private addFinalizer(f: Finalizer<Env>) {
-    this.doneStack = this.doneStack.prepend(new ContinuationFinalizer(f));
+  private addFinalizer(f: Finalizer) {
+    const op       = new ChannelPrimitive(ChannelTag.ContinuationFinalizer);
+    op.i0          = f;
+    this.doneStack = this.doneStack.prepend(op as any);
   }
 
   private provide<Env, OutErr, OutDone>(
@@ -1064,17 +1066,17 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     }
   }
 
-  private runBracketOut(bracketOut: BracketOut<Env, unknown, unknown, unknown>): ChannelState<Env, unknown> | null {
+  private runBracketOut(bracketOut: BracketOut): ChannelState<Env, unknown> | null {
     return new State.Effect(
       IO.uninterruptible(
-        this.provide(bracketOut.acquire).matchCauseIO(
+        this.provide(bracketOut.i0).matchCauseIO(
           (cause) =>
             IO.succeed(() => {
               this.currentChannel = Channel.failCause(cause);
             }),
           (out) =>
             IO.succeed(() => {
-              this.addFinalizer((e) => this.provide(bracketOut.finalizer(out, e)));
+              this.addFinalizer((e) => this.provide(bracketOut.i1(out, e)));
               this.currentChannel = Channel.write(() => out);
             }),
         ),
@@ -1082,8 +1084,8 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     );
   }
 
-  private runEnsuring(ensuring: Ensuring<Env, any, any, any, any, any, any>) {
-    this.addFinalizer(ensuring.finalizer);
-    this.currentChannel = ensuring.channel;
+  private runEnsuring(ensuring: Ensuring) {
+    this.addFinalizer(ensuring.i1);
+    this.currentChannel = ensuring.i0;
   }
 }

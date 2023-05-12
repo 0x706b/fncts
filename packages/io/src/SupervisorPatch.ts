@@ -82,6 +82,7 @@ export function diff(oldValue: Supervisor<any>, newValue: Supervisor<any>): Supe
   }
 }
 
+/** @tsplus tailRec */
 function applyLoop(supervisor: Supervisor<any>, patches: List<SupervisorPatch>): Supervisor<any> {
   if (patches.isEmpty()) {
     return supervisor;

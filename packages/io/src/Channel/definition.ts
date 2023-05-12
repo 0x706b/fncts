@@ -4,21 +4,21 @@ import type { UpstreamPullRequest } from "./UpstreamPullRequest.js";
 import type { UpstreamPullStrategy } from "./UpstreamPullStrategy.js";
 
 export const enum ChannelTag {
-  PipeTo = "PipeTo",
-  ContinuationK = "ContinuationK",
-  ContinuationFinalizer = "ContinuationFinalizer",
-  Fold = "Fold",
-  Bridge = "Bridge",
-  Read = "Read",
-  Done = "Done",
-  Halt = "Halt",
-  FromIO = "FromIO",
-  Emit = "Emit",
-  Defer = "Defer",
-  Ensuring = "Ensuring",
-  ConcatAll = "ConcatAll",
-  BracketOut = "BracketOut",
-  Provide = "Provide",
+  PipeTo,
+  ContinuationK,
+  ContinuationFinalizer,
+  Fold,
+  Bridge,
+  Read,
+  Done,
+  Halt,
+  FromIO,
+  Emit,
+  Defer,
+  Ensuring,
+  ConcatAll,
+  BracketOut,
+  Provide,
 }
 
 export const ChannelVariance = Symbol.for("fncts.io.Channel.Variance");
@@ -117,6 +117,31 @@ export function unifyChannel<X extends Channel<any, any, any, any, any, any, any
   return _;
 }
 
+export type ChannelOp<Tag extends string | number, Body = {}> = Channel<
+  any,
+  unknown,
+  unknown,
+  unknown,
+  never,
+  never,
+  never
+> &
+  Body & {
+    readonly _tag: Tag;
+  };
+
+export class ChannelPrimitive {
+  public i0: any                   = undefined;
+  public i1: any                   = undefined;
+  public i2: any                   = undefined;
+  public i3: any                   = undefined;
+  public i4: any                   = undefined;
+  public i5: any                   = undefined;
+  public trace: string | undefined = undefined;
+  [ChannelTypeId]                  = ChannelTypeId;
+  constructor(readonly _tag: Primitive["_tag"] | ContinuationPrimitive["_tag"]) {}
+}
+
 export abstract class Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> {
   readonly _Env!: () => Env;
   readonly _InErr!: (_: InErr) => void;
@@ -129,259 +154,185 @@ export abstract class Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, 
   readonly _OutDone2!: () => OutDone2;
 }
 
-export class ContinuationK<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutErr2,
-  OutElem,
-  OutDone,
-  OutDone2,
-> extends Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> {
-  readonly _tag = ChannelTag.ContinuationK;
-  constructor(
-    readonly onSuccess: (_: OutDone) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
-    readonly onHalt: (_: Cause<OutErr>) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
-  ) {
-    super();
-  }
-
-  onExit(exit: Exit<OutErr, OutDone>): Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2> {
-    return exit.match(this.onHalt, this.onSuccess);
-  }
-}
-
-export class ContinuationFinalizer<Env, OutErr, OutDone> extends Continuation<
-  Env,
+export type ChannelContinuationOp<Tag extends string | number, Body = {}> = Continuation<
+  never,
   unknown,
   unknown,
   unknown,
-  OutErr,
+  any,
   never,
   never,
-  OutDone,
+  any,
   never
-> {
-  readonly _tag = ChannelTag.ContinuationFinalizer;
-  constructor(readonly finalizer: (_: Exit<OutErr, OutDone>) => URIO<Env, any>) {
-    super();
-  }
-}
+> &
+  Body & {
+    readonly _tag: Tag;
+  };
+
+export interface ContinuationK
+  extends ChannelContinuationOp<
+    ChannelTag.ContinuationK,
+    {
+      readonly i0: (_: any) => Primitive;
+      readonly i1: (_: Cause<any>) => Primitive;
+    }
+  > {}
+
+export interface ContinuationFinalizer
+  extends ChannelContinuationOp<
+    ChannelTag.ContinuationFinalizer,
+    {
+      readonly i0: (_: Exit<any, any>) => URIO<any, any>;
+    }
+  > {}
+
+export type ContinuationPrimitive = ContinuationK | ContinuationFinalizer;
 
 /**
  * @optimize remove
  */
 export function concreteContinuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>(
   _: Continuation<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>,
-): asserts _ is
-  | ContinuationK<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>
-  | ContinuationFinalizer<Env, OutErr, OutDone> {
+): asserts _ is ContinuationK | ContinuationFinalizer {
   //
 }
 
-export class PipeTo<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutElem2, OutDone, OutDone2> extends Channel<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr2,
-  OutElem2,
-  OutDone2
-> {
-  readonly _tag = ChannelTag.PipeTo;
-  constructor(
-    readonly left: () => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-    readonly right: () => Channel<Env, OutErr, OutElem, OutDone, OutErr2, OutElem2, OutDone2>,
-  ) {
-    super();
-  }
-}
+export interface PipeTo
+  extends ChannelOp<
+    ChannelTag.PipeTo,
+    {
+      readonly i0: () => Primitive;
+      readonly i1: () => Primitive;
+    }
+  > {}
 
-export class Fold<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> extends Channel<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr2,
-  OutElem,
-  OutDone2
-> {
-  readonly _tag = ChannelTag.Fold;
-  constructor(
-    readonly value: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-    readonly k: ContinuationK<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>,
-  ) {
-    super();
-  }
-}
+export interface Fold
+  extends ChannelOp<
+    ChannelTag.Fold,
+    {
+      readonly i0: Primitive;
+      readonly i1: ContinuationK;
+    }
+  > {}
 
-export class Read<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2> extends Channel<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr2,
-  OutElem,
-  OutDone2
-> {
-  readonly _tag = ChannelTag.Read;
-  constructor(
-    readonly more: (_: InElem) => Channel<Env, InErr, InElem, InDone, OutErr2, OutElem, OutDone2>,
-    readonly done: ContinuationK<Env, InErr, InElem, InDone, OutErr, OutErr2, OutElem, OutDone, OutDone2>,
-  ) {
-    super();
-  }
-}
+export interface Read
+  extends ChannelOp<
+    ChannelTag.Read,
+    {
+      readonly i0: (_: any) => Primitive;
+      readonly i1: ContinuationK;
+    }
+  > {}
 
-export class Done<OutDone> extends Channel<never, unknown, unknown, unknown, never, never, OutDone> {
-  readonly _tag = ChannelTag.Done;
-  constructor(readonly terminal: () => OutDone) {
-    super();
-  }
-}
+export interface Done
+  extends ChannelOp<
+    ChannelTag.Done,
+    {
+      readonly i0: () => any;
+    }
+  > {}
 
-export class Fail<OutErr> extends Channel<never, unknown, unknown, unknown, OutErr, never, never> {
-  readonly _tag = ChannelTag.Halt;
-  constructor(readonly cause: () => Cause<OutErr>) {
-    super();
-  }
-}
+export interface Fail
+  extends ChannelOp<
+    ChannelTag.Halt,
+    {
+      readonly i0: () => Cause<any>;
+    }
+  > {}
 
-export class FromIO<Env, OutErr, OutDone> extends Channel<Env, unknown, unknown, unknown, OutErr, never, OutDone> {
-  readonly _tag = ChannelTag.FromIO;
-  constructor(readonly io: IO<Env, OutErr, OutDone>) {
-    super();
-  }
-}
+export interface FromIO
+  extends ChannelOp<
+    ChannelTag.FromIO,
+    {
+      readonly i0: IO<any, any, any>;
+    }
+  > {}
 
-export class Defer<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> extends Channel<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone
-> {
-  readonly _tag = ChannelTag.Defer;
-  constructor(readonly effect: () => Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>) {
-    super();
-  }
-}
+export interface Defer
+  extends ChannelOp<
+    ChannelTag.Defer,
+    {
+      readonly i0: () => Primitive;
+    }
+  > {}
 
-export class Ensuring<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> extends Channel<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone
-> {
-  readonly _tag = ChannelTag.Ensuring;
-  constructor(
-    readonly channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-    readonly finalizer: (_: Exit<OutErr, OutDone>) => IO<Env, never, any>,
-  ) {
-    super();
-  }
-}
+export interface Ensuring
+  extends ChannelOp<
+    ChannelTag.Ensuring,
+    {
+      readonly i0: Primitive;
+      readonly i1: (_: Exit<any, any>) => URIO<any, any>;
+    }
+  > {}
 
-export class ConcatAll<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutElem2,
-  OutDone,
-  OutDone2,
-  OutDone3,
-> extends Channel<Env, InErr, InElem, InDone, OutErr, OutElem2, OutDone3> {
-  readonly _tag = ChannelTag.ConcatAll;
-  constructor(
-    readonly combineInners: (_: OutDone, __: OutDone) => OutDone,
-    readonly combineAll: (_: OutDone, __: OutDone2) => OutDone3,
-    readonly onPull: (_: UpstreamPullRequest<OutElem>) => UpstreamPullStrategy<OutElem2>,
-    readonly onEmit: (_: OutElem2) => ChildExecutorDecision,
-    readonly value: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2>,
-    readonly k: (_: OutElem) => Channel<Env, InErr, InElem, InDone, OutErr, OutElem2, OutDone>,
-  ) {
-    super();
-  }
-}
+export interface ConcatAll
+  extends ChannelOp<
+    ChannelTag.ConcatAll,
+    {
+      readonly i0: (_: any, __: any) => any;
+      readonly i1: (_: any, __: any) => any;
+      readonly i2: (_: UpstreamPullRequest<any>) => UpstreamPullStrategy<any>;
+      readonly i3: (_: any) => ChildExecutorDecision;
+      readonly i4: Primitive;
+      readonly i5: (_: any) => Primitive;
+    }
+  > {}
 
-export class BracketOut<R, E, Z, OutDone> extends Channel<R, unknown, unknown, unknown, E, Z, OutDone> {
-  readonly _tag = ChannelTag.BracketOut;
-  constructor(readonly acquire: IO<R, E, Z>, readonly finalizer: (_: Z, exit: Exit<any, any>) => URIO<R, any>) {
-    super();
-  }
-}
+export interface BracketOut
+  extends ChannelOp<
+    ChannelTag.BracketOut,
+    {
+      readonly i0: IO<any, any, any>;
+      readonly i1: (_: any, __: Exit<any, any>) => URIO<any, any>;
+    }
+  > {}
 
-export class Provide<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> extends Channel<
-  never,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone
-> {
-  readonly _tag = ChannelTag.Provide;
-  constructor(
-    readonly environment: Environment<Env>,
-    readonly inner: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  ) {
-    super();
-  }
-}
+export interface Provide
+  extends ChannelOp<
+    ChannelTag.Provide,
+    {
+      readonly i0: Environment<any>;
+      readonly i1: Primitive;
+    }
+  > {}
 
-export class Emit<OutElem, OutDone> extends Channel<never, unknown, unknown, unknown, never, OutElem, OutDone> {
-  readonly _tag = ChannelTag.Emit;
-  constructor(readonly out: () => OutElem) {
-    super();
-  }
-}
+export interface Emit
+  extends ChannelOp<
+    ChannelTag.Emit,
+    {
+      readonly i0: () => any;
+    }
+  > {}
 
-export class Bridge<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> extends Channel<
-  Env,
-  InErr,
-  InElem,
-  InDone,
-  OutErr,
-  OutElem,
-  OutDone
-> {
-  readonly _tag = ChannelTag.Bridge;
-  constructor(
-    readonly input: AsyncInputProducer<InErr, InElem, InDone>,
-    readonly channel: Channel<Env, unknown, unknown, unknown, OutErr, OutElem, OutDone>,
-  ) {
-    super();
-  }
-}
+export interface Bridge
+  extends ChannelOp<
+    ChannelTag.Bridge,
+    {
+      readonly i0: AsyncInputProducer<any, any, any>;
+      readonly i1: Primitive;
+    }
+  > {}
+
+export type Primitive =
+  | PipeTo
+  | Read
+  | Done
+  | Fail
+  | FromIO
+  | Emit
+  | ConcatAll
+  | Bridge
+  | Fold
+  | Provide
+  | BracketOut
+  | Ensuring
+  | Defer;
 
 /**
  * @tsplus macro remove
  */
 export function concrete<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   _: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-): asserts _ is
-  | PipeTo<Env, InErr, InElem, InDone, OutErr, any, OutElem, any, OutDone, any>
-  | Read<Env, InErr, InElem, InDone, OutErr, any, OutElem, OutDone, any>
-  | Done<OutDone>
-  | Fail<OutErr>
-  | FromIO<Env, OutErr, OutDone>
-  | Emit<OutElem, OutDone>
-  | ConcatAll<Env, InErr, InElem, InDone, OutErr, any, OutElem, any, OutDone, any>
-  | Bridge<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>
-  | Fold<Env, InErr, InElem, InDone, OutErr, any, OutElem, OutDone, any>
-  | Provide<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>
-  | BracketOut<Env, OutErr, OutElem, OutDone>
-  | Ensuring<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>
-  | Defer<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
+): asserts _ is Primitive {
   //
 }
