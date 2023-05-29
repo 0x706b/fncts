@@ -1,5 +1,12 @@
 # @fncts/base
 
+## 0.0.32
+
+### Patch Changes
+
+- 66cdceb: refactor: make Either.match take an object
+- c8c2908: perf: monomorphic ChannelPrimitive
+
 ## 0.0.31
 
 ### Patch Changes

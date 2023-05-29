@@ -1,5 +1,14 @@
 # @fncts/base
 
+## 0.0.32
+
+### Patch Changes
+
+- 66cdceb: refactor: make Either.match take an object
+- Updated dependencies [66cdceb]
+- Updated dependencies [c8c2908]
+  - @fncts/io@0.0.39
+
 ## 0.0.31
 
 ### Patch Changes

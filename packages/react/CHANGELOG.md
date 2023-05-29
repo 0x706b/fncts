@@ -1,5 +1,14 @@
 # @fncts/react
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [66cdceb]
+- Updated dependencies [c8c2908]
+  - @fncts/base@0.0.32
+  - @fncts/io@0.0.39
+
 ## 0.0.10
 
 ### Patch Changes
