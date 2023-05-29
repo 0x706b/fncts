@@ -6,6 +6,11 @@ export interface PSetter<S, T, A, B> {
   readonly set: set<S, T, B>;
 }
 
+export interface PSetterPartiallyApplied<T, A, B> {
+  readonly modify: modifyPartiallyApplied<T, A, B>;
+  readonly set: setPartiallyApplied<T, B>;
+}
+
 /**
  * @tsplus type fncts.optics.PSetterOps
  */
@@ -43,4 +48,12 @@ export interface modify<S, T, A, B> {
 
 export interface set<S, T, B> {
   (b: B): (s: S) => T;
+}
+
+export interface modifyPartiallyApplied<T, A, B> {
+  (f: (a: A) => B): T;
+}
+
+export interface setPartiallyApplied<T, B> {
+  (b: B): T;
 }

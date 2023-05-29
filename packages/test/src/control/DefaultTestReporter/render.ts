@@ -44,11 +44,10 @@ export function renderStats<E>(duration: number, executedSpec: ExecutedSpec<E>) 
           ([x1, x2, x3], [y1, y2, y3]) => [x1 + y1, x2 + y2, x3 + y3] as const,
         ),
       Test: ({ test }) =>
-        test.match(() => [0, 0, 1], matchTag({ Succeeded: () => [1, 0, 0], Ignored: () => [0, 1, 0] })) as readonly [
-          number,
-          number,
-          number,
-        ],
+        test.match({
+          Left: () => [0, 0, 1],
+          Right: matchTag({ Succeeded: () => [1, 0, 0], Ignored: () => [0, 1, 0] }),
+        }) as readonly [number, number, number],
     }),
   );
   const total = success + ignore + failure;
@@ -113,8 +112,8 @@ function renderLoop<E>(
       );
     }
     case ExecutedSpecCaseTag.Test: {
-      const renderedResult = executedSpec.caseValue.test.match(
-        matchTag({
+      const renderedResult = executedSpec.caseValue.test.match({
+        Left: matchTag({
           AssertionFailure: ({ result }) =>
             result.fold<FailureDetailsResult, ExecutionResult>({
               Value: (details) =>
@@ -131,13 +130,13 @@ function renderLoop<E>(
             }),
           RuntimeFailure: ({ cause }) => renderRuntimeCause(cause, labels.reverse.join(" - "), depth, true),
         }),
-        matchTag({
+        Right: matchTag({
           Succeeded: () =>
             rendered(Test, labels.reverse.join(" - "), Passed, depth, List(fr(labels.reverse.join(" - ")).toLine)),
           Ignored: () =>
             rendered(Test, labels.reverse.join(" - "), Ignored, depth, List(warn(labels.reverse.join(" - ")).toLine)),
         }),
-      );
+      });
       return Vector(renderedResult.withAnnotations(ancestors.prepend(executedSpec.caseValue.annotations)));
     }
   }

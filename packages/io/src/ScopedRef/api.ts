@@ -25,13 +25,14 @@ class Synch<A> extends ScopedRef<A> {
     return this.ref.modifyIO(([oldScope, a]) =>
       IO.uninterruptibleMask((restore) =>
         Do((_) => {
+          _(oldScope.close(Exit.unit));
           const newScope = _(Scope.make);
-          const exit     = _(restore(acquire.provideSomeService(newScope, Scope.Tag)).result);
+          const exit     = _(restore(newScope.extend(acquire)).result);
           return _(
             exit.match(
               (cause): UIO<readonly [FIO<E, void>, readonly [Scope.Closeable, A]]> =>
-                newScope.close(Exit.unit).ignore.as([IO.failCauseNow(cause), [oldScope, a]] as const),
-              (a) => oldScope.close(Exit.unit).ignore.as([IO.unit, [newScope, a]] as const),
+                newScope.close(Exit.unit).as([IO.refailCause(cause), [oldScope, a]] as const),
+              (a) => IO.succeedNow([IO.unit, [newScope, a]] as const),
             ),
           );
         }),

@@ -132,8 +132,8 @@ function zipWithChunks<A, B, C>(
   __tsplusTrace?: string,
 ): readonly [Conc<C>, State<A, B>] {
   const [out, r] = zipChunks(leftChunk, rightChunk, f);
-  return r.match(
-    (leftChunk) => (leftChunk.isEmpty ? [out, new PullBoth()] : [out, new PullRight(leftChunk)]),
-    (rightChunk) => (rightChunk.isEmpty ? [out, new PullBoth()] : [out, new PullLeft(rightChunk)]),
-  );
+  return r.match({
+    Left: (leftChunk) => (leftChunk.isEmpty ? [out, new PullBoth()] : [out, new PullRight(leftChunk)]),
+    Right: (rightChunk) => (rightChunk.isEmpty ? [out, new PullBoth()] : [out, new PullLeft(rightChunk)]),
+  });
 }

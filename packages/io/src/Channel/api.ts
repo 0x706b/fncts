@@ -170,10 +170,10 @@ export function catchAll<Env1, InErr1, InElem1, InDone1, OutErr, OutErr1, OutEle
     OutDone | OutDone1
   > => {
     return self.catchAllCause((cause) =>
-      cause.failureOrCause.match(
-        (l) => f(l),
-        (r) => Channel.failCauseNow(r),
-      ),
+      cause.failureOrCause.match({
+        Left: (l) => f(l),
+        Right: (r) => Channel.failCauseNow(r),
+      }),
     );
   };
 }
@@ -633,7 +633,7 @@ export function flatten<
  * @tsplus static fncts.io.ChannelOps fromEither
  */
 export function fromEither<E, A>(either: Lazy<Either<E, A>>): Channel<never, unknown, unknown, unknown, E, never, A> {
-  return Channel.defer(either().match(Channel.failNow, Channel.succeedNow));
+  return Channel.defer(either().match({ Left: Channel.failNow, Right: Channel.succeedNow }));
 }
 
 /**
@@ -674,10 +674,10 @@ export function fromQueue<Err, Elem, Done>(
   queue: Queue.Dequeue<Either<Exit<Err, Done>, Elem>>,
 ): Channel<never, unknown, unknown, unknown, Err, Elem, Done> {
   return Channel.fromIO(queue.take).flatMap((_) =>
-    _.match(
-      (_) => _.match(Channel.failCauseNow, Channel.endNow),
-      (elem) => Channel.writeNow(elem).zipRight(Channel.fromQueue(queue)),
-    ),
+    _.match({
+      Left: (_) => _.match(Channel.failCauseNow, Channel.endNow),
+      Right: (elem) => Channel.writeNow(elem).zipRight(Channel.fromQueue(queue)),
+    }),
   );
 }
 
@@ -934,7 +934,10 @@ export function matchChannel<
     OutElem | OutElem1 | OutElem2,
     OutDone2 | OutDone3
   > => {
-    return channel.matchCauseChannel((cause) => cause.failureOrCause.match(onError, Channel.failCauseNow), onSuccess);
+    return channel.matchCauseChannel(
+      (cause) => cause.failureOrCause.match({ Left: onError, Right: Channel.failCauseNow }),
+      onSuccess,
+    );
   };
 }
 
@@ -1139,7 +1142,7 @@ export function readWith<
   OutElem | OutElem1 | OutElem2,
   OutDone | OutDone1 | OutDone2
 > {
-  return Channel.readWithCause(inp, (c) => c.failureOrCause.match(error, Channel.failCauseNow), done);
+  return Channel.readWithCause(inp, (c) => c.failureOrCause.match({ Left: error, Right: Channel.failCauseNow }), done);
 }
 
 /**

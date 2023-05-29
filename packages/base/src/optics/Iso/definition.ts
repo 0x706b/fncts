@@ -1,5 +1,6 @@
 import type { get } from "@fncts/base/optics/Getter";
-import type { reverseGet } from "@fncts/base/optics/Prism";
+import type { PLensPartiallyApplied } from "@fncts/base/optics/Lens";
+import type { PPrismPartiallyApplied, reverseGet } from "@fncts/base/optics/Prism";
 
 import { PLens } from "@fncts/base/optics/Lens";
 import { PPrism } from "@fncts/base/optics/Prism";
@@ -10,6 +11,10 @@ import { PPrism } from "@fncts/base/optics/Prism";
 export interface PIso<S, T, A, B> extends PLens<S, T, A, B>, PPrism<S, T, A, B> {
   readonly reverse: () => PIso<B, A, T, S>;
 }
+
+export interface PIsoPartiallyApplied<T, A, B>
+  extends PLensPartiallyApplied<T, A, B>,
+    PPrismPartiallyApplied<T, A, B> {}
 
 /**
  * @tsplus type fncts.optics.PIsoOps

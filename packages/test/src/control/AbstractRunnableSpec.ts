@@ -30,10 +30,10 @@ export abstract class AbstractRunnableSpec<R, E> {
       .provideLayer(this.bootstrap.and(TestEnvironment))
       .foreachExec(
         (cause): UIO<Annotated<Either<TestFailure<E>, TestSuccess>>> =>
-          cause.failureOrCause.match(
-            ([failure, annotations]) => IO.succeedNow([Either.left(failure), annotations]),
-            (cause) => IO.succeedNow([Either.left(new RuntimeFailure(cause)), TestAnnotationMap.empty]),
-          ),
+          cause.failureOrCause.match({
+            Left: ([failure, annotations]) => IO.succeedNow([Either.left(failure), annotations]),
+            Right: (cause) => IO.succeedNow([Either.left(new RuntimeFailure(cause)), TestAnnotationMap.empty]),
+          }),
         ([success, annotations]): UIO<Annotated<Either<TestFailure<E>, TestSuccess>>> =>
           IO.succeedNow([Either.right(success), annotations]),
         ExecutionStrategy.concurrentBounded(10),

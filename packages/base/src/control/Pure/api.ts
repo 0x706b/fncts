@@ -8,7 +8,7 @@ import { identity, tuple } from "../../data/function.js";
 export function absolve<W, S1, S2, R, E, E1, A>(
   fa: Pure<W, S1, S2, R, E, Either<E1, A>>,
 ): Pure<W, S1, S2, R, E | E1, A> {
-  return fa.flatMap((ea) => ea.match(Pure.failNow, Pure.succeedNow));
+  return fa.flatMap((ea) => ea.match({ Left: Pure.failNow, Right: Pure.succeedNow }));
 }
 
 /**
@@ -350,7 +350,10 @@ export function matchPure<S5, S2, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>(
   onSuccess: (a: A) => Pure<W2, S2, S4, R2, E2, C>,
 ) {
   return <W, S1, R>(fa: Pure<W, S1, S2, R, E, A>): Pure<W | W1 | W2, S1 & S5, S3 | S4, R | R1 | R2, E1 | E2, B | C> => {
-    return fa.matchCausePure((cause) => cause.failureOrCause.match(onFailure, Pure.failCauseNow), onSuccess);
+    return fa.matchCausePure(
+      (cause) => cause.failureOrCause.match({ Left: onFailure, Right: Pure.failCauseNow }),
+      onSuccess,
+    );
   };
 }
 
@@ -378,7 +381,7 @@ export function matchLogPure<W, S5, S2, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2,
 ) {
   return <S1, R>(fa: Pure<W, S1, S2, R, E, A>): Pure<W | W1 | W2, S1 & S5, S3 | S4, R | R1 | R2, E1 | E2, B | C> => {
     return fa.matchLogCausePure(
-      (ws, cause) => cause.failureOrCause.match((e) => onFailure(ws, e), Pure.failCauseNow),
+      (ws, cause) => cause.failureOrCause.match({ Left: (e) => onFailure(ws, e), Right: Pure.failCauseNow }),
       onSuccess,
     );
   };
@@ -428,7 +431,7 @@ export function modifyEither<S1, S2, E, A>(
 ): Pure<never, S1, S2, never, E, A> {
   return Pure.get<S1>()
     .map(f)
-    .flatMap((r) => r.match(Pure.failNow, ([a, s2]) => Pure.succeedNow(a).mapState(() => s2)));
+    .flatMap((r) => r.match({ Left: Pure.failNow, Right: ([a, s2]) => Pure.succeedNow(a).mapState(() => s2) }));
 }
 
 /**

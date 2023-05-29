@@ -476,14 +476,14 @@ export function partitionMapWithIndex<K, V, A, B>(f: (i: K, a: V) => Either<A, B
     const left  = makeWith<K, A>(self.config).beginMutation;
     const right = makeWith<K, B>(self.config).beginMutation;
     self.forEachWithIndex((k, v) => {
-      f(k, v).match(
-        (a) => {
+      f(k, v).match({
+        Left: (a) => {
           left.set(k, a);
         },
-        (b) => {
+        Right: (b) => {
           right.set(k, b);
         },
-      );
+      });
     });
     return [left.endMutation, right.endMutation];
   };

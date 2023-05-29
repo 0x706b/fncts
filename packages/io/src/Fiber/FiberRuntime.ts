@@ -293,7 +293,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
     let ops       = 0;
 
     while (true) {
-      if (this._runtimeFlags.opSupervision) {
+      if ((this._runtimeFlags & RuntimeFlag.OpSupervision) !== 0) {
         this.getSupervisor().unsafeOnEffect(this, cur);
       }
 
@@ -304,7 +304,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
 
       ops += 1;
 
-      if (ops > 2048) {
+      if (ops > this.getFiberRef(FiberRef.currentMaxFiberOps)) {
         ops          = 0;
         const oldCur = cur;
         const trace  = lastTrace;
@@ -545,7 +545,10 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
   }
 
   getFiberRef<A>(fiberRef: FiberRef<A>): A {
-    return this._fiberRefs.getOrDefault(fiberRef);
+    if (this._fiberRefs.unFiberRefs.has(fiberRef)) {
+      return this._fiberRefs.unFiberRefs.unsafeGet(fiberRef)!.head[1] as A;
+    }
+    return fiberRef.initial;
   }
 
   tell(message: FiberMessage): void {

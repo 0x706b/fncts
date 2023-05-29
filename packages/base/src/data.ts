@@ -22,6 +22,7 @@ export type {} from "./data/ExecutionStrategy.js";
 export type {} from "./data/Exit.js";
 export type {} from "./data/FiberId.js";
 export type {} from "./data/function.js";
+export type {} from "./data/Global.js";
 export type {} from "./data/Guard.js";
 export type {} from "./data/Hash.js";
 export type {} from "./data/Hashable.js";

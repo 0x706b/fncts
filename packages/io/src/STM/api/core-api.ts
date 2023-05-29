@@ -65,6 +65,6 @@ export function matchSTM<E, A, R1, E1, B, R2, E2, C>(
     return self
       .map(Either.right)
       .catchAll((e) => g(e).map(Either.left))
-      .flatMap((ca) => ca.match(STM.succeedNow, f));
+      .flatMap((ca) => ca.match({ Left: STM.succeedNow, Right: f }));
   };
 }

@@ -9,7 +9,10 @@
     "tsPlusConfig": "../config/tsplus.config.json",
     "tsBuildInfoFile": "build/tsbuildinfo/esm.tsbuildinfo"
   },
-  "include": [
-    "./src/**/*"
+  "include": ["./src/**/*"],
+  "references": [
+    {
+      "path": "../base/tsconfig.build.json"
+    }
   ]
 }

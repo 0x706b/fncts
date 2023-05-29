@@ -1,4 +1,5 @@
 import type { set } from "@fncts/base/optics/Setter";
+import type { PTraversalPartiallyApplied } from "@fncts/base/optics/Traversal";
 
 import { pipe } from "@fncts/base/data/function";
 import { PTraversal } from "@fncts/base/optics/Traversal";
@@ -10,6 +11,12 @@ export interface POptional<S, T, A, B> extends PTraversal<S, T, A, B> {
   readonly getMaybe: getMaybe<S, A>;
   readonly getOrModify: getOrModify<S, T, A>;
   readonly modifyMaybe: modifyMaybe<S, T, A, B>;
+}
+
+export interface POptionalPartiallyApplied<T, A, B> extends PTraversalPartiallyApplied<T, A, B> {
+  readonly getMaybe: getMaybePartiallyApplied<A>;
+  readonly getOrModify: getOrModifyPartiallyApplied<T, A>;
+  readonly modifyMaybe: modifyMaybePartiallyApplied<T, A, B>;
 }
 
 export interface POptionalMin<S, T, A, B> {
@@ -35,10 +42,10 @@ export function makePOptional<S, T, A, B>(F: POptionalMin<S, T, A, B>): POptiona
     modifyMaybe: (f) => (s) => getMaybe(s).map((a) => pipe(s, F.set(f(a)))),
     ...PTraversal<S, T, A, B>({
       modifyA: (A) => (f) => (s) =>
-        F.getOrModify(s).match(
-          (t) => A.pure(t),
-          (a) => f(a).pipe(A.map((b) => s.pipe(F.set(b)))),
-        ),
+        F.getOrModify(s).match({
+          Left: (t) => A.pure(t),
+          Right: (a) => f(a).pipe(A.map((b) => s.pipe(F.set(b)))),
+        }),
     }),
   };
 }
@@ -80,4 +87,16 @@ export interface replaceMaybe_<S, T, B> {
 
 export interface replaceMaybe<S, T, B> {
   (b: B): (s: S) => Maybe<T>;
+}
+
+export interface getMaybePartiallyApplied<A> {
+  (): Maybe<A>;
+}
+
+export interface getOrModifyPartiallyApplied<T, A> {
+  (): Either<T, A>;
+}
+
+export interface modifyMaybePartiallyApplied<T, A, B> {
+  (f: (a: A) => B): Maybe<T>;
 }

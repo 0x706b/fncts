@@ -864,10 +864,10 @@ export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B,
       const array = result.value;
       for (let j = 0; j < array.length; j++) {
         const eab = f(i, array[j]!);
-        eab.match(
-          (b) => left.append(b),
-          (c) => right.append(c),
-        );
+        eab.match({
+          Left: (b) => left.append(b),
+          Right: (c) => right.append(c),
+        });
         i++;
       }
     }

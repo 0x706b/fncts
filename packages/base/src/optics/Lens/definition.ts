@@ -1,4 +1,5 @@
-import type { get } from "@fncts/base/optics/Getter";
+import type { get, GetterPartiallyApplied } from "@fncts/base/optics/Getter";
+import type { POptionalPartiallyApplied } from "@fncts/base/optics/Optional";
 import type { set } from "@fncts/base/optics/Setter";
 
 import { Getter } from "@fncts/base/optics/Getter";
@@ -8,6 +9,8 @@ import { POptional } from "@fncts/base/optics/Optional";
  * @tsplus type fncts.optics.PLens
  */
 export interface PLens<S, T, A, B> extends POptional<S, T, A, B>, Getter<S, A> {}
+
+export interface PLensPartiallyApplied<T, A, B> extends POptionalPartiallyApplied<T, A, B>, GetterPartiallyApplied<A> {}
 
 /**
  * @tsplus type fncts.optics.PLensOps

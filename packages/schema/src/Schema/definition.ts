@@ -30,3 +30,10 @@ export interface OptionalSchema<in out A> extends Schema<A> {
 export declare namespace Schema {
   export type Infer<S extends Schema<any>> = Parameters<S[SchemaVariance]["_A"]>[0];
 }
+
+/**
+ * @tsplus static fncts.schema.SchemaOps isSchema
+ */
+export function isSchema(u: unknown): u is Schema<unknown> {
+  return isObject(u) && SchemaTypeId in u;
+}

@@ -8,7 +8,7 @@ export class LiveConsole extends Console {
     return IO(console.log(line));
   }
   error(line: string) {
-    return IO(console.debug(line));
+    return IO(console.error(line));
   }
 }
 

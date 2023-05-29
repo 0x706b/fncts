@@ -20,18 +20,18 @@ export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
   return P.Eq({
     equals: (y) => (x) =>
       x === y ||
-      x.match(
-        (e1) =>
-          y.match(
-            (e2) => EE.equals(e2)(e1),
-            () => false,
-          ),
-        (a1) =>
-          y.match(
-            () => false,
-            (a2) => EA.equals(a2)(a1),
-          ),
-      ),
+      x.match({
+        Left: (e1) =>
+          y.match({
+            Left: (e2) => EE.equals(e2)(e1),
+            Right: () => false,
+          }),
+        Right: (a1) =>
+          y.match({
+            Left: () => false,
+            Right: (a2) => EA.equals(a2)(a1),
+          }),
+      }),
   });
 }
 

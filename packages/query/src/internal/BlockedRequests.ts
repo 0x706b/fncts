@@ -121,8 +121,8 @@ function foldLoop<R, Z>(
 ): List<Z> {
   if (inp.isEmpty()) {
     return out.foldLeft(List.empty(), (acc, r) =>
-      r.match(
-        (c) => {
+      r.match({
+        Left: (c) => {
           const left            = acc.unsafeHead;
           const right           = acc.unsafeTail.unsafeHead;
           const blockedRequests = acc.unsafeTail.unsafeTail;
@@ -135,8 +135,8 @@ function foldLoop<R, Z>(
             }
           }
         },
-        (z) => Cons(z, acc),
-      ),
+        Right: (z) => Cons(z, acc),
+      }),
     );
   } else {
     const head = inp.head;

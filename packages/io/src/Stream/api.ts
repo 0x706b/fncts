@@ -56,7 +56,9 @@ export function aggregateAsyncWithin<R1, E1, A1, B, R2, C>(
   __tsplusTrace?: string,
 ) {
   return <R, E, A extends A1>(stream: Stream<R, E, A>): Stream<R | R1 | R2, E | E1, B> => {
-    return stream.aggregateAsyncWithinEither(sink, schedule).filterMap((cb) => cb.match(() => Nothing(), Maybe.just));
+    return stream
+      .aggregateAsyncWithinEither(sink, schedule)
+      .filterMap((cb) => cb.match({ Left: () => Nothing(), Right: Maybe.just }));
   };
 }
 
@@ -165,14 +167,14 @@ export function aggregateAsyncWithinEither<R1, E1, A1, B, R2, C>(
             (scheduleExit, sinkFiber) =>
               IO.fromExit(scheduleExit).matchCauseIO(
                 (cause) =>
-                  cause.failureOrCause.match(
-                    () =>
+                  cause.failureOrCause.match({
+                    Left: () =>
                       handoff.offer(HandoffSignal.End(new ScheduleEnd())).forkDaemon >
                       sinkFiber.join.map(([leftovers, b]) => handleSide(leftovers, b, Nothing())),
-                    (cause) =>
+                    Right: (cause) =>
                       handoff.offer(HandoffSignal.Halt(cause)).forkDaemon >
                       sinkFiber.join.map(([leftovers, b]) => handleSide(leftovers, b, Nothing())),
-                  ),
+                  }),
                 (c) =>
                   handoff.offer(HandoffSignal.End(new ScheduleEnd())).forkDaemon >
                   sinkFiber.join.map(([leftovers, b]) => handleSide(leftovers, b, Just(c))),
@@ -255,8 +257,8 @@ export function asyncInterrupt<R, E, A>(
           }),
         ),
       );
-      return eitherStream.match(
-        (canceler) => {
+      return eitherStream.match({
+        Left: (canceler) => {
           const loop: Channel<never, unknown, unknown, unknown, E, Conc<A>, void> = Channel.unwrap(
             output.take
               .flatMap((take) => take.done)
@@ -267,8 +269,8 @@ export function asyncInterrupt<R, E, A>(
           );
           return new Stream(loop).ensuring(canceler);
         },
-        (stream) => Stream.unwrap(output.shutdown.as(stream)),
-      );
+        Right: (stream) => Stream.unwrap(output.shutdown.as(stream)),
+      });
     }),
   );
 }
@@ -336,10 +338,10 @@ export function asyncIO<R, E, A, R1 = R, E1 = E>(
             .matchCauseIO(
               (cause) =>
                 output.shutdown.as(
-                  cause.failureOrCause.match(
-                    (maybeError) => maybeError.match(() => Channel.endNow(undefined), Channel.failNow),
-                    Channel.failCauseNow,
-                  ),
+                  cause.failureOrCause.match({
+                    Left: (maybeError) => maybeError.match(() => Channel.endNow(undefined), Channel.failNow),
+                    Right: Channel.failCauseNow,
+                  }),
                 ),
               (as) => IO.succeed(Channel.writeNow(as) > loop),
             ),
@@ -577,7 +579,7 @@ function bufferSignalConsumer<R, E, A>(
  */
 export function catchAll<R1, E, E1, A1>(f: (e: E) => Stream<R1, E1, A1>, __tsplusTrace?: string) {
   return <R, A>(stream: Stream<R, E, A>): Stream<R | R1, E1, A | A1> => {
-    return stream.catchAllCause((cause) => cause.failureOrCause.match(f, Stream.failCauseNow));
+    return stream.catchAllCause((cause) => cause.failureOrCause.match({ Left: f, Right: Stream.failCauseNow }));
   };
 }
 
@@ -3208,7 +3210,7 @@ export function toPull<R, E, A>(
   __tsplusTrace?: string,
 ): IO<R | Scope, never, IO<R, Maybe<E>, Conc<A>>> {
   return stream.channel.toPull.map((io) =>
-    io.mapError(Maybe.just).flatMap((r) => r.match(() => IO.failNow(Nothing()), IO.succeedNow)),
+    io.mapError(Maybe.just).flatMap((r) => r.match({ Left: () => IO.failNow(Nothing()), Right: IO.succeedNow })),
   );
 }
 
@@ -3430,22 +3432,22 @@ export function zipWithLatest<A, R1, E1, B, C>(fb: Stream<R1, E1, B>, f: (a: A, 
                 Stream.repeatIOMaybe(left)
                   .mergeEither(Stream.repeatIOMaybe(right))
                   .mapIO((ab) =>
-                    ab.match(
-                      (leftChunk) =>
+                    ab.match({
+                      Left: (leftChunk) =>
                         latest.modify(([_, rightLatest]) =>
                           tuple(
                             leftChunk.map((a) => f(a, rightLatest)),
                             tuple(leftChunk.unsafeGet(leftChunk.length - 1), rightLatest),
                           ),
                         ),
-                      (rightChunk) =>
+                      Right: (rightChunk) =>
                         latest.modify(([leftLatest, _]) =>
                           tuple(
                             rightChunk.map((b) => f(leftLatest, b)),
                             tuple(leftLatest, rightChunk.unsafeGet(rightChunk.length - 1)),
                           ),
                         ),
-                    ),
+                    }),
                   )
                   .flatMap(Stream.fromChunkNow),
               ),

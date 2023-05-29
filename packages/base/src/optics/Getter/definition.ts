@@ -1,7 +1,11 @@
-import type { Fold } from "@fncts/base/optics/Fold";
+import type { Fold, FoldPartiallyApplied } from "@fncts/base/optics/Fold";
 
 export interface get<S, A> {
   (s: S): A;
+}
+
+export interface getPartiallyApplied<A> {
+  (): A;
 }
 
 /**
@@ -9,6 +13,10 @@ export interface get<S, A> {
  */
 export interface Getter<S, A> extends Fold<S, A> {
   readonly get: get<S, A>;
+}
+
+export interface GetterPartiallyApplied<A> extends FoldPartiallyApplied<A> {
+  readonly get: getPartiallyApplied<A>;
 }
 
 /**

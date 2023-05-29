@@ -1,4 +1,5 @@
 import type { Eq } from "@fncts/base/typeclass";
+
 /**
  * @tsplus getter fncts.Array elem
  * @tsplus getter fncts.ReadonlyArray elem
@@ -13,6 +14,41 @@ export function elem<A>(self: ReadonlyArray<A>) {
       }
       return false;
     };
+}
+
+/**
+ * @tsplus pipeable fncts.Array filterMap
+ * @tsplus pipeable fncts.ReadonlyArray filterMap
+ */
+export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
+  return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
+    const out: Array<B> = [];
+    for (let i = 0; i < self.length; i++) {
+      const v = f(self[i]!);
+      Maybe.concrete(v);
+      if (v._tag === MaybeTag.Just) {
+        out.push(v.value);
+      }
+    }
+    return out;
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Array filterMap
+ * @tsplus pipeable fncts.ReadonlyArray filterMap
+ */
+export function filterMapUndefined<A, B>(f: (a: A) => B | undefined) {
+  return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
+    const out: Array<B> = [];
+    for (let i = 0; i < self.length; i++) {
+      const v = f(self[i]!);
+      if (v !== undefined) {
+        out.push(v);
+      }
+    }
+    return out;
+  };
 }
 
 /**
@@ -52,5 +88,20 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
       out = f(i, out, self[i]!);
     }
     return out;
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Array updateAt
+ * @tsplus pipeable fncts.ReadonlyArray updateAt
+ */
+export function updateAt<A>(i: number, a: A) {
+  return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
+    if (i in self) {
+      const copy = self.slice();
+      copy[i]    = a;
+      return copy;
+    }
+    return self;
   };
 }

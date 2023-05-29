@@ -3,14 +3,14 @@ import { EitherTag } from "./definition.js";
 /**
  * @tsplus pipeable fncts.Either match
  */
-export function match<E, A, B, C>(left: (e: E) => B, right: (a: A) => C) {
+export function match<E, A, B, C>(cases: { Left: (e: E) => B; Right: (a: A) => C }) {
   return (self: Either<E, A>): B | C => {
     self.concrete();
     switch (self._tag) {
       case EitherTag.Left:
-        return left(self.left);
+        return cases.Left(self.left);
       case EitherTag.Right:
-        return right(self.right);
+        return cases.Right(self.right);
     }
   };
 }

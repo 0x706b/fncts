@@ -303,16 +303,16 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
       Pending: () => [self.unsafeCoerce(), self.unsafeCoerce()],
       RefreshLeft: () => [self.unsafeCoerce(), self.unsafeCoerce()],
       RefreshRight: (a) =>
-        f(a).match(
-          (b) => [DatumEither.refreshRight(b), DatumEither.initial()],
-          (c) => [DatumEither.initial(), DatumEither.refreshRight(c)],
-        ),
+        f(a).match({
+          Left: (b) => [DatumEither.refreshRight(b), DatumEither.initial()],
+          Right: (c) => [DatumEither.initial(), DatumEither.refreshRight(c)],
+        }),
       RepleteLeft: () => [self.unsafeCoerce(), self.unsafeCoerce()],
       RepleteRight: (a) =>
-        f(a).match(
-          (b) => [DatumEither.repleteRight(b), DatumEither.initial()],
-          (c) => [DatumEither.initial(), DatumEither.repleteRight(c)],
-        ),
+        f(a).match({
+          Left: (b) => [DatumEither.repleteRight(b), DatumEither.initial()],
+          Right: (c) => [DatumEither.initial(), DatumEither.repleteRight(c)],
+        }),
     });
   };
 }

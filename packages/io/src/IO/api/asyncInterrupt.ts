@@ -25,14 +25,14 @@ export function asyncInterrupt<R, E, A>(
     let cancelerRef: URIO<R, any> = IO.unit!;
     return IO.async<R, E, A>((k) => {
       const result = register(k);
-      result.match(
-        (canceler) => {
+      result.match({
+        Left: (canceler) => {
           cancelerRef = canceler;
         },
-        (done) => {
+        Right: (done) => {
           k(done);
         },
-      );
+      });
     }, blockingOn).onInterrupt(() => cancelerRef);
   });
 }

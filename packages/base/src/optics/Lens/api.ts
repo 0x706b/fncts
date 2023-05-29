@@ -1,9 +1,23 @@
-import type { Optional } from "@fncts/base/optics/Optional";
+import type { PLensPartiallyApplied } from "@fncts/base/optics/Lens/definition";
+import type { Optional, POptional } from "@fncts/base/optics/Optional";
+import type { PTraversal } from "@fncts/base/optics/Traversal";
 import type { AutoPath, Path } from "@fncts/typelevel/Object";
 
 import { identity } from "@fncts/base/data/function";
 import { Lens, PLens } from "@fncts/base/optics/Lens/definition";
 import { Prism } from "@fncts/base/optics/Prism";
+
+/**
+ * @tsplus pipeable global focus
+ */
+export function focus<S, T, A, B>(lens: PLens<S, T, A, B>) {
+  return (self: S): PLensPartiallyApplied<T, A, B> => {
+    return {
+      ...self.focus(lens as POptional<S, T, A, B>),
+      get: () => lens.get(self),
+    };
+  };
+}
 
 /**
  * @tsplus pipeable fncts.optics.PLens component
@@ -114,16 +128,14 @@ function nestPath<A>(p: ReadonlyNonEmptyArray<string>, a: A): Record<string, unk
   return out;
 }
 
-/**
- * @tsplus pipeable fncts.optics.Lens path
- */
-export function path<A extends Record<string, unknown>, P extends Array<string>>(path: readonly [...AutoPath<A, P>]) {
-  return <S>(self: Lens<S, A>): Lens<S, Path<A, P>> => {
+function anyPath(path: ReadonlyArray<string>) {
+  return (self: Lens<any, any>): Lens<any, any> => {
     return Lens({
-      get: (s) => path.foldLeft<string, Record<string, unknown>>(self.get(s), (b, p) => b[p] as A) as Path<A, P>,
+      get: (s) =>
+        path.foldLeft<string, Record<string, unknown>>(self.get(s), (b, p) => b[p] as Record<string, unknown>),
       set: (a) => (s) => {
         const os = self.get(s);
-        const oa = path.foldLeft(os, (b, p) => b[p as string] as A);
+        const oa = path.foldLeft(os, (b, p) => b[p as string] as Record<string, unknown>);
         if (a === oa) {
           return s;
         }
@@ -131,4 +143,20 @@ export function path<A extends Record<string, unknown>, P extends Array<string>>
       },
     });
   };
+}
+
+/**
+ * @tsplus pipeable fncts.optics.Lens path
+ */
+export function path<A extends Record<string, unknown>, P extends Array<string>>(path: readonly [...AutoPath<A, P>]) {
+  return <S>(self: Lens<S, A>): Lens<S, Path<A, P>> => {
+    return anyPath(path)(self);
+  };
+}
+
+/**
+ * @tsplus static fncts.optics.LensOps fromPath
+ */
+export function fromPath<S, P extends Array<string>>(path: readonly [...AutoPath<S, P>]): Lens<S, Path<S, P>> {
+  return anyPath(path)(Lens.id());
 }

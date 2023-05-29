@@ -14,7 +14,7 @@ export type RuntimeFlags = number & {
  */
 export interface RuntimeFlagsOps {}
 
-export const RuntimeFlags: RuntimeFlagsOps = Newtype();
+export const RuntimeFlags: RuntimeFlagsOps = {};
 
 export declare namespace RuntimeFlags {
   type Patch = RuntimeFlagsPatch;

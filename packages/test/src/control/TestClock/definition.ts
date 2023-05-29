@@ -98,13 +98,13 @@ export class TestClock extends Clock {
   get supervizedFibers(): UIO<HashSet<Fiber.Runtime<any, any>>> {
     return IO.fiberId.flatMap((fiberId) =>
       this.annotations.get(TestAnnotation.Fibers).flatMap((_) =>
-        _.match(
-          (_) => IO.succeed(HashSet.empty()),
-          (fibers) =>
+        _.match({
+          Left: (_) => IO.succeed(HashSet.empty()),
+          Right: (fibers) =>
             IO.foreach(fibers, (ref) => ref.get)
               .map((_) => _.foldLeft(HashSet.empty<Fiber.Runtime<any, any>>(), (s0, s1) => s0.union(s1)))
               .map((set) => set.filter((f) => !Equatable.strictEquals(f.id, fiberId))),
-        ),
+        }),
       ),
     );
   }

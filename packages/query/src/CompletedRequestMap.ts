@@ -14,14 +14,14 @@ export class CompletedRequestMap {
   }
 
   insertMaybe<E, A>(request: Request<E, A>, result: Either<E, Maybe<A>>): CompletedRequestMap {
-    return result.match(
-      (e) => this.insert(request, Left(e)),
-      (r) =>
+    return result.match({
+      Left: (e) => this.insert(request, Left(e)),
+      Right: (r) =>
         r.match(
           () => this,
           (a) => this.insert(request, Right(a)),
         ),
-    );
+    });
   }
 
   lookup<E, A>(request: Request<E, A>): Maybe<Either<E, A>> {

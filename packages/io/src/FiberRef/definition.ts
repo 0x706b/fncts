@@ -1,3 +1,4 @@
+import { globalValue } from "@fncts/base/data/Global";
 import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
 
 export const FiberRefVariance = Symbol.for("fncts.io.FiberRef.Variance");
@@ -24,7 +25,9 @@ export declare namespace FiberRef {
   }
 }
 
-const fiberRefCounter = new AtomicNumber(0);
+const FiberRefCounterId = Symbol.for("fncts.io.FiberRef.FiberRefCounter");
+
+const fiberRefCounter = globalValue(FiberRefCounterId, () => new AtomicNumber(0));
 
 /**
  * @tsplus type fncts.io.FiberRef

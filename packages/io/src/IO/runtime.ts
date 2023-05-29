@@ -96,9 +96,12 @@ export class Runtime<R> {
   };
 
   unsafeRun = <E, A>(io: IO<R, E, A>, __tsplusTrace?: string): Exit<E, A> => {
-    return this.unsafeRunOrFork(io).match(() => {
-      throw new Error("Encountered async boundary");
-    }, Function.identity);
+    return this.unsafeRunOrFork(io).match({
+      Left: () => {
+        throw new Error("Encountered async boundary");
+      },
+      Right: Function.identity,
+    });
   };
 }
 

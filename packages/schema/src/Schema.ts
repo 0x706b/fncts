@@ -13,3 +13,5 @@ export * from "./Schema/api/immutableArray.js";
 export * from "./Schema/api/list.js";
 export * from "./Schema/api/maybe.js";
 // codegen:end
+
+export type {} from "./Parser.js";

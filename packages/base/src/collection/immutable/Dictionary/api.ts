@@ -33,6 +33,38 @@ export function get(key: string) {
 }
 
 /**
+ * @tsplus pipeable fncts.Dictionary set
+ */
+export function set<A>(key: string, value: A) {
+  return (self: Dictionary<A>): Dictionary<A> => {
+    return Dictionary({ ...self.toRecord, [key]: value });
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Dictionary remove
+ */
+export function remove(key: string) {
+  return <A>(self: Dictionary<A>): Dictionary<A> => {
+    const out = { ...self.toRecord };
+    delete out[key];
+    return Dictionary(out);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Dictionary update
+ */
+export function update<A>(key: string, f: (a: Maybe<A>) => Maybe<A>) {
+  return (self: Dictionary<A>): Dictionary<A> => {
+    return f(self.get(key)).match(
+      () => self.remove(key),
+      (a) => self.set(key, a),
+    );
+  };
+}
+
+/**
  * @tsplus getter fncts.Dictionary keys
  */
 export function keys<A>(self: Dictionary<A>): ReadonlyArray<string> {
@@ -62,6 +94,14 @@ export function mapWithIndex<A, B>(f: (k: string, a: A) => B) {
     }
     return Dictionary.get(out);
   };
+}
+
+/**
+ * @tsplus static fncts.DictionaryOps __call
+ * @tsplus macro identity
+ */
+export function fromRecord<A>(self: Record<string, A>): Dictionary<A> {
+  return Dictionary.get(self);
 }
 
 /**

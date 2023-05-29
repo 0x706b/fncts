@@ -115,3 +115,8 @@ export const currentIsFatal = FiberRef.unsafeMake<IsFatal>(IsFatal.empty);
 export const currentReportFatal = FiberRef.unsafeMake<(t: unknown) => never>((t) => {
   throw t;
 });
+
+/**
+ * @tsplus static fncts.io.FiberRefOps currentMaxFiberOps
+ */
+export const currentMaxFiberOps = FiberRef.unsafeMake<number>(2048);

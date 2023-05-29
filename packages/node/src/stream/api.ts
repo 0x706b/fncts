@@ -108,7 +108,7 @@ export function transform(transform: Lazy<stream.Transform>) {
             cb(IO.failNow(Nothing()));
           });
         }).zipRight(self.run(sink)),
-      ),
+      ).ensuring(IO(transform.removeAllListeners())),
     );
   };
 }

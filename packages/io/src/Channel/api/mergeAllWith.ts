@@ -40,10 +40,10 @@ export function mergeAllWith<OutDone>(
           const evaluatePull = (pull: IO<Env | Env1, OutErr | OutErr1, Either<OutDone, OutElem>>) =>
             pull
               .flatMap((ea) =>
-                ea.match(
-                  (outDone) => IO.succeedNow(Just(outDone)),
-                  (outElem) => queue.offer(IO.succeedNow(Either.right(outElem))).as(Nothing()),
-                ),
+                ea.match({
+                  Left: (outDone) => IO.succeedNow(Just(outDone)),
+                  Right: (outElem) => queue.offer(IO.succeedNow(Either.right(outElem))).as(Nothing()),
+                }),
               )
               .repeatUntil((m) => m.isJust())
               .flatMap((md1) =>
@@ -64,8 +64,8 @@ export function mergeAllWith<OutDone>(
                 (cause) =>
                   getChildren.flatMap(Fiber.interruptAll).zipRight(queue.offer(IO.failCauseNow(cause)).as(false)),
                 (doneOrChannel) =>
-                  doneOrChannel.match(
-                    (outDone) =>
+                  doneOrChannel.match({
+                    Left: (outDone) =>
                       errorSignal.await.raceWith(
                         permits.withPermits(n)(IO.unit),
                         (_, permitAcquisition) =>
@@ -82,7 +82,7 @@ export function mergeAllWith<OutDone>(
                               .as(false),
                           ),
                       ),
-                    (channel) => {
+                    Right: (channel) => {
                       switch (mergeStrategy) {
                         case "BackPressure":
                           return Do((Δ) => {
@@ -109,7 +109,7 @@ export function mergeAllWith<OutDone>(
                           });
                       }
                     },
-                  ),
+                  }),
               )
               .repeatWhile(identity).fork,
           );
@@ -119,7 +119,7 @@ export function mergeAllWith<OutDone>(
         const consumer: Channel<Env | Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem, OutDone> =
           Channel.unwrap(
             queue.take.flatten.matchCause(Channel.failCauseNow, (out) =>
-              out.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).zipRight(consumer)),
+              out.match({ Left: Channel.endNow, Right: (outElem) => Channel.writeNow(outElem).zipRight(consumer) }),
             ),
           );
         return consumer;

@@ -71,7 +71,7 @@ export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgeb
       },
       Not: (v) => v.swap,
     })
-    .match(Maybe.just, () => Nothing());
+    .match({ Left: Maybe.just, Right: () => Nothing() });
 }
 
 /**

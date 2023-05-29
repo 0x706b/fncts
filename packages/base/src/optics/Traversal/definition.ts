@@ -1,3 +1,5 @@
+import type { FoldPartiallyApplied } from "@fncts/base/optics/Fold";
+import type { PSetterPartiallyApplied } from "@fncts/base/optics/Setter";
 import type { Applicative, Monoid } from "@fncts/base/typeclass";
 
 import { Fold } from "@fncts/base/optics/Fold";
@@ -12,6 +14,14 @@ export interface PTraversal<S, T, A, B> extends PSetter<S, T, A, B>, Fold<S, A> 
   ) => <K, Q, W, X, I, _S, R, E>(
     f: (a: A) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, B>,
   ) => (s: S) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, T>;
+}
+
+export interface PTraversalPartiallyApplied<T, A, B> extends PSetterPartiallyApplied<T, A, B>, FoldPartiallyApplied<A> {
+  modifyA: <F extends HKT, FC = HKT.None>(
+    F: Applicative<F, FC>,
+  ) => <K, Q, W, X, I, _S, R, E>(
+    f: (a: A) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, B>,
+  ) => HKT.Kind<F, FC, K, Q, W, X, I, _S, R, E, T>;
 }
 
 export interface PTraversalMin<S, T, A, B> {
