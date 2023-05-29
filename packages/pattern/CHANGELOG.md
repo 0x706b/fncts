@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.14
+
+### Patch Changes
+
+- 66cdceb: refactor: make Either.match take an object
+
 ## 0.0.13
 
 ### Patch Changes
