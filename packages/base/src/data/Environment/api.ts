@@ -1,6 +1,11 @@
 /**
  * @tsplus pipeable fncts.Environment add
  */
+export function add<H extends S, S = H>(service: H, tag: Tag<S>): <R>(self: Environment<R>) => Environment<R | S>;
+export function add<H extends S, S = H, I = S>(
+  service: H,
+  tag: Tag<S, I>,
+): <R>(self: Environment<R>) => Environment<R | I>;
 export function add<H extends S, S = H>(service: H, tag: Tag<S>) {
   return <R>(self: Environment<R>): Environment<R | S> => {
     return new Environment(self.map.set(tag, service));
@@ -12,13 +17,13 @@ export function add<H extends S, S = H>(service: H, tag: Tag<S>) {
  */
 export const empty = Environment();
 
-type Tags<R> = R extends infer S ? Tag<S> : never;
+type Tags<R> = R extends infer S ? Tag<any, S> : never;
 
 /**
  * @tsplus pipeable fncts.Environment get
  */
 export function get<R, T extends Tags<R>>(tag: T) {
-  return (self: Environment<R>): T extends Tag<infer S> ? S : never => {
+  return (self: Environment<R>): Tag.Service<T> => {
     return unsafeCoerce(self.unsafeGet(tag));
   };
 }
@@ -26,8 +31,8 @@ export function get<R, T extends Tags<R>>(tag: T) {
 /**
  * @tsplus pipeable fncts.Environment getMaybe
  */
-export function getMaybe<S>(tag: Tag<S>) {
-  return <R extends Has<S>>(self: Environment<R>): Maybe<S> => {
+export function getMaybe<S, I>(tag: Tag<S, I>) {
+  return <R>(self: Environment<R>): Maybe<S> => {
     return self.cache.get(tag) as Maybe<S>;
   };
 }
@@ -52,7 +57,7 @@ export function union<R1>(that: Environment<R1>) {
 /**
  * @tsplus pipeable fncts.Environment unsafeGet
  */
-export function unsafeGet<S>(tag: Tag<S>) {
+export function unsafeGet<S, I>(tag: Tag<S, I>) {
   return <R>(self: Environment<R>): S => {
     return self.cache.get(tag).match(
       () => {

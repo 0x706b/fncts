@@ -521,6 +521,9 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
             cur = IO.concrete(IO.succeedNow(cur.value));
             break;
           }
+          case "Tag": {
+            cur = IO.concrete(IO.service(cur));
+          }
         }
       } catch (e) {
         if (isIOError(e)) {

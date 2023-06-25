@@ -540,6 +540,43 @@ export function partition<V>(predicate: Predicate<V>) {
 /**
  * Reduce a state over the map entries
  *
+ * @tsplus pipeable fncts.HashMap foldLeftWithIndexWhile
+ */
+export function foldLeftWithIndexWhile<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z, p: Predicate<Z>) {
+  return (self: HashMap<K, V>): Z => {
+    const root = self.root;
+    if (root._tag === "LeafNode") return root.value.isJust() ? f(root.key, z, root.value.value) : z;
+    if (root._tag === "EmptyNode") {
+      return z;
+    }
+    const toVisit = [root.children];
+    let children;
+    let acc       = z;
+    loop: while ((children = toVisit.pop())) {
+      for (let i = 0, len = children.length; i < len; ) {
+        const child = children[i++];
+        if (child && !isEmptyNode(child)) {
+          if (child._tag === "LeafNode") {
+            if (child.value.isJust()) {
+              // eslint-disable-next-line no-param-reassign
+              acc = f(child.key, acc, child.value.value);
+              if (p(acc)) {
+                break loop;
+              }
+            }
+          } else {
+            toVisit.push(child.children);
+          }
+        }
+      }
+    }
+    return acc;
+  };
+}
+
+/**
+ * Reduce a state over the map entries
+ *
  * @tsplus pipeable fncts.HashMap foldLeftWithIndex
  */
 export function foldLeftWithIndex<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z) {
@@ -574,12 +611,51 @@ export function foldLeftWithIndex<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z) {
 /**
  * Reduce a state over the map entries
  *
+ * @tsplus pipeable fncts.HashMap foldLeftWhile
+ */
+export function foldLeftWhile<V, Z>(z: Z, f: (z: Z, v: V) => Z, p: Predicate<Z>) {
+  return <K>(self: HashMap<K, V>): Z => {
+    return self.foldLeftWithIndexWhile(z, (_, z, v) => f(z, v), p);
+  };
+}
+
+/**
+ * Reduce a state over the map entries
+ *
  * @tsplus pipeable fncts.HashMap foldLeft
  */
 export function foldLeft<V, Z>(z: Z, f: (z: Z, v: V) => Z) {
   return <K>(self: HashMap<K, V>): Z => {
     return self.foldLeftWithIndex(z, (_, b, a) => f(b, a));
   };
+}
+
+/**
+ * @tsplus pipeable fncts.HashMap findWithIndex
+ */
+export function findWithIndex<K, V, B extends V>(p: RefinementWithIndex<K, V, B>): (self: HashMap<K, V>) => Maybe<B>;
+export function findWithIndex<K, V>(p: PredicateWithIndex<K, V>): (self: HashMap<K, V>) => Maybe<V>;
+export function findWithIndex<K, V>(p: PredicateWithIndex<K, V>) {
+  return (self: HashMap<K, V>): Maybe<V> =>
+    self.foldLeftWithIndexWhile(
+      Nothing(),
+      (k, _, v) => (p(k, v) ? Just(v) : Nothing()),
+      (v) => v.isNothing(),
+    );
+}
+
+/**
+ * @tsplus pipeable fncts.HashMap find
+ */
+export function find<V, B extends V>(p: Refinement<V, B>): <K>(self: HashMap<K, V>) => Maybe<B>;
+export function find<V>(p: Predicate<V>): <K>(self: HashMap<K, V>) => Maybe<V>;
+export function find<V>(p: Predicate<V>) {
+  return <K>(self: HashMap<K, V>): Maybe<V> =>
+    self.foldLeftWhile(
+      Nothing(),
+      (_, v) => (p(v) ? Just(v) : Nothing()),
+      (v) => v.isNothing(),
+    );
 }
 
 /**

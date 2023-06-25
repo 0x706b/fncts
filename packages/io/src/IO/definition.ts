@@ -50,6 +50,10 @@ declare module "@fncts/base/data/Exit/definition" {
   interface Failure<E> extends IO<never, E, never> {}
 }
 
+declare module "@fncts/base/data/Tag/definition" {
+  interface Tag<T, Identifier = T> extends IO<never, never, T> {}
+}
+
 /**
  * @tsplus type fncts.io.IOAspects
  */
@@ -259,7 +263,8 @@ export type Primitive =
   | Nothing
   | Just<any>
   | Failure<any>
-  | Success<any>;
+  | Success<any>
+  | Tag<any>;
 
 /**
  * @tsplus static fncts.io.IOOps concrete
