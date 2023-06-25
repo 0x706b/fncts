@@ -17,13 +17,11 @@ export function compose<A, B, C, D>(that: PIso<A, B, C, D>) {
 }
 
 /**
- * @tsplus pipeable global focus
+ * @tsplus fluent global focus
  */
-export function focus<S, T, A, B>(iso: PIso<S, T, A, B>) {
-  return (self: S): PIsoPartiallyApplied<T, A, B> => {
-    return {
-      ...self.focus(iso as PLens<S, T, A, B>),
-      ...self.focus(iso as PPrism<S, T, A, B>),
-    };
+export function focus<S, T, A, B>(self: S, iso: PIso<S, T, A, B>): PIsoPartiallyApplied<T, A, B> {
+  return {
+    ...self.focus(iso as PLens<S, T, A, B>),
+    ...self.focus(iso as PPrism<S, T, A, B>),
   };
 }

@@ -1,12 +1,10 @@
 import type { Fold, FoldPartiallyApplied } from "@fncts/base/optics/Fold";
 
 /**
- * @tsplus pipeable global focus 4
+ * @tsplus fluent global focus 4
  */
-export function focus<S, A>(fold: Fold<S, A>) {
-  return (self: S): FoldPartiallyApplied<A> => {
-    return {
-      foldMap: (M) => (f) => fold.foldMap(M)(f)(self),
-    };
+export function focus<S, A>(self: S, fold: Fold<S, A>): FoldPartiallyApplied<A> {
+  return {
+    foldMap: (M) => (f) => fold.foldMap(M)(f)(self),
   };
 }

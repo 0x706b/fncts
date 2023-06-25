@@ -1,6 +1,5 @@
 import type { PLensPartiallyApplied } from "@fncts/base/optics/Lens/definition";
 import type { Optional, POptional } from "@fncts/base/optics/Optional";
-import type { PTraversal } from "@fncts/base/optics/Traversal";
 import type { AutoPath, Path } from "@fncts/typelevel/Object";
 
 import { identity } from "@fncts/base/data/function";
@@ -8,14 +7,12 @@ import { Lens, PLens } from "@fncts/base/optics/Lens/definition";
 import { Prism } from "@fncts/base/optics/Prism";
 
 /**
- * @tsplus pipeable global focus
+ * @tsplus fluent global focus
  */
-export function focus<S, T, A, B>(lens: PLens<S, T, A, B>) {
-  return (self: S): PLensPartiallyApplied<T, A, B> => {
-    return {
-      ...self.focus(lens as POptional<S, T, A, B>),
-      get: () => lens.get(self),
-    };
+export function focus<S, T, A, B>(self: S, lens: PLens<S, T, A, B>): PLensPartiallyApplied<T, A, B> {
+  return {
+    ...self.focus(lens as POptional<S, T, A, B>),
+    get: () => lens.get(self),
   };
 }
 
