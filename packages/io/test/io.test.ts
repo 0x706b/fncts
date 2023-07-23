@@ -1,3 +1,4 @@
+import { Nothing } from "@fncts/base/data/Maybe";
 import { deepEqualTo, halts } from "@fncts/test/control/Assertion";
 import { test } from "@fncts/test/vitest";
 
@@ -880,6 +881,136 @@ suite.concurrent("IO", () => {
       });
 
       return l.zipWith(r, (a, b) => a === b).assertIO(isTrue);
+    });
+
+    test.io("swap must make error into value", () => {
+      const error = "error";
+      const io    = IO.fail(error).swap;
+      return io.assertIO(strictEqualTo(error));
+    });
+
+    test.io("swap must make value into error", () => {
+      const io = IO.succeedNow(42).swap;
+      return io.either.assertIO(isLeft(strictEqualTo(42)));
+    });
+
+    test.io("swapping twice returns identical value", () => {
+      const io = IO.succeedNow(42);
+      return io.swap.swap.assertIO(strictEqualTo(42));
+    });
+  });
+
+  suite("RTS failure", () => {
+    test.io("error in sync effect", () => {
+      const error = "error";
+      const io    = IO.attempt(() => {
+        throw error;
+      }).match(
+        (error) => Just(error),
+        () => Nothing(),
+      );
+      return io.assertIO(isJust(strictEqualTo(error)));
+    });
+
+    test.io("catch failing finalizers with fail", () => {
+      const error = "error";
+      const io    = IO.fail(error)
+        .ensuring(
+          IO.succeed(() => {
+            throw 1;
+          }),
+        )
+        .ensuring(
+          IO.succeed(() => {
+            throw 2;
+          }),
+        )
+        .ensuring(
+          IO.succeed(() => {
+            throw 3;
+          }),
+        );
+
+      const expectedCause = Cause.fail(error) + Cause.halt(1) + Cause.halt(2) + Cause.halt(3);
+
+      return io.result.assertIO(deepEqualTo(Exit.failCause(expectedCause)));
+    });
+
+    test.io("catch failing finalizers with halt", () => {
+      const error = "error";
+      const io    = IO.halt(error)
+        .ensuring(
+          IO.succeed(() => {
+            throw 1;
+          }),
+        )
+        .ensuring(
+          IO.succeed(() => {
+            throw 2;
+          }),
+        )
+        .ensuring(
+          IO.succeed(() => {
+            throw 3;
+          }),
+        );
+
+      const expectedCause = Cause.halt(error) + Cause.halt(1) + Cause.halt(2) + Cause.halt(3);
+
+      return io.result.assertIO(deepEqualTo(Exit.failCause(expectedCause)));
+    });
+
+    test.io(
+      "run preserves interruption status",
+      Do((Δ) => {
+        const p = Δ(Future.make<never, void>());
+        const f = Δ((p.succeed(undefined) > IO.never).fork);
+        Δ(p.await);
+        const exit = Δ(f.interrupt);
+        return exit.mapErrorCause((cause) => cause.untraced).assert(isInterrupted);
+      }),
+    );
+
+    test.io(
+      "run swallows inner interruption",
+      Do((Δ) => {
+        const p = Δ(Future.make<never, number>());
+        Δ(IO.interrupt.result > p.succeed(42));
+        const res = Δ(p.await);
+        return res.assert(strictEqualTo(42));
+      }),
+    );
+
+    test.io("timeout a long computation", () => {
+      const io = (Clock.sleep((5).seconds) > IO.succeed(true)).timeout((10).milliseconds);
+      return Live.live(io).assertIO(isNothing);
+    });
+
+    test.io("timeout repetition of uninterruptible effect", () => {
+      const io = IO.unit.uninterruptible.forever;
+      return Live.live(io.timeout((1).seconds)).assertIO(isNothing);
+    });
+
+    test.io("timeout preserves uninterruptibility", () => {
+      const run = (start: Future<never, void>, end: Future<never, void>) =>
+        Do((Δ) => {
+          const future = Δ(Future.make<never, void>());
+          Δ(future.succeed(undefined));
+          Δ(
+            start.succeed(undefined).withFinalizer(() => future.await.timeout((10).seconds).disconnect) >
+              end.succeed(undefined),
+          );
+          Δ(IO.never);
+        }).scoped;
+      return Do((Δ) => {
+        const start = Δ(Future.make<never, void>());
+        const end   = Δ(Future.make<never, void>());
+        const fiber = Δ(run(start, end).forkDaemon);
+        Δ(start.await);
+        Δ(fiber.interrupt);
+        Δ(end.await);
+        return true.assert(completes);
+      });
     });
   });
 });

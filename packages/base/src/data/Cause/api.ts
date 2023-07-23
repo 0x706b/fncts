@@ -1038,6 +1038,7 @@ export function squashWith<E>(f: (e: E) => unknown) {
  *
  * @tsplus static fncts.CauseOps sequential
  * @tsplus static fncts.Cause.SequentialOps __call
+ * @tsplus operator fncts.Cause +
  */
 export function sequential<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
   return left.isEmpty ? right : right.isEmpty ? left : new Sequential<E | E1>(left, right);
