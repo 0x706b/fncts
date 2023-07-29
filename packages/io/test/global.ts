@@ -27,4 +27,4 @@ import { Live } from "@fncts/test/control/Live";
 /**
  * @tsplus global
  */
-import { it, suite } from "@fncts/test/vitest";
+import { it, suite, test } from "@fncts/test/vitest";

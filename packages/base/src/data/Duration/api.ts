@@ -48,13 +48,6 @@ export function product(multiplicand: number) {
 }
 
 /**
- * @tsplus operator fncts.Duration *
- */
-export function multiplyInverted(multiplicand: number, self: Duration) {
-  return new Duration(Math.round(self.milliseconds) * multiplicand);
-}
-
-/**
  * @tsplus pipeable-operator fncts.Duration +
  */
 export function sum(that: Duration) {
@@ -91,5 +84,35 @@ export const zero: Duration = (0).milliseconds;
 export function lessThanOrEqualTo(that: Duration) {
   return (self: Duration): boolean => {
     return self.milliseconds <= that.milliseconds;
+  };
+}
+
+/**
+ * @tsplus fluent fncts.Duration greaterThanOrEqualTo
+ * @tsplus pipeable-operator fncts.Duration >=
+ */
+export function greaterThanOrEqualTo(that: Duration) {
+  return (self: Duration): boolean => {
+    return self.milliseconds >= that.milliseconds;
+  };
+}
+
+/**
+ * @tsplus fluent fncts.Duration lessThan
+ * @tsplus pipeable-operator fncts.Duration <
+ */
+export function lessThan(that: Duration) {
+  return (self: Duration): boolean => {
+    return self.milliseconds < that.milliseconds;
+  };
+}
+
+/**
+ * @tsplus fluent fncts.Duration greaterThan
+ * @tsplus pipeable-operator fncts.Duration >
+ */
+export function greaterThan(that: Duration) {
+  return (self: Duration): boolean => {
+    return self.milliseconds > that.milliseconds;
   };
 }

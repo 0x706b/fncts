@@ -1,17 +1,15 @@
 import type { AssertionValue } from "@fncts/test/data/AssertionValue";
 import type { TestResult } from "@fncts/test/data/FailureDetails";
 
-import { identity } from "@fncts/base/data/function";
 import { check, checkAllConcurrently, checkAllIOConcurrently, checkIO } from "@fncts/test/api";
+import { Assertion } from "@fncts/test/control/Assertion";
 import { renderFragment } from "@fncts/test/control/DefaultTestReporter";
-import { Gen } from "@fncts/test/control/Gen";
 import { TestAnnotationRenderer } from "@fncts/test/control/TestAnnotationRenderer";
 import { TestEnvironment } from "@fncts/test/control/TestEnvironment";
 import { ConsoleRenderer } from "@fncts/test/control/TestRenderer/ConsoleRenderer";
 import { Failed, Passed, rendered, Test } from "@fncts/test/data/ExecutionResult";
-import { TestConfig } from "@fncts/test/data/TestConfig";
+import { RenderParam } from "@fncts/test/data/RenderParam";
 import * as V from "vitest";
-import { GenerateStackTrace } from "@fncts/io/IO";
 
 export const describe = V.describe;
 
@@ -53,7 +51,7 @@ export const it = (() => {
           if (result.isFailure) {
             const lines = (assertionValues: Cons<AssertionValue<any>>) => {
               return assertionValues.flatMap((value) => List.from(renderFragment(value, 0).lines));
-            }
+            };
             const renderedResult = ConsoleRenderer.renderSingle(
               result.fold({
                 Value: (details) => rendered(Test, "", Passed, 0, lines(details.failureDetails.assertion)),
@@ -92,7 +90,7 @@ export const it = (() => {
     checkAllIO: checkAllIOConcurrently,
     io: Object.assign(itIO, {
       scoped: <E>(name: string, io: Lazy<IO<TestEnvironment | Scope, E, TestResult>>, timeout = 5_000) => {
-        return itIO(name, io().scoped, timeout)
+        return itIO(name, io().scoped, timeout);
       },
       skip: <E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, timeout = 5_000) => {
         return V.it.skip(name, () => runTestIO(io), timeout);
@@ -105,3 +103,10 @@ export const it = (() => {
 })();
 
 export const test = it;
+
+/**
+ * @tsplus static fncts.test.AssertionOps calledTimes
+ */
+export function calledTimes(times: number): Assertion<V.Mock> {
+  return Assertion.make("calledTimes", [RenderParam(times)], (mock) => mock.mock.calls.length === times);
+}

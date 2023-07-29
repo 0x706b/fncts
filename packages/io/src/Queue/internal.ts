@@ -184,7 +184,10 @@ export function unsafeCompletePromise<A>(p: Future<never, A>, a: A) {
 }
 
 export function unsafeRemove<A>(q: MutableQueue<A>, a: A) {
-  return unsafeOfferAll(q, unsafePollAll(q)).filter((b) => a !== b);
+  return unsafeOfferAll(
+    q,
+    unsafePollAll(q).filter((b) => a !== b),
+  );
 }
 
 function unsafeDequeueN<A>(q: MutableQueue<A>, max: number): Conc<A> {
