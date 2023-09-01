@@ -66,20 +66,22 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
       const future = Future.unsafeMake<void, void>(FiberId.none);
       const ref    = new AtomicNumber(0);
       return IO.transplant((graft) =>
-        IO.foreach(
-          as,
-          (a) =>
-            graft(
-              restore(IO.defer(f(a))).matchCauseIO(
-                (cause) => future.fail(undefined).zipRight(IO.failCauseNow(cause)),
-                () => {
-                  if (ref.incrementAndGet() === size) {
-                    future.unsafeDone(IO.unit);
-                  }
-                  return IO.unit;
-                },
-              ),
-            ).forkDaemon,
+        IO.concurrentFinalizersMask((restoreFinalizers) =>
+          IO.foreach(
+            as,
+            (a) =>
+              graft(
+                restore(restoreFinalizers(IO.defer(f(a)))).matchCauseIO(
+                  (cause) => future.fail(undefined).zipRight(IO.failCauseNow(cause)),
+                  () => {
+                    if (ref.incrementAndGet() === size) {
+                      future.unsafeDone(IO.unit);
+                    }
+                    return IO.unit;
+                  },
+                ),
+              ).forkDaemon,
+          ),
         ),
       ).flatMap((fibers) =>
         restore(future.await).matchCauseIO(

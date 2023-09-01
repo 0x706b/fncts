@@ -5,5 +5,6 @@ export * from "./api/filterOutputIO.js";
 export * from "./api/operations.js";
 export * from "./api/poll.js";
 export * from "./api/takeBetween.js";
+export * from "./api/takeN.js";
 export * from "./api/zipWithIO.js";
 // codegen:end

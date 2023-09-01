@@ -1,4 +1,5 @@
 import type { Spreadable } from "@fncts/base/types";
+import type { Runtime } from "@fncts/io/IO";
 
 import { Fold, Fresh, FromScoped, Layer, To, ZipWithConcurrent } from "@fncts/io/Layer/definition";
 import { DecisionTag } from "@fncts/io/Schedule";
@@ -401,4 +402,13 @@ export function using<RIn, E, ROut>(that: Layer<RIn, E, ROut>, __tsplusTrace?: s
   return <RIn1, E1, ROut1>(self: Layer<ROut | RIn1, E1, ROut1>): Layer<RIn | RIn1, E | E1, ROut1> => {
     return new To(Layer(IO.environment<RIn1>(), __tsplusTrace).and(that), self);
   };
+}
+
+/**
+ * @tsplus getter fncts.io.Layer toRuntime
+ */
+export function toRuntime<RIn, E, ROut>(self: Layer<RIn, E, ROut>): IO<RIn | Scope, E, Runtime<ROut>> {
+  return IO.scopeWith((scope) => self.build(scope)).flatMap((environment) =>
+    IO.runtime<ROut>().provideEnvironment(environment),
+  );
 }

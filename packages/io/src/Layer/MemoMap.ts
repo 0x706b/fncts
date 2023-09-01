@@ -165,9 +165,17 @@ export function scope(scope: Scope, __tsplusTrace?: string) {
       case LayerTag.ZipWithConcurrent: {
         return IO.succeed(
           () => (memoMap: MemoMap) =>
-            memoMap
-              .getOrElseMemoize(scope, layer.self, layer.trace)
-              .zipWithConcurrent(memoMap.getOrElseMemoize(scope, layer.that, layer.trace), layer.f, layer.trace),
+            Do((Δ) => {
+              const concurrent = Δ(scope.forkWith(ExecutionStrategy.concurrent));
+              const left       = Δ(concurrent.forkWith(scope.executionStrategy));
+              const right      = Δ(concurrent.forkWith(scope.executionStrategy));
+              const out        = Δ(
+                memoMap
+                  .getOrElseMemoize(left, layer.self, layer.trace)
+                  .zipWithConcurrent(memoMap.getOrElseMemoize(right, layer.that, layer.trace), layer.f, layer.trace),
+              );
+              return out;
+            }),
         );
       }
     }

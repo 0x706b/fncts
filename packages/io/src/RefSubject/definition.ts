@@ -62,6 +62,7 @@ export abstract class RefSubjectInternal<R, E, A, B>
 }
 
 /**
+ * @tsplus static fncts.io.Push.RefSubjectOps concrete
  * @tsplus macro remove
  */
 export function concrete<R, E, A, B>(_: RefSubject<R, E, A, B>): asserts _ is RefSubjectInternal<R, E, A, B> {

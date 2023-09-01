@@ -131,9 +131,9 @@ export function takeAll<RA, RB, EA, EB, A, B>(queue: PDequeue<RA, RB, EA, EB, A,
 /**
  * Takes up to max number of values in the queue.
  *
- * @tsplus pipeable fncts.io.Queue takeAllUpTo
+ * @tsplus pipeable fncts.io.Queue takeUpTo
  */
-export function takeAllUpTo(n: number, __tsplusTrace?: string) {
+export function takeUpTo(n: number, __tsplusTrace?: string) {
   return <RA, RB, EA, EB, A, B>(queue: PQueue<RA, RB, EA, EB, A, B>) => {
     concrete(queue);
     return queue.takeUpTo(n);

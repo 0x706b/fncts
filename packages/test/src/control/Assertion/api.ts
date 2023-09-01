@@ -214,6 +214,10 @@ export function isLessThanOrEqualTo(n: number): Assertion<number> {
   return Assertion.make("isLessThanOrEqualTo", [RenderParam(n)], (actual) => actual <= n);
 }
 
+export function isGreaterThanOrEqualTo(n: number): Assertion<number> {
+  return Assertion.make("isGreaterThanOrEqualTo", [RenderParam(n)], (actual) => actual >= n);
+}
+
 /**
  * @tsplus pipeable fncts.test.Assertion label
  */
@@ -265,3 +269,7 @@ export function test<A>(actual: A) {
 }
 
 export const completes = Assertion.make("completes", [], () => true);
+
+export function hasSize<A>(assertion: Assertion<number>): Assertion<Iterable<A>> {
+  return Assertion.rec("hasSize", [RenderParam(assertion)], assertion, (iterable) => Just(iterable.size));
+}

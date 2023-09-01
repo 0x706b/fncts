@@ -11,34 +11,32 @@ import { concrete } from "@fncts/io/Queue/definition";
  */
 export function takeBetween(min: number, max: number, __tsplusTrace?: string) {
   return <RA, RB, EA, EB, A, B>(queue: PDequeue<RA, RB, EA, EB, A, B>): IO<RB, EB, Conc<B>> => {
-    concrete(queue);
-    if (max < min) {
-      return IO.succeedNow(Conc.empty());
-    } else {
-      return queue.takeUpTo(max).flatMap((bs) => {
-        const remaining = min - bs.length;
-
-        if (remaining === 1) {
-          return queue.take.map((b) => bs.prepend(b));
-        } else if (remaining > 1) {
-          return takeRemainderLoop(queue, remaining - 1).map((list) => bs.concat(list));
-        } else {
-          return IO.succeedNow(bs);
-        }
-      });
-    }
+    return takeRemainderLoop(queue, min, max, Conc.empty());
   };
 }
 
 function takeRemainderLoop<RA, RB, EA, EB, A, B>(
   queue: PDequeue<RA, RB, EA, EB, A, B>,
-  n: number,
+  min: number,
+  max: number,
+  acc: Conc<B>,
   __tsplusTrace?: string,
 ): IO<RB, EB, Conc<B>> {
   concrete(queue);
-  if (n <= 0) {
-    return IO.succeedNow(Conc.empty());
+  if (max < min) {
+    return IO.succeedNow(acc);
   } else {
-    return queue.take.flatMap((b) => takeRemainderLoop(queue, n - 1).map((out) => out.prepend(b)));
+    return queue.takeUpTo(max).flatMap((bs) => {
+      const remaining = min - bs.length;
+      if (remaining === 1) {
+        return queue.take.map((b) => acc.concat(bs).append(b));
+      } else if (remaining > 1) {
+        return queue.take.flatMap((b) =>
+          takeRemainderLoop(queue, remaining - 1, max - bs.length - 1, acc.concat(bs).append(b)),
+        );
+      } else {
+        return IO.succeed(acc.concat(bs));
+      }
+    });
   }
 }

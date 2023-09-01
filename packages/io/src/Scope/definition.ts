@@ -8,7 +8,8 @@ export type ScopeTypeId = typeof ScopeTypeId;
 export abstract class Scope {
   readonly [ScopeTypeId]: ScopeTypeId = ScopeTypeId;
   abstract addFinalizerExit(finalizer: Finalizer): UIO<void>;
-  abstract fork: UIO<Scope.Closeable>;
+  abstract forkWith(executionStrategy: Lazy<ExecutionStrategy>): UIO<Scope.Closeable>;
+  executionStrategy: ExecutionStrategy = ExecutionStrategy.sequential;
 }
 
 /**

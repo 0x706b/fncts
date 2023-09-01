@@ -1,3 +1,5 @@
+import { ExecutionStrategy } from "@fncts/base/data/ExecutionStrategy";
+
 import { Closeable } from "./definition.js";
 import { ReleaseMap } from "./ReleaseMap.js";
 
@@ -42,8 +44,8 @@ export const global: Scope.Closeable = new (class extends Closeable {
   close(_exit: Lazy<Exit<any, any>>): UIO<void> {
     return IO.unit;
   }
-  get fork(): UIO<Scope.Closeable> {
-    return Scope.make;
+  forkWith(executionStrategy: Lazy<ExecutionStrategy>): UIO<Scope.Closeable> {
+    return Scope.makeWith(executionStrategy);
   }
 })();
 
@@ -54,31 +56,39 @@ export const global: Scope.Closeable = new (class extends Closeable {
 export const make: UIO<Scope.Closeable> = makeWith(ExecutionStrategy.sequential);
 
 /**
+ * @tsplus getter fncts.io.Scope fork
+ */
+export function fork(scope: Scope): UIO<Scope.Closeable> {
+  return scope.forkWith(scope.executionStrategy);
+}
+
+/**
  * @tsplus static fncts.io.ScopeOps makeWith
  * @tsplus static fncts.io.Scope.CloseableOps makeWith
  */
-export function makeWith(executionStrategy: Lazy<ExecutionStrategy>, __tsplusTrace?: string): UIO<Scope.Closeable> {
-  return ReleaseMap.make.map(
-    (releaseMap) =>
-      new (class extends Closeable {
-        addFinalizerExit(finalizer: Finalizer): UIO<void> {
-          return releaseMap.add(finalizer).asUnit;
-        }
-        close(exit: Lazy<Exit<any, any>>): UIO<void> {
-          return IO.defer(releaseMap.releaseAll(exit(), executionStrategy()).asUnit);
-        }
-        get fork() {
-          return IO.uninterruptible(
-            Do((_) => {
-              const scope     = _(Scope.make);
-              const finalizer = _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
-              _(scope.addFinalizerExit(finalizer));
-              return scope;
-            }),
-          );
-        }
-      })(),
-  );
+export function makeWith(executionStrategy0: Lazy<ExecutionStrategy>, __tsplusTrace?: string): UIO<Scope.Closeable> {
+  return ReleaseMap.make.map((releaseMap) => {
+    const executionStrategy = executionStrategy0();
+    return new (class extends Closeable {
+      addFinalizerExit(finalizer: Finalizer): UIO<void> {
+        return releaseMap.add(finalizer).asUnit;
+      }
+      close(exit: Lazy<Exit<any, any>>): UIO<void> {
+        return IO.defer(releaseMap.releaseAll(exit(), executionStrategy).asUnit);
+      }
+      executionStrategy: ExecutionStrategy = executionStrategy;
+      forkWith(executionStrategy: Lazy<ExecutionStrategy>) {
+        return IO.uninterruptible(
+          Do((_) => {
+            const scope     = _(Scope.makeWith(executionStrategy));
+            const finalizer = _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
+            _(scope.addFinalizerExit(finalizer));
+            return scope;
+          }),
+        );
+      }
+    })();
+  });
 }
 
 /**
@@ -100,10 +110,10 @@ export function unsafeMakeWith(executionStrategy: ExecutionStrategy, __tsplusTra
     close(exit: Lazy<Exit<any, any>>): UIO<void> {
       return IO.defer(releaseMap.releaseAll(exit(), executionStrategy).asUnit);
     }
-    get fork() {
+    forkWith(executionStrategy: Lazy<ExecutionStrategy>) {
       return IO.uninterruptible(
         Do((_) => {
-          const scope     = _(Scope.make);
+          const scope     = _(Scope.makeWith(executionStrategy));
           const finalizer = _(releaseMap.add(Finalizer.get((exit) => scope.close(exit))));
           _(scope.addFinalizerExit(finalizer));
           return scope;

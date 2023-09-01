@@ -7,8 +7,10 @@ import type {} from "@fncts/io/global";
 import {
   completes,
   fails,
+  hasSize,
   isEmpty,
   isFalse,
+  isGreaterThanOrEqualTo,
   isInterrupted,
   isJust,
   isLeft,

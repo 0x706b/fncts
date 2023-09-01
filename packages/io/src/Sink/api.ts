@@ -19,9 +19,9 @@ export function zipLeft<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
 /**
  * Like {@link zipConcurrent}, but keeps only the result from this sink
  *
- * @tsplus pipeable fncts.io.Sink zipLeftC
+ * @tsplus pipeable fncts.io.Sink zipLeftConcurrent
  */
-export function zipLeftC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
+export function zipLeftConcurrent<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
 ) {
@@ -47,9 +47,9 @@ export function zipRight<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
 /**
  * Like {@link zipConcurrent}, but keeps only the result from the `that` sink
  *
- * @tsplus pipeable fncts.io.Sink zipRightC
+ * @tsplus pipeable fncts.io.Sink zipRightConcurrent
  */
-export function zipRightC<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
+export function zipRightConcurrent<In, L, R1, E1, In1 extends In, L1 extends L, Z1>(
   that: Lazy<Sink<R1, E1, In1, L1, Z1>>,
   __tsplusTrace?: string,
 ) {
