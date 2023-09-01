@@ -50,13 +50,16 @@ suite.concurrent("HashMap", () => {
   });
 
   test("mutation", () => {
-    let map       = HashMap.empty();
-    let assertion = map.editable.assert(strictEqualTo(true));
-    map           = map.beginMutation;
-    assertion     = assertion && map.editable.assert(strictEqualTo(true));
-    map           = map.endMutation;
-    assertion     = assertion && map.editable.assert(strictEqualTo(false));
-    return assertion;
+    const map         = HashMap.empty();
+    const mapEditable = map.editable;
+
+    const mutableMap         = map.beginMutation;
+    const mutableMapEditable = mutableMap.editable;
+
+    const immutableMap         = mutableMap.endMutation;
+    const immutableMapEditable = immutableMap.editable;
+
+    return mapEditable.assert(isFalse) && mutableMapEditable.assert(isTrue) && immutableMapEditable.assert(isFalse);
   });
 
   test("mutate", () => {
