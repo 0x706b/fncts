@@ -1,3 +1,5 @@
+import { ServiceNotFoundError } from "@fncts/base/data/Environment/ServiceNotFoundError";
+
 /**
  * @tsplus pipeable fncts.Environment add
  */
@@ -70,7 +72,7 @@ export function unsafeGet<S, I>(tag: Tag<S, I>) {
             service = curService as S;
           }
         }
-        if (service === null) throw new Error("Defect in Environment: Could not find tag in map");
+        if (service === null) throw new ServiceNotFoundError(tag);
         else {
           self.cache = self.cache.set(tag, service);
           return service;
