@@ -59,15 +59,15 @@ async function writePackageJson(project: Project, workspace: Workspace, mode: "c
   convertWorkspaceDependencies(rawManifest, project, workspace);
 
   const exports: any = {};
-  exports["./*"]     = {};
-  exports["."]       = {};
+  exports["./*"] = {};
+  exports["."] = {};
   if (mode === "mjs" || mode === "both") {
     exports["./*"].import = "./_mjs/*.mjs";
-    exports["."].import   = "./_mjs/index.mjs";
+    exports["."].import = "./_mjs/index.mjs";
   }
   if (mode === "cjs" || mode === "both") {
     exports["./*"].require = "./_cjs/*.cjs";
-    exports["."].require   = "./_cjs/index.cjs";
+    exports["."].require = "./_cjs/index.cjs";
   }
   rawManifest.exports = exports;
 
@@ -160,7 +160,7 @@ const sourceMapPaths = await getGlob("dist/**/*.map");
 await Promise.all(
   sourceMapPaths.map(async (path) => {
     let content = await fs.readFile(path, { encoding: "utf-8" });
-    content     = rewriteSourceMap(content, path);
+    content = rewriteSourceMap(content, path);
     await fs.writeFile(path, content);
   }),
 );

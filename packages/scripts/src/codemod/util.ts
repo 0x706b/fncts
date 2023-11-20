@@ -31,7 +31,7 @@ export async function runBabelTransform(code: string, filePath: string, transfor
     throw new Error();
   }
   const transformedAst = transformResult.ast;
-  const result         = print(transformedAst).code;
+  const result = print(transformedAst).code;
   return result;
 }
 
@@ -44,9 +44,9 @@ export async function runTypescriptTransform(
   const { config } = ts.readConfigFile(configFile, ts.sys.readFile);
 
   const { options, fileNames, errors } = ts.parseJsonConfigFileContent(config, ts.sys, currentDir);
-  const program        = ts.createProgram({ options, rootNames: fileNames, configFileParsingDiagnostics: errors });
-  const printer        = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
-  const sourceFiles    = program.getSourceFiles();
+  const program = ts.createProgram({ options, rootNames: fileNames, configFileParsingDiagnostics: errors });
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  const sourceFiles = program.getSourceFiles();
   const newSourceFiles = sourceFiles
     .filter((sourceFile) => sourceFile.fileName.includes(`${currentDir}/src`))
     .flatMap((sourceFile) => ts.transform(sourceFile, [transformer(program)]).transformed);

@@ -9,20 +9,20 @@ export default function transformId(program: ts.Program, _config: {}): ts.Transf
       function visitor(node): ts.Node {
         if (ts.isCallExpression(node)) {
           const originalNode = ts.getOriginalNode(node);
-          const nodeLinks    = checker.getNodeLinks(originalNode);
+          const nodeLinks = checker.getNodeLinks(originalNode);
           if (nodeLinks.tsPlusCallExtension) {
             const callExtension = nodeLinks.tsPlusCallExtension;
             // @ts-expect-error
             if (callExtension.patched.target?.tsPlusDeclaration) {
               // @ts-expect-error
-              const declaration      = callExtension.patched.target.tsPlusDeclaration as ts.FunctionDeclaration;
+              const declaration = callExtension.patched.target.tsPlusDeclaration as ts.FunctionDeclaration;
               const updatedArguments = node.arguments.slice();
               for (let i = 0; i < declaration.parameters.length; i++) {
                 if (node.arguments[i] !== undefined) {
                   continue;
                 }
                 const param = declaration.parameters[i]!;
-                const tags  = ts.getJSDocTags(param);
+                const tags = ts.getJSDocTags(param);
                 if (
                   tags &&
                   tags.find(

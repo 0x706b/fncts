@@ -42,7 +42,7 @@ export function fromWritable(writable: Lazy<stream.Writable>): Sink<never, Writa
         };
 
         const writable0 = writable().once("error", onError);
-        handle          = setImmediate(() => {
+        handle = setImmediate(() => {
           writable0.removeListener("error", onError);
           cb(IO.succeedNow(writable0));
         });

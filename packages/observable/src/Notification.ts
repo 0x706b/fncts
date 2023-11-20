@@ -2,7 +2,7 @@ export const NextTypeId = Symbol.for("fncts.observable.Notification.Next");
 export type NextTypeId = typeof NextTypeId;
 
 export class Next<A> {
-  readonly _tag                     = "Next";
+  readonly _tag = "Next";
   readonly [NextTypeId]: NextTypeId = NextTypeId;
   constructor(readonly value: A) {}
 }
@@ -11,7 +11,7 @@ export const FailTypeId = Symbol.for("fncts.observable.Notification.Fail");
 export type FailTypeId = typeof FailTypeId;
 
 export class Fail<E> {
-  readonly _tag                     = "Fail";
+  readonly _tag = "Fail";
   readonly [FailTypeId]: FailTypeId = FailTypeId;
   constructor(readonly error: Cause<E>) {}
 }

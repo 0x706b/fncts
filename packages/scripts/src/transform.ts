@@ -4,7 +4,7 @@ import glob from "glob";
 import { runBabelTransform } from "./codemod/util.js";
 
 const transformName = process.argv[2];
-const path          = process.argv[3];
+const path = process.argv[3];
 
 if (!transformName) {
   console.error("No transform specified.");
@@ -30,7 +30,7 @@ const transform = await import(`./codemod/${transformName}.js`).then((module) =>
 
 await Promise.all(
   matches.map(async (fileName) => {
-    const code            = await fs.readFile(fileName, { encoding: "utf-8" });
+    const code = await fs.readFile(fileName, { encoding: "utf-8" });
     const transformedCode = await runBabelTransform(code, fileName, transform);
     await fs.writeFile(fileName, transformedCode);
   }),

@@ -104,8 +104,8 @@ export function acquireReleaseOutExitWith<R, R2, E, Z>(
   release: (z: Z, e: Exit<unknown, unknown>) => URIO<R2, unknown>,
 ): Channel<R | R2, unknown, unknown, unknown, E, Z, void> {
   const op = new ChannelPrimitive(ChannelTag.BracketOut);
-  op.i0    = self;
-  op.i1    = release;
+  op.i0 = self;
+  op.i1 = release;
   return op as any;
 }
 
@@ -199,7 +199,7 @@ export function catchAllCause<Env1, InErr1, InElem1, InDone1, OutErr, OutErr1, O
     OutElem | OutElem1,
     OutDone | OutDone1
   > => {
-    const op           = new ChannelPrimitive(ChannelTag.Fold);
+    const op = new ChannelPrimitive(ChannelTag.Fold);
     const continuation = new ChannelPrimitive(ChannelTag.ContinuationK);
 
     continuation.i0 = Channel.endNow;
@@ -259,12 +259,12 @@ export function concatMapWith<OutElem, OutElem2, OutDone, OutDone2, OutDone3, En
     channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2>,
   ): Channel<Env | Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem2, OutDone3> => {
     const op = new ChannelPrimitive(ChannelTag.ConcatAll);
-    op.i0    = g;
-    op.i1    = h;
-    op.i2    = () => UpstreamPullStrategy.PullAfterNext(Nothing());
-    op.i3    = () => ChildExecutorDecision.Continue;
-    op.i4    = channel;
-    op.i5    = f;
+    op.i0 = g;
+    op.i1 = h;
+    op.i2 = () => UpstreamPullStrategy.PullAfterNext(Nothing());
+    op.i3 = () => ChildExecutorDecision.Continue;
+    op.i4 = channel;
+    op.i5 = f;
     return op as any;
   };
 }
@@ -300,12 +300,12 @@ export function concatMapWithCustom<
     channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2>,
   ): Channel<Env | Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem2, OutDone3> => {
     const op = new ChannelPrimitive(ChannelTag.ConcatAll);
-    op.i0    = g;
-    op.i1    = h;
-    op.i2    = onPull;
-    op.i3    = onEmit;
-    op.i4    = channel;
-    op.i5    = f;
+    op.i0 = g;
+    op.i1 = h;
+    op.i2 = onPull;
+    op.i3 = onEmit;
+    op.i4 = channel;
+    op.i5 = f;
     return op as any;
   };
 }
@@ -331,12 +331,12 @@ export function concatAllWith<OutDone, OutDone2, OutDone3>(
     >,
   ): Channel<Env | Env2, InErr & InErr2, InElem & InElem2, InDone & InDone2, OutErr | OutErr2, OutElem, OutDone3> => {
     const op = new ChannelPrimitive(ChannelTag.ConcatAll);
-    op.i0    = f;
-    op.i1    = g;
-    op.i2    = () => UpstreamPullStrategy.PullAfterNext(Nothing());
-    op.i3    = () => ChildExecutorDecision.Continue;
-    op.i4    = channels;
-    op.i5    = identity;
+    op.i0 = f;
+    op.i1 = g;
+    op.i2 = () => UpstreamPullStrategy.PullAfterNext(Nothing());
+    op.i3 = () => ChildExecutorDecision.Continue;
+    op.i4 = channels;
+    op.i5 = identity;
     return op as any;
   };
 }
@@ -452,7 +452,7 @@ export function defer<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
   effect: Lazy<Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>>,
 ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> {
   const op = new ChannelPrimitive(ChannelTag.Defer);
-  op.i0    = effect;
+  op.i0 = effect;
   return op as any;
 }
 
@@ -543,8 +543,8 @@ export function ensuringWith<Env2, OutErr, OutDone>(finalizer: (e: Exit<OutErr, 
     channel: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   ): Channel<Env | Env2, InErr, InElem, InDone, OutErr, OutElem, OutDone> => {
     const op = new ChannelPrimitive(ChannelTag.Ensuring);
-    op.i0    = channel;
-    op.i1    = finalizer;
+    op.i0 = channel;
+    op.i1 = finalizer;
     return op as any;
   };
 }
@@ -559,8 +559,8 @@ export function embedInput<InErr, InElem, InDone>(input: AsyncInputProducer<InEr
     self: Channel<Env, unknown, unknown, unknown, OutErr, OutElem, OutDone>,
   ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone> => {
     const op = new ChannelPrimitive(ChannelTag.Bridge);
-    op.i0    = input;
-    op.i1    = self;
+    op.i0 = input;
+    op.i1 = self;
     return op as any;
   };
 }
@@ -572,7 +572,7 @@ export function embedInput<InErr, InElem, InDone>(input: AsyncInputProducer<InEr
  */
 export function fail<E>(error: Lazy<E>): Channel<never, unknown, unknown, unknown, E, never, never> {
   const op = new ChannelPrimitive(ChannelTag.Halt);
-  op.i0    = () => Cause.fail(error());
+  op.i0 = () => Cause.fail(error());
   return op as any;
 }
 
@@ -583,7 +583,7 @@ export function fail<E>(error: Lazy<E>): Channel<never, unknown, unknown, unknow
  */
 export function failNow<E>(error: E): Channel<never, unknown, unknown, unknown, E, never, never> {
   const op = new ChannelPrimitive(ChannelTag.Halt);
-  op.i0    = () => Cause.fail(error);
+  op.i0 = () => Cause.fail(error);
   return op as any;
 }
 
@@ -655,7 +655,7 @@ export function fromInput<Err, Elem, Done>(
 export function fromIO<R, E, A>(io: Lazy<IO<R, E, A>>): Channel<R, unknown, unknown, unknown, E, never, A> {
   return Channel.defer(() => {
     const op = new ChannelPrimitive(ChannelTag.FromIO) as any;
-    op.i0    = io();
+    op.i0 = io();
     return op;
   });
 }
@@ -693,8 +693,8 @@ export function provideEnvironment<Env>(env: Lazy<Environment<Env>>) {
   ): Channel<never, InErr, InElem, InDone, OutErr, OutElem, OutDone> => {
     return Channel.defer(() => {
       const op = new ChannelPrimitive(ChannelTag.Provide);
-      op.i0    = env();
-      op.i1    = self;
+      op.i0 = env();
+      op.i1 = self;
       return op as any;
     });
   };
@@ -718,7 +718,7 @@ export function contramapEnvironment<Env, Env0>(f: (env0: Environment<Env0>) => 
  */
 export function haltNow(defect: unknown): Channel<never, unknown, unknown, unknown, never, never, never> {
   const op = new ChannelPrimitive(ChannelTag.Halt);
-  op.i0    = () => Cause.halt(defect);
+  op.i0 = () => Cause.halt(defect);
   return op as any;
 }
 
@@ -729,7 +729,7 @@ export function haltNow(defect: unknown): Channel<never, unknown, unknown, unkno
  */
 export function halt(defect: Lazy<unknown>): Channel<never, unknown, unknown, unknown, never, never, never> {
   const op = new ChannelPrimitive(ChannelTag.Halt);
-  op.i0    = () => Cause.halt(defect());
+  op.i0 = () => Cause.halt(defect());
   return op as any;
 }
 
@@ -885,11 +885,11 @@ export function matchCauseChannel<
     OutDone2 | OutDone3
   > => {
     const op = new ChannelPrimitive(ChannelTag.Fold);
-    op.i0    = channel;
+    op.i0 = channel;
 
     const continuation = new ChannelPrimitive(ChannelTag.ContinuationK);
-    continuation.i0    = onSuccess;
-    continuation.i1    = onError;
+    continuation.i0 = onSuccess;
+    continuation.i1 = onError;
 
     op.i1 = continuation;
 
@@ -1002,8 +1002,8 @@ export function pipeTo<OutErr, OutElem, OutDone, Env1, OutErr1, OutElem1, OutDon
     left: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
   ): Channel<Env | Env1, InErr, InElem, InDone, OutErr1, OutElem1, OutDone1> => {
     const op = new ChannelPrimitive(ChannelTag.PipeTo);
-    op.i0    = () => left;
-    op.i1    = () => right;
+    op.i0 = () => left;
+    op.i1 = () => right;
     return op as any;
   };
 }
@@ -1051,11 +1051,11 @@ export function read<In>(): Channel<never, unknown, In, unknown, Nothing, never,
  */
 export function readOrFail<In, E>(e: E): Channel<never, unknown, In, unknown, E, never, In> {
   const op = new ChannelPrimitive(ChannelTag.Read);
-  op.i0    = Channel.endNow;
+  op.i0 = Channel.endNow;
 
   const continuation = new ChannelPrimitive(ChannelTag.ContinuationK);
-  continuation.i0    = () => Channel.failNow(e);
-  continuation.i1    = () => Channel.failNow(e);
+  continuation.i0 = () => Channel.failNow(e);
+  continuation.i1 = () => Channel.failNow(e);
 
   op.i1 = continuation;
 
@@ -1097,11 +1097,11 @@ export function readWithCause<
   OutDone | OutDone1 | OutDone2
 > {
   const op = new ChannelPrimitive(ChannelTag.Read);
-  op.i0    = inp;
+  op.i0 = inp;
 
   const continuation = new ChannelPrimitive(ChannelTag.ContinuationK);
-  continuation.i0    = done;
-  continuation.i1    = halt;
+  continuation.i0 = done;
+  continuation.i1 = halt;
 
   op.i1 = continuation;
 
@@ -1183,7 +1183,7 @@ export function toQueue<Err, Done, Elem>(
  */
 export function write<OutElem>(out: Lazy<OutElem>): Channel<never, unknown, unknown, unknown, never, OutElem, void> {
   const op = new ChannelPrimitive(ChannelTag.Emit);
-  op.i0    = out;
+  op.i0 = out;
   return op as any;
 }
 
@@ -1217,7 +1217,7 @@ export function writeChunk<Out>(outs: Conc<Out>): Channel<never, unknown, unknow
  */
 export function writeNow<OutElem>(out: OutElem): Channel<never, unknown, unknown, unknown, never, OutElem, void> {
   const op = new ChannelPrimitive(ChannelTag.Emit);
-  op.i0    = () => out;
+  op.i0 = () => out;
   return op as any;
 }
 

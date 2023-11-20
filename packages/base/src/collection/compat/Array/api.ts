@@ -99,7 +99,7 @@ export function updateAt<A>(i: number, a: A) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
     if (i in self) {
       const copy = self.slice();
-      copy[i]    = a;
+      copy[i] = a;
       return copy;
     }
     return self;

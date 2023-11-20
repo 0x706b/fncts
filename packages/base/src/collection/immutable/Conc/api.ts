@@ -31,7 +31,7 @@ export function alignWith<A, B, C>(fb: Conc<B>, f: (_: These<A, B>) => C) {
   return (self: Conc<A>): Conc<C> => {
     concrete(self);
     concrete(fb);
-    const out    = builder<C>();
+    const out = builder<C>();
     const minlen = Math.min(self.length, fb.length);
     const maxlen = Math.max(self.length, fb.length);
     for (let i = 0; i < minlen; i++) {
@@ -87,13 +87,13 @@ export function flatMap<A, B>(f: (a: A) => Conc<B>) {
     concrete(ma);
     const iterator = ma.arrayIterator();
     let result: IteratorResult<ArrayLike<A>>;
-    let out        = Conc.empty<B>();
+    let out = Conc.empty<B>();
     while (!(result = iterator.next()).done) {
-      const arr    = result.value;
+      const arr = result.value;
       const length = arr.length;
       for (let i = 0; i < length; i++) {
         const a = arr[i]!;
-        out     = out.concat(f(a));
+        out = out.concat(f(a));
       }
     }
     return out;
@@ -105,11 +105,11 @@ export function flatMap<A, B>(f: (a: A) => Conc<B>) {
  */
 export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
   let buffer = f(a);
-  let out    = Conc.empty<B>();
+  let out = Conc.empty<B>();
 
   while (buffer.length > 0) {
     const e = buffer.unsafeHead;
-    buffer  = buffer.unsafeTail;
+    buffer = buffer.unsafeTail;
     Either.concrete(e);
     if (e._tag === EitherTag.Left) {
       buffer = f(e.left).concat(buffer);
@@ -126,8 +126,8 @@ export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>):
  */
 export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
   const initial = f(a);
-  let buffer    = Conc.empty<Either<A, B>>();
-  let out       = Conc.empty<B>();
+  let buffer = Conc.empty<Either<A, B>>();
+  let out = Conc.empty<B>();
 
   function go(e: Either<A, B>): void {
     Either.concrete(e);
@@ -144,7 +144,7 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>
 
   while (buffer.length > 0) {
     const ab = buffer.unsafeHead;
-    buffer   = buffer.unsafeTail;
+    buffer = buffer.unsafeTail;
     go(ab);
   }
 
@@ -156,7 +156,7 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>
  */
 export function chop<A, B>(f: (as: Conc<A>) => readonly [B, Conc<A>]) {
   return (self: Conc<A>): Conc<B> => {
-    const out       = builder<B>();
+    const out = builder<B>();
     let cs: Conc<A> = self;
     while (cs.isNonEmpty) {
       const [b, c] = f(cs);
@@ -190,7 +190,7 @@ export function collectWhile<A, B>(f: (a: A) => Maybe<B>) {
       }
       case ConcTag.Chunk: {
         const array = as.arrayLike();
-        let dest    = Conc.empty<B>();
+        let dest = Conc.empty<B>();
         for (let i = 0; i < array.length; i++) {
           const rhs = f(array[i]!);
           if (rhs.isJust()) {
@@ -242,7 +242,7 @@ export function some<A>(predicate: Predicate<A>) {
   return (as: Conc<A>): boolean => {
     concrete(as);
     const iterator = as.arrayIterator();
-    let exists     = false;
+    let exists = false;
     let result: IteratorResult<ArrayLike<A>>;
     while (!exists && !(result = iterator.next()).done) {
       const array = result.value;
@@ -286,7 +286,7 @@ export function drop(n: number) {
 export function dropUntil<A>(p: Predicate<A>) {
   return (self: Conc<A>): Conc<A> => {
     let cont = true;
-    let i    = 0;
+    let i = 0;
     for (const elem of self) {
       if (!cont) {
         break;
@@ -307,7 +307,7 @@ export function dropWhile<A>(p: Predicate<A>) {
     switch (self._tag) {
       case ConcTag.Chunk: {
         const arr = self.arrayLike();
-        let i     = 0;
+        let i = 0;
         while (i < arr.length && p(arr[i]!)) {
           i++;
         }
@@ -316,11 +316,11 @@ export function dropWhile<A>(p: Predicate<A>) {
       default: {
         const iterator = self.arrayIterator();
         let result: IteratorResult<ArrayLike<A>>;
-        let cont       = true;
-        let i          = 0;
+        let cont = true;
+        let i = 0;
         while (cont && !(result = iterator.next()).done) {
           const array = result.value;
-          let j       = 0;
+          let j = 0;
           while (cont && j < array.length) {
             if (p(array[j]!)) {
               i++;
@@ -363,9 +363,9 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
   return (self: Conc<A>): Conc<B> => {
     concrete(self);
     const iterator = self.arrayIterator();
-    const out      = builder<B>();
+    const out = builder<B>();
     let result: IteratorResult<ArrayLike<A>>;
-    let i          = 0;
+    let i = 0;
     while (!(result = iterator.next()).done) {
       const array = result.value;
       for (let j = 0; j < array.length; j++) {
@@ -393,7 +393,7 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
         return _Empty;
       }
       case ConcTag.Chunk: {
-        const arr   = self.arrayLike();
+        const arr = self.arrayLike();
         let builder = Conc.empty<A>();
         for (let i = 0; i < arr.length; i++) {
           const a = arr[i]!;
@@ -411,9 +411,9 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
       }
       default: {
         const iterator = self.arrayIterator();
-        let out        = Conc.empty<A>();
+        let out = Conc.empty<A>();
         let result: IteratorResult<ArrayLike<A>>;
-        let i          = 0;
+        let i = 0;
         while (!(result = iterator.next()).done) {
           const array = result.value;
           for (let j = 0; j < array.length; j++) {
@@ -437,10 +437,10 @@ export function find<A>(f: (a: A) => boolean) {
   return (self: Conc<A>): Maybe<A> => {
     concrete(self);
     const iterator = self.arrayIterator();
-    let out        = Nothing<A>();
+    let out = Nothing<A>();
     let result: IteratorResult<ArrayLike<A>>;
     while (out.isNothing() && !(result = iterator.next()).done) {
-      const array  = result.value;
+      const array = result.value;
       const length = array.length;
       for (let i = 0; out.isNothing() && i < length; i++) {
         const a = array[i]!;
@@ -470,13 +470,13 @@ export function foldLeftWhile<A, B>(b: B, p: Predicate<B>, f: (b: B, a: A) => B)
   return (as: Conc<A>): B => {
     concrete(as);
     const iterator = as.arrayIterator();
-    let s          = b;
-    let cont       = p(s);
+    let s = b;
+    let cont = p(s);
     let result: IteratorResult<ArrayLike<A>>;
     while (cont && !(result = iterator.next()).done) {
       const array = result.value;
       for (let i = 0; cont && i < array.length; i++) {
-        s    = f(s, array[i]!);
+        s = f(s, array[i]!);
         cont = p(s);
       }
     }
@@ -500,9 +500,9 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
   return (self: Conc<A>): B => {
     concrete(self);
     const iterator = self.arrayIterator();
-    let out        = b;
+    let out = b;
     let result: IteratorResult<ArrayLike<A>>;
-    let i          = 0;
+    let i = 0;
     while (!(result = iterator.next()).done) {
       const array = result.value;
       for (let j = 0; j < array.length; j++) {
@@ -548,9 +548,9 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
   return (self: Conc<A>): B => {
     concrete(self);
     const iterator = self.reverseArrayIterator();
-    let out        = b;
+    let out = b;
     let result: IteratorResult<ArrayLike<A>>;
-    let i          = self.length - 1;
+    let i = self.length - 1;
     while (!(result = iterator.next()).done) {
       const array = result.value;
       for (let j = array.length - 1; j >= 0; j--) {
@@ -653,14 +653,14 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [S, B]) {
   return (self: Conc<A>): readonly [S, Conc<B>] => {
     concrete(self);
     const iterator = self.arrayIterator();
-    const out      = builder<B>();
-    let state      = s;
+    const out = builder<B>();
+    let state = s;
     let result;
     while (!(result = iterator.next()).done) {
-      const array  = result.value;
+      const array = result.value;
       const length = array.length;
       for (let i = 0; i < length; i++) {
-        const a   = array[i]!;
+        const a = array[i]!;
         const tup = f(state, a);
         out.append(tup[1]);
         state = tup[0];
@@ -724,7 +724,7 @@ type Frame<A, B> = DoneFrame | ConcatLeftFrame<A> | ConcatRightFrame<B> | Append
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
   return (self: Conc<A>): Conc<B> => {
     let current = self;
-    let index   = 0;
+    let index = 0;
     const stack = Stack<Frame<A, B>>();
     stack.push(new DoneFrame());
     let result: Conc<B> = Conc.empty();
@@ -856,10 +856,10 @@ export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B,
   return (fa: Conc<A>): readonly [Conc<B>, Conc<C>] => {
     concrete(fa);
     const iterator = fa.arrayIterator();
-    const left     = builder<B>();
-    const right    = builder<C>();
+    const left = builder<B>();
+    const right = builder<C>();
     let result: IteratorResult<ArrayLike<A>>;
-    let i          = 0;
+    let i = 0;
     while (!(result = iterator.next()).done) {
       const array = result.value;
       for (let j = 0; j < array.length; j++) {
@@ -886,10 +886,10 @@ export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
   return (self: Conc<A>): readonly [Conc<A>, Conc<A>] => {
     concrete(self);
     const iterator = self.arrayIterator();
-    const left     = builder<A>();
-    const right    = builder<A>();
+    const left = builder<A>();
+    const right = builder<A>();
     let result: IteratorResult<ArrayLike<A>>;
-    let i          = 0;
+    let i = 0;
     while (!(result = iterator.next()).done) {
       const array = result.value;
       for (let j = 0; j < array.length; j++) {
@@ -958,7 +958,7 @@ export function slice(from: number, to: number) {
   return <A>(self: Conc<A>): Conc<A> => {
     concrete(self);
     const start = from < 0 ? 0 : from > self.length ? self.length : from;
-    const end   = to < start ? start : to > self.length ? self.length : to;
+    const end = to < start ? start : to > self.length ? self.length : to;
     return new Slice(self, start, end - start);
   };
 }
@@ -982,12 +982,12 @@ export function splitWhere<A>(f: (a: A) => boolean) {
     concrete(self);
     const iterator = self.arrayIterator();
     let next;
-    let cont       = true;
-    let i          = 0;
+    let cont = true;
+    let i = 0;
     while (cont && (next = iterator.next()) && !next.done) {
       const array = next.value;
-      const len   = array.length;
-      let j       = 0;
+      const len = array.length;
+      let j = 0;
       while (cont && j < len) {
         const a = array[j]!;
         if (f(a)) {
@@ -1031,7 +1031,7 @@ export function takeWhile<A>(p: Predicate<A>) {
     switch (self._tag) {
       case ConcTag.Chunk: {
         const arr = self.arrayLike();
-        let i     = 0;
+        let i = 0;
         while (i < arr.length && p(arr[i]!)) {
           i++;
         }
@@ -1040,11 +1040,11 @@ export function takeWhile<A>(p: Predicate<A>) {
       default: {
         const iterator = self.arrayIterator();
         let result: IteratorResult<ArrayLike<A>>;
-        let cont       = true;
-        let i          = 0;
+        let cont = true;
+        let i = 0;
         while (cont && !(result = iterator.next()).done) {
           const array = result.value;
-          let j       = 0;
+          let j = 0;
           while (cont && j < array.length) {
             if (!p(array[j]!)) {
               cont = false;
@@ -1113,7 +1113,7 @@ export function toBuffer(self: Conc<Byte>): Uint8Array {
  */
 export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A> {
   const out = builder<A>();
-  let bb    = b;
+  let bb = b;
   while (true) {
     const mt = f(bb);
     if (mt.isJust()) {
@@ -1208,16 +1208,16 @@ export function zipWith<A, B, C>(fb: Conc<B>, f: (a: A, b: B) => C) {
     if (length === 0) {
       return Conc.empty();
     } else {
-      const leftIterator  = self.arrayIterator();
+      const leftIterator = self.arrayIterator();
       const rightIterator = fb.arrayIterator();
-      const out           = builder<C>();
-      let left: IteratorResult<ArrayLike<A>>  = null as any;
+      const out = builder<C>();
+      let left: IteratorResult<ArrayLike<A>> = null as any;
       let right: IteratorResult<ArrayLike<B>> = null as any;
-      let leftLength  = 0;
+      let leftLength = 0;
       let rightLength = 0;
-      let i           = 0;
-      let j           = 0;
-      let k           = 0;
+      let i = 0;
+      let j = 0;
+      let k = 0;
       while (i < length) {
         if (j < leftLength && k < rightLength) {
           const a = left.value[j];
@@ -1229,10 +1229,10 @@ export function zipWith<A, B, C>(fb: Conc<B>, f: (a: A, b: B) => C) {
           k++;
         } else if (j === leftLength && !(left = leftIterator.next()).done) {
           leftLength = left.value.length;
-          j          = 0;
+          j = 0;
         } else if (k === rightLength && !(right = rightIterator.next()).done) {
           rightLength = right.value.length;
-          k           = 0;
+          k = 0;
         }
       }
       return out.result();
@@ -1255,11 +1255,11 @@ export function zipWithIndexOffset(offset: number) {
     concrete(as);
     const iterator = as.arrayIterator();
     let next: IteratorResult<ArrayLike<A>>;
-    let i          = offset;
-    const out      = builder<readonly [A, number]>();
+    let i = offset;
+    const out = builder<readonly [A, number]>();
     while (!(next = iterator.next()).done) {
       const array = next.value;
-      const len   = array.length;
+      const len = array.length;
       for (let j = 0; i < len; j++, i++) {
         out.append([array[j]!, i]);
       }

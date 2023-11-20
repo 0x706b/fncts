@@ -1,7 +1,7 @@
 export class AsyncScheduler extends Scheduler {
   public actions: Array<AsyncAction<any>> = [];
 
-  active         = false;
+  active = false;
   scheduled: any = undefined;
 
   constructor(actionConstructor: typeof Action, now: () => number = Scheduler.now) {

@@ -10,7 +10,7 @@ export function convertWorkspaceDependencies(rawManifest: any, project: Project,
   for (const dependencyType of DEPENDENCY_TYPE) {
     for (const descriptor of workspace.manifest.getForScope(dependencyType).values()) {
       const matchingWorkspace = project.tryWorkspaceByDescriptor(descriptor);
-      const range             = structUtils.parseRange(descriptor.range);
+      const range = structUtils.parseRange(descriptor.range);
       if (range.protocol !== WORKSPACE_PROTOCOL) {
         continue;
       }
