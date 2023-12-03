@@ -1206,7 +1206,7 @@ export function concat<O extends ReadonlyArray<ObservableInput<any, any>>>(...so
     return fa.operate((source, subscriber, environment) => {
       fromArrayLike([source, ...sources])
         .concatAll.provideEnvironment(environment)
-        .subscribe(subscriber);
+        .subscribe(subscriber as Subscriber<any, any>);
     });
   };
 }
@@ -1790,7 +1790,7 @@ export function onErrorResumeNext<R, E, A, O extends ReadonlyArray<ObservableInp
             A | Observable.TypeOf<O[number]>
           >;
           try {
-            nextSource = from(remaining.shift()!);
+            nextSource = from(remaining.shift()!) as Observable<any, any, any>;
           } catch (err) {
             subscribeNext();
             return;

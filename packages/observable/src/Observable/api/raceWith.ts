@@ -14,7 +14,7 @@ export function raceWith<O extends ReadonlyArray<ObservableInput<any, any>>>(...
     return !sources.length
       ? fa
       : fa.operate((source, subscriber, environment) => {
-          raceInit([source, ...sources])(subscriber, environment);
+          raceInit([source, ...sources])(subscriber as Subscriber<any, any>, environment);
         });
   };
 }
