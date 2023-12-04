@@ -4,7 +4,7 @@ export declare namespace Observable {
   export type EnvironmentOf<X> = X extends ObservableInput<infer R, any, any> ? R : never;
 }
 
-export const ObservableTypeId = Symbol.for("@principia/observable/Observable");
+export const ObservableTypeId = Symbol.for("@fncts/observable/Observable");
 export type ObservableTypeId = typeof ObservableTypeId;
 
 /**
