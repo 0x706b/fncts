@@ -181,6 +181,7 @@ export function struct<A extends Record<string, any>>(fields: {
         errors.push(new RequiredKeyError(key, new MissingKeyError(key)));
         errored = true;
       } else {
+        // @ts-expect-error
         const res = (fields[key] as Decoder<any>).decode(input[key as string]);
         res.match2(
           (e) => {
@@ -237,7 +238,9 @@ export function partial<A extends Record<string, any>>(fields: {
     const errors: Array<RequiredKeyError | OptionalKeyError> = [];
     const decoded = {} as A;
     for (const key in fields) {
+      // @ts-expect-error
       if (key in input && typeof input[key as string] !== "undefined") {
+        // @ts-expect-error
         const res = (fields[key] as Decoder<any>).decode(input[key as string]);
         res.match2(
           (e) => {
@@ -288,8 +291,10 @@ export function deriveStruct<A extends Record<string, any>>(
   let first = true;
   for (const k in requiredFields) {
     if (first) {
+      // @ts-expect-error
       label += ` ${k}: ${(requiredFields[k] as Decoder<any>).label}`;
     } else {
+      // @ts-expect-error
       label += `, ${k}: ${(requiredFields[k] as Decoder<any>).label}`;
     }
     first = false;
@@ -322,6 +327,7 @@ export function deriveStruct<A extends Record<string, any>>(
         errors.push(new RequiredKeyError(key, new MissingKeyError(key)));
         errored = true;
       } else {
+        // @ts-expect-error
         const res = (requiredFields[key] as Decoder<any>).decode(input[key]);
         res.match2(
           (e) => {
@@ -339,7 +345,9 @@ export function deriveStruct<A extends Record<string, any>>(
     }
     if (optionalFields) {
       for (const key in optionalFields) {
+        // @ts-expect-error
         if (key in input && typeof input[key as string] !== "undefined") {
+          // @ts-expect-error
           const res = (optionalFields[key] as Decoder<any>).decode(input[key as string]);
           res.match2(
             (e) => {
@@ -460,6 +468,7 @@ export function deriveRecord<A extends Record<string, any>>(
     const res     = {};
     for (const k in asRecord) {
       if (keyGuard.is(k)) {
+        // @ts-expect-error
         const valueResult = valueDecoder.decode(asRecord[k]);
         valueResult.match2(
           (e) => {
@@ -468,6 +477,7 @@ export function deriveRecord<A extends Record<string, any>>(
           },
           (warning, a) => {
             missing.delete(k);
+            // @ts-expect-error
             res[k] = a;
             if (warning.isJust()) {
               errors.push(new (k in requiredKeysRecord ? RequiredKeyError : OptionalKeyError)(k, warning.value));

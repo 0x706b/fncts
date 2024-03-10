@@ -24,15 +24,21 @@ export const it = (() => {
     if (result.isFailure) {
       const lines = (assertionValues: Cons<AssertionValue<any>>) =>
         assertionValues.flatMap((value) => List.from(renderFragment(value, 0).lines));
-      const renderedResult = ConsoleRenderer.renderSingle(
-        result.invert.fold({
-          Value: (details) => rendered(Test, "", Failed, 0, lines(details.failureDetails.assertion)),
-          And: (l, r) => l && r,
-          Or: (l, r) => l || r,
-          Not: (v) => v.invert,
-        }),
-        TestAnnotationRenderer.Default,
-      );
+
+      const renderedResult = result.failures
+        .map((failures) =>
+          ConsoleRenderer.renderSingle(
+            failures.fold({
+              Value: (details) => rendered(Test, "", Failed, 0, lines(details.failureDetails.assertion)),
+              And: (l, r) => l && r,
+              Or: (l, r) => l || r,
+              Not: (v) => v.invert,
+            }),
+            TestAnnotationRenderer.Default,
+          ),
+        )
+        .getOrElse("Unknown Test Failure");
+
       const error = new Error(renderedResult);
       error.stack = undefined;
       throw error;

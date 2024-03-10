@@ -1652,6 +1652,7 @@ export function forkJoin(...args: any[]): Observable<any, any, any> {
                 s.next(
                   keys
                     ? keys.reduce((b, k, i) => {
+                        // @ts-expect-error
                         b[k] = values[i];
                         return b;
                       }, {})

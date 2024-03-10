@@ -1,4 +1,4 @@
-import type { POptional } from "@fncts/base/optics/Optional";
+import type { POptional } from "@fncts/base/optics/Optional"
 import type { PPrism, PPrismPartiallyApplied } from "@fncts/base/optics/Prism";
 
 /**

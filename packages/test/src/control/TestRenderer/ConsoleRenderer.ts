@@ -50,7 +50,7 @@ export function renderSingle(result: ExecutionResult, testAnnotationRenderer: Te
     Other: () => new Message(Vector.from(result.lines)),
   });
   const renderedAnnotations = renderAnnotations(result.annotations, testAnnotationRenderer);
-  return renderToStringLines(output + renderedAnnotations).join("");
+  return renderToStringLines(output + renderedAnnotations).join("\n");
 }
 
 function renderSuite(status: Status, offset: number, message: Message) {

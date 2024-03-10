@@ -147,6 +147,7 @@ export function createWriteSink<InErr>(
             (inp: Conc<Byte>) =>
               Channel.unwrap(
                 st![1].get
+                  // @ts-expect-error
                   .flatMap((pos) => write(st[0], inp, pos))
                   .flatMap(() => st![1].update((n) => (n !== undefined ? n + inp.length : undefined)))
                   .map(() => reader),

@@ -43,6 +43,7 @@ export function deriveStruct<A extends Record<string, any>>(
   return Eq({
     equals: (y) => (x) => {
       for (const field in requiredFields) {
+        // @ts-expect-error
         if (!(requiredFields[field] as Eq<any>).equals(y[field])(x[field])) {
           return false;
         }

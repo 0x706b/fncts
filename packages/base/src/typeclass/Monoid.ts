@@ -77,6 +77,7 @@ export function deriveStruct<A extends Record<string, any>>(
   const [requiredFields, optionalFields] = args;
   const nat: Record<string, unknown>     = {};
   for (const field in requiredFields) {
+    // @ts-expect-error
     nat[field] = (requiredFields[field] as Monoid<any>).nat;
   }
   for (const field in optionalFields) {

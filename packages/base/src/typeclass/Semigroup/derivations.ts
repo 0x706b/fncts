@@ -45,6 +45,7 @@ export function deriveStruct<A extends Record<string, any>>(
     combine: (y) => (x) => {
       const out: Record<string, unknown> = {};
       for (const field in requiredFields) {
+        // @ts-expect-error
         out[field] = (requiredFields[field]! as Semigroup<any>).combine(y[field])(x[field]);
       }
       for (const field in optionalFields) {

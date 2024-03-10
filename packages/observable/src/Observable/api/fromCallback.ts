@@ -4,7 +4,6 @@
 export function fromCallback<A extends ReadonlyArray<unknown>, R extends ReadonlyArray<unknown>>(
   callbackFunc: (...args: [...A, (...res: R) => void]) => void,
 ): (...args: A) => Observable<never, unknown, R> {
-  // @ts-expect-error
   return fromCallbackInternal(false, callbackFunc);
 }
 

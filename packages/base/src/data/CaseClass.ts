@@ -45,6 +45,7 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
   get [Symbol.hash](): number {
     let h = hash0;
     for (const k of this[keysSymbol]) {
+      // @ts-expect-error
       h = Hashable.combine(h, Hashable.unknown(this[k]!));
     }
     return h;
@@ -67,6 +68,7 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
       while (result && i < len) {
         result =
           this[keysSymbol][i] === thatKeys[i] &&
+          // @ts-expect-error
           Equatable.strictEquals(this[this[keysSymbol]![i]!] as {}, (that as T)[thatKeys[i]!]);
         i++;
       }

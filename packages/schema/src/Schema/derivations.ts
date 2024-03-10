@@ -66,11 +66,13 @@ export function deriveStruct<A extends Record<string, any>>(
 ): Schema<A> {
   const maybeFieldsKeys: Vector<PropertyKey> = ownKeys(maybeFields);
   let propertySignatures                     = ownKeys(requiredFields).map((key) =>
+    // @ts-expect-error
     AST.createPropertySignature(key, requiredFields[key]!.ast, false, true),
   );
 
   if (optionalFields) {
     propertySignatures = propertySignatures.concat(
+      // @ts-expect-error
       ownKeys(optionalFields).map((key) => AST.createPropertySignature(key, optionalFields[key]!.ast, true, true)),
     );
   }
@@ -89,6 +91,7 @@ export function deriveStruct<A extends Record<string, any>>(
         maybeFieldsKeys.map((key) =>
           AST.createPropertySignature(
             key,
+            // @ts-expect-error
             AST.createUnion(Vector(AST.undefinedKeyword, AST.createLiteral(null), maybeFields![key]!.ast)),
             true,
             true,
@@ -103,6 +106,7 @@ export function deriveStruct<A extends Record<string, any>>(
     AST.createTypeLiteral(
       propertySignatures.concat(
         maybeFieldsKeys.map((key) =>
+          // @ts-expect-error
           AST.createPropertySignature(key, Schema.maybe(maybeFields![key]!).ast, true, true),
         ),
       ),

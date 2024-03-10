@@ -161,6 +161,7 @@ export function deriveStruct<A extends Record<string, any>>(
       return false;
     }
     for (const key in requiredFields) {
+      // @ts-expect-error
       if (!(key in u) || !(requiredFields[key] as Guard<any>).is(u[key])) {
         return false;
       }
@@ -295,6 +296,7 @@ export function deriveRecord<A extends Record<string, any>>(
       return false;
     }
     for (const k of Object.keys(record)) {
+      // @ts-expect-error
       if (requiredKeysSet.has(k) && !value.is(record[k])) {
         return false;
       }
@@ -315,6 +317,7 @@ export function deriveDictionary<A extends Record<string, any>>(
       return false;
     }
     for (const k of Object.keys(u)) {
+      // @ts-expect-error
       if (!value.is(u[k])) {
         return false;
       }

@@ -81,7 +81,7 @@ export function getProp<A extends Record<string, any>>() {
 /**
  * @tsplus static fncts.optics.PLensOps id
  */
-export function id<S, A = S>(): PLens<S, A, S, A> {
+export function id<A>(): Lens<A, A> {
   return PLens({
     get: identity,
     set: (t) => () => t,
@@ -145,7 +145,7 @@ function anyPath(path: ReadonlyArray<string>) {
 /**
  * @tsplus pipeable fncts.optics.Lens path
  */
-export function path<A extends Record<string, unknown>, P extends Array<string>>(path: readonly [...AutoPath<A, P>]) {
+export function path<A extends object, P extends Array<string>>(path: readonly [...AutoPath<A, P>]) {
   return <S>(self: Lens<S, A>): Lens<S, Path<A, P>> => {
     return anyPath(path)(self);
   };

@@ -46,7 +46,7 @@ export function concParser<A>(value: Schema<A>): Parser<Conc<A>> {
     const out: Array<A> = [];
     let i               = 0;
     for (const v of u) {
-      const t = value.decode(u);
+      const t = value.decode(v);
       Either.concrete(t);
       if (t.isLeft()) {
         errors.push(ParseError.IndexError(i, t.left));

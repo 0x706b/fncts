@@ -118,11 +118,13 @@ export function deriveStruct<A extends Record<string, any>>(
   return Encoder((inp) => {
     const encoded = {};
     for (const field of Object.keys(requiredFields)) {
+      // @ts-expect-error
       encoded[field] = (requiredFields[field] as Encoder<unknown>).encode(inp[field]);
     }
     if (optionalFields) {
       for (const field of Object.keys(optionalFields)) {
         if (field in inp && typeof inp[field] !== undefined) {
+          // @ts-expect-error
           encoded[field] = (optionalFields[field] as Encoder<unknown>).encode(inp[field]);
         }
       }
@@ -140,6 +142,7 @@ export function struct<A extends Record<string, any>>(fields: {
   return Encoder((inp) => {
     const encoded = {};
     for (const field of Object.keys(fields)) {
+      // @ts-expect-error
       encoded[field] = fields[field]!.encode(inp[field]);
     }
     return encoded;
@@ -156,6 +159,7 @@ export function partial<A extends Record<string, any>>(fields: {
     const encoded = {};
     for (const field of Object.keys(fields)) {
       if (field in inp && typeof inp[field] !== undefined) {
+        // @ts-expect-error
         encoded[field] = fields[field]!.encode(inp[field]!);
       }
     }
@@ -238,6 +242,7 @@ export function deriveDictionary<A extends Record<string, any>>(
   return Encoder((inp) => {
     const encoded = {};
     for (const k of Object.keys(inp)) {
+      // @ts-expect-error
       encoded[k] = value.encode(inp[k]);
     }
     return encoded;
@@ -260,6 +265,7 @@ export function deriveRecord<A extends Record<string, any>>(
   return Encoder((inp) => {
     const encoded = {};
     for (const k of Object.keys(requiredKeys)) {
+      // @ts-expect-error
       encoded[k] = value.encode(inp[k]);
     }
     return encoded;
