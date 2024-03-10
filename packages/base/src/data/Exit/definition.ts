@@ -41,7 +41,10 @@ export class Failure<E> {
   };
   readonly [IOTypeId]: IOTypeId = IOTypeId;
   readonly _tag                 = ExitTag.Failure;
-  constructor(readonly cause: Cause<E>, readonly trace?: string) {}
+  constructor(
+    readonly cause: Cause<E>,
+    readonly trace?: string,
+  ) {}
 
   get [Symbol.hash](): number {
     return Hashable.combine(_failureHash, Hashable.unknown(this.cause));
@@ -63,7 +66,10 @@ export class Success<A> implements P.Hashable, P.Equatable {
   };
   readonly [IOTypeId]: IOTypeId = IOTypeId;
   readonly _tag                 = ExitTag.Success;
-  constructor(readonly value: A, readonly trace?: string) {}
+  constructor(
+    readonly value: A,
+    readonly trace?: string,
+  ) {}
 
   get [Symbol.hash](): number {
     return Hashable.combine(_successHash, Hashable.unknown(this.value));

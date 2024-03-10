@@ -15,7 +15,11 @@ export class ASTAnnotation<V> implements Hashable, Equatable {
   declare [ASTAnnotationVariance]: {
     readonly _V: (_: never) => V;
   };
-  constructor(readonly tag: Tag<V>, readonly identifier: string, readonly combine: (v1: V, v2: V) => V) {}
+  constructor(
+    readonly tag: Tag<V>,
+    readonly identifier: string,
+    readonly combine: (v1: V, v2: V) => V,
+  ) {}
   get [Symbol.hash]() {
     return Hashable.combine(Hashable.string(this.identifier), Hashable.unknown(this.tag));
   }

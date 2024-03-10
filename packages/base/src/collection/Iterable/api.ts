@@ -474,8 +474,8 @@ function handlePartitionMap<A, B, C>(
   return h === "Left" && bc._tag === "Left"
     ? { emit: true, value: bc.left }
     : h === "Right" && bc._tag === "Right"
-    ? { emit: true, value: bc.right }
-    : { emit: false };
+      ? { emit: true, value: bc.right }
+      : { emit: false };
 }
 
 function partitionMapWithIndexIterator<A, B, C>(

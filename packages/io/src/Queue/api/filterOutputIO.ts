@@ -3,7 +3,10 @@ import type { PDequeue, PDequeueInternal } from "@fncts/io/Queue/definition";
 import { concrete, DequeueTypeId, QueueInternal, QueueTypeId, QueueVariance } from "@fncts/io/Queue/definition";
 
 class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, RB | RB1, EA, EB | EB1, A, B> {
-  constructor(readonly queue: QueueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RB1, EB1, boolean>) {
+  constructor(
+    readonly queue: QueueInternal<RA, RB, EA, EB, A, B>,
+    readonly f: (b: B) => IO<RB1, EB1, boolean>,
+  ) {
     super();
   }
 
@@ -86,7 +89,10 @@ class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1>
     readonly _A: (_: A) => void;
     readonly _B: (_: never) => B;
   };
-  constructor(readonly queue: PDequeueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RB1, EB1, boolean>) {}
+  constructor(
+    readonly queue: PDequeueInternal<RA, RB, EA, EB, A, B>,
+    readonly f: (b: B) => IO<RB1, EB1, boolean>,
+  ) {}
 
   awaitShutdown: UIO<void> = this.queue.awaitShutdown;
 

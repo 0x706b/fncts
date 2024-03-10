@@ -14,7 +14,7 @@ export const Eq: P.Eq<number> = P.Eq({ equals: (y) => (x) => x === y });
  * @tsplus implicit
  */
 export const Ord: P.Ord<number> = P.Ord({
-  compare: (y) => (x) => x < y ? LT : x > y ? GT : EQ,
+  compare: (y) => (x) => (x < y ? LT : x > y ? GT : EQ),
   equals: (y) => (x) => x === y,
 });
 

@@ -23,17 +23,18 @@ export declare namespace Brand {
     : never;
 
   export type Unbranded<P> = P extends infer Q & Brands<P> ? Q : P;
-  export type Brands<P> = P extends Valid<any, any>
-    ? Union.IntersectionOf<
-        {
-          [K in keyof P[Brand.valid]]: P extends P[Brand.valid][K]
-            ? K extends string
-              ? Valid<P[Brand.valid][K], K>
-              : never
-            : never;
-        }[keyof P[Brand.valid]]
-      >
-    : unknown;
+  export type Brands<P> =
+    P extends Valid<any, any>
+      ? Union.IntersectionOf<
+          {
+            [K in keyof P[Brand.valid]]: P extends P[Brand.valid][K]
+              ? K extends string
+                ? Valid<P[Brand.valid][K], K>
+                : never
+              : never;
+          }[keyof P[Brand.valid]]
+        >
+      : unknown;
 }
 
 /**
@@ -42,7 +43,10 @@ export declare namespace Brand {
  * @tsplus derive nominal
  */
 export class Validation<in out A, in out K extends string> {
-  constructor(readonly validate: Refinement<A, A & Brand.Valid<A, K>>, readonly name: K) {}
+  constructor(
+    readonly validate: Refinement<A, A & Brand.Valid<A, K>>,
+    readonly name: K,
+  ) {}
 }
 
 /**

@@ -32,7 +32,10 @@ export class Global extends FiberScope {
 }
 
 export class Local extends FiberScope {
-  constructor(readonly fiberId: FiberId, private parentRef: WeakRef<FiberRuntime<unknown, unknown>>) {
+  constructor(
+    readonly fiberId: FiberId,
+    private parentRef: WeakRef<FiberRuntime<unknown, unknown>>,
+  ) {
     super();
   }
   unsafeAdd(currentFiber: FiberRuntime<any, any>, _runtimeFlags: RuntimeFlags, child: FiberRuntime<any, any>): void {

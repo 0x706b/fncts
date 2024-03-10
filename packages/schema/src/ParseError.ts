@@ -32,7 +32,10 @@ export type ParseError =
  */
 export class TypeError {
   readonly _tag = ParseErrorTag.Type;
-  constructor(readonly expected: AST, readonly actual: unknown) {}
+  constructor(
+    readonly expected: AST,
+    readonly actual: unknown,
+  ) {}
 }
 
 /**
@@ -48,7 +51,10 @@ export function typeError(expected: AST, actual: unknown): ParseError {
  */
 export class IndexError {
   readonly _tag = ParseErrorTag.Index;
-  constructor(readonly index: number, readonly errors: Vector<ParseError>) {}
+  constructor(
+    readonly index: number,
+    readonly errors: Vector<ParseError>,
+  ) {}
 }
 
 /**
@@ -64,7 +70,11 @@ export function indexError(index: number, errors: Vector<ParseError>): ParseErro
  */
 export class KeyError {
   readonly _tag = ParseErrorTag.Key;
-  constructor(readonly keyAST: AST, readonly key: any, readonly errors: Vector<ParseError>) {}
+  constructor(
+    readonly keyAST: AST,
+    readonly key: any,
+    readonly errors: Vector<ParseError>,
+  ) {}
 }
 
 /**

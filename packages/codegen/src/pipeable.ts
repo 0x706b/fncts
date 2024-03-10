@@ -3,7 +3,6 @@ import { parse } from "@babel/parser";
 import type { Preset } from "eslint-plugin-codegen";
 import * as fs from "fs";
 import * as ts from "typescript";
-import { format } from "prettier";
 
 /**
  * A simple static analysis that tries to infer
@@ -75,7 +74,7 @@ function interpretReferencedTypeNames(node: ts.TypeNode): string[] {
         "Unknown TypeNode " +
           current.getText() +
           " while interpreting " +
-          node.getText()
+          node.getText(),
       );
     }
   }
@@ -85,7 +84,7 @@ function interpretReferencedTypeNames(node: ts.TypeNode): string[] {
 function normalise(str: string) {
   try {
     return generate(
-      parse(str, { sourceType: "module", plugins: ["typescript"] }) as any
+      parse(str, { sourceType: "module", plugins: ["typescript"] }) as any,
     )
       .code.replace(/'/g, `"`)
       .replace(/\/index/g, "");
@@ -108,7 +107,7 @@ function updateJSDoc<T extends ts.Node>(node: T, jsDoc: ts.JSDoc) {
     node,
     ts.SyntaxKind.MultiLineCommentTrivia,
     comment,
-    true
+    true,
   );
 }
 
@@ -133,18 +132,18 @@ interface ConstrainedDataFirstDeclaration {
 }
 
 function createPipeableFunctionDeclaration(
-  decl: DataFirstDeclaration
+  decl: DataFirstDeclaration,
 ): ts.FunctionDeclaration {
   // create the pipeable function name
   const pipeableName = decl.functionName.substring(
     0,
-    decl.functionName.length - 1
+    decl.functionName.length - 1,
   );
   const pipeableIdentifier = ts.factory.createIdentifier(pipeableName);
 
   const typeParameterConstraints = filterMap(
     decl.typeParameters,
-    (typeParam) => typeParam.constraint
+    (typeParam) => typeParam.constraint,
   );
 
   const restUsedTypeArgs = decl.parameters
@@ -155,10 +154,10 @@ function createPipeableFunctionDeclaration(
     .flat();
 
   const faTypeArgs = decl.typeParameters.filter(
-    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) === -1
+    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) === -1,
   );
   const returnTypeArgs = decl.typeParameters.filter(
-    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) !== -1
+    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) !== -1,
   );
 
   // based on if function is implemented or not,
@@ -169,7 +168,7 @@ function createPipeableFunctionDeclaration(
     ? ts.factory.createFunctionTypeNode(
         faTypeArgs,
         decl.parameters.slice(0, 1),
-        decl.type
+        decl.type,
       )
     : undefined;
 
@@ -179,8 +178,8 @@ function createPipeableFunctionDeclaration(
     decl.parameters.map((p, i) =>
       ts.isIdentifier(p.name)
         ? p.name
-        : ts.factory.createIdentifier("unknown_parameter_" + i)
-    )
+        : ts.factory.createIdentifier("unknown_parameter_" + i),
+    ),
   );
 
   const pipeableArrow = ts.factory.createArrowFunction(
@@ -189,12 +188,12 @@ function createPipeableFunctionDeclaration(
     decl.parameters.slice(0, 1),
     decl.type,
     undefined,
-    datafirstFunctionCall
+    datafirstFunctionCall,
   );
 
   const returnPipeableArrow = ts.factory.createBlock(
     [ts.factory.createReturnStatement(pipeableArrow)],
-    true
+    true,
   );
 
   const pipeableFunctionDeclaration = ts.factory.createFunctionDeclaration(
@@ -204,12 +203,12 @@ function createPipeableFunctionDeclaration(
     returnTypeArgs,
     decl.parameters.slice(1),
     decl.implemented ? undefined : returnType,
-    decl.implemented ? returnPipeableArrow : undefined
+    decl.implemented ? returnPipeableArrow : undefined,
   );
 
   const tsplusDataFirstCommentTag = ts.factory.createJSDocUnknownTag(
     ts.factory.createIdentifier("tsplus dataFirst"),
-    decl.functionName
+    decl.functionName,
   );
 
   const baseComment = decl.jsDoc ? decl.jsDoc : ts.factory.createJSDocComment();
@@ -219,25 +218,25 @@ function createPipeableFunctionDeclaration(
 
   const comment = ts.factory.createJSDocComment(
     baseComment.comment,
-    baseTags.concat([tsplusDataFirstCommentTag])
+    baseTags.concat([tsplusDataFirstCommentTag]),
   );
 
   return updateJSDoc(pipeableFunctionDeclaration, comment);
 }
 
 function createPipeableConstrainedFunctionDeclaration(
-  decl: ConstrainedDataFirstDeclaration
+  decl: ConstrainedDataFirstDeclaration,
 ): ts.FunctionDeclaration {
   // create the pipeable function name
   const pipeableName = decl.functionName.substring(
     0,
-    decl.functionName.length - 1
+    decl.functionName.length - 1,
   );
   const pipeableIdentifier = ts.factory.createIdentifier(pipeableName);
 
   const typeParameterConstraints = filterMap(
     decl.typeParameters,
-    (typeParam) => typeParam.constraint
+    (typeParam) => typeParam.constraint,
   );
 
   // lookup for used type arguments used by all parameters except the first one
@@ -249,10 +248,10 @@ function createPipeableConstrainedFunctionDeclaration(
     .flat();
 
   const faTypeArgs = decl.typeParameters.filter(
-    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) === -1
+    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) === -1,
   );
   const returnTypeArgs = decl.typeParameters.filter(
-    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) !== -1
+    (parameter) => restUsedTypeArgs.indexOf(parameter.name.text) !== -1,
   );
 
   // based on if function is implemented or not,
@@ -263,7 +262,7 @@ function createPipeableConstrainedFunctionDeclaration(
     ? ts.factory.createFunctionTypeNode(
         faTypeArgs,
         decl.parameters.slice(0, 1),
-        decl.type
+        decl.type,
       )
     : undefined;
 
@@ -274,15 +273,15 @@ function createPipeableConstrainedFunctionDeclaration(
       decl.constraintParameters.map((p, i) =>
         ts.isIdentifier(p.name)
           ? p.name
-          : ts.factory.createIdentifier("unknown_constraint_" + i)
-      )
+          : ts.factory.createIdentifier("unknown_constraint_" + i),
+      ),
     ),
     [],
     decl.parameters.map((p, i) =>
       ts.isIdentifier(p.name)
         ? p.name
-        : ts.factory.createIdentifier("unknown_parameter_" + i)
-    )
+        : ts.factory.createIdentifier("unknown_parameter_" + i),
+    ),
   );
 
   const pipeableArrow = ts.factory.createArrowFunction(
@@ -297,13 +296,13 @@ function createPipeableConstrainedFunctionDeclaration(
       decl.parameters.slice(0, 1),
       decl.type,
       undefined,
-      datafirstFunctionCall
-    )
+      datafirstFunctionCall,
+    ),
   );
 
   const returnPipeableArrow = ts.factory.createBlock(
     [ts.factory.createReturnStatement(pipeableArrow)],
-    true
+    true,
   );
 
   const pipeableFunctionDeclaration = ts.factory.createFunctionDeclaration(
@@ -313,12 +312,12 @@ function createPipeableConstrainedFunctionDeclaration(
     decl.constrainedTypeParameters,
     decl.constraintParameters,
     decl.implemented ? undefined : returnType,
-    decl.implemented ? returnPipeableArrow : undefined
+    decl.implemented ? returnPipeableArrow : undefined,
   );
 
   const tsplusDataFirstCommentTag = ts.factory.createJSDocUnknownTag(
     ts.factory.createIdentifier("tsplus dataFirst"),
-    decl.functionName
+    decl.functionName,
   );
 
   const baseComment = decl.jsDoc ? decl.jsDoc : ts.factory.createJSDocComment();
@@ -328,7 +327,7 @@ function createPipeableConstrainedFunctionDeclaration(
 
   const comment = ts.factory.createJSDocComment(
     baseComment.comment,
-    baseTags.concat([tsplusDataFirstCommentTag])
+    baseTags.concat([tsplusDataFirstCommentTag]),
   );
 
   return updateJSDoc(pipeableFunctionDeclaration, comment);
@@ -361,19 +360,19 @@ const pipeable: Preset<{
       sourceText,
       ts.ScriptTarget.Latest,
       true,
-      ts.ScriptKind.TS
+      ts.ScriptKind.TS,
     );
 
     // collect data-first declarations
     const dataFirstDeclarations: DataFirstDeclaration[] = filterMap(
       sourceFile.statements,
-      getDataFirstDeclaration(sourceFile, exclude)
+      getDataFirstDeclaration(sourceFile, exclude),
     );
 
     const constrainedDataFirstDeclarations: ConstrainedDataFirstDeclaration[] =
       filterMap(
         sourceFile.statements,
-        getConstrinedDataFirstDeclaration(sourceFile, exclude)
+        getConstrinedDataFirstDeclaration(sourceFile, exclude),
       );
 
     // create the actual AST nodes
@@ -381,13 +380,12 @@ const pipeable: Preset<{
       .map(createPipeableFunctionDeclaration)
       .concat(
         constrainedDataFirstDeclarations.map(
-          createPipeableConstrainedFunctionDeclaration
-        )
+          createPipeableConstrainedFunctionDeclaration,
+        ),
       );
-    const expectedContent = format(
-      nodes.map((node) => printNode(node, sourceFile)).join("\n"),
-      { filepath: sourcePath }
-    );
+    const expectedContent = nodes
+      .map((node) => printNode(node, sourceFile))
+      .join("\n");
 
     // do not re-emit in a different style, or a loop will occur
     if (normalise(meta.existingContent) === normalise(expectedContent))
@@ -406,13 +404,13 @@ const pipeable: Preset<{
 function isDataFirstCandidate(
   sourceFile: ts.SourceFile,
   exclude: string[],
-  node: ts.Node
+  node: ts.Node,
 ): node is ts.FunctionDeclaration {
   if (
     ts.isFunctionDeclaration(node) &&
     !!node.modifiers &&
     node.modifiers.findIndex(
-      (mod) => mod.kind === ts.SyntaxKind.ExportKeyword
+      (mod) => mod.kind === ts.SyntaxKind.ExportKeyword,
     ) !== -1 &&
     !!node.name &&
     node.parameters.length >= 2 &&
@@ -442,7 +440,7 @@ function getDataFirstDeclaration(sourceFile: ts.SourceFile, exclude: string[]) {
 function isConstrainedCandidate(
   sourceFile: ts.SourceFile,
   exclude: string[],
-  node: ts.Node
+  node: ts.Node,
 ): node is ts.FunctionDeclaration {
   const jsDoc = getJSDoc(node);
   if (
@@ -452,7 +450,7 @@ function isConstrainedCandidate(
     ts.isFunctionDeclaration(node) &&
     !!node.modifiers &&
     node.modifiers.findIndex(
-      (mod) => mod.kind === ts.SyntaxKind.ExportKeyword
+      (mod) => mod.kind === ts.SyntaxKind.ExportKeyword,
     ) !== -1 &&
     !!node.name &&
     node.name.getText(sourceFile).endsWith("_") &&
@@ -465,7 +463,7 @@ function isConstrainedCandidate(
 
 function getConstrinedDataFirstDeclaration(
   sourceFile: ts.SourceFile,
-  exclude: string[]
+  exclude: string[],
 ) {
   return (node: ts.Node): ConstrainedDataFirstDeclaration | undefined => {
     if (isConstrainedCandidate(sourceFile, exclude, node)) {
@@ -501,7 +499,7 @@ function getConstrinedDataFirstDeclaration(
 
 function filterMap<A, B>(
   as: A[] | readonly A[],
-  f: (a: A) => B | undefined
+  f: (a: A) => B | undefined,
 ): B[] {
   if (as.length === 0) {
     return [];

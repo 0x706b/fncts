@@ -1,3 +1,5 @@
+import type { Request } from "@fncts/query/Request";
+
 export const BlockedRequestTypeId = Symbol.for("fncts.query.BlockedRequest");
 export type BlockedRequestTypeId = typeof BlockedRequestTypeId;
 

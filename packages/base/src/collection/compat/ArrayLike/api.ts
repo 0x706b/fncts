@@ -7,7 +7,7 @@ export function toIterable<A>(self: ArrayLike<A>): Iterable<A> {
   }
   return Iterable.make<A>(() => {
     let done = false;
-    let i = 0;
+    let i    = 0;
     return {
       next() {
         if (i >= self.length || done) {

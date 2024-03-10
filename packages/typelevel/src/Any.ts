@@ -11,9 +11,8 @@ export type Extends<A, B> = [A] extends [never] ? False : A extends B ? True : F
 
 export type Contains<A, B> = Extends<A, B> extends True ? True : False;
 
-export type Equals<A, B> = (<X>() => X extends B ? True : False) extends <X>() => X extends A ? True : False
-  ? True
-  : False;
+export type Equals<A, B> =
+  (<X>() => X extends B ? True : False) extends <X>() => X extends A ? True : False ? True : False;
 
 export type If<B extends Boolean, Then, Else = never> = B extends True ? Then : Else;
 
@@ -58,14 +57,14 @@ export type ComputeRaw<A> = A extends Function ? A : { [K in keyof A]: A[K] } & 
 export type ComputeFlat<A> = A extends BuiltIn
   ? A
   : A extends Array<any>
-  ? A extends Array<Record<Key, any>>
-    ? Array<{ [K in keyof A[number]]: A[number][K] } & unknown>
-    : A
-  : A extends ReadonlyArray<any>
-  ? A extends ReadonlyArray<Record<Key, any>>
-    ? ReadonlyArray<{ [K in keyof A[number]]: A[number][K] } & unknown>
-    : A
-  : { [K in keyof A]: A[K] } & unknown;
+    ? A extends Array<Record<Key, any>>
+      ? Array<{ [K in keyof A[number]]: A[number][K] } & unknown>
+      : A
+    : A extends ReadonlyArray<any>
+      ? A extends ReadonlyArray<Record<Key, any>>
+        ? ReadonlyArray<{ [K in keyof A[number]]: A[number][K] } & unknown>
+        : A
+      : { [K in keyof A]: A[K] } & unknown;
 
 export type ComputeDeep<A, Seen = never> = A extends BuiltIn
   ? A
@@ -75,10 +74,10 @@ export type ComputeDeep<A, Seen = never> = A extends BuiltIn
           ? Array<{ [K in keyof A[number]]: ComputeDeep<A[number][K], A | Seen> } & unknown>
           : A
         : A extends ReadonlyArray<any>
-        ? A extends ReadonlyArray<Record<Key, any>>
-          ? ReadonlyArray<{ [K in keyof A[number]]: ComputeDeep<A[number][K], A | Seen> } & unknown>
-          : A
-        : { [K in keyof A]: ComputeDeep<A[K], A | Seen> } & unknown;
+          ? A extends ReadonlyArray<Record<Key, any>>
+            ? ReadonlyArray<{ [K in keyof A[number]]: ComputeDeep<A[number][K], A | Seen> } & unknown>
+            : A
+          : { [K in keyof A]: ComputeDeep<A[K], A | Seen> } & unknown;
       [True]: A;
     }[Has<Seen, A>];
 
@@ -88,10 +87,10 @@ export type At<A, K extends Key> = A extends List
       ? A[never] | undefined
       : undefined
     : K extends keyof A
-    ? A[K]
-    : undefined
+      ? A[K]
+      : undefined
   : unknown extends A
-  ? unknown
-  : K extends keyof A
-  ? A[K]
-  : undefined;
+    ? unknown
+    : K extends keyof A
+      ? A[K]
+      : undefined;

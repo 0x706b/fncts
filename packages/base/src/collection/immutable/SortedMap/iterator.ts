@@ -41,7 +41,11 @@ export function backward<K, V>(self: SortedMap<K, V>): SortedMapIterable<K, V> {
 
 export class SortedMapIterator<K, V> implements Iterator<readonly [K, V]> {
   private count = 0;
-  constructor(readonly m: SortedMap<K, V>, readonly stack: Array<Node<K, V>>, readonly direction: 0 | 1) {}
+  constructor(
+    readonly m: SortedMap<K, V>,
+    readonly stack: Array<Node<K, V>>,
+    readonly direction: 0 | 1,
+  ) {}
 
   next(): IteratorResult<readonly [K, V]> {
     if (this.isEmpty) {

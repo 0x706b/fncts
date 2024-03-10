@@ -6,7 +6,10 @@ import { Style } from "./Style.js";
  * @tsplus companion fncts.test.data.FragmentOps
  */
 export class Fragment {
-  constructor(readonly text: string, readonly style: Style = Style.Default) {}
+  constructor(
+    readonly text: string,
+    readonly style: Style = Style.Default,
+  ) {}
 }
 
 /**

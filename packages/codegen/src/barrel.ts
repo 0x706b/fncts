@@ -50,7 +50,7 @@ const barrel: Preset<{
     .filter((f) => path.resolve(cwd, f) !== path.resolve(meta.filename))
     .map((f) => `./${f}`.replace(/(\.\/)+\./g, "."))
     .filter((file) =>
-      [".js", ".mjs", ".ts", ".tsx"].includes(path.extname(file))
+      [".js", ".mjs", ".ts", ".tsx"].includes(path.extname(file)),
     )
     .map((f) => f.replace(/\.\w+$/, "") + ".js");
 
@@ -77,7 +77,7 @@ const barrel: Preset<{
             : group.map((info, i) => ({
                 ...info,
                 identifier: `${info.identifier}_${i + 1}`,
-              }))
+              })),
         )
         .value();
 
@@ -87,8 +87,8 @@ const barrel: Preset<{
       const exportProps = match(opts.export)
         .case({ name: String, keys: "path" }, () =>
           withIdentifiers.map(
-            (i) => `${JSON.stringify(i.file)}: ${i.identifier}`
-          )
+            (i) => `${JSON.stringify(i.file)}: ${i.identifier}`,
+          ),
         )
         .default(() => withIdentifiers.map((i) => i.identifier))
         .get();
@@ -110,7 +110,7 @@ const barrel: Preset<{
   // ignore stylistic differences. babel generate deals with most
   const normalise = (str: string) =>
     generate(
-      parse(str, { sourceType: "module", plugins: ["typescript"] }) as any
+      parse(str, { sourceType: "module", plugins: ["typescript"] }) as any,
     )
       .code.replace(/'/g, `"`)
       .replace(/\/index/g, "");

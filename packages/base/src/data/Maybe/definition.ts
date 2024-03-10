@@ -43,7 +43,10 @@ export abstract class Maybe<A> {
  */
 export class Just<A> extends Maybe<A> {
   readonly _tag = MaybeTag.Just;
-  constructor(readonly value: A, readonly trace?: string) {
+  constructor(
+    readonly value: A,
+    readonly trace?: string,
+  ) {
     super();
   }
   [Symbol.equals](that: unknown): boolean {

@@ -188,7 +188,11 @@ export class HashSet<A> implements Iterable<A> {
 }
 
 class Node<K> {
-  constructor(public key: K, public hash: number, public next: Node<K> | undefined) {}
+  constructor(
+    public key: K,
+    public hash: number,
+    public next: Node<K> | undefined,
+  ) {}
 
   findNode(k: K, h: number, equals: (y: K) => (x: K) => boolean): Node<K> | undefined {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
@@ -218,7 +222,10 @@ export class HashSetIterator<V, A> implements Iterator<A> {
   private len: number;
   private i    = 0;
   private done = false;
-  constructor(private table: Array<Node<V> | undefined>, private extract: (nd: Node<V>) => A) {
+  constructor(
+    private table: Array<Node<V> | undefined>,
+    private extract: (nd: Node<V>) => A,
+  ) {
     this.len = table.length;
   }
 

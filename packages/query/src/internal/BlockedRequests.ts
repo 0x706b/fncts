@@ -35,21 +35,30 @@ export class Empty extends BlockedRequests<never> {
 
 export class Single<R, A> extends BlockedRequests<R> {
   readonly _tag = BlockedRequestsTag.Single;
-  constructor(readonly dataSource: DataSource<R, A>, readonly blockedRequest: BlockedRequest<A>) {
+  constructor(
+    readonly dataSource: DataSource<R, A>,
+    readonly blockedRequest: BlockedRequest<A>,
+  ) {
     super();
   }
 }
 
 export class Then<R> extends BlockedRequests<R> {
   readonly _tag = BlockedRequestsTag.Then;
-  constructor(readonly left: BlockedRequests<R>, readonly right: BlockedRequests<R>) {
+  constructor(
+    readonly left: BlockedRequests<R>,
+    readonly right: BlockedRequests<R>,
+  ) {
     super();
   }
 }
 
 export class Both<R> extends BlockedRequests<R> {
   readonly _tag = BlockedRequestsTag.Both;
-  constructor(readonly left: BlockedRequests<R>, readonly right: BlockedRequests<R>) {
+  constructor(
+    readonly left: BlockedRequests<R>,
+    readonly right: BlockedRequests<R>,
+  ) {
     super();
   }
 }

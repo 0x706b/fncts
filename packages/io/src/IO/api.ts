@@ -2007,7 +2007,10 @@ export class GenIO<R, E, A> {
   readonly _E!: () => E;
   readonly _A!: () => A;
 
-  constructor(readonly effect: IO<R, E, A>, readonly _trace?: string) {}
+  constructor(
+    readonly effect: IO<R, E, A>,
+    readonly _trace?: string,
+  ) {}
 
   *[Symbol.iterator](): Generator<GenIO<R, E, A>, A, any> {
     return yield this;

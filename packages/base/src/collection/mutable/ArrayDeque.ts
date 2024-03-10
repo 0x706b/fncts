@@ -6,7 +6,11 @@ const DEFAULT_INITIAL_SIZE = 16;
  * @tsplus companion fncts.MutableArrayDeque
  */
 export class ArrayDeque<A> {
-  constructor(protected array: Array<A>, private start: number, private end: number) {}
+  constructor(
+    protected array: Array<A>,
+    private start: number,
+    private end: number,
+  ) {}
 
   static empty<A>(initialSize = DEFAULT_INITIAL_SIZE): ArrayDeque<A> {
     return new ArrayDeque(new Array(initialSize), 0, 0);

@@ -1,12 +1,11 @@
 import type { Workspace } from "@yarnpkg/core";
 
-import { assertExpression } from "@babel/types";
 import { getPluginConfiguration } from "@yarnpkg/cli";
 import { Configuration, Project, structUtils } from "@yarnpkg/core";
 import { ppath } from "@yarnpkg/fslib";
 import child_process from "child_process";
 import fs from "fs/promises";
-import glob from "glob";
+import { glob } from "glob";
 import { posix } from "path";
 import { promisify } from "util";
 
@@ -59,15 +58,15 @@ async function writePackageJson(project: Project, workspace: Workspace, mode: "c
   convertWorkspaceDependencies(rawManifest, project, workspace);
 
   const exports: any = {};
-  exports["./*"] = {};
-  exports["."] = {};
+  exports["./*"]     = {};
+  exports["."]       = {};
   if (mode === "mjs" || mode === "both") {
     exports["./*"].import = "./_mjs/*.mjs";
-    exports["."].import = "./_mjs/index.mjs";
+    exports["."].import   = "./_mjs/index.mjs";
   }
   if (mode === "cjs" || mode === "both") {
     exports["./*"].require = "./_cjs/*.cjs";
-    exports["."].require = "./_cjs/index.cjs";
+    exports["."].require   = "./_cjs/index.cjs";
   }
   rawManifest.exports = exports;
 
@@ -111,18 +110,6 @@ function exists(path: string) {
   );
 }
 
-function getGlob(g: string): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    glob(g, (err, res) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
-  });
-}
-
 const mode = getMode();
 
 const cwd = ppath.cwd();
@@ -155,12 +142,12 @@ if (await exists("./build/dts")) {
 
 await writePackageJson(project, workspace, mode);
 
-const sourceMapPaths = await getGlob("dist/**/*.map");
+const sourceMapPaths = await glob("dist/**/*.map");
 
 await Promise.all(
   sourceMapPaths.map(async (path) => {
     let content = await fs.readFile(path, { encoding: "utf-8" });
-    content = rewriteSourceMap(content, path);
+    content     = rewriteSourceMap(content, path);
     await fs.writeFile(path, content);
   }),
 );

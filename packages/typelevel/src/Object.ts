@@ -170,36 +170,31 @@ type Longer<L extends List, L1 extends List> = L extends unknown
 type MergeProp<OK, O1K, Fill, OOKeys extends Key, K extends Key> = K extends OOKeys
   ? U.Exclude<OK, undefined> | O1K
   : [OK] extends [never]
-  ? O1K
-  : OK extends Fill
-  ? O1K
-  : OK;
+    ? O1K
+    : OK extends Fill
+      ? O1K
+      : OK;
 
 type MergeFlatObject<O, O1, Fill, OOKeys extends Key = OptionalKeys<O>> = {
   [K in keyof (Anyify<O> & O1)]: MergeProp<At<O, K>, At<O1, K>, Fill, OOKeys, K>;
 } & {};
 
-type MergeFlatList<
-  L extends List,
-  L1 extends List,
-  Ignore,
-  Fill,
-  LOK extends Key = _OptionalKeys<L>,
-> = number extends Length<L | L1>
-  ? MergeFlatChoice<L[number], L1[number], Ignore, Fill>[]
-  : Longer<L, L1> extends True
-  ? { [K in keyof L]: MergeProp<L[K], At<L1, K>, Fill, LOK, K> }
-  : { [K in keyof L1]: MergeProp<At<L, K>, L1[K], Fill, LOK, K> };
+type MergeFlatList<L extends List, L1 extends List, Ignore, Fill, LOK extends Key = _OptionalKeys<L>> =
+  number extends Length<L | L1>
+    ? MergeFlatChoice<L[number], L1[number], Ignore, Fill>[]
+    : Longer<L, L1> extends True
+      ? { [K in keyof L]: MergeProp<L[K], At<L1, K>, Fill, LOK, K> }
+      : { [K in keyof L1]: MergeProp<At<L, K>, L1[K], Fill, LOK, K> };
 
 type MergeFlatChoice<O, O1, Ignore, Fill> = O extends Ignore
   ? O
   : O1 extends Ignore
-  ? O
-  : O extends List
-  ? O1 extends List
-    ? MergeFlatList<O, O1, Ignore, Fill>
-    : MergeFlatObject<O, O1, Fill>
-  : MergeFlatObject<O, O1, Fill>;
+    ? O
+    : O extends List
+      ? O1 extends List
+        ? MergeFlatList<O, O1, Ignore, Fill>
+        : MergeFlatObject<O, O1, Fill>
+      : MergeFlatObject<O, O1, Fill>;
 
 export type MergeFlat<O, O1, Ignore = BuiltIn, Fill = undefined> = O extends unknown
   ? O1 extends unknown
@@ -207,11 +202,12 @@ export type MergeFlat<O, O1, Ignore = BuiltIn, Fill = undefined> = O extends unk
     : never
   : never;
 
-type MergeDeepList<L extends List, L1 extends List, Ignore, Fill> = number extends Length<L | L1>
-  ? MergeDeepChoice<L[number], L1[number], Ignore, Fill, never, any>[]
-  : Longer<L, L1> extends True
-  ? { [K in keyof L]: MergeDeepChoice<L[K], At<L1, K>, Ignore, Fill, _OptionalKeys<L>, K> }
-  : { [K in keyof L1]: MergeDeepChoice<At<L, K>, L1[K], Ignore, Fill, _OptionalKeys<L>, K> };
+type MergeDeepList<L extends List, L1 extends List, Ignore, Fill> =
+  number extends Length<L | L1>
+    ? MergeDeepChoice<L[number], L1[number], Ignore, Fill, never, any>[]
+    : Longer<L, L1> extends True
+      ? { [K in keyof L]: MergeDeepChoice<L[K], At<L1, K>, Ignore, Fill, _OptionalKeys<L>, K> }
+      : { [K in keyof L1]: MergeDeepChoice<At<L, K>, L1[K], Ignore, Fill, _OptionalKeys<L>, K> };
 
 type MergeDeepObject<O, O1, Ignore, Fill, OOKeys extends Key = _OptionalKeys<O>> = {
   [K in keyof (Anyify<O> & O1)]: MergeDeepChoice<At<O, K>, At<O1, K>, Ignore, Fill, OOKeys, K>;
@@ -220,20 +216,20 @@ type MergeDeepObject<O, O1, Ignore, Fill, OOKeys extends Key = _OptionalKeys<O>>
 type MergeDeepChoice<OK, O1K, Ignore, Fill, OOKeys extends Key, K extends Key> = [OK] extends [never]
   ? MergeProp<OK, O1K, Fill, OOKeys, K>
   : [O1K] extends [never]
-  ? MergeProp<OK, O1K, Fill, OOKeys, K>
-  : OK extends Ignore
-  ? MergeProp<OK, O1K, Fill, OOKeys, K>
-  : O1K extends Ignore
-  ? MergeProp<OK, O1K, Fill, OOKeys, K>
-  : OK extends List
-  ? O1K extends List
-    ? MergeDeepList<OK, O1K, Ignore, Fill>
-    : MergeProp<OK, O1K, Fill, OOKeys, K>
-  : OK extends object
-  ? O1K extends object
-    ? MergeDeepObject<OK, O1K, Ignore, Fill>
-    : MergeProp<OK, O1K, Fill, OOKeys, K>
-  : MergeProp<OK, O1K, Fill, OOKeys, K>;
+    ? MergeProp<OK, O1K, Fill, OOKeys, K>
+    : OK extends Ignore
+      ? MergeProp<OK, O1K, Fill, OOKeys, K>
+      : O1K extends Ignore
+        ? MergeProp<OK, O1K, Fill, OOKeys, K>
+        : OK extends List
+          ? O1K extends List
+            ? MergeDeepList<OK, O1K, Ignore, Fill>
+            : MergeProp<OK, O1K, Fill, OOKeys, K>
+          : OK extends object
+            ? O1K extends object
+              ? MergeDeepObject<OK, O1K, Ignore, Fill>
+              : MergeProp<OK, O1K, Fill, OOKeys, K>
+            : MergeProp<OK, O1K, Fill, OOKeys, K>;
 
 export type MergeDeep<O, O1, Ignore, Fill> = O extends unknown
   ? O1 extends unknown
@@ -256,21 +252,22 @@ type PatchFlatObject<O, O1, Fill, OKeys extends Key = keyof O> = {
   [K in keyof (O & _Omit<O1, OKeys>)]: PatchProp<At<O, K>, At<O1, K>, Fill, OKeys, K>;
 } & {};
 
-type PatchFlatList<L extends List, L1 extends List, Ignore, Fill> = number extends Length<L | L1>
-  ? PatchFlatChoice<L[number], L1[number], Ignore, Fill>[]
-  : Longer<L, L1> extends True
-  ? { [K in keyof L]: PatchProp<L[K], At<L1, K>, Fill, keyof L, K> }
-  : { [K in keyof L1]: PatchProp<At<L, K>, L1[K], Fill, keyof L, K> };
+type PatchFlatList<L extends List, L1 extends List, Ignore, Fill> =
+  number extends Length<L | L1>
+    ? PatchFlatChoice<L[number], L1[number], Ignore, Fill>[]
+    : Longer<L, L1> extends True
+      ? { [K in keyof L]: PatchProp<L[K], At<L1, K>, Fill, keyof L, K> }
+      : { [K in keyof L1]: PatchProp<At<L, K>, L1[K], Fill, keyof L, K> };
 
 export type PatchFlatChoice<O, O1, Ignore, Fill> = O extends Ignore
   ? O
   : O1 extends Ignore
-  ? O
-  : O extends List
-  ? O1 extends List
-    ? PatchFlatList<O, O1, Ignore, Fill>
-    : PatchFlatObject<O, O1, Fill>
-  : PatchFlatObject<O, O1, Fill>;
+    ? O
+    : O extends List
+      ? O1 extends List
+        ? PatchFlatList<O, O1, Ignore, Fill>
+        : PatchFlatObject<O, O1, Fill>
+      : PatchFlatObject<O, O1, Fill>;
 
 export type PatchFlat<O, O1, Ignore = BuiltIn, Fill = never> = O extends unknown
   ? O1 extends unknown
@@ -278,11 +275,12 @@ export type PatchFlat<O, O1, Ignore = BuiltIn, Fill = never> = O extends unknown
     : never
   : never;
 
-type PatchDeepList<L extends List, L1 extends List, Ignore, Fill> = number extends Length<L | L1>
-  ? PatchDeepChoice<L[number], L1[number], Ignore, Fill, never, any>[]
-  : Longer<L, L1> extends True
-  ? { [K in keyof L]: PatchDeepChoice<L[K], At<L1, K>, Ignore, Fill, keyof L, K> }
-  : { [K in keyof L1]: PatchDeepChoice<At<L, K>, L1[K], Ignore, Fill, keyof L, K> };
+type PatchDeepList<L extends List, L1 extends List, Ignore, Fill> =
+  number extends Length<L | L1>
+    ? PatchDeepChoice<L[number], L1[number], Ignore, Fill, never, any>[]
+    : Longer<L, L1> extends True
+      ? { [K in keyof L]: PatchDeepChoice<L[K], At<L1, K>, Ignore, Fill, keyof L, K> }
+      : { [K in keyof L1]: PatchDeepChoice<At<L, K>, L1[K], Ignore, Fill, keyof L, K> };
 
 type PatchDeepObject<O, O1, Ignore, Fill, OKeys extends Key = keyof O> = {
   [K in keyof (O & _Omit<O1, OKeys>)]: PatchDeepChoice<At<O, K>, At<O1, K>, Ignore, Fill, OKeys, K>;
@@ -291,20 +289,20 @@ type PatchDeepObject<O, O1, Ignore, Fill, OKeys extends Key = keyof O> = {
 type PatchDeepChoice<OK, O1K, Ignore, fill, OKeys extends Key, K extends Key> = [OK] extends [never]
   ? PatchProp<OK, O1K, fill, OKeys, K>
   : [O1K] extends [never]
-  ? PatchProp<OK, O1K, fill, OKeys, K>
-  : OK extends Ignore
-  ? PatchProp<OK, O1K, fill, OKeys, K>
-  : O1K extends Ignore
-  ? PatchProp<OK, O1K, fill, OKeys, K>
-  : OK extends List
-  ? O1K extends List
-    ? PatchDeepList<OK, O1K, Ignore, fill>
-    : PatchProp<OK, O1K, fill, OKeys, K>
-  : OK extends object
-  ? O1K extends object
-    ? PatchDeepObject<OK, O1K, Ignore, fill>
-    : PatchProp<OK, O1K, fill, OKeys, K>
-  : PatchProp<OK, O1K, fill, OKeys, K>;
+    ? PatchProp<OK, O1K, fill, OKeys, K>
+    : OK extends Ignore
+      ? PatchProp<OK, O1K, fill, OKeys, K>
+      : O1K extends Ignore
+        ? PatchProp<OK, O1K, fill, OKeys, K>
+        : OK extends List
+          ? O1K extends List
+            ? PatchDeepList<OK, O1K, Ignore, fill>
+            : PatchProp<OK, O1K, fill, OKeys, K>
+          : OK extends object
+            ? O1K extends object
+              ? PatchDeepObject<OK, O1K, Ignore, fill>
+              : PatchProp<OK, O1K, fill, OKeys, K>
+            : PatchProp<OK, O1K, fill, OKeys, K>;
 
 export type PatchDeep<O, O1, Ignore, Fill> = O extends unknown
   ? O1 extends unknown

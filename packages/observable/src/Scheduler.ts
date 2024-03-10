@@ -15,7 +15,10 @@ export class Scheduler implements SchedulerLike {
   readonly [SchedulerTypeId]: SchedulerTypeId = SchedulerTypeId;
 
   public now: () => number;
-  constructor(private actionConstructor: typeof Action, now: () => number = Scheduler.now) {
+  constructor(
+    private actionConstructor: typeof Action,
+    now: () => number = Scheduler.now,
+  ) {
     this.now = now;
   }
   schedule<T>(work: (this: SchedulerAction<T>, state?: T) => void, delay?: number, state?: T): Subscription {

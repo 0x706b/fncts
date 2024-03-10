@@ -12,12 +12,18 @@ export class Value<A> {
 
 export class And<A> {
   readonly _tag = FreeBooleanAlgebraTag.And;
-  constructor(readonly left: FreeBooleanAlgebra<A>, readonly right: FreeBooleanAlgebra<A>) {}
+  constructor(
+    readonly left: FreeBooleanAlgebra<A>,
+    readonly right: FreeBooleanAlgebra<A>,
+  ) {}
 }
 
 export class Or<A> {
   readonly _tag = FreeBooleanAlgebraTag.Or;
-  constructor(readonly left: FreeBooleanAlgebra<A>, readonly right: FreeBooleanAlgebra<A>) {}
+  constructor(
+    readonly left: FreeBooleanAlgebra<A>,
+    readonly right: FreeBooleanAlgebra<A>,
+  ) {}
 }
 
 export class Not<A> {

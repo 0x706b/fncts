@@ -1,4 +1,5 @@
 import type { Described } from "@fncts/query/Described";
+import type { Request } from "@fncts/query/Request";
 
 import { QueryFailure } from "../QueryFailure.js";
 

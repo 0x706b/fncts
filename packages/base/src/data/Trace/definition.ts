@@ -5,5 +5,8 @@ import type { TraceElement } from "../TraceElement.js";
  * @tsplus companion fncts.TraceOps
  */
 export class Trace {
-  constructor(readonly fiberId: FiberId, readonly stackTrace: Conc<TraceElement>) {}
+  constructor(
+    readonly fiberId: FiberId,
+    readonly stackTrace: Conc<TraceElement>,
+  ) {}
 }

@@ -1,5 +1,8 @@
 export class HashedPair<A, B> implements Hashable, Equatable {
-  constructor(readonly first: A, readonly second: B) {}
+  constructor(
+    readonly first: A,
+    readonly second: B,
+  ) {}
 
   get [Symbol.hash]() {
     return Hashable.combine(Hashable.unknown(this.first), Hashable.unknown(this.second));

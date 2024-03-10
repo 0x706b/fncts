@@ -114,7 +114,11 @@ export class BoundedHubArb<A> extends Hub<A> {
 }
 
 class BoundedHubArbSubscription<A> extends SubscriptionInternal<A> {
-  constructor(private self: BoundedHubArb<A>, private subscriberIndex: number, private unsubscribed: boolean) {
+  constructor(
+    private self: BoundedHubArb<A>,
+    private subscriberIndex: number,
+    private unsubscribed: boolean,
+  ) {
     super();
   }
 
@@ -292,7 +296,11 @@ export class BoundedHubPow2<A> extends Hub<A> {
 }
 
 class BoundedHubPow2Subcription<A> extends SubscriptionInternal<A> {
-  constructor(private self: BoundedHubPow2<A>, private subscriberIndex: number, private unsubscribed: boolean) {
+  constructor(
+    private self: BoundedHubPow2<A>,
+    private subscriberIndex: number,
+    private unsubscribed: boolean,
+  ) {
     super();
   }
 
@@ -449,7 +457,11 @@ export class BoundedHubSingle<A> extends Hub<A> {
 }
 
 class BoundedHubSingleSubscription<A> extends SubscriptionInternal<A> {
-  constructor(private self: BoundedHubSingle<A>, private subscriberIndex: number, private unsubscribed: boolean) {
+  constructor(
+    private self: BoundedHubSingle<A>,
+    private subscriberIndex: number,
+    private unsubscribed: boolean,
+  ) {
     super();
   }
 
@@ -510,7 +522,11 @@ class BoundedHubSingleSubscription<A> extends SubscriptionInternal<A> {
 }
 
 class Node<A> {
-  constructor(public value: A | null, public subscribers: number, public next: Node<A> | null) {}
+  constructor(
+    public value: A | null,
+    public subscribers: number,
+    public next: Node<A> | null,
+  ) {}
 }
 
 export class UnboundedHub<A> extends Hub<A> {

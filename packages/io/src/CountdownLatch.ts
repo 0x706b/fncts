@@ -7,7 +7,10 @@ export type CountdownLatchTypeId = typeof CountdownLatchTypeId;
  */
 export class CountdownLatch {
   readonly [CountdownLatchTypeId]: CountdownLatchTypeId = CountdownLatchTypeId;
-  constructor(private _count: Ref<number>, private _waiters: Future<never, void>) {}
+  constructor(
+    private _count: Ref<number>,
+    private _waiters: Future<never, void>,
+  ) {}
 
   readonly await: UIO<void> = this._waiters.await;
 

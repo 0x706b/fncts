@@ -229,8 +229,8 @@ export function merge<O extends ReadonlyArray<ObservableInput<any, any>>>(
   return !sources.length
     ? empty()
     : sources.length === 1
-    ? from(sources[0] as ObservableInput<any, any>)
-    : fromArrayLike(sources as ReadonlyArray<ObservableInput<any, any>>).mergeAll(concurrency);
+      ? from(sources[0] as ObservableInput<any, any>)
+      : fromArrayLike(sources as ReadonlyArray<ObservableInput<any, any>>).mergeAll(concurrency);
 }
 
 /**

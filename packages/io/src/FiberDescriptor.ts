@@ -8,5 +8,9 @@ import type { FiberStatus } from "@fncts/io/FiberStatus";
  * @tsplus companion fncts.io.FiberDescriptorOps
  */
 export class FiberDescriptor {
-  constructor(readonly id: FiberId, readonly status: FiberStatus, readonly interruptors: HashSet<FiberId>) {}
+  constructor(
+    readonly id: FiberId,
+    readonly status: FiberStatus,
+    readonly interruptors: HashSet<FiberId>,
+  ) {}
 }

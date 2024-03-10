@@ -11,7 +11,10 @@ export class Reloadable<Service> {
   declare [ReloadableVariance]: {
     readonly _Service: (_: never) => Service;
   };
-  constructor(readonly scopedRef: ScopedRef<Service>, readonly reload: IO<never, unknown, void>) {}
+  constructor(
+    readonly scopedRef: ScopedRef<Service>,
+    readonly reload: IO<never, unknown, void>,
+  ) {}
 
   get get(): UIO<Service> {
     return this.scopedRef.get;

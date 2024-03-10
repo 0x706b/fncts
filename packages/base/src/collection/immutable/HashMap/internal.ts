@@ -135,7 +135,12 @@ export type UpdateFn<V> = (v: Maybe<V>) => Maybe<V>;
 
 export class LeafNode<K, V> {
   readonly _tag = "LeafNode";
-  constructor(readonly edit: number, readonly hash: number, readonly key: K, public value: Maybe<V>) {}
+  constructor(
+    readonly edit: number,
+    readonly hash: number,
+    readonly key: K,
+    public value: Maybe<V>,
+  ) {}
 
   modify(
     edit: number,
@@ -169,7 +174,11 @@ export class LeafNode<K, V> {
 
 export class CollisionNode<K, V> {
   readonly _tag = "CollisionNode";
-  constructor(public edit: number, public hash: number, public children: Array<Node<K, V>>) {}
+  constructor(
+    public edit: number,
+    public hash: number,
+    public children: Array<Node<K, V>>,
+  ) {}
 
   modify(
     edit: number,
@@ -227,7 +236,11 @@ function updateCollisionList<K, V>(
 
 export class IndexedNode<K, V> {
   readonly _tag = "IndexedNode";
-  constructor(public edit: number, public mask: number, public children: Array<Node<K, V>>) {}
+  constructor(
+    public edit: number,
+    public mask: number,
+    public children: Array<Node<K, V>>,
+  ) {}
 
   modify(
     edit: number,
@@ -281,7 +294,11 @@ export class IndexedNode<K, V> {
 
 export class ArrayNode<K, V> {
   readonly _tag = "ArrayNode";
-  constructor(public edit: number, public size: number, public children: Array<Node<K, V>>) {}
+  constructor(
+    public edit: number,
+    public size: number,
+    public children: Array<Node<K, V>>,
+  ) {}
 
   modify(
     edit: number,

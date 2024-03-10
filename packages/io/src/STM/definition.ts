@@ -67,7 +67,10 @@ export class Effect<R, E, A> extends STM<R, E, A> {
 
 export class OnFailure<R, E, A, E1> extends STM<R, E1, A> {
   readonly stmOpCode = STMTag.OnFailure;
-  constructor(readonly stm: STM<R, E, A>, readonly onFailure: (e: E) => STM<R, E1, A>) {
+  constructor(
+    readonly stm: STM<R, E, A>,
+    readonly onFailure: (e: E) => STM<R, E1, A>,
+  ) {
     super();
   }
   apply(a: A): STM<R, E, A> {
@@ -77,7 +80,10 @@ export class OnFailure<R, E, A, E1> extends STM<R, E1, A> {
 
 export class OnRetry<R, E, A> extends STM<R, E, A> {
   readonly stmOpCode = STMTag.OnRetry;
-  constructor(readonly stm: STM<R, E, A>, readonly onRetry: STM<R, E, A>) {
+  constructor(
+    readonly stm: STM<R, E, A>,
+    readonly onRetry: STM<R, E, A>,
+  ) {
     super();
   }
   apply(a: A): STM<R, E, A> {
@@ -87,7 +93,10 @@ export class OnRetry<R, E, A> extends STM<R, E, A> {
 
 export class OnSuccess<R, E, A, B> extends STM<R, E, B> {
   readonly stmOpCode = STMTag.OnSuccess;
-  constructor(readonly stm: STM<R, E, A>, readonly apply: (a: A) => STM<R, E, B>) {
+  constructor(
+    readonly stm: STM<R, E, A>,
+    readonly apply: (a: A) => STM<R, E, B>,
+  ) {
     super();
   }
 }
@@ -108,7 +117,10 @@ export class SucceedNow<A> extends STM<never, never, A> {
 
 export class ContramapEnvironment<R, E, A, R0> extends STM<R0, E, A> {
   readonly stmOpCode = STMTag.ContramapEnvironment;
-  constructor(readonly stm: STM<R, E, A>, readonly f: (_: Environment<R0>) => Environment<R>) {
+  constructor(
+    readonly stm: STM<R, E, A>,
+    readonly f: (_: Environment<R0>) => Environment<R>,
+  ) {
     super();
   }
 }

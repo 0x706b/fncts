@@ -26,14 +26,20 @@ export abstract class EnvironmentPatch<In, Out> {
 
 export class AddService<Env, Service> extends EnvironmentPatch<Env, Env & Has<Service>> {
   readonly _tag = EnvironmentPatchTag.AddService;
-  constructor(readonly service: Service, readonly tag: Tag<Service>) {
+  constructor(
+    readonly service: Service,
+    readonly tag: Tag<Service>,
+  ) {
     super();
   }
 }
 
 export class Combine<In, Out, Out2> extends EnvironmentPatch<In, Out2> {
   readonly _tag = EnvironmentPatchTag.Combine;
-  constructor(readonly first: EnvironmentPatch<In, Out>, readonly second: EnvironmentPatch<Out, Out2>) {
+  constructor(
+    readonly first: EnvironmentPatch<In, Out>,
+    readonly second: EnvironmentPatch<Out, Out2>,
+  ) {
     super();
   }
 }
@@ -51,7 +57,10 @@ export class RemoveService<Env, Service> extends EnvironmentPatch<Env & Has<Serv
 
 export class UpdateService<Env, Service> extends EnvironmentPatch<Env & Has<Service>, Env & Has<Service>> {
   readonly _tag = EnvironmentPatchTag.UpdateService;
-  constructor(readonly update: (_: Service) => Service, readonly tag: Tag<Service>) {
+  constructor(
+    readonly update: (_: Service) => Service,
+    readonly tag: Tag<Service>,
+  ) {
     super();
   }
 }

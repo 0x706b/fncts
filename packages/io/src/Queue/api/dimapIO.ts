@@ -140,7 +140,10 @@ class ContramapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PEnqueueInternal<R
     readonly _A: (_: C) => void;
     readonly _B: (_: never) => B;
   };
-  constructor(readonly queue: PEnqueueInternal<RA, RB, EA, EB, A, B>, readonly f: (c: C) => IO<RC, EC, A>) {}
+  constructor(
+    readonly queue: PEnqueueInternal<RA, RB, EA, EB, A, B>,
+    readonly f: (c: C) => IO<RC, EC, A>,
+  ) {}
 
   awaitShutdown: UIO<void> = this.queue.awaitShutdown;
 
@@ -184,7 +187,10 @@ class MapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PDequeueInternal<RA, RB 
     readonly _A: (_: A) => void;
     readonly _B: (_: never) => C;
   };
-  constructor(readonly queue: PDequeueInternal<RA, RB, EA, EB, A, B>, readonly f: (b: B) => IO<RC, EC, C>) {}
+  constructor(
+    readonly queue: PDequeueInternal<RA, RB, EA, EB, A, B>,
+    readonly f: (b: B) => IO<RC, EC, C>,
+  ) {}
 
   awaitShutdown: UIO<void> = this.queue.awaitShutdown;
 

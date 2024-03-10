@@ -75,7 +75,7 @@ export function createReadStream(
     open(path, options?.flags ?? fs.constants.O_RDONLY, options?.mode).zip(
       IO.defer(() => {
         const start = options?.start ?? 0;
-        const end = options?.end ?? Infinity;
+        const end   = options?.end ?? Infinity;
         if (end < start) {
           return IO.fail(new RangeError(`start (${start}) must be <= end (${end})`));
         } else {
@@ -87,8 +87,8 @@ export function createReadStream(
   ).flatMap(([fd, state]) =>
     Stream.repeatIOChunkMaybe(
       Do((Δ) => {
-        const [pos, end] = Δ(state.get);
-        const n = Math.min(end - pos + 1, chunkSize);
+        const [pos, end]     = Δ(state.get);
+        const n              = Math.min(end - pos + 1, chunkSize);
         const [bytes, chunk] = Δ(read(fd, n, pos).mapError(Maybe.just));
 
         Δ(IO.fail(Nothing()).when(() => bytes === 0));
@@ -119,7 +119,7 @@ export function createWriteSink<InErr>(
     Channel.unwrapScoped(
       Do((_) => {
         const errorRef = _(Ref.make<Maybe<ErrnoException>>(Nothing()));
-        const st = _(
+        const st       = _(
           open(path, options?.flags ?? fs.constants.O_CREAT | fs.constants.O_WRONLY, options?.mode)
             .zip(Ref.make(options?.start ?? undefined))
             .acquireRelease(([fd, _]) => close(fd).orHalt)
@@ -569,7 +569,7 @@ export function watchFile(
 ): Stream<never, never, [fs.BigIntStats | fs.Stats, fs.BigIntStats | fs.Stats]> {
   return Stream.acquireRelease(
     Do((_) => {
-      const queue = _(Queue.makeUnbounded<[fs.BigIntStats | fs.Stats, fs.BigIntStats | fs.Stats]>());
+      const queue   = _(Queue.makeUnbounded<[fs.BigIntStats | fs.Stats, fs.BigIntStats | fs.Stats]>());
       const runtime = _(IO.runtime<never>());
       fs.watchFile(filename, options ?? {}, (curr, prev) => {
         runtime.unsafeRunFiber(queue.offer([curr, prev]));

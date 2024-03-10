@@ -20,7 +20,10 @@ import { FiberMessage, FiberMessageTag } from "./FiberMessage.js";
 
 export class RevertFlags {
   readonly _tag = IOTag.RevertFlags;
-  constructor(readonly patch: RuntimeFlags.Patch, readonly trace?: string) {}
+  constructor(
+    readonly patch: RuntimeFlags.Patch,
+    readonly trace?: string,
+  ) {}
 }
 
 export class UpdateTrace {
@@ -41,7 +44,11 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
   };
   readonly _tag = "RuntimeFiber";
 
-  constructor(readonly fiberId: FiberId.Runtime, fiberRefs0: FiberRefs, readonly runtimeFlags0: RuntimeFlags) {
+  constructor(
+    readonly fiberId: FiberId.Runtime,
+    fiberRefs0: FiberRefs,
+    readonly runtimeFlags0: RuntimeFlags,
+  ) {
     this._fiberRefs    = fiberRefs0;
     this._runtimeFlags = runtimeFlags0;
   }

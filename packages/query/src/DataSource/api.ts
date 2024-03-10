@@ -1,5 +1,6 @@
 import type { Conc } from "@fncts/base/collection/immutable/Conc";
 import type { Described } from "@fncts/query/Described";
+import type { Request } from "@fncts/query/Request";
 
 import { IO } from "@fncts/io/IO";
 import { CompletedRequestMap } from "@fncts/query/CompletedRequestMap";

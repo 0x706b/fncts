@@ -7,7 +7,10 @@ export const enum RenderTag {
 
 export class RenderFunction {
   readonly _tag = RenderTag.Function;
-  constructor(readonly name: string, readonly paramLists: Conc<Conc<RenderParam>>) {}
+  constructor(
+    readonly name: string,
+    readonly paramLists: Conc<Conc<RenderParam>>,
+  ) {}
   get rendered(): string {
     return `${this.name}(${this.paramLists.map((ps) => ps.map((p) => p.rendered).join(", ")).join("")})`;
   }
@@ -15,7 +18,11 @@ export class RenderFunction {
 
 export class RenderInfix {
   readonly _tag = RenderTag.Infix;
-  constructor(readonly left: RenderParam, readonly op: string, readonly right: RenderParam) {}
+  constructor(
+    readonly left: RenderParam,
+    readonly op: string,
+    readonly right: RenderParam,
+  ) {}
   get rendered(): string {
     return `(${this.left.rendered} ${this.op} ${this.right.rendered})`;
   }

@@ -108,7 +108,10 @@ export function dimapIO<A, B, RC, EC, C, RD, ED, D>(
 }
 
 class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA | RA1, RB, EA | EA1, EB, A, B> {
-  constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>, readonly f: (a: A) => IO<RA1, EA1, boolean>) {
+  constructor(
+    readonly source: PHubInternal<RA, RB, EA, EB, A, B>,
+    readonly f: (a: A) => IO<RA1, EA1, boolean>,
+  ) {
     super();
   }
   awaitShutdown = this.source.awaitShutdown;
@@ -147,7 +150,10 @@ export function filterInput<A>(f: (a: A) => boolean, __tsplusTrace?: string) {
 }
 
 class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB | RB1, EA, EB | EB1, A, B> {
-  constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>, readonly f: (a: B) => IO<RB1, EB1, boolean>) {
+  constructor(
+    readonly source: PHubInternal<RA, RB, EA, EB, A, B>,
+    readonly f: (a: B) => IO<RB1, EB1, boolean>,
+  ) {
     super();
   }
   awaitShutdown = this.source.awaitShutdown;

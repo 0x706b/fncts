@@ -20,9 +20,8 @@ export type Last<L extends List> = L[Length<Tail<L>>];
 
 export type UnionOf<L extends List> = L[number];
 
-export type PrependAll<L extends List, A, O extends List = []> = Length<L> extends 0
-  ? O
-  : PrependAll<Tail<L>, A, [...O, A, Head<L>]>;
+export type PrependAll<L extends List, A, O extends List = []> =
+  Length<L> extends 0 ? O : PrependAll<Tail<L>, A, [...O, A, Head<L>]>;
 
 export type Pop<L extends List> = L extends readonly [...infer LBody, any] | readonly [...infer LBody, any?]
   ? LBody

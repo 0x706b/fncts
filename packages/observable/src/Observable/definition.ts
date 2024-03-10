@@ -110,8 +110,8 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
       this.operator
         ? this.operator.call(subscriber, this.source, this.environment)
         : this.source
-        ? this.subscribeInternal(subscriber, this.environment)
-        : this.trySubscribe(subscriber, this.environment),
+          ? this.subscribeInternal(subscriber, this.environment)
+          : this.trySubscribe(subscriber, this.environment),
     );
 
     return subscriber;

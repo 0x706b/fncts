@@ -11,8 +11,8 @@ export declare namespace Zipped {
       ? Zipped<[...X, ...Y]>
       : Zipped<[...X, B]>
     : [B] extends [Zipped<infer Y>]
-    ? Zipped<[A, ...Y]>
-    : Zipped<[A, B]>;
+      ? Zipped<[A, ...Y]>
+      : Zipped<[A, B]>;
 }
 
 /**

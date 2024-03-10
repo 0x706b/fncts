@@ -46,9 +46,8 @@ export declare namespace Check {
   /**
    * @tsplus type fncts.Check.IsEqual
    */
-  type IsEqual<A, B> = (<T>() => T extends EqualsWrapped<A> ? 1 : 2) extends <T>() => T extends EqualsWrapped<B> ? 1 : 2
-    ? unknown
-    : never;
+  type IsEqual<A, B> =
+    (<T>() => T extends EqualsWrapped<A> ? 1 : 2) extends <T>() => T extends EqualsWrapped<B> ? 1 : 2 ? unknown : never;
 
   /**
    * @tsplus type fncts.Check.IsLiteral

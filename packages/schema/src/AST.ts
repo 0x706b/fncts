@@ -154,7 +154,10 @@ export type LiteralValue = string | number | boolean | null | bigint;
 
 export class Literal extends AST {
   readonly _tag = ASTTag.Literal;
-  constructor(readonly literal: LiteralValue, readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
+  constructor(
+    readonly literal: LiteralValue,
+    readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
+  ) {
     super();
   }
 
@@ -184,7 +187,10 @@ export function isLiteral(self: AST): self is Literal {
 
 export class UniqueSymbol extends AST {
   readonly _tag = ASTTag.UniqueSymbol;
-  constructor(readonly symbol: symbol, readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
+  constructor(
+    readonly symbol: symbol,
+    readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
+  ) {
     super();
   }
 
@@ -518,7 +524,10 @@ export function createEnum(
 }
 
 export class TemplateLiteralSpan {
-  constructor(readonly type: StringKeyword | NumberKeyword, readonly literal: string) {}
+  constructor(
+    readonly type: StringKeyword | NumberKeyword,
+    readonly literal: string,
+  ) {}
 }
 
 /*
@@ -564,7 +573,10 @@ export function createTemplateLiteral(
  */
 
 export class Element {
-  constructor(readonly type: AST, readonly isOptional: boolean) {}
+  constructor(
+    readonly type: AST,
+    readonly isOptional: boolean,
+  ) {}
 }
 
 /**
@@ -726,7 +738,10 @@ export function createTypeLiteral(
 
 export class Union extends AST {
   readonly _tag = ASTTag.Union;
-  constructor(readonly types: Vector<AST>, readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
+  constructor(
+    readonly types: Vector<AST>,
+    readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
+  ) {
     super();
   }
 
@@ -764,7 +779,10 @@ export function createUnion(candidates: Vector<AST>, annotations: ASTAnnotationM
 
 export class Lazy extends AST {
   readonly _tag = ASTTag.Lazy;
-  constructor(readonly getAST: () => AST, readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
+  constructor(
+    readonly getAST: () => AST,
+    readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
+  ) {
     super();
   }
 

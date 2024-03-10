@@ -35,8 +35,8 @@ export function deriveDecoder<A extends These<any, any>>(
           result._tag === "Left"
             ? (These.left(result.left) as A)
             : result._tag === "Right"
-            ? (These.right(result.right) as A)
-            : (These.both(result.left, result.right) as A),
+              ? (These.right(result.right) as A)
+              : (These.both(result.left, result.right) as A),
         ),
     label,
   );

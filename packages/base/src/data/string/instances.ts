@@ -26,7 +26,7 @@ export const Monoid: P.Monoid<string> = P.Monoid({ combine: (y) => (x) => x + y,
  */
 export const Ord: P.Ord<string> = P.Ord({
   ...Eq,
-  compare: (y) => (x) => x < y ? -1 : x > y ? 1 : 0,
+  compare: (y) => (x) => (x < y ? -1 : x > y ? 1 : 0),
 });
 
 /**

@@ -377,5 +377,5 @@ export function deriveTuple<A extends ReadonlyArray<unknown>>(
  * @tsplus static fncts.EncoderOps tuple
  */
 export function tuple<A extends ReadonlyArray<unknown>>(...components: { [K in keyof A]: Encoder<A[K]> }): Encoder<A> {
-  return deriveTuple(components as [never]).unsafeCoerce()
+  return deriveTuple(components as [never]).unsafeCoerce();
 }

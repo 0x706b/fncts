@@ -13,7 +13,10 @@ export type AssertionIOTypeId = typeof AssertionIOTypeId;
  */
 export class AssertionIO<A> {
   readonly [AssertionIOTypeId]: AssertionIOTypeId = AssertionIOTypeId;
-  constructor(readonly render: Render, readonly runIO: (actual: A) => AssertResultIO<A>) {}
+  constructor(
+    readonly render: Render,
+    readonly runIO: (actual: A) => AssertResultIO<A>,
+  ) {}
   get rendered() {
     return this.render.rendered;
   }

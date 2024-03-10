@@ -45,7 +45,11 @@ export function set<A>(a: A, __tsplusTrace?: string) {
 }
 
 class Dimap<R, E, A, B, C, D> extends RefSubjectInternal<R, E, C, D> {
-  constructor(readonly ref: RefSubjectInternal<R, E, A, B>, readonly f: (c: C) => A, readonly g: (b: B) => D) {
+  constructor(
+    readonly ref: RefSubjectInternal<R, E, A, B>,
+    readonly f: (c: C) => A,
+    readonly g: (b: B) => D,
+  ) {
     super();
   }
 

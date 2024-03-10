@@ -64,9 +64,17 @@ export class AtomicRefSubject<E, A> extends RefSubjectInternal<never, E, A, A> {
 }
 
 class AtomicDimapRef<A, B> extends Atomic<B> {
-  constructor(readonly ref: Atomic<A>, readonly f: (a: A) => B, readonly g: (b: B) => A) {
+  constructor(
+    readonly ref: Atomic<A>,
+    readonly f: (a: A) => B,
+    readonly g: (b: B) => A,
+  ) {
     const value = new (class extends AtomicReference<B> {
-      constructor(readonly ref: AtomicReference<A>, readonly f: (a: A) => B, readonly g: (b: B) => A) {
+      constructor(
+        readonly ref: AtomicReference<A>,
+        readonly f: (a: A) => B,
+        readonly g: (b: B) => A,
+      ) {
         super(f(ref.initial));
       }
 
@@ -91,7 +99,10 @@ class AtomicDimapRef<A, B> extends Atomic<B> {
 }
 
 class AtomicEmitRef<E, A> extends Atomic<A> {
-  constructor(readonly ref: Atomic<A>, readonly sink: Sink<never, E, A>) {
+  constructor(
+    readonly ref: Atomic<A>,
+    readonly sink: Sink<never, E, A>,
+  ) {
     super(ref.value);
   }
 

@@ -15,7 +15,7 @@ export function alignWith<A, E2, B, C>(fb: Either<E2, B>, f: (_: These<A, B>) =>
         ? self
         : Right(f(These.right(fb.right)))
       : fb._tag === EitherTag.Left
-      ? Right(f(These.left(self.right)))
-      : Right(f(These.both(self.right, fb.right)));
+        ? Right(f(These.left(self.right)))
+        : Right(f(These.both(self.right, fb.right)));
   };
 }

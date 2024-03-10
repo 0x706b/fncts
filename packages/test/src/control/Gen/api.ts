@@ -42,10 +42,10 @@ export function anything<C extends ObjectConstraints>(
   ObjectConstraints extends C
     ? Sized
     : unknown extends C["key"]
-    ? Sized
-    : _R<C["key"]> | C["values"] extends Array<infer A>
-    ? _R<A>
-    : Sized,
+      ? Sized
+      : _R<C["key"]> | C["values"] extends Array<infer A>
+        ? _R<A>
+        : Sized,
   unknown
 > {
   const key      = constraints.key ?? Gen.alphaNumericString;

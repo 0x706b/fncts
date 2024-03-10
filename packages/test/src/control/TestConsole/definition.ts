@@ -15,7 +15,11 @@ export class ConsoleData extends CaseClass<{
  * @tsplus companion fncts.test.TestConsoleOps
  */
 export class TestConsole implements Console {
-  constructor(readonly consoleState: Ref<ConsoleData>, readonly live: Live, readonly debugState: FiberRef<boolean>) {}
+  constructor(
+    readonly consoleState: Ref<ConsoleData>,
+    readonly live: Live,
+    readonly debugState: FiberRef<boolean>,
+  ) {}
   show(...input: ReadonlyArray<unknown>): UIO<void> {
     return this.consoleState.update((data) =>
       data.copy({

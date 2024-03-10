@@ -15,7 +15,10 @@ export class Environment<R> implements Hashable, Equatable {
   declare [EnvironmentVariance]: {
     _R: (_: never) => R;
   };
-  constructor(readonly map: HashMap<Tag<any>, unknown>, public cache: HashMap<Tag<any>, unknown> = HashMap.empty()) {}
+  constructor(
+    readonly map: HashMap<Tag<any>, unknown>,
+    public cache: HashMap<Tag<any>, unknown> = HashMap.empty(),
+  ) {}
 
   get [Symbol.hash](): number {
     return Hashable.unknown(this.cache);

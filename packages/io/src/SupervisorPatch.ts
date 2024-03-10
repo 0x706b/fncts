@@ -25,7 +25,10 @@ export class AddSupervisor extends SupervisorPatch {
 
 export class Combine extends SupervisorPatch {
   readonly _tag = SupervisorPatchTag.Combine;
-  constructor(readonly first: SupervisorPatch, readonly second: SupervisorPatch) {
+  constructor(
+    readonly first: SupervisorPatch,
+    readonly second: SupervisorPatch,
+  ) {
     super();
   }
 }

@@ -29,7 +29,10 @@ export const enum ResultTag {
 
 export class Blocked<R, E, A> extends Result<R, E, A> {
   readonly _tag = ResultTag.Blocked;
-  constructor(readonly blockedRequests: BlockedRequests<R>, readonly cont: Continue<R, E, A>) {
+  constructor(
+    readonly blockedRequests: BlockedRequests<R>,
+    readonly cont: Continue<R, E, A>,
+  ) {
     super();
   }
 }

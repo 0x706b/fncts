@@ -271,7 +271,10 @@ export class Concat<A> extends ConcImplementation<A> {
   length        = this.left.length + this.right.length;
   depth         = 1 + Math.max(this.left.depth, this.right.depth);
   binary        = this.left.binary && this.right.binary;
-  constructor(readonly left: ConcImplementation<A>, readonly right: ConcImplementation<A>) {
+  constructor(
+    readonly left: ConcImplementation<A>,
+    readonly right: ConcImplementation<A>,
+  ) {
     super();
   }
   get(n: number): A {
@@ -588,7 +591,11 @@ export class Slice<A> extends ConcImplementation<A> {
   left  = _Empty;
   right = _Empty;
 
-  constructor(readonly conc: ConcImplementation<A>, readonly offset: number, readonly l: number) {
+  constructor(
+    readonly conc: ConcImplementation<A>,
+    readonly offset: number,
+    readonly l: number,
+  ) {
     super();
     if (this.conc.depth >= MAX_CONC_DEPTH) {
       this.conc = this.conc.materialize();

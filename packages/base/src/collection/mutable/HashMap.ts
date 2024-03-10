@@ -281,7 +281,12 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
 }
 
 class Node<K, V> {
-  constructor(public key: K, public hash: number, public value: V, public next: Node<K, V> | undefined) {}
+  constructor(
+    public key: K,
+    public hash: number,
+    public value: V,
+    public next: Node<K, V> | undefined,
+  ) {}
 
   findNode(k: K, h: number, equals: (y: K) => (x: K) => boolean): Node<K, V> | undefined {
     let n: Node<K, V> | undefined = this;
@@ -309,7 +314,10 @@ export class HashMapIterator<K, V, A> implements Iterator<A> {
   private i = 0;
   private len: number;
   private done = false;
-  constructor(private table: Array<Node<K, V> | undefined>, private extract: (nd: Node<K, V>) => A) {
+  constructor(
+    private table: Array<Node<K, V> | undefined>,
+    private extract: (nd: Node<K, V>) => A,
+  ) {
     this.len = table.length;
   }
 

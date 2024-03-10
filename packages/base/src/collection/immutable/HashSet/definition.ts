@@ -84,7 +84,10 @@ export function isHashSet(u: unknown): u is HashSet<unknown> {
 class HashSetIterator<A, T> implements IterableIterator<T> {
   v: VisitResult<A, T> | undefined;
 
-  constructor(readonly set: HashSet<A>, readonly f: (node: A) => T) {
+  constructor(
+    readonly set: HashSet<A>,
+    readonly f: (node: A) => T,
+  ) {
     this.v = visitLazy(this.set._root, this.f, undefined);
   }
 
@@ -144,7 +147,11 @@ export function isEmptyNode<A>(n: Node<A>): n is EmptyNode<A> {
 
 export class LeafNode<A> {
   readonly _tag = "LeafNode";
-  constructor(public edit: number, public hash: number, public value: A) {}
+  constructor(
+    public edit: number,
+    public hash: number,
+    public value: A,
+  ) {}
 
   modify(
     remove: boolean,
@@ -179,7 +186,11 @@ export class LeafNode<A> {
 
 export class CollisionNode<A> {
   readonly _tag = "CollisionNode";
-  constructor(public edit: number, public hash: number, public children: Array<Node<A>>) {}
+  constructor(
+    public edit: number,
+    public hash: number,
+    public children: Array<Node<A>>,
+  ) {}
   modify(
     remove: boolean,
     edit: number,
@@ -234,7 +245,11 @@ export function isLeaf<A>(node: Node<A>): node is EmptyNode<A> | LeafNode<A> | C
 
 export class IndexedNode<A> {
   readonly _tag = "IndexedNode";
-  constructor(public edit: number, public mask: number, public children: Array<Node<A>>) {}
+  constructor(
+    public edit: number,
+    public mask: number,
+    public children: Array<Node<A>>,
+  ) {}
 
   modify(
     remove: boolean,
@@ -283,7 +298,11 @@ export class IndexedNode<A> {
 
 export class ArrayNode<A> {
   readonly _tag = "ArrayNode";
-  constructor(public edit: number, public size: number, public children: Array<Node<A>>) {}
+  constructor(
+    public edit: number,
+    public size: number,
+    public children: Array<Node<A>>,
+  ) {}
   modify(
     remove: boolean,
     edit: number,

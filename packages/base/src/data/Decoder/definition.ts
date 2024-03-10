@@ -17,7 +17,10 @@ export interface DecoderF extends HKT {
  */
 export class Decoder<in out A> {
   readonly [DecoderTypeId]: DecoderTypeId = DecoderTypeId;
-  constructor(readonly decode: (input: unknown) => These<DecodeError, A>, readonly label: string) {}
+  constructor(
+    readonly decode: (input: unknown) => These<DecodeError, A>,
+    readonly label: string,
+  ) {}
 }
 
 /**

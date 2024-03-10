@@ -12,7 +12,10 @@ export const TestRandomTag = Tag<TestRandom>("fncts.test.TestRandom");
  * @tsplus companion fncts.test.TestRandomOps
  */
 export class TestRandom implements Random {
-  constructor(readonly randomState: Ref<Data>, readonly bufferState: Ref<Buffer>) {}
+  constructor(
+    readonly randomState: Ref<Data>,
+    readonly bufferState: Ref<Buffer>,
+  ) {}
   clearBooleans: UIO<void> = this.bufferState.update((buff) => buff.copy({ booleans: Vector.empty() }));
   clearBytes: UIO<void>    = this.bufferState.update((buff) => buff.copy({ bytes: Vector.empty() }));
   clearChars: UIO<void>    = this.bufferState.update((buff) => buff.copy({ chars: Vector.empty() }));

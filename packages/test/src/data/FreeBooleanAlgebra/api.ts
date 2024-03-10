@@ -55,8 +55,8 @@ export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgeb
             ? Either.right(l.right && r.right)
             : r
           : r.isRight()
-          ? l
-          : Either.left(l.left && r.left);
+            ? l
+            : Either.left(l.left && r.left);
       },
       Or: (l, r) => {
         Either.concrete(l);
@@ -66,8 +66,8 @@ export function failures<A>(self: FreeBooleanAlgebra<A>): Maybe<FreeBooleanAlgeb
             ? Either.right(l.right || r.right)
             : l
           : r.isRight()
-          ? r
-          : Either.left(l.left || r.left);
+            ? r
+            : Either.left(l.left || r.left);
       },
       Not: (v) => v.swap,
     })

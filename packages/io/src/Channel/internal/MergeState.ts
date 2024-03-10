@@ -6,7 +6,10 @@ export const enum MergeStateTag {
 
 export class BothRunning<Env, Err, Err1, Err2, Elem, Done, Done1, Done2> {
   readonly _tag = MergeStateTag.BothRunning;
-  constructor(readonly left: Fiber<Err, Either<Done, Elem>>, readonly right: Fiber<Err1, Either<Done1, Elem>>) {}
+  constructor(
+    readonly left: Fiber<Err, Either<Done, Elem>>,
+    readonly right: Fiber<Err1, Either<Done1, Elem>>,
+  ) {}
 }
 
 export class LeftDone<Env, Err, Err1, Err2, Elem, Done, Done1, Done2> {

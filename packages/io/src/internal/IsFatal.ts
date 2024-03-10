@@ -40,7 +40,10 @@ export class Empty extends IsFatal {
 
 export class Both extends IsFatal {
   readonly _tag = IsFatalTag.Both;
-  constructor(readonly left: IsFatal, readonly right: IsFatal) {
+  constructor(
+    readonly left: IsFatal,
+    readonly right: IsFatal,
+  ) {
     super();
   }
 }

@@ -22,7 +22,10 @@ export type ListTypeId = typeof ListTypeId;
 export class Cons<A> implements Iterable<A> {
   readonly _tag                     = "Cons";
   readonly [ListTypeId]: ListTypeId = ListTypeId;
-  constructor(readonly head: A, public tail: List<A> = _Nil) {}
+  constructor(
+    readonly head: A,
+    public tail: List<A> = _Nil,
+  ) {}
 
   [Symbol.iterator](): Iterator<A> {
     let done = false;

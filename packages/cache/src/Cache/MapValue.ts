@@ -9,7 +9,10 @@ export const enum MapValueTag {
 
 export class Pending<Key, Error, Value> {
   readonly _tag = MapValueTag.Pending;
-  constructor(readonly key: MapKey<Key>, readonly future: Future<Error, Value>) {}
+  constructor(
+    readonly key: MapKey<Key>,
+    readonly future: Future<Error, Value>,
+  ) {}
 }
 
 export class Complete<Key, Error, Value> {
@@ -24,7 +27,10 @@ export class Complete<Key, Error, Value> {
 
 export class Refreshing<Key, Error, Value> {
   readonly _tag = MapValueTag.Refreshing;
-  constructor(readonly future: Future<Error, Value>, readonly complete: Complete<Key, Error, Value>) {}
+  constructor(
+    readonly future: Future<Error, Value>,
+    readonly complete: Complete<Key, Error, Value>,
+  ) {}
 }
 
 export type MapValue<Key, Error, Value> =

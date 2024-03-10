@@ -1,3 +1,5 @@
+import type { Request } from "@fncts/query/Request";
+
 /**
  * @tsplus type fncts.query.Cache
  * @tsplus companion fncts.query.CacheOps

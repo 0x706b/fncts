@@ -12,7 +12,10 @@ export abstract class DecodeError {
 
 export class RequiredKeyError extends DecodeError {
   readonly _tag = "RequiredKey";
-  constructor(readonly key: string, readonly error: DecodeError) {
+  constructor(
+    readonly key: string,
+    readonly error: DecodeError,
+  ) {
     super();
   }
   render = Eval.defer(this.error.render.map((error) => RoseTree(`on required key ${this.key}`, Vector(error))));
@@ -20,7 +23,10 @@ export class RequiredKeyError extends DecodeError {
 
 export class OptionalKeyError extends DecodeError {
   readonly _tag = "OptionalKey";
-  constructor(readonly key: PropertyKey, readonly error: DecodeError) {
+  constructor(
+    readonly key: PropertyKey,
+    readonly error: DecodeError,
+  ) {
     super();
   }
   render = Eval.defer(this.error.render.map((error) => RoseTree(`on optional key ${show(this.key)}`, Vector(error))));
@@ -28,7 +34,10 @@ export class OptionalKeyError extends DecodeError {
 
 export class RequiredIndexError<I, E extends DecodeError> extends DecodeError {
   readonly _tag = "RequiredIndex";
-  constructor(readonly index: I, readonly error: E) {
+  constructor(
+    readonly index: I,
+    readonly error: E,
+  ) {
     super();
   }
   render = Eval.defer(this.error.render.map((error) => RoseTree(`on required index ${this.index}`, Vector(error))));
@@ -36,7 +45,10 @@ export class RequiredIndexError<I, E extends DecodeError> extends DecodeError {
 
 export class OptionalIndexError<I, E extends DecodeError> extends DecodeError {
   readonly _tag = "RequiredIndex";
-  constructor(readonly index: I, readonly error: E) {
+  constructor(
+    readonly index: I,
+    readonly error: E,
+  ) {
     super();
   }
   render = Eval.defer(this.error.render.map((error) => RoseTree(`on optional index ${this.index}`, Vector(error))));
@@ -52,7 +64,10 @@ export class LazyError<E extends DecodeError> extends DecodeError {
 
 export class MemberError extends DecodeError {
   readonly _tag = "Member";
-  constructor(readonly label: string, readonly error: DecodeError) {
+  constructor(
+    readonly label: string,
+    readonly error: DecodeError,
+  ) {
     super();
   }
   render = Eval.defer(this.error.render.map((error) => RoseTree(`on member ${this.label}`, Vector(error))));
@@ -69,7 +84,10 @@ function startsWithVowel(s: string): boolean {
 
 export class CompoundError<E extends DecodeError> extends DecodeError {
   readonly _tag = "Compound";
-  constructor(readonly name: string, readonly errors: Vector<E>) {
+  constructor(
+    readonly name: string,
+    readonly errors: Vector<E>,
+  ) {
     super();
   }
   render = Eval.defer(
@@ -136,7 +154,10 @@ export class BooleanError extends DecodeError {
 
 export class PrimitiveError extends DecodeError {
   readonly _tag = "Primitive";
-  constructor(readonly actual: unknown, readonly name: string) {
+  constructor(
+    readonly actual: unknown,
+    readonly name: string,
+  ) {
     super();
   }
   render = Eval(RoseTree(cannotDecode(this.actual, this.name)));
@@ -144,7 +165,10 @@ export class PrimitiveError extends DecodeError {
 
 export class LiteralError<A extends Literal> extends DecodeError {
   readonly _tag = "Literal";
-  constructor(readonly actual: unknown, readonly literals: Vector<A>) {
+  constructor(
+    readonly actual: unknown,
+    readonly literals: Vector<A>,
+  ) {
     super();
   }
   render = Eval(
@@ -205,7 +229,10 @@ function cannotDecode(u: unknown, expected: string): string {
 
 export class BrandedError extends DecodeError {
   readonly _tag = "BrandedError";
-  constructor(readonly name: string, readonly brands: Vector<string>) {
+  constructor(
+    readonly name: string,
+    readonly brands: Vector<string>,
+  ) {
     super();
   }
   render = Eval(
@@ -218,7 +245,10 @@ export class BrandedError extends DecodeError {
 
 export class UnionError extends DecodeError {
   readonly _tag = "UnionError";
-  constructor(readonly label: string, readonly errors: Vector<DecodeError>) {
+  constructor(
+    readonly label: string,
+    readonly errors: Vector<DecodeError>,
+  ) {
     super();
   }
   render = Eval.defer(

@@ -1,3 +1,5 @@
+import type { Request } from "@fncts/query/Request";
+
 import { BlockedRequest } from "@fncts/query/internal/BlockedRequest";
 import { BlockedRequests } from "@fncts/query/internal/BlockedRequests";
 

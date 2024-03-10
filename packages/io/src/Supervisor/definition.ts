@@ -57,7 +57,10 @@ export class ConstSupervisor<A> extends Supervisor<A> {
 
 export class ProxySupervisor<A> extends Supervisor<A> {
   readonly _tag = SupervisorTag.Proxy;
-  constructor(readonly value: UIO<A>, readonly underlying: Supervisor<any>) {
+  constructor(
+    readonly value: UIO<A>,
+    readonly underlying: Supervisor<any>,
+  ) {
     super();
   }
   unsafeOnStart<R, E, A>(
@@ -84,7 +87,10 @@ export class ProxySupervisor<A> extends Supervisor<A> {
 
 export class Zip<A, B> extends Supervisor<readonly [A, B]> {
   readonly _tag = SupervisorTag.Zip;
-  constructor(readonly first: Supervisor<A>, readonly second: Supervisor<B>) {
+  constructor(
+    readonly first: Supervisor<A>,
+    readonly second: Supervisor<B>,
+  ) {
     super();
   }
   value = this.first.value.zip(this.second.value);

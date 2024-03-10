@@ -1,4 +1,4 @@
-import { IOPrimitive,IOTag } from "@fncts/io/IO/definition";
+import { IOPrimitive, IOTag } from "@fncts/io/IO/definition";
 import { RuntimeFlag } from "@fncts/io/RuntimeFlag";
 import { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 

@@ -1,4 +1,4 @@
-import { Fail, Halt, Interrupt, Sequential,Stackless } from "../definition.js";
+import { Fail, Halt, Interrupt, Sequential, Stackless } from "../definition.js";
 
 /**
  * @tsplus getter fncts.Cause linearize

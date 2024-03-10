@@ -24,7 +24,10 @@ export class Empty extends FiberRefsPatch {
 export class Add<Value> extends FiberRefsPatch {
   readonly _tag = FiberRefsPatchTag.Add;
 
-  constructor(readonly fiberRef: FiberRef<Value>, readonly value: Value) {
+  constructor(
+    readonly fiberRef: FiberRef<Value>,
+    readonly value: Value,
+  ) {
     super();
   }
 }
@@ -32,7 +35,10 @@ export class Add<Value> extends FiberRefsPatch {
 export class AndThen extends FiberRefsPatch {
   readonly _tag = FiberRefsPatchTag.AndThen;
 
-  constructor(readonly first: FiberRefsPatch, readonly second: FiberRefsPatch) {
+  constructor(
+    readonly first: FiberRefsPatch,
+    readonly second: FiberRefsPatch,
+  ) {
     super();
   }
 }
@@ -48,7 +54,10 @@ export class Remove<Value> extends FiberRefsPatch {
 export class Update<Value, Patch> extends FiberRefsPatch {
   readonly _tag = FiberRefsPatchTag.Update;
 
-  constructor(readonly fiberRef: FiberRef.WithPatch<Value, Patch>, readonly patch: Patch) {
+  constructor(
+    readonly fiberRef: FiberRef.WithPatch<Value, Patch>,
+    readonly patch: Patch,
+  ) {
     super();
   }
 }

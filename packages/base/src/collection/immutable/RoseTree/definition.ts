@@ -20,7 +20,10 @@ export class RoseTree<A> implements Hashable, Equatable {
   declare [RoseTreeVariance]: {
     readonly _A: (_: never) => A;
   };
-  constructor(readonly value: A, readonly forest: Vector<RoseTree<A>>) {}
+  constructor(
+    readonly value: A,
+    readonly forest: Vector<RoseTree<A>>,
+  ) {}
 
   [Symbol.equals](that: unknown): boolean {
     return isRoseTree(that) ? Equatable.strictEquals(this.value, that.value) && this.forest == that.forest : false;

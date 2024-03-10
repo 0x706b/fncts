@@ -42,10 +42,10 @@ export const Fibers = new TestAnnotation(FibersTag, "fibers", Either.left(0), (l
       ? Either.left(left.left + right.left)
       : right
     : left.isRight()
-    ? right.isRight()
-      ? Either.right(left.right.concat(right.right))
-      : right
-    : (() => {
-        throw new Error("absurd");
-      })();
+      ? right.isRight()
+        ? Either.right(left.right.concat(right.right))
+        : right
+      : (() => {
+          throw new Error("absurd");
+        })();
 });

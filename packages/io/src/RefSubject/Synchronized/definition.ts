@@ -31,7 +31,10 @@ export class SynchronizedRefSubjectInternal<R, E, A, B>
   implements SynchronizedRefSubject<R, E, A, B>
 {
   readonly [SynchronizedRefSubjectTypeId]: SynchronizedRefSubjectTypeId = SynchronizedRefSubjectTypeId;
-  constructor(readonly semaphore: TSemaphore, readonly ref: RefSubjectInternal<R, E, A, B>) {
+  constructor(
+    readonly semaphore: TSemaphore,
+    readonly ref: RefSubjectInternal<R, E, A, B>,
+  ) {
     super();
   }
 

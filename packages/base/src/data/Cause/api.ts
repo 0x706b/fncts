@@ -285,7 +285,10 @@ class FCEStackFrameThenLeft<E, A> {
 class FCEStackFrameThenRight<E, A> {
   readonly _tag = "FCEStackFrameThenRight";
 
-  constructor(readonly cause: Sequential<Either<E, A>>, readonly leftResult: Either<Cause<E>, A>) {}
+  constructor(
+    readonly cause: Sequential<Either<E, A>>,
+    readonly leftResult: Either<Cause<E>, A>,
+  ) {}
 }
 
 class FCEStackFrameBothLeft<E, A> {
@@ -297,7 +300,10 @@ class FCEStackFrameBothLeft<E, A> {
 class FCEStackFrameBothRight<E, A> {
   readonly _tag = "FCEStackFrameBothRight";
 
-  constructor(readonly cause: Parallel<Either<E, A>>, readonly leftResult: Either<Cause<E>, A>) {}
+  constructor(
+    readonly cause: Parallel<Either<E, A>>,
+    readonly leftResult: Either<Cause<E>, A>,
+  ) {}
 }
 
 type FCEStackFrame<E, A> =
@@ -418,7 +424,10 @@ class FCOStackFrameThenLeft<E> {
 class FCOStackFrameThenRight<E> {
   readonly _tag = "FCOStackFrameThenRight";
 
-  constructor(readonly cause: Sequential<Maybe<E>>, readonly leftResult: Maybe<Cause<E>>) {}
+  constructor(
+    readonly cause: Sequential<Maybe<E>>,
+    readonly leftResult: Maybe<Cause<E>>,
+  ) {}
 }
 
 class FCOStackFrameBothLeft<E> {
@@ -430,7 +439,10 @@ class FCOStackFrameBothLeft<E> {
 class FCOStackFrameBothRight<E> {
   readonly _tag = "FCOStackFrameBothRight";
 
-  constructor(readonly cause: Parallel<Maybe<E>>, readonly leftResult: Maybe<Cause<E>>) {}
+  constructor(
+    readonly cause: Parallel<Maybe<E>>,
+    readonly leftResult: Maybe<Cause<E>>,
+  ) {}
 }
 
 type FCOStackFrame<E> =
@@ -859,18 +871,18 @@ export function stripSomeDefects(p: Predicate<unknown>) {
         l.isJust() && r.isJust()
           ? Just(Sequential(l.value, r.value))
           : l.isJust()
-          ? Just(l.value)
-          : r.isJust()
-          ? Just(r.value)
-          : Nothing(),
+            ? Just(l.value)
+            : r.isJust()
+              ? Just(r.value)
+              : Nothing(),
       Both: (l, r) =>
         l.isJust() && r.isJust()
           ? Just(Sequential(l.value, r.value))
           : l.isJust()
-          ? Just(l.value)
-          : r.isJust()
-          ? Just(r.value)
-          : Nothing(),
+            ? Just(l.value)
+            : r.isJust()
+              ? Just(r.value)
+              : Nothing(),
       Stackless: (causeOption, stackless) => causeOption.map((cause) => Stackless(cause, stackless)),
     });
   };
@@ -965,8 +977,8 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
               ? Maybe.just(Cause.sequential(lefts.value, rights.value))
               : lefts
             : rights._tag === MaybeTag.Just
-            ? rights
-            : Maybe.nothing();
+              ? rights
+              : Maybe.nothing();
         },
       );
     }
@@ -981,8 +993,8 @@ function sequenceCauseMaybeEval<E>(self: Cause<Maybe<E>>): Eval<Maybe<Cause<E>>>
               ? Maybe.just(Cause.parallel(lefts.value, rights.value))
               : lefts
             : rights._tag === MaybeTag.Just
-            ? rights
-            : Maybe.nothing();
+              ? rights
+              : Maybe.nothing();
         },
       );
     }

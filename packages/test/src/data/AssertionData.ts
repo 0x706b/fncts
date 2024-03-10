@@ -11,7 +11,10 @@ export type AssertionDataTypeId = typeof AssertionDataTypeId;
  */
 export class AssertionData<A> {
   readonly [AssertionDataTypeId]: AssertionDataTypeId = AssertionDataTypeId;
-  constructor(readonly value: A, readonly assertion: Assertion<A>) {}
+  constructor(
+    readonly value: A,
+    readonly assertion: Assertion<A>,
+  ) {}
 }
 
 /**

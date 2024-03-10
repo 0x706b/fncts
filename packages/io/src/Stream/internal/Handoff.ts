@@ -27,7 +27,10 @@ export class Full<A> {
   readonly [StateTypeId]: typeof StateTypeId = StateTypeId;
   readonly _tag = HandoffStateTag.Full;
 
-  constructor(readonly a: A, readonly notifyProducer: Future<never, void>) {}
+  constructor(
+    readonly a: A,
+    readonly notifyProducer: Future<never, void>,
+  ) {}
 }
 
 export type State<A> = Empty | Full<A>;

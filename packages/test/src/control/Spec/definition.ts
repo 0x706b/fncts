@@ -38,7 +38,10 @@ export const enum SpecCaseTag {
  */
 export class ExecCase<Spec> {
   readonly _tag = SpecCaseTag.Exec;
-  constructor(readonly exec: ExecutionStrategy, readonly spec: Spec) {}
+  constructor(
+    readonly exec: ExecutionStrategy,
+    readonly spec: Spec,
+  ) {}
 }
 
 /**
@@ -46,7 +49,10 @@ export class ExecCase<Spec> {
  */
 export class LabeledCase<Spec> {
   readonly _tag = SpecCaseTag.Labeled;
-  constructor(readonly label: string, readonly spec: Spec) {}
+  constructor(
+    readonly label: string,
+    readonly spec: Spec,
+  ) {}
 }
 
 /**
@@ -73,7 +79,10 @@ export class TestCase<R, E, T> {
   readonly _E!: () => E;
   readonly _A!: () => T;
   readonly _tag = SpecCaseTag.Test;
-  constructor(readonly test: IO<R, E, T>, readonly annotations: TestAnnotationMap) {}
+  constructor(
+    readonly test: IO<R, E, T>,
+    readonly annotations: TestAnnotationMap,
+  ) {}
 }
 
 /**

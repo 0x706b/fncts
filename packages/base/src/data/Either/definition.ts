@@ -44,7 +44,10 @@ const leftHash = Hashable.string(EitherTag.Left);
  */
 export class Left<E> extends Either<E, never> {
   readonly _tag = EitherTag.Left;
-  constructor(readonly left: E, readonly trace?: string) {
+  constructor(
+    readonly left: E,
+    readonly trace?: string,
+  ) {
     super();
   }
 
@@ -65,7 +68,10 @@ const rightHash = Hashable.string(EitherTag.Right);
  */
 export class Right<A> extends Either<never, A> {
   readonly _tag = EitherTag.Right;
-  constructor(readonly right: A, readonly trace?: string) {
+  constructor(
+    readonly right: A,
+    readonly trace?: string,
+  ) {
     super();
   }
 

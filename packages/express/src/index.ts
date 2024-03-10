@@ -112,33 +112,33 @@ export function use(...args: Array<any>): URIO<ExpressEnv, void> {
   }, ExpressAppTag).asUnit;
 }
 
-export const all = match("all");
-export const get = match("get");
-export const post = match("post");
-export const put = match("put");
+export const all     = match("all");
+export const get     = match("get");
+export const post    = match("post");
+export const put     = match("put");
 const delete_ = match("delete");
 export { delete_ as delete };
-export const patch = match("patch");
-export const options = match("options");
-export const head = match("head");
-export const checkout = match("checkout");
-export const connect = match("connect");
-export const copy = match("copy");
-export const lock = match("lock");
-export const merge = match("merge");
-export const mkactivity = match("mkactivity");
-export const mkcol = match("mkcol");
-export const move = match("move");
-export const mSearch = match("m-search");
-export const notify = match("notify");
-export const propfind = match("propfind");
-export const proppatch = match("proppatch");
-export const purge = match("purge");
-export const report = match("report");
-export const search = match("search");
-export const subscribe = match("subscribe");
-export const trace = match("trace");
-export const unlock = match("unlock");
+export const patch       = match("patch");
+export const options     = match("options");
+export const head        = match("head");
+export const checkout    = match("checkout");
+export const connect     = match("connect");
+export const copy        = match("copy");
+export const lock        = match("lock");
+export const merge       = match("merge");
+export const mkactivity  = match("mkactivity");
+export const mkcol       = match("mkcol");
+export const move        = match("move");
+export const mSearch     = match("m-search");
+export const notify      = match("notify");
+export const propfind    = match("propfind");
+export const proppatch   = match("proppatch");
+export const purge       = match("purge");
+export const report      = match("report");
+export const search      = match("search");
+export const subscribe   = match("subscribe");
+export const trace       = match("trace");
+export const unlock      = match("unlock");
 export const unsubscribe = match("unsubscribe");
 
 /**

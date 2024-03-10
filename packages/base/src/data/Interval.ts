@@ -3,7 +3,10 @@
  * @tsplus companion fncts.io.Schedule.IntervalOps
  */
 export class Interval {
-  constructor(readonly startMilliseconds: number, readonly endMilliseconds: number) {}
+  constructor(
+    readonly startMilliseconds: number,
+    readonly endMilliseconds: number,
+  ) {}
 }
 
 /**

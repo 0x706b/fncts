@@ -102,7 +102,10 @@ export class Subject<R, E, A> extends Observable<R, E, A> implements Subscriptio
 }
 
 export class AnonymousSubject<R, E, A> extends Subject<R, E, A> {
-  constructor(protected destination?: Observer<E, A>, source?: Observable<R, E, A>) {
+  constructor(
+    protected destination?: Observer<E, A>,
+    source?: Observable<R, E, A>,
+  ) {
     super();
     this.source = source;
   }

@@ -8,11 +8,18 @@ import { FiberStatusTag } from "@fncts/io/FiberStatus";
 import { TestAnnotation } from "@fncts/test/data/TestAnnotation";
 
 export class Data {
-  constructor(readonly duration: number, readonly sleeps: List<readonly [number, Future<never, void>]>) {}
+  constructor(
+    readonly duration: number,
+    readonly sleeps: List<readonly [number, Future<never, void>]>,
+  ) {}
 }
 
 export class Sleep {
-  constructor(readonly duration: number, readonly promise: Future<never, void>, readonly fiberId: FiberId) {}
+  constructor(
+    readonly duration: number,
+    readonly promise: Future<never, void>,
+    readonly fiberId: FiberId,
+  ) {}
 }
 
 interface Start {

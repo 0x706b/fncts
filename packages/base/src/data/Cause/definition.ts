@@ -81,7 +81,10 @@ export class Fail<E> implements Equatable {
   };
   readonly _tag = CauseTag.Fail;
 
-  constructor(readonly value: E, readonly trace: Trace) {}
+  constructor(
+    readonly value: E,
+    readonly trace: Trace,
+  ) {}
 
   get [Symbol.hash](): number {
     return Hashable.combine(Hashable.string(this._tag), Hashable.unknown(this.value));
@@ -119,7 +122,10 @@ export class Halt implements Equatable {
   };
   readonly _tag = CauseTag.Halt;
 
-  constructor(readonly value: unknown, readonly trace: Trace) {}
+  constructor(
+    readonly value: unknown,
+    readonly trace: Trace,
+  ) {}
 
   get [Symbol.hash](): number {
     return Hashable.combine(Hashable.string(this._tag), Hashable.unknown(this.value));
@@ -157,7 +163,10 @@ export class Interrupt implements Equatable {
   };
   readonly _tag = CauseTag.Interrupt;
 
-  constructor(readonly id: FiberId, readonly trace: Trace) {}
+  constructor(
+    readonly id: FiberId,
+    readonly trace: Trace,
+  ) {}
 
   get [Symbol.hash](): number {
     return Hashable.combine(Hashable.string(this._tag), Hashable.unknown(this.id));
@@ -196,7 +205,10 @@ export class Sequential<E> implements Equatable {
   };
   readonly _tag = CauseTag.Sequential;
 
-  constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
+  constructor(
+    readonly left: Cause<E>,
+    readonly right: Cause<E>,
+  ) {}
 
   get [Symbol.hash](): number {
     return hashCode(this);
@@ -230,7 +242,10 @@ export class Parallel<E> implements Equatable {
   };
   readonly _tag = CauseTag.Parallel;
 
-  constructor(readonly left: Cause<E>, readonly right: Cause<E>) {}
+  constructor(
+    readonly left: Cause<E>,
+    readonly right: Cause<E>,
+  ) {}
 
   get [Symbol.hash](): number {
     return hashCode(this);
@@ -264,7 +279,10 @@ export class Stackless<E> implements Equatable {
   };
   readonly _tag = CauseTag.Stackless;
 
-  constructor(readonly cause: Cause<E>, readonly stackless: boolean) {}
+  constructor(
+    readonly cause: Cause<E>,
+    readonly stackless: boolean,
+  ) {}
 
   get [Symbol.hash](): number {
     return this.cause[Symbol.hash];
@@ -280,7 +298,11 @@ export class Stackless<E> implements Equatable {
 }
 
 export class Unified {
-  constructor(readonly fiberId: FiberId, readonly message: ReadonlyArray<string>, readonly trace: Conc<string>) {}
+  constructor(
+    readonly fiberId: FiberId,
+    readonly message: ReadonlyArray<string>,
+    readonly trace: Conc<string>,
+  ) {}
 }
 
 /*

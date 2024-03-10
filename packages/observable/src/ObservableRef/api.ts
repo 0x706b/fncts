@@ -57,7 +57,10 @@ export function modify<A, B>(f: (a: A) => readonly [B, A]) {
 }
 
 class Map<A, B, C> extends ObservableRef<A, C> {
-  constructor(readonly source: ObservableRef<A, B>, readonly f: (b: B) => C) {
+  constructor(
+    readonly source: ObservableRef<A, B>,
+    readonly f: (b: B) => C,
+  ) {
     super(source.descriptor);
   }
 
@@ -94,7 +97,10 @@ export function map<A, B, C>(f: (a: B) => C) {
 }
 
 class ContramapIn<A, B, C> extends ObservableRef<C, B> {
-  constructor(readonly source: ObservableRef<A, B>, readonly f: (c: C) => A) {
+  constructor(
+    readonly source: ObservableRef<A, B>,
+    readonly f: (c: C) => A,
+  ) {
     super(source.descriptor);
   }
 
@@ -131,7 +137,10 @@ export function contramapIn<A, B, C>(f: (inp: C) => A) {
 }
 
 class Focus<A, B> extends ObservableRef<B, B> {
-  constructor(readonly source: ObservableRef<A, A>, readonly lens: Lens<A, B>) {
+  constructor(
+    readonly source: ObservableRef<A, A>,
+    readonly lens: Lens<A, B>,
+  ) {
     super(source.descriptor);
   }
 

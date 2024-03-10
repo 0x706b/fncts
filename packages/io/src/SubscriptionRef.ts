@@ -6,7 +6,11 @@ export type SubscriptionRefTypeId = typeof SubscriptionRefTypeId;
 
 export class SubscriptionRefInternal<A> extends PSynchronizedInternal<never, never, never, never, A, A> {
   readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId = SubscriptionRefTypeId;
-  constructor(readonly semaphore: Semaphore, readonly hub: Hub<A>, readonly ref: Ref<A>) {
+  constructor(
+    readonly semaphore: Semaphore,
+    readonly hub: Hub<A>,
+    readonly ref: Ref<A>,
+  ) {
     super(semaphore, ref.get, (a) => ref.set(a));
   }
   changes: Stream<never, never, A> = Stream.unwrapScoped(

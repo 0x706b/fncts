@@ -14,7 +14,10 @@ export class Future<in out E, in out A> {
     readonly _A: (_: A) => A;
     readonly _E: (_: E) => E;
   };
-  constructor(public state: State<E, A>, readonly blockingOn: FiberId) {}
+  constructor(
+    public state: State<E, A>,
+    readonly blockingOn: FiberId,
+  ) {}
 }
 
 export declare namespace Future {

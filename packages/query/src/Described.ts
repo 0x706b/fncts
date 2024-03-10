@@ -8,7 +8,10 @@
  * @tsplus companion fncts.query.DescribedOps
  */
 export class Described<A> {
-  constructor(readonly value: A, readonly description: string) {}
+  constructor(
+    readonly value: A,
+    readonly description: string,
+  ) {}
 }
 
 /**

@@ -18,12 +18,18 @@ export class ExecutedSpec<E> {
 
 export class TestCase<E> {
   readonly _tag = ExecutedSpecCaseTag.Test;
-  constructor(readonly test: Either<TestFailure<E>, TestSuccess>, readonly annotations: TestAnnotationMap) {}
+  constructor(
+    readonly test: Either<TestFailure<E>, TestSuccess>,
+    readonly annotations: TestAnnotationMap,
+  ) {}
 }
 
 export class LabeledCase<A> {
   readonly _tag = ExecutedSpecCaseTag.Labeled;
-  constructor(readonly label: string, readonly spec: A) {}
+  constructor(
+    readonly label: string,
+    readonly spec: A,
+  ) {}
 }
 
 export class MultipleCase<A> {

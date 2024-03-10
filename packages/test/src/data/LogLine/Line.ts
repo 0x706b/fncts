@@ -6,7 +6,10 @@ import { Message } from "./Message.js";
  * @tsplus companion fncts.test.data.LineOps
  */
 export class Line {
-  constructor(readonly fragments: Vector<Fragment> = Vector.empty(), readonly offset = 0) {}
+  constructor(
+    readonly fragments: Vector<Fragment> = Vector.empty(),
+    readonly offset = 0,
+  ) {}
 }
 
 /**

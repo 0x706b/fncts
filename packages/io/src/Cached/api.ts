@@ -39,7 +39,10 @@ export function manual<R, Error, Resource>(
 }
 
 class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
-  constructor(readonly ref: ScopedRef<Exit<Error, Resource>>, readonly acquire: IO<Scope, Error, Resource>) {
+  constructor(
+    readonly ref: ScopedRef<Exit<Error, Resource>>,
+    readonly acquire: IO<Scope, Error, Resource>,
+  ) {
     super();
   }
   get: FIO<Error, Resource> = this.ref.get.flatMap(IO.fromExitNow);

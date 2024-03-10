@@ -36,7 +36,11 @@ export const enum LockTag {
  */
 export class WriteLock implements Lock {
   readonly _tag = LockTag.WriteLock;
-  constructor(readonly writeLocks: number, readonly readLocks: number, readonly fiberId: FiberId) {}
+  constructor(
+    readonly writeLocks: number,
+    readonly readLocks: number,
+    readonly fiberId: FiberId,
+  ) {}
   readLocksHeld(fiberId: FiberId): number {
     return this.fiberId == fiberId ? this.readLocks : 0;
   }

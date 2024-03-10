@@ -14,10 +14,11 @@ export interface RequestHandlerIO<
   ReqQuery = ParsedQs,
   Locals extends Record<string, any> = Record<string, any>,
 > {
-  (req: Request<P, ResBody, ReqBody, ReqQuery, Locals>, res: Response<ResBody, Locals>, next: NextFunction): URIO<
-    R,
-    void
-  >;
+  (
+    req: Request<P, ResBody, ReqBody, ReqQuery, Locals>,
+    res: Response<ResBody, Locals>,
+    next: NextFunction,
+  ): URIO<R, void>;
 }
 
 export type ErasedRequestHandlerIO<R> = RequestHandlerIO<R, any, any, any, any, any, any>;

@@ -227,24 +227,24 @@ export namespace HKT {
     ? N extends "C"
       ? C
       : N extends "K"
-      ? K
-      : N extends "Q"
-      ? Q
-      : N extends "W"
-      ? W
-      : N extends "X"
-      ? X
-      : N extends "I"
-      ? I
-      : N extends "S"
-      ? S
-      : N extends "R"
-      ? R
-      : N extends "E"
-      ? E
-      : N extends "A"
-      ? A
-      : never
+        ? K
+        : N extends "Q"
+          ? Q
+          : N extends "W"
+            ? W
+            : N extends "X"
+              ? X
+              : N extends "I"
+                ? I
+                : N extends "S"
+                  ? S
+                  : N extends "R"
+                    ? R
+                    : N extends "E"
+                      ? E
+                      : N extends "A"
+                        ? A
+                        : never
     : never;
 
   /*
@@ -269,14 +269,14 @@ export namespace HKT {
     "-": P extends [any]
       ? P[0]
       : P extends [any, any]
-      ? P[0] & P[1]
-      : P extends [any, any, any]
-      ? P[0] & P[1] & P[2]
-      : P extends [any, any, any, any]
-      ? P[0] & P[1] & P[2] & P[3]
-      : P extends [any, any, any, any, any]
-      ? P[0] & P[1] & P[2] & P[3] & P[4]
-      : Union.IntersectionOf<P[number]>;
+        ? P[0] & P[1]
+        : P extends [any, any, any]
+          ? P[0] & P[1] & P[2]
+          : P extends [any, any, any, any]
+            ? P[0] & P[1] & P[2] & P[3]
+            : P extends [any, any, any, any, any]
+              ? P[0] & P[1] & P[2] & P[3] & P[4]
+              : Union.IntersectionOf<P[number]>;
     "+": P[number];
     _: P[0];
   }
@@ -291,10 +291,10 @@ export namespace HKT {
   export type MixStruct<F extends HKT, N extends ParamName, X, Y> = F["variance"][N] extends "_"
     ? X
     : F["variance"][N] extends "+"
-    ? Y[keyof Y]
-    : F["variance"][N] extends "-"
-    ? Union.IntersectionOf<{ [k in keyof Y]: OrNever<Y[k]> }[keyof Y]>
-    : X;
+      ? Y[keyof Y]
+      : F["variance"][N] extends "-"
+        ? Union.IntersectionOf<{ [k in keyof Y]: OrNever<Y[k]> }[keyof Y]>
+        : X;
 
   export interface Intros<A, B> {
     "-": B;

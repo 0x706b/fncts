@@ -4,14 +4,13 @@ import type { List, Pop } from "./List.js";
 type _Join<T extends List, D extends string> = T extends []
   ? ""
   : T extends [Literal]
-  ? `${T[0]}`
-  : T extends [Literal, ...infer R]
-  ? `${T[0]}${D}${_Join<R, D>}`
-  : string;
+    ? `${T[0]}`
+    : T extends [Literal, ...infer R]
+      ? `${T[0]}${D}${_Join<R, D>}`
+      : string;
 
-export type Join<T extends List<Literal>, D extends string = ""> = _Join<T, D> extends infer X
-  ? Cast<X, string>
-  : never;
+export type Join<T extends List<Literal>, D extends string = ""> =
+  _Join<T, D> extends infer X ? Cast<X, string> : never;
 
 type __Split<S extends string, D extends string, T extends string[] = []> = S extends `${infer BS}${D}${infer AS}`
   ? __Split<AS, D, [...T, BS]>

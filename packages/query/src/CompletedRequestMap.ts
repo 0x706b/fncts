@@ -1,3 +1,5 @@
+import type { Request } from "@fncts/query/Request";
+
 export class CompletedRequestMap {
   constructor(private map: HashMap<any, Either<any, any>>) {}
 

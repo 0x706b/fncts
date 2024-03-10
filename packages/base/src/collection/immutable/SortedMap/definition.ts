@@ -14,7 +14,10 @@ export type TypeId = typeof TypeId;
 export class SortedMap<K, V> implements SortedMapIterable<K, V> {
   readonly [TypeId]: TypeId = TypeId;
 
-  constructor(readonly ord: Ord<K>, readonly root: RBNode<K, V>) {}
+  constructor(
+    readonly ord: Ord<K>,
+    readonly root: RBNode<K, V>,
+  ) {}
 
   [Symbol.iterator](): SortedMapIterator<K, V> {
     return forward(this)[Symbol.iterator]();

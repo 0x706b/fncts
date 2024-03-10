@@ -50,11 +50,11 @@ import { ParseResult } from "@fncts/schema/ParseResult";
 /**
  * @tsplus global
  */
-import { OptionalSchema, Schema } from "@fncts/schema/Schema/definition";
+import {} from "@fncts/schema/Schema";
 /**
  * @tsplus global
  */
-import {} from "@fncts/schema/Schema"
+import { OptionalSchema, Schema } from "@fncts/schema/Schema/definition";
 /**
  * @tsplus global
  */

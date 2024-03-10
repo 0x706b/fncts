@@ -31,7 +31,10 @@ export class Right<A> {
 export class Both<E, A> {
   readonly [TheseTypeId]: TheseTypeId = TheseTypeId;
   readonly _tag = TheseTag.Both;
-  constructor(readonly left: E, readonly right: A) {}
+  constructor(
+    readonly left: E,
+    readonly right: A,
+  ) {}
 }
 
 /**

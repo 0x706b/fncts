@@ -1,4 +1,4 @@
-import type { Push,Sink } from "../Push.js";
+import type { Push, Sink } from "../Push.js";
 
 export const SubjectTypeId = Symbol.for("fncts.io.Push.Subject");
 export type SubjectTypeId = typeof SubjectTypeId;

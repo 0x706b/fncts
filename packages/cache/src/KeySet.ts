@@ -16,20 +16,20 @@ export class KeySet<Key> {
     if (key !== this.tail) {
       if (this.tail !== null) {
         const previous = key.previous;
-        const next = key.next;
+        const next     = key.next;
         if (next !== null) {
           key.next = null;
           if (previous !== null) {
             previous.next = next;
             next.previous = previous;
           } else {
-            this.head = next;
+            this.head          = next;
             this.head.previous = null;
           }
         }
         this.tail.next = key;
-        key.previous = this.tail;
-        this.tail = key;
+        key.previous   = this.tail;
+        this.tail      = key;
       } else {
         this.head = key;
         this.tail = key;
@@ -45,8 +45,8 @@ export class KeySet<Key> {
     if (key !== null) {
       const next = key.next;
       if (next !== null) {
-        key.next = null;
-        this.head = next;
+        key.next           = null;
+        this.head          = next;
         this.head.previous = null;
       } else {
         this.head = null;

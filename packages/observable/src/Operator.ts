@@ -2,7 +2,11 @@ export interface Operator<E, A> {
   call(subscriber: Subscriber<E, A>, source: any, environment: Environment<any>): Finalizer;
 }
 export class OperatorSubscriber<E, A> extends Subscriber<E, A> {
-  constructor(destination: Subscriber<any, any>, observer: Partial<Observer<E, A>>, private onFinalize?: () => void) {
+  constructor(
+    destination: Subscriber<any, any>,
+    observer: Partial<Observer<E, A>>,
+    private onFinalize?: () => void,
+  ) {
     super(destination);
     this.next = observer.next
       ? function (this: OperatorSubscriber<E, A>, value: A) {

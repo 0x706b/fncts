@@ -20,7 +20,10 @@ export class Done {
  */
 export class Running {
   readonly _tag = FiberStatusTag.Running;
-  constructor(readonly runtimeFlags: RuntimeFlags, readonly trace?: string) {}
+  constructor(
+    readonly runtimeFlags: RuntimeFlags,
+    readonly trace?: string,
+  ) {}
   readonly isFinished = false;
 }
 
@@ -29,7 +32,11 @@ export class Running {
  */
 export class Suspended {
   readonly _tag = FiberStatusTag.Suspended;
-  constructor(readonly runtimeFlags: RuntimeFlags, readonly blockingOn: FiberId, readonly trace?: string) {}
+  constructor(
+    readonly runtimeFlags: RuntimeFlags,
+    readonly blockingOn: FiberId,
+    readonly trace?: string,
+  ) {}
   readonly isFinished = false;
 }
 

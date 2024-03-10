@@ -17,7 +17,7 @@ export const animationFrameProvider: AnimationFrameProvider = {
     const { delegate } = animationFrameProvider;
     if (delegate) {
       request = delegate.requestAnimationFrame;
-      cancel = delegate.cancelAnimationFrame;
+      cancel  = delegate.cancelAnimationFrame;
     }
     const handle = request((timestamp) => {
       cancel = undefined;

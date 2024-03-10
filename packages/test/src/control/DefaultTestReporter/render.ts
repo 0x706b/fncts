@@ -95,8 +95,8 @@ function renderLoop<E>(
       const [status, renderedLabel] = specs.isEmpty
         ? [Ignored, Vector(renderSuiteIgnored(labels.reverse.join(" - "), depth))]
         : hasFailures
-        ? [Failed, Vector(renderSuiteFailed(labels.reverse.join(" - "), depth))]
-        : [Passed, Vector(renderSuiteSucceeded(labels.reverse.join(" - "), depth))];
+          ? [Failed, Vector(renderSuiteFailed(labels.reverse.join(" - "), depth))]
+          : [Passed, Vector(renderSuiteSucceeded(labels.reverse.join(" - "), depth))];
       const allAnnotations = ancestors.prepend(annotations);
       const rest           = Vector.from(specs).flatMap((spec) =>
         renderLoop(spec, depth + 1, ancestors.prepend(annotations), List.empty()),

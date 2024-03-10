@@ -15,8 +15,8 @@ export default function tsplusTrace(_: Babel): PluginObj {
           return;
         }
         if (!node.params.find((value) => t.isIdentifier(value) && value.name === "__tsplusTrace")) {
-          const identifier = t.identifier("__tsplusTrace");
-          identifier.optional = true;
+          const identifier          = t.identifier("__tsplusTrace");
+          identifier.optional       = true;
           identifier.typeAnnotation = t.tsTypeAnnotation(t.tsStringKeyword());
           node.params.push(identifier);
         }

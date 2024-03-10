@@ -70,7 +70,10 @@ export function isHashMap(u: unknown): u is HashMap<unknown, unknown> {
 export class HashMapIterator<K, V, T> implements IterableIterator<T> {
   v: Maybe<VisitResult<K, V, T>>;
 
-  constructor(readonly map: HashMap<K, V>, readonly f: (node: readonly [K, V]) => T) {
+  constructor(
+    readonly map: HashMap<K, V>,
+    readonly f: (node: readonly [K, V]) => T,
+  ) {
     this.v = visitLazy(this.map.root, this.f, undefined);
   }
 

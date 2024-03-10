@@ -18,7 +18,10 @@ export abstract class VectorIterator<A> implements Iterator<A> {
   prefixSize: number;
   middleSize: number;
   result: IteratorResult<A> = { done: false, value: undefined as any };
-  constructor(protected l: Vector<A>, direction: 1 | -1) {
+  constructor(
+    protected l: Vector<A>,
+    direction: 1 | -1,
+  ) {
     this.idx        = direction === 1 ? -1 : l.length;
     this.prefixSize = getPrefixSize(l);
     this.middleSize = l.length - getSuffixSize(l);
@@ -130,7 +133,10 @@ type Sizes = number[] | undefined;
 
 /** @internal */
 export class Node {
-  constructor(public sizes: Sizes, public array: any[]) {}
+  constructor(
+    public sizes: Sizes,
+    public array: any[],
+  ) {}
 }
 
 /**

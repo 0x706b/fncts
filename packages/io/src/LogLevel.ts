@@ -3,7 +3,11 @@
  * @tsplus companion fncts.LogLevelOps
  */
 export class LogLevel {
-  constructor(readonly ordinal: number, readonly label: string, readonly syslog: number) {}
+  constructor(
+    readonly ordinal: number,
+    readonly label: string,
+    readonly syslog: number,
+  ) {}
 }
 
 /**

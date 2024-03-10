@@ -169,7 +169,10 @@ class DrainChildExecutors<R> {
 
 class Emit<R> {
   readonly _tag = SubexecutorStackTag.Emit;
-  constructor(readonly value: unknown, readonly next: Subexecutor<R> | null) {}
+  constructor(
+    readonly value: unknown,
+    readonly next: Subexecutor<R> | null,
+  ) {}
   close(ex: Exit<unknown, unknown>): URIO<R, unknown> | null {
     return this.next !== null ? this.next.close(ex) : null;
   }

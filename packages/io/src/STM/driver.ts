@@ -16,7 +16,12 @@ export class STMDriver<R, E, A> {
   private contStack: Stack<Cont>;
   private envStack: Stack<Environment<unknown>>;
 
-  constructor(readonly self: STM<R, E, A>, readonly journal: Journal, readonly fiberId: FiberId, r0: Environment<R>) {
+  constructor(
+    readonly self: STM<R, E, A>,
+    readonly journal: Journal,
+    readonly fiberId: FiberId,
+    r0: Environment<R>,
+  ) {
     this.contStack = Stack();
     this.envStack  = Stack.single(r0);
   }

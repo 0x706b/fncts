@@ -30,25 +30,17 @@ export type _Negate<N extends Iteration> = IterationMap[N[4]];
 
 export type Negate<N extends number> = N extends unknown ? _Negate<IterationOf<N>>[0] : never;
 
-export type _AddPositive<N1 extends Iteration, N2 extends Iteration> = Pos<N2> extends 0
-  ? N1
-  : number extends Pos<N2>
-  ? IterationOf<number>
-  : _AddPositive<Next<N1>, Prev<N2>>;
+export type _AddPositive<N1 extends Iteration, N2 extends Iteration> =
+  Pos<N2> extends 0 ? N1 : number extends Pos<N2> ? IterationOf<number> : _AddPositive<Next<N1>, Prev<N2>>;
 
-export type AddPositive<N1 extends Iteration, N2 extends Iteration> = _AddPositive<N1, N2> extends infer X
-  ? Cast<X, Iteration>
-  : never;
+export type AddPositive<N1 extends Iteration, N2 extends Iteration> =
+  _AddPositive<N1, N2> extends infer X ? Cast<X, Iteration> : never;
 
-export type _AddNegative<N1 extends Iteration, N2 extends Iteration> = Pos<N2> extends 0
-  ? N1
-  : number extends Pos<N2>
-  ? IterationOf<number>
-  : _AddNegative<Prev<N1>, Next<N2>>;
+export type _AddNegative<N1 extends Iteration, N2 extends Iteration> =
+  Pos<N2> extends 0 ? N1 : number extends Pos<N2> ? IterationOf<number> : _AddNegative<Prev<N1>, Next<N2>>;
 
-export type AddNegative<N1 extends Iteration, N2 extends Iteration> = _AddNegative<N1, N2> extends infer X
-  ? Cast<X, Iteration>
-  : never;
+export type AddNegative<N1 extends Iteration, N2 extends Iteration> =
+  _AddNegative<N1, N2> extends infer X ? Cast<X, Iteration> : never;
 
 export type _Add<N1 extends Iteration, N2 extends Iteration> = {
   [False]: AddPositive<N1, N2>;

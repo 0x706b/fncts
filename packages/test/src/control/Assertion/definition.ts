@@ -14,7 +14,10 @@ export type AssertResult<A> = FreeBooleanAlgebra<AssertionValue<A>>;
  * @tsplus companion fncts.test.AssertionOps
  */
 export class Assertion<A> extends AssertionIO<A> {
-  constructor(readonly render: Render, readonly run: (actual: A) => AssertResult<A>) {
+  constructor(
+    readonly render: Render,
+    readonly run: (actual: A) => AssertResult<A>,
+  ) {
     super(render, (actual) => IO.succeedNow(run(actual)));
   }
 }

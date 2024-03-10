@@ -9,5 +9,8 @@ import type { GenFailureDetails } from "./GenFailureDetails.js";
 export type TestResult = FreeBooleanAlgebra<FailureDetailsResult>;
 
 export class FailureDetails {
-  constructor(readonly assertion: Cons<AssertionValue<any>>, readonly gen: Maybe<GenFailureDetails<any>>) {}
+  constructor(
+    readonly assertion: Cons<AssertionValue<any>>,
+    readonly gen: Maybe<GenFailureDetails<any>>,
+  ) {}
 }

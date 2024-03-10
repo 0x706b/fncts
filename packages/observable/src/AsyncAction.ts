@@ -7,7 +7,10 @@ export class AsyncAction<A> extends Action<A> {
   public delay: number | undefined;
   protected pending = false;
 
-  constructor(protected scheduler: AsyncScheduler, protected work: (this: SchedulerAction<A>, state?: A) => void) {
+  constructor(
+    protected scheduler: AsyncScheduler,
+    protected work: (this: SchedulerAction<A>, state?: A) => void,
+  ) {
     super(scheduler, work);
   }
 
@@ -18,7 +21,7 @@ export class AsyncAction<A> extends Action<A> {
 
     this.state = state;
 
-    const id = this.id;
+    const id        = this.id;
     const scheduler = this.scheduler;
 
     if (id != null) {
@@ -26,8 +29,8 @@ export class AsyncAction<A> extends Action<A> {
     }
 
     this.pending = true;
-    this.delay = delay;
-    this.id = this.id || this.requestAsyncId(scheduler, this.id, delay);
+    this.delay   = delay;
+    this.id      = this.id || this.requestAsyncId(scheduler, this.id, delay);
 
     return this;
   }
@@ -50,7 +53,7 @@ export class AsyncAction<A> extends Action<A> {
     }
 
     this.pending = false;
-    const error = this.executeInternal(state, delay);
+    const error  = this.executeInternal(state, delay);
     if (error) {
       return error;
     } else if (this.pending === false && this.id != null) {
@@ -64,7 +67,7 @@ export class AsyncAction<A> extends Action<A> {
     try {
       this.work(state);
     } catch (e) {
-      errored = true;
+      errored    = true;
       errorValue = e ? e : new Error("Scheduled action threw falsy error");
     }
     if (errored) {
@@ -76,9 +79,9 @@ export class AsyncAction<A> extends Action<A> {
   unsubscribe() {
     if (!this.closed) {
       const { id, scheduler } = this;
-      const { actions } = scheduler;
+      const { actions }       = scheduler;
 
-      this.work = this.state = this.scheduler = null!;
+      this.work    = this.state = this.scheduler = null!;
       this.pending = false;
 
       arrayRemove(actions, this);

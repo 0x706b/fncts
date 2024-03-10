@@ -82,7 +82,10 @@ export abstract class TRefInternal<EA, EB, A, B> implements PTRef<EA, EB, A, B> 
 
 export class Atomic<A> extends TRefInternal<never, never, A, A> {
   readonly atomic: Atomic<unknown> = this as Atomic<unknown>;
-  constructor(public versioned: Versioned<A>, readonly todo: AtomicReference<HashMap<TxnId, Todo>>) {
+  constructor(
+    public versioned: Versioned<A>,
+    readonly todo: AtomicReference<HashMap<TxnId, Todo>>,
+  ) {
     super();
   }
   match<EC, ED, C, D>(
