@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.16
+
+### Patch Changes
+
+- 7c9d204: chore: update all dependencies
+
 ## 0.0.15
 
 ### Patch Changes

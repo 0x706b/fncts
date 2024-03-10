@@ -1,5 +1,12 @@
 # @fncts/pattern
 
+## 0.0.15
+
+### Patch Changes
+
+- ee4937f: chore: update tsplus
+- 7c9d204: chore: update all dependencies
+
 ## 0.0.14
 
 ### Patch Changes
