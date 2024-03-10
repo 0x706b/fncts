@@ -59,7 +59,7 @@ suite.concurrent("Maybe", () => {
   test(
     "filter",
     Just(42)
-      .filter((n) => n === 43)
+      .filter((n) => n === 42)
       .assert(strictEqualTo(Just(42))) &&
       Just(42)
         .filter((n) => n === 43)
