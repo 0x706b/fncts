@@ -1,5 +1,16 @@
 # @fncts/base
 
+## 0.0.33
+
+### Patch Changes
+
+- 7c9d204: chore: update all dependencies
+- Updated dependencies [ee4937f]
+- Updated dependencies [e1db7aa]
+- Updated dependencies [7c9d204]
+- Updated dependencies [e1db7aa]
+  - @fncts/io@0.0.40
+
 ## 0.0.32
 
 ### Patch Changes

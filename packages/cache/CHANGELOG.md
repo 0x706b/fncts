@@ -1,5 +1,20 @@
 # @fncts/cache
 
+## 0.0.10
+
+### Patch Changes
+
+- 7c9d204: chore: update all dependencies
+- Updated dependencies [ee4937f]
+- Updated dependencies [e1db7aa]
+- Updated dependencies [0a3d758]
+- Updated dependencies [7c9d204]
+- Updated dependencies [e1db7aa]
+  - @fncts/base@0.0.33
+  - @fncts/io@0.0.40
+  - @fncts/transformers@0.0.7
+  - @fncts/typelevel@0.0.16
+
 ## 0.0.9
 
 ### Patch Changes

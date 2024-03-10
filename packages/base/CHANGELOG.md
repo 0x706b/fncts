@@ -1,5 +1,17 @@
 # @fncts/base
 
+## 0.0.33
+
+### Patch Changes
+
+- ee4937f: chore: update tsplus
+- e1db7aa: fix: optic focus
+- 0a3d758: refactor: improve error when service is not found in environment
+- 7c9d204: chore: update all dependencies
+- e1db7aa: feat: subtype Tag as IO
+- Updated dependencies [7c9d204]
+  - @fncts/typelevel@0.0.16
+
 ## 0.0.32
 
 ### Patch Changes
