@@ -66,7 +66,7 @@ suite.concurrent("Conc", () => {
           return actual.assertIO(every(strictEqualTo(expected)));
         });
       },
-      10000,
+      { timeout: 10_000 },
     );
 
     test.io(
@@ -114,7 +114,7 @@ suite.concurrent("Conc", () => {
         const expected = as.concat(bs);
         return actual.assertIO(every(strictEqualTo(expected)));
       }),
-      10000,
+      { timeout: 10_000 },
     );
 
     test.io(

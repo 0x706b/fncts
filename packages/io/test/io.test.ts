@@ -14,7 +14,7 @@ suite.concurrent("IO", () => {
         Δ(fiber.interrupt);
         return true.assert(completes);
       }),
-      6000,
+      { timeout: 6_000 },
     );
   });
   suite.concurrent("absorbWith", () => {
@@ -183,14 +183,14 @@ suite.concurrent("IO", () => {
         const goodCase = Δ(
           IO.succeed(0).collect(
             "value was not 0",
-            Maybe.partial((miss) => (n) => n === 0 ? n : miss()),
+            Maybe.partial((miss) => (n) => (n === 0 ? n : miss())),
           ).sandbox.either,
         );
         const badCase = Δ(
           IO.succeed(1)
             .collect(
               "value was not 0",
-              Maybe.partial((miss) => (n) => n === 0 ? n : miss()),
+              Maybe.partial((miss) => (n) => (n === 0 ? n : miss())),
             )
             .sandbox.either.map((either) => either.mapLeft((cause) => cause.failureOrCause)),
         );

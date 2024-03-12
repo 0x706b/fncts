@@ -1,6 +1,7 @@
 import type { AssertionValue } from "@fncts/test/data/AssertionValue";
 import type { TestResult } from "@fncts/test/data/FailureDetails";
 
+import { isPromise } from "@fncts/base/util/predicates";
 import { check, checkAllConcurrently, checkAllIOConcurrently, checkIO } from "@fncts/test/api";
 import { Assertion } from "@fncts/test/control/Assertion";
 import { renderFragment } from "@fncts/test/control/DefaultTestReporter";
@@ -16,11 +17,16 @@ export const describe = V.describe;
 export const suite = V.suite;
 
 export const it = (() => {
-  function runTest(test: Lazy<TestResult | void>) {
+  function runTest(test: Lazy<TestResult | Promise<void> | void>) {
     const result = test();
     if (!result) {
       return;
     }
+
+    if (isPromise(result)) {
+      return result;
+    }
+
     if (result.isFailure) {
       const lines = (assertionValues: Cons<AssertionValue<any>>) =>
         assertionValues.flatMap((value) => List.from(renderFragment(value, 0).lines));
@@ -45,8 +51,8 @@ export const it = (() => {
     }
   }
 
-  function it(name: string, test: Lazy<TestResult | void>, timeout = 5_000) {
-    return V.it.concurrent(name, () => runTest(test), timeout);
+  function it(name: string, test: Lazy<TestResult | Promise<void> | void>, options?: V.TestOptions) {
+    return V.it.concurrent(name, () => runTest(test), options);
   }
 
   function runTestIO<E>(io: Lazy<IO<TestEnvironment, E, TestResult>>) {
@@ -79,30 +85,30 @@ export const it = (() => {
       .unsafeRunPromise();
   }
 
-  function itIO<E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, timeout = 5_000) {
-    return V.it.concurrent(name, () => runTestIO(io), timeout);
+  function itIO<E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) {
+    return V.it.concurrent(name, () => runTestIO(io), options);
   }
 
   return Object.assign(it, {
-    skip: (name: string, test: Lazy<TestResult | void>, timeout = 5_000) => {
-      return V.it.skip(name, () => runTest(test), timeout);
+    skip: (name: string, test: Lazy<TestResult | Promise<void> | void>, options?: V.TestOptions) => {
+      return V.it.skip(name, () => runTest(test), options);
     },
-    only: (name: string, test: Lazy<TestResult | void>, timeout = 5_000) => {
-      return V.it.only(name, () => runTest(test), timeout);
+    only: (name: string, test: Lazy<TestResult | Promise<void> | void>, options?: V.TestOptions) => {
+      return V.it.only(name, () => runTest(test), options);
     },
     check: check,
     checkIO: checkIO,
     checkAll: checkAllConcurrently,
     checkAllIO: checkAllIOConcurrently,
     io: Object.assign(itIO, {
-      scoped: <E>(name: string, io: Lazy<IO<TestEnvironment | Scope, E, TestResult>>, timeout = 5_000) => {
-        return itIO(name, io().scoped, timeout);
+      scoped: <E>(name: string, io: Lazy<IO<TestEnvironment | Scope, E, TestResult>>, options?: V.TestOptions) => {
+        return itIO(name, io().scoped, options);
       },
-      skip: <E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, timeout = 5_000) => {
-        return V.it.skip(name, () => runTestIO(io), timeout);
+      skip: <E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) => {
+        return V.it.skip(name, () => runTestIO(io), options);
       },
-      only: <E, A>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, timeout = 5_000) => {
-        return V.it.only(name, () => runTestIO(io), timeout);
+      only: <E, A>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) => {
+        return V.it.only(name, () => runTestIO(io), options);
       },
     }),
   });
