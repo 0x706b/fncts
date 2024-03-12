@@ -1,5 +1,13 @@
 # @fncts/test
 
+## 0.0.41
+
+### Patch Changes
+
+- 901ad3c: refactor: integrate test options into vitest extensions
+- Updated dependencies [901ad3c]
+  - @fncts/io@0.0.41
+
 ## 0.0.40
 
 ### Patch Changes
