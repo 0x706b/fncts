@@ -1,5 +1,12 @@
 # @fncts/cache
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [901ad3c]
+  - @fncts/io@0.0.41
+
 ## 0.0.10
 
 ### Patch Changes

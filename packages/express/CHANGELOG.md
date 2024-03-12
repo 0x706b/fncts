@@ -1,5 +1,12 @@
 # @fncts/express
 
+## 0.0.34
+
+### Patch Changes
+
+- Updated dependencies [901ad3c]
+  - @fncts/io@0.0.41
+
 ## 0.0.33
 
 ### Patch Changes
