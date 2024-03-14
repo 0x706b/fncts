@@ -1,5 +1,11 @@
 # @fncts/schema
 
+## 0.0.13
+
+### Patch Changes
+
+- 72a9c68: feat(schema): add show interpreter
+
 ## 0.0.12
 
 ### Patch Changes
