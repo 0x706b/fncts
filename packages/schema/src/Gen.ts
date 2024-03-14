@@ -106,7 +106,6 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
     case ASTTag.TypeLiteral: {
       const propertySignatureTypes = ast.propertySignatures.map((ps) => go(ps.type));
       const indexSignatures        = ast.indexSignatures.map((is) => [go(is.parameter), go(is.type)] as const);
-      const gens: any              = {};
       const requiredGens: Record<PropertyKey, Gen<any, any>> = {};
       const optionalGens: Record<PropertyKey, Gen<any, any>> = {};
       for (let i = 0; i < propertySignatureTypes.length; i++) {

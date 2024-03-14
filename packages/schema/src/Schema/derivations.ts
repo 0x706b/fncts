@@ -107,7 +107,7 @@ export function deriveStruct<A extends Record<string, any>>(
       propertySignatures.concat(
         maybeFieldsKeys.map((key) =>
           // @ts-expect-error
-          AST.createPropertySignature(key, Schema.maybe(maybeFields![key]!).ast, true, true),
+          AST.createPropertySignature(key, Schema.maybe(maybeFields![key]!).ast, false, true),
         ),
       ),
       Vector.empty(),
@@ -162,10 +162,9 @@ export function deriveLazy<A>(f: (_: Schema<A>) => Schema<A>): Schema<A> {
 }
 
 /**
- * @tsplus derive fncts.schema.Schema[fncts.Array]<_> 10
  * @tsplus derive fncts.schema.Schema[fncts.ReadonlyArray]<_> 10
  */
-export function deriveArray<A extends ReadonlyArray<any>>(
+export function deriveReadonlyArray<A extends ReadonlyArray<any>>(
   ...[element]: [A] extends [ReadonlyArray<infer _A>]
     ? Check<Check.IsEqual<A, ReadonlyArray<_A>>> extends Check.True
       ? [element: Schema<_A>]
@@ -173,6 +172,19 @@ export function deriveArray<A extends ReadonlyArray<any>>(
     : never
 ): Schema<A> {
   return Schema.array(element) as unknown as Schema<A>;
+}
+
+/**
+ * @tsplus derive fncts.schema.Schema[fncts.Array]<_> 10
+ */
+export function deriveArray<A extends Array<any>>(
+  ...[element]: [A] extends [Array<infer _A>]
+    ? Check<Check.IsEqual<A, Array<_A>>> extends Check.True
+      ? [element: Schema<_A>]
+      : never
+    : never
+): Schema<A> {
+  return Schema.mutableArray(element) as unknown as Schema<A>;
 }
 
 /**
