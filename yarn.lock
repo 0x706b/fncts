@@ -1382,6 +1382,25 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@fncts/http@workspace:packages/http":
+  version: 0.0.0-use.local
+  resolution: "@fncts/http@workspace:packages/http"
+  dependencies:
+    "@fncts/base": "workspace:*"
+    "@fncts/config": "workspace:*"
+    "@fncts/eslint-config": "workspace:*"
+    "@fncts/io": "workspace:*"
+    "@fncts/schema": "workspace:*"
+    "@fncts/scripts": "workspace:*"
+    "@fncts/typelevel": "workspace:*"
+    "@types/react": "npm:^18.2.64"
+    "@types/uuid": "npm:^9.0.8"
+    find-my-way: "npm:^8.1.0"
+    find-my-way-ts: "npm:^0.1.1"
+    uuid: "npm:^9.0.1"
+  languageName: unknown
+  linkType: soft
+
 "@fncts/io@workspace:*, @fncts/io@workspace:packages/io":
   version: 0.0.0-use.local
   resolution: "@fncts/io@workspace:packages/io"
@@ -1463,7 +1482,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@fncts/schema@workspace:packages/schema":
+"@fncts/schema@workspace:*, @fncts/schema@workspace:packages/schema":
   version: 0.0.0-use.local
   resolution: "@fncts/schema@workspace:packages/schema"
   dependencies:
@@ -5985,6 +6004,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-decode-uri-component@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "fast-decode-uri-component@npm:1.0.1"
+  checksum: 47a0e7876b61e6f2661d43abd50cbb1cbb1a3e4eaadc428fbb914a5c78ad1a187f9fc1e4570052eb18d02239fbfd66642cd7b1adee5e927821fba0c93e7096db
+  languageName: node
+  linkType: hard
+
 "fast-deep-equal@npm:^3.1.1, fast-deep-equal@npm:^3.1.3":
   version: 3.1.3
   resolution: "fast-deep-equal@npm:3.1.3"
@@ -6029,6 +6055,15 @@ __metadata:
   version: 2.0.6
   resolution: "fast-levenshtein@npm:2.0.6"
   checksum: 7814143d0352153a7a51ebd9b21341bf1732b9599ec592a398ab5e4584b516aeb5008834ba2a46502253c221b33dad7dddc93ce3f5054acd09218cce1710c81b
+  languageName: node
+  linkType: hard
+
+"fast-querystring@npm:^1.0.0":
+  version: 1.1.2
+  resolution: "fast-querystring@npm:1.1.2"
+  dependencies:
+    fast-decode-uri-component: "npm:^1.0.1"
+  checksum: fc70deb15d019b8c56dbaa692c7c45cb73d223e469297d8d05779e3051b82ee9810701e1ea81abaab1396a6bc387237d47267092af63f85045c15b72bcfedf0e
   languageName: node
   linkType: hard
 
@@ -6100,6 +6135,26 @@ __metadata:
     statuses: "npm:2.0.1"
     unpipe: "npm:~1.0.0"
   checksum: 31ca595367c936c6614f67bd94c7e64a31ad9b8bd52751811b4f9deb666928d8da578a230baacf7760845126ef35330382a2e935f0757d22312ba942056dc1c1
+  languageName: node
+  linkType: hard
+
+"find-my-way-ts@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "find-my-way-ts@npm:0.1.1"
+  dependencies:
+    fast-querystring: "npm:^1.0.0"
+  checksum: 96aec0f7707339951716ad7bf24a39778a0d54af5891044f92bce301fb5fe79e35e8b3f3baf9a95b58460735503eda831362cbc3d7052473c02fba81a30fcc2e
+  languageName: node
+  linkType: hard
+
+"find-my-way@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "find-my-way@npm:8.1.0"
+  dependencies:
+    fast-deep-equal: "npm:^3.1.3"
+    fast-querystring: "npm:^1.0.0"
+    safe-regex2: "npm:^2.0.0"
+  checksum: 28ddcde910ceaad706f85d14479d2b89c26dd411f6f531742de745b167bebba29b504e227b9a2576a00ed6092e01f21b4acf6e173bc9aae119edace60b1daf8b
   languageName: node
   linkType: hard
 
@@ -9887,6 +9942,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ret@npm:~0.2.0":
+  version: 0.2.2
+  resolution: "ret@npm:0.2.2"
+  checksum: d9fbf8e2bd19415c5245e95864265b80ab1f9831a6d4cd91f9c795e5721e6894c6abf371eedcdd0d375e8d39ce4bc6a5061cfe86514de28ce997757e0d60a0d2
+  languageName: node
+  linkType: hard
+
 "retry@npm:^0.12.0":
   version: 0.12.0
   resolution: "retry@npm:0.12.0"
@@ -10025,6 +10087,15 @@ __metadata:
     es-errors: "npm:^1.3.0"
     is-regex: "npm:^1.1.4"
   checksum: 69039da2b0bb0c1306a1c749a98f312d38e1aaa9e0185ee2ea2651e4ce38e55e7f4d8bb58f0c3c3bae59644f2c1187b44d4a5b7dc42ef68d171fcf6ae2cb6149
+  languageName: node
+  linkType: hard
+
+"safe-regex2@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "safe-regex2@npm:2.0.0"
+  dependencies:
+    ret: "npm:~0.2.0"
+  checksum: 27803fb31d04c585b869945de0881cc816af91473942605eda38d62d65234324a1fc05839ea528c0a805ac66c51e71676bf43ba1f933f5884bb8c58ecef256b3
   languageName: node
   linkType: hard
 

@@ -959,6 +959,13 @@ export function getOrFailUnit<A>(option: Maybe<A>, __tsplusTrace?: string): FIO<
 }
 
 /**
+ * @tsplus static fncts.io.IOOps getFiberRefs
+ */
+export function getFiberRefs(__tsplusTrace?: string): UIO<FiberRefs> {
+  return IO.withFiberRuntime((fiberState) => IO.succeed(fiberState.getFiberRefs()));
+}
+
+/**
  * Creates an `IO` that halts with the specified lazily-evaluated defect.
  * This method can be used for terminating a fiber because a defect has been
  * detected in the code.

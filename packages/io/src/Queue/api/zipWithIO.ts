@@ -23,6 +23,14 @@ class ZipWithIO<RA, RB, EA, EB, A, B, RA1, RB1, EA1, EB1, A1 extends A, B1, R3, 
 
   isShutdown: UIO<boolean> = this.fa.isShutdown;
 
+  get unsafeSize(): Maybe<number> {
+    return this.fa.unsafeSize.zipWith(this.fb.unsafeSize, (a, b) => Math.max(a, b));
+  }
+
+  unsafeOffer(a: A): boolean {
+    throw new Error("Cannot unsafely offer to an effectful Queue");
+  }
+
   offer(a: A1): IO<RA | RA1, EA1 | EA, boolean> {
     return this.fa.offer(a).zipWithConcurrent(this.fb.offer(a), (x, y) => x && y);
   }

@@ -39,6 +39,9 @@
     },
     {
       "path": "./packages/react"
+    },
+    {
+      "path": "./packages/http"
     }
   ]
 }

@@ -78,7 +78,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
               const t      = parser(input[i], options);
               Either.concrete(t);
               if (t.isLeft()) {
-                const e = ParseError.IndexError(i, t.left);
+                const e = ParseError.IndexError(i, t.left.errors);
                 errors.push(e);
                 if (allErrors) {
                   continue;
@@ -97,7 +97,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
             const t = head(input[i], options);
             Either.concrete(t);
             if (t.isLeft()) {
-              const e = ParseError.IndexError(i, t.left);
+              const e = ParseError.IndexError(i, t.left.errors);
               errors.push(e);
               if (allErrors) {
                 continue;
@@ -116,7 +116,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
               const t = tail[j]!(input[i], options);
               Either.concrete(t);
               if (t.isLeft()) {
-                const e = ParseError.IndexError(i, t.left);
+                const e = ParseError.IndexError(i, t.left.errors);
                 errors.push(e);
                 if (allErrors) {
                   continue;
@@ -178,7 +178,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
             const t: ParseResult<unknown> = parser(input[name], options);
             Either.concrete(t);
             if (t.isLeft()) {
-              const e = ParseError.KeyError(AST.createKey(name), name, t.left);
+              const e = ParseError.KeyError(AST.createKey(name), name, t.left.errors);
               errors.push(e);
               if (allErrors) {
                 continue;
@@ -202,7 +202,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
               let t = parameter(key, options);
               Either.concrete(t);
               if (t.isLeft()) {
-                const e = ParseError.KeyError(AST.createKey(key), key, t.left);
+                const e = ParseError.KeyError(AST.createKey(key), key, t.left.errors);
                 errors.push(e);
                 if (allErrors) {
                   continue;
@@ -214,7 +214,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
               t = type(input[key], options);
               Either.concrete(t);
               if (t.isLeft()) {
-                const e = ParseError.KeyError(AST.createKey(key), key, t.left);
+                const e = ParseError.KeyError(AST.createKey(key), key, t.left.errors);
                 errors.push(e);
                 if (allErrors) {
                   continue;
@@ -272,7 +272,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
                     if (t.isRight()) {
                       return t;
                     } else {
-                      errors.push(ParseError.UnionMemberError(t.left));
+                      errors.push(ParseError.UnionMemberError(t.left.errors));
                     }
                   }
                 } else {
@@ -298,7 +298,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
           if (t.isRight()) {
             return t;
           } else {
-            errors.push(ParseError.UnionMemberError(t.left));
+            errors.push(ParseError.UnionMemberError(t.left.errors));
           }
         }
 

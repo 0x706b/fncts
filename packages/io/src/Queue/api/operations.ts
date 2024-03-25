@@ -46,6 +46,18 @@ export function isShutdown<RA, RB, EA, EB, A, B>(
 /**
  * Places one value in the queue.
  *
+ * @tsplus pipeable fncts.io.Queue unsafeOffer
+ */
+export function unsafeOffer<A>(a: A, __tsplusTrace?: string) {
+  return <RA, RB, EA, EB, B>(queue: PEnqueue<RA, RB, EA, EB, A, B>): boolean => {
+    concrete(queue);
+    return queue.unsafeOffer(a);
+  };
+}
+
+/**
+ * Places one value in the queue.
+ *
  * @tsplus pipeable fncts.io.Queue offer
  */
 export function offer<A>(a: A, __tsplusTrace?: string) {
@@ -101,6 +113,14 @@ export function shutdown<RA, RB, EA, EB, A, B>(queue: PQueueCommon<RA, RB, EA, E
 export function size<RA, RB, EA, EB, A, B>(queue: PQueueCommon<RA, RB, EA, EB, A, B>, __tsplusTrace?: string) {
   concrete(queue);
   return queue.size;
+}
+
+/**
+ * @tsplus getter fncts.io.Queue unsafeSize
+ */
+export function unsafeSize<RA, RB, EA, EB, A, B>(queue: PQueueCommon<RA, RB, EA, EB, A, B>, __tsplusTrace?: string) {
+  concrete(queue);
+  return queue.unsafeSize;
 }
 
 /**

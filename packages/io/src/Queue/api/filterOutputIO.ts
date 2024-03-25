@@ -16,6 +16,14 @@ class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, R
 
   isShutdown: UIO<boolean> = this.queue.isShutdown;
 
+  get unsafeSize(): Maybe<number> {
+    return this.queue.unsafeSize;
+  }
+
+  unsafeOffer(a: A): boolean {
+    throw new Error("Cannot unsafely offer to an effectful Queue");
+  }
+
   offer(a: A): IO<RA, EA, boolean> {
     return this.queue.offer(a);
   }
@@ -103,6 +111,14 @@ class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1>
   shutdown: UIO<void> = this.queue.shutdown;
 
   size: UIO<number> = this.queue.size;
+
+  get unsafeSize(): Maybe<number> {
+    return this.queue.unsafeSize;
+  }
+
+  unsafeOffer(a: A): boolean {
+    throw new Error("Cannot unsafely offer to an effectful Queue");
+  }
 
   take: IO<RB | RB1, EB1 | EB, B> = this.queue.take.flatMap((b) =>
     this.f(b).flatMap((p) => (p ? IO.succeedNow(b) : this.take)),

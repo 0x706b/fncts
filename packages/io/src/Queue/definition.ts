@@ -113,6 +113,7 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B>
    * `true` if `shutdown` has been called.
    */
   abstract readonly isShutdown: UIO<boolean>;
+  abstract unsafeOffer(a: A): boolean;
   /**
    * Places one value in the queue.
    */
@@ -140,6 +141,7 @@ export abstract class QueueInternal<RA, RB, EA, EB, A, B>
    * Future calls to `offer*` and `take*` will be interrupted immediately.
    */
   abstract readonly shutdown: UIO<void>;
+  abstract readonly unsafeSize: Maybe<number>;
   /**
    * Retrieves the size of the queue, which is equal to the number of elements
    * in the queue. This may be negative if fibers are suspended waiting for
@@ -211,6 +213,7 @@ export interface PQueueCommonInternal<RA, RB, EA, EB, A, B> {
    * Future calls to `offer*` and `take*` will be interrupted immediately.
    */
   readonly shutdown: UIO<void>;
+  readonly unsafeSize: Maybe<number>;
   /**
    * Retrieves the size of the queue, which is equal to the number of elements
    * in the queue. This may be negative if fibers are suspended waiting for
@@ -221,6 +224,7 @@ export interface PQueueCommonInternal<RA, RB, EA, EB, A, B> {
 
 export interface PEnqueueInternal<RA, RB, EA, EB, A, B> extends PQueueCommonInternal<RA, RB, EA, EB, A, B> {
   readonly [EnqueueTypeId]: EnqueueTypeId;
+  unsafeOffer(a: A): boolean;
   /**
    * Places one value in the queue.
    */

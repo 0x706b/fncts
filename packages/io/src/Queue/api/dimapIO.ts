@@ -1,3 +1,4 @@
+import type { Maybe } from "@fncts/base/data/Maybe";
 import type { UIO } from "@fncts/io/IO";
 import type { PDequeue, PDequeueInternal, PEnqueue, PEnqueueInternal } from "@fncts/io/Queue/definition";
 
@@ -31,6 +32,14 @@ class DimapIO<RA, RB, EA, EB, A, B, RC, EC, C, RD, ED, D> extends QueueInternal<
   capacity: number = this.queue.capacity;
 
   isShutdown: UIO<boolean> = this.queue.isShutdown;
+
+  get unsafeSize(): Maybe<number> {
+    return this.queue.unsafeSize;
+  }
+
+  unsafeOffer(a: C): boolean {
+    throw new Error("Cannot unsafely offer to an effectful Queue");
+  }
 
   offer(c: C): IO<RC | RA, EA | EC, boolean> {
     return this.f(c).flatMap((a) => this.queue.offer(a));
@@ -151,6 +160,14 @@ class ContramapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PEnqueueInternal<R
 
   isShutdown: UIO<boolean> = this.queue.isShutdown;
 
+  get unsafeSize(): Maybe<number> {
+    return this.queue.unsafeSize;
+  }
+
+  unsafeOffer(a: C): boolean {
+    throw new Error("Cannot unsafely offer to an effectful Queue");
+  }
+
   offer(c: C): IO<RC | RA, EA | EC, boolean> {
     return this.f(c).flatMap((a) => this.queue.offer(a));
   }
@@ -201,6 +218,14 @@ class MapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PDequeueInternal<RA, RB 
   shutdown: UIO<void> = this.queue.shutdown;
 
   size: UIO<number> = this.queue.size;
+
+  get unsafeSize(): Maybe<number> {
+    return this.queue.unsafeSize;
+  }
+
+  unsafeOffer(a: C): boolean {
+    throw new Error("Cannot unsafely offer to an effectful Queue");
+  }
 
   take: IO<RB | RC, EB | EC, C> = this.queue.take.flatMap(this.f);
 

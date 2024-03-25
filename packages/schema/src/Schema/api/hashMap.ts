@@ -78,7 +78,7 @@ function hashMapParser<K, V>(key: Schema<K>, value: Schema<V>): Parser<HashMap<K
       const tk = key.decode(k, options);
       Either.concrete(tk);
       if (tk.isLeft()) {
-        errors.push(ParseError.KeyError(key.ast, k, tk.left));
+        errors.push(ParseError.KeyError(key.ast, k, tk.left.errors));
         if (!allErrors) {
           return ParseResult.failures(errors);
         }

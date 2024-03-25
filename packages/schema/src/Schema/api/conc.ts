@@ -49,7 +49,7 @@ export function concParser<A>(value: Schema<A>): Parser<Conc<A>> {
       const t = value.decode(v);
       Either.concrete(t);
       if (t.isLeft()) {
-        errors.push(ParseError.IndexError(i, t.left));
+        errors.push(ParseError.IndexError(i, t.left.errors));
         if (!allErrors) {
           return ParseResult.failures(errors);
         }

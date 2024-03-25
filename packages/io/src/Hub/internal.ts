@@ -1,3 +1,4 @@
+import type { Maybe } from "@fncts/base/data/Maybe";
 import type { Hub as HubInternal } from "@fncts/io/internal/Hub";
 
 import { HashSet } from "@fncts/base/collection/mutable/HashSet";
@@ -282,6 +283,13 @@ class UnsafeSubscription<A> extends QueueInternal<never, never, never, never, A,
     }),
   );
 
+  get unsafeSize(): Maybe<number> {
+    if (this.shutdownFlag.get) {
+      return Nothing();
+    }
+    return Just(this.subscription.size());
+  }
+
   size: UIO<number> = IO.defer(() => {
     if (this.shutdownFlag.get) {
       return IO.interrupt;
@@ -289,6 +297,10 @@ class UnsafeSubscription<A> extends QueueInternal<never, never, never, never, A,
 
     return IO.succeed(this.subscription.size());
   });
+
+  unsafeOffer(_: never): boolean {
+    return false;
+  }
 
   offer = (_: never): IO<never, never, boolean> => IO.succeedNow(false);
 
@@ -422,6 +434,13 @@ class UnsafeHub<A> extends PHubInternal<never, never, never, never, A, A> {
         .whenIO(this.shutdownHook.succeed(undefined));
     }),
   ).uninterruptible;
+
+  get unsafeSize(): Maybe<number> {
+    if (this.shutdownFlag.get) {
+      return Nothing();
+    }
+    return Just(this.hub.size());
+  }
 
   size = IO.defer(() => {
     if (this.shutdownFlag.get) {

@@ -54,7 +54,7 @@ function parser<A>(value: Schema<A>): Parser<List<A>> {
       const t = value.decode(v, options);
       Either.concrete(t);
       if (t.isLeft()) {
-        errors.push(ParseError.IndexError(index, t.left));
+        errors.push(ParseError.IndexError(index, t.left.errors));
         if (allErrors) {
           continue;
         }

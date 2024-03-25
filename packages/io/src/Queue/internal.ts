@@ -22,6 +22,38 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
 
   isShutdown: UIO<boolean> = IO.succeed(this.shutdownFlag.get);
 
+  get unsafeSize(): Maybe<number> {
+    if (this.shutdownFlag.get) {
+      return Nothing();
+    }
+    return Just(this.queue.size - this.takers.size + this.strategy.surplusSize);
+  }
+
+  unsafeOffer(a: A): boolean {
+    if (this.shutdownFlag.get) {
+      return false;
+    }
+    let noRemaining: boolean;
+    if (this.queue.size === 0) {
+      const taker = this.takers.dequeue(undefined);
+
+      if (taker != null) {
+        unsafeCompletePromise(taker, a);
+        noRemaining = true;
+      } else {
+        noRemaining = false;
+      }
+    } else {
+      noRemaining = false;
+    }
+    if (noRemaining) {
+      return true;
+    }
+    const succeeded = this.queue.enqueue(a);
+    unsafeCompleteTakers(this.strategy, this.queue, this.takers);
+    return succeeded;
+  }
+
   offer(a: A, __tsplusTrace?: string): IO<never, never, boolean> {
     return IO.defer(() => {
       if (this.shutdownFlag.get) {

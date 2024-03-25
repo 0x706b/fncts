@@ -68,6 +68,9 @@ class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
   isShutdown    = this.source.isShutdown;
   shutdown      = this.source.shutdown;
   size          = this.source.size;
+  get unsafeSize() {
+    return this.source.unsafeSize;
+  }
   subscribe: IO<Scope, never, PDequeue<RA | RC, RB | RD, EA | EC, EB | ED, C, D>> = unsafeCoerce(
     this.source.subscribe.map((queue) => queue.mapIO(this.g)),
   );
@@ -119,9 +122,12 @@ class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA | RA
   isShutdown    = this.source.isShutdown;
   shutdown      = this.source.shutdown;
   size          = this.source.size;
-  subscribe     = this.source.subscribe;
-  publish       = (a: A) => this.f(a).flatMap((b) => (b ? this.source.publish(a) : IO.succeedNow(false)));
-  publishAll    = (as: Iterable<A>) =>
+  get unsafeSize() {
+    return this.source.unsafeSize;
+  }
+  subscribe  = this.source.subscribe;
+  publish    = (a: A) => this.f(a).flatMap((b) => (b ? this.source.publish(a) : IO.succeedNow(false)));
+  publishAll = (as: Iterable<A>) =>
     IO.filter(as, this.f).flatMap((as) => (as.isNonEmpty ? this.source.publishAll(as) : IO.succeedNow(false)));
 }
 
@@ -161,9 +167,12 @@ class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB
   isShutdown    = this.source.isShutdown;
   shutdown      = this.source.shutdown;
   size          = this.source.size;
-  subscribe     = this.source.subscribe.map((queue) => queue.filterOutputIO(this.f));
-  publish       = (a: A) => this.source.publish(a);
-  publishAll    = (as: Iterable<A>) => this.source.publishAll(as);
+  get unsafeSize() {
+    return this.source.unsafeSize;
+  }
+  subscribe  = this.source.subscribe.map((queue) => queue.filterOutputIO(this.f));
+  publish    = (a: A) => this.source.publish(a);
+  publishAll = (as: Iterable<A>) => this.source.publishAll(as);
 }
 
 /**

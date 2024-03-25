@@ -325,6 +325,16 @@ function retryLoop<RIn, E, ROut, S, RIn1, X>(
 }
 
 /**
+ * @tsplus static fncts.io.LayerOps scopedDiscard
+ */
+export function scopedDiscard<R, E, A>(
+  io: Lazy<IO<R, E, A>>,
+  __tsplusTrace?: string,
+): Layer<Exclude<R, Scope>, E, never> {
+  return Layer.scopedEnvironment(io().as(Environment.empty));
+}
+
+/**
  * @tsplus static fncts.io.LayerOps scoped
  */
 export function scoped<R, E, A>(

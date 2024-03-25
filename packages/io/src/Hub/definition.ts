@@ -84,6 +84,8 @@ export abstract class PHubInternal<RA, RB, EA, EB, A, B>
    */
   abstract isShutdown: UIO<boolean>;
 
+  abstract unsafeSize: Maybe<number>;
+
   /**
    * Publishes a message to the hub, returning whether the message was
    * published to the hub.
@@ -112,6 +114,10 @@ export abstract class PHubInternal<RA, RB, EA, EB, A, B>
    * message from the hub each time.
    */
   abstract subscribe: IO<Scope, never, PDequeue<RA, RB, EA, EB, A, B>>;
+
+  unsafeOffer(_: never): boolean {
+    throw new Error("Cannot unsafely publish to a Hub");
+  }
 
   offer(a: A, __tsplusTrace?: string): IO<RA, EA, boolean> {
     return this.publish(a);

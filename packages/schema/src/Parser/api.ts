@@ -55,8 +55,8 @@ function parseOrThrow(ast: AST) {
   const parser = parserFor(ast);
   return (input: unknown, options?: ParseOptions) => {
     return parser(input, options).match({
-      Left: (errors) => {
-        throw new Error(ParseError.format(errors));
+      Left: (failure) => {
+        throw new Error(ParseError.format(failure.errors));
       },
       Right: Function.identity,
     });

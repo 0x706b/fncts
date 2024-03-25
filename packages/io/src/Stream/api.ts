@@ -1593,6 +1593,26 @@ export function fromChunk<O>(c: Lazy<Conc<O>>, __tsplusTrace?: string): Stream<n
 }
 
 /**
+ * @tsplus static fncts.io.StreamOps fromReadableStream
+ */
+export function fromReadableStream<A, E>(
+  evaluate: Lazy<ReadableStream<A>>,
+  onError: (error: unknown) => E,
+): Stream<never, E, A> {
+  return Stream.unwrapScoped(
+    IO(evaluate().getReader())
+      .acquireRelease((reader) => IO.fromPromiseHalt(reader.cancel()))
+      .map((reader) =>
+        Stream.repeatIOMaybe(
+          IO.fromPromiseCatch(reader.read(), (reason) => Just(onError(reason))).flatMap(({ done, value }) =>
+            done ? IO.failNow(Nothing()) : IO.succeedNow(value),
+          ),
+        ),
+      ),
+  );
+}
+
+/**
  * Creates a single-valued stream from a managed resource
  *
  * @tsplus static fncts.io.StreamOps scoped
@@ -3283,6 +3303,41 @@ export function toQueueUnbounded<R, E, A>(
     const queue = Δ(IO.acquireRelease(Queue.makeUnbounded<Take<E, A>>(), (_) => _.shutdown));
     Δ(stream.runIntoQueueScoped(queue).fork);
     return queue;
+  });
+}
+
+/**
+ * @tsplus getter fncts.io.Stream toReadableStream
+ */
+export function toReadableStream<E, A>(self: Stream<never, E, A>, __tsplusTrace?: string): ReadableStream<A> {
+  let pull: UIO<void>;
+  let scope: Scope.Closeable;
+  return new ReadableStream<A>({
+    start(controller) {
+      scope = Scope.make.unsafeRun.getOrThrow;
+      pull  = self.toPull
+        .provideScope(scope)
+        .unsafeRun.getOrThrow.tap((chunk) =>
+          IO(
+            chunk.forEach((a) => {
+              controller.enqueue(a);
+            }),
+          ),
+        )
+        .tapErrorCause(() => scope.close(Exit.unit))
+        .catchAll((error) =>
+          error.match(
+            () => IO(controller.close()),
+            (error) => IO(controller.error(error)),
+          ),
+        ).asUnit;
+    },
+    pull() {
+      return pull.unsafeRunPromise();
+    },
+    cancel() {
+      return scope.close(Exit.unit).unsafeRunPromise();
+    },
   });
 }
 

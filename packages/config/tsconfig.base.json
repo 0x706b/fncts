@@ -7,7 +7,7 @@
     "module": "ESNext",
     "target": "ES2020",
     "preserveSymlinks": true,
-    "lib": ["ES2021", "ESNext.WeakRef"],
+    "lib": ["ES2021", "ESNext.WeakRef", "DOM"],
     "noUncheckedIndexedAccess": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
@@ -36,7 +36,9 @@
       "@fncts/react/*": ["../react/src/*"],
       "@fncts/react": ["../react/src/index"],
       "@fncts/cache/*": ["../cache/src/*"],
-      "@fncts/cache": ["../cache/src/index"]
+      "@fncts/cache": ["../cache/src/index"],
+      "@fncts/http/*": ["../http/src/*"],
+      "@fncts/http": ["../http/src/index"]
     }
   },
   "exclude": ["node_modules", "build"],

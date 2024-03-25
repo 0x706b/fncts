@@ -1,3 +1,5 @@
+import { Cache } from "@fncts/query/Cache";
+
 /**
  * @tsplus static fncts.query.QueryOps cachingEnabled
  */
