@@ -223,9 +223,9 @@ export function value<E, A>(self: Exit<E, A>): A | undefined {
 /**
  * Returns the Exit's Success value if it exists, or throws the pretty-printed Cause if it doesn't
  *
- * @tsplus getter fncts.Exit valueOrThrow
+ * @tsplus getter fncts.Exit getOrThrow
  */
-export function valueOrThrow<E, A>(self: Exit<E, A>): A {
+export function getOrThrow<E, A>(self: Exit<E, A>): A {
   if (self.isFailure()) {
     throw new IOError(self.cause);
   }

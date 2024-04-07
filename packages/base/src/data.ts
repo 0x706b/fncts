@@ -42,6 +42,7 @@ export type {} from "./data/Decoder.js";
 export type {} from "./data/DecodeError.js";
 export type {} from "./data/DatumEither.js";
 export type {} from "./data/Date.js";
+export type {} from "./data/Data.js";
 export type {} from "./data/Const.js";
 export type {} from "./data/Cause.js";
 export type {} from "./data/CaseClass.js";

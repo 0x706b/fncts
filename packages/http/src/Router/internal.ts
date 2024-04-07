@@ -1,6 +1,7 @@
 import type { HttpApp } from "../HttpApp.js";
 import type { ServerResponse } from "../ServerResponse.js";
 
+import { IO } from "@fncts/io/IO";
 import * as FindMyWay from "find-my-way-ts";
 
 import { type PathInput, type Route, RouteContext } from "../Route.js";
@@ -10,6 +11,8 @@ import { ServerRequest } from "../ServerRequest.js";
 import { Router } from "./definition.js";
 
 export class RouterInternal<R, E> extends Router<R, E> {
+  readonly httpApp: IO<Exclude<R, RouteContext>, E | RouteNotFound, ServerResponse>;
+
   constructor(
     readonly routes: Conc<Route<R, E>>,
     readonly mounts: Conc<
@@ -17,10 +20,11 @@ export class RouterInternal<R, E> extends Router<R, E> {
     >,
   ) {
     super();
+    this.httpApp = toHttpApp(this) as any;
   }
 
-  get httpApp(): HttpApp.Default<R, E | RouteNotFound> {
-    return toHttpApp(this);
+  get toIO(): IO<Exclude<R, RouteContext>, RouteNotFound | E, ServerResponse> {
+    return this.httpApp;
   }
 }
 

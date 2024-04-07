@@ -1,3 +1,4 @@
+import { Middleware } from "@fncts/http/Middleware";
 import { get, Router } from "@fncts/http/Router";
 import { Server } from "@fncts/http/Server";
 import { ServerRequest } from "@fncts/http/ServerRequest";
@@ -16,7 +17,7 @@ const route = get(
 
 const router = route(Router.empty);
 
-const serve = router.httpApp.serveIO();
+const serve = router.serveIO();
 
 const io = server.flatMap((server) => serve.provideService(server, Server.Tag)).flatMap(() => IO.never).scoped;
 

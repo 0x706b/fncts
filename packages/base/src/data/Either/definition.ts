@@ -26,10 +26,11 @@ type IOTypeId = typeof IOTypeId;
  * @tsplus type fncts.Either
  * @tsplus companion fncts.EitherOps
  */
-export class Either<E, A> {
+export abstract class Either<E, A> {
   readonly [EitherTypeId]: EitherTypeId = EitherTypeId;
   readonly [IOTypeId]: IOTypeId         = IOTypeId;
   readonly trace?: string | undefined   = undefined;
+  readonly _ioOpCode                    = null;
   declare [EitherVariance]: {
     readonly _E: (_: never) => E;
     readonly _A: (_: never) => A;

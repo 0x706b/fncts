@@ -25,7 +25,7 @@ export type STMTypeId = typeof STMTypeId;
  */
 export abstract class STM<R, E, A> {
   readonly [IOTypeId]: IOTypeId = IOTypeId;
-  readonly _tag                 = IOTag.Commit;
+  readonly _ioOpCode            = IOTag.Commit;
   readonly trace?: string;
   readonly [STMTypeId]: STMTypeId = STMTypeId;
   declare [IOVariance]: {

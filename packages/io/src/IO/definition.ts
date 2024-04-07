@@ -51,7 +51,7 @@ declare module "@fncts/base/data/Exit/definition" {
 }
 
 declare module "@fncts/base/data/Tag/definition" {
-  interface Tag<T, Identifier = T> extends IO<never, never, T> {}
+  export interface Tag<T, Identifier = T> extends IO<T, never, T> {}
 }
 
 /**
@@ -100,11 +100,12 @@ export const enum IOTag {
   Commit,
   RevertFlags,
   UpdateTrace,
+  External,
 }
 
 export type IOOp<Tag extends string | number, Body = {}> = IO<never, never, never> &
   Body & {
-    readonly _tag: Tag;
+    readonly _ioOpCode: Tag;
   };
 
 export class IOPrimitive {
@@ -112,8 +113,8 @@ export class IOPrimitive {
   public i1: any                   = undefined;
   public i2: any                   = undefined;
   public trace: string | undefined = undefined;
-  [IOTypeId] = IOTypeId;
-  constructor(readonly _tag: Primitive["_tag"]) {}
+  readonly [IOTypeId]: IOTypeId    = IOTypeId;
+  constructor(readonly _ioOpCode: unknown) {}
 }
 
 export function isIO(u: unknown): u is IO<any, any, any> {
@@ -257,6 +258,7 @@ export type Primitive =
   | WhileLoop
   | YieldNow
   | Fail
+  | External<any, any, any>
   | STM<any, any, any>
   | Left<any>
   | Right<any>
@@ -277,3 +279,17 @@ export function concrete(io: IO<any, any, any>): Primitive {
 export type EvaluationStep = OnSuccessAndFailure | OnFailure | OnSuccess;
 
 export type Canceler<R> = URIO<R, void>;
+
+export abstract class External<R, E, A> extends IOPrimitive implements IO<R, E, A> {
+  declare _ioOpCode: IOTag.External;
+  declare [IOVariance]: {
+    _R: () => R;
+    _E: () => E;
+    _A: () => A;
+  };
+
+  constructor() {
+    super(IOTag.External);
+  }
+  abstract toIO: IO<R, E, A>;
+}

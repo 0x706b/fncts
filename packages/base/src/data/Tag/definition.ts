@@ -16,6 +16,7 @@ type IOTypeId = typeof IOTypeId;
  * @tsplus companion fncts.TagOps
  */
 export class Tag<in out T, in out Identifier = T> implements Hashable, Equatable {
+  readonly _ioOpCode                  = null;
   readonly _tag                       = "Tag";
   readonly [TagTypeId]: TagTypeId     = TagTypeId;
   readonly [IOTypeId]: IOTypeId       = IOTypeId;
@@ -43,4 +44,11 @@ export declare namespace Tag {
 
 export function isTag(u: unknown): u is Tag<unknown> {
   return isObject(u) && TagTypeId in u;
+}
+
+/**
+ * @tsplus unify fncts.Tag
+ */
+export function unifyIO<X extends Tag<any, any>>(self: X): X {
+  return self;
 }

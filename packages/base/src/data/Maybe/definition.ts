@@ -32,6 +32,7 @@ export abstract class Maybe<A> {
   declare [MaybeVariance]: {
     readonly _A: (_: never) => A;
   };
+  readonly _ioOpCode                  = null;
   readonly [MaybeTypeId]: MaybeTypeId = MaybeTypeId;
   readonly [IOTypeId]: IOTypeId       = IOTypeId;
   readonly trace?: string | undefined = undefined;

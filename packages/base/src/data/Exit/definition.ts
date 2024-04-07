@@ -35,6 +35,7 @@ const _successHash = Hashable.string("fncts.Exit.Success");
  */
 export class Failure<E> {
   readonly [ExitTypeId]: ExitTypeId = ExitTypeId;
+  readonly _ioOpCode                = null;
   declare [ExitVariance]: {
     readonly _E: (_: never) => E;
     readonly _A: (_: never) => never;
@@ -60,6 +61,7 @@ export class Failure<E> {
  */
 export class Success<A> implements P.Hashable, P.Equatable {
   readonly [ExitTypeId]: ExitTypeId = ExitTypeId;
+  readonly _ioOpCode                = null;
   declare [ExitVariance]: {
     readonly _E: (_: never) => never;
     readonly _A: (_: never) => A;
