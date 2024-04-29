@@ -34,6 +34,7 @@
     "@fncts/typelevel": "workspace:*",
     "find-my-way": "^8.1.0",
     "find-my-way-ts": "^0.1.1",
+    "isows": "^1.0.4",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

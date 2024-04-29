@@ -89,6 +89,8 @@ export interface RuntimeFiber<E, A> extends FiberCommon<E, A> {
    * The trace of the Fiber
    */
   readonly trace: UIO<Trace>;
+
+  addObserver(observer: (exit: Exit<E, A>) => void): void;
 }
 
 export class SyntheticFiber<E, A> implements FiberCommon<E, A> {

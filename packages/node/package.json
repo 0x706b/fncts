@@ -28,11 +28,13 @@
     "clean": "rm -rf ./build ./dist"
   },
   "dependencies": {
-    "@fncts/io": "workspace:*"
+    "@fncts/io": "workspace:*",
+    "ws": "^8.17.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@fncts/scripts": "workspace:*"
+    "@fncts/scripts": "workspace:*",
+    "@types/ws": "^8"
   }
 }

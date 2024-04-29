@@ -1397,6 +1397,7 @@ __metadata:
     "@types/uuid": "npm:^9.0.8"
     find-my-way: "npm:^8.1.0"
     find-my-way-ts: "npm:^0.1.1"
+    isows: "npm:^1.0.4"
     uuid: "npm:^9.0.1"
   languageName: unknown
   linkType: soft
@@ -1422,6 +1423,8 @@ __metadata:
     "@fncts/eslint-config": "workspace:*"
     "@fncts/io": "workspace:*"
     "@fncts/scripts": "workspace:*"
+    "@types/ws": "npm:^8"
+    ws: "npm:^8.17.0"
   languageName: unknown
   linkType: soft
 
@@ -2426,6 +2429,15 @@ __metadata:
   version: 9.0.8
   resolution: "@types/uuid@npm:9.0.8"
   checksum: 203bfc0b46eb171ddf2e96e95f9bd40eff40fedd1791e4aad2355b5dab3f49a6e3c1c529a4a969388c66df92c8f3c5823461a38cfade1a5a27c6bb3c103a6efb
+  languageName: node
+  linkType: hard
+
+"@types/ws@npm:^8":
+  version: 8.5.10
+  resolution: "@types/ws@npm:8.5.10"
+  dependencies:
+    "@types/node": "npm:*"
+  checksum: 08af4a608adc8c8268ec9fbe653078d1cc7fdc367008b52a5188c7ed591d9e20e1e2b46e2518c38f5749ce96bb10fb713b664df6aa95c14f69ab48ed8335e911
   languageName: node
   linkType: hard
 
@@ -7588,6 +7600,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"isows@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "isows@npm:1.0.4"
+  peerDependencies:
+    ws: "*"
+  checksum: 9cf10fbc3dcccc982bdb50fdb91ab9c4eeb4d0fdb2716f90886aba72513bc04789f891abfbc174d382e1def30d7c024c4687ffb97552aa833a4a1ed6ac0d57f9
+  languageName: node
+  linkType: hard
+
 "istanbul-lib-coverage@npm:^3.0.0, istanbul-lib-coverage@npm:^3.2.0":
   version: 3.2.0
   resolution: "istanbul-lib-coverage@npm:3.2.0"
@@ -11841,6 +11862,21 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: d67af3da809fbc571486e5e25ed0be62b1d400b8136f4c9e0812c901377dbff5d7e75152c8b478a2ecce643318f3878d216aaa4c44e9e346efb83f609ff59293
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.17.0":
+  version: 8.17.0
+  resolution: "ws@npm:8.17.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: d9cff8cc9fe302e4fdcc259c40537e6859098eb2f7e9ef76f94d89389cea7e2cd5eaa657a666afe4b714a568cde18858e58b538d0676b92268c1cbc8270bfb75
   languageName: node
   linkType: hard
 

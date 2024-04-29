@@ -1,22 +1,28 @@
 import type { FormData } from "@fncts/http/Body";
+import type { HttpApp } from "@fncts/http/HttpApp";
+import type { Middleware } from "@fncts/http/Middleware";
 import type { ServerResponse } from "@fncts/http/ServerResponse";
-import type * as Http from "node:http";
 import type * as Net from "node:net";
+import type { Duplex } from "node:stream";
 
 import { BodyTag } from "@fncts/http/Body";
-import { HttpApp } from "@fncts/http/HttpApp";
-import { Middleware } from "@fncts/http/Middleware";
+import { IncomingMessage } from "@fncts/http/IncomingMessage";
 import { ResponseError } from "@fncts/http/ResponseError";
 import { Server } from "@fncts/http/Server";
 import { clientAbortFiberId, ServeError } from "@fncts/http/ServerError";
 import { ServerRequest } from "@fncts/http/ServerRequest";
+import { Socket } from "@fncts/http/Socket";
 import { ServerRequestImpl } from "@fncts/node/http/ServerRequest";
 import * as NodeStream from "@fncts/node/stream";
+import * as Http from "node:http";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
+import * as ws from "ws";
 
 export function make(evaluate: Lazy<Http.Server>, options: Net.ListenOptions): IO<Scope, ServeError, Server> {
   return Do((Δ) => {
+    const scope = Δ(IO.scope);
+
     const server = Δ(
       IO.acquireRelease(IO(evaluate), (server) =>
         IO.async<never, never, void>((resume) => {
@@ -44,6 +50,16 @@ export function make(evaluate: Lazy<Http.Server>, options: Net.ListenOptions): I
 
     const address = server.address()!;
 
+    const wss = Δ(
+      scope.extend(
+        IO.acquireRelease(IO(new ws.WebSocketServer({ noServer: true })), (wss) =>
+          IO.async<never, never, void>((resume) => {
+            wss.close(() => resume(IO.unit));
+          }),
+        ),
+      ).memoize,
+    );
+
     return Server({
       address:
         typeof address === "string"
@@ -55,15 +71,18 @@ export function make(evaluate: Lazy<Http.Server>, options: Net.ListenOptions): I
             },
       serve: (httpApp, middleware) =>
         Do((Δ) => {
-          const handler = Δ(makeHandler(httpApp, middleware!));
+          const handler        = Δ(makeHandler(httpApp, middleware!));
+          const upgradeHandler = Δ(makeUpgradeHandler(wss, httpApp, middleware!));
           Δ(
             IO.addFinalizer(
               IO(() => {
                 server.off("request", handler);
+                server.off("upgrade", upgradeHandler);
               }),
             ),
           );
           Δ(IO(server.on("request", handler)));
+          Δ(IO(server.on("upgrade", upgradeHandler)));
         }),
     });
   });
@@ -92,12 +111,16 @@ export function makeHandler<R, E, App extends HttpApp.Default<any, any>>(
   never,
   (nodeRequest: Http.IncomingMessage, nodeResponse: Http.ServerResponse) => void
 > {
-  const handledApp = (middleware ? middleware(respond(httpApp)) : respond(httpApp)).scoped;
-  // @ts-expect-error
-  return IO.runtime<R>().map((runtime) => {
-    const run = runtime.unsafeRunFiber;
-    return function handler(nodeRequest, nodeResponse) {
-      const fiber = run(
+  const handledApp = httpApp.toHandled((request, exit) => {
+    if (exit.isSuccess()) {
+      return handleResponse(request, exit.value).catchAllCause((cause) => handleCause(request, cause));
+    }
+    return handleCause(request, exit.cause);
+  }, middleware as Middleware);
+
+  return FiberSet.makeRuntime<R, any, any>().map((runFork) => {
+    return function handler(nodeRequest: Http.IncomingMessage, nodeResponse: Http.ServerResponse) {
+      const fiber = runFork(
         handledApp.provideSomeService(new ServerRequestImpl(nodeRequest, nodeResponse), ServerRequest.Tag),
       );
       nodeResponse.on("close", () => {
@@ -106,34 +129,86 @@ export function makeHandler<R, E, App extends HttpApp.Default<any, any>>(
             nodeResponse.writeHead(499);
           }
           nodeResponse.end();
-          run(fiber.interruptAsFork(clientAbortFiberId));
+          fiber.interruptAsFork(clientAbortFiberId).unsafeRunOrFork;
+        }
+      });
+    };
+  }) as IO<
+    Exclude<R, ServerRequest | Scope>,
+    never,
+    (nodeRequest: Http.IncomingMessage, nodeResponse: Http.ServerResponse) => void
+  >;
+}
+
+export function makeUpgradeHandler<R, E>(
+  wss: UIO<ws.WebSocketServer>,
+  httpApp: HttpApp.Default<R, E>,
+  middleware?: Middleware,
+) {
+  const handledApp = httpApp.toHandled((request, exit) => {
+    if (exit.isSuccess()) {
+      return handleResponse(request, exit.value).catchAllCause((cause) => handleCause(request, cause));
+    }
+    return handleCause(request, exit.cause);
+  }, middleware);
+
+  return FiberSet.makeRuntime<R, any, any>().map((runFork) => {
+    return function handler(nodeRequest: Http.IncomingMessage, socket: Duplex, head: Buffer) {
+      let nodeResponse_: Http.ServerResponse | undefined = undefined;
+
+      const nodeResponse = () => {
+        if (nodeResponse_ === undefined) {
+          nodeResponse_ = new Http.ServerResponse(nodeRequest);
+          nodeResponse_.assignSocket(socket as any);
+        }
+        return nodeResponse_;
+      };
+
+      const upgradeEffect = Socket.fromWebSocket(
+        wss.flatMap((wss) =>
+          IO.acquireRelease(
+            IO.async<never, never, globalThis.WebSocket>((resume) => {
+              wss.handleUpgrade(nodeRequest, socket, head, (ws) => {
+                resume(IO.succeedNow(ws as any));
+              });
+            }),
+            (ws) => IO(ws.close()),
+          ),
+        ),
+      );
+
+      const fiber = runFork(
+        handledApp.provideSomeService(
+          new ServerRequestImpl(nodeRequest, nodeResponse, upgradeEffect),
+          ServerRequest.Tag,
+        ),
+      );
+
+      socket.on("close", () => {
+        const res = nodeResponse();
+        if (!socket.writableEnded) {
+          if (!res.headersSent) {
+            res.writeHead(499);
+          }
+          res.end();
+          fiber.interruptAsFork(clientAbortFiberId).unsafeRunOrFork;
         }
       });
     };
   });
 }
 
-export const respond = Middleware((httpApp) => {
-  return IO.uninterruptibleMask((restore) =>
-    IO.service(ServerRequest.Tag).flatMap((request) =>
-      restore(
-        httpApp
-          .flatMap((response) => HttpApp.preResponseHandler.flatMap((f) => f(request, response)))
-          .tap((response) => handleResponse(request, response)),
-      ).tapErrorCause((cause) =>
-        IO(() => {
-          const nodeResponse = (request as ServerRequestImpl).resolvedResponse;
-          if (!nodeResponse.headersSent) {
-            nodeResponse.writeHead(cause.isInterruptedOnly ? 503 : 500);
-          }
-          if (!nodeResponse.writableEnded) {
-            nodeResponse.end();
-          }
-        }),
-      ),
-    ),
-  );
-});
+function handleCause<E>(request: ServerRequest, cause: Cause<E>) {
+  return IO(() => {
+    const nodeResponse = (request as ServerRequestImpl).resolvedResponse;
+    if (!nodeResponse.headersSent) {
+      nodeResponse.writeHead(cause.isInterruptedOnly ? 503 : 500);
+    }
+    if (!nodeResponse.writableEnded) {
+      nodeResponse.end();
+    }
+  });
+}
 
 export function handleResponse(request: ServerRequest, response: ServerResponse) {
   return IO.defer((): IO<never, ResponseError, void> => {

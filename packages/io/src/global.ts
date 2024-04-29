@@ -54,6 +54,10 @@ import { FiberScope } from "@fncts/io/FiberScope";
 /**
  * @tsplus global
  */
+import { FiberSet } from "@fncts/io/FiberSet";
+/**
+ * @tsplus global
+ */
 import { Future } from "@fncts/io/Future";
 /**
  * @tsplus global

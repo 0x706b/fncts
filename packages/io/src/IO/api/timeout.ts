@@ -28,6 +28,14 @@ export function timeoutTo<A, B, B1>(duration: Lazy<Duration>, b: Lazy<B>, f: (a:
 }
 
 /**
+ * @tsplus pipeable fncts.io.IO timeoutFail
+ */
+export function timeoutFail<E1>(duration: Lazy<Duration>, b: Lazy<E1>) {
+  return <R, E, A>(self: IO<R, E, A>): IO<R, E | E1, A> =>
+    self.timeoutTo(duration, IO.fail(b), (a) => IO.succeedNow(a)).flatten;
+}
+
+/**
  * @tsplus pipeable fncts.io.IO timeout
  */
 export function timeout(duration: Lazy<Duration>, __tsplusTrace?: string) {

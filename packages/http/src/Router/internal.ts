@@ -56,14 +56,18 @@ function toHttpApp<R, E>(self: Router<R, E>): HttpApp.Default<R, E | RouteNotFou
       router.on(route.method, route.path, route);
     }
   });
-  return IO.service(ServerRequest.Tag).flatMap((request) => {
+  return IO.withFiberRuntime<R | ServerRequest, E | RouteNotFound, ServerResponse>((fiber) => {
+    let context   = fiber.getFiberRef(FiberRef.currentEnvironment);
+    const request = context.unsafeGet(ServerRequest.Tag);
     if (mountsLen > 0) {
       for (let i = 0; i < mountsLen; i++) {
-        const [path, context, options] = mounts[i];
+        const [path, routeContext, options] = mounts[i];
         if (request.url.startsWith(path)) {
-          return (context.route.handler as HttpApp.Default<R, E>)
-            .provideSomeService(context, RouteContext.Tag)
-            .provideSomeService(options?.inclduePrefix ? request : sliceRequestUrl(request, path), ServerRequest.Tag);
+          context = context.add(routeContext, RouteContext.Tag);
+          if (options?.inclduePrefix !== true) {
+            context = context.add(sliceRequestUrl(request, path), ServerRequest.Tag);
+          }
+          return FiberRef.currentEnvironment.locally(context)(routeContext.route.handler as HttpApp.Default<R, E>);
         }
       }
     }
@@ -77,12 +81,10 @@ function toHttpApp<R, E>(self: Router<R, E>): HttpApp.Default<R, E | RouteNotFou
     }
     const route = result.handler;
     if (route.prefix.isJust()) {
-      request = sliceRequestUrl(request, route.prefix.value);
+      context = context.add(sliceRequestUrl(request, route.prefix.value), ServerRequest.Tag);
     }
-    return (route.handler as IO<Router.ExcludeProvided<R>, E, ServerResponse>).contramapEnvironment((environment) =>
-      environment
-        .add(request, ServerRequest.Tag)
-        .add(new RouteContextImpl(route, result.params, result.searchParams), RouteContext.Tag),
+    return FiberRef.currentEnvironment.locally(context)(
+      route.handler as IO<Router.ExcludeProvided<R>, E, ServerResponse>,
     );
   });
 }
