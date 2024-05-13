@@ -6,6 +6,7 @@ import { Complete, MapValueTag, Pending, Refreshing } from "@fncts/cache/Cache/M
 import { CacheStats } from "@fncts/cache/CacheStats";
 import { EntryStats } from "@fncts/cache/EntryStats";
 import { MapKey } from "@fncts/cache/MapKey";
+import { Cache } from "@fncts/cache/Cache";
 
 export class CacheImplementation<In, Key, Environment, Error, Value> extends Cache<In, Error, Value> {
   cacheState = CacheState.initial<Key, Error, Value>();
@@ -37,7 +38,7 @@ export class CacheImplementation<In, Key, Environment, Error, Value> extends Cac
       if (key !== null) {
         if (this.cacheState.map.delete(key.value).isJust()) {
           size -= 1;
-          loop  = size > this.capacity;
+          loop = size > this.capacity;
         }
       } else {
         loop = false;
@@ -83,14 +84,14 @@ export class CacheImplementation<In, Key, Environment, Error, Value> extends Cac
 
   get(inp: In, __tsplusTrace?: string | undefined): FIO<Error, Value> {
     return IO.defer(() => {
-      const k                                 = this.keyBy(inp);
-      let key: MapKey<Key> | null             = null;
+      const k = this.keyBy(inp);
+      let key: MapKey<Key> | null = null;
       let future: Future<Error, Value> | null = null;
       let value = this.cacheState.map.get(k);
       if (value.isNothing()) {
         future = Future.unsafeMake(this.fiberId);
-        key    = new MapKey(k);
-        value  = this.cacheState.map.get(k).match(
+        key = new MapKey(k);
+        value = this.cacheState.map.get(k).match(
           () => this.cacheState.map.set(k, new Pending(key!, future!)),
           (value) => Just(value),
         );
@@ -137,9 +138,9 @@ export class CacheImplementation<In, Key, Environment, Error, Value> extends Cac
 
   refresh(inp: In, __tsplusTrace?: string | undefined): FIO<Error, void> {
     return IO.defer(() => {
-      const k      = this.keyBy(inp);
+      const k = this.keyBy(inp);
       const future = Future.unsafeMake<Error, Value>(this.fiberId);
-      let value    = this.cacheState.map.get(k);
+      let value = this.cacheState.map.get(k);
       if (value.isNothing()) {
         value = this.cacheState.map.set(k, new Pending(new MapKey(k), future));
       }

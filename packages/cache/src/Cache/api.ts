@@ -1,6 +1,4 @@
-import type { Maybe } from "@fncts/base/data/Maybe";
 import type { Lookup } from "@fncts/cache/Lookup";
-import type { FIO, UIO } from "@fncts/io/IO";
 
 import { Cache } from "@fncts/cache/Cache/definition";
 import { CacheImplementation } from "@fncts/cache/Cache/internal";
