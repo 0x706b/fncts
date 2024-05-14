@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.16
+
+### Patch Changes
+
+- 461c683: chore: bump packages
+
 ## 0.0.15
 
 ### Patch Changes

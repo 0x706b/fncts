@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.21
+
+### Patch Changes
+
+- 461c683: chore: bump packages
+
 ## 0.0.20
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @fncts/react
 
+## 0.0.14
+
+### Patch Changes
+
+- 461c683: chore: bump packages
+- Updated dependencies [461c683]
+  - @fncts/base@0.0.34
+  - @fncts/io@0.0.42
+  - @fncts/typelevel@0.0.17
+
 ## 0.0.13
 
 ### Patch Changes

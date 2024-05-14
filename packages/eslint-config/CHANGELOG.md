@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.18
+
+### Patch Changes
+
+- 461c683: chore: bump packages
+- Updated dependencies [461c683]
+  - @fncts/codegen@0.0.18
+
 ## 0.0.17
 
 ### Patch Changes
