@@ -1,5 +1,13 @@
 # @fncts/transformers
 
+## 0.0.8
+
+### Patch Changes
+
+- 461c683: chore: bump packages
+- Updated dependencies [461c683]
+  - @fncts/typelevel@0.0.17
+
 ## 0.0.7
 
 ### Patch Changes

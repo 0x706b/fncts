@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.35
+
+### Patch Changes
+
+- 461c683: chore: bump packages
+- Updated dependencies [461c683]
+  - @fncts/io@0.0.42
+
 ## 0.0.34
 
 ### Patch Changes

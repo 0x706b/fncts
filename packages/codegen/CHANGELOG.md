@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.18
+
+### Patch Changes
+
+- 461c683: chore: bump packages
+
 ## 0.0.17
 
 ### Patch Changes
