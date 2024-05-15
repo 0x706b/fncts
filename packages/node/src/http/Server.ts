@@ -19,6 +19,14 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import * as ws from "ws";
 
+/**
+ * @tsplus companion fncts.node.http.ServerOps
+ */
+export interface NodeHttpServer {}
+
+/**
+ * @tsplus static fncts.node.http.ServerOps make
+ */
 export function make(evaluate: Lazy<Http.Server>, options: Net.ListenOptions): IO<Scope, ServeError, Server> {
   return Do((Δ) => {
     const scope = Δ(IO.scope);
@@ -71,7 +79,7 @@ export function make(evaluate: Lazy<Http.Server>, options: Net.ListenOptions): I
             },
       serve: (httpApp, middleware) =>
         Do((Δ) => {
-          const handler        = Δ(makeHandler(httpApp, middleware!));
+          const handler = Δ(makeHandler(httpApp, middleware!));
           const upgradeHandler = Δ(makeUpgradeHandler(wss, httpApp, middleware!));
           Δ(
             IO.addFinalizer(
@@ -88,6 +96,9 @@ export function make(evaluate: Lazy<Http.Server>, options: Net.ListenOptions): I
   });
 }
 
+/**
+ * @tsplus static fncts.node.http.ServerOps makeHandler
+ */
 export function makeHandler<R, E>(
   httpApp: HttpApp.Default<R, E>,
 ): IO<
@@ -250,7 +261,7 @@ export function handleResponse(request: ServerRequest, response: ServerResponse)
       }
       case BodyTag.FormData: {
         return IO.async<never, ResponseError, void>((resume) => {
-          const r       = new Response((response.body as FormData).formData);
+          const r = new Response((response.body as FormData).formData);
           const headers = {
             ...response.headers,
             ...Object.fromEntries(r.headers as any),

@@ -1,4 +1,5 @@
 import type { Running } from "../FiberStatus.js";
+import type { ShowOptions} from "@fncts/base/data/Showable.js";
 import type * as P from "@fncts/base/typeclass";
 import type { _E, _R } from "@fncts/base/types";
 import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
@@ -6,6 +7,7 @@ import type { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
 import { IOError } from "@fncts/base/data/exceptions";
 import { identity, pipe, tuple } from "@fncts/base/data/function";
+import { showWithOptions } from "@fncts/base/data/Showable";
 import { IOPrimitive, IOTag } from "@fncts/io/IO/definition";
 import { IO } from "@fncts/io/IO/definition";
 
@@ -318,6 +320,7 @@ export function flatMap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>, __tsplusTrace?
     io.i0    = ma;
     io.i1    = f;
     io.trace = __tsplusTrace;
+
     return io;
   };
 }
@@ -1096,6 +1099,13 @@ export function log(message: Lazy<string>, __tsplusTrace?: string): UIO<void> {
     fiber.log(message, Cause.empty(), Nothing(), __tsplusTrace);
     return IO.unit;
   });
+}
+
+/**
+ * @tsplus static fncts.io.IOOps show
+ */
+export function show(message: Lazy<unknown>, options?: Partial<ShowOptions>, __tsplusTrace?: string): UIO<void> {
+  return IO.log(showWithOptions(message, options));
 }
 
 /**
