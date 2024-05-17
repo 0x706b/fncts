@@ -1,7 +1,5 @@
 import type { Literal, ParseOptions, TemplateLiteral, TypeLiteral } from "../AST.js";
 import type { Brand, Validation } from "@fncts/base/data/Branded";
-import type { Check } from "@fncts/typelevel";
-import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
 
 import { show } from "@fncts/base/data/Showable";
 
@@ -51,11 +49,7 @@ export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Sch
 export function filter<A>(predicate: Predicate<A>): (self: Schema<A>) => Schema<A>;
 export function filter<A>(predicate: Predicate<A>) {
   return (self: Schema<A>): Schema<A> => {
-    const ast: AST = AST.createRefinement(
-      self.ast,
-      (a: A) => (predicate(a) ? ParseResult.succeed(a) : ParseResult.fail(ParseError.TypeError(ast, a))),
-      false,
-    );
+    const ast: AST = AST.createRefinement(self.ast, predicate, false);
     return Schema.fromAST(ast);
   };
 }
@@ -67,7 +61,7 @@ export function brand<A, K extends string>(validation: Validation<A, K>) {
   return (self: Schema<A>): Schema<A & Brand.Valid<A, K>> => {
     const ast = AST.createRefinement(
       self.ast,
-      (a: A) => (validation.validate(a) ? ParseResult.succeed(a) : ParseResult.fail(ParseError.TypeError(ast, a))),
+      validation.validate,
       false,
       self.ast.annotations.annotate(ASTAnnotation.Brand, Vector(validation)),
     );

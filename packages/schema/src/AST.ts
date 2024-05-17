@@ -623,6 +623,11 @@ export function createTuple(
   return new Tuple(elements, rest, isReadonly, annotations);
 }
 
+/**
+ * @tsplus static fncts.schema.ASTOps unknownArray
+ */
+export const unknownArray = AST.createTuple(Vector.empty(), Just(Vector(AST.unknownKeyword)), true);
+
 /*
  * PropertySignature
  */
@@ -732,6 +737,17 @@ export function createTypeLiteral(
   return new TypeLiteral(propertySignatures, indexSignatures, annotations);
 }
 
+/**
+ * @tsplus static fncts.schema.ASTOps unknownRecord
+ */
+export const unknownRecord = AST.createTypeLiteral(
+  Vector.empty(),
+  Vector(
+    AST.createIndexSignature(AST.stringKeyword, AST.unknownKeyword, true),
+    AST.createIndexSignature(AST.symbolKeyword, AST.unknownKeyword, true),
+  ),
+);
+
 /*
  * Union
  */
@@ -814,17 +830,21 @@ export class Refinement extends AST {
   readonly _tag = ASTTag.Refinement;
   constructor(
     readonly from: AST,
-    readonly decode: (input: any, options?: ParseOptions) => ParseResult<any>,
+    readonly predicate: (input: any) => boolean,
     readonly isReversed: boolean,
     readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
   ) {
     super();
   }
 
+  decode(input: any, options?: ParseOptions): ParseResult<any> {
+    return this.predicate(input) ? ParseResult.succeed(input) : ParseResult.fail(ParseError.TypeError(this, input));
+  }
+
   clone(newProperties: Partial<this>): AST {
     return new Refinement(
       newProperties.from ?? this.from,
-      newProperties.decode ?? this.decode,
+      newProperties.predicate ?? this.predicate,
       newProperties.isReversed ?? this.isReversed,
       newProperties.annotations ?? this.annotations,
     );
@@ -836,11 +856,11 @@ export class Refinement extends AST {
  */
 export function createRefinement(
   from: AST,
-  decode: (input: any, options?: ParseOptions) => ParseResult<any>,
+  predicate: (input: any) => boolean,
   isReversed: boolean,
   annotations?: ASTAnnotationMap,
 ): Refinement {
-  return new Refinement(from, decode, isReversed, annotations);
+  return new Refinement(from, predicate, isReversed, annotations);
 }
 
 export function isRefinement(self: AST): self is Refinement {
@@ -1317,7 +1337,7 @@ export function getTo(ast: AST): AST {
     case ASTTag.Lazy:
       return AST.createLazy(() => getTo(ast.getAST()), ast.annotations);
     case ASTTag.Refinement:
-      return AST.createRefinement(getTo(ast.from), ast.decode, false, ast.annotations);
+      return AST.createRefinement(getTo(ast.from), ast.predicate, false, ast.annotations);
     case ASTTag.Transform:
       return getTo(ast.to);
   }
@@ -1352,7 +1372,7 @@ export function reverse(ast: AST): AST {
     case ASTTag.Lazy:
       return AST.createLazy(() => reverse(ast.getAST()), ast.annotations);
     case ASTTag.Refinement:
-      return AST.createRefinement(ast.from, ast.decode, !ast.isReversed, ast.annotations);
+      return AST.createRefinement(ast.from, ast.predicate, !ast.isReversed, ast.annotations);
     case ASTTag.Transform:
       return AST.createTransform(reverse(ast.from), ast.to, ast.decode, ast.encode, !ast.isReversed, ast.annotations);
   }

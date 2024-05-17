@@ -1,4 +1,4 @@
-import type { TemplateLiteral, TemplateLiteralSpan, Validation } from "@fncts/schema/AST";
+import type { Refinement, TemplateLiteral, TemplateLiteralSpan, Transform, Validation } from "@fncts/schema/AST";
 
 import { showWithOptions } from "@fncts/base/data/Showable";
 import { concrete } from "@fncts/schema/AST";
@@ -12,6 +12,8 @@ export const enum ParseErrorTag {
   Missing,
   Unexpected,
   UnionMember,
+  Refinement,
+  Transformation,
 }
 
 /**
@@ -24,8 +26,9 @@ export type ParseError =
   | KeyError
   | MissingError
   | UnexpectedError
-  | UnexpectedError
-  | UnionMemberError;
+  | UnionMemberError
+  | RefinementError
+  | TransformationError;
 
 /**
  * @tsplus companion fncts.schema.ParseError.TypeError
@@ -78,7 +81,7 @@ export class KeyError {
 }
 
 /**
- * @tsplus static fncts.schema.ParseError.IndexError __call
+ * @tsplus static fncts.schema.ParseError.KeyError __call
  * @tsplus static fncts.schema.ParseErrorOps KeyError
  */
 export function keyError(keyAST: AST, key: any, errors: Vector<ParseError>): ParseError {
@@ -130,6 +133,58 @@ export function unionMemberError(errors: Vector<ParseError>): ParseError {
 }
 
 /**
+ * @tsplus companion fncts.schema.ParseError.RefinementError
+ */
+export class RefinementError {
+  readonly _tag = ParseErrorTag.Refinement;
+  constructor(
+    readonly ast: Refinement,
+    readonly actual: unknown,
+    readonly kind: "From" | "Predicate",
+    readonly errors: Vector<ParseError>,
+  ) {}
+}
+
+/**
+ * @tsplus static fncts.schema.ParseError.RefinementError __call
+ * @tsplus static fncts.schema.ParseErrorOps RefinementError
+ */
+export function refinementError(
+  ast: Refinement,
+  actual: unknown,
+  kind: "From" | "Predicate",
+  errors: Vector<ParseError>,
+): ParseError {
+  return new RefinementError(ast, actual, kind, errors);
+}
+
+/**
+ * @tsplus companion fncts.schema.ParseError.TransformationError
+ */
+export class TransformationError {
+  readonly _tag = ParseErrorTag.Transformation;
+  constructor(
+    readonly ast: Transform,
+    readonly actual: unknown,
+    readonly kind: "Encoded" | "Transformation" | "Type",
+    readonly errors: Vector<ParseError>,
+  ) {}
+}
+
+/**
+ * @tsplus static fncts.schema.ParseError.TransformationError __call
+ * @tsplus static fncts.schema.ParseErrorOps TransformationError
+ */
+export function transformationError(
+  ast: Transform,
+  actual: unknown,
+  kind: "Encoded" | "Transformation" | "Type",
+  errors: Vector<ParseError>,
+): ParseError {
+  return new TransformationError(ast, actual, kind, errors);
+}
+
+/**
  * @tsplus static fncts.schema.ParseErrorOps format
  */
 export function format(errors: Vector<ParseError>): string {
@@ -151,6 +206,31 @@ function formatTemplateLiteralSpan(span: TemplateLiteralSpan): string {
 
 function formatTemplateLiteral(ast: TemplateLiteral): string {
   return ast.head + ast.spans.map((span) => formatTemplateLiteralSpan(span) + span.literal).join("");
+}
+
+function formatRefinementKind(error: RefinementError): string {
+  switch (error.kind) {
+    case "From": {
+      return "From side refinement failure";
+    }
+    case "Predicate": {
+      return "Predicate refinement failure";
+    }
+  }
+}
+
+function formatTransformationKind(error: TransformationError): string {
+  switch (error.kind) {
+    case "Encoded": {
+      return "Encoded side transformation failure";
+    }
+    case "Transformation": {
+      return "Transformation process failure";
+    }
+    case "Type": {
+      return "Type side transformation failure";
+    }
+  }
 }
 
 function getExpected(ast: AST): Maybe<string> {
@@ -243,5 +323,9 @@ function go(error: ParseError): RoseTree<string> {
       return RoseTree("is missing");
     case ParseErrorTag.UnionMember:
       return RoseTree("union member", error.errors.map(go));
+    case ParseErrorTag.Refinement:
+      return RoseTree(formatRefinementKind(error), error.errors.map(go));
+    case ParseErrorTag.Transformation:
+      return RoseTree(formatTransformationKind(error), error.errors.map(go));
   }
 }

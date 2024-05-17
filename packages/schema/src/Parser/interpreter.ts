@@ -1,5 +1,4 @@
 import type { Literal } from "../AST.js";
-import type { Hook } from "../ASTAnnotation.js";
 import type { MutableVector } from "@fncts/base/collection/immutable/Vector";
 import type { Validation } from "@fncts/base/data/Branded";
 
@@ -15,6 +14,7 @@ import {
 } from "@fncts/base/util/predicates";
 
 import { ASTTag, concrete } from "../AST.js";
+import { RefinementError, TransformationError } from "../ParseError.js";
 import { getKeysForIndexSignature, getTemplateLiteralRegex, memoize, ownKeys } from "../utils.js";
 
 const go = memoize(function go(ast: AST): Parser<any> {
@@ -57,7 +57,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
       const rest     = ast.rest.map((rest) => rest.map(go));
       return Parser.make((input, options) => {
         if (!Array.isArray(input)) {
-          return ParseResult.fail(ParseError.TypeError(unknownArray, input));
+          return ParseResult.fail(ParseError.TypeError(AST.unknownArray, input));
         }
         const output: Array<any>                = [];
         const errors: MutableVector<ParseError> = Vector.emptyPushable();
@@ -152,7 +152,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
       const indexSignatures        = ast.indexSignatures.map((is) => [go(is.parameter), go(is.type)] as const);
       return Parser.make((input, options) => {
         if (!isRecord(input)) {
-          return ParseResult.fail(ParseError.TypeError(unknownRecord, input));
+          return ParseResult.fail(ParseError.TypeError(AST.unknownRecord, input));
         }
         const output: any                       = {};
         const expectedKeys: any                 = {};
@@ -289,7 +289,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
               }
             }
           } else {
-            errors.push(ParseError.TypeError(unknownRecord, input));
+            errors.push(ParseError.TypeError(AST.unknownRecord, input));
           }
         }
         for (let i = 0; i < otherwise.length; i++) {
@@ -322,7 +322,15 @@ const go = memoize(function go(ast: AST): Parser<any> {
             .flatMap((a) => from(a, options)),
         );
       }
-      return Parser.make((input, options) => from(input, options).flatMap((a) => ast.decode(a, options)));
+      return Parser.make((input, options) =>
+        from(input, options)
+          .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "From", failure.errors))))
+          .flatMap((a) =>
+            ast
+              .decode(a, options)
+              .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "Predicate", failure.errors)))),
+          ),
+      );
     }
     case ASTTag.Transform: {
       const from = go(ast.from);
@@ -330,11 +338,32 @@ const go = memoize(function go(ast: AST): Parser<any> {
         const to = go(ast.to);
         return Parser.make((input, options) =>
           to(input, options)
-            .flatMap((a) => ast.encode(a, options))
-            .flatMap((a) => from(a, options)),
+            .mapLeft((failure) => ParseFailure(Vector(TransformationError(ast, input, "Type", failure.errors))))
+            .flatMap((a) =>
+              ast
+                .encode(a, options)
+                .mapLeft((failure) =>
+                  ParseFailure(Vector(TransformationError(ast, input, "Transformation", failure.errors))),
+                ),
+            )
+            .flatMap((a) =>
+              from(a, options).mapLeft((failure) =>
+                ParseFailure(Vector(TransformationError(ast, input, "Encoded", failure.errors))),
+              ),
+            ),
         );
       }
-      return Parser.make((input, options) => from(input, options).flatMap((a) => ast.decode(a, options)));
+      return Parser.make((input, options) =>
+        from(input, options)
+          .mapLeft((failure) => ParseFailure(Vector(TransformationError(ast, input, "Encoded", failure.errors))))
+          .flatMap((a) =>
+            ast
+              .decode(a, options)
+              .mapLeft((failure) =>
+                ParseFailure(Vector(TransformationError(ast, input, "Transformation", failure.errors))),
+              ),
+          ),
+      );
     }
     case ASTTag.Validation: {
       return Parser.make((u, options) => {
@@ -363,16 +392,6 @@ const go = memoize(function go(ast: AST): Parser<any> {
 export function parserFor(ast: AST): Parser<any> {
   return go(ast);
 }
-
-const unknownArray = AST.createTuple(Vector.empty(), Just(Vector(AST.unknownKeyword)), true);
-
-const unknownRecord = AST.createTypeLiteral(
-  Vector.empty(),
-  Vector(
-    AST.createIndexSignature(AST.stringKeyword, AST.unknownKeyword, true),
-    AST.createIndexSignature(AST.symbolKeyword, AST.unknownKeyword, true),
-  ),
-);
 
 function getLiterals(ast: AST): ReadonlyArray<[PropertyKey, Literal]> {
   AST.concrete(ast);
