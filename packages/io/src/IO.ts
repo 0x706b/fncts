@@ -50,6 +50,7 @@ export * from "./IO/api/foreachConcurrent.js";
 export * from "./IO/api/environment.js";
 export * from "./IO/api/ensuringChildren.js";
 export * from "./IO/api/disconnect.js";
+export * from "./IO/api/diffFiberRefs.js";
 export * from "./IO/api/descriptor.js";
 export * from "./IO/api/delay.js";
 export * from "./IO/api/daemonChildren.js";

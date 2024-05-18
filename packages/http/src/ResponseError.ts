@@ -1,5 +1,5 @@
-import { ServerRequest } from "@fncts/http/ServerRequest";
-import { ServerResponse } from "@fncts/http/ServerResponse";
+import type { ServerRequest } from "@fncts/http/ServerRequest";
+import type { ServerResponse } from "@fncts/http/ServerResponse";
 
 export const ResponseErrorTypeId = Symbol.for("fncts.http.ResponseError");
 export type ResponseErrorTypeId = typeof ResponseErrorTypeId;

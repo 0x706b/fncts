@@ -182,10 +182,10 @@ export const isOnlyInterrupted: Assertion<Exit<any, any>> = Assertion.make("isOn
 
 export function isLeft<A>(assertion: Assertion<A>): Assertion<Either<A, any>> {
   return Assertion.rec("isLeft", [RenderParam(assertion)], assertion, (actual) =>
-    actual.match({
-      Left: (a) => Just(a),
-      Right: () => Nothing(),
-    }),
+    actual.match(
+      (a) => Just(a),
+      () => Nothing(),
+    ),
   );
 }
 
@@ -197,10 +197,10 @@ export const isNothing: Assertion<Maybe<any>> = Assertion.make("isNothing", [], 
 
 export function isRight<A>(assertion: Assertion<A>): Assertion<Either<any, A>> {
   return Assertion.rec("isRight", [RenderParam(assertion)], assertion, (actual) =>
-    actual.match({
-      Left: () => Nothing(),
-      Right: (a) => Just(a),
-    }),
+    actual.match(
+      () => Nothing(),
+      (a) => Just(a),
+    ),
   );
 }
 

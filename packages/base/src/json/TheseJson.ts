@@ -22,10 +22,3 @@ export type TheseJson<E, A> = LeftJson<E> | RightJson<A> | BothJson<E, A>;
 export interface TheseJsonOps {}
 
 export const TheseJson: TheseJsonOps = {};
-
-/**
- * @tsplus static fncts.TheseJsonOps getDecoder
- */
-export function getDecoder<E, A>(left: Decoder<E>, right: Decoder<A>): Decoder<TheseJson<E, A>> {
-  return Derive();
-}

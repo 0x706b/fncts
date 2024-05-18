@@ -101,10 +101,10 @@ export function mergeWith<
                     ex.match(
                       (cause) => Channel.fromIO(decision.f(Exit.failCause(cause))),
                       (r) =>
-                        r.match({
-                          Left: (done) => Channel.fromIO(decision.f(Exit.succeed(done))),
-                          Right: (elem) => Channel.writeNow(elem).zipRight(go(single(decision.f))),
-                        }),
+                        r.match(
+                          (done) => Channel.fromIO(decision.f(Exit.succeed(done))),
+                          (elem) => Channel.writeNow(elem).zipRight(go(single(decision.f))),
+                        ),
                     ),
                   );
               }
@@ -112,11 +112,11 @@ export function mergeWith<
             return exit.match(
               (cause) => onDecision(done(Exit.failCause(cause))),
               (r) =>
-                r.match({
-                  Left: (d) => onDecision(done(Exit.succeed(d))),
-                  Right: (elem) =>
+                r.match(
+                  (d) => onDecision(done(Exit.succeed(d))),
+                  (elem) =>
                     pull.forkDaemon.map((leftFiber) => Channel.writeNow(elem).zipRight(go(both(leftFiber, fiber)))),
-                }),
+                ),
             );
           };
         const go = (
@@ -158,10 +158,10 @@ export function mergeWith<
                   exit.match(
                     (cause) => Channel.fromIO(state.f(Exit.failCause(cause))),
                     (r) =>
-                      r.match({
-                        Left: (d) => Channel.fromIO(state.f(Exit.succeed(d))),
-                        Right: (elem) => Channel.writeNow(elem).zipRight(go(MergeState.LeftDone(state.f))),
-                      }),
+                      r.match(
+                        (d) => Channel.fromIO(state.f(Exit.succeed(d))),
+                        (elem) => Channel.writeNow(elem).zipRight(go(MergeState.LeftDone(state.f))),
+                      ),
                   ),
                 ),
               );
@@ -171,10 +171,10 @@ export function mergeWith<
                   exit.match(
                     (cause) => Channel.fromIO(state.f(Exit.failCause(cause))),
                     (r) =>
-                      r.match({
-                        Left: (d) => Channel.fromIO(state.f(Exit.succeed(d))),
-                        Right: (elem) => Channel.writeNow(elem).zipRight(go(MergeState.RightDone(state.f))),
-                      }),
+                      r.match(
+                        (d) => Channel.fromIO(state.f(Exit.succeed(d))),
+                        (elem) => Channel.writeNow(elem).zipRight(go(MergeState.RightDone(state.f))),
+                      ),
                   ),
                 ),
               );

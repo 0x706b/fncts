@@ -429,7 +429,7 @@ export function foreach<A, R, E, B>(
  * @tsplus static fncts.io.STMOps fromEither
  */
 export function fromEither<E, A>(e: Lazy<Either<E, A>>, __tsplusTrace?: string): STM<never, E, A> {
-  return STM.defer(e().match({ Left: STM.failNow, Right: STM.succeedNow }));
+  return STM.defer(e().match(STM.failNow, STM.succeedNow));
 }
 
 /**
@@ -438,7 +438,7 @@ export function fromEither<E, A>(e: Lazy<Either<E, A>>, __tsplusTrace?: string):
  * @tsplus static fncts.io.STMOps fromEitherNow
  */
 export function fromEitherNow<E, A>(e: Either<E, A>, __tsplusTrace?: string): STM<never, E, A> {
-  return e.match({ Left: STM.failNow, Right: STM.succeedNow });
+  return e.match(STM.failNow, STM.succeedNow);
 }
 
 /**
@@ -553,7 +553,7 @@ export function isSuccess<R, E, A>(stm: STM<R, E, A>, __tsplusTrace?: string) {
 export function left<R, E, B, C>(stm: STM<R, E, Either<B, C>>, __tsplusTrace?: string): STM<R, Maybe<E>, B> {
   return stm.matchSTM(
     (e) => STM.fail(Just(e)),
-    (bc) => bc.match({ Left: STM.succeedNow, Right: () => STM.failNow(Nothing()) }),
+    (bc) => bc.match(STM.succeedNow, () => STM.failNow(Nothing())),
   );
 }
 
@@ -564,7 +564,7 @@ export function left<R, E, B, C>(stm: STM<R, E, Either<B, C>>, __tsplusTrace?: s
  */
 export function leftOrFail<C, E1>(orFail: (c: C) => E1, __tsplusTrace?: string) {
   return <R, E, B>(stm: STM<R, E, Either<B, C>>): STM<R, E | E1, B> => {
-    return stm.flatMap((bc) => bc.match({ Left: STM.succeedNow, Right: (c) => STM.fail(orFail(c)) }));
+    return stm.flatMap((bc) => bc.match(STM.succeedNow, (c) => STM.fail(orFail(c))));
   };
 }
 

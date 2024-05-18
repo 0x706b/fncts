@@ -97,20 +97,20 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>
  * @tsplus getter fncts.Either getLeft
  */
 export function getLeft<E, A>(self: Either<E, A>): Maybe<E> {
-  return self.match({
-    Left: (e) => Just(e),
-    Right: (_a) => Nothing(),
-  });
+  return self.match(
+    (e) => Just(e),
+    (_a) => Nothing(),
+  );
 }
 
 /**
  * @tsplus getter fncts.Either getRight
  */
 export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
-  return self.match({
-    Left: (_e) => Nothing(),
-    Right: (a) => Just(a),
-  });
+  return self.match(
+    (_e) => Nothing(),
+    (a) => Just(a),
+  );
 }
 
 /**
@@ -118,7 +118,7 @@ export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
  */
 export function getOrElse<E, B>(orElse: (e: E) => B) {
   return <A>(self: Either<E, A>): A | B => {
-    return self.match({ Left: orElse, Right: identity });
+    return self.match(orElse, identity);
   };
 }
 
@@ -172,7 +172,7 @@ export function mapLeft<E1, E2>(f: (e: E1) => E2) {
  * @tsplus getter fncts.Either value
  */
 export function merge<E, A>(self: Either<E, A>): E | A {
-  return self.match({ Left: identity, Right: identity });
+  return self.match(identity, identity);
 }
 
 /**
@@ -201,10 +201,10 @@ export function _traverse<E, A>(self: Either<E, A>) {
     <K, Q, W, X, I, S, R, E1, B>(
       f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E1, B>,
     ): HKT.Kind<G, GC, K, Q, W, X, I, S, R, E1, Either<E, B>> =>
-      self.match({
-        Left: (e) => G.pure(Left(e)),
-        Right: (a) => f(a).pipe(G.map((b) => Right(b))),
-      });
+      self.match(
+        (e) => G.pure(Left(e)),
+        (a) => f(a).pipe(G.map((b) => Right(b))),
+      );
 }
 
 export const traverse_: P.Traversable<EitherF>["traverse"] = (A) => (f) => (self) => self.traverse(A)(f);
@@ -288,10 +288,10 @@ export function partition<E, A>(p: Predicate<A>, /** @tsplus auto */ M: P.Monoid
  * @tsplus getter fncts.Either toMaybe
  */
 export function toMaybe<E, A>(self: Either<E, A>): Maybe<A> {
-  return self.match({
-    Left: () => Nothing(),
-    Right: (a) => Just(a),
-  });
+  return self.match(
+    () => Nothing(),
+    (a) => Just(a),
+  );
 }
 
 /* eslint-disable simple-import-sort/exports */

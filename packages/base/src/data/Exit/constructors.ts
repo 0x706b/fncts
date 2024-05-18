@@ -18,7 +18,7 @@ export function fail<E = never, A = never>(e: E, __tsplusTrace?: string): Exit<E
  * @tsplus static fncts.ExitOps fromEither
  */
 export function fromEither<E = never, A = never>(e: Either<E, A>): Exit<E, A> {
-  return e.match({ Left: fail, Right: succeed });
+  return e.match(fail, succeed);
 }
 
 /**

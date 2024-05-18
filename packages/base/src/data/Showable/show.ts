@@ -221,11 +221,11 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
   }
   // eslint-disable-next-line prefer-const
   let [constructor, protoProps] = getConstructorName(value);
-  let keys = [] as Array<PropertyKey>;
-  let tag = value[Symbol.toStringTag as keyof typeof value] as string;
-  let base = "";
-  let formatter = (_: any) => Pure.succeedNow(Conc.empty<string>()) as ShowComputationChunk;
-  let braces = ["", ""] as [string, string];
+  let keys       = [] as Array<PropertyKey>;
+  let tag        = value[Symbol.toStringTag as keyof typeof value] as string;
+  let base       = "";
+  let formatter  = (_: any) => Pure.succeedNow(Conc.empty<string>()) as ShowComputationChunk;
+  let braces     = ["", ""] as [string, string];
   let noIterator = true;
   let extrasType = OBJECT_TYPE;
   if (
@@ -247,49 +247,49 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
       }
       protoProps = Conc.empty();
       extrasType = ARRAY_EXTRAS_TYPE;
-      formatter = showChunk;
+      formatter  = showChunk;
     } else if (isArray(value)) {
       const prefix = getPrefix(constructor, tag, "Array", `(${(value as Array<unknown>).length})`);
-      braces = [`${prefix}[`, "]"];
+      braces       = [`${prefix}[`, "]"];
       if ((value as Array<unknown>).length === 0) {
         return inspectionEarlyReturn(`${braces[0]}]`);
       }
       extrasType = ARRAY_EXTRAS_TYPE;
-      formatter = showArray;
+      formatter  = showArray;
     } else if (isSet(value)) {
-      const size = (value as Set<unknown>).size;
+      const size   = (value as Set<unknown>).size;
       const prefix = getPrefix(constructor, tag, "Set", `(${size})`);
-      keys = getKeys(value, context.showHidden);
-      formatter = showSet;
+      keys         = getKeys(value, context.showHidden);
+      formatter    = showSet;
       if (size === 0 && keys.length === 0 && protoProps.isEmpty) {
         return inspectionEarlyReturn(`${prefix}{}`);
       }
       braces = [`${prefix}{`, "}"];
     } else if (isMap(value)) {
-      const size = (value as Map<unknown, unknown>).size;
+      const size   = (value as Map<unknown, unknown>).size;
       const prefix = getPrefix(constructor, tag, "Map", `(${size})`);
-      keys = getKeys(value, context.showHidden);
-      formatter = showMap;
+      keys         = getKeys(value, context.showHidden);
+      formatter    = showMap;
       if (size === 0 && keys.length === 0 && protoProps.isEmpty) {
         return inspectionEarlyReturn(`${prefix}{}`);
       }
       braces = [`${prefix}{`, "}"];
     } else if (isTypedArray(value)) {
-      const size = (value as TypedArray).length;
+      const size     = (value as TypedArray).length;
       const fallback = value[Symbol.toStringTag];
-      const prefix = getPrefix(constructor, tag, fallback, `(${size})`);
-      braces = [`${prefix}[`, "]"];
+      const prefix   = getPrefix(constructor, tag, fallback, `(${size})`);
+      braces         = [`${prefix}[`, "]"];
       if ((value as TypedArray).length === 0) {
         return inspectionEarlyReturn(`${braces[0]}]`);
       }
       extrasType = ARRAY_EXTRAS_TYPE;
-      formatter = showTypedArray;
+      formatter  = showTypedArray;
     } else {
       noIterator = true;
     }
   }
   if (noIterator) {
-    keys = getKeys(value, context.showHidden);
+    keys   = getKeys(value, context.showHidden);
     braces = ["{", "}"];
     if (constructor === "Object") {
       if (tag !== "") {
@@ -304,7 +304,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
         return inspectionEarlyReturn(base);
       }
     } else if (isRegExp(value)) {
-      base = RegExp.prototype.toString.call(constructor !== null ? value : new RegExp(value));
+      base         = RegExp.prototype.toString.call(constructor !== null ? value : new RegExp(value));
       const prefix = getPrefix(constructor, tag, "RegExp");
       if (prefix !== "RegExp ") {
         base = `${prefix}${base}`;
@@ -313,7 +313,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
         return inspectionEarlyReturn(base);
       }
     } else if (isDate(value)) {
-      base = Number.isNaN((value as Date).getTime()) ? (value as Date).toString() : (value as Date).toISOString();
+      base         = Number.isNaN((value as Date).getTime()) ? (value as Date).toString() : (value as Date).toISOString();
       const prefix = getPrefix(constructor, tag, "Date");
       if (prefix !== "Date ") {
         base = `${prefix}${base}`;
@@ -323,7 +323,7 @@ function getInspectionInfo(context: ShowContext, value: object, typedArray?: str
       }
     } else if (isAnyArrayBuffer(value)) {
       const arrayType = isArrayBuffer(value) ? "ArrayBuffer" : "SharedArrayBuffer";
-      const prefix = getPrefix(constructor, tag, arrayType);
+      const prefix    = getPrefix(constructor, tag, arrayType);
       if (typedArray === undefined) {
         formatter = showArrayBuffer;
       } else if (keys.length === 0 && protoProps.isEmpty) {
@@ -405,8 +405,8 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                     info.protoProps.traverse(Pure.Applicative)((key) => showProperty(value, key, PROTO_TYPE)),
                     (k1, k2) => k1.concat(k2),
                   );
-                indices = info.formatter(value);
-                braces = info.braces;
+                indices    = info.formatter(value);
+                braces     = info.braces;
                 extrasType = info.extrasType;
                 break;
               }
@@ -419,16 +419,16 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
                     ),
                   );
                 } else {
-                  base = externalComputation.base || Pure.succeedNow("");
-                  keys = externalComputation.keys || Pure.succeedNow(Conc.empty());
-                  indices = externalComputation.indices || Pure.succeedNow(Conc.empty());
-                  braces = externalComputation.braces || ["", ""];
+                  base       = externalComputation.base || Pure.succeedNow("");
+                  keys       = externalComputation.keys || Pure.succeedNow(Conc.empty());
+                  indices    = externalComputation.indices || Pure.succeedNow(Conc.empty());
+                  braces     = externalComputation.braces || ["", ""];
                   extrasType = externalComputation.extrasType || OBJECT_TYPE;
                 }
                 break;
               }
             }
-            const output = indices.crossWith(keys, (idxs, ks) => idxs.concat(ks));
+            const output      = indices.crossWith(keys, (idxs, ks) => idxs.concat(ks));
             const baseWithRef = Pure.getsPure((context: ShowContext) =>
               context.circular.get(value).match(
                 () => base,
@@ -449,8 +449,8 @@ function showRaw(value: object, typedArray?: string): ShowComputation {
               .cross(baseWithRef)
               .flatMap(([output, base]) =>
                 Pure.modify((context) => {
-                  const res = reduceToSingleString(context, output, base, braces, extrasType, value);
-                  const budget = context.budget[context.indentationLevel] || 0;
+                  const res       = reduceToSingleString(context, output, base, braces, extrasType, value);
+                  const budget    = context.budget[context.indentationLevel] || 0;
                   const newLength = budget + res.length;
                   const newBudget = { ...context.budget, [context.indentationLevel]: newLength };
                   let newContext;
@@ -557,7 +557,7 @@ function showTypedArray(value: TypedArray): ShowComputationChunk {
     Pure.defer(() => {
       const maxLength = Math.min(Math.max(0, context.maxArrayLength), value.length);
       const remaining = value.length - maxLength;
-      let output = Conc.empty<string>();
+      let output      = Conc.empty<string>();
       const elementFormatter: (context: ShowContext, _: any) => string =
         value.length > 0 && typeof value[0] === "number" ? _showNumber : _showBigInt;
       for (let i = 0; i < maxLength; ++i) {
@@ -614,11 +614,11 @@ function showSpecialArray(
   currentLength: number,
 ): ShowComputationChunk {
   return Pure.getsPure((context) => {
-    const keys = Object.keys(value);
-    let index = currentIndex;
-    let i = currentIndex;
+    const keys       = Object.keys(value);
+    let index        = currentIndex;
+    let i            = currentIndex;
     let outputLength = currentLength;
-    let computation = currentComputation;
+    let computation  = currentComputation;
     for (; i < keys.length && outputLength < maxLength; i++) {
       const key = keys[i]!;
       const tmp = +key;
@@ -630,8 +630,8 @@ function showSpecialArray(
           break;
         }
         const emptyItems = tmp - index;
-        const message = `<${emptyItems} empty item${pluralize(emptyItems)}>`;
-        computation = computation.map((ks) => ks.append(context.stylize(message, "undefined")));
+        const message    = `<${emptyItems} empty item${pluralize(emptyItems)}>`;
+        computation      = computation.map((ks) => ks.append(context.stylize(message, "undefined")));
         outputLength++;
         index = tmp;
         if (outputLength === maxLength) {
@@ -658,11 +658,11 @@ function showSpecialArray(
 
 function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
   return Pure.gets((context: ShowContext) => {
-    let chunk = Conc.from(value);
-    const valLen = chunk.length;
-    const len = Math.min(Math.max(0, context.maxArrayLength), valLen);
+    let chunk       = Conc.from(value);
+    const valLen    = chunk.length;
+    const len       = Math.min(Math.max(0, context.maxArrayLength), valLen);
     const remaining = valLen - len;
-    chunk = chunk.take(len);
+    chunk           = chunk.take(len);
     return tuple(remaining, chunk);
   }).flatMap(([remaining, chunk]) => {
     let computation = Pure.succeedNow(Conc.empty()) as ShowComputationChunk;
@@ -681,10 +681,10 @@ function showArray(value: ReadonlyArray<unknown>): ShowComputationChunk {
 
 function showChunk(value: Conc<unknown>): ShowComputationChunk {
   return Pure.gets((context: ShowContext) => {
-    const valLen = value.length;
-    const len = Math.min(Math.max(0, context.maxArrayLength), valLen);
+    const valLen    = value.length;
+    const len       = Math.min(Math.max(0, context.maxArrayLength), valLen);
     const remaining = valLen - len;
-    const chunk = value.take(len);
+    const chunk     = value.take(len);
     return tuple(remaining, chunk);
   }).flatMap(([remaining, chunk]) =>
     chunk
@@ -734,12 +734,12 @@ export function showProperty(
       let name: string;
       if (isSymbol(key)) {
         const tmp = key.toString().replace(strEscapeSequencesReplacer, escapeFn);
-        name = `[${context.stylize(tmp, "symbol")}]`;
+        name      = `[${context.stylize(tmp, "symbol")}]`;
       } else if (key === "__proto__") {
         name = "['__proto__']";
       } else if (descriptor.enumerable === false) {
         const tmp = key.toString().replace(strEscapeSequencesReplacer, escapeFn);
-        name = `[${tmp}]`;
+        name      = `[${tmp}]`;
       } else if (keyStrRegExp.test(String(key))) {
         name = String(key);
       } else {
@@ -758,17 +758,17 @@ export function showProperty(
  * maximum character width set in the context
  */
 function groupElements(context: ShowContext, input: Conc<string>, value?: unknown): Conc<string> {
-  let totalLength = 0;
-  let maxLength = 0;
-  let i = 0;
-  const outputLength = context.maxArrayLength < input.length ? input.length - 1 : input.length;
+  let totalLength      = 0;
+  let maxLength        = 0;
+  let i                = 0;
+  const outputLength   = context.maxArrayLength < input.length ? input.length - 1 : input.length;
   const separatorSpace = 2;
-  const dataLength = Array(outputLength);
-  let output = input;
+  const dataLength     = Array(outputLength);
+  let output           = input;
   for (; i < outputLength; i++) {
-    const len = getStringWidth(input.unsafeGet(i), context.colors);
+    const len     = getStringWidth(input.unsafeGet(i), context.colors);
     dataLength[i] = len;
-    totalLength += len + separatorSpace;
+    totalLength  += len + separatorSpace;
     if (maxLength < len) {
       maxLength = len;
     }
@@ -779,9 +779,9 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
     (totalLength / actualMax > 5 || maxLength <= 6)
   ) {
     const approxCharHeights = 2.5;
-    const averageBias = Math.sqrt(actualMax - totalLength / input.length);
-    const biasedMax = Math.max(actualMax - 3 - averageBias, 1);
-    const columns = Math.min(
+    const averageBias       = Math.sqrt(actualMax - totalLength / input.length);
+    const biasedMax         = Math.max(actualMax - 3 - averageBias, 1);
+    const columns           = Math.min(
       // Ideally a square should be drawn. We expect a character to be about 2.5
       // times as high as wide. This is the area formula to calculate a square
       // which contains n rectangles of size `actualMax * approxCharHeights`.
@@ -799,7 +799,7 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
     if (columns <= 1) {
       return input;
     }
-    let tmp = Conc.empty<string>();
+    let tmp             = Conc.empty<string>();
     const maxLineLength = [];
     for (let i = 0; i < columns; i++) {
       let lineMaxLength = 0;
@@ -808,7 +808,7 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
           lineMaxLength = dataLength[k];
         }
       }
-      lineMaxLength += separatorSpace;
+      lineMaxLength   += separatorSpace;
       maxLineLength[i] = lineMaxLength;
     }
     let order = String.prototype.padStart;
@@ -822,15 +822,15 @@ function groupElements(context: ShowContext, input: Conc<string>, value?: unknow
     }
     for (let i = 0; i < outputLength; i += columns) {
       const max = Math.min(i + columns, outputLength);
-      let str = "";
-      let k = i;
+      let str   = "";
+      let k     = i;
       for (; k < max - 1; k++) {
         const padding = maxLineLength[k - i]! + output.unsafeGet(k).length - dataLength[k];
-        str += order.call(`${output.unsafeGet(k)}, `, padding, " ");
+        str          += order.call(`${output.unsafeGet(k)}, `, padding, " ");
       }
       if (order === String.prototype.padStart) {
         const padding = maxLineLength[k - i]! + output.unsafeGet(k).length - dataLength[k] - separatorSpace;
-        str += output.unsafeGet(k).padStart(padding, " ");
+        str          += output.unsafeGet(k).padStart(padding, " ");
       } else {
         str += output.unsafeGet(k);
       }
@@ -862,12 +862,12 @@ function _showPrimitive(context: ShowContext, value: Primitive): string {
 }
 
 function _showString(context: ShowContext, value: string): string {
-  let result = value;
+  let result  = value;
   let trailer = "";
   if (value.length > context.maxStringLength) {
     const remaining = value.length - context.maxStringLength;
-    result = result.slice(0, context.maxStringLength);
-    trailer = `... ${remaining} more character${pluralize(remaining)}`;
+    result          = result.slice(0, context.maxStringLength);
+    trailer         = `... ${remaining} more character${pluralize(remaining)}`;
   }
   if (
     context.compact !== true &&

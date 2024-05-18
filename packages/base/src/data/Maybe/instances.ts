@@ -1,8 +1,6 @@
 import type * as P from "../../typeclass.js";
 import type { MaybeF } from "@fncts/base/data/Maybe/definition";
 
-import { MaybeJson } from "@fncts/base/json/MaybeJson";
-
 import { filter, filterMap, flatMap, foldLeft, foldRight, map, partition, partitionMap, zip, zipWith } from "./api.js";
 import { just } from "./constructors.js";
 
@@ -67,42 +65,5 @@ export function deriveGuard<A extends Maybe<any>>(
       }
     }
     return false;
-  });
-}
-
-/**
- * @tsplus derive fncts.Decoder[fncts.Maybe]<_> 10
- */
-export function deriveDecoder<A extends Maybe<any>>(
-  ...[value]: [A] extends [Maybe<infer A>] ? [value: Decoder<A>] : never
-): Decoder<A> {
-  const label = `Maybe<${value.label}>`;
-  return Decoder(
-    (input) =>
-      MaybeJson.getDecoder(value)
-        .decode(input)
-        .map((decoded) => (decoded._tag === "Nothing" ? (Nothing() as A) : (Just(decoded.value) as A))),
-    label,
-  );
-}
-
-/**
- * @tsplus derive fncts.Encoder[fncts.Maybe]<_> 10
- */
-export function deriveEncoder<A extends Maybe<any>>(
-  ...[value]: [A] extends [Maybe<infer A>] ? [value: Encoder<A>] : never
-): Encoder<A> {
-  return Encoder((input) => {
-    Maybe.concrete(input);
-    if (input.isJust()) {
-      return {
-        _tag: "Just",
-        value: value.encode(input.value),
-      };
-    } else {
-      return {
-        _tag: "Nothing",
-      };
-    }
   });
 }

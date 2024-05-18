@@ -29,6 +29,7 @@ export class ServerRequestImpl extends ServerRequest {
   }
 
   get headers() {
+    // eslint-disable-next-line @0x706b/align-assignments/align-assignments
     this.headersOverride ??= Headers.fromHeaders(this.source.headers);
     return this.headersOverride;
   }

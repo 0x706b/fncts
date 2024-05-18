@@ -20,17 +20,17 @@ export const SummaryBuilder: SummaryBuilderOps = {};
  */
 export function buildSummary<E>(executedSpec: ExecutedSpec<E>): Summary {
   const success = countTestResults(executedSpec, (_) =>
-    _.match({
-      Left: () => false,
-      Right: (_) => _._tag === "Succeeded",
-    }),
+    _.match(
+      () => false,
+      (_) => _._tag === "Succeeded",
+    ),
   );
   const fail   = countTestResults(executedSpec, (_) => _.isLeft());
   const ignore = countTestResults(executedSpec, (_) =>
-    _.match({
-      Left: () => false,
-      Right: (_) => _._tag === "Ignored",
-    }),
+    _.match(
+      () => false,
+      (_) => _._tag === "Ignored",
+    ),
   );
   const failures = extractFailures(executedSpec);
   const rendered = ConsoleRenderer.render(failures.flatMap(render), silent).join("\n");

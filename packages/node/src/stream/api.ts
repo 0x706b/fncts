@@ -68,14 +68,14 @@ function readableTake<E, A>(
   const read = readChunkChannel<A>(readable, chunkSize);
   const loop: Channel<never, unknown, unknown, unknown, E, Conc<A>, unknown> = Channel.fromIO(queue.take).flatMap(
     (either) =>
-      either.match({
-        Left: (exit) =>
+      either.match(
+        (exit) =>
           exit.match(
             (cause) => Channel.failCauseNow(cause),
             () => Channel.unit,
           ),
-        Right: () => read.flatMap(() => loop),
-      }),
+        () => read.flatMap(() => loop),
+      ),
   );
   return loop;
 }

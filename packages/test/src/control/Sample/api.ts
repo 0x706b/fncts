@@ -276,23 +276,23 @@ export function flatMapStream<R, A, R1, B>(
         chunk.head.match(
           () => ChildExecutorDecision.Continue,
           (r) =>
-            r.match({
-              Left: (b) => (b ? ChildExecutorDecision.Yield : ChildExecutorDecision.Continue),
-              Right: () => ChildExecutorDecision.Continue,
-            }),
+            r.match(
+              (b) => (b ? ChildExecutorDecision.Yield : ChildExecutorDecision.Continue),
+              () => ChildExecutorDecision.Continue,
+            ),
         ),
     ),
   )
     .filter((r) =>
-      r.match({
-        Left: (b) => !b,
-        Right: () => true,
-      }),
+      r.match(
+        (b) => !b,
+        () => true,
+      ),
     )
     .map((r) =>
-      r.match({
-        Left: () => Nothing(),
-        Right: (b) => Just(b),
-      }),
+      r.match(
+        () => Nothing(),
+        (b) => Just(b),
+      ),
     );
 }

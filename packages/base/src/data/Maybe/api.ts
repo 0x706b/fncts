@@ -95,10 +95,10 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
   return (self: Maybe<A>): readonly [Maybe<B>, Maybe<C>] => {
     self.concrete();
     if (self._tag === MaybeTag.Just) {
-      return f(self.value).match({
-        Left: (b) => [Just(b), Nothing()],
-        Right: (c) => [Nothing(), Just(c)],
-      });
+      return f(self.value).match(
+        (b) => [Just(b), Nothing()],
+        (c) => [Nothing(), Just(c)],
+      );
     } else {
       return [Nothing(), Nothing()];
     }

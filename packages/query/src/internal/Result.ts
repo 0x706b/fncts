@@ -110,7 +110,7 @@ export function match<E, A, B, C>(failure: (e: E) => B, success: (a: A) => C) {
     return self.matchType({
       Blocked: (br, c) => Result.blocked(br, c.match(failure, success)),
       Done: (a) => Result.done(success(a)),
-      Fail: (e) => e.failureOrCause.match({ Left: (e) => Result.done(failure(e)), Right: Result.fail }),
+      Fail: (e) => e.failureOrCause.match((e) => Result.done(failure(e)), Result.fail),
     });
   };
 }
@@ -231,10 +231,10 @@ export function contramapEnvironment<R0, R>(
  * @tsplus static fncts.query.ResultOps fromEither
  */
 export function fromEither<E, A>(either: Either<E, A>): Result<never, E, A> {
-  return either.match({
-    Left: (e) => Result.fail(Cause.fail(e)),
-    Right: (a) => Result.done(a),
-  });
+  return either.match(
+    (e) => Result.fail(Cause.fail(e)),
+    (a) => Result.done(a),
+  );
 }
 
 /**

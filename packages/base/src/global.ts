@@ -110,19 +110,11 @@ import { DatumEither } from "@fncts/base/data/DatumEither/definition";
 /**
  * @tsplus global
  */
-import { Decoder } from "@fncts/base/data/Decoder/definition";
-/**
- * @tsplus global
- */
 import { Duration } from "@fncts/base/data/Duration/definition";
 /**
  * @tsplus global
  */
 import { Either } from "@fncts/base/data/Either/definition";
-/**
- * @tsplus global
- */
-import { Encoder } from "@fncts/base/data/Encoder/definition";
 /**
  * @tsplus global
  */

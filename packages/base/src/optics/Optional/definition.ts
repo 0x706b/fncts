@@ -42,10 +42,10 @@ export function makePOptional<S, T, A, B>(F: POptionalMin<S, T, A, B>): POptiona
     modifyMaybe: (f) => (s) => getMaybe(s).map((a) => pipe(s, F.set(f(a)))),
     ...PTraversal<S, T, A, B>({
       modifyA: (A) => (f) => (s) =>
-        F.getOrModify(s).match({
-          Left: (t) => A.pure(t),
-          Right: (a) => f(a).pipe(A.map((b) => s.pipe(F.set(b)))),
-        }),
+        F.getOrModify(s).match(
+          (t) => A.pure(t),
+          (a) => f(a).pipe(A.map((b) => s.pipe(F.set(b)))),
+        ),
     }),
   };
 }

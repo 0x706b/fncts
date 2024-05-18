@@ -25,12 +25,12 @@ export function mapOutConcurrentIO<OutElem, Env1, OutErr1, OutElem1>(
             pull.matchCauseIO(
               (cause) => queue.offer(IO.failCauseNow(cause)),
               (r) =>
-                r.match({
-                  Left: (outDone) =>
+                r.match(
+                  (outDone) =>
                     permits
                       .withPermits(n)(IO.unit)
                       .interruptible.zipRight(queue.offer(IO.succeedNow(Either.left(outDone)))).asUnit,
-                  Right: (outElem) =>
+                  (outElem) =>
                     Do((Δ) => {
                       const p     = Δ(Future.make<OutErr1, OutElem1>());
                       const latch = Δ(Future.make<never, void>());
@@ -47,7 +47,7 @@ export function mapOutConcurrentIO<OutElem, Env1, OutErr1, OutElem1>(
                       );
                       Δ(latch.await);
                     }),
-                }),
+                ),
             ).forever.uninterruptible.fork,
           );
           return queue;
@@ -56,7 +56,7 @@ export function mapOutConcurrentIO<OutElem, Env1, OutErr1, OutElem1>(
         const consumer: Channel<Env | Env1, unknown, unknown, unknown, OutErr | OutErr1, OutElem1, OutDone> =
           Channel.unwrap(
             queue.take.flatten.matchCause(Channel.failCauseNow, (r) =>
-              r.match({ Left: Channel.endNow, Right: (outElem) => Channel.writeNow(outElem).zipRight(consumer) }),
+              r.match(Channel.endNow, (outElem) => Channel.writeNow(outElem).zipRight(consumer)),
             ),
           );
         return consumer;

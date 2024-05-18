@@ -24,13 +24,13 @@ export class LiveAnnotations extends Annotations {
     this.fiberRef.get
       .map((m) => m.get(TestAnnotation.Fibers))
       .flatMap((r) =>
-        r.match({
-          Left: () => IO.succeed(HashSet.empty<Fiber.Runtime<any, any>>()),
-          Right: (refs) =>
+        r.match(
+          () => IO.succeed(HashSet.empty<Fiber.Runtime<any, any>>()),
+          (refs) =>
             IO.foreach(refs, (ref) => ref.get)
               .map((fibers) => fibers.foldLeft(HashSet.empty<Fiber.Runtime<any, any>>(), (s1, s2) => s1.union(s2)))
               .map((s) => s.filter((f) => Equatable.strictEquals(f.id, fiberId))),
-        }),
+        ),
       ),
   );
 }

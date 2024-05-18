@@ -1,5 +1,5 @@
 import type { Running } from "../FiberStatus.js";
-import type { ShowOptions} from "@fncts/base/data/Showable.js";
+import type { ShowOptions } from "@fncts/base/data/Showable.js";
 import type * as P from "@fncts/base/typeclass";
 import type { _E, _R } from "@fncts/base/types";
 import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
@@ -124,10 +124,10 @@ export function bitap<E, A, R1, E1, R2, E2>(
   return <R>(self: IO<R, E, A>): IO<R | R1 | R2, E | E1 | E2, A> => {
     return self.matchCauseIO(
       (cause) =>
-        cause.failureOrCause.match({
-          Left: (e) => onFailure(e).flatMap(() => IO.failCauseNow(cause)),
-          Right: () => IO.failCauseNow(cause),
-        }),
+        cause.failureOrCause.match(
+          (e) => onFailure(e).flatMap(() => IO.failCauseNow(cause)),
+          () => IO.failCauseNow(cause),
+        ),
       (a) => onSuccess(a).zipRight(IO.succeedNow(a)),
     );
   };
@@ -202,8 +202,7 @@ export function catchAllCause<R, E, A, R1, E1, A1>(f: (_: Cause<E>) => IO<R1, E1
 export function catchJust<E, R1, E1, A1>(f: (e: E) => Maybe<IO<R1, E1, A1>>, __tsplusTrace?: string) {
   return <R, A>(ma: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
     return ma.matchCauseIO(
-      (cause) =>
-        cause.failureOrCause.match({ Left: (e) => f(e).getOrElse(IO.failCauseNow(cause)), Right: IO.failCauseNow }),
+      (cause) => cause.failureOrCause.match((e) => f(e).getOrElse(IO.failCauseNow(cause)), IO.failCauseNow),
       IO.succeedNow,
     );
   };
@@ -808,7 +807,7 @@ export function forever<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): IO<R,
  * @tsplus static fncts.io.IOOps fromEither
  */
 export function fromEither<E, A>(either: Lazy<Either<E, A>>, __tsplusTrace?: string): IO<never, E, A> {
-  return IO.succeed(either).flatMap((ea) => ea.match({ Left: IO.failNow, Right: IO.succeedNow }));
+  return IO.succeed(either).flatMap((ea) => ea.match(IO.failNow, IO.succeedNow));
 }
 
 /**
@@ -818,7 +817,7 @@ export function fromEither<E, A>(either: Lazy<Either<E, A>>, __tsplusTrace?: str
  * @tsplus getter fncts.Either toIO
  */
 export function fromEitherNow<E, A>(either: Either<E, A>, __tsplusTrace?: string): IO<never, E, A> {
-  return either.match({ Left: IO.failNow, Right: IO.succeedNow });
+  return either.match(IO.failNow, IO.succeedNow);
 }
 
 /**
@@ -1267,10 +1266,7 @@ export function matchIO<R1, R2, E, E1, E2, A, A1, A2>(
   __tsplusTrace?: string,
 ) {
   return <R>(self: IO<R, E, A>): IO<R | R1 | R2, E1 | E2, A1 | A2> => {
-    return self.matchCauseIO(
-      (cause) => cause.failureOrCause.match({ Left: onFailure, Right: IO.failCauseNow }),
-      onSuccess,
-    );
+    return self.matchCauseIO((cause) => cause.failureOrCause.match(onFailure, IO.failCauseNow), onSuccess);
   };
 }
 
@@ -1302,7 +1298,7 @@ export function matchTraceIO<E, A, R1, E1, A1, R2, E2, A2>(
 ) {
   return <R>(ma: IO<R, E, A>): IO<R | R1 | R2, E1 | E2, A1 | A2> => {
     return ma.matchCauseIO(
-      (cause) => cause.failureTraceOrCause.match({ Left: ([e, trace]) => onFailure(e, trace), Right: IO.failCauseNow }),
+      (cause) => cause.failureTraceOrCause.match(([e, trace]) => onFailure(e, trace), IO.failCauseNow),
       onSuccess,
     );
   };
@@ -1792,7 +1788,7 @@ export function tryCatch<E, A>(effect: Lazy<A>, onThrow: (error: unknown) => E, 
     } catch (u) {
       return IO.withFiberRuntime((fiberState) => {
         if (!fiberState.isFatal(u)) {
-          throw new IOError(Cause.fail(u));
+          throw new IOError(Cause.fail(onThrow(u)));
         } else {
           throw u;
         }
@@ -1807,7 +1803,7 @@ export function tryCatch<E, A>(effect: Lazy<A>, onThrow: (error: unknown) => E, 
  * @tsplus getter fncts.io.IO absolve
  */
 export function absolve<R, E, E1, A>(ma: IO<R, E, Either<E1, A>>, __tsplusTrace?: string): IO<R, E | E1, A> {
-  return ma.flatMap((ea) => ea.match({ Left: IO.failNow, Right: IO.succeedNow }));
+  return ma.flatMap((ea) => ea.match(IO.failNow, IO.succeedNow));
 }
 
 /**
@@ -1845,10 +1841,10 @@ export function tapError<E, R1, E1>(f: (e: E) => IO<R1, E1, any>, __tsplusTrace?
   return <R, A>(self: IO<R, E, A>) =>
     self.matchCauseIO(
       (cause) =>
-        cause.failureOrCause.match({
-          Left: (e) => f(e).flatMap(() => IO.failCauseNow(cause)),
-          Right: (_) => IO.failCauseNow(cause),
-        }),
+        cause.failureOrCause.match(
+          (e) => f(e).flatMap(() => IO.failCauseNow(cause)),
+          (_) => IO.failCauseNow(cause),
+        ),
       IO.succeedNow,
     );
 }

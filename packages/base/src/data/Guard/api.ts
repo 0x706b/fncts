@@ -5,7 +5,7 @@ import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
 
 import { Guard } from "@fncts/base/data/Guard/definition";
 import { AssertionError } from "@fncts/base/util/assert";
-import { isNull, isUndefined } from "@fncts/base/util/predicates";
+import { isArray, isNull, isUndefined } from "@fncts/base/util/predicates";
 
 /**
  * @tsplus pipeable fncts.Guard __call
@@ -441,8 +441,11 @@ export function validation<A, B extends ReadonlyArray<Validation<A, any>>>(...va
  */
 export function deriveTuple<A extends ReadonlyArray<unknown>>(
   ...[components]: Check<Check.IsTuple<A>> extends Check.True ? [components: { [K in keyof A]: Guard<A[K]> }] : never
-): Encoder<A> {
-  return Encoder((inp) => {
+): Guard<A> {
+  return Guard((inp): inp is A => {
+    if (!isArray(inp)) {
+      return false;
+    }
     for (let i = 0; i < inp.length; i++) {
       if (!components[i]!.is(inp[i])) {
         return false;

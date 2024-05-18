@@ -336,15 +336,15 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
       Initial: () => [Initial(), Initial()],
       Pending: () => [Pending(), Pending()],
       Refresh: (a) =>
-        f(a).match({
-          Left: (b) => [Refresh(b), Initial()],
-          Right: (c) => [Initial(), Refresh(c)],
-        }),
+        f(a).match(
+          (b) => [Refresh(b), Initial()],
+          (c) => [Initial(), Refresh(c)],
+        ),
       Replete: (a) =>
-        f(a).match({
-          Left: (b) => [Replete(b), Initial()],
-          Right: (c) => [Initial(), Replete(c)],
-        }),
+        f(a).match(
+          (b) => [Replete(b), Initial()],
+          (c) => [Initial(), Replete(c)],
+        ),
     });
   };
 }

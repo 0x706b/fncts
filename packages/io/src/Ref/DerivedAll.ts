@@ -34,9 +34,8 @@ export class DerivedAll<EA, EB, A, B> extends RefInternal<never, never, EA, EB, 
         new DerivedAll((f) =>
           f(
             value,
-            (s) => getEither(s).match({ Left: (e) => Either.left(eb(e)), Right: bd }),
-            (c) => (s) =>
-              ca(c).flatMap((a) => setEither(a)(s).match({ Left: (e) => Either.left(ea(e)), Right: Either.right })),
+            (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
+            (c) => (s) => ca(c).flatMap((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
           ),
         ),
     );
@@ -54,30 +53,28 @@ export class DerivedAll<EA, EB, A, B> extends RefInternal<never, never, EA, EB, 
         new DerivedAll((f) =>
           f(
             value,
-            (s) => getEither(s).match({ Left: (e) => Either.left(eb(e)), Right: bd }),
+            (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
             (c) => (s) =>
               getEither(s)
-                .match({ Left: (e) => Either.left(ec(e)), Right: ca(c) })
-                .flatMap((a) => setEither(a)(s).match({ Left: (e) => Either.left(ea(e)), Right: Either.right })),
+                .match((e) => Either.left(ec(e)), ca(c))
+                .flatMap((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
           ),
         ),
     );
   }
 
   get get(): FIO<EB, B> {
-    return this.use((value, getEither) =>
-      value.get.flatMap((s) => getEither(s).match({ Left: IO.failNow, Right: IO.succeedNow })),
-    );
+    return this.use((value, getEither) => value.get.flatMap((s) => getEither(s).match(IO.failNow, IO.succeedNow)));
   }
 
   set(a: A): FIO<EA, void> {
     return this.use(
       (value, _, setEither) =>
         value.modify((s) =>
-          setEither(a)(s).match({
-            Left: (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
-            Right: (s) => [Either.right(undefined), s],
-          }),
+          setEither(a)(s).match(
+            (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
+            (s) => [Either.right(undefined), s],
+          ),
         ).absolve,
     );
   }
@@ -86,16 +83,16 @@ export class DerivedAll<EA, EB, A, B> extends RefInternal<never, never, EA, EB, 
     return this.use(
       (value, getEither, setEither) =>
         value.modify((s) =>
-          getEither(s).match({
-            Left: (e) => tuple(Either.left(e), s),
-            Right: (a1) => {
+          getEither(s).match(
+            (e) => tuple(Either.left(e), s),
+            (a1) => {
               const [b, a2] = f(a1);
-              return setEither(a2)(s).match({
-                Left: (e) => tuple(Either.left(e), s),
-                Right: (s) => tuple(Either.right<EA | EB, C>(b), s),
-              });
+              return setEither(a2)(s).match(
+                (e) => tuple(Either.left(e), s),
+                (s) => tuple(Either.right<EA | EB, C>(b), s),
+              );
             },
-          }),
+          ),
         ).absolve,
     );
   }

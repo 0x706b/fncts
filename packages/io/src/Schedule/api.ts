@@ -618,17 +618,17 @@ export function reconsiderIO<S, O, R1, O1>(
         decision.match(
           () =>
             f(state, out, decision).map((r) =>
-              r.match({
-                Left: (out1) => [state, out1, Decision.Done],
-                Right: ([out1, _]) => [state, out1, Decision.Done],
-              }),
+              r.match(
+                (out1) => [state, out1, Decision.Done],
+                ([out1, _]) => [state, out1, Decision.Done],
+              ),
             ),
           () =>
             f(state, out, decision).map((r) =>
-              r.match({
-                Left: (out1) => [state, out1, Decision.Done],
-                Right: ([out1, interval]) => [state, out1, Decision.continueWith(interval)],
-              }),
+              r.match(
+                (out1) => [state, out1, Decision.Done],
+                ([out1, interval]) => [state, out1, Decision.continueWith(interval)],
+              ),
             ),
         ),
       ),

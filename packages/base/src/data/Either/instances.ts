@@ -2,7 +2,6 @@ import type { EitherF } from "@fncts/base/data/Either/definition.js";
 
 import { map } from "@fncts/base/data/Either/api";
 import { concrete, Either, EitherTag, Right } from "@fncts/base/data/Either/definition";
-import { EitherJson } from "@fncts/base/json/EitherJson";
 
 import * as P from "../../typeclass.js";
 
@@ -20,18 +19,18 @@ export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
   return P.Eq({
     equals: (y) => (x) =>
       x === y ||
-      x.match({
-        Left: (e1) =>
-          y.match({
-            Left: (e2) => EE.equals(e2)(e1),
-            Right: () => false,
-          }),
-        Right: (a1) =>
-          y.match({
-            Left: () => false,
-            Right: (a2) => EA.equals(a2)(a1),
-          }),
-      }),
+      x.match(
+        (e1) =>
+          y.match(
+            (e2) => EE.equals(e2)(e1),
+            () => false,
+          ),
+        (a1) =>
+          y.match(
+            () => false,
+            (a2) => EA.equals(a2)(a1),
+          ),
+      ),
   });
 }
 
@@ -114,22 +113,4 @@ export function deriveGuard<A extends Either<any, any>>(
     }
     return false;
   });
-}
-
-/**
- * @tsplus derive fncts.Decoder[fncts.Either]<_> 10
- */
-export function deriveDecoder<A extends Either<any, any>>(
-  ...[left, right]: [A] extends [Either<infer E, infer A>] ? [left: Decoder<E>, right: Decoder<A>] : never
-): Decoder<A> {
-  const jsonDecoder = EitherJson.getDecoder(left, right);
-  return Decoder(
-    (u) =>
-      jsonDecoder
-        .decode(u)
-        .map((result) =>
-          result._tag === "Left" ? (Either.left(result.left) as A) : (Either.right(result.right) as A),
-        ),
-    `Either<${left.label}, ${right.label}>`,
-  );
 }

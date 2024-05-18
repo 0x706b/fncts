@@ -22,6 +22,7 @@
     "lint": "ultra -r lint",
     "circular": "madge --ts-config ./tsconfig.madge.json --circular --warning packages/*/build/esm",
     "postinstall": "tsplus-install",
+    "org:eslint": "cd $INIT_CWD && eslint",
     "org:tsc": "cd $INIT_CWD && tsc",
     "org:babel": "cd $INIT_CWD && babel",
     "org:concurrently": "cd $INIT_CWD && concurrently",

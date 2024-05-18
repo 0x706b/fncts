@@ -3,14 +3,14 @@ import type { ParseOptions } from "@fncts/schema/AST";
 import { assert } from "vitest";
 
 export function expectSuccess<A>(self: Schema<A>, input: unknown, output: A, options?: ParseOptions) {
-  self.decode(input, options).match({
-    Left: (e) => {
+  self.decode(input, options).match(
+    (e) => {
       throw e;
     },
-    Right: (a) => {
+    (a) => {
       assert.deepEqual(a, output);
     },
-  });
+  );
 }
 
 export function expectFailure<A>(
@@ -19,12 +19,12 @@ export function expectFailure<A>(
   expected: Vector<ParseError>,
   options?: ParseOptions,
 ) {
-  self.decode(input, options).match({
-    Left: (e) => {
+  self.decode(input, options).match(
+    (e) => {
       assert.deepEqual(e.errors, expected);
     },
-    Right: (a) => {
+    (a) => {
       assert.fail(`Expected failure, got ${a}`);
     },
-  });
+  );
 }

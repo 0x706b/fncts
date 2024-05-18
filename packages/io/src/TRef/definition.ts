@@ -162,8 +162,8 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
       (getEither, setEither, value, atomic) =>
         new Derived((f) =>
           f(
-            (s) => getEither(s).match({ Left: (e) => Either.left(eb(e)), Right: bd }),
-            (c) => ca(c).flatMap((a) => setEither(a).match({ Left: (e) => Either.left(ea(e)), Right: Either.right })),
+            (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
+            (c) => ca(c).flatMap((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),
@@ -181,11 +181,11 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
       (getEither, setEither, value, atomic) =>
         new DerivedAll((f) =>
           f(
-            (s) => getEither(s).match({ Left: (e) => Either.left(eb(e)), Right: bd }),
+            (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
             (c) => (s) =>
               getEither(s)
-                .match({ Left: (e) => Either.left(ec(e)), Right: ca(c) })
-                .flatMap((a) => setEither(a).match({ Left: (e) => Either.left(ea(e)), Right: Either.right })),
+                .match((e) => Either.left(ec(e)), ca(c))
+                .flatMap((a) => setEither(a).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),
@@ -195,29 +195,27 @@ export class Derived<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
 
   get get(): STM<never, EB, B> {
     return this.use((getEither, _setEither, value, _atomic) =>
-      value.get.flatMap((s) => getEither(s).match({ Left: STM.failNow, Right: STM.succeedNow })),
+      value.get.flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
     );
   }
 
   set(a: A, __tsplusTrace?: string | undefined): STM<never, EA, void> {
-    return this.use((_getEither, setEither, value, _atomic) =>
-      setEither(a).match({ Left: STM.failNow, Right: (s) => value.set(s) }),
-    );
+    return this.use((_getEither, setEither, value, _atomic) => setEither(a).match(STM.failNow, (s) => value.set(s)));
   }
 
   modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string | undefined): STM<never, EA | EB, C> {
     return this.use((getEither, setEither, value, _atomic) =>
       value.modify((s) =>
-        getEither(s).match({
-          Left: (e) => [Either.left<EA | EB, C>(e), s],
-          Right: (a1) => {
+        getEither(s).match(
+          (e) => [Either.left<EA | EB, C>(e), s],
+          (a1) => {
             const [b, a2] = f(a1);
-            return setEither(a2).match({
-              Left: (e) => [Either.left(e), s],
-              Right: (s) => [Either.right(b), s],
-            });
+            return setEither(a2).match(
+              (e) => [Either.left(e), s],
+              (s) => [Either.right(b), s],
+            );
           },
-        }),
+        ),
       ),
     ).absolve;
   }
@@ -258,9 +256,8 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
       (getEither, setEither, value, atomic) =>
         new DerivedAll((f) =>
           f(
-            (s) => getEither(s).match({ Left: (e) => Either.left(eb(e)), Right: bd }),
-            (c) => (s) =>
-              ca(c).flatMap((a) => setEither(a)(s).match({ Left: (e) => Either.left(ea(e)), Right: Either.right })),
+            (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
+            (c) => (s) => ca(c).flatMap((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),
@@ -278,11 +275,11 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
       (getEither, setEither, value, atomic) =>
         new DerivedAll((f) =>
           f(
-            (s) => getEither(s).match({ Left: (e) => Either.left(eb(e)), Right: bd }),
+            (s) => getEither(s).match((e) => Either.left(eb(e)), bd),
             (c) => (s) =>
               getEither(s)
-                .match({ Left: (e) => Either.left(ec(e)), Right: ca(c) })
-                .flatMap((a) => setEither(a)(s).match({ Left: (e) => Either.left(ea(e)), Right: Either.right })),
+                .match((e) => Either.left(ec(e)), ca(c))
+                .flatMap((a) => setEither(a)(s).match((e) => Either.left(ea(e)), Either.right)),
             value,
             atomic,
           ),
@@ -292,17 +289,17 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
 
   get get(): STM<never, EB, B> {
     return this.use((getEither, _setEither, value, _atomic) =>
-      value.get.flatMap((s) => getEither(s).match({ Left: STM.failNow, Right: STM.succeedNow })),
+      value.get.flatMap((s) => getEither(s).match(STM.failNow, STM.succeedNow)),
     );
   }
 
   set(a: A, __tsplusTrace?: string | undefined): STM<never, EA, void> {
     return this.use((_getEither, setEither, value, _atomic) =>
       value.modify((s) =>
-        setEither(a)(s).match({
-          Left: (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
-          Right: (s) => [Either.right(undefined), s],
-        }),
+        setEither(a)(s).match(
+          (e) => [Either.left(e), s] as [Either<EA, void>, typeof s],
+          (s) => [Either.right(undefined), s],
+        ),
       ),
     ).absolve;
   }
@@ -310,16 +307,16 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
   modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string | undefined): STM<never, EA | EB, C> {
     return this.use((getEither, setEither, value, atomic) =>
       value.modify((s) =>
-        getEither(s).match({
-          Left: (e) => [Either.left<EA | EB, C>(e), s],
-          Right: (a1) => {
+        getEither(s).match(
+          (e) => [Either.left<EA | EB, C>(e), s],
+          (a1) => {
             const [b, a2] = f(a1);
-            return setEither(a2)(s).match({
-              Left: (e) => [Either.left(e), s],
-              Right: (s) => [Either.right(b), s],
-            });
+            return setEither(a2)(s).match(
+              (e) => [Either.left(e), s],
+              (s) => [Either.right(b), s],
+            );
           },
-        }),
+        ),
       ),
     ).absolve;
   }

@@ -567,20 +567,20 @@ function fromPushPull<R, E, In, L, Z>(
     (inp: Conc<In>) =>
       Channel.fromIO(push(Just(inp))).matchChannel(
         ([r, leftovers]) =>
-          r.match({
-            Left: (e) => Channel.writeNow(leftovers) > Channel.failNow(e),
-            Right: (z) => Channel.writeNow(leftovers) > Channel.succeedNow(z),
-          }),
+          r.match(
+            (e) => Channel.writeNow(leftovers) > Channel.failNow(e),
+            (z) => Channel.writeNow(leftovers) > Channel.succeedNow(z),
+          ),
         () => fromPushPull(push),
       ),
     Channel.failNow,
     () =>
       Channel.fromIO(push(Nothing())).matchChannel(
         ([r, leftovers]) =>
-          r.match({
-            Left: (e) => Channel.writeNow(leftovers) > Channel.failNow(e),
-            Right: (z) => Channel.writeNow(leftovers) > Channel.succeedNow(z),
-          }),
+          r.match(
+            (e) => Channel.writeNow(leftovers) > Channel.failNow(e),
+            (z) => Channel.writeNow(leftovers) > Channel.succeedNow(z),
+          ),
         () => Channel.fromIO(IO.halt(new Error("empty sink"))),
       ),
   );

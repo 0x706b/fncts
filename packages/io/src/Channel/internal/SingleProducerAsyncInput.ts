@@ -139,7 +139,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
           switch (state._stateTag) {
             case StateTag.Emit: {
               return tuple(
-                p.await.matchCause(onError, (de) => de.match({ Left: onDone, Right: onElement })),
+                p.await.matchCause(onError, (de) => de.match(onDone, onElement)),
                 new StateEmit(state.notifyConsumers.enqueue(p)),
               );
             }
@@ -153,7 +153,7 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
               return tuple(
                 state.notifyProducer
                   .succeed(undefined)
-                  .zipRight(p.await.matchCause(onError, (de) => de.match({ Left: onDone, Right: onElement }))),
+                  .zipRight(p.await.matchCause(onError, (de) => de.match(onDone, onElement))),
                 new StateEmit(Queue.single(p)),
               );
             }

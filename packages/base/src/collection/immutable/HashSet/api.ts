@@ -300,14 +300,14 @@ export function partitionMapWith<B, C>(
     const right = beginMutation(emptyWith(C));
     const left  = beginMutation(emptyWith(B));
     fa.forEach((v) => {
-      f(v).match({
-        Left: (b) => {
+      f(v).match(
+        (b) => {
           left.add(b);
         },
-        Right: (c) => {
+        (c) => {
           right.add(c);
         },
-      });
+      );
     });
     return [endMutation(left), endMutation(right)];
   };

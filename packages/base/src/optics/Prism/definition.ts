@@ -34,7 +34,7 @@ export function makePPrism<S, T, A, B>(F: PPrismMin<S, T, A, B>): PPrism<S, T, A
     reverseGet: F.reverseGet,
     ...POptional({
       getOrModify: F.getOrModify,
-      set: (b) => (s) => F.getOrModify(s).match({ Left: identity, Right: () => F.reverseGet(b) }),
+      set: (b) => (s) => F.getOrModify(s).match(identity, () => F.reverseGet(b)),
     }),
   };
 }

@@ -42,7 +42,7 @@ suite.concurrent("IO", () => {
       "bracket happy path",
       Do((Δ) => {
         const release = Δ(Ref.make(false));
-        const result  = Δ(
+        const result = Δ(
           IO.bracket(
             IO.succeed(42),
             (n) => IO.succeed(n + 1),
@@ -84,7 +84,7 @@ suite.concurrent("IO", () => {
       "bracketExit happy path",
       Do((Δ) => {
         const release = Δ(Ref.make(false));
-        const result  = Δ(
+        const result = Δ(
           IO.bracket(
             IO.succeed(42),
             (a) => IO.succeed(a + 1),
@@ -125,7 +125,7 @@ suite.concurrent("IO", () => {
 
       return Do((Δ) => {
         const released = Δ(Ref.make(false));
-        const exit     = Δ(
+        const exit = Δ(
           IO.bracketExit(
             IO.succeed(42),
             () => released.set(true),
@@ -148,7 +148,7 @@ suite.concurrent("IO", () => {
 
   suite.concurrent("catchJustDefect", () => {
     test.io("recovers from some defects", () => {
-      const s  = "division by zero";
+      const s = "division by zero";
       const io = IO.halt(s);
       return io
         .catchJustDefect((e) => (typeof e === "string" ? Just(IO.succeed(e)) : Nothing()))
@@ -156,7 +156,7 @@ suite.concurrent("IO", () => {
     });
 
     test.io("leaves the rest", () => {
-      const t  = "division by zero";
+      const t = "division by zero";
       const io = IO.halt(t);
       return io
         .catchJustDefect((e) => (typeof e !== "string" ? Just(IO.succeed(e)) : Nothing()))
@@ -164,13 +164,13 @@ suite.concurrent("IO", () => {
     });
 
     test.io("leaves errors", () => {
-      const t  = "division by zero";
+      const t = "division by zero";
       const io = IO.fail(t);
       return io.catchJustDefect((_) => Just(IO.succeed(_))).result.assertIO(fails(strictEqualTo(t)));
     });
 
     test.io("leaves values", () => {
-      const t  = "division by zero";
+      const t = "division by zero";
       const io = IO.succeed(t);
       return io.catchJustDefect((_) => Just(IO.fail(_))).assertIO(strictEqualTo(t));
     });
@@ -229,7 +229,7 @@ suite.concurrent("IO", () => {
       "returns results in the same order",
       Do((Δ) => {
         const list = List("1", "2", "3");
-        const res  = Δ(IO.foreachConcurrent(list, (x) => IO.succeed(parseInt(x))));
+        const res = Δ(IO.foreachConcurrent(list, (x) => IO.succeed(parseInt(x))));
         return res.assert(strictEqualTo(Conc(1, 2, 3)));
       }),
     );
@@ -237,7 +237,7 @@ suite.concurrent("IO", () => {
     it.io(
       "runs effects in parallel",
       Do((Δ) => {
-        const f     = Δ(Future.make<never, void>());
+        const f = Δ(Future.make<never, void>());
         const fiber = Δ(IO.allConcurrent([IO.never, f.succeed(undefined)]).fork);
         Δ(f.await);
         Δ(fiber.interrupt);
@@ -254,8 +254,8 @@ suite.concurrent("IO", () => {
     it.io(
       "interrupts effects on the first failure",
       Do((Δ) => {
-        const ref     = Δ(Ref.make(false));
-        const future  = Δ(Future.make<never, void>());
+        const ref = Δ(Ref.make(false));
+        const future = Δ(Future.make<never, void>());
         const actions = List<IO<never, string, void>>(
           IO.never,
           IO.succeed(1),
@@ -271,7 +271,7 @@ suite.concurrent("IO", () => {
     it.io(
       "does not kill fiber when forked on the parent scope",
       Do((Δ) => {
-        const ref    = Δ(Ref.make(0));
+        const ref = Δ(Ref.make(0));
         const fibers = Δ(IO.foreachConcurrent(Iterable.range(1, 100), () => ref.update((n) => n + 1).fork));
         Δ(IO.foreach(fibers, (f) => f.await));
         const value = Δ(ref.get);
@@ -355,7 +355,7 @@ suite.concurrent("IO", () => {
       Do((Δ) => {
         const release = Δ(Future.make<never, void>());
         const acquire = Δ(Future.make<never, void>());
-        const fiber   = Δ(
+        const fiber = Δ(
           IO.asyncIO<never, never, void>(() =>
             IO.bracket(
               acquire.succeed(undefined),
@@ -373,10 +373,10 @@ suite.concurrent("IO", () => {
     it.io(
       "async should not resume fiber twice after interruption",
       Do((Δ) => {
-        const step            = Δ(Future.make<never, void>());
+        const step = Δ(Future.make<never, void>());
         const unexpectedPlace = Δ(Ref.make(List.empty<number>()));
-        const runtime         = Δ(IO.runtime<Live>());
-        const fork            = Δ(
+        const runtime = Δ(IO.runtime<Live>());
+        const fork = Δ(
           IO.async<never, never, void>((k) => {
             runtime.unsafeRunFiber(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
           })
@@ -388,7 +388,7 @@ suite.concurrent("IO", () => {
             )
             .ensuring(unexpectedPlace.update((_) => 2 + _)).forkDaemon,
         );
-        const result     = Δ(Live.withLive(fork.interrupt)((io) => io.timeout((1).seconds)));
+        const result = Δ(Live.withLive(fork.interrupt)((io) => io.timeout((1).seconds)));
         const unexpected = Δ(unexpectedPlace.get);
         return unexpected.assert(isEmpty) && result.assert(isNothing);
       }),
@@ -396,10 +396,10 @@ suite.concurrent("IO", () => {
     it.io(
       "asyncMaybe should not resume fiber twice after synchronous result",
       Do((Δ) => {
-        const step            = Δ(Future.make<never, void>());
+        const step = Δ(Future.make<never, void>());
         const unexpectedPlace = Δ(Ref.make(List.empty<number>()));
-        const runtime         = Δ(IO.runtime<Live>());
-        const fork            = Δ(
+        const runtime = Δ(IO.runtime<Live>());
+        const fork = Δ(
           IO.asyncMaybe<never, never, void>((k) => {
             runtime.unsafeRunFiber(step.await > IO.succeed(k(unexpectedPlace.update((_) => 1 + _))));
             return Just(IO.unit);
@@ -412,7 +412,7 @@ suite.concurrent("IO", () => {
             )
             .ensuring(unexpectedPlace.update((_) => 2 + _)).uninterruptible.forkDaemon,
         );
-        const result     = Δ(Live.withLive(fork.interrupt)((io) => io.timeout((1).seconds)));
+        const result = Δ(Live.withLive(fork.interrupt)((io) => io.timeout((1).seconds)));
         const unexpected = Δ(unexpectedPlace.get);
         return unexpected.assert(isEmpty) && result.assert(isNothing);
       }),
@@ -459,9 +459,9 @@ suite.concurrent("IO", () => {
       "asyncInterrupt runs cancel token on interrupt",
       Do((Δ) => {
         const release = Δ(Future.make<never, number>());
-        const latch   = Δ(Future.make<never, void>());
+        const latch = Δ(Future.make<never, void>());
         const runtime = Δ(IO.runtime<never>());
-        const async   = IO.asyncInterrupt<never, never, never>(() => {
+        const async = IO.asyncInterrupt<never, never, never>(() => {
           runtime.unsafeRunFiber(latch.succeed(undefined));
           return Either.left(release.succeed(42).asUnit);
         });
@@ -475,10 +475,10 @@ suite.concurrent("IO", () => {
     it.io("daemon fiber is unsupervised", () => {
       const child = (ref: Ref<boolean>) => withLatch((release) => (release > IO.never).ensuring(ref.set(true)));
       return Do((Δ) => {
-        const ref    = Δ(Ref.make(false));
-        const fiber  = Δ(child(ref).forkDaemon.fork);
-        const inner  = Δ(fiber.join);
-        const b      = Δ(ref.get);
+        const ref = Δ(Ref.make(false));
+        const fiber = Δ(child(ref).forkDaemon.fork);
+        const inner = Δ(fiber.join);
+        const b = Δ(ref.get);
         const result = b.assert(isFalse);
         Δ(inner.interrupt);
         return result;
@@ -489,8 +489,8 @@ suite.concurrent("IO", () => {
       Do((Δ) => {
         const latch1 = Δ(Future.make<never, void>());
         const latch2 = Δ(Future.make<never, void>());
-        const f1     = Δ(Future.make<never, void>());
-        const f2     = Δ(Future.make<never, void>());
+        const f1 = Δ(Future.make<never, void>());
+        const f2 = Δ(Future.make<never, void>());
         const loser1 = IO.bracket(
           latch1.succeed(undefined),
           () => IO.never,
@@ -548,9 +548,9 @@ suite.concurrent("IO", () => {
     it.io(
       "race of two forks does not interrupt winner",
       Do((Δ) => {
-        const ref    = Δ(Ref.make(0));
+        const ref = Δ(Ref.make(0));
         const fibers = Δ(Ref.make(HashSet.empty<Fiber<any, any>>()));
-        const latch  = Δ(Future.make<never, void>());
+        const latch = Δ(Future.make<never, void>());
         const effect = IO.uninterruptibleMask((restore) =>
           restore(latch.await.onInterrupt(() => ref.update((n) => n + 1))).fork.tap((f) =>
             fibers.update((set) => set.add(f)),
@@ -566,7 +566,7 @@ suite.concurrent("IO", () => {
       "child can outlive parent in race",
       Do((Δ) => {
         const future = Δ(Future.make<never, void>());
-        const race   = IO.unit.raceWith(
+        const race = IO.unit.raceWith(
           future.await,
           (_, fiber) => IO.succeed(fiber),
           (_, fiber) => IO.succeed(fiber),
@@ -580,10 +580,10 @@ suite.concurrent("IO", () => {
     it.io(
       "raceFirst interrupts loser on success",
       Do((Δ) => {
-        const s      = Δ(Future.make<never, void>());
+        const s = Δ(Future.make<never, void>());
         const effect = Δ(Future.make<never, number>());
         const winner = s.await.asUnit;
-        const loser  = IO.bracket(
+        const loser = IO.bracket(
           s.succeed(undefined),
           () => IO.never,
           () => effect.succeed(42),
@@ -596,10 +596,10 @@ suite.concurrent("IO", () => {
     it.io(
       "raceFirst interrupts loser on failure",
       Do((Δ) => {
-        const s      = Δ(Future.make<never, void>());
+        const s = Δ(Future.make<never, void>());
         const effect = Δ(Future.make<never, number>());
         const winner = s.await > IO.fail(new Error());
-        const loser  = IO.bracket(
+        const loser = IO.bracket(
           s.succeed(undefined),
           () => IO.never,
           () => effect.succeed(42),
@@ -641,7 +641,7 @@ suite.concurrent("IO", () => {
     it.io("bracket is uninterruptible", () => {
       const io = Do((Δ) => {
         const future = Δ(Future.make<never, void>());
-        const fiber  = Δ(
+        const fiber = Δ(
           IO.bracket(
             future.succeed(undefined) < IO.never,
             () => IO.unit,
@@ -655,7 +655,7 @@ suite.concurrent("IO", () => {
     it.io("bracketExit is uninterruptible", () => {
       const io = Do((Δ) => {
         const future = Δ(Future.make<never, void>());
-        const fiber  = Δ(
+        const fiber = Δ(
           IO.bracketExit(
             future.succeed(undefined) > IO.never > IO.succeed(1),
             () => IO.unit,
@@ -696,8 +696,8 @@ suite.concurrent("IO", () => {
     );
     it.io("bracket release called on interrupt", () => {
       const io = Do((Δ) => {
-        const f1    = Δ(Future.make<never, void>());
-        const f2    = Δ(Future.make<never, void>());
+        const f1 = Δ(Future.make<never, void>());
+        const f2 = Δ(Future.make<never, void>());
         const fiber = Δ(
           IO.bracket(
             IO.unit,
@@ -714,7 +714,7 @@ suite.concurrent("IO", () => {
     it.io(
       "bracketExit release called on interrupt",
       Do((Δ) => {
-        const done  = Δ(Future.make<never, void>());
+        const done = Δ(Future.make<never, void>());
         const fiber = Δ(
           withLatch(
             (release) =>
@@ -736,7 +736,7 @@ suite.concurrent("IO", () => {
         const f1 = Δ(Future.make<never, void>());
         const f2 = Δ(Future.make<never, number>());
         const f3 = Δ(Future.make<never, void>());
-        const s  = Δ(
+        const s = Δ(
           IO.bracket(
             f1.succeed(undefined) > f2.await,
             () => IO.unit,
@@ -756,9 +756,9 @@ suite.concurrent("IO", () => {
       Do((Δ) => {
         const future1 = Δ(Future.make<never, void>());
         const future2 = Δ(Future.make<never, void>());
-        const left    = future1.succeed(undefined) > IO.never;
-        const right   = future2.succeed(undefined) > IO.never;
-        const fiber   = Δ(left.zipConcurrent(right).fork);
+        const left = future1.succeed(undefined) > IO.never;
+        const right = future2.succeed(undefined) > IO.never;
+        const fiber = Δ(left.zipConcurrent(right).fork);
         Δ(future1.await);
         Δ(future2.await);
         Δ(fiber.interrupt);
@@ -870,13 +870,13 @@ suite.concurrent("IO", () => {
 
       const l = Do((Δ) => {
         const ref = Δ(Ref.make(0));
-        const v   = Δ(incLeft(100, ref));
+        const v = Δ(incLeft(100, ref));
         return v === 0;
       });
 
       const r = Do((Δ) => {
         const ref = Δ(Ref.make(0));
-        const v   = Δ(incRight(1000, ref));
+        const v = Δ(incRight(1000, ref));
         return v === 1000;
       });
 
@@ -885,7 +885,7 @@ suite.concurrent("IO", () => {
 
     test.io("swap must make error into value", () => {
       const error = "error";
-      const io    = IO.fail(error).swap;
+      const io = IO.fail(error).swap;
       return io.assertIO(strictEqualTo(error));
     });
 
@@ -903,7 +903,7 @@ suite.concurrent("IO", () => {
   suite("RTS failure", () => {
     test.io("error in sync effect", () => {
       const error = "error";
-      const io    = IO.attempt(() => {
+      const io = IO.attempt(() => {
         throw error;
       }).match(
         (error) => Just(error),
@@ -914,7 +914,7 @@ suite.concurrent("IO", () => {
 
     test.io("catch failing finalizers with fail", () => {
       const error = "error";
-      const io    = IO.fail(error)
+      const io = IO.fail(error)
         .ensuring(
           IO.succeed(() => {
             throw 1;
@@ -938,7 +938,7 @@ suite.concurrent("IO", () => {
 
     test.io("catch failing finalizers with halt", () => {
       const error = "error";
-      const io    = IO.halt(error)
+      const io = IO.halt(error)
         .ensuring(
           IO.succeed(() => {
             throw 1;
@@ -1004,7 +1004,7 @@ suite.concurrent("IO", () => {
         }).scoped;
       return Do((Δ) => {
         const start = Δ(Future.make<never, void>());
-        const end   = Δ(Future.make<never, void>());
+        const end = Δ(Future.make<never, void>());
         const fiber = Δ(run(start, end).forkDaemon);
         Δ(start.await);
         Δ(fiber.interrupt);

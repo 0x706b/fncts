@@ -79,7 +79,7 @@ export function make(evaluate: Lazy<Http.Server>, options: Net.ListenOptions): I
             },
       serve: (httpApp, middleware) =>
         Do((Δ) => {
-          const handler = Δ(makeHandler(httpApp, middleware!));
+          const handler        = Δ(makeHandler(httpApp, middleware!));
           const upgradeHandler = Δ(makeUpgradeHandler(wss, httpApp, middleware!));
           Δ(
             IO.addFinalizer(
@@ -261,7 +261,7 @@ export function handleResponse(request: ServerRequest, response: ServerResponse)
       }
       case BodyTag.FormData: {
         return IO.async<never, ResponseError, void>((resume) => {
-          const r = new Response((response.body as FormData).formData);
+          const r       = new Response((response.body as FormData).formData);
           const headers = {
             ...response.headers,
             ...Object.fromEntries(r.headers as any),

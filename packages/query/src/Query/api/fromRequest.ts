@@ -19,22 +19,22 @@ export function fromRequest<R, A extends Request<any, any>>(
         if (cachingEnabled) {
           return Query.currentCache.get.flatMap((cache) =>
             cache.lookup(request).flatMap((r) =>
-              r.match({
-                Left: (ref) =>
+              r.match(
+                (ref) =>
                   IO.succeedNow(
                     Result.blocked(
                       BlockedRequests.single(dataSource, BlockedRequest.make(request, ref)),
                       Continue(request, dataSource, ref),
                     ),
                   ),
-                Right: (ref) =>
+                (ref) =>
                   ref.get.map((r) =>
                     r.match(
                       () => Result.blocked(BlockedRequests.empty(), Continue(request, dataSource, ref)),
                       (b) => Result.fromEither(b),
                     ),
                   ),
-              }),
+              ),
             ),
           );
         } else {

@@ -38,6 +38,7 @@ export type {} from "./IO.js";
 export type {} from "./Hub.js";
 export type {} from "./Future.js";
 export type {} from "./FiberStatus.js";
+export type {} from "./FiberSet.js";
 export type {} from "./FiberScope.js";
 export type {} from "./FiberRefs.js";
 export type {} from "./FiberRef.js";

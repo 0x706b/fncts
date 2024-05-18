@@ -122,10 +122,10 @@ export function flatMap<F extends HKT, FC>(F: P.Monad<F, FC>) {
   >) =>
     F.flatMap(
       (either) =>
-        either.match({
-          Left: (e) => F.pure(Either.left(e)),
-          Right: (a) => f(a),
-        }) as HKT.Kind<
+        either.match(
+          (e) => F.pure(Either.left(e)),
+          (a) => f(a),
+        ) as HKT.Kind<
           F,
           FC,
           HKT.Intro<F, "K", K, K1>,
@@ -225,9 +225,9 @@ export function orElse<F>(F: P.Monad<HKT.F1<F>>) {
     that: Lazy<HKT.FK1<F, Either<E1, B>>>,
   ): ((self: HKT.FK1<F, Either<E, A>>) => HKT.FK1<F, Either<E | E1, A | B>>) =>
     F.flatMap((either) =>
-      either.match({
-        Left: () => that(),
-        Right: () => F.pure(either),
-      }),
+      either.match(
+        () => that(),
+        () => F.pure(either),
+      ),
     );
 }

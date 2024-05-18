@@ -339,10 +339,10 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
           result = Either.left(c);
           break pushing;
         case CauseTag.Fail:
-          result = c.value.match({
-            Left: (l) => Either.left(Cause.fail(l, Trace.none)),
-            Right: (r) => Either.right(r),
-          });
+          result = c.value.match(
+            (l) => Either.left(Cause.fail(l, Trace.none)),
+            (r) => Either.right(r),
+          );
           break pushing;
         case CauseTag.Sequential:
           stack.push(new FCEStackFrameThenLeft(c));
@@ -898,10 +898,10 @@ function sequenceCauseEitherEval<E, A>(self: Cause<Either<E, A>>): Eval<Either<C
     }
     case CauseTag.Fail: {
       return Eval.now(
-        self.value.match({
-          Left: (e) => Either.left(Cause.fail(e, Trace.none)),
-          Right: (a) => Either.right(a),
-        }),
+        self.value.match(
+          (e) => Either.left(Cause.fail(e, Trace.none)),
+          (a) => Either.right(a),
+        ),
       );
     }
     case CauseTag.Halt: {

@@ -1,7 +1,5 @@
 import type { ImmutableArrayF } from "@fncts/base/collection/immutable/ImmutableArray/definition";
-import type { DecodeError } from "@fncts/base/data/DecodeError";
 import type * as P from "@fncts/base/typeclass";
-import type { Check } from "@fncts/typelevel/Check";
 
 import {
   alignWith,

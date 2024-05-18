@@ -206,10 +206,7 @@ export function matchLayer<E, ROut, RIn1, E1, ROut1, RIn2, E2, ROut2>(
   __tsplusTrace?: string,
 ) {
   return <RIn>(self: Layer<RIn, E, ROut>): Layer<RIn | RIn1 | RIn2, E1 | E2, ROut1 | ROut2> => {
-    return self.matchCauseLayer(
-      (cause) => cause.failureOrCause.match({ Left: failure, Right: Layer.failCauseNow }),
-      success,
-    );
+    return self.matchCauseLayer((cause) => cause.failureOrCause.match(failure, Layer.failCauseNow), success);
   };
 }
 

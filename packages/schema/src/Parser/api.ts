@@ -54,12 +54,9 @@ function parseMaybe(ast: AST) {
 function parseOrThrow(ast: AST) {
   const parser = parserFor(ast);
   return (input: unknown, options?: ParseOptions) => {
-    return parser(input, options).match({
-      Left: (failure) => {
-        throw new Error(ParseError.format(failure.errors));
-      },
-      Right: Function.identity,
-    });
+    return parser(input, options).match((failure) => {
+      throw new Error(ParseError.format(failure.errors));
+    }, Function.identity);
   };
 }
 

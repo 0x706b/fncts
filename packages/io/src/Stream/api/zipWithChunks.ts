@@ -73,10 +73,10 @@ function handleSuccess<A1, A2, A3>(
   __tsplusTrace?: string,
 ): readonly [Conc<A3>, State<A1, A2>] {
   const [out, remaining] = f(leftChunk, rightChunk);
-  return remaining.match({
-    Left: (l) => (leftChunk.isEmpty ? [out, new PullBoth()] : [out, new PullRight(leftChunk)]),
-    Right: (r) => (rightChunk.isEmpty ? [out, new PullBoth()] : [out, new PullLeft(rightChunk)]),
-  });
+  return remaining.match(
+    (l) => (leftChunk.isEmpty ? [out, new PullBoth()] : [out, new PullRight(leftChunk)]),
+    (r) => (rightChunk.isEmpty ? [out, new PullBoth()] : [out, new PullLeft(rightChunk)]),
+  );
 }
 
 /**

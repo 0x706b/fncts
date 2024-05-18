@@ -7,7 +7,7 @@ import type { _E, _R } from "@fncts/base/types";
 
 import { identity } from "@fncts/base/data/function";
 
-import { Assertion, completes } from "./control/Assertion.js";
+import { Assertion } from "./control/Assertion.js";
 import { Spec } from "./control/Spec.js";
 import { Test } from "./control/Test.js";
 import { FailureDetailsResult } from "./data/AssertionResult.js";
@@ -147,10 +147,10 @@ function checkStreamC<R, E, A, R1>(
                 ).either,
             )
             .flatMap((sample) =>
-              sample.value.match({
-                Left: () => IO.fail(sample),
-                Right: () => IO.succeed(sample),
-              }),
+              sample.value.match(
+                () => IO.fail(sample),
+                () => IO.succeed(sample),
+              ),
             ),
         )
         .catchAll(Stream.succeedNow),
@@ -192,29 +192,29 @@ function shrinkStream<R, E, A, R1>(
   return stream
     .dropWhile(
       (sample) =>
-        !sample.value.match({
-          Left: () => true,
-          Right: (result) => result.isFailure,
-        }),
+        !sample.value.match(
+          () => true,
+          (result) => result.isFailure,
+        ),
     )
     .take(1)
     .flatMap((sample) =>
       sample
         .shrinkSearch((value) =>
-          value.match({
-            Left: () => true,
-            Right: (result) => result.isFailure,
-          }),
+          value.match(
+            () => true,
+            (result) => result.isFailure,
+          ),
         )
         .take(maxShrinks + 1),
     )
     .runCollect.flatMap((shrinks) =>
       shrinks
         .filter((value) =>
-          value.match({
-            Left: () => true,
-            Right: (result) => result.isFailure,
-          }),
+          value.match(
+            () => true,
+            (result) => result.isFailure,
+          ),
         )
         .last.match(
           () =>

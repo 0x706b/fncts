@@ -36,10 +36,10 @@ export function asyncInterrupt<R, E, A>(
         };
         const eitherPush = Δ(IO(make(unsafeSink)));
         Δ(
-          eitherPush.match({
-            Left: (canceller) => future.await.onInterrupt(canceller),
-            Right: (push) => push.run(sink),
-          }),
+          eitherPush.match(
+            (canceller) => future.await.onInterrupt(canceller),
+            (push) => push.run(sink),
+          ),
         );
       }).scoped,
   );

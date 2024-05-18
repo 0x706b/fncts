@@ -1430,16 +1430,16 @@ export function _wiltWithIndex<A>(self: ImmutableArray<A>) {
         .foldLeftWithIndex(G.pure([[] as Array<B>, [] as Array<B2>] as const), (i, fbs, a) =>
           f(i, a).pipe(
             G.zipWith(fbs, (eb, r) =>
-              eb.match({
-                Left: (b1) => {
+              eb.match(
+                (b1) => {
                   r[0].push(b1);
                   return r;
                 },
-                Right: (b2) => {
+                (b2) => {
                   r[1].push(b2);
                   return r;
                 },
-              }),
+              ),
             ),
           ),
         )
