@@ -1,5 +1,17 @@
 # @fncts/react
 
+## 0.0.2
+
+### Patch Changes
+
+- d44e76f: feat(schema): add guard interpreter
+- d3fe19a: feat(http): add more egronomic route api
+- Updated dependencies [d44e76f]
+  - @fncts/base@0.0.35
+  - @fncts/io@0.0.43
+  - @fncts/schema@0.0.15
+  - @fncts/typelevel@0.0.18
+
 ## 0.0.1
 
 ### Patch Changes

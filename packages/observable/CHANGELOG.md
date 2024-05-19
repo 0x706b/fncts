@@ -1,5 +1,13 @@
 # @fncts/pattern
 
+## 0.0.24
+
+### Patch Changes
+
+- d44e76f: feat(schema): add guard interpreter
+- Updated dependencies [d44e76f]
+  - @fncts/base@0.0.35
+
 ## 0.0.23
 
 ### Patch Changes

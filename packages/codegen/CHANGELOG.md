@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.19
+
+### Patch Changes
+
+- d44e76f: feat(schema): add guard interpreter
+
 ## 0.0.18
 
 ### Patch Changes
