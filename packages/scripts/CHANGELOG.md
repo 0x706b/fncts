@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.22
+
+### Patch Changes
+
+- d44e76f: feat(schema): add guard interpreter
+
 ## 0.0.21
 
 ### Patch Changes

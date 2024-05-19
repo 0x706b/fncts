@@ -1,5 +1,16 @@
 # @fncts/cache
 
+## 0.0.13
+
+### Patch Changes
+
+- d44e76f: feat(schema): add guard interpreter
+- Updated dependencies [d44e76f]
+  - @fncts/base@0.0.35
+  - @fncts/io@0.0.43
+  - @fncts/transformers@0.0.9
+  - @fncts/typelevel@0.0.18
+
 ## 0.0.12
 
 ### Patch Changes

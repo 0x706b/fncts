@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.18
+
+### Patch Changes
+
+- d44e76f: feat(schema): add guard interpreter
+
 ## 0.0.17
 
 ### Patch Changes
