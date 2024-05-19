@@ -1,7 +1,7 @@
-import type { Literal } from "../AST.js";
 import type { MutableVector } from "@fncts/base/collection/immutable/Vector";
 import type { Validation } from "@fncts/base/data/Branded";
 
+import { globalValue } from "@fncts/base/data/Global";
 import {
   isBigInt,
   isBoolean,
@@ -13,11 +13,32 @@ import {
   isUndefined,
 } from "@fncts/base/util/predicates";
 
-import { ASTTag, concrete } from "../AST.js";
+import { ASTTag, concrete, getSearchTree } from "../AST.js";
 import { RefinementError, TransformationError } from "../ParseError.js";
 import { getKeysForIndexSignature, getTemplateLiteralRegex, memoize, ownKeys } from "../utils.js";
 
-const go = memoize(function go(ast: AST): Parser<any> {
+const decodeMemoMap = globalValue(
+  Symbol.for("fncts.schema.Parser.decodeMemoMap"),
+  () => new WeakMap<AST, Parser<any>>(),
+);
+
+const encodeMemoMap = globalValue(
+  Symbol.for("fncts.schema.Parser.encodeMemoMap"),
+  () => new WeakMap<AST, Parser<any>>(),
+);
+
+function goMemo(ast: AST, isDecoding: boolean): Parser<any> {
+  const memoMap = isDecoding ? decodeMemoMap : encodeMemoMap;
+  const memo    = memoMap.get(ast);
+  if (memo) {
+    return memo;
+  }
+  const parser = go(ast, isDecoding);
+  memoMap.set(ast, parser);
+  return parser;
+}
+
+function go(ast: AST, isDecoding: boolean): Parser<any> {
   concrete(ast);
   switch (ast._tag) {
     case ASTTag.Declaration:
@@ -53,8 +74,8 @@ const go = memoize(function go(ast: AST): Parser<any> {
       return Parser.fromRefinement(ast, (u): u is any => isString(u) && regex.test(u));
     }
     case ASTTag.Tuple: {
-      const elements = ast.elements.map((e) => go(e.type));
-      const rest     = ast.rest.map((rest) => rest.map(go));
+      const elements = ast.elements.map((e) => goMemo(e.type, isDecoding));
+      const rest     = ast.rest.map((rest) => rest.map((ast) => goMemo(ast, isDecoding)));
       return Parser.make((input, options) => {
         if (!Array.isArray(input)) {
           return ParseResult.fail(ParseError.TypeError(AST.unknownArray, input));
@@ -64,7 +85,7 @@ const go = memoize(function go(ast: AST): Parser<any> {
         const allErrors = options?.allErrors;
         let i           = 0;
         for (; i < elements.length; i++) {
-          if (input.length < i + i) {
+          if (input.length < i + 1) {
             if (!ast.elements[i]!.isOptional) {
               const e = ParseError.IndexError(i, Vector(ParseError.MissingError));
               errors.push(e);
@@ -73,23 +94,24 @@ const go = memoize(function go(ast: AST): Parser<any> {
               } else {
                 return ParseResult.failures(errors);
               }
-            } else {
-              const parser = elements[i]!;
-              const t      = parser(input[i], options);
-              Either.concrete(t);
-              if (t.isLeft()) {
-                const e = ParseError.IndexError(i, t.left.errors);
-                errors.push(e);
-                if (allErrors) {
-                  continue;
-                } else {
-                  return ParseResult.failures(errors);
-                }
-              }
-              output.push(t.right);
             }
+          } else {
+            const parser = elements[i]!;
+            const t      = parser(input[i], options);
+            Either.concrete(t);
+            if (t.isLeft()) {
+              const e = ParseError.IndexError(i, t.left.errors);
+              errors.push(e);
+              if (allErrors) {
+                continue;
+              } else {
+                return ParseResult.failures(errors);
+              }
+            }
+            output.push(t.right);
           }
         }
+
         if (rest.isJust()) {
           const head = rest.value.unsafeHead!;
           const tail = rest.value.tail;
@@ -148,8 +170,10 @@ const go = memoize(function go(ast: AST): Parser<any> {
       if (ast.propertySignatures.length === 0 && ast.indexSignatures.length === 0) {
         return Parser.fromRefinement(ast, (u): u is Exclude<typeof u, null> => u !== null);
       }
-      const propertySignatureTypes = ast.propertySignatures.map((f) => go(f.type));
-      const indexSignatures        = ast.indexSignatures.map((is) => [go(is.parameter), go(is.type)] as const);
+      const propertySignatureTypes = ast.propertySignatures.map((f) => goMemo(f.type, isDecoding));
+      const indexSignatures        = ast.indexSignatures.map(
+        (is) => [goMemo(is.parameter, isDecoding), goMemo(is.type, isDecoding)] as const,
+      );
       return Parser.make((input, options) => {
         if (!isRecord(input)) {
           return ParseResult.fail(ParseError.TypeError(AST.unknownRecord, input));
@@ -247,13 +271,13 @@ const go = memoize(function go(ast: AST): Parser<any> {
       });
     }
     case ASTTag.Union: {
-      const searchTree = getSearchTree(ast.types);
+      const searchTree = getSearchTree(ast.types, isDecoding);
       const ownKeys    = Reflect.ownKeys(searchTree.keys);
       const len        = ownKeys.length;
       const otherwise  = searchTree.otherwise;
       const map        = new Map<any, Parser<any>>();
       ast.types.forEach((ast) => {
-        map.set(ast, go(ast));
+        map.set(ast, goMemo(ast, isDecoding));
       });
       return Parser.make((input, options) => {
         const errors = Vector.emptyPushable<ParseError>();
@@ -308,60 +332,50 @@ const go = memoize(function go(ast: AST): Parser<any> {
       });
     }
     case ASTTag.Lazy: {
-      const f   = () => go(ast.getAST());
+      const f   = () => goMemo(ast.getAST(), isDecoding);
       const get = memoize<void, Parser<any>>(f);
       return Parser.make((a, options) => get()(a, options));
     }
     case ASTTag.Refinement: {
-      const from = go(ast.from);
-      if (ast.isReversed) {
-        const to = go(ast.from.getTo);
+      if (isDecoding) {
+        const from = goMemo(ast.from, isDecoding);
+        return Parser.make((input, options) =>
+          from(input, options)
+            .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "From", failure.errors))))
+            .flatMap((a) =>
+              ast
+                .decode(a, options)
+                .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "Predicate", failure.errors)))),
+            ),
+        );
+      } else {
+        const from = goMemo(ast.from, true);
+        const to   = goMemo(ast.from.getTo, false);
         return Parser.make((input, options) =>
           to(input, options)
             .flatMap((a) => ast.decode(a, options))
             .flatMap((a) => from(a, options)),
         );
       }
-      return Parser.make((input, options) =>
-        from(input, options)
-          .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "From", failure.errors))))
-          .flatMap((a) =>
-            ast
-              .decode(a, options)
-              .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "Predicate", failure.errors)))),
-          ),
-      );
     }
     case ASTTag.Transform: {
-      const from = go(ast.from);
-      if (ast.isReversed) {
-        const to = go(ast.to);
-        return Parser.make((input, options) =>
-          to(input, options)
-            .mapLeft((failure) => ParseFailure(Vector(TransformationError(ast, input, "Type", failure.errors))))
-            .flatMap((a) =>
-              ast
-                .encode(a, options)
-                .mapLeft((failure) =>
-                  ParseFailure(Vector(TransformationError(ast, input, "Transformation", failure.errors))),
-                ),
-            )
-            .flatMap((a) =>
-              from(a, options).mapLeft((failure) =>
-                ParseFailure(Vector(TransformationError(ast, input, "Encoded", failure.errors))),
-              ),
-            ),
-        );
-      }
+      const transformation = isDecoding ? ast.decode : ast.encode;
+      const from           = isDecoding ? goMemo(ast.from, true) : goMemo(ast.to, false);
+      const to             = isDecoding ? goMemo(ast.to, true) : goMemo(ast.from, false);
       return Parser.make((input, options) =>
         from(input, options)
-          .mapLeft((failure) => ParseFailure(Vector(TransformationError(ast, input, "Encoded", failure.errors))))
+          .mapLeft((failure) =>
+            ParseFailure(Vector(TransformationError(ast, input, isDecoding ? "Encoded" : "Type", failure.errors))),
+          )
           .flatMap((a) =>
-            ast
-              .decode(a, options)
-              .mapLeft((failure) =>
-                ParseFailure(Vector(TransformationError(ast, input, "Transformation", failure.errors))),
-              ),
+            transformation(a, options).mapLeft((failure) =>
+              ParseFailure(Vector(TransformationError(ast, input, "Transformation", failure.errors))),
+            ),
+          )
+          .flatMap((a) =>
+            to(a, options).mapLeft((failure) =>
+              ParseFailure(Vector(TransformationError(ast, input, isDecoding ? "Type" : "Encoded", failure.errors))),
+            ),
           ),
       );
     }
@@ -387,75 +401,8 @@ const go = memoize(function go(ast: AST): Parser<any> {
       });
     }
   }
-});
-
-export function parserFor(ast: AST): Parser<any> {
-  return go(ast);
 }
 
-function getLiterals(ast: AST): ReadonlyArray<[PropertyKey, Literal]> {
-  AST.concrete(ast);
-  switch (ast._tag) {
-    case ASTTag.Declaration:
-      return getLiterals(ast.type);
-    case ASTTag.TypeLiteral: {
-      const out: Array<[PropertyKey, Literal]> = [];
-      for (let i = 0; i < ast.propertySignatures.length; i++) {
-        const propertySignature = ast.propertySignatures[i]!;
-        if (propertySignature.type.isLiteral() && !propertySignature.isOptional) {
-          out.push([propertySignature.name, propertySignature.type]);
-        }
-      }
-      return out;
-    }
-    case ASTTag.Refinement:
-      return getLiterals(ast.from);
-    case ASTTag.Transform:
-      return ast.isReversed ? getLiterals(ast.to) : getLiterals(ast.from.getFrom);
-  }
-  return [];
-}
-
-function getSearchTree(members: Vector<AST>): {
-  keys: {
-    readonly [key: PropertyKey]: {
-      buckets: { [literal: string]: ReadonlyArray<AST> };
-      ast: AST;
-    };
-  };
-  otherwise: ReadonlyArray<AST>;
-} {
-  const keys: {
-    [key: PropertyKey]: {
-      buckets: { [literal: string]: Array<AST> };
-      ast: AST;
-    };
-  } = {};
-  const otherwise: Array<AST> = [];
-  for (let i = 0; i < members.length; i++) {
-    const member = members[i]!;
-    const tags   = getLiterals(member);
-    if (tags.length > 0) {
-      for (let j = 0; j < tags.length; j++) {
-        const [key, literal] = tags[j]!;
-        const hash           = String(literal.literal);
-        keys[key]!         ||= { buckets: {}, ast: AST.neverKeyword };
-        const buckets        = keys[key]!.buckets;
-        if (Object.prototype.hasOwnProperty.call(buckets, hash)) {
-          if (j < tags.length - 1) {
-            continue;
-          }
-          buckets[hash]!.push(member);
-          keys[key]!.ast = AST.createUnion(Vector(keys[key]!.ast, literal));
-        } else {
-          buckets[hash]! = [member];
-          keys[key]!.ast = AST.createUnion(Vector(keys[key]!.ast, literal));
-          break;
-        }
-      }
-    } else {
-      otherwise.push(member);
-    }
-  }
-  return { keys, otherwise };
+export function parserFor(ast: AST, isDecoding: boolean): Parser<any> {
+  return goMemo(ast, isDecoding);
 }

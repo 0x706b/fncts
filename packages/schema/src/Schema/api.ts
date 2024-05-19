@@ -49,7 +49,7 @@ export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Sch
 export function filter<A>(predicate: Predicate<A>): (self: Schema<A>) => Schema<A>;
 export function filter<A>(predicate: Predicate<A>) {
   return (self: Schema<A>): Schema<A> => {
-    const ast: AST = AST.createRefinement(self.ast, predicate, false);
+    const ast: AST = AST.createRefinement(self.ast, predicate);
     return Schema.fromAST(ast);
   };
 }
@@ -62,7 +62,6 @@ export function brand<A, K extends string>(validation: Validation<A, K>) {
     const ast = AST.createRefinement(
       self.ast,
       validation.validate,
-      false,
       self.ast.annotations.annotate(ASTAnnotation.Brand, Vector(validation)),
     );
     return Schema.fromAST(ast);
@@ -522,7 +521,7 @@ export function transformOrFail<A, B>(
   encode: (input: B, options?: ParseOptions) => ParseResult<A>,
 ) {
   return (from: Schema<A>): Schema<B> => {
-    return Schema.fromAST(AST.createTransform(from.ast, to.ast, decode, encode, false));
+    return Schema.fromAST(AST.createTransform(from.ast, to.ast, decode, encode));
   };
 }
 

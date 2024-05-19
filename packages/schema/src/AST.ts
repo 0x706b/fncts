@@ -831,7 +831,6 @@ export class Refinement extends AST {
   constructor(
     readonly from: AST,
     readonly predicate: (input: any) => boolean,
-    readonly isReversed: boolean,
     readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
   ) {
     super();
@@ -845,7 +844,6 @@ export class Refinement extends AST {
     return new Refinement(
       newProperties.from ?? this.from,
       newProperties.predicate ?? this.predicate,
-      newProperties.isReversed ?? this.isReversed,
       newProperties.annotations ?? this.annotations,
     );
   }
@@ -857,10 +855,9 @@ export class Refinement extends AST {
 export function createRefinement(
   from: AST,
   predicate: (input: any) => boolean,
-  isReversed: boolean,
   annotations?: ASTAnnotationMap,
 ): Refinement {
-  return new Refinement(from, predicate, isReversed, annotations);
+  return new Refinement(from, predicate, annotations);
 }
 
 export function isRefinement(self: AST): self is Refinement {
@@ -884,7 +881,6 @@ export class Transform extends AST {
     readonly to: AST,
     readonly decode: (input: any, options?: ParseOptions) => ParseResult<any>,
     readonly encode: (input: any, options?: ParseOptions) => ParseResult<any>,
-    readonly isReversed: boolean,
     readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
   ) {
     super();
@@ -896,7 +892,6 @@ export class Transform extends AST {
       newProperties.to ?? this.to,
       newProperties.decode ?? this.decode,
       newProperties.encode ?? this.encode,
-      newProperties.isReversed ?? this.isReversed,
       newProperties.annotations ?? this.annotations,
     );
   }
@@ -910,10 +905,9 @@ export function createTransform(
   to: AST,
   decode: (input: any, options?: ParseOptions) => ParseResult<any>,
   encode: (input: any, options?: ParseOptions) => ParseResult<any>,
-  isReversed: boolean,
   annotations?: ASTAnnotationMap,
 ): Transform {
-  return new Transform(from, getTo(to), decode, encode, isReversed, annotations);
+  return new Transform(from, getTo(to), decode, encode, annotations);
 }
 
 /*
@@ -1337,44 +1331,9 @@ export function getTo(ast: AST): AST {
     case ASTTag.Lazy:
       return AST.createLazy(() => getTo(ast.getAST()), ast.annotations);
     case ASTTag.Refinement:
-      return AST.createRefinement(getTo(ast.from), ast.predicate, false, ast.annotations);
+      return AST.createRefinement(getTo(ast.from), ast.predicate, ast.annotations);
     case ASTTag.Transform:
       return getTo(ast.to);
-  }
-  return ast;
-}
-
-/**
- * @tsplus getter fncts.schema.AST reverse
- */
-export function reverse(ast: AST): AST {
-  AST.concrete(ast);
-  switch (ast._tag) {
-    case ASTTag.Declaration:
-      return AST.createDeclaration(ast.typeParameters.map(reverse), ast.type, ast.decode, ast.annotations);
-    case ASTTag.Tuple:
-      return AST.createTuple(
-        ast.elements.map((element) => AST.createElement(reverse(element.type), element.isOptional)),
-        ast.rest.map((restElement) => restElement.map(reverse)),
-        ast.isReadonly,
-        ast.annotations,
-      );
-    case ASTTag.TypeLiteral:
-      return AST.createTypeLiteral(
-        ast.propertySignatures.map((ps) =>
-          AST.createPropertySignature(ps.name, reverse(ps.type), ps.isOptional, ps.isReadonly, ps.annotations),
-        ),
-        ast.indexSignatures.map((is) => AST.createIndexSignature(is.parameter, reverse(is.type), is.isReadonly)),
-        ast.annotations,
-      );
-    case ASTTag.Union:
-      return AST.createUnion(ast.types.map(reverse), ast.annotations);
-    case ASTTag.Lazy:
-      return AST.createLazy(() => reverse(ast.getAST()), ast.annotations);
-    case ASTTag.Refinement:
-      return AST.createRefinement(ast.from, ast.predicate, !ast.isReversed, ast.annotations);
-    case ASTTag.Transform:
-      return AST.createTransform(reverse(ast.from), ast.to, ast.decode, ast.encode, !ast.isReversed, ast.annotations);
   }
   return ast;
 }
@@ -1388,4 +1347,74 @@ export function getCompiler<A>(match: AST.Match<A>): AST.Compiler<A> {
     return match[ast._tag](ast as any, compile);
   });
   return compile;
+}
+
+export function getLiterals(ast: AST, isDecoding: boolean): ReadonlyArray<[PropertyKey, Literal]> {
+  AST.concrete(ast);
+  switch (ast._tag) {
+    case ASTTag.Declaration:
+      return getLiterals(ast.type, isDecoding);
+    case ASTTag.TypeLiteral: {
+      const out: Array<[PropertyKey, Literal]> = [];
+      for (let i = 0; i < ast.propertySignatures.length; i++) {
+        const propertySignature = ast.propertySignatures[i]!;
+        if (propertySignature.type.isLiteral() && !propertySignature.isOptional) {
+          out.push([propertySignature.name, propertySignature.type]);
+        }
+      }
+      return out;
+    }
+    case ASTTag.Refinement:
+      return getLiterals(ast.from, isDecoding);
+    case ASTTag.Transform:
+      return getLiterals(isDecoding ? ast.from : ast.to, isDecoding);
+  }
+  return [];
+}
+
+export function getSearchTree(
+  members: Vector<AST>,
+  isDecoding: boolean,
+): {
+  keys: {
+    readonly [key: PropertyKey]: {
+      buckets: { [literal: string]: ReadonlyArray<AST> };
+      ast: AST;
+    };
+  };
+  otherwise: ReadonlyArray<AST>;
+} {
+  const keys: {
+    [key: PropertyKey]: {
+      buckets: { [literal: string]: Array<AST> };
+      ast: AST;
+    };
+  } = {};
+  const otherwise: Array<AST> = [];
+  for (let i = 0; i < members.length; i++) {
+    const member = members[i]!;
+    const tags   = getLiterals(member, isDecoding);
+    if (tags.length > 0) {
+      for (let j = 0; j < tags.length; j++) {
+        const [key, literal] = tags[j]!;
+        const hash           = String(literal.literal);
+        keys[key]!         ||= { buckets: {}, ast: AST.neverKeyword };
+        const buckets        = keys[key]!.buckets;
+        if (Object.prototype.hasOwnProperty.call(buckets, hash)) {
+          if (j < tags.length - 1) {
+            continue;
+          }
+          buckets[hash]!.push(member);
+          keys[key]!.ast = AST.createUnion(Vector(keys[key]!.ast, literal));
+        } else {
+          buckets[hash]! = [member];
+          keys[key]!.ast = AST.createUnion(Vector(keys[key]!.ast, literal));
+          break;
+        }
+      }
+    } else {
+      otherwise.push(member);
+    }
+  }
+  return { keys, otherwise };
 }

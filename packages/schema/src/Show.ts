@@ -1,18 +1,31 @@
 import type { TemplateLiteral, TemplateLiteralSpan } from "@fncts/schema/AST";
 
+import { globalValue } from "@fncts/base/data/Global";
 import { ASTTag } from "@fncts/schema/AST";
 import { ASTAnnotation } from "@fncts/schema/ASTAnnotation";
 import { memoize } from "@fncts/schema/utils";
+
+const showMemoMap = globalValue(Symbol.for("fncts.schema.Guard.showMemoMap"), () => new WeakMap<AST, Eval<string>>());
+
+function goMemo(ast: AST): Eval<string> {
+  const memo = showMemoMap.get(ast);
+  if (memo) {
+    return memo;
+  }
+  const s = go(ast);
+  showMemoMap.set(ast, s);
+  return s;
+}
 
 /**
  * @tsplus getter fncts.schema.Schema show
  */
 export function show<A>(self: Schema<A>): string {
-  const ev = go(self.ast);
+  const ev = goMemo(self.ast);
   return ev.run;
 }
 
-const go = memoize(function go(ast: AST): Eval<string> {
+function go(ast: AST): Eval<string> {
   AST.concrete(ast);
   switch (ast._tag) {
     case ASTTag.Declaration: {
@@ -20,7 +33,7 @@ const go = memoize(function go(ast: AST): Eval<string> {
         () => Eval.now("Unknown Type"),
         (id) => {
           return ast.typeParameters
-            .traverse(Eval.Applicative)(go)
+            .traverse(Eval.Applicative)(goMemo)
             .map((ts) => {
               if (ts.length <= 0) {
                 return id;
@@ -66,11 +79,11 @@ const go = memoize(function go(ast: AST): Eval<string> {
       return Eval.now("`" + formatTemplateLiteral(ast) + "`");
     case ASTTag.Tuple:
       return Do((Δ) => {
-        const elements     = Δ(ast.elements.map((element) => element.type).traverse(Eval.Applicative)(go));
+        const elements     = Δ(ast.elements.traverse(Eval.Applicative)((element) => goMemo(element.type)));
         const restElements = Δ(
           ast.rest.match(
             () => Eval.now(Vector.empty<string>()),
-            (rest) => rest.traverse(Eval.Applicative)(go),
+            (rest) => rest.traverse(Eval.Applicative)(goMemo),
           ),
         );
 
@@ -93,9 +106,9 @@ const go = memoize(function go(ast: AST): Eval<string> {
       });
     case ASTTag.TypeLiteral:
       return Do((Δ) => {
-        const propertySignatures = Δ(ast.propertySignatures.traverse(Eval.Applicative)((ps) => go(ps.type)));
+        const propertySignatures = Δ(ast.propertySignatures.traverse(Eval.Applicative)((ps) => goMemo(ps.type)));
         const indexSignatures    = Δ(
-          ast.indexSignatures.traverse(Eval.Applicative)((is) => go(is.parameter).zip(go(is.type))),
+          ast.indexSignatures.traverse(Eval.Applicative)((is) => goMemo(is.parameter).zip(goMemo(is.type))),
         );
 
         const required: Array<[PropertyKey, string]> = [];
@@ -123,26 +136,26 @@ const go = memoize(function go(ast: AST): Eval<string> {
       });
     case ASTTag.Union:
       return ast.types
-        .traverse(Eval.Applicative)(go)
+        .traverse(Eval.Applicative)(goMemo)
         .map((ts) => ts.join(" | "));
     case ASTTag.Lazy: {
-      const f   = () => go(ast.getAST());
-      const get = memoize<typeof f, Eval<string>>(f);
-      return Eval.defer(() => get(f));
+      const f   = () => goMemo(ast.getAST());
+      const get = memoize<void, Eval<string>>(f);
+      return Eval.defer(() => get());
     }
     case ASTTag.Enum: {
       return Eval.now(ast.enums.map(([name]) => name).join(" | "));
     }
     case ASTTag.Refinement: {
       return ast.annotations.get(ASTAnnotation.Identifier).match(
-        () => go(ast.from).map((from) => `Refined<${from}>`),
+        () => goMemo(ast.from).map((from) => `Refined<${from}>`),
         (id) => Eval.now(id),
       );
     }
     case ASTTag.Transform:
-      return go(ast.to);
+      return goMemo(ast.to);
     case ASTTag.Validation: {
-      return go(ast.from).map((from) => {
+      return goMemo(ast.from).map((from) => {
         const validationNames = ast.validation.map((v) => v.name).join(" & ");
 
         if (validationNames.length <= 0) {
@@ -153,7 +166,7 @@ const go = memoize(function go(ast: AST): Eval<string> {
       });
     }
   }
-});
+}
 
 function formatTemplateLiteralSpan(span: TemplateLiteralSpan): string {
   switch (span.type._tag) {
