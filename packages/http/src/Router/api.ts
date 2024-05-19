@@ -1,9 +1,11 @@
 import type { HttpApp } from "../HttpApp.js";
 import type { Method } from "../Method.js";
 import type { PathInput, Route } from "../Route.js";
-import type { Router } from "./definition.js";
 
 import { RouteImpl } from "../Route/internal.js";
+import { ServerRequest } from "../ServerRequest.js";
+import { ServerResponse } from "../ServerResponse.js";
+import { Router } from "./definition.js";
 import { RouterInternal } from "./internal.js";
 
 /**
@@ -92,8 +94,32 @@ export function use<R, E, R1, E1>(f: (self: Route.Handler<R, E>) => HttpApp.Defa
  */
 export function from<R extends Route<any, any>>(
   routes: Iterable<R>,
-): Router<R extends Route<infer Env, infer _> ? Env : never, R extends Route<infer _, infer E> ? E : never> {
+): Router<
+  R extends Route<infer Env, infer _> ? Router.ExcludeProvided<Env> : never,
+  R extends Route<infer _, infer E> ? E : never
+> {
   return new RouterInternal(Conc.from(routes), Conc.empty());
+}
+
+/**
+ * @tsplus static fncts.http.RouterOps routes
+ */
+export function routes<Rs extends Array<Route<any, any>>>(
+  ...routes: Rs
+): Router<
+  { [K in keyof Rs]: Rs[K] extends Route<infer Env, infer _> ? Router.ExcludeProvided<Env> : never }[number],
+  { [K in keyof Rs]: Rs[K] extends Route<infer _, infer E> ? E : never }[number]
+> {
+  return Router.from(routes);
+}
+
+/**
+ * @tsplus pipeable fncts.http.Router append
+ */
+export function append<R1, E1>(route: Route<R1, E1>) {
+  return <R, E>(self: Router<R, E>): Router<R | Router.ExcludeProvided<R1>, E | E1> => {
+    return new RouterInternal<any, any>(self.routes.append(route), self.mounts);
+  };
 }
 
 /**

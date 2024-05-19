@@ -7,6 +7,10 @@ export type RouteTypeId = typeof RouteTypeId;
 
 export type PathInput = `/${string}` | "*";
 
+/**
+ * @tsplus type fncts.http.Route
+ * @tsplus companion fncts.http.RouteOps
+ */
 export abstract class Route<R, E> {
   readonly [RouteTypeId]: RouteTypeId = RouteTypeId;
 
