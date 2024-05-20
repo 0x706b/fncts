@@ -51,7 +51,7 @@ export function deriveStruct<A extends Record<string, any>>(
           ? [optionalFields: {}]
           : [
               optionalFields: {
-                [k in OptionalKeys<A>]: Schema<NonNullable<A[k]>>;
+                [k in OptionalKeys<A>]: Schema<A[k]>;
               },
             ]),
         ...([MaybeKeys<A>] extends [never]

@@ -177,8 +177,8 @@ export const implicitDate: Schema<Date> = Schema.unknown.transformOrFail(
 );
 
 /**
- * @tsplus static fncts.schema.SchemaOps union
  * @tsplus derive fncts.schema.Schema<|> 30
+ * @tsplus static fncts.schema.SchemaOps union
  */
 export function union<A extends ReadonlyArray<unknown>>(
   ...members: {
