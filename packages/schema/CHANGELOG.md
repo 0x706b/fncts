@@ -1,5 +1,11 @@
 # @fncts/schema
 
+## 0.0.16
+
+### Patch Changes
+
+- 6a8cea5: fix: struct optional property derivation
+
 ## 0.0.15
 
 ### Patch Changes

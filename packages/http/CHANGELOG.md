@@ -1,5 +1,12 @@
 # @fncts/react
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [6a8cea5]
+  - @fncts/schema@0.0.16
+
 ## 0.0.2
 
 ### Patch Changes
