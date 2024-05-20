@@ -83,6 +83,7 @@ function toHttpApp<R, E>(self: Router<R, E>): HttpApp.Default<R, E | RouteNotFou
     if (route.prefix.isJust()) {
       context = context.add(sliceRequestUrl(request, route.prefix.value), ServerRequest.Tag);
     }
+    context = context.add(new RouteContextImpl(route, result.params, result.searchParams), RouteContext.Tag);
     return FiberRef.currentEnvironment.locally(context)(
       route.handler as IO<Router.ExcludeProvided<R>, E, ServerResponse>,
     );
