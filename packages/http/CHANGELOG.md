@@ -1,5 +1,15 @@
 # @fncts/react
 
+## 0.0.5
+
+### Patch Changes
+
+- 8fd543d: feat(schema): add ParseError path formatter
+- Updated dependencies [8fd543d]
+  - @fncts/schema@0.0.17
+  - @fncts/base@0.0.36
+  - @fncts/io@0.0.44
+
 ## 0.0.4
 
 ### Patch Changes
