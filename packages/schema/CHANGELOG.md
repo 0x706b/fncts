@@ -1,5 +1,13 @@
 # @fncts/schema
 
+## 0.0.17
+
+### Patch Changes
+
+- 8fd543d: feat(schema): add ParseError path formatter
+- Updated dependencies [8fd543d]
+  - @fncts/base@0.0.36
+
 ## 0.0.16
 
 ### Patch Changes
