@@ -13,15 +13,10 @@ export function expectSuccess<A>(self: Schema<A>, input: unknown, output: A, opt
   );
 }
 
-export function expectFailure<A>(
-  self: Schema<A>,
-  input: unknown,
-  expected: Vector<ParseError>,
-  options?: ParseOptions,
-) {
+export function expectFailure<A>(self: Schema<A>, input: unknown, expected: ParseError, options?: ParseOptions) {
   self.decode(input, options).match(
     (e) => {
-      assert.deepEqual(e.errors, expected);
+      assert.deepEqual(e, expected);
     },
     (a) => {
       assert.fail(`Expected failure, got ${a}`);

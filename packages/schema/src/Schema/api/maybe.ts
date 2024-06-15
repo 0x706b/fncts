@@ -5,11 +5,9 @@ import type { Check } from "@fncts/typelevel";
  * @tsplus getter fncts.schema.Schema maybe
  */
 export function maybe<A>(value: Schema<A>): Schema<Maybe<A>> {
-  return Schema.declaration(
-    Vector(value),
-    maybeInline(value),
-    maybeParser,
-    ASTAnnotationMap.empty.annotate(ASTAnnotation.Identifier, "Maybe"),
+  return Schema.declaration(Vector(value), maybeParser(true), maybeParser(false)).annotate(
+    ASTAnnotation.Identifier,
+    `Maybe<${value.show()}>`,
   );
 }
 
@@ -36,33 +34,20 @@ export function deriveMaybe<A extends Maybe<any>>(
   return unsafeCoerce(maybeFromNullable(value));
 }
 
-function maybeParser<A>(value: Schema<A>): Parser<Maybe<A>> {
-  const schema = maybe(value);
-  return Parser.make((u, options) => {
-    if (!Maybe.isMaybe(u)) {
-      return ParseResult.fail(ParseError.TypeError(schema.ast, u));
-    }
-    Maybe.concrete(u);
-    if (u.isNothing()) {
-      return ParseResult.succeed(Nothing());
-    } else {
-      return value.decode(u.value, options).map((a) => Just(a));
-    }
-  });
-}
-
-function maybeInline<A>(value: Schema<A>): Schema<Maybe<A>> {
-  return Schema.union(
-    Schema.struct({
-      _tag: Schema.literal("Nothing"),
-      [Symbol.equals]: Schema.any,
-      [Symbol.hash]: Schema.any,
-    }),
-    Schema.struct({
-      _tag: Schema.literal("Just"),
-      value,
-      [Symbol.equals]: Schema.any,
-      [Symbol.hash]: Schema.any,
-    }),
-  ) as unknown as Schema<Maybe<A>>;
+function maybeParser(isDecoding: boolean) {
+  return <A>(value: Schema<A>): Parser<Maybe<unknown>> => {
+    const schema     = maybe(value);
+    const parseValue = isDecoding ? value.decode : value.encode;
+    return Parser.make((u, options) => {
+      if (!Maybe.isMaybe(u)) {
+        return ParseResult.fail(ParseError.TypeError(schema.ast, u));
+      }
+      Maybe.concrete(u);
+      if (u.isNothing()) {
+        return ParseResult.succeed(Nothing());
+      } else {
+        return parseValue(u.value, options).map((a) => Just(a));
+      }
+    });
+  };
 }

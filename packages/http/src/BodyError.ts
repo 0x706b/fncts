@@ -23,7 +23,7 @@ export class JsonError extends BodyError {
 
 export class SchemaError extends BodyError {
   readonly _tag = BodyErrorTag.SchemaError;
-  constructor(readonly error: ParseFailure) {
+  constructor(readonly error: ParseError) {
     super();
   }
 }

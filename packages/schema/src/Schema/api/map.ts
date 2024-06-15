@@ -1,38 +1,31 @@
 import type { KeyError } from "@fncts/schema/ParseError";
 import type { Sized } from "@fncts/test/control/Sized";
-import type { Check } from "@fncts/typelevel";
-
-import { HashMap } from "@fncts/base/collection/immutable/HashMap";
-import { ASTAnnotation } from "@fncts/schema/ASTAnnotation";
 
 /**
- * @tsplus static fncts.schema.SchemaOps hashMap
+ * @tsplus static fncts.schema.SchemaOps map
  */
-export function hashMap<K, V>(key: Schema<K>, value: Schema<V>): Schema<HashMap<K, V>> {
-  return Schema.declaration(Vector(key, value), hashMapParser(true), hashMapParser(false))
-    .annotate(ASTAnnotation.Identifier, `HashMap<${key.show()}, ${value.show()}>`)
+export function map<K, V>(key: Schema<K>, value: Schema<V>): Schema<Map<K, V>> {
+  return Schema.declaration(Vector(key, value), mapParser(true), mapParser(false))
+    .annotate(ASTAnnotation.Identifier, `Map<${key.show()}, ${value.show()}>`)
     .annotate(ASTAnnotation.GenHook, gen);
 }
 
 /**
- * @tsplus static fncts.schema.SchemaOps hashMapFromRecord
+ * @tsplus static fncts.schema.SchemaOps mapFromRecord
  */
-export function hashMapFromRecord<K extends string | symbol, V>(
-  key: Schema<K>,
-  value: Schema<V>,
-): Schema<HashMap<K, V>> {
+export function mapFromRecord<K extends string | symbol, V>(key: Schema<K>, value: Schema<V>): Schema<Map<K, V>> {
   return Schema.record(key, value).transform(
-    hashMap(key, value),
+    map(key, value),
     (input) => {
-      const out = HashMap.empty<K, V>().beginMutation;
+      const out = new Map<K, V>();
       for (const [k, v] of Object.entries(input)) {
         out.set(k as K, v as V);
       }
-      return out.endMutation;
+      return out;
     },
     (input) => {
       const out = {} as Record<K, V>;
-      input.forEachWithIndex((k, v) => {
+      input.forEach((v, k) => {
         out[k] = v;
       });
       return out;
@@ -41,29 +34,29 @@ export function hashMapFromRecord<K extends string | symbol, V>(
 }
 
 /**
- * @tsplus derive fncts.schema.Schema[fncts.HashMap]<_> 10
+ * @tsplus derive fncts.schema.Schema[fncts.Map]<_> 10
  */
-export function deriveHashMap<A extends HashMap<any, any>>(
+export function deriveMap<A extends Map<any, any>>(
   // @ts-expect-error
-  ...[key, value]: [A] extends [HashMap<infer K, infer V>]
-    ? Check<Check.IsEqual<A, HashMap<K, V>> & Check.Extends<K, string | symbol>> extends Check.True
+  ...[key, value]: [A] extends [Map<infer K, infer V>]
+    ? Check<Check.IsEqual<A, Map<K, V>> & Check.Extends<K, string | symbol>> extends Check.True
       ? [key: Schema<K>, value: Schema<V>]
       : never
     : never
 ): Schema<A> {
-  return unsafeCoerce(hashMapFromRecord(key as Schema<string | symbol>, value));
+  return unsafeCoerce(mapFromRecord(key as Schema<string | symbol>, value));
 }
 
-function hashMapParser(isDecoding: boolean) {
-  return <K, V>(key: Schema<K>, value: Schema<V>): Parser<HashMap<unknown, unknown>> => {
-    const schema = hashMap(key, value);
+function mapParser(isDecoding: boolean) {
+  return <K, V>(key: Schema<K>, value: Schema<V>): Parser<Map<unknown, unknown>> => {
+    const schema = map(key, value);
     return Parser.make((u, options) => {
-      if (!HashMap.is(u)) {
+      if (!(u instanceof Map)) {
         return ParseResult.fail(ParseError.TypeError(schema.ast, u));
       }
       const allErrors   = options?.allErrors;
       const errors      = Vector.emptyPushable<KeyError>();
-      const out         = HashMap.empty<unknown, unknown>().beginMutation;
+      const out         = new Map();
       const keyParser   = isDecoding ? key.decode : key.encode;
       const valueParser = isDecoding ? value.decode : value.encode;
       for (const [k, v] of u) {
@@ -90,11 +83,11 @@ function hashMapParser(isDecoding: boolean) {
       }
       return errors.isNonEmpty()
         ? ParseResult.fail(ParseError.IterableError(schema.ast, u, errors))
-        : ParseResult.succeed(out.endMutation);
+        : ParseResult.succeed(out);
     });
   };
 }
 
-function gen<K, V>(key: Gen<Sized, K>, value: Gen<Sized, V>): Gen<Sized, HashMap<K, V>> {
-  return Gen.array(Gen.tuple(key, value)).map((pairs) => HashMap.from(pairs));
+function gen<K, V>(key: Gen<Sized, K>, value: Gen<Sized, V>): Gen<Sized, Map<K, V>> {
+  return Gen.array(Gen.tuple(key, value)).map((pairs) => new Map(pairs));
 }

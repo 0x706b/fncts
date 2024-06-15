@@ -56,6 +56,13 @@ export function toIterable<A>(self: Iterable<A>): Iterable<A> {
 }
 
 /**
+ * @tsplus getter fncts.Iterable toArray
+ */
+export function toArray<A>(self: Iterable<A>): Array<A> {
+  return Array.from(self);
+}
+
+/**
  * @tsplus pipeable fncts.Iterable flatMap
  */
 export function flatMap<A, B>(f: (a: A) => Iterable<B>) {

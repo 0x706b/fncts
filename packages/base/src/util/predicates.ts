@@ -86,6 +86,15 @@ export function isPlain(value: unknown): value is object {
   return isObject(value) && value.constructor === Object;
 }
 
+/**
+ * @tsplus pipeable global hasProperty
+ */
+export function hasProperty<P extends PropertyKey>(property: P) {
+  return (self: unknown): self is { [K in P]: unknown } => {
+    return isObject(self) && property in self;
+  };
+}
+
 export function isInstanceOf<C extends Constructor<A>, A>(type: C): (value: unknown) => value is A {
   return (value): value is A => value instanceof type;
 }

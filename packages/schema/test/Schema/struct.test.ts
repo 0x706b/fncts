@@ -1,3 +1,5 @@
+import type { TypeLiteral } from "@fncts/schema/AST";
+
 import { expectFailure, expectSuccess } from "../utils.js";
 
 suite("Struct Schema", () => {
@@ -21,15 +23,25 @@ suite("Struct Schema", () => {
     expectFailure(
       schema,
       { a: 42, b: 42 },
-      Vector(ParseError.KeyError(AST.createLiteral("b"), "b", Vector(ParseError.TypeError(AST.stringKeyword, 42)))),
+      ParseError.TypeLiteralError(
+        schema.ast as TypeLiteral,
+        { a: 42, b: 42 },
+        Vector(ParseError.KeyError(AST.createLiteral("b"), "b", ParseError.TypeError(AST.stringKeyword, 42))),
+        { a: 42 },
+      ),
     );
 
-    expectFailure(schema, 42, Vector(ParseError.TypeError(AST.unknownRecord, 42)));
+    expectFailure(schema, 42, ParseError.TypeError(AST.unknownRecord, 42));
 
     expectFailure(
       schema,
       { a: 42, b: "hello", c: "unexpected" },
-      Vector(ParseError.KeyError(AST.createLiteral("c"), "c", Vector(ParseError.UnexpectedError("unexpected")))),
+      ParseError.TypeLiteralError(
+        schema.ast as TypeLiteral,
+        { a: 42, b: "hello", c: "unexpected" },
+        Vector(ParseError.KeyError(AST.createLiteral("c"), "c", ParseError.UnexpectedError("unexpected"))),
+        { a: 42, b: "hello" },
+      ),
     );
   });
 });

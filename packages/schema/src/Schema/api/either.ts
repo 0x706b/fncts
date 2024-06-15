@@ -1,17 +1,12 @@
 import type { EitherJson } from "@fncts/base/json/EitherJson";
 
-import { EitherTypeId, EitherVariance } from "@fncts/base/data/Either";
-import { IOTypeId } from "@fncts/io/IO";
-
 /**
  * @tsplus static fncts.schema.SchemaOps either
  */
 export function either<E, A>(left: Schema<E>, right: Schema<A>): Schema<Either<E, A>> {
-  return Schema.declaration(
-    Vector(left, right),
-    eitherInline(left, right),
-    eitherParser,
-    ASTAnnotationMap.empty.annotate(ASTAnnotation.Identifier, "Either"),
+  return Schema.declaration(Vector(left, right), eitherParser(true), eitherParser(false)).annotate(
+    ASTAnnotation.Identifier,
+    `Either<${left.show()}, ${right.show()}>`,
   );
 }
 
@@ -71,26 +66,21 @@ export function deriveEither<A extends Either<any, any>>(
   return unsafeCoerce(eitherFromJson(left, right));
 }
 
-function eitherParser<E, A>(left: Schema<E>, right: Schema<A>): Parser<Either<E, A>> {
-  const schema = either(left, right);
-  return Parser.make((u, options) => {
-    if (!Either.isEither(u)) {
-      return ParseResult.fail(ParseError.TypeError(schema.ast, u));
-    }
-    Either.concrete(u);
-    if (u.isLeft()) {
-      return left.decode(u.left, options).map(Either.left);
-    } else {
-      return right.decode(u.right, options).map(Either.right);
-    }
-  });
-}
-
-function eitherInline<E, A>(_left: Schema<E>, _right: Schema<A>): Schema<Either<E, A>> {
-  return Schema.struct({
-    [EitherTypeId]: Schema.uniqueSymbol(EitherTypeId),
-    [EitherVariance]: Schema.any,
-    [IOTypeId]: Schema.uniqueSymbol(IOTypeId),
-    trace: Schema.undefined,
-  }) as unknown as Schema<Either<E, A>>;
+function eitherParser(isDecoding: boolean) {
+  return <E, A>(left: Schema<E>, right: Schema<A>): Parser<Either<unknown, unknown>> => {
+    const schema = either(left, right);
+    return Parser.make((u, options) => {
+      if (!Either.isEither(u)) {
+        return ParseResult.fail(ParseError.TypeError(schema.ast, u));
+      }
+      Either.concrete(u);
+      if (u.isLeft()) {
+        const parse = isDecoding ? left.decode : left.encode;
+        return parse(u.left, options).map(Either.left);
+      } else {
+        const parse = isDecoding ? right.decode : right.encode;
+        return parse(u.right, options).map(Either.right);
+      }
+    });
+  };
 }

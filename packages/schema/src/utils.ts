@@ -1,6 +1,7 @@
 import type { IndexSignature, TemplateLiteral } from "./AST";
 
 import { ASTTag } from "./AST.js";
+import { showWithOptions } from "@fncts/base/data/Showable";
 
 export function memoize<A, B>(f: (a: A) => B): (a: A) => B {
   const cache = new Map();
@@ -45,4 +46,8 @@ export function getKeysForIndexSignature(
     case ASTTag.Refinement:
       return getKeysForIndexSignature(input, parameter.from as any);
   }
+}
+
+export function formatUnknown(u: unknown): string {
+  return showWithOptions(u, {});
 }

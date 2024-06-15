@@ -17,7 +17,7 @@ export const searchParams = IO.service(RouteContext.Tag).map((routeContext) => r
 /**
  * @tsplus static fncts.http.RouteContextOps schemaParams
  */
-export function schemaParams<A>(schema: Schema<A>): IO<RouteContext, ParseFailure, A> {
+export function schemaParams<A>(schema: Schema<A>): IO<RouteContext, ParseError, A> {
   const decode = schema.decode;
   return IO.service(RouteContext.Tag).flatMap((routeContext) =>
     decode({ ...routeContext.params, ...routeContext.searchParams }),
@@ -27,7 +27,7 @@ export function schemaParams<A>(schema: Schema<A>): IO<RouteContext, ParseFailur
 /**
  * @tsplus static fncts.http.RouteContextOps schemaPathParams
  */
-export function schemaPathParams<A>(schema: Schema<A>): IO<RouteContext, ParseFailure, A> {
+export function schemaPathParams<A>(schema: Schema<A>): IO<RouteContext, ParseError, A> {
   const decode = schema.decode;
   return params.flatMap(decode);
 }
@@ -35,7 +35,7 @@ export function schemaPathParams<A>(schema: Schema<A>): IO<RouteContext, ParseFa
 /**
  * @tsplus static fncts.http.RouteContextOps schemaSearchParams
  */
-export function schemaSearchParams<A>(schema: Schema<A>): IO<RouteContext, ParseFailure, A> {
+export function schemaSearchParams<A>(schema: Schema<A>): IO<RouteContext, ParseError, A> {
   const decode = schema.decode;
   return searchParams.flatMap(decode);
 }

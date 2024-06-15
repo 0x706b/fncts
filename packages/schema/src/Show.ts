@@ -1,169 +1,117 @@
-import type { TemplateLiteral, TemplateLiteralSpan } from "@fncts/schema/AST";
+import type {
+  Element,
+  Refinement,
+  StringKeyword,
+  SymbolKeyword,
+  TemplateLiteral,
+  TemplateLiteralSpan,
+  Tuple,
+  TypeLiteral,
+} from "@fncts/schema/AST";
 
 import { globalValue } from "@fncts/base/data/Global";
 import { ASTTag } from "@fncts/schema/AST";
-import { ASTAnnotation } from "@fncts/schema/ASTAnnotation";
-import { memoize } from "@fncts/schema/utils";
+import { formatUnknown } from "@fncts/schema/utils";
 
-const showMemoMap = globalValue(Symbol.for("fncts.schema.Guard.showMemoMap"), () => new WeakMap<AST, Eval<string>>());
+const showMemoMap = globalValue(Symbol.for("fncts.schema.Guard.showMemoMap"), () => new WeakMap<AST, string>());
+const showMemoMapVerbose = globalValue(
+  Symbol.for("fncts.schema.Guard.showMemoMapVerbose"),
+  () => new WeakMap<AST, string>(),
+);
 
-function goMemo(ast: AST): Eval<string> {
-  const memo = showMemoMap.get(ast);
+function goMemo(ast: AST, verbose: boolean): string {
+  const memoMap = verbose ? showMemoMapVerbose : showMemoMap;
+  const memo = memoMap.get(ast);
   if (memo) {
     return memo;
   }
-  const s = go(ast);
-  showMemoMap.set(ast, s);
+  const s = go(ast, verbose);
+  memoMap.set(ast, s);
   return s;
 }
 
 /**
- * @tsplus getter fncts.schema.Schema show
+ * @tsplus pipeable fncts.schema.Schema show
  */
-export function show<A>(self: Schema<A>): string {
-  const ev = goMemo(self.ast);
-  return ev.run;
+export function show(verbose: boolean = false) {
+  return <A>(self: Schema<A>): string => goMemo(self.ast, verbose);
 }
 
-function go(ast: AST): Eval<string> {
+/**
+ * @tsplus pipeable fncts.schema.AST show
+ */
+export function showAST(verbose: boolean = false) {
+  return (self: AST): string => goMemo(self, verbose);
+}
+
+function go(ast: AST, verbose: boolean): string {
   AST.concrete(ast);
   switch (ast._tag) {
     case ASTTag.Declaration: {
-      return ast.annotations.get(ASTAnnotation.Identifier).match(
-        () => Eval.now("Unknown Type"),
-        (id) => {
-          return ast.typeParameters
-            .traverse(Eval.Applicative)(goMemo)
-            .map((ts) => {
-              if (ts.length <= 0) {
-                return id;
-              } else {
-                return `${id}<${ts.join(", ")}>`;
-              }
-            });
-        },
-      );
+      return ast.getFormattedExpected(verbose).getOrElse("<declaration schema>");
     }
-    case ASTTag.Literal: {
-      if (ast.literal === null) {
-        return Eval.now("null");
-      } else {
-        return Eval.now(ast.literal.toString());
-      }
-    }
+    case ASTTag.Literal:
+      return ast.getFormattedExpected(verbose).getOrElse(formatUnknown(ast.literal));
     case ASTTag.UniqueSymbol:
-      return Eval.now(ast.symbol.toString());
+      return ast.getFormattedExpected(verbose).getOrElse(formatUnknown(ast.symbol));
     case ASTTag.UndefinedKeyword:
-      return Eval.now("undefined");
+      return ast.getFormattedExpected(verbose).getOrElse("undefined");
     case ASTTag.VoidKeyword:
-      return Eval.now("void");
+      return ast.getFormattedExpected(verbose).getOrElse("void");
     case ASTTag.NeverKeyword:
-      return Eval.now("never");
+      return ast.getFormattedExpected(verbose).getOrElse("never");
     case ASTTag.UnknownKeyword:
-      return Eval.now("unknown");
+      return ast.getFormattedExpected(verbose).getOrElse("unknown");
     case ASTTag.AnyKeyword:
-      return Eval.now("any");
+      return ast.getFormattedExpected(verbose).getOrElse("any");
     case ASTTag.StringKeyword:
-      return Eval.now("string");
+      return ast.getFormattedExpected(verbose).getOrElse("string");
     case ASTTag.NumberKeyword:
-      return Eval.now("number");
+      return ast.getFormattedExpected(verbose).getOrElse("number");
     case ASTTag.BooleanKeyword:
-      return Eval.now("boolean");
+      return ast.getFormattedExpected(verbose).getOrElse("boolean");
     case ASTTag.BigIntKeyword:
-      return Eval.now("bigint");
+      return ast.getFormattedExpected(verbose).getOrElse("bigint");
     case ASTTag.SymbolKeyword:
-      return Eval.now("symbol");
+      return ast.getFormattedExpected(verbose).getOrElse("symbol");
     case ASTTag.ObjectKeyword:
-      return Eval.now("object");
+      return ast.getFormattedExpected(verbose).getOrElse("object");
     case ASTTag.TemplateLiteral:
-      return Eval.now("`" + formatTemplateLiteral(ast) + "`");
-    case ASTTag.Tuple:
-      return Do((Δ) => {
-        const elements     = Δ(ast.elements.traverse(Eval.Applicative)((element) => goMemo(element.type)));
-        const restElements = Δ(
-          ast.rest.match(
-            () => Eval.now(Vector.empty<string>()),
-            (rest) => rest.traverse(Eval.Applicative)(goMemo),
-          ),
-        );
-
-        return Δ(
-          Eval(() => {
-            if (elements.length === 0 && restElements.length === 1) {
-              if (ast.isReadonly) {
-                return `ReadonlyArray<${restElements[0]}>`;
-              } else {
-                return `Array<${restElements[0]}>`;
-              }
-            }
-
-            const prefix = (ast.isReadonly ? "readonly " : "") + "[" + elements.join(", ");
-            const middle = restElements.length > 0 ? ", " : "";
-            const suffix = restElements.map((s) => `...${s}`).join(", ") + "]";
-            return prefix + middle + suffix;
-          }),
-        );
-      });
-    case ASTTag.TypeLiteral:
-      return Do((Δ) => {
-        const propertySignatures = Δ(ast.propertySignatures.traverse(Eval.Applicative)((ps) => goMemo(ps.type)));
-        const indexSignatures    = Δ(
-          ast.indexSignatures.traverse(Eval.Applicative)((is) => goMemo(is.parameter).zip(goMemo(is.type))),
-        );
-
-        const required: Array<[PropertyKey, string]> = [];
-        const optional: Array<[PropertyKey, string]> = [];
-
-        ast.propertySignatures.forEachWithIndex((i, ps) => {
-          const name = ps.name;
-          if (!ps.isOptional) {
-            required.push([name, propertySignatures[i]!]);
-          } else {
-            optional.push([name, propertySignatures[i]!]);
-          }
-        });
-
-        const prefix     = "{";
-        const properties = required
-          .concat(optional)
-          .sort(([k1], [k2]) => k1.toLocaleString().localeCompare(k2.toLocaleString()))
-          .map(([propertyKey, type]) => `${String(propertyKey)}: ${type}`)
-          .join(", ");
-        const index  = indexSignatures.map(([param, type]) => `[x: ${param}]: ${type}`).join(", ");
-        const suffix = "}";
-
-        return prefix + " " + properties + (index.length === 0 ? "" : ", ") + index + " " + suffix;
-      });
-    case ASTTag.Union:
-      return ast.types
-        .traverse(Eval.Applicative)(goMemo)
-        .map((ts) => ts.join(" | "));
+      return ast.getFormattedExpected(verbose).getOrElse(formatTemplateLiteral(ast));
+    case ASTTag.Tuple: {
+      return ast.getFormattedExpected(verbose).getOrElse(formatTuple(ast, verbose));
+    }
+    case ASTTag.TypeLiteral: {
+      return ast.getFormattedExpected(verbose).getOrElse(formatTypeLiteral(ast, verbose));
+    }
+    case ASTTag.Union: {
+      return ast.getFormattedExpected(verbose).getOrElse(ast.types.map((ast) => goMemo(ast, verbose)).join(" | "));
+    }
     case ASTTag.Lazy: {
-      const f   = () => goMemo(ast.getAST());
-      const get = memoize<void, Eval<string>>(f);
-      return Eval.defer(() => get());
+      return ast
+        .getFormattedExpected(verbose)
+        .orElse(Maybe.tryCatch(ast.getAST).flatMap((ast) => ast.getFormattedExpected(verbose)))
+        .getOrElse("<lazy schema>");
     }
     case ASTTag.Enum: {
-      return Eval.now(ast.enums.map(([name]) => name).join(" | "));
+      return ast
+        .getFormattedExpected(verbose)
+        .getOrElse(
+          `<enum ${ast.enums.length} values(s): ${ast.enums.map(([_, value]) => JSON.stringify(value)).join(" | ")}`,
+        );
     }
     case ASTTag.Refinement: {
-      return ast.annotations.get(ASTAnnotation.Identifier).match(
-        () => goMemo(ast.from).map((from) => `Refined<${from}>`),
-        (id) => Eval.now(id),
-      );
+      return ast.getFormattedExpected(verbose).getOrElse(`{ ${goMemo(ast.from, verbose)} | filter }`);
     }
-    case ASTTag.Transform:
-      return goMemo(ast.to);
+    case ASTTag.Transform: {
+      return ast
+        .getFormattedExpected(verbose)
+        .getOrElse(`(${goMemo(ast.from, verbose)} <-> ${goMemo(ast.to, verbose)})`);
+    }
     case ASTTag.Validation: {
-      return goMemo(ast.from).map((from) => {
-        const validationNames = ast.validation.map((v) => v.name).join(" & ");
-
-        if (validationNames.length <= 0) {
-          return from;
-        }
-
-        return `${from} & ${validationNames}`;
-      });
+      return ast
+        .getFormattedExpected(verbose)
+        .getOrElse(`${goMemo(ast.from, verbose)} (${ast.validation.map((v) => v.name).join(" & ")})`);
     }
   }
 }
@@ -178,5 +126,85 @@ function formatTemplateLiteralSpan(span: TemplateLiteralSpan): string {
 }
 
 function formatTemplateLiteral(ast: TemplateLiteral): string {
-  return ast.head + ast.spans.map((span) => formatTemplateLiteralSpan(span) + span.literal).join("");
+  return "`" + ast.head + ast.spans.map((span) => formatTemplateLiteralSpan(span) + span.literal).join("") + "`";
+}
+
+function formatElement(ast: Element, verbose: boolean): string {
+  return goMemo(ast.type, verbose) + (ast.isOptional ? "?" : "");
+}
+
+function getParameterBase(
+  self: StringKeyword | SymbolKeyword | TemplateLiteral | Refinement,
+): StringKeyword | SymbolKeyword | TemplateLiteral {
+  switch (self._tag) {
+    case ASTTag.StringKeyword:
+    case ASTTag.SymbolKeyword:
+    case ASTTag.TemplateLiteral:
+      return self;
+    case ASTTag.Refinement:
+      return getParameterBase(self);
+  }
+}
+
+function formatTuple(ast: Tuple, verbose: boolean): string {
+  const formattedElements = ast.elements.map((element) => formatElement(element, verbose)).join(", ");
+  return ast.rest
+    .filter((rest) => rest.isNonEmpty())
+    .match(
+      () => `${ast.isReadonly ? "readonly " : ""}[${formattedElements}]`,
+      (rest) => {
+        const head = rest.unsafeHead!;
+        const tail = rest.tail;
+        const formattedHead = goMemo(head, verbose);
+        const wrappedHead = formattedHead.includes(" | ") ? `(${formattedHead})` : formattedHead;
+
+        if (tail.length > 0) {
+          const formattedTail = tail.map((ast) => goMemo(ast, verbose)).join(", ");
+          if (ast.elements.length > 0) {
+            return `${ast.isReadonly ? "readonly " : " "}[${formattedElements}, ...${wrappedHead}[], ${formattedTail}]`;
+          } else {
+            return `${ast.isReadonly ? "readonly " : " "}[...${wrappedHead}[], ${formattedTail}]`;
+          }
+        } else {
+          if (ast.elements.length > 0) {
+            return `${ast.isReadonly ? "readonly " : " "}[${formattedElements}, ...${wrappedHead}[]]`;
+          } else {
+            return `${ast.isReadonly ? "Readonly" : ""}Array<${formattedHead}>`;
+          }
+        }
+      },
+    );
+}
+
+function formatTypeLiteral(ast: TypeLiteral, verbose: boolean): string {
+  const formattedPropertySignatures = ast.propertySignatures
+    .map(
+      (ps) =>
+        (ps.isReadonly ? "readonly " : "") +
+        String(ps.name) +
+        (ps.isOptional ? "?" : "") +
+        ": " +
+        goMemo(ps.type, verbose),
+    )
+    .join("; ");
+  if (ast.indexSignatures.length > 0) {
+    const formattedIndexSignatures = ast.indexSignatures
+      .map(
+        (is) =>
+          (is.isReadonly ? "readonly " : "") +
+          `[x: ${goMemo(getParameterBase(is.parameter), verbose)}]: ${goMemo(is.type, verbose)}`,
+      )
+      .join("; ");
+    if (ast.propertySignatures.length > 0) {
+      return `{ ${formattedPropertySignatures}; ${formattedIndexSignatures} }`;
+    } else {
+      return `{ ${formattedIndexSignatures} }`;
+    }
+  } else {
+    if (ast.propertySignatures.length > 0) {
+      return `{ ${formattedPropertySignatures} }`;
+    } else {
+      return "{}";
+    }
+  }
 }

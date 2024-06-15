@@ -7,7 +7,9 @@ export * from "./Schema/api.js";
 
 /* eslint-disable simple-import-sort/exports */
 // codegen:start { preset: barrel, include: ./Schema/api/*.ts }
+export * from "./Schema/api/set.js";
 export * from "./Schema/api/maybe.js";
+export * from "./Schema/api/map.js";
 export * from "./Schema/api/list.js";
 export * from "./Schema/api/immutableArray.js";
 export * from "./Schema/api/hashSet.js";

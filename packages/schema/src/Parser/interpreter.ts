@@ -1,3 +1,4 @@
+import type { IndexError, KeyError, TypeError, TypeLiteralError, UnionMemberError } from "../ParseError/ParseError.js";
 import type { MutableVector } from "@fncts/base/collection/immutable/Vector";
 import type { Validation } from "@fncts/base/data/Branded";
 
@@ -14,7 +15,7 @@ import {
 } from "@fncts/base/util/predicates";
 
 import { ASTTag, concrete, getSearchTree } from "../AST.js";
-import { RefinementError, TransformationError } from "../ParseError.js";
+import { DeclarationError, ParseErrorTag, RefinementError, TransformationError } from "../ParseError/ParseError.js";
 import { getKeysForIndexSignature, getTemplateLiteralRegex, memoize, ownKeys } from "../utils.js";
 
 const decodeMemoMap = globalValue(
@@ -41,8 +42,13 @@ function goMemo(ast: AST, isDecoding: boolean): Parser<any> {
 function go(ast: AST, isDecoding: boolean): Parser<any> {
   concrete(ast);
   switch (ast._tag) {
-    case ASTTag.Declaration:
-      return Parser.make(ast.decode(...ast.typeParameters));
+    case ASTTag.Declaration: {
+      const parse = isDecoding ? ast.decode(...ast.typeParameters) : ast.encode(...ast.typeParameters);
+
+      return Parser.make((input, options) =>
+        parse(input, options).mapLeft((error) => new DeclarationError(ast, input, error)),
+      );
+    }
     case ASTTag.Literal:
       return Parser.fromRefinement(ast, (u): u is typeof ast.literal => u === ast.literal);
     case ASTTag.UniqueSymbol:
@@ -81,18 +87,18 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
           return ParseResult.fail(ParseError.TypeError(AST.unknownArray, input));
         }
         const output: Array<any>                = [];
-        const errors: MutableVector<ParseError> = Vector.emptyPushable();
+        const errors: MutableVector<IndexError> = Vector.emptyPushable();
         const allErrors = options?.allErrors;
         let i           = 0;
         for (; i < elements.length; i++) {
           if (input.length < i + 1) {
             if (!ast.elements[i]!.isOptional) {
-              const e = ParseError.IndexError(i, Vector(ParseError.MissingError));
-              errors.push(e);
+              const e = ParseError.IndexError(i, ParseError.MissingError);
               if (allErrors) {
+                errors.push(e);
                 continue;
               } else {
-                return ParseResult.failures(errors);
+                return ParseResult.fail(ParseError.TupleError(ast, input, Vector(e), output));
               }
             }
           } else {
@@ -100,12 +106,12 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
             const t      = parser(input[i], options);
             Either.concrete(t);
             if (t.isLeft()) {
-              const e = ParseError.IndexError(i, t.left.errors);
-              errors.push(e);
+              const e = ParseError.IndexError(i, t.left);
               if (allErrors) {
+                errors.push(e);
                 continue;
               } else {
-                return ParseResult.failures(errors);
+                return ParseResult.fail(ParseError.TupleError(ast, input, Vector(e), output));
               }
             }
             output.push(t.right);
@@ -119,12 +125,12 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
             const t = head(input[i], options);
             Either.concrete(t);
             if (t.isLeft()) {
-              const e = ParseError.IndexError(i, t.left.errors);
-              errors.push(e);
+              const e = ParseError.IndexError(i, t.left);
               if (allErrors) {
+                errors.push(e);
                 continue;
               } else {
-                return ParseResult.failures(errors);
+                return ParseResult.fail(ParseError.TupleError(ast, input, Vector(e), output));
               }
             }
             output.push(t.right);
@@ -132,18 +138,23 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
           for (let j = 0; j < tail.length; j++) {
             i += j;
             if (input.length < i + 1) {
-              errors.push(ParseError.IndexError(i, Vector(ParseError.MissingError)));
-              return ParseResult.failures(errors);
+              const e = ParseError.IndexError(i, ParseError.MissingError);
+              if (allErrors) {
+                errors.push(e);
+                continue;
+              } else {
+                return ParseResult.fail(ParseError.TupleError(ast, input, Vector(e), output));
+              }
             } else {
               const t = tail[j]!(input[i], options);
               Either.concrete(t);
               if (t.isLeft()) {
-                const e = ParseError.IndexError(i, t.left.errors);
-                errors.push(e);
+                const e = ParseError.IndexError(i, t.left);
                 if (allErrors) {
+                  errors.push(e);
                   continue;
                 } else {
-                  return ParseResult.failures(errors);
+                  return ParseResult.fail(ParseError.TupleError(ast, input, Vector(e), output));
                 }
               }
               output.push(t.right);
@@ -152,18 +163,20 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
         } else {
           const isUnexpectedAllowed = options?.isUnexpectedAllowed;
           for (; i < input.length; i++) {
-            const e = ParseError.IndexError(i, Vector(ParseError.UnexpectedError(input[i])));
+            const e = ParseError.IndexError(i, ParseError.UnexpectedError(input[i]));
             if (!isUnexpectedAllowed) {
-              errors.push(e);
               if (allErrors) {
+                errors.push(e);
                 continue;
               } else {
-                return ParseResult.failures(errors);
+                return ParseResult.fail(ParseError.TupleError(ast, input, Vector(e), output));
               }
             }
           }
         }
-        return errors.isNonEmpty() ? ParseResult.failures(errors) : ParseResult.succeed(output);
+        return errors.isNonEmpty()
+          ? ParseResult.fail(ParseError.TupleError(ast, input, errors, output))
+          : ParseResult.succeed(output);
       });
     }
     case ASTTag.TypeLiteral: {
@@ -178,9 +191,9 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
         if (!isRecord(input)) {
           return ParseResult.fail(ParseError.TypeError(AST.unknownRecord, input));
         }
-        const output: any                       = {};
-        const expectedKeys: any                 = {};
-        const errors: MutableVector<ParseError> = Vector.emptyPushable();
+        const output: any                     = {};
+        const expectedKeys: any               = {};
+        const errors: MutableVector<KeyError> = Vector.emptyPushable();
         const allErrors = options?.allErrors;
 
         for (let i = 0; i < propertySignatureTypes.length; i++) {
@@ -190,24 +203,24 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
           expectedKeys[name] = null;
           if (!Object.prototype.hasOwnProperty.call(input, name)) {
             if (!ps.isOptional) {
-              const e = ParseError.KeyError(AST.createKey(name), name, Vector(ParseError.MissingError));
-              errors.push(e);
+              const e = ParseError.KeyError(AST.createKey(name), name, ParseError.MissingError);
               if (allErrors) {
+                errors.push(e);
                 continue;
               } else {
-                return ParseResult.failures(errors);
+                return ParseResult.fail(ParseError.TypeLiteralError(ast, input, Vector(e), output));
               }
             }
           } else {
             const t: ParseResult<unknown> = parser(input[name], options);
             Either.concrete(t);
             if (t.isLeft()) {
-              const e = ParseError.KeyError(AST.createKey(name), name, t.left.errors);
-              errors.push(e);
+              const e = ParseError.KeyError(AST.createKey(name), name, t.left);
               if (allErrors) {
+                errors.push(e);
                 continue;
               } else {
-                return ParseResult.failures(errors);
+                return ParseResult.fail(ParseError.TypeLiteralError(ast, input, Vector(e), output));
               }
             }
             output[name] = t.right;
@@ -226,24 +239,24 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
               let t = parameter(key, options);
               Either.concrete(t);
               if (t.isLeft()) {
-                const e = ParseError.KeyError(AST.createKey(key), key, t.left.errors);
-                errors.push(e);
+                const e = ParseError.KeyError(AST.createKey(key), key, t.left);
                 if (allErrors) {
+                  errors.push(e);
                   continue;
                 } else {
-                  return ParseResult.failures(errors);
+                  return ParseResult.fail(ParseError.TypeLiteralError(ast, input, Vector(e), output));
                 }
               }
 
               t = type(input[key], options);
               Either.concrete(t);
               if (t.isLeft()) {
-                const e = ParseError.KeyError(AST.createKey(key), key, t.left.errors);
+                const e = ParseError.KeyError(AST.createKey(key), key, t.left);
                 errors.push(e);
                 if (allErrors) {
                   continue;
                 } else {
-                  return ParseResult.failures(errors);
+                  return ParseResult.fail(ParseError.TypeLiteralError(ast, input, Vector(e), output));
                 }
               }
 
@@ -254,33 +267,36 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
           const isUnexpectedAllowed = options?.isUnexpectedAllowed;
           for (const key of ownKeys(input)) {
             if (!Object.prototype.hasOwnProperty.call(expectedKeys, key)) {
-              const e = ParseError.KeyError(AST.createKey(key), key, Vector(ParseError.UnexpectedError(input[key])));
               if (!isUnexpectedAllowed) {
-                errors.push(e);
+                const e = ParseError.KeyError(AST.createKey(key), key, ParseError.UnexpectedError(input[key]));
                 if (allErrors) {
+                  errors.push(e);
                   continue;
                 } else {
-                  return ParseResult.failures(errors);
+                  return ParseResult.fail(ParseError.TypeLiteralError(ast, input, Vector(e), output));
                 }
               }
             }
           }
         }
 
-        return errors.isNonEmpty() ? ParseResult.failures(errors) : ParseResult.succeed(output);
+        return errors.isNonEmpty()
+          ? ParseResult.fail(ParseError.TypeLiteralError(ast, input, errors, output))
+          : ParseResult.succeed(output);
       });
     }
     case ASTTag.Union: {
       const searchTree = getSearchTree(ast.types, isDecoding);
       const ownKeys    = Reflect.ownKeys(searchTree.keys);
       const len        = ownKeys.length;
-      const otherwise  = searchTree.otherwise;
       const map        = new Map<any, Parser<any>>();
       ast.types.forEach((ast) => {
         map.set(ast, goMemo(ast, isDecoding));
       });
       return Parser.make((input, options) => {
-        const errors = Vector.emptyPushable<ParseError>();
+        const errors               = Vector.emptyPushable<TypeError | TypeLiteralError | UnionMemberError>();
+        let candidates: Array<AST> = [];
+
         if (len > 0) {
           if (isRecord(input)) {
             for (let i = 0; i < len; i++) {
@@ -289,45 +305,58 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
               if (Object.prototype.hasOwnProperty.call(input, name)) {
                 const literal = String(input[name]);
                 if (Object.prototype.hasOwnProperty.call(buckets, literal)) {
-                  const bucket: ReadonlyArray<AST> = buckets[literal]!;
-                  for (let i = 0; i < bucket.length; i++) {
-                    const t = map.get(bucket[i])!(input, options);
-                    Either.concrete(t);
-                    if (t.isRight()) {
-                      return t;
-                    } else {
-                      errors.push(ParseError.UnionMemberError(t.left.errors));
-                    }
-                  }
+                  candidates = candidates.concat(buckets[literal]!);
                 } else {
+                  const literals = AST.createUnion(Vector.from(searchTree.keys[name]!.literals));
                   errors.push(
-                    ParseError.KeyError(
-                      AST.createKey(name),
-                      name,
-                      Vector(ParseError.TypeError(searchTree.keys[name]!.ast, input[name])),
+                    ParseError.TypeLiteralError(
+                      AST.createTypeLiteral(Vector(AST.createPropertySignature(name, literals, false, true)), Vector()),
+                      input,
+                      Vector(
+                        ParseError.KeyError(
+                          AST.createKey(name),
+                          name,
+                          ParseError.TypeError(searchTree.keys[name]!.ast, input[name]),
+                        ),
+                      ),
                     ),
                   );
                 }
               } else {
-                errors.push(ParseError.KeyError(AST.createKey(name), name, Vector(ParseError.MissingError)));
+                const literals = AST.createUnion(Vector.from(searchTree.keys[name]!.literals));
+                errors.push(
+                  ParseError.TypeLiteralError(
+                    AST.createTypeLiteral(Vector(AST.createPropertySignature(name, literals, false, true)), Vector()),
+                    input,
+                    Vector(ParseError.KeyError(AST.createKey(name), name, ParseError.MissingError)),
+                  ),
+                );
               }
             }
           } else {
             errors.push(ParseError.TypeError(AST.unknownRecord, input));
           }
         }
-        for (let i = 0; i < otherwise.length; i++) {
-          const t = map.get(otherwise[i])!(input, options);
-          Either.concrete(t);
-          if (t.isRight()) {
-            return t;
+
+        if (searchTree.otherwise.length > 0) {
+          candidates = candidates.concat(searchTree.otherwise);
+        }
+
+        for (let i = 0; i < candidates.length; i++) {
+          const candidate = candidates[i]!;
+          const pr        = map.get(candidate)!(input, options);
+          Either.concrete(pr);
+          if (pr.isRight()) {
+            return pr;
           } else {
-            errors.push(ParseError.UnionMemberError(t.left.errors));
+            errors.push(ParseError.UnionMemberError(candidate, pr.left));
           }
         }
 
         return errors.isNonEmpty()
-          ? ParseResult.failures(errors)
+          ? errors.length === 1 && errors[0]!._tag === ParseErrorTag.Type
+            ? ParseResult.fail(errors[0]! as TypeError)
+            : ParseResult.fail(ParseError.UnionError(ast, input, Vector.from(errors)))
           : ParseResult.fail(ParseError.TypeError(AST.neverKeyword, input));
       });
     }
@@ -341,11 +370,9 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
         const from = goMemo(ast.from, isDecoding);
         return Parser.make((input, options) =>
           from(input, options)
-            .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "From", failure.errors))))
+            .mapLeft((failure) => RefinementError(ast, input, "From", failure))
             .flatMap((a) =>
-              ast
-                .decode(a, options)
-                .mapLeft((failure) => ParseFailure(Vector(RefinementError(ast, input, "Predicate", failure.errors)))),
+              ast.decode(a, options).mapLeft((failure) => RefinementError(ast, input, "Predicate", failure)),
             ),
         );
       } else {
@@ -364,17 +391,13 @@ function go(ast: AST, isDecoding: boolean): Parser<any> {
       const to             = isDecoding ? goMemo(ast.to, true) : goMemo(ast.from, false);
       return Parser.make((input, options) =>
         from(input, options)
-          .mapLeft((failure) =>
-            ParseFailure(Vector(TransformationError(ast, input, isDecoding ? "Encoded" : "Type", failure.errors))),
-          )
+          .mapLeft((failure) => TransformationError(ast, input, isDecoding ? "Encoded" : "Type", failure))
           .flatMap((a) =>
-            transformation(a, options).mapLeft((failure) =>
-              ParseFailure(Vector(TransformationError(ast, input, "Transformation", failure.errors))),
-            ),
+            transformation(a, options).mapLeft((failure) => TransformationError(ast, input, "Transformation", failure)),
           )
           .flatMap((a) =>
             to(a, options).mapLeft((failure) =>
-              ParseFailure(Vector(TransformationError(ast, input, isDecoding ? "Type" : "Encoded", failure.errors))),
+              TransformationError(ast, input, isDecoding ? "Type" : "Encoded", failure),
             ),
           ),
       );

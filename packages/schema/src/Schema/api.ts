@@ -28,15 +28,15 @@ export function annotate<V>(annotation: ASTAnnotation<V>, value: V) {
  */
 export function declaration(
   typeParameters: Vector<Schema<any>>,
-  type: Schema<any>,
   decode: (...typeParameters: ReadonlyArray<Schema<any>>) => Parser<any>,
+  encode: (...typeParameters: ReadonlyArray<Schema<any>>) => Parser<any>,
   annotations?: ASTAnnotationMap,
 ): Schema<any> {
   return Schema.fromAST(
     AST.createDeclaration(
       typeParameters.map((tp) => tp.ast),
-      type.ast,
       (...typeParameters) => decode(...typeParameters.map(Schema.fromAST)),
+      (...typeParameters) => encode(...typeParameters.map(Schema.fromAST)),
       annotations,
     ),
   );
@@ -539,5 +539,23 @@ export function transform<A, B>(
       (input, options) => ParseResult.succeed(decode(input, options)),
       (input, options) => ParseResult.succeed(encode(input, options)),
     );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.schema.Schema pick
+ */
+export function pick<A, Keys extends ReadonlyArray<keyof A>>(...keys: Keys) {
+  return (self: Schema<A>): Schema<Pick<A, Keys[number]>> => {
+    return Schema.fromAST(self.ast.pick(Vector.from(keys)));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.schema.Schema omit
+ */
+export function omit<A, Keys extends ReadonlyArray<keyof A>>(...keys: Keys) {
+  return (self: Schema<A>): Schema<Omit<A, Keys[number]>> => {
+    return Schema.fromAST(self.ast.omit(Vector.from(keys)));
   };
 }

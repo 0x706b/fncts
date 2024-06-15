@@ -1,14 +1,10 @@
+import type { IndexError } from "@fncts/schema/ParseError";
 import type { Sized } from "@fncts/test/control/Sized";
 
-import { ConcTypeId } from "@fncts/base/collection/immutable/Conc";
-
 export function conc<A>(value: Schema<A>): Schema<Conc<A>> {
-  return Schema.declaration(
-    Vector(value),
-    inline(value),
-    concParser,
-    ASTAnnotationMap.empty.annotate(ASTAnnotation.Identifier, "Conc").annotate(ASTAnnotation.GenHook, gen),
-  );
+  return Schema.declaration(Vector(value), concParser(true), concParser(false))
+    .annotate(ASTAnnotation.Identifier, `Conc<${value.show()}>`)
+    .annotate(ASTAnnotation.GenHook, gen);
 }
 
 /**
@@ -35,42 +31,37 @@ export function deriveConc<A extends Conc<any>>(
   return unsafeCoerce(concFromArray(value));
 }
 
-export function concParser<A>(value: Schema<A>): Parser<Conc<A>> {
-  const schema = conc(value);
-  return Parser.make((u, options) => {
-    if (!Conc.is(u)) {
-      return ParseResult.fail(ParseError.TypeError(schema.ast, u));
-    }
-    const allErrors     = options?.allErrors;
-    const errors        = Vector.emptyPushable<ParseError>();
-    const out: Array<A> = [];
-    let i               = 0;
-    for (const v of u) {
-      const t = value.decode(v);
-      Either.concrete(t);
-      if (t.isLeft()) {
-        errors.push(ParseError.IndexError(i, t.left.errors));
-        if (!allErrors) {
-          return ParseResult.failures(errors);
-        }
-      } else {
-        out.push(t.right);
+function concParser(isDecoding: boolean) {
+  return <A>(value: Schema<A>): Parser<Conc<unknown>> => {
+    const schema = conc(value);
+    return Parser.make((u, options) => {
+      if (!Conc.is(u)) {
+        return ParseResult.fail(ParseError.TypeError(schema.ast, u));
       }
-      i++;
-    }
-    return errors.isNonEmpty() ? ParseResult.failures(errors) : ParseResult.succeed(Conc.fromArray(out));
-  });
-}
+      const allErrors           = options?.allErrors;
+      const errors              = Vector.emptyPushable<IndexError>();
+      const out: Array<unknown> = [];
+      let i                     = 0;
 
-function inline<A>(_value: Schema<A>): Schema<Conc<A>> {
-  return Schema.struct({
-    _A: Schema.any,
-    [ConcTypeId]: Schema.uniqueSymbol(ConcTypeId),
-    length: Schema.number,
-    [Symbol.iterator]: Schema.any,
-    [Symbol.hash]: Schema.any,
-    [Symbol.equals]: Schema.any,
-  });
+      for (const v of u) {
+        const parser = isDecoding ? value.decode : value.encode;
+        const t      = parser(v, options);
+        Either.concrete(t);
+        if (t.isLeft()) {
+          errors.push(ParseError.IndexError(i, t.left));
+          if (!allErrors) {
+            return ParseResult.fail(ParseError.IterableError(schema.ast, u, errors));
+          }
+        } else {
+          out.push(t.right);
+        }
+        i++;
+      }
+      return errors.isNonEmpty()
+        ? ParseResult.fail(ParseError.IterableError(schema.ast, u, errors))
+        : ParseResult.succeed(Conc.from(out));
+    });
+  };
 }
 
 function gen<A>(value: Gen<Sized, A>): Gen<Sized, Conc<A>> {

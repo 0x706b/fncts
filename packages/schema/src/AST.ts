@@ -22,6 +22,10 @@ export abstract class AST extends Annotated {
   readonly [ASTTypeId]: ASTTypeId = ASTTypeId;
 
   abstract clone(newProperties: Partial<this>): AST;
+
+  toString(verbose: boolean = false): string {
+    return this.show(verbose);
+  }
 }
 
 export declare namespace AST {
@@ -103,12 +107,17 @@ export function getAnnotations<V>(key: ASTAnnotation<V>) {
  * Declaration
  */
 
+/**
+ * @tsplus type fncts.schema.AST.Declaration
+ */
 export class Declaration extends AST {
   readonly _tag = ASTTag.Declaration;
   constructor(
     readonly typeParameters: Vector<AST>,
-    readonly type: AST,
     readonly decode: (
+      ...typeParameters: ReadonlyArray<AST>
+    ) => (input: any, options?: ParseOptions) => ParseResult<any>,
+    readonly encode: (
       ...typeParameters: ReadonlyArray<AST>
     ) => (input: any, options?: ParseOptions) => ParseResult<any>,
     readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
@@ -119,8 +128,8 @@ export class Declaration extends AST {
   clone(newProperties: Partial<this>): AST {
     return new Declaration(
       newProperties.typeParameters ?? this.typeParameters,
-      newProperties.type ?? this.type,
       newProperties.decode ?? this.decode,
+      newProperties.encode ?? this.encode,
       newProperties.annotations ?? this.annotations,
     );
   }
@@ -131,11 +140,11 @@ export class Declaration extends AST {
  */
 export function createDeclaration(
   typeParameters: Vector<AST>,
-  type: AST,
   decode: (...typeParameters: ReadonlyArray<AST>) => (input: any, options?: ParseOptions) => ParseResult<any>,
+  encode: (...typeParameters: ReadonlyArray<AST>) => (input: any, options?: ParseOptions) => ParseResult<any>,
   annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
 ): Declaration {
-  return new Declaration(typeParameters, type, decode, annotations);
+  return new Declaration(typeParameters, decode, encode, annotations);
 }
 
 /**
@@ -528,6 +537,15 @@ export class TemplateLiteralSpan {
     readonly type: StringKeyword | NumberKeyword,
     readonly literal: string,
   ) {}
+
+  toString() {
+    switch (this.type._tag) {
+      case ASTTag.StringKeyword:
+        return "${string}";
+      case ASTTag.NumberKeyword:
+        return "${number}";
+    }
+  }
 }
 
 /*
@@ -577,6 +595,10 @@ export class Element {
     readonly type: AST,
     readonly isOptional: boolean,
   ) {}
+
+  toString() {
+    return String(this.type) + (this.isOptional ? "?" : "");
+  }
 }
 
 /**
@@ -632,18 +654,16 @@ export const unknownArray = AST.createTuple(Vector.empty(), Just(Vector(AST.unkn
  * PropertySignature
  */
 
-export class PropertySignature extends AST {
+export class PropertySignature {
   constructor(
     readonly name: PropertyKey,
     readonly type: AST,
     readonly isOptional: boolean,
     readonly isReadonly: boolean,
     readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty,
-  ) {
-    super();
-  }
+  ) {}
 
-  clone(newProperties: Partial<this>): AST {
+  clone(newProperties: Partial<this>): PropertySignature {
     return new PropertySignature(
       newProperties.name ?? this.name,
       newProperties.type ?? this.type,
@@ -705,7 +725,7 @@ export class TypeLiteral extends AST {
   ) {
     super();
     this.propertySignatures = sortByAscendingCardinality(propertySignatures);
-    this.indexSignatures    = sortByAscendingCardinality(indexSignatures);
+    this.indexSignatures = sortByAscendingCardinality(indexSignatures);
   }
 
   clone(newProperties: Partial<this>): AST {
@@ -923,6 +943,7 @@ export class Validation extends AST {
   ) {
     super();
   }
+
   clone(newProperties: Partial<this>): AST {
     return new Validation(
       newProperties.from ?? this.from,
@@ -949,8 +970,6 @@ export function createValidation(
 export function getCardinality(ast: AST): number {
   concrete(ast);
   switch (ast._tag) {
-    case ASTTag.Declaration:
-      return getCardinality(ast.type);
     case ASTTag.NeverKeyword:
       return 0;
     case ASTTag.Literal:
@@ -966,7 +985,7 @@ export function getCardinality(ast: AST): number {
     case ASTTag.SymbolKeyword:
       return 3;
     case ASTTag.ObjectKeyword:
-      return 4;
+      return 5;
     case ASTTag.UnknownKeyword:
     case ASTTag.AnyKeyword:
       return 6;
@@ -975,7 +994,7 @@ export function getCardinality(ast: AST): number {
     case ASTTag.Transform:
       return getCardinality(ast.to);
     default:
-      return 5;
+      return 4;
   }
 }
 
@@ -983,30 +1002,64 @@ function sortByAscendingCardinality<A extends { readonly type: AST }>(types: Vec
   return types.sort(Number.Ord.contramap(({ type }) => getCardinality(type)));
 }
 
-export function getWeight(ast: AST): number {
+export type Weight = readonly [number, number, number];
+
+const OrdWeight = Ord.tuple(Number.Ord, Number.Ord, Number.Ord);
+
+const maxWeight = Ord.max(OrdWeight);
+
+function maxWeightAll(weights: Iterable<Weight>): Weight {
+  return weights.foldLeft(emptyWeight, (b, a) => maxWeight(b)(a));
+}
+
+const emptyWeight: Weight = [0, 0, 0];
+
+export function getWeight(ast: AST): Weight {
   concrete(ast);
   switch (ast._tag) {
     case ASTTag.Declaration:
-      return getWeight(ast.type);
+      return ast.annotations.get(ASTAnnotation.Surrogate).match(
+        () => [6, 0, 0],
+        (ast) => {
+          const [_, y, z] = getWeight(ast);
+          return [6, y, z];
+        },
+      );
     case ASTTag.Tuple:
-      return ast.elements.length + (ast.rest.isJust() ? ast.rest.value.length : 0);
-    case ASTTag.TypeLiteral:
-      return ast.propertySignatures.length + ast.indexSignatures.length;
+      return [
+        2,
+        ast.elements.length,
+        ast.rest.match(
+          () => 0,
+          (rest) => rest.length,
+        ),
+      ];
+    case ASTTag.TypeLiteral: {
+      const y = ast.propertySignatures.length;
+      const z = ast.indexSignatures.length;
+      return y + z === 0 ? [-4, 0, 0] : [4, y, z];
+    }
     case ASTTag.Union:
-      return ast.types.foldLeft(0, (n, member) => n + getWeight(member));
+      return maxWeightAll(ast.types.map(getWeight));
     case ASTTag.Lazy:
-      return 10;
+      return [8, 0, 0];
     case ASTTag.Refinement:
-      return getWeight(ast.from);
+      const [x, y, z] = getWeight(ast.from);
+      return [x + 1, y, z];
     case ASTTag.Transform:
-      return getWeight(ast.to);
+      return getWeight(ast.from);
+    case ASTTag.ObjectKeyword:
+      return [-2, 0, 0];
+    case ASTTag.UnknownKeyword:
+    case ASTTag.AnyKeyword:
+      return [-4, 0, 0];
     default:
-      return 0;
+      return emptyWeight;
   }
 }
 
 function sortByDescendingWeight(types: Vector<AST>): Vector<AST> {
-  return types.sort(Number.Ord.contramap(getWeight));
+  return types.sort(OrdWeight.contramap(getWeight));
 }
 
 function unify(candidates: Vector<AST>): Vector<AST> {
@@ -1094,7 +1147,10 @@ export function getPropertySignatures(self: AST): Vector<PropertySignature> {
   concrete(self);
   switch (self._tag) {
     case ASTTag.Declaration:
-      return getPropertySignatures(self.type);
+      return self.annotations.get(ASTAnnotation.Surrogate).match(
+        () => Vector.empty(),
+        (surrogate) => getPropertySignatures(surrogate),
+      );
     case ASTTag.Tuple:
       return self.elements.mapWithIndex((i, element) =>
         createPropertySignature(i, element.type, element.isOptional, self.isReadonly),
@@ -1116,6 +1172,8 @@ export function getPropertySignatures(self: AST): Vector<PropertySignature> {
         return Nothing();
       });
     }
+    case ASTTag.TypeLiteral:
+      return self.propertySignatures;
     case ASTTag.Lazy:
       return getPropertySignatures(self.getAST());
     case ASTTag.Refinement:
@@ -1134,7 +1192,10 @@ export function keysOf(ast: AST): Vector<AST> {
   concrete(ast);
   switch (ast._tag) {
     case ASTTag.Declaration:
-      return keysOf(ast.type);
+      return ast.annotations.get(ASTAnnotation.Surrogate).match(
+        () => Vector.empty(),
+        (surrogate) => keysOf(surrogate),
+      );
     case ASTTag.NeverKeyword:
     case ASTTag.AnyKeyword:
       return Vector(stringKeyword, numberKeyword, symbolKeyword);
@@ -1171,14 +1232,11 @@ export function keyof(self: AST): AST {
  */
 export function createRecord(key: AST, value: AST, isReadonly: boolean): TypeLiteral {
   const propertySignatures: MutableVector<PropertySignature> = Vector.emptyPushable();
-  const indexSignatures: MutableVector<IndexSignature>       = Vector.emptyPushable();
+  const indexSignatures: MutableVector<IndexSignature> = Vector.emptyPushable();
 
   function go(key: AST): void {
     concrete(key);
     switch (key._tag) {
-      case ASTTag.Declaration:
-        go(key.type);
-        break;
       case ASTTag.NeverKeyword:
         break;
       case ASTTag.StringKeyword:
@@ -1236,8 +1294,6 @@ export function omit(keys: Vector<PropertyKey>) {
 export function partial(self: AST): AST {
   concrete(self);
   switch (self._tag) {
-    case ASTTag.Declaration:
-      return partial(self.type);
     case ASTTag.Tuple:
       return createTuple(
         self.elements.map((e) => createElement(e.type, true)),
@@ -1275,8 +1331,13 @@ export function createKey(key: PropertyKey): AST {
 export function getFrom(ast: AST): AST {
   AST.concrete(ast);
   switch (ast._tag) {
-    case ASTTag.Declaration:
-      return AST.createDeclaration(ast.typeParameters.map(getFrom), ast.type, ast.decode, ast.annotations);
+    case ASTTag.Declaration: {
+      const surrogate = ast.annotations.get(ASTAnnotation.Surrogate);
+      if (surrogate.isJust()) {
+        return getFrom(surrogate.value);
+      }
+      break;
+    }
     case ASTTag.Tuple:
       return AST.createTuple(
         ast.elements.map((element) => AST.createElement(getFrom(element.type), element.isOptional)),
@@ -1309,8 +1370,13 @@ export function getFrom(ast: AST): AST {
 export function getTo(ast: AST): AST {
   AST.concrete(ast);
   switch (ast._tag) {
-    case ASTTag.Declaration:
-      return AST.createDeclaration(ast.typeParameters.map(getTo), ast.type, ast.decode, ast.annotations);
+    case ASTTag.Declaration: {
+      const surrogate = ast.annotations.get(ASTAnnotation.Surrogate);
+      if (surrogate.isJust()) {
+        return getTo(surrogate.value);
+      }
+      break;
+    }
     case ASTTag.Tuple:
       return AST.createTuple(
         ast.elements.map((element) => AST.createElement(getTo(element.type), element.isOptional)),
@@ -1352,8 +1418,13 @@ export function getCompiler<A>(match: AST.Match<A>): AST.Compiler<A> {
 export function getLiterals(ast: AST, isDecoding: boolean): ReadonlyArray<[PropertyKey, Literal]> {
   AST.concrete(ast);
   switch (ast._tag) {
-    case ASTTag.Declaration:
-      return getLiterals(ast.type, isDecoding);
+    case ASTTag.Declaration: {
+      const surrogate = ast.annotations.get(ASTAnnotation.Surrogate);
+      if (surrogate.isJust()) {
+        return getLiterals(surrogate.value, isDecoding);
+      }
+      break;
+    }
     case ASTTag.TypeLiteral: {
       const out: Array<[PropertyKey, Literal]> = [];
       for (let i = 0; i < ast.propertySignatures.length; i++) {
@@ -1379,6 +1450,7 @@ export function getSearchTree(
   keys: {
     readonly [key: PropertyKey]: {
       buckets: { [literal: string]: ReadonlyArray<AST> };
+      literals: ReadonlyArray<Literal>;
       ast: AST;
     };
   };
@@ -1387,28 +1459,31 @@ export function getSearchTree(
   const keys: {
     [key: PropertyKey]: {
       buckets: { [literal: string]: Array<AST> };
+      literals: Array<Literal>;
       ast: AST;
     };
   } = {};
   const otherwise: Array<AST> = [];
   for (let i = 0; i < members.length; i++) {
     const member = members[i]!;
-    const tags   = getLiterals(member, isDecoding);
+    const tags = getLiterals(member, isDecoding);
     if (tags.length > 0) {
       for (let j = 0; j < tags.length; j++) {
         const [key, literal] = tags[j]!;
-        const hash           = String(literal.literal);
-        keys[key]!         ||= { buckets: {}, ast: AST.neverKeyword };
-        const buckets        = keys[key]!.buckets;
+        const hash = String(literal.literal);
+        keys[key]! ||= { buckets: {}, ast: AST.neverKeyword, literals: [] };
+        const buckets = keys[key]!.buckets;
         if (Object.prototype.hasOwnProperty.call(buckets, hash)) {
           if (j < tags.length - 1) {
             continue;
           }
           buckets[hash]!.push(member);
           keys[key]!.ast = AST.createUnion(Vector(keys[key]!.ast, literal));
+          keys[key]!.literals.push(literal);
         } else {
           buckets[hash]! = [member];
           keys[key]!.ast = AST.createUnion(Vector(keys[key]!.ast, literal));
+          keys[key]!.literals.push(literal);
           break;
         }
       }
@@ -1417,4 +1492,30 @@ export function getSearchTree(
     }
   }
   return { keys, otherwise };
+}
+
+/**
+ * @tsplus pipeable fncts.schema.AST getFormattedExpected
+ */
+export function getFormattedExpected(verbose: boolean = false) {
+  return (self: AST): Maybe<string> => {
+    if (verbose) {
+      const description = self.annotations
+        .get(ASTAnnotation.Description)
+        .orElse(self.annotations.get(ASTAnnotation.Title));
+      return self.annotations.get(ASTAnnotation.Identifier).match(
+        () => description,
+        (identifier) =>
+          description.match(
+            () => Just(identifier),
+            (description) => Just(`${identifier} (${description})`),
+          ),
+      );
+    } else {
+      return self.annotations
+        .get(ASTAnnotation.Identifier)
+        .orElse(self.annotations.get(ASTAnnotation.Title))
+        .orElse(self.annotations.get(ASTAnnotation.Description));
+    }
+  };
 }

@@ -1,3 +1,5 @@
+import type { Union } from "@fncts/schema/AST";
+
 import { expectFailure, expectSuccess } from "../utils.js";
 
 suite("Nullable Schema", () => {
@@ -14,18 +16,29 @@ suite("Nullable Schema", () => {
     expectFailure(
       schema,
       42,
-      Vector(
-        ParseError.UnionMemberError(Vector(ParseError.TypeError(AST.createLiteral(null), 42))),
-        ParseError.UnionMemberError(Vector(ParseError.TypeError(AST.stringKeyword, 42))),
+      ParseError.UnionError(
+        schema.ast as Union,
+        42,
+        Vector(
+          ParseError.UnionMemberError(AST.createLiteral(null), ParseError.TypeError(AST.createLiteral(null), 42)),
+          ParseError.UnionMemberError(AST.stringKeyword, ParseError.TypeError(AST.stringKeyword, 42)),
+        ),
       ),
     );
 
     expectFailure(
       schema,
       undefined,
-      Vector(
-        ParseError.UnionMemberError(Vector(ParseError.TypeError(AST.createLiteral(null), undefined))),
-        ParseError.UnionMemberError(Vector(ParseError.TypeError(AST.stringKeyword, undefined))),
+      ParseError.UnionError(
+        schema.ast as Union,
+        undefined,
+        Vector(
+          ParseError.UnionMemberError(
+            AST.createLiteral(null),
+            ParseError.TypeError(AST.createLiteral(null), undefined),
+          ),
+          ParseError.UnionMemberError(AST.stringKeyword, ParseError.TypeError(AST.stringKeyword, undefined)),
+        ),
       ),
     );
   });

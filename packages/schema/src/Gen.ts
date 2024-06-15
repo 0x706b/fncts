@@ -44,7 +44,10 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
   switch (ast._tag) {
     case ASTTag.Declaration:
       return getHook(ast).match(
-        () => go(ast.type),
+        () =>
+          Gen.fromIO(
+            IO.haltNow(new InvalidInterpretationError("cannot build a Gen for a Declaration without a Gen hook")),
+          ),
         (hook) => hook(...ast.typeParameters.map(go)),
       );
     case ASTTag.Literal:
@@ -83,8 +86,8 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
     }
     case ASTTag.Tuple: {
       const elements = ast.elements.map((e) => go(e.type));
-      const rest     = ast.rest.map((restElement) => restElement.map(go));
-      let output     = Gen.tuple(...elements);
+      const rest = ast.rest.map((restElement) => restElement.map(go));
+      let output = Gen.tuple(...elements);
       if (elements.length > 0 && rest.isNothing()) {
         const firstOptionalIndex = ast.elements.findIndex((e) => e.isOptional);
         if (firstOptionalIndex !== -1) {
@@ -96,7 +99,7 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
       if (rest.isJust()) {
         const head = rest.value.unsafeHead!;
         const tail = rest.value.tail;
-        output     = output.flatMap((as) => head.arrayWith({ maxLength: 5 }).map((rest) => [...as, ...rest]));
+        output = output.flatMap((as) => head.arrayWith({ maxLength: 5 }).map((rest) => [...as, ...rest]));
         for (let j = 0; j < tail.length; j++) {
           output = output.flatMap((as) => tail[j]!.map((a) => [...as, a]));
         }
@@ -105,11 +108,11 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
     }
     case ASTTag.TypeLiteral: {
       const propertySignatureTypes = ast.propertySignatures.map((ps) => go(ps.type));
-      const indexSignatures        = ast.indexSignatures.map((is) => [go(is.parameter), go(is.type)] as const);
+      const indexSignatures = ast.indexSignatures.map((is) => [go(is.parameter), go(is.type)] as const);
       const requiredGens: Record<PropertyKey, Gen<any, any>> = {};
       const optionalGens: Record<PropertyKey, Gen<any, any>> = {};
       for (let i = 0; i < propertySignatureTypes.length; i++) {
-        const ps   = ast.propertySignatures[i]!;
+        const ps = ast.propertySignatures[i]!;
         const name = ps.name;
         if (!ps.isOptional) {
           requiredGens[name] = propertySignatureTypes[i]!;
@@ -120,8 +123,8 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
       let output = Gen.struct(requiredGens).zipWith(Gen.partial(optionalGens), (a, b) => ({ ...a, ...b }));
       for (let i = 0; i < indexSignatures.length; i++) {
         const parameter = indexSignatures[i]![0]!;
-        const type      = indexSignatures[i]![1]!;
-        output          = output.flatMap((o) => {
+        const type = indexSignatures[i]![1]!;
+        output = output.flatMap((o) => {
           return record(parameter, type).map((d) => ({ ...d, ...o }));
         });
       }
@@ -134,7 +137,7 @@ const go = memoize(function go(ast: AST): Gen<Sized, any> {
     case ASTTag.Lazy: {
       return getHook(ast).match(
         () => {
-          const f   = () => go(ast.getAST());
+          const f = () => go(ast.getAST());
           const get = memoize<typeof f, Gen<any, any>>(f);
           return Gen.defer(() => get(f));
         },

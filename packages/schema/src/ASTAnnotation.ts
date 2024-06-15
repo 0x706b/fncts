@@ -53,7 +53,7 @@ export const DescriptionTag = Tag<string>();
  */
 export const Description = new ASTAnnotation(DescriptionTag, "Description", (_, a) => a);
 
-export const MessageTag = Tag<(_: unknown) => string>();
+export const MessageTag = Tag<(error: ParseError) => string>();
 
 /**
  * @tsplus static fncts.schema.ASTAnnotationOps Message
@@ -80,6 +80,13 @@ export const ParseOptionalTag = Tag<boolean>();
  * @tsplus static fncts.schema.ASTAnnotationOps ParseOptional
  */
 export const ParseOptional = new ASTAnnotation(ParseOptionalTag, "ParseOptional", (_, b) => b);
+
+export const SurrogateTag = Tag<AST>();
+
+/**
+ * @tsplus static fncts.schema.ASTAnnotationOps Surrogate
+ */
+export const Surrogate = new ASTAnnotation(SurrogateTag, "Surrogate", (_, b) => b);
 
 export type Hook<A> = (...typeParameters: ReadonlyArray<A>) => A;
 

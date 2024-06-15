@@ -5,7 +5,7 @@ import type { IncomingMessage } from "./definition.js";
  */
 export function schemaBodyJson<A>(schema: Schema<A>) {
   const decode = schema.decode;
-  return <E>(self: IncomingMessage<E>): IO<never, E | ParseFailure, A> => self.json.flatMap(decode);
+  return <E>(self: IncomingMessage<E>): IO<never, E | ParseError, A> => self.json.flatMap(decode);
 }
 
 /**
@@ -13,7 +13,7 @@ export function schemaBodyJson<A>(schema: Schema<A>) {
  */
 export function schemaBodyUrlParams<A>(schema: Schema<A>) {
   const decode = schema.decode;
-  return <E>(self: IncomingMessage<E>): IO<never, E | ParseFailure, A> => self.urlParamsBody.flatMap(decode);
+  return <E>(self: IncomingMessage<E>): IO<never, E | ParseError, A> => self.urlParamsBody.flatMap(decode);
 }
 
 /**
@@ -21,5 +21,5 @@ export function schemaBodyUrlParams<A>(schema: Schema<A>) {
  */
 export function schemaHeaders<A>(schema: Schema<A>) {
   const decode = schema.decode;
-  return <E>(self: IncomingMessage<E>): IO<never, E | ParseFailure, A> => decode(self.headers);
+  return <E>(self: IncomingMessage<E>): IO<never, E | ParseError, A> => decode(self.headers);
 }

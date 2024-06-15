@@ -1,10 +1,6 @@
 import type { Sized } from "@fncts/test/control/Sized";
 
-import {
-  ImmutableArray,
-  ImmutableArrayTypeId,
-  ImmutableArrayVariance,
-} from "@fncts/base/collection/immutable/ImmutableArray";
+import { ImmutableArray } from "@fncts/base/collection/immutable/ImmutableArray";
 import { Vector } from "@fncts/base/collection/immutable/Vector";
 
 /**
@@ -12,12 +8,9 @@ import { Vector } from "@fncts/base/collection/immutable/Vector";
  * @tsplus static fncts.schema.SchemaOps immutableArray
  */
 export function immutableArray<A>(value: Schema<A>): Schema<ImmutableArray<A>> {
-  return Schema.declaration(
-    Vector(value),
-    inline(value),
-    parser,
-    ASTAnnotationMap.empty.annotate(ASTAnnotation.Identifier, "ImmutableArray").annotate(ASTAnnotation.GenHook, gen),
-  );
+  return Schema.declaration(Vector(value), parser(true), parser(false))
+    .annotate(ASTAnnotation.Identifier, `ImmutableArray<${value.show()}>`)
+    .annotate(ASTAnnotation.GenHook, gen);
 }
 
 /**
@@ -45,42 +38,19 @@ export function deriveImmutableArray<A extends ImmutableArray<any>>(
   return unsafeCoerce(immutableArrayFromArray(value));
 }
 
-function parser<A>(value: Schema<A>): Parser<ImmutableArray<A>> {
-  const schema = immutableArray(value);
-  return Parser.make((u, options) => {
-    if (!ImmutableArray.is(u)) {
-      return ParseResult.fail(ParseError.TypeError(schema.ast, u));
-    }
-    const out: Array<A> = [];
-    const errors        = Vector.emptyPushable<ParseError>();
-    const allErrors     = options?.allErrors;
-    const index         = 0;
-    for (const v of u) {
-      const t = value.decode(v, options);
-      Either.concrete(t);
-      if (t.isLeft()) {
-        errors.push(ParseError.IndexError(index, t.left.errors));
-        if (allErrors) {
-          continue;
-        }
-        return ParseResult.failures(errors);
-      } else {
-        out.push(t.right);
+function parser(isDecoding: boolean) {
+  return <A>(value: Schema<A>): Parser<ImmutableArray<unknown>> => {
+    const schema      = immutableArray(value);
+    const arraySchema = value.array;
+    const parse       = isDecoding ? arraySchema.decode : arraySchema.encode;
+    return Parser.make((u, options) => {
+      if (!ImmutableArray.is(u)) {
+        return ParseResult.fail(ParseError.TypeError(schema.ast, u));
       }
-    }
-    return errors.isNonEmpty() ? ParseResult.failures(errors) : ParseResult.succeed(new ImmutableArray(out));
-  });
-}
 
-function inline<A>(value: Schema<A>): Schema<ImmutableArray<A>> {
-  return Schema.struct({
-    [ImmutableArrayTypeId]: Schema.uniqueSymbol(ImmutableArrayTypeId),
-    [ImmutableArrayVariance]: Schema.any,
-    _array: Schema.array(value),
-    [Symbol.equals]: Schema.any,
-    [Symbol.hash]: Schema.any,
-    [Symbol.iterator]: Schema.any,
-  });
+      return parse(u, options).map((out) => new ImmutableArray(out as Array<unknown>));
+    });
+  };
 }
 
 function gen<A>(value: Gen<Sized, A>): Gen<Sized, ImmutableArray<A>> {

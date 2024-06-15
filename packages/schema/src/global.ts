@@ -42,10 +42,6 @@ import { ParseError } from "@fncts/schema/ParseError";
 /**
  * @tsplus global
  */
-import { ParseFailure } from "@fncts/schema/ParseFailure";
-/**
- * @tsplus global
- */
 import { Parser } from "@fncts/schema/Parser/definition";
 /**
  * @tsplus global
