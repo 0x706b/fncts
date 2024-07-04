@@ -195,7 +195,6 @@ class Node<K> {
   ) {}
 
   findNode(k: K, h: number, equals: (y: K) => (x: K) => boolean): Node<K> | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let n: Node<K> | undefined = this;
     while (n) {
       if (h === n.hash && equals(n.key)(k)) {
@@ -208,7 +207,6 @@ class Node<K> {
   }
 
   forEach<U>(f: (k: K) => U): void {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     let n: Node<K> | undefined = this;
     while (n) {
       f(n.key);

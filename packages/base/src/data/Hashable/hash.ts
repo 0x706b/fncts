@@ -31,7 +31,7 @@ function _hashNumber(n: number): number {
   if (n !== n || n === Infinity) return 0;
   let h = n | 0;
   if (h !== n) h ^= n * 0xffffffff;
-  // eslint-disable-next-line no-param-reassign
+
   while (n > 0xffffffff) h ^= n /= 0xffffffff;
   return n;
 }

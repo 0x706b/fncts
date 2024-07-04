@@ -1,6 +1,7 @@
 {
   "name": "@fncts/transformers",
   "version": "0.0.9",
+  "type": "module",
   "typesVersions": {
     "*": {
       "*": [
@@ -13,14 +14,15 @@
     "directory": "dist"
   },
   "exports": {
-    "./*": "./build/cjs/*.js"
+    "./*": "./build/esm/*.js"
   },
   "scripts": {
-    "build": "yarn org:tsc -b ./tsconfig.json && yarn build-cjs",
-    "build-cjs": "yarn org:babel build/cjs --config-file ./.babel.cjs.json --out-dir build/cjs --out-file-extension .cjs --source-maps",
-    "build-pack": "yarn build && yarn build-cjs && fncts-pack",
-    "format": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts",
-    "lint": "eslint src/**/*.ts",
+    "build": "yarn org:tsc -b ./tsconfig.json",
+    "build-mjs": "yarn org:babel build/esm --config-file ./.babel.mjs.json --out-dir build/mjs --out-file-extension .mjs --source-maps",
+    "build-cjs": "yarn org:babel build/esm --config-file ./.babel.cjs.json --out-dir build/cjs --out-file-extension .cjs --source-maps",
+    "build-pack": "yarn build && yarn org:concurrently \"yarn build-cjs\" \"yarn build-mjs\" && fncts-pack",
+    "lint": "yarn org:eslint src/**/*.ts",
+    "format": "yarn org:prettier --list-different -w src/**/*.ts",
     "circular": "yarn org:madge --circular --no-spinner --warning build/esm",
     "clean": "rm -rf ./build ./dist"
   },

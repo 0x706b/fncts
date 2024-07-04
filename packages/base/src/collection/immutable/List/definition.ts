@@ -29,7 +29,7 @@ export class Cons<A> implements Iterable<A> {
 
   [Symbol.iterator](): Iterator<A> {
     let done = false;
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
+
     let these: List<A> = this;
     return {
       next() {

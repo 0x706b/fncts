@@ -399,7 +399,6 @@ function visitLazyChildren<V, A>(
   cont: Cont<V, A>,
 ): VisitResult<V, A> | undefined {
   while (i < len) {
-    // eslint-disable-next-line no-param-reassign
     const child = children[i++];
     if (child && !isEmptyNode(child)) {
       return visitLazy(child, f, [len, children, i, f, cont]);

@@ -124,7 +124,7 @@ export class BackPressure<A> extends Strategy<A> {
   }
 
   get shutdown(): UIO<void> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
+     
     const self = this;
     return Do((_) => {
       const fiberId    = _(IO.fiberId);

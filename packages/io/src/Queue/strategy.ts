@@ -60,7 +60,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
   unsafeOffer(as: Conc<A>, p: Future<never, boolean>, __tsplusTrace?: string) {
     let bs = as;
     while (bs.length > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+       
       const head = bs.unsafeGet(0);
       bs         = bs.drop(1);
       if (bs.length === 0) {
@@ -90,7 +90,7 @@ export class BackPressureStrategy<A> implements Strategy<A> {
   }
 
   get shutdown(): UIO<void> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
+     
     const self = this;
     return Do((_) => {
       const fiberId = _(IO.fiberId);

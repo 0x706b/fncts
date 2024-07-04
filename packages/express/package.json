@@ -23,8 +23,8 @@
     "build-cjs": "yarn org:babel build/esm --config-file ./.babel.cjs.json --out-dir build/cjs --out-file-extension .cjs --source-maps",
     "build-pack": "yarn build && yarn org:concurrently \"yarn build-cjs\" \"yarn build-mjs\" && fncts-pack",
     "test": "yarn org:tsc -b ./tsconfig.test.json && yarn org:vitest",
-    "format": "prettier --list-different -w src/**/*.ts && eslint --fix src/**/*.ts",
-    "lint": "eslint src/**/*.ts",
+    "lint": "yarn org:eslint src/**/*.ts",
+    "format": "yarn org:prettier --list-different -w src/**/*.ts",
     "circular": "yarn org:madge --circular --no-spinner --warning build/esm",
     "clean": "rm -rf ./build ./dist"
   },

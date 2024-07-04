@@ -1,5 +1,3 @@
-/* eslint-disable prefer-const */
-/* eslint-disable no-var */
 import type { Node } from "@fncts/base/collection/immutable/Vector/internal";
 
 import { foldLeftCb } from "@fncts/base/collection/immutable/Vector/internal";

@@ -111,7 +111,7 @@ export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt)
 export function trimArrayIntInplace(arrayInt: ArrayInt) {
   const data       = arrayInt.data;
   let firstNonZero = 0;
-  // eslint-disable-next-line no-empty
+   
   for (; firstNonZero !== data.length && data[firstNonZero] === 0; ++firstNonZero) {}
   if (firstNonZero === data.length) {
     // only zeros

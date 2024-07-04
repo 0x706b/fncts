@@ -382,10 +382,8 @@ const OBJECT_TYPEOF = "object";
 type EqualityComparatorCreator = (fn: EqualityComparator) => EqualityComparator;
 
 export function createComparator(createIsEqual?: EqualityComparatorCreator) {
-  const isEqual: EqualityComparator =
-    /* eslint-disable no-use-before-define */
-    typeof createIsEqual === "function" ? createIsEqual(comparator) : comparator;
-  /* eslint-enable */
+  const isEqual: EqualityComparator = typeof createIsEqual === "function" ? createIsEqual(comparator) : comparator;
+
   /**
    * @function comparator
    *

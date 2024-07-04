@@ -13,7 +13,7 @@ import { globalValue } from "@fncts/base/data/Global";
 import { ASTTag } from "@fncts/schema/AST";
 import { formatUnknown } from "@fncts/schema/utils";
 
-const showMemoMap = globalValue(Symbol.for("fncts.schema.Guard.showMemoMap"), () => new WeakMap<AST, string>());
+const showMemoMap        = globalValue(Symbol.for("fncts.schema.Guard.showMemoMap"), () => new WeakMap<AST, string>());
 const showMemoMapVerbose = globalValue(
   Symbol.for("fncts.schema.Guard.showMemoMapVerbose"),
   () => new WeakMap<AST, string>(),
@@ -21,7 +21,7 @@ const showMemoMapVerbose = globalValue(
 
 function goMemo(ast: AST, verbose: boolean): string {
   const memoMap = verbose ? showMemoMapVerbose : showMemoMap;
-  const memo = memoMap.get(ast);
+  const memo    = memoMap.get(ast);
   if (memo) {
     return memo;
   }
@@ -153,10 +153,10 @@ function formatTuple(ast: Tuple, verbose: boolean): string {
     .match(
       () => `${ast.isReadonly ? "readonly " : ""}[${formattedElements}]`,
       (rest) => {
-        const head = rest.unsafeHead!;
-        const tail = rest.tail;
+        const head          = rest.unsafeHead!;
+        const tail          = rest.tail;
         const formattedHead = goMemo(head, verbose);
-        const wrappedHead = formattedHead.includes(" | ") ? `(${formattedHead})` : formattedHead;
+        const wrappedHead   = formattedHead.includes(" | ") ? `(${formattedHead})` : formattedHead;
 
         if (tail.length > 0) {
           const formattedTail = tail.map((ast) => goMemo(ast, verbose)).join(", ");

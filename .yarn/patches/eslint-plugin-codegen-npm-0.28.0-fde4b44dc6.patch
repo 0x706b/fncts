@@ -1,0 +1,44 @@
+diff --git a/dist/index.js b/dist/index.js
+index 972c2bc8a47b63dcef265757efc397d6639e72c1..4d18b6f859d495e17620b1cc51eefdebc7746594 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -62,7 +62,15 @@ exports.processors = {
+ };
+ const codegen = {
+     // @ts-expect-error types are wrong?
+-    meta: { fixable: true },
++    meta: {
++        fixable: true,
++        schema: [
++            {
++                type: "object",
++                additionalProperties: true
++            }
++        ]
++    },
+     create(context) {
+         const validate = () => {
+             const sourceCode = context.sourceCode.text
+@@ -120,7 +128,21 @@ const codegen = {
+                 }
+                 const opts = maybeOptions.right || {};
+                 const presets = Object.assign(Object.assign({}, presetsModule), (_a = context.options[0]) === null || _a === void 0 ? void 0 : _a.presets);
+-                const preset = typeof (opts === null || opts === void 0 ? void 0 : opts.preset) === 'string' && presets[opts.preset];
++                // const preset = typeof (opts === null || opts === void 0 ? void 0 : opts.preset) === 'string' && presets[opts.preset];
++                if (typeof opts?.preset ===  "string") {
++                    try {
++                        preset = require(presets[opts.preset])
++                        if ("default" in preset) {
++                            preset = preset.default;
++                        }
++                    } catch (e) {
++                        if (opts.preset in presetsModule) {
++                            preset = presetsModule[opts.preset];
++                        } else {
++                            preset = undefined;
++                        }
++                    }
++                }
+                 if (typeof preset !== 'function') {
+                     context.report({
+                         message: `unknown preset ${opts.preset}. Available presets: ${Object.keys(presets).join(', ')}`,

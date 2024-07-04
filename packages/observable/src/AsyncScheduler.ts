@@ -23,13 +23,11 @@ export class AsyncScheduler extends Scheduler {
       if ((error = action.execute(action.state, action.delay!))) {
         break;
       }
-      // eslint-disable-next-line no-param-reassign
     } while ((action = actions.shift()!));
 
     this.active = false;
 
     if (error) {
-      // eslint-disable-next-line no-param-reassign
       while ((action = actions.shift()!)) {
         action.unsubscribe();
       }

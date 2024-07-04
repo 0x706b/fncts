@@ -1,4 +1,3 @@
-/* eslint-disable simple-import-sort/exports */
 // codegen:start { preset: barrel, include: ./Prism/*.ts }
 export * from "./Prism/definition.js";
 // codegen:end

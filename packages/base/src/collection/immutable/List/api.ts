@@ -81,7 +81,6 @@ export function filter<A>(p: Predicate<A>) {
 }
 
 function noneIn<A>(l: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (l.isEmpty()) {
       return Nil();
@@ -89,7 +88,6 @@ function noneIn<A>(l: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
       if (p(l.head) !== isFlipped) {
         return allIn(l, l.tail, p, isFlipped);
       } else {
-        // eslint-disable-next-line no-param-reassign
         l = l.tail;
       }
     }
@@ -102,7 +100,6 @@ function allIn<A>(start: List<A>, remaining: List<A>, p: Predicate<A>, isFlipped
       return start;
     } else {
       if (p(remaining.head) !== isFlipped) {
-        // eslint-disable-next-line no-param-reassign
         remaining = remaining.tail;
       } else {
         return partialFill(start, remaining, p, isFlipped);

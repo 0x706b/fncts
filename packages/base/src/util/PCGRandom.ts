@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /*
  * Copyright 2014 Thom Chiovoloni, released under the MIT license.
  *

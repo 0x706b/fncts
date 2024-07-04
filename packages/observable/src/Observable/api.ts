@@ -207,7 +207,6 @@ async function process<A>(asyncIterable: AsyncIterable<A>, subscriber: Subscribe
  */
 export function interval(period = 0, scheduler: SchedulerLike = asyncScheduler): Observable<never, never, number> {
   if (period < 0) {
-    // eslint-disable-next-line no-param-reassign
     period = 0;
   }
   return timer(period, period, scheduler);
@@ -406,7 +405,6 @@ export function timer(
   let intervalDuration = -1;
   if (intervalOrScheduler != null) {
     if (isScheduler(intervalOrScheduler)) {
-      // eslint-disable-next-line no-param-reassign
       scheduler = intervalOrScheduler;
     } else {
       intervalDuration = intervalOrScheduler as number;
@@ -937,7 +935,6 @@ export function buffer<R1, E1>(closingNotifier: Observable<R1, E1, any>) {
  */
 export function bufferCount(bufferSize: number, startBufferEvery?: number) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, ReadonlyArray<A>> => {
-    // eslint-disable-next-line no-param-reassign
     startBufferEvery = startBufferEvery ?? bufferSize;
     return fa.operate((source, subscriber, environment) => {
       let buffers: A[][] = [];

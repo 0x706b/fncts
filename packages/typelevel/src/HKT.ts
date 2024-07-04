@@ -27,7 +27,7 @@ export interface HKT {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
+ 
 export namespace HKT {
   declare const URI: unique symbol;
   declare const CURI: unique symbol;

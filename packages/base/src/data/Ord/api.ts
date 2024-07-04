@@ -5,7 +5,7 @@ export function all<A>(collection: Iterable<Ord<A>>): Ord<ReadonlyArray<A>> {
   return Ord<ReadonlyArray<A>>({
     ...Eq.all(collection),
     compare: (y) => (x) => {
-      const len = Math.min(x.length, y.length);
+      const len            = Math.min(x.length, y.length);
       let collectionLength = 0;
       for (const O of collection) {
         if (collectionLength >= len) {

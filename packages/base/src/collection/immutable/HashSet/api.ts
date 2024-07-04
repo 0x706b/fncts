@@ -340,7 +340,6 @@ export function foldLeft<A, B>(b: B, f: (b: B, v: A) => B) {
         const child = children[i++];
         if (child && !isEmptyNode(child)) {
           if (child._tag === "LeafNode") {
-            // eslint-disable-next-line no-param-reassign
             b = f(b, child.value);
           } else {
             toVisit.push(child.children);
@@ -506,7 +505,6 @@ function tryGetHash<A>(set: HashSet<A>, value: A, hash: number): Maybe<A> {
   let shift = 0;
   const eq  = set.config.equals;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     switch (node._tag) {
       case "LeafNode": {

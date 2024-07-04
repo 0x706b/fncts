@@ -739,7 +739,6 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
     stack.push(new DoneFrame());
     let result: Conc<B> = Conc.empty();
     recursion: while (stack.hasNext) {
-      // eslint-disable-next-line no-constant-condition
       pushing: while (true) {
         concrete<A>(current);
         switch (current._tag) {
@@ -792,7 +791,7 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
           }
         }
       }
-      // eslint-disable-next-line no-constant-condition
+
       popping: while (true) {
         const top = stack.pop()!;
         switch (top._tag) {

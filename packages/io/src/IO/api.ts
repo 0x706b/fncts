@@ -22,8 +22,8 @@ export function async<R, E, A>(
   __tsplusTrace?: string,
 ): IO<R, E, A> {
   const io = new IOPrimitive(IOTag.Async) as any;
-  io.i0 = register;
-  io.i1 = () => blockingOn;
+  io.i0    = register;
+  io.i1    = () => blockingOn;
   io.trace = __tsplusTrace;
   return io;
 }
@@ -316,8 +316,8 @@ export function checkInterruptible<R, E, A>(
 export function flatMap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>, __tsplusTrace?: string) {
   return <R, E>(ma: IO<R, E, A>): IO<R | R1, E | E1, B> => {
     const io = new IOPrimitive(IOTag.OnSuccess) as any;
-    io.i0 = ma;
-    io.i1 = f;
+    io.i0    = ma;
+    io.i1    = f;
     io.trace = __tsplusTrace;
 
     return io;
@@ -469,7 +469,7 @@ export function failNow<E>(e: E, __tsplusTrace?: string): FIO<E, never> {
  */
 export function refailCause<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, never> {
   const io = new IOPrimitive(IOTag.Fail) as any;
-  io.i0 = () => cause;
+  io.i0    = () => cause;
   io.trace = __tsplusTrace;
   return io;
 }
@@ -481,7 +481,7 @@ export function refailCause<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, 
  */
 export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, never> {
   const io = new IOPrimitive(IOTag.Fail) as any;
-  io.i0 = () => cause;
+  io.i0    = () => cause;
   io.trace = __tsplusTrace;
   return io;
 }
@@ -1249,9 +1249,9 @@ export function matchCauseIO<E, A, R1, E1, A1, R2, E2, A2>(
 ) {
   return <R>(self: IO<R, E, A>): IO<R | R1 | R2, E1 | E2, A1 | A2> => {
     const io = new IOPrimitive(IOTag.OnSuccessAndFailure) as any;
-    io.i0 = self;
-    io.i1 = onFailure;
-    io.i2 = onSuccess;
+    io.i0    = self;
+    io.i1    = onFailure;
+    io.i2    = onSuccess;
     io.trace = __tsplusTrace;
     return io;
   };
@@ -1695,7 +1695,7 @@ export function sequenceIterableDiscard<R, E, A>(as: Iterable<IO<R, E, A>>, __ts
  */
 export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<never, never, A> {
   const io = new IOPrimitive(IOTag.SucceedNow) as any;
-  io.i0 = value;
+  io.i0    = value;
   io.trace = __tsplusTrace;
   return io;
 }
@@ -1710,7 +1710,7 @@ export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<never, never
  */
 export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): UIO<A> {
   const io = new IOPrimitive(IOTag.Sync) as any;
-  io.i0 = effect;
+  io.i0    = effect;
   io.trace = __tsplusTrace;
   return io;
 }
@@ -1723,7 +1723,7 @@ export function summarized<R1, E1, B, C>(summary: IO<R1, E1, B>, f: (start: B, e
     return gen(function* (_) {
       const start = yield* _(summary);
       const value = yield* _(ma);
-      const end = yield* _(summary);
+      const end   = yield* _(summary);
       return tuple(f(start, end), value);
     });
   };
@@ -1964,7 +1964,7 @@ export function withFiberRuntime<R, E, A>(
   __tsplusTrace?: string,
 ): IO<R, E, A> {
   const io = new IOPrimitive(IOTag.Stateful) as any;
-  io.i0 = onState;
+  io.i0    = onState;
   io.trace = __tsplusTrace;
   return io;
 }
@@ -1974,7 +1974,7 @@ export function withFiberRuntime<R, E, A>(
  */
 export function updateRuntimeFlags(patch: RuntimeFlags.Patch, __tsplusTrace?: string): IO<never, never, void> {
   const io = new IOPrimitive(IOTag.UpdateRuntimeFlags) as any;
-  io.i0 = patch;
+  io.i0    = patch;
   io.trace = __tsplusTrace;
   return io;
 }
@@ -2051,8 +2051,8 @@ export function gen<T extends GenIO<any, any, any>, A>(
 ): IO<_R<T>, _E<T>, A> {
   return IO.defer(() => {
     const iterator = f(adapter as any);
-    const state = iterator.next();
-    const run = (state: IteratorYieldResult<T> | IteratorReturnResult<A>): IO<any, any, A> => {
+    const state    = iterator.next();
+    const run      = (state: IteratorYieldResult<T> | IteratorReturnResult<A>): IO<any, any, A> => {
       if (state.done) {
         return IO.succeed(state.value);
       }

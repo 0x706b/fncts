@@ -326,7 +326,6 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
   let c = self;
 
   recursion: while (stack.hasNext) {
-    // eslint-disable-next-line no-constant-condition
     pushing: while (true) {
       switch (c._tag) {
         case CauseTag.Empty:
@@ -355,7 +354,6 @@ export function flipCauseEither<E, A>(self: Cause<Either<E, A>>): Either<Cause<E
       }
     }
 
-    // eslint-disable-next-line no-constant-condition
     popping: while (true) {
       const top = stack.pop()!;
 
@@ -465,7 +463,6 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
   let c = self;
 
   recursion: while (stack.hasNext) {
-    // eslint-disable-next-line no-constant-condition
     pushing: while (true) {
       switch (c._tag) {
         case CauseTag.Empty:
@@ -494,7 +491,6 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
       }
     }
 
-    // eslint-disable-next-line no-constant-condition
     popping: while (true) {
       const top = stack.pop()!;
 

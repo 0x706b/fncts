@@ -1,7 +1,8 @@
 import type { IndexSignature, TemplateLiteral } from "./AST";
 
-import { ASTTag } from "./AST.js";
 import { showWithOptions } from "@fncts/base/data/Showable";
+
+import { ASTTag } from "./AST.js";
 
 export function memoize<A, B>(f: (a: A) => B): (a: A) => B {
   const cache = new Map();

@@ -1,15 +1,19 @@
 {
   "name": "@fncts/codegen",
   "version": "0.0.19",
+  "type": "module",
   "scripts": {
     "build": "yarn org:tsc -b && yarn build-cjs",
     "build-mjs": "yarn org:babel build/esm --config-file ./.babel.mjs.json --out-dir build/mjs --out-file-extension .mjs --source-maps",
     "build-cjs": "yarn org:babel build/esm --config-file ./.babel.cjs.json --out-dir build/cjs --out-file-extension .cjs --source-maps",
     "build-pack": "yarn build && yarn org:concurrently \"yarn build-cjs\" \"yarn build-mjs\" && fncts-pack",
-    "clean": "rm -rf ./build"
+    "clean": "rm -rf ./build",
+    "lint": "yarn org:eslint src/**/*.ts",
+    "format": "yarn org:prettier --list-different -w src/**/*.ts"
   },
   "exports": {
     "./*": {
+      "import": "./build/esm/*.js",
       "require": "./build/cjs/*.cjs"
     }
   },
@@ -23,16 +27,16 @@
     "@types/glob": "^8.1.0",
     "@types/lodash": "^4.14.202",
     "@types/prettier": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/experimental-utils": "^5.62.0",
-    "@typescript-eslint/parser": "^7.1.1",
+    "@typescript-eslint/parser": "^7.14.1",
     "benchmark": "^2.1.4",
-    "eslint": "^8.57.0",
+    "eslint": "^9.6.0",
     "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-codegen": "^0.17.0",
+    "eslint-plugin-codegen": "patch:eslint-plugin-codegen@patch%3Aeslint-plugin-codegen@npm%253A0.28.0%23~/.yarn/patches/eslint-plugin-codegen-npm-0.28.0-fde4b44dc6.patch%3A%3Aversion=0.28.0&hash=674090#~/.yarn/patches/eslint-plugin-codegen-patch-7ad628ad5d.patch",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-simple-import-sort": "^12.0.0",
-    "prettier": "^3.2.5"
+    "eslint-plugin-simple-import-sort": "^12.1.0",
+    "prettier": "^3.3.2"
   },
   "dependencies": {
     "glob": "^10.3.10",

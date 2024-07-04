@@ -1,14 +1,14 @@
 // This file is forked from https://github.com/mmkal/ts/blob/main/packages/eslint-plugin-codegen/src/presets/barrel.ts
 // to add the `.js` extension to exports
 
-import * as path from "path";
-import * as lodash from "lodash";
+import type { Preset } from "eslint-plugin-codegen";
+
+import generate from "@babel/generator";
+import { parse } from "@babel/parser";
 import * as glob from "glob";
 import { match } from "io-ts-extra";
-import { parse } from "@babel/parser";
-import generate from "@babel/generator";
-
-import type { Preset } from "eslint-plugin-codegen";
+import * as lodash from "lodash";
+import * as path from "path";
 
 /**
  * Bundle several modules into a single convenient one.
@@ -42,7 +42,7 @@ const barrel: Preset<{
 }> = ({ meta, options: opts }) => {
   const cwd = path.dirname(meta.filename);
 
-  const ext = meta.filename.split(".").slice(-1)[0];
+  const ext     = meta.filename.split(".").slice(-1)[0];
   const pattern = opts.include || `*.${ext}`;
 
   const relativeFiles = glob
@@ -59,7 +59,7 @@ const barrel: Preset<{
       return relativeFiles.map((f) => `export * from '${f}'`).join("\n");
     })
     .case(String, (s) => {
-      const importPrefix = s === "default" ? "" : "* as ";
+      const importPrefix    = s === "default" ? "" : "* as ";
       const withIdentifiers = lodash
         .chain(relativeFiles)
         .map((f) => ({
@@ -112,7 +112,7 @@ const barrel: Preset<{
     generate(
       parse(str, { sourceType: "module", plugins: ["typescript"] }) as any,
     )
-      .code.replace(/'/g, `"`)
+      .code.replace(/'/g, '"')
       .replace(/\/index/g, "");
 
   try {
@@ -124,4 +124,4 @@ const barrel: Preset<{
   return expectedContent;
 };
 
-module.exports = barrel;
+export default barrel;

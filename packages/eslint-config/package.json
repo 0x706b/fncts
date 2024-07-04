@@ -1,6 +1,7 @@
 {
   "name": "@fncts/eslint-config",
   "version": "0.0.19",
+  "type": "module",
   "scripts": {
     "build": "rm -rf build && mkdir build && mkdir build/cjs && cp index.cjs build/cjs/index.cjs",
     "build-pack": "yarn build && yarn fncts-pack cjs"
@@ -9,23 +10,31 @@
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.1.10",
     "@fncts/codegen": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
     "@typescript-eslint/experimental-utils": "^5.62.0",
-    "@typescript-eslint/parser": "^7.1.1",
+    "@typescript-eslint/parser": "^7.14.1",
     "eslint-import-resolver-typescript": "3.6.1",
-    "eslint-plugin-codegen": "^0.17.0",
+    "eslint-plugin-codegen": "patch:eslint-plugin-codegen@patch%3Aeslint-plugin-codegen@npm%253A0.28.0%23~/.yarn/patches/eslint-plugin-codegen-npm-0.28.0-fde4b44dc6.patch%3A%3Aversion=0.28.0&hash=674090#~/.yarn/patches/eslint-plugin-codegen-patch-7ad628ad5d.patch",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-simple-import-sort": "^12.0.0"
+    "eslint-plugin-simple-import-sort": "^12.1.0"
   },
   "peerDependencies": {
-    "eslint": "^8.21.0"
+    "eslint": "^9.6.0"
   },
   "devDependencies": {
-    "@fncts/config": "workspace:*"
+    "@eslint/compat": "^1.1.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.6.0",
+    "@fncts/config": "workspace:*",
+    "@types/eslint__js": "^8.42.3",
+    "typescript-eslint": "^7.14.1"
   },
   "exports": {
     ".": {
-      "require": "./index.cjs"
+      "import": "./eslint.config.js"
+    },
+    "./*": {
+      "import": "./*.js"
     }
   },
   "publishConfig": {

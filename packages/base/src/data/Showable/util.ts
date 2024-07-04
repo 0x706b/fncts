@@ -325,7 +325,6 @@ export function strEscape(str: string): string {
     return addQuotes(str, singleQuote);
   }
   if (str.length > 100) {
-    // eslint-disable-next-line no-param-reassign
     str = str.replace(escapeReplace, escapeFn);
     return addQuotes(str, singleQuote);
   }

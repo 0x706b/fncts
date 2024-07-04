@@ -18,7 +18,7 @@ export function uniformArrayIntDistributionInternal(
 ): ArrayInt["data"] {
   const rangeLength = rangeSize.length;
   // We iterate until we find a valid value for arrayInt
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     // We compute a new value for arrayInt
     for (let index = 0; index !== rangeLength; ++index) {

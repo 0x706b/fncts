@@ -9,7 +9,7 @@ export function uniformIntDistributionInternal(rangeSize: number, rng: RandomGen
   // Range provided by the RandomGenerator is large enough
   if (rangeSize <= NumValues) {
     const MaxAllowed = NumValues - (NumValues % rangeSize);
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       const out    = rng.next();
       const deltaV = out - MinRng;
@@ -27,7 +27,7 @@ export function uniformIntDistributionInternal(rangeSize: number, rng: RandomGen
     ++NumIterations;
   }
   const MaxAcceptedRandom = rangeSize * Math.floor((1 * FinalNumValues) / rangeSize);
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     // Aggregate mutiple calls to next() into a single random value
     let value = 0;

@@ -22,7 +22,7 @@ export * from "./Observable/api/fromCallback.js";
 export * from "./Observable/api/connectable.js";
 export * from "./Observable/api/connect.js";
 // codegen:end
-/* eslint-disable simple-import-sort/exports */
+
 // codegen:start { preset: barrel, include: Observable/dom/*.ts }
 export * from "./Observable/dom/animationFrames.js";
 // codegen:end

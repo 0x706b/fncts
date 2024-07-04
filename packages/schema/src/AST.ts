@@ -725,7 +725,7 @@ export class TypeLiteral extends AST {
   ) {
     super();
     this.propertySignatures = sortByAscendingCardinality(propertySignatures);
-    this.indexSignatures = sortByAscendingCardinality(indexSignatures);
+    this.indexSignatures    = sortByAscendingCardinality(indexSignatures);
   }
 
   clone(newProperties: Partial<this>): AST {
@@ -1232,7 +1232,7 @@ export function keyof(self: AST): AST {
  */
 export function createRecord(key: AST, value: AST, isReadonly: boolean): TypeLiteral {
   const propertySignatures: MutableVector<PropertySignature> = Vector.emptyPushable();
-  const indexSignatures: MutableVector<IndexSignature> = Vector.emptyPushable();
+  const indexSignatures: MutableVector<IndexSignature>       = Vector.emptyPushable();
 
   function go(key: AST): void {
     concrete(key);
@@ -1466,13 +1466,13 @@ export function getSearchTree(
   const otherwise: Array<AST> = [];
   for (let i = 0; i < members.length; i++) {
     const member = members[i]!;
-    const tags = getLiterals(member, isDecoding);
+    const tags   = getLiterals(member, isDecoding);
     if (tags.length > 0) {
       for (let j = 0; j < tags.length; j++) {
         const [key, literal] = tags[j]!;
-        const hash = String(literal.literal);
-        keys[key]! ||= { buckets: {}, ast: AST.neverKeyword, literals: [] };
-        const buckets = keys[key]!.buckets;
+        const hash           = String(literal.literal);
+        keys[key]!         ||= { buckets: {}, ast: AST.neverKeyword, literals: [] };
+        const buckets        = keys[key]!.buckets;
         if (Object.prototype.hasOwnProperty.call(buckets, hash)) {
           if (j < tags.length - 1) {
             continue;

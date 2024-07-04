@@ -12,7 +12,7 @@ function uniformBigIntInternal(from: bigint, diff: bigint, rng: RandomGenerator)
     ++NumIterations;
   }
   const MaxAcceptedRandom = FinalNumValues - (FinalNumValues % diff);
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     // Aggregate mutiple calls to next() into a single random value
     let value = BigInt(0);

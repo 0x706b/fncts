@@ -149,7 +149,7 @@ export function corresponds<A, B>(right: Iterable<B>, f: (a: A, b: B) => boolean
   return (left: Iterable<A>): boolean => {
     const leftIterator  = left[Symbol.iterator]();
     const rightIterator = right[Symbol.iterator]();
-    // eslint-disable-next-line no-constant-condition
+
     while (true) {
       const lnext = leftIterator.next();
       const rnext = rightIterator.next();
@@ -244,7 +244,7 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
           if (done) {
             this.return!();
           }
-          // eslint-disable-next-line no-constant-condition
+
           while (true) {
             va = ia.next();
             if (va.done) {
@@ -289,7 +289,7 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
           if (done) {
             return this.return!();
           }
-          // eslint-disable-next-line no-constant-condition
+
           while (true) {
             va = ia.next();
             if (va.done) return this.return!();
@@ -499,7 +499,7 @@ function partitionMapWithIndexIterator<A, B, C>(
       if (done) {
         return this.return!();
       }
-      // eslint-disable-next-line no-constant-condition
+
       while (true) {
         va = ia.next();
         if (va.done) {
@@ -567,7 +567,7 @@ function partitionWithIndexIterator<A>(
       if (done) {
         return this.return!();
       }
-      // eslint-disable-next-line no-constant-condition
+
       while (true) {
         va = ia.next();
         if (va.done) {

@@ -1,4 +1,3 @@
-/* eslint-disable simple-import-sort/exports */
 // codegen:start { preset: barrel, include: ./Traversal/*.ts }
 export * from "./Traversal/definition.js";
 // codegen:end

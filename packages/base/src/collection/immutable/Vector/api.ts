@@ -1409,7 +1409,7 @@ export function uniq<A>(E: Eq<A>) {
 export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Vector<A> {
   const out = emptyPushable<A>();
   let state = b;
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     const mt = f(state);
     if (mt.isJust()) {

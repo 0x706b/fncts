@@ -410,7 +410,7 @@ export function push<A>(value: A) {
  */
 export function nodeNthDense(node: Node, depth: number, index: number): any {
   let current = node;
-  // eslint-disable-next-line no-param-reassign
+
   for (; depth >= 0; --depth) {
     current = current.array[(index >> (depth * branchBits)) & mask];
   }
@@ -423,7 +423,7 @@ export function nodeNthDense(node: Node, depth: number, index: number): any {
 export function handleOffset(depth: number, offset: number, index: number): number {
   let i = index;
   i    += offset;
-  // eslint-disable-next-line no-param-reassign
+
   for (; depth >= 0; --depth) {
     i = index - (offset & (mask << (depth * branchBits)));
     if (((index >> (depth * branchBits)) & mask) !== 0) {
@@ -1198,7 +1198,6 @@ function foldRightArrayCb<A, B>(
   to: number,
   offset: number,
 ): [boolean, number] {
-  // eslint-disable-next-line no-param-reassign
   for (var i = from - 1; to <= i && cb(array[i]!, state, offset); --i, offset--) {
     //
   }

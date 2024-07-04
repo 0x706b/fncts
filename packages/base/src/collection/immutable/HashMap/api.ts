@@ -558,7 +558,6 @@ export function foldLeftWithIndexWhile<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z
         if (child && !isEmptyNode(child)) {
           if (child._tag === "LeafNode") {
             if (child.value.isJust()) {
-              // eslint-disable-next-line no-param-reassign
               acc = f(child.key, acc, child.value.value);
               if (p(acc)) {
                 break loop;
@@ -595,7 +594,6 @@ export function foldLeftWithIndex<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z) {
         if (child && !isEmptyNode(child)) {
           if (child._tag === "LeafNode") {
             if (child.value.isJust()) {
-              // eslint-disable-next-line no-param-reassign
               acc = f(child.key, acc, child.value.value);
             }
           } else {
@@ -830,7 +828,6 @@ function tryGetHash<K, V>(map: HashMap<K, V>, key: K, hash: number): Maybe<V> {
   let shift   = 0;
   const keyEq = map.config.equals;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     switch (node._tag) {
       case "LeafNode": {

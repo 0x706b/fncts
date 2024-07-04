@@ -1,0 +1,12 @@
+diff --git a/dist/index.js b/dist/index.js
+index 4d18b6f859d495e17620b1cc51eefdebc7746594..978c25a7e9fb2e330974d0912c025b309e028a38 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -129,6 +129,7 @@ const codegen = {
+                 const opts = maybeOptions.right || {};
+                 const presets = Object.assign(Object.assign({}, presetsModule), (_a = context.options[0]) === null || _a === void 0 ? void 0 : _a.presets);
+                 // const preset = typeof (opts === null || opts === void 0 ? void 0 : opts.preset) === 'string' && presets[opts.preset];
++                let preset;
+                 if (typeof opts?.preset ===  "string") {
+                     try {
+                         preset = require(presets[opts.preset])

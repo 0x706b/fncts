@@ -94,7 +94,6 @@ export class Fail<E> implements Equatable {
   }
 
   equalsEval(that: Cause<unknown>): Eval<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     return Eval.gen(function* (_) {
       switch (that._tag) {
@@ -135,7 +134,6 @@ export class Halt implements Equatable {
   }
 
   equalsEval(that: Cause<unknown>): Eval<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     return Eval.gen(function* (_) {
       switch (that._tag) {
@@ -177,7 +175,6 @@ export class Interrupt implements Equatable {
   }
 
   equalsEval(that: Cause<unknown>): Eval<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     return Eval.gen(function* (_) {
       switch (that._tag) {
@@ -219,7 +216,6 @@ export class Sequential<E> implements Equatable {
   }
 
   equalsEval(that: Cause<unknown>): Eval<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     return Eval.gen(function* (_) {
       return (
@@ -256,7 +252,6 @@ export class Parallel<E> implements Equatable {
   }
 
   equalsEval(that: Cause<unknown>): Eval<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
     const self = this;
     return Eval.gen(function* (_) {
       return (
@@ -453,7 +448,6 @@ function stepLoop<A>(
 ): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
   // eslint-disable-next-line no-constant-condition
   while (1) {
-    /* eslint-disable no-param-reassign */
     switch (cause._tag) {
       case CauseTag.Empty: {
         if (stack.isEmpty()) {
@@ -505,7 +499,6 @@ function stepLoop<A>(
     }
   }
   throw new Error("BUG");
-  /* eslint-enable no-param-reassign */
 }
 
 function step<A>(cause: Cause<A>): readonly [HashSet<Cause<A>>, List<Cause<A>>] {
@@ -526,10 +519,8 @@ function flattenLoop<A>(causes: List<Cause<A>>, flattened: List<HashSet<Cause<A>
     if (sequential.isEmpty()) {
       return updated.reverse;
     } else {
-      /* eslint-disable no-param-reassign */
       causes    = sequential;
       flattened = updated;
-      /* eslint-enable no-param-reassign */
     }
   }
   throw new Error("BUG");

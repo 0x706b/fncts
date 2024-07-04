@@ -114,7 +114,6 @@ export function gen<T extends GenEval<any>, A>(
   });
 }
 
-/* eslint-disable simple-import-sort/exports */
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/sequenceArray.js";
 // codegen:end

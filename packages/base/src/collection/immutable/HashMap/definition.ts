@@ -108,7 +108,6 @@ function visitLazyChildren<K, V, A>(
   cont: Cont<K, V, A>,
 ): Maybe<VisitResult<K, V, A>> {
   while (i < len) {
-    // eslint-disable-next-line no-param-reassign
     const child = children[i++];
     if (child && !isEmptyNode(child)) {
       return visitLazy(child, f, [len, children, i, f, cont]);

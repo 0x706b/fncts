@@ -71,14 +71,12 @@ export function arraySpliceIn<A>(mutate: boolean, at: number, v: A, arr: A[]) {
  * Taken from: http://jsperf.com/hamming-weight
  */
 export function popcount(x: number) {
-  /* eslint-disable no-param-reassign */
   x -= (x >> 1) & 0x55555555;
   x  = (x & 0x33333333) + ((x >> 2) & 0x33333333);
   x  = (x + (x >> 4)) & 0x0f0f0f0f;
   x += x >> 8;
   x += x >> 16;
   return x & 0x7f;
-  /* eslint-enable no-param-reassign */
 }
 
 export function hashFragment(shift: number, h: number) {

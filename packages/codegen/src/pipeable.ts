@@ -1,6 +1,7 @@
+import type { Preset } from "eslint-plugin-codegen";
+
 import generate from "@babel/generator";
 import { parse } from "@babel/parser";
-import type { Preset } from "eslint-plugin-codegen";
 import * as fs from "fs";
 import * as ts from "typescript";
 
@@ -10,7 +11,7 @@ import * as ts from "typescript";
  */
 function interpretReferencedTypeNames(node: ts.TypeNode): string[] {
   const referencedArgs: string[] = [];
-  const stack: ts.TypeNode[] = [node];
+  const stack: ts.TypeNode[]     = [node];
   while (stack.length > 0) {
     const current = stack.pop();
     if (!current) return referencedArgs;
@@ -86,7 +87,7 @@ function normalise(str: string) {
     return generate(
       parse(str, { sourceType: "module", plugins: ["typescript"] }) as any,
     )
-      .code.replace(/'/g, `"`)
+      .code.replace(/'/g, "\"")
       .replace(/\/index/g, "");
   } catch (e) {
     return str;
@@ -212,8 +213,7 @@ function createPipeableFunctionDeclaration(
   );
 
   const baseComment = decl.jsDoc ? decl.jsDoc : ts.factory.createJSDocComment();
-  const baseTags =
-    baseComment.tags?.filter((tag) => tag.tagName.text !== "tsplus") ||
+  const baseTags    = baseComment.tags?.filter((tag) => tag.tagName.text !== "tsplus") ||
     ts.factory.createNodeArray<ts.JSDocTag>();
 
   const comment = ts.factory.createJSDocComment(
@@ -321,8 +321,7 @@ function createPipeableConstrainedFunctionDeclaration(
   );
 
   const baseComment = decl.jsDoc ? decl.jsDoc : ts.factory.createJSDocComment();
-  const baseTags =
-    baseComment.tags?.filter((tag) => tag.tagName.text !== "tsplus") ||
+  const baseTags    = baseComment.tags?.filter((tag) => tag.tagName.text !== "tsplus") ||
     ts.factory.createNodeArray<ts.JSDocTag>();
 
   const comment = ts.factory.createJSDocComment(
@@ -514,4 +513,4 @@ function filterMap<A, B>(
   return bs;
 }
 
-module.exports = pipeable;
+export default pipeable;

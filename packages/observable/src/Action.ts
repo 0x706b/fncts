@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export class Action<A> extends Subscription {
   constructor(scheduler: Scheduler, work: (this: SchedulerAction<A>, state?: A) => void) {
     super();
