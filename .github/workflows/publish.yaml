@@ -22,6 +22,7 @@ jobs:
           yarn install --immutable
       - name: Lint
         run: |
+          yarn workspace @fncts/codegen build
           yarn lint
       - name: Build
         run: |
