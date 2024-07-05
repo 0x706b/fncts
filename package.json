@@ -1,6 +1,6 @@
 {
   "name": "fncts",
-  "packageManager": "yarn@4.0.0-rc.39",
+  "packageManager": "yarn@4.3.1",
   "type": "module",
   "license": "BSD 3-Clause",
   "repository": {
