@@ -22,10 +22,11 @@ jobs:
           yarn install --immutable
       - name: Lint
         run: |
-          yarn workspace @fncts/codegen build
+          yarn workspace @fncts/codegen build && yarn workspace @fncts/codegen build-cjs
           yarn lint
       - name: Build
         run: |
+          yarn workspace @fncts/transformers build && yarn workspace @fncts/transformers build-cjs
           yarn build-pack
       - name: Test
         run: |

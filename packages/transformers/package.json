@@ -14,7 +14,10 @@
     "directory": "dist"
   },
   "exports": {
-    "./*": "./build/esm/*.js"
+    "./*": {
+      "require": "./build/cjs/*.cjs",
+      "import": "./build/esm/*.js"
+    }
   },
   "scripts": {
     "build": "yarn org:tsc -b ./tsconfig.json",
