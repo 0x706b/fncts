@@ -19,7 +19,7 @@ jobs:
       - name: Install
         run: |
           npm install -g yarn
-          yarn
+          yarn install --immutable
       - name: Lint
         run: |
           yarn lint
