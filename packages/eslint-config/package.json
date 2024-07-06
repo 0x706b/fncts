@@ -14,7 +14,6 @@
     "@typescript-eslint/experimental-utils": "^5.62.0",
     "@typescript-eslint/parser": "^7.14.1",
     "eslint-import-resolver-typescript": "3.6.1",
-    "eslint-plugin-codegen": "patch:eslint-plugin-codegen@patch%3Aeslint-plugin-codegen@npm%253A0.28.0%23~/.yarn/patches/eslint-plugin-codegen-npm-0.28.0-fde4b44dc6.patch%3A%3Aversion=0.28.0&hash=674090#~/.yarn/patches/eslint-plugin-codegen-patch-7ad628ad5d.patch",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-simple-import-sort": "^12.1.0"
   },

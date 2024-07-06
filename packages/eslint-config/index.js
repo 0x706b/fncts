@@ -1,5 +1,6 @@
 import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
+import { codegen } from "@fncts/codegen/codegen";
 import { legacyPlugin } from "@fncts/eslint-config/legacyPlugin";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -16,7 +17,11 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
   plugins: {
     import: legacyPlugin(compat, "eslint-plugin-import", "import"),
     "simple-import-sort": legacyPlugin(compat, "eslint-plugin-simple-import-sort", "simple-import-sort"),
-    codegen: legacyPlugin(compat, "eslint-plugin-codegen", "codegen"),
+    codegen: {
+      rules: {
+        codegen,
+      },
+    },
     "@0x706b/align-assignments": legacyPlugin(
       compat,
       "@0x706b/eslint-plugin-align-assignments",

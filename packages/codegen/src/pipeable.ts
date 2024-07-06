@@ -1,4 +1,4 @@
-import type { Preset } from "eslint-plugin-codegen";
+import type { Preset } from "./codegen.js";
 
 import generate from "@babel/generator";
 import { parse } from "@babel/parser";
@@ -87,7 +87,7 @@ function normalise(str: string) {
     return generate(
       parse(str, { sourceType: "module", plugins: ["typescript"] }) as any,
     )
-      .code.replace(/'/g, "\"")
+      .code.replace(/'/g, '"')
       .replace(/\/index/g, "");
   } catch (e) {
     return str;
@@ -341,13 +341,13 @@ function printNode(node: ts.Node, sourceFile: ts.SourceFile): string {
 
 const pipeable: Preset<{
   exclude?: string;
-}> = ({ meta, options }) => {
+}> = ({ context, existingContent, options }) => {
   try {
     // option to exclude some methods
     const exclude = (options.exclude || "").split(",");
 
     // checks and reads the file
-    const sourcePath = meta.filename;
+    const sourcePath = context.physicalFilename;
     if (!fs.existsSync(sourcePath) || !fs.statSync(sourcePath).isFile()) {
       throw Error(`Source path is not a file: ${sourcePath}`);
     }
@@ -387,8 +387,8 @@ const pipeable: Preset<{
       .join("\n");
 
     // do not re-emit in a different style, or a loop will occur
-    if (normalise(meta.existingContent) === normalise(expectedContent))
-      return meta.existingContent;
+    if (normalise(existingContent) === normalise(expectedContent))
+      return existingContent;
     return expectedContent;
   } catch (e) {
     return (

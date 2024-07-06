@@ -38,7 +38,9 @@
       "@fncts/cache/*": ["../cache/src/*"],
       "@fncts/cache": ["../cache/src/index"],
       "@fncts/http/*": ["../http/src/*"],
-      "@fncts/http": ["../http/src/index"]
+      "@fncts/http": ["../http/src/index"],
+      "@fncts/codegen/*": ["../codegen/src/*"],
+      "@fncts/pattern": ["../pattern/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "build"],

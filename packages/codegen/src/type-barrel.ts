@@ -1,51 +1,34 @@
-import type { Preset } from "eslint-plugin-codegen";
+import type { Preset } from "./codegen.js";
 
 import generate from "@babel/generator";
 import { parse } from "@babel/parser";
 import * as glob from "glob";
 import * as path from "path";
 
-/**
- * Bundle several modules into a single convenient one.
- *
- * @example
- * // codegen:start {preset: barrel, include: some/path/*.ts, exclude: some/path/*util.ts}
- * export * from './some/path/module-a'
- * export * from './some/path/module-b'
- * export * from './some/path/module-c'
- * // codegen:end
- *
- * @param include
- * [optional] If specified, the barrel will only include file paths that match this glob pattern
- * @param exclude
- * [optional] If specified, the barrel will exclude file paths that match these glob patterns
- * @param import
- * [optional] If specified, matching files will be imported and re-exported rather than directly exported
- * with `export * from './xyz'`. Use `import: star` for `import * as xyz from './xyz'` style imports.
- * Use `import: default for `import xyz from './xyz'` style imports.
- * @param export
- * [optional] Only valid if the import style has been specified (either `import: star` or `import: default`).
- * If specified, matching modules will be bundled into a const or default export based on this name. If set
- * to `{name: someName, keys: path}` the relative file paths will be used as keys. Otherwise the file paths
- * will be camel-cased to make them valid js identifiers.
- */
 const typeBarrel: Preset<{
   include?: string;
   exclude?: string | string[];
-}> = ({ meta, options: opts }) => {
-  const cwd = path.dirname(meta.filename);
+}> = ({ context, existingContent, options: opts }) => {
+  const cwd = path.dirname(context.physicalFilename);
 
-  const ext     = meta.filename.split(".").slice(-1)[0];
+  const ext     = context.physicalFilename.split(".").slice(-1)[0];
   const pattern = opts.include || `*.${ext}`;
 
-  const relativeFiles = glob
-    .sync(pattern, { cwd, ignore: opts.exclude })
-    .filter((f) => path.resolve(cwd, f) !== path.resolve(meta.filename))
-    .map((f) => `./${f}`.replace(/(\.\/)+\./g, "."))
-    .filter((file) =>
-      [".js", ".mjs", ".ts", ".tsx"].includes(path.extname(file)),
-    )
-    .map((f) => f.replace(/\.\w+$/, "") + ".js");
+  const paths = glob.sync(pattern, { cwd, ignore: opts.exclude });
+
+  const relativeFiles: Array<string> = [];
+
+  for (let p of paths) {
+    if (path.resolve(cwd, p) === path.resolve(context.physicalFilename)) {
+      continue;
+    }
+    p = `./${p}`.replace(/(\.\/)+\./g, ".");
+    if ([".js", ".mjs", ".ts", ".tsx"].includes(path.extname(p))) {
+      continue;
+    }
+    p = p.replace(/\.\w+$/, "") + ".js";
+    relativeFiles.push(p);
+  }
 
   const expectedContent = relativeFiles
     .map((f) => `export type {} from '${f}'`)
@@ -56,12 +39,12 @@ const typeBarrel: Preset<{
     generate(
       parse(str, { sourceType: "module", plugins: ["typescript"] }) as any,
     )
-      .code.replace(/'/g, "\"")
+      .code.replace(/'/g, '"')
       .replace(/\/index/g, "");
 
   try {
-    if (normalise(expectedContent) === normalise(meta.existingContent)) {
-      return meta.existingContent;
+    if (normalise(expectedContent) === normalise(existingContent)) {
+      return existingContent;
     }
   } catch {}
 
