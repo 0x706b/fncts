@@ -1868,9 +1868,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/installer@npm:0.0.183":
-  version: 0.0.183
-  resolution: "@tsplus/installer@npm:0.0.183"
+"@tsplus/installer@npm:0.0.185":
+  version: 0.0.185
+  resolution: "@tsplus/installer@npm:0.0.185"
   dependencies:
     mkdirp: "npm:^1.0.4"
     rimraf: "npm:^3.0.2"
@@ -1879,7 +1879,7 @@ __metadata:
     zlib: "npm:^1.0.5"
   bin:
     tsplus-install: bin/tsplus-install
-  checksum: 10/cc4f5da9e99bffe64a152ef02489bc6c4766f991b4e20aef0f4d54f7de2e121e92c6cca9206a73002c35e78f1362da09b741869f1db441cc80725943b04feb5a
+  checksum: 10/c755b9d63dfe509bc5adfad406acedb016bfd8beb19815d4e483581213d602fa302ad749a372822bda1bc5f1790cbb0e1e758ac4a209dd512e386eb0746ce1eb
   languageName: node
   linkType: hard
 
@@ -6078,7 +6078,7 @@ __metadata:
     "@eslint/compat": "npm:^1.1.0"
     "@eslint/eslintrc": "npm:^3.1.0"
     "@eslint/js": "npm:9.6.0"
-    "@tsplus/installer": "npm:0.0.183"
+    "@tsplus/installer": "npm:0.0.185"
     "@types/benchmark": "npm:^2.1.5"
     "@typescript-eslint/eslint-plugin": "npm:^7.14.1"
     "@typescript-eslint/experimental-utils": "npm:^5.62.0"
@@ -6096,7 +6096,7 @@ __metadata:
     prettier: "npm:^3.3.2"
     prettier-eslint: "npm:^16.3.0"
     prettier-eslint-cli: "npm:^8.0.1"
-    typescript: "npm:^5.4.2"
+    typescript: "npm:5.5.3"
     typescript-eslint: "npm:^7.14.1"
     ultra-runner: "npm:^3.10.5"
     vitest: "npm:^1.3.1"
@@ -11080,6 +11080,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"typescript@npm:5.5.3":
+  version: 5.5.3
+  resolution: "typescript@npm:5.5.3"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10/11a867312419ed497929aafd2f1d28b2cd41810a5eb6c6e9e169559112e9ea073d681c121a29102e67cd4478d0a4ae37a306a5800f3717f59c4337e6a9bd5e8d
+  languageName: node
+  linkType: hard
+
 "typescript@npm:^3.9.10, typescript@npm:^3.9.7":
   version: 3.9.10
   resolution: "typescript@npm:3.9.10"
@@ -11100,13 +11110,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.2.2, typescript@npm:^5.4.2":
+"typescript@npm:^5.2.2":
   version: 5.4.2
   resolution: "typescript@npm:5.4.2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10/f8cfdc630ab1672f004e9561eb2916935b2d267792d07ce93e97fc601c7a65191af32033d5e9c0169b7dc37da7db9bf320f7432bc84527cb7697effaa4e4559d
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@npm%3A5.5.3#optional!builtin<compat/typescript>":
+  version: 5.5.3
+  resolution: "typescript@patch:typescript@npm%3A5.5.3#optional!builtin<compat/typescript>::version=5.5.3&hash=379a07"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 10/7cf7acb78a80f749b82842f2ffe01e90e7b3e709a6f4268588e0b7599c41dca1059be217f47778fe1a380bfaf60933021ef20d002c426d4d7745e1b36c11467b
   languageName: node
   linkType: hard
 
@@ -11130,7 +11150,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@npm%3A^5.2.2#optional!builtin<compat/typescript>, typescript@patch:typescript@npm%3A^5.4.2#optional!builtin<compat/typescript>":
+"typescript@patch:typescript@npm%3A^5.2.2#optional!builtin<compat/typescript>":
   version: 5.4.2
   resolution: "typescript@patch:typescript@npm%3A5.4.2#optional!builtin<compat/typescript>::version=5.4.2&hash=5adc0c"
   bin:
