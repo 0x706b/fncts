@@ -14,7 +14,10 @@
     "directory": "dist"
   },
   "exports": {
-    "./*": "./build/esm/*.js"
+    "./*": {
+      "import": "./build/esm/*.js",
+      "require": "./build/cjs/*.cjs"
+    }
   },
   "scripts": {
     "build": "yarn org:tsc -b ./tsconfig.json",
@@ -33,6 +36,6 @@
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@fncts/scripts": "workspace:*"
+    "@fncts/transformers": "workspace:*"
   }
 }

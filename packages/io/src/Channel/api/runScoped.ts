@@ -15,7 +15,6 @@ function runScopedInterpret<Env, InErr, InDone, OutErr, OutDone>(
         return channelState.effect.flatMap(() => runScopedInterpret(exec.run(), exec));
       }
       case ChannelStateTag.Emit: {
-         
         channelState = exec.run();
         break;
       }

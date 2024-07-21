@@ -28,6 +28,7 @@
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@babel/generator": "^7.23.6",
     "@babel/parser": "^7.24.0",
+    "@fncts/scripts": "workspace:*",
     "@types/babel__generator": "^7.6.8",
     "@types/benchmark": "^2.1.5",
     "@types/glob": "^8.1.0",

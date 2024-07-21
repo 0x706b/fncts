@@ -27,7 +27,6 @@ export interface HKT {
   };
 }
 
- 
 export namespace HKT {
   declare const URI: unique symbol;
   declare const CURI: unique symbol;

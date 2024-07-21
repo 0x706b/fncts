@@ -60,7 +60,6 @@ export class BackPressureStrategy<A> implements Strategy<A> {
   unsafeOffer(as: Conc<A>, p: Future<never, boolean>, __tsplusTrace?: string) {
     let bs = as;
     while (bs.length > 0) {
-       
       const head = bs.unsafeGet(0);
       bs         = bs.drop(1);
       if (bs.length === 0) {
@@ -90,7 +89,6 @@ export class BackPressureStrategy<A> implements Strategy<A> {
   }
 
   get shutdown(): UIO<void> {
-     
     const self = this;
     return Do((_) => {
       const fiberId = _(IO.fiberId);

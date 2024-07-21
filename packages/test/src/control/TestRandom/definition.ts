@@ -253,7 +253,7 @@ export function substractArrayIntToNew(arrayIntA: ArrayInt, arrayIntB: ArrayInt)
 export function trimArrayIntInplace(arrayInt: ArrayInt) {
   const data       = arrayInt.data;
   let firstNonZero = 0;
-   
+
   for (; firstNonZero !== data.length && data[firstNonZero] === 0; ++firstNonZero) {}
   if (firstNonZero === data.length) {
     // only zeros
@@ -263,7 +263,6 @@ export function trimArrayIntInplace(arrayInt: ArrayInt) {
   }
   data.splice(0, firstNonZero);
   return arrayInt;
-   
 }
 /**
  * Add two ArrayInt
@@ -309,7 +308,6 @@ export function addOneToPositiveArrayInt(arrayInt: ArrayInt): ArrayInt {
   }
   data.unshift(1);
   return arrayInt;
-   
 }
 
 function Mash() {

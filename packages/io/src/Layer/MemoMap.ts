@@ -15,7 +15,6 @@ export class MemoMap {
    * and adds a finalizer to the outer `Managed`.
    */
   getOrElseMemoize = <R, E, A>(scope: Scope, layer: Layer<R, E, A>, __tsplusTrace?: string) => {
-     
     return this.ref.modifyIO((map) => {
       const inMap = map.get(layer[LayerHash]);
 

@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build": "yarn org:tsc -b ./tsconfig.json",
+    "build-pack": "yarn build",
     "lint": "yarn org:eslint src/**/*.ts",
     "format": "yarn org:prettier --list-different -w src/**/*.ts",
     "circular": "yarn org:madge --circular --no-spinner --warning build/esm",
@@ -22,8 +23,6 @@
     "@babel/plugin-syntax-class-properties": "^7.12.13",
     "@babel/plugin-syntax-typescript": "^7.23.3",
     "@babel/types": "^7.24.0",
-    "@fncts/config": "workspace:*",
-    "@fncts/eslint-config": "workspace:*",
     "@types/babel__core": "^7.20.5",
     "@yarnpkg/cli": "4.1.1",
     "@yarnpkg/core": "4.0.3",

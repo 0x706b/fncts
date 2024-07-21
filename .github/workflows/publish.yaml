@@ -8,29 +8,42 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup node
-        uses: actions/setup-node@v3
+
+      - name: Install node
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 22.5.0
+          nvm use 22.5.0
+          corepack enable
+
+      - uses: actions/cache@v4
         with:
-          node-version: 22.x
-          cache: yarn
+          path: ".yarn/cache"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
       - name: Install
         run: |
-          npm install -g yarn
           yarn install --immutable
+
       - name: Lint
         run: |
-          yarn workspace @fncts/codegen build && yarn workspace @fncts/codegen build-cjs
+          yarn build-lint-deps
           yarn lint
+
       - name: Build
         run: |
           yarn workspace @fncts/transformers build && yarn workspace @fncts/transformers build-cjs
           yarn build-pack
+
       - name: Test
         run: |
           yarn test
+
       - name: Changeset
         id: changesets
         uses: changesets/action@v1

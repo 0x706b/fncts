@@ -2,14 +2,14 @@
 // to add the `.js` extension to exports
 
 import type { Preset } from "./codegen";
-import type {} from "@fncts/base/global";
+import type {} from "./internal/Array.js";
 
 import generate from "@babel/generator";
 import { parse } from "@babel/parser";
-import { match, P } from "@fncts/pattern";
 import * as glob from "glob";
 import camelCase from "lodash/camelCase";
 import * as path from "path";
+import { match, P } from "ts-pattern";
 
 /**
  * Bundle several modules into a single convenient one.
@@ -55,7 +55,7 @@ const barrel: Preset<{
       continue;
     }
     p = `./${p}`.replace(/(\.\/)+\./g, ".");
-    if ([".js", ".mjs", ".ts", ".tsx"].includes(path.extname(p))) {
+    if (![".js", ".mjs", ".ts", ".tsx"].includes(path.extname(p))) {
       continue;
     }
     p = p.replace(/\.\w+$/, "") + ".js";
@@ -98,7 +98,7 @@ const barrel: Preset<{
         )
         .otherwise(() => withIdentifiers.map((i) => i.identifier));
 
-      const exportPrefix = opts.export?.match
+      const exportPrefix = match(opts.export)
         .with(undefined, () => "export")
         .with("default", () => "export default")
         .with({ name: "default" }, () => "export default")

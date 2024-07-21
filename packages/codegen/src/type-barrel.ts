@@ -23,7 +23,7 @@ const typeBarrel: Preset<{
       continue;
     }
     p = `./${p}`.replace(/(\.\/)+\./g, ".");
-    if ([".js", ".mjs", ".ts", ".tsx"].includes(path.extname(p))) {
+    if (![".js", ".mjs", ".ts", ".tsx"].includes(path.extname(p))) {
       continue;
     }
     p = p.replace(/\.\w+$/, "") + ".js";

@@ -279,7 +279,7 @@ function suspendTryCommit<R, E, A>(
             for (const entry of untracked) {
               accum.set(entry[0], entry[1]);
             }
-             
+
             journal = untracked;
           }
           break;
