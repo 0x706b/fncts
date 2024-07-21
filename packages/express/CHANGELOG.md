@@ -1,5 +1,13 @@
 # @fncts/express
 
+## 0.0.38
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+- Updated dependencies [1613ad5]
+  - @fncts/io@0.0.45
+
 ## 0.0.37
 
 ### Patch Changes

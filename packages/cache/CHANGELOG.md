@@ -1,5 +1,16 @@
 # @fncts/cache
 
+## 0.0.15
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+- Updated dependencies [1613ad5]
+  - @fncts/transformers@0.0.10
+  - @fncts/base@0.0.37
+  - @fncts/io@0.0.45
+  - @fncts/typelevel@0.0.19
+
 ## 0.0.14
 
 ### Patch Changes

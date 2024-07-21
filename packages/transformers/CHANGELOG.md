@@ -1,5 +1,11 @@
 # @fncts/transformers
 
+## 0.0.10
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+
 ## 0.0.9
 
 ### Patch Changes

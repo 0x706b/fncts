@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.23
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+
 ## 0.0.22
 
 ### Patch Changes

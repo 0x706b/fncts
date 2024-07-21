@@ -1,5 +1,15 @@
 # @fncts/react
 
+## 0.0.17
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+- Updated dependencies [1613ad5]
+  - @fncts/base@0.0.37
+  - @fncts/io@0.0.45
+  - @fncts/typelevel@0.0.19
+
 ## 0.0.16
 
 ### Patch Changes
