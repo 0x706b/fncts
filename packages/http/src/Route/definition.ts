@@ -35,7 +35,7 @@ export abstract class RouteContext {
   readonly [RouteContextTypeId]: RouteContextTypeId = RouteContextTypeId;
   abstract readonly route: Route<unknown, unknown>;
   abstract readonly params: Readonly<Record<string, string | undefined>>;
-  abstract readonly searchParams: Readonly<Record<string, string>>;
+  abstract readonly searchParams: Readonly<Record<string, string | ReadonlyArray<string>>>;
 }
 
 /**

@@ -31,7 +31,7 @@
     "@fncts/base": "workspace:*",
     "@fncts/io": "workspace:*",
     "@fncts/typelevel": "workspace:*",
-    "uuid": "^9.0.1"
+    "uuid": "^10.0.0"
   },
   "peerDependencies": {
     "@types/react": "^18.0.26",
@@ -42,9 +42,9 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/react": "^18.2.64",
-    "@types/uuid": "^9.0.8",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@types/react": "^18.3.3",
+    "@types/uuid": "^10.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

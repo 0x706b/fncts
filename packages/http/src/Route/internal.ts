@@ -18,7 +18,7 @@ export class RouteContextImpl extends RouteContext {
   constructor(
     readonly route: Route<unknown, unknown>,
     readonly params: Readonly<Record<string, string | undefined>>,
-    readonly searchParams: Readonly<Record<string, string>>,
+    readonly searchParams: Readonly<Record<string, string | ReadonlyArray<string>>>,
   ) {
     super();
   }

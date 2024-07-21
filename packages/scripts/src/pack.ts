@@ -37,10 +37,6 @@ async function getPackageJson() {
   return JSON.parse(content);
 }
 
-const DEPENDENCY_TYPE = ["dependencies", "peerDependencies"];
-
-const WORKSPACE_PROTOCOL = "workspace:";
-
 async function writePackageJson(project: Project, workspace: Workspace, mode: "cjs" | "mjs" | "both" = "both") {
   const originalManifest = await getPackageJson();
   const rawManifest: any = {};

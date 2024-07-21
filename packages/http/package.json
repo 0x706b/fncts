@@ -32,16 +32,16 @@
     "@fncts/io": "workspace:*",
     "@fncts/schema": "workspace:*",
     "@fncts/typelevel": "workspace:*",
-    "find-my-way": "^8.1.0",
-    "find-my-way-ts": "^0.1.1",
+    "find-my-way": "^8.2.0",
+    "find-my-way-ts": "^0.1.5",
     "isows": "^1.0.4",
-    "uuid": "^9.0.1"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/react": "^18.2.64",
-    "@types/uuid": "^9.0.8"
+    "@types/react": "^18.3.3",
+    "@types/uuid": "^10.0.0"
   }
 }

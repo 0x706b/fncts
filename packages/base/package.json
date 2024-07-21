@@ -32,12 +32,12 @@
   },
   "dependencies": {
     "@fncts/typelevel": "workspace:*",
-    "uuid": "^9.0.1"
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/uuid": "^9.0.8"
+    "@types/uuid": "^10.0.0"
   }
 }

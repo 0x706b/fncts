@@ -29,12 +29,12 @@
   },
   "dependencies": {
     "@fncts/io": "workspace:*",
-    "ws": "^8.17.0"
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/ws": "^8"
+    "@types/ws": "^8.5.11"
   }
 }

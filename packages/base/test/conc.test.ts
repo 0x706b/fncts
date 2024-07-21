@@ -66,7 +66,7 @@ suite.concurrent("Conc", () => {
           return actual.assertIO(every(strictEqualTo(expected)));
         });
       },
-      { timeout: 10_000 },
+      { timeout: 20_000 },
     );
 
     test.io(

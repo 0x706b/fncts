@@ -1,6 +1,17 @@
 import type { Eq } from "@fncts/base/typeclass";
 
 /**
+ * @tsplus static fncts.ArrayOps fromValue
+ */
+export function fromValue<A>(value: A): A extends Array<any> ? A : A extends ReadonlyArray<any> ? A : ReadonlyArray<A> {
+  if (Array.isArray(value)) {
+    return value as ReturnType<typeof fromValue<A>>;
+  } else {
+    return [value] as ReturnType<typeof fromValue<A>>;
+  }
+}
+
+/**
  * @tsplus getter fncts.Array elem
  * @tsplus getter fncts.ReadonlyArray elem
  */
