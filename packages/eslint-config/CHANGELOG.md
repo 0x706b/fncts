@@ -1,5 +1,11 @@
 # @fncts/eslint-config
 
+## 0.0.21
+
+### Patch Changes
+
+- 6248020: fix: eslint-config build
+
 ## 0.0.20
 
 ### Patch Changes
