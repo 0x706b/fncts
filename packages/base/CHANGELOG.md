@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.37
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+- Updated dependencies [1613ad5]
+  - @fncts/typelevel@0.0.19
+
 ## 0.0.36
 
 ### Patch Changes

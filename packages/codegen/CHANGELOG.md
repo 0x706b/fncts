@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.20
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+
 ## 0.0.19
 
 ### Patch Changes

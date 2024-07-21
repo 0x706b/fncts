@@ -1,5 +1,13 @@
 # @fncts/pattern
 
+## 0.0.26
+
+### Patch Changes
+
+- 1613ad5: chore: update all dependencies
+- Updated dependencies [1613ad5]
+  - @fncts/base@0.0.37
+
 ## 0.0.25
 
 ### Patch Changes
