@@ -1139,7 +1139,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.7.0, @eslint/js@npm:^9.7.0":
+"@eslint/js@npm:9.7.0":
   version: 9.7.0
   resolution: "@eslint/js@npm:9.7.0"
   checksum: 10/b56b9fdec705f2cefae3a6d9d4227c4c28c5cbdbd8849c7997c357cabd4a729cee4445ddb43bb1423fbeb2280a119ced4d0819be8749d107c511e9d81dfe863a
@@ -1224,7 +1224,7 @@ __metadata:
     "@0x706b/eslint-plugin-module-specifier-extensions": "npm:^0.1.10"
     "@eslint/compat": "npm:^1.1.1"
     "@eslint/eslintrc": "npm:^3.1.0"
-    "@eslint/js": "npm:^9.7.0"
+    "@eslint/js": "npm:9.7.0"
     "@fncts/codegen": "workspace:*"
     "@fncts/config": "workspace:*"
     "@types/eslint__js": "npm:^8.42.3"
