@@ -1,5 +1,11 @@
 # @fncts/eslint-config
 
+## 0.0.22
+
+### Patch Changes
+
+- 0bc7ae5: refactor: include deps in eslint-config package
+
 ## 0.0.21
 
 ### Patch Changes
