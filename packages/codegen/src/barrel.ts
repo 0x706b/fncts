@@ -46,7 +46,9 @@ const barrel: Preset<{
   const ext     = context.physicalFilename.split(".").slice(-1)[0];
   const pattern = opts.include || `*.${ext}`;
 
-  const paths = glob.sync(pattern, { cwd, ignore: opts.exclude });
+  const paths = glob
+    .sync(pattern, { cwd, ignore: opts.exclude })
+    .sort((a, b) => a.localeCompare(b));
 
   const relativeFiles: Array<string> = [];
 
