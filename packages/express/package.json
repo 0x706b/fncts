@@ -38,8 +38,8 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.14.11",
-    "express": "^4.19.2"
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.7.2",
+    "express": "^4.21.0"
   }
 }

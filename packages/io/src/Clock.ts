@@ -1,6 +1,6 @@
-/* eslint-disable simple-import-sort/exports */
+ 
 // codegen:start { preset: barrel, include: ./Clock/*.ts }
-export * from "./Clock/live.js";
-export * from "./Clock/definition.js";
 export * from "./Clock/api.js";
+export * from "./Clock/definition.js";
+export * from "./Clock/live.js";
 // codegen:end

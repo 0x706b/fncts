@@ -33,9 +33,9 @@ export function tuple<T extends ReadonlyArray<Ord<any>>>(
   return Ord.all(elements) as any;
 }
 
-/* eslint-disable simple-import-sort/exports */
+ 
 // codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/min.js";
-export * from "./api/max.js";
 export * from "./api/contramap.js";
+export * from "./api/max.js";
+export * from "./api/min.js";
 // codegen:end

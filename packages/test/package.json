@@ -36,7 +36,7 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "vitest": "^2.0.3"
+    "vitest": "^2.1.1"
   },
   "peerDependencies": {
     "vitest": "^0.30.1"

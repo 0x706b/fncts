@@ -2,16 +2,16 @@ import type { PRef } from "./definition.js";
 
 import { identity } from "@fncts/base/data/function";
 
-/* eslint-disable simple-import-sort/exports */
+ 
 // codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/set.js";
-export * from "./api/modify.js";
-export * from "./api/matchAll.js";
-export * from "./api/match.js";
-export * from "./api/get.js";
-export * from "./api/filter.js";
-export * from "./api/dimap.js";
 export * from "./api/collect.js";
+export * from "./api/dimap.js";
+export * from "./api/filter.js";
+export * from "./api/get.js";
+export * from "./api/match.js";
+export * from "./api/matchAll.js";
+export * from "./api/modify.js";
+export * from "./api/set.js";
 // codegen:end
 
 /**
