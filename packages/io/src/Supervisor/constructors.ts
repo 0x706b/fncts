@@ -17,9 +17,11 @@ export function unsafeTrack(weak: boolean): Supervisor<Conc<Fiber.Runtime<any, a
       _parent: Maybe<Fiber.Runtime<E, A>>,
       fiber: Fiber.Runtime<E, A>,
     ) {
+      // @ts-expect-error
       set.add(fiber);
     }
     unsafeOnEnd<E, A>(_value: Exit<E, A>, fiber: Fiber.Runtime<E, A>) {
+      // @ts-expect-error
       set.delete(fiber);
     }
   })();
