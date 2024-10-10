@@ -56,9 +56,8 @@ export function withExhaust<R, E, A>(f: (fork: <R>(io: URIO<R, void>) => URIO<R,
       const reset = ref.set(null);
 
       const exhaustFork = <R>(io: IO<R, never, void>) =>
-        io
-          .ensuring(reset)
-          .fork.flatMap((fiber) => ref.set(fiber))
+        fork(io.ensuring(reset))
+          .flatMap((fiber) => ref.set(fiber))
           .whenRef(ref, (fiber) => fiber === null).asUnit;
 
       Δ(f(exhaustFork));

@@ -1,3 +1,6 @@
+import { EitherTag } from "@fncts/base/data/Either";
+import { IllegalArgumentError } from "@fncts/base/data/exceptions";
+
 /**
  * @tsplus type fncts.io.Semaphore
  * @tsplus companion fncts.io.SemaphoreOps
@@ -5,57 +8,113 @@
 export class Semaphore {
   constructor(readonly permits: number) {}
 
-  taken   = 0;
-  waiters = new Set<() => void>();
+  ref = Ref.unsafeMake<Either<ImmutableQueue<[Future<never, void>, number]>, number>>(Either.right(this.permits));
 
-  get free(): number {
-    return this.permits - this.taken;
+  available(__tsplusTrace?: string): UIO<number> {
+    return this.ref.get.map((_) =>
+      _.match(
+        () => 0,
+        (permits) => permits,
+      ),
+    );
   }
 
-  runNext() {
-    const next = this.waiters.values().next();
-    if (!next.done) {
-      this.waiters.delete(next.value);
-      next.value();
+  reserve(n: number, __tsplusTrace?: string): UIO<Reservation> {
+    if (n < 0) {
+      return IO.halt(new IllegalArgumentError(`Unexpected negative ${n} permits requested`, "Semaphore.reserve"));
+    } else if (n === 0) {
+      return IO.succeedNow(new Reservation(IO.unit, IO.unit));
+    } else {
+      return Future.make<never, void>().flatMap((future) =>
+        this.ref.modify((state) =>
+          state.match(
+            (queue) => [
+              new Reservation(future.await, this.restore(future, n)),
+              Either.left(queue.enqueue([future, n])),
+            ],
+            (permits) => {
+              if (permits >= n) {
+                return [new Reservation(IO.unit, this.releaseN(n)), Either.right(permits - n)];
+              } else {
+                return [
+                  new Reservation(future.await, this.restore(future, n)),
+                  Either.left(ImmutableQueue.single([future, n - permits])),
+                ];
+              }
+            },
+          ),
+        ),
+      );
     }
   }
 
-  take(n: number) {
-    return IO.asyncInterrupt<never, never, number>((cb) => {
-      if (this.free < n) {
-        const observer = () => {
-          if (this.free >= n) {
-            this.waiters.delete(observer);
-            this.taken += n;
-            cb(IO.succeedNow(n));
-          }
-        };
-        this.waiters.add(observer);
-        return Either.left(
-          IO(() => {
-            this.waiters.delete(observer);
-          }),
-        );
-      }
-      this.taken += n;
-      return Either.right(IO.succeedNow(n));
-    });
+  restore(future: Future<never, void>, n: number, __tsplusTrace?: string): UIO<void> {
+    return this.ref.modify((state) =>
+      state.match(
+        (queue) =>
+          queue
+            .find(([waiter]) => waiter === future)
+            .match(
+              () => [this.releaseN(n), Either.left(queue)],
+              ([_, permits]) => [
+                this.releaseN(n - permits),
+                Either.left(queue.filter(([waiter]) => waiter !== future)),
+              ],
+            ),
+        (permits) => [IO.unit, Either.right(permits + n)],
+      ),
+    ).flatten;
   }
 
-  release(n: number) {
-    return IO.withFiberRuntime<never, never, void>((fiber) => {
-      this.taken -= n;
-      fiber.getFiberRef(FiberRef.currentScheduler).scheduleTask(() => {
-        this.waiters.forEach((wake) => wake());
-      });
-      return IO.unit;
-    });
+  releaseN(n: number, __tsplusTrace?: string): UIO<void> {
+    const self = this;
+
+    /**
+     * @tsplus tailRec
+     */
+    function loop(
+      n: number,
+      state: Either<ImmutableQueue<[Future<never, any>, number]>, number>,
+      acc: UIO<void>,
+    ): [UIO<void>, Either<ImmutableQueue<[Future<never, any>, number]>, number>] {
+      state.concrete();
+      switch (state._tag) {
+        case EitherTag.Right: {
+          return [acc, Either.right(state.right + n)];
+        }
+        case EitherTag.Left: {
+          const waiter = state.left.dequeue;
+
+          Maybe.concrete(waiter);
+
+          switch (waiter._tag) {
+            case MaybeTag.Nothing: {
+              return [acc, Either.right(self.permits)];
+            }
+            case MaybeTag.Just: {
+              const [[future, permits], queue] = waiter.value;
+              if (n > permits) {
+                return loop(n - permits, Either.left(queue), acc < future.succeed(undefined));
+              } else if (n === permits) {
+                return [acc > future.succeed(undefined), Either.left(queue)];
+              } else {
+                return [acc, Either.left(queue.prepend([future, permits - n]))];
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return this.ref.modify((state) => loop(n, state, IO.unit)).flatten;
   }
 
   withPermits(permits: number) {
     return <R, E, A>(io: IO<R, E, A>): IO<R, E, A> => {
-      return IO.uninterruptibleMask((restore) =>
-        restore(this.take(permits)).flatMap((permits) => restore(io).ensuring(this.release(permits))),
+      return IO.bracket(
+        this.reserve(permits),
+        (reservation) => reservation.acquire > io,
+        (reservation) => reservation.release,
       );
     };
   }
@@ -63,6 +122,25 @@ export class Semaphore {
   withPermit<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
     return this.withPermits(1)(io);
   }
+
+  withPermitsScoped(permits: number) {
+    return <R, E, A>(io: IO<R, E, A>): IO<Scope | R, E, A> => {
+      return IO.acquireRelease(this.reserve(permits), (reservation) => reservation.release).flatMap(
+        (reservation) => reservation.acquire > io,
+      );
+    };
+  }
+
+  withPermitScoped<R, E, A>(io: IO<R, E, A>): IO<Scope | R, E, A> {
+    return this.withPermitsScoped(1)(io);
+  }
+}
+
+export class Reservation {
+  constructor(
+    readonly acquire: UIO<void>,
+    readonly release: UIO<void>,
+  ) {}
 }
 
 /**
