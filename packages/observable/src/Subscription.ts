@@ -3,7 +3,7 @@ export interface Unsubscribable {
 }
 
 export interface SubscriptionLike extends Unsubscribable {
-  readonly closed: boolean;
+  readonly _closed: boolean;
 }
 
 export type Finalizer = Unsubscribable | (() => void) | void;
@@ -18,7 +18,7 @@ export type SubscriptionTypeId = typeof SubscriptionTypeId;
 export class Subscription implements SubscriptionLike {
   readonly [SubscriptionTypeId]: SubscriptionTypeId = SubscriptionTypeId;
 
-  public closed = false;
+  public _closed = false;
   private finalizers: Set<Finalizer> | null = null;
   private parents: Set<Subscription> | null = null;
 
@@ -27,8 +27,8 @@ export class Subscription implements SubscriptionLike {
   unsubscribe(): void {
     let errors: unknown[] | undefined;
 
-    if (!this.closed) {
-      this.closed = true;
+    if (!this._closed) {
+      this._closed = true;
 
       const { parents, initialFinalizer, finalizers } = this;
 
@@ -71,11 +71,11 @@ export class Subscription implements SubscriptionLike {
 
   add(finalizer: Finalizer): void {
     if (finalizer && finalizer !== this) {
-      if (this.closed) {
+      if (this._closed) {
         executeFinalizer(finalizer);
       } else {
         if (isSubscription(finalizer)) {
-          if (finalizer.closed || finalizer.hasParent(this)) {
+          if (finalizer._closed || finalizer.hasParent(this)) {
             return;
           }
           finalizer.addParent(this);
@@ -125,8 +125,8 @@ function executeFinalizer(finalizer: Finalizer): void {
  * @tsplus static fncts.observable.SubscriptionOps empty
  */
 export const EMPTY_SUBSCRIPTION = (() => {
-  const empty  = new Subscription();
-  empty.closed = true;
+  const empty   = new Subscription();
+  empty._closed = true;
   return empty;
 })();
 

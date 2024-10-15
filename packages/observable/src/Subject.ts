@@ -1,11 +1,19 @@
-import { arrayRemove } from "@fncts/observable/internal/util";
-
 export interface SubjectLike<E, A> extends Observer<E, A>, Subscribable<E, A> {}
 
+/**
+ * A Subject is a special type of Observable that allows values to be
+ * multicasted to many Observers. Subjects are like EventEmitters.
+ *
+ * Every Subject is an Observable and an Observer. You can subscribe to a
+ * Subject, and you can call next to feed values as well as error and complete.
+ */
 export class Subject<R, E, A> extends Observable<R, E, A> implements SubscriptionLike {
-  closed = false;
-  protected observers: Array<Observer<E, A>> = [];
-  protected isStopped             = false;
+  _closed = false;
+
+  protected currentObservers = new Map<number, Observer<E, A>>();
+  private observersCount     = 0;
+  private observerSnapshot: Array<Observer<E, A>> | undefined;
+
   protected hasError              = false;
   protected thrownError: Cause<E> = null!;
 
@@ -13,58 +21,67 @@ export class Subject<R, E, A> extends Observable<R, E, A> implements Subscriptio
     super();
   }
 
-  lift<R1, E1, B>(operator: Operator<E1, B>): Observable<R1, E1, B> {
-    const subject    = new AnonymousSubject(this, this);
-    subject.operator = operator as any;
-    return subject as any;
+  get closed() {
+    return this._closed;
+  }
+
+  get observers(): Array<Observer<E, A>> {
+    return (this.observerSnapshot ??= Array.from(this.currentObservers.values()));
   }
 
   next(value: A) {
-    this.throwIfClosed();
-    if (!this.isStopped) {
-      const copy = this.observers.slice();
-      for (const observer of copy) {
-        observer.next(value);
+    if (!this._closed) {
+      const { observers } = this;
+      const len           = observers.length;
+      for (let i = 0; i < len; i++) {
+        observers[i].next(value);
       }
     }
   }
 
   error(err: Cause<E>) {
-    this.throwIfClosed();
-    if (!this.isStopped) {
-      this.hasError       = this.isStopped = true;
+    if (!this._closed) {
+      this.hasError       = this._closed = true;
       this.thrownError    = err;
       const { observers } = this;
-      while (observers.length) {
-        observers.shift()!.error(err);
+      const len           = observers.length;
+      for (let i = 0; i < len; i++) {
+        observers[i].error(err);
       }
+      this.clearObservers();
     }
   }
 
   complete() {
-    this.throwIfClosed();
-    if (!this.isStopped) {
-      this.isStopped      = true;
+    if (!this._closed) {
+      this._closed        = true;
       const { observers } = this;
-      while (observers.length) {
-        observers.shift()!.complete();
+      const len           = observers.length;
+      for (let i = 0; i < len; i++) {
+        observers[i].complete();
       }
+      this.clearObservers();
     }
   }
 
   unsubscribe() {
-    this.isStopped = this.closed = true;
-    this.observers = null!;
+    this._closed = true;
+    this.clearObservers();
   }
 
   get observed() {
-    return this.observers?.length > 0;
+    return this.currentObservers.size > 0;
   }
 
   protected throwIfClosed() {
-    if (this.closed) {
+    if (this._closed) {
       throw new Error("Object Unsubscribed");
     }
+  }
+
+  protected clearObservers() {
+    this.currentObservers.clear();
+    this.observerSnapshot = undefined;
   }
 
   protected trySubscribe(subscriber: Subscriber<E, A>, environment: Environment<R>): Finalizer {
@@ -73,23 +90,33 @@ export class Subject<R, E, A> extends Observable<R, E, A> implements Subscriptio
   }
 
   protected subscribeInternal(subscriber: Subscriber<E, A>): Subscription {
-    this.throwIfClosed();
     this.checkFinalizedStatuses(subscriber);
     return this.innerSubscribe(subscriber);
   }
 
   protected innerSubscribe(subscriber: Subscriber<E, A>): Subscription {
-    const { hasError, isStopped, observers } = this;
-    return hasError || isStopped
-      ? Subscription.empty
-      : (observers.push(subscriber), new Subscription(() => arrayRemove(observers, subscriber)));
+    const { hasError, _closed: closed } = this;
+    if (hasError || closed) {
+      return Subscription.empty;
+    }
+
+    const { currentObservers } = this;
+
+    const observerId = this.observersCount++;
+    currentObservers.set(observerId, subscriber);
+    this.observerSnapshot = undefined;
+    subscriber.add(() => {
+      currentObservers.delete(observerId);
+      this.observerSnapshot = undefined;
+    });
+    return subscriber;
   }
 
   protected checkFinalizedStatuses(subscriber: Subscriber<any, any>) {
-    const { hasError, thrownError, isStopped } = this;
+    const { hasError, thrownError, _closed: closed } = this;
     if (hasError) {
       subscriber.error(thrownError);
-    } else if (isStopped) {
+    } else if (closed) {
       subscriber.complete();
     }
   }
@@ -132,10 +159,10 @@ export class AsyncSubject<R, E, A> extends Subject<R, E, A> {
 
   /** @internal */
   protected checkFinalizedStatuses(subscriber: Subscriber<E, A>) {
-    const { hasError, hasValue, value, thrownError, isStopped, isComplete } = this;
+    const { hasError, hasValue, value, thrownError, _closed: closed, isComplete } = this;
     if (hasError) {
       subscriber.error(thrownError);
-    } else if (isStopped || isComplete) {
+    } else if (closed || isComplete) {
       hasValue &&
         value!.match(
           (e) => subscriber.error(e),
@@ -146,14 +173,14 @@ export class AsyncSubject<R, E, A> extends Subject<R, E, A> {
   }
 
   next(value: A) {
-    if (!this.isStopped) {
+    if (!this._closed) {
       this.value    = Either.right(value);
       this.hasValue = true;
     }
   }
 
   error(err: Cause<E>) {
-    if (!this.isStopped) {
+    if (!this._closed) {
       this.value    = Either.left(err);
       this.hasValue = true;
     }

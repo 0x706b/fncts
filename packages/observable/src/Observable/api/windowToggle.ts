@@ -8,7 +8,7 @@ export function windowToggle<R1, E1, B, R2, E2>(
   closingSelector: (openValue: B) => ObservableInput<R2, E2, any>,
 ) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1 | R2, E | E1 | E2, Observable<never, E, A>> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       const windows: Subject<never, E, A>[] = [];
       const handleError                     = (err: Cause<E>) => {
         while (0 < windows.length) {
@@ -19,7 +19,7 @@ export function windowToggle<R1, E1, B, R2, E2>(
       Observable.from(openings)
         .provideEnvironment(environment)
         .subscribe(
-          operatorSubscriber(subscriber, {
+          subscriber.operate({
             next: (openValue) => {
               const window = new Subject<never, E, A>();
               windows.push(window);
@@ -50,30 +50,28 @@ export function windowToggle<R1, E1, B, R2, E2>(
             complete: noop,
           }),
         );
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => {
-              const windowsCopy = windows.slice();
-              for (const window of windowsCopy) {
-                window.next(value);
-              }
-            },
-            error: handleError,
-            complete: () => {
-              while (0 < windows.length) {
-                windows.shift()!.complete();
-              }
-              subscriber.complete();
-            },
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => {
+            const windowsCopy = windows.slice();
+            for (const window of windowsCopy) {
+              window.next(value);
+            }
           },
-          () => {
+          error: handleError,
+          complete: () => {
+            while (0 < windows.length) {
+              windows.shift()!.complete();
+            }
+            subscriber.complete();
+          },
+
+          finalize: () => {
             while (0 < windows.length) {
               windows.shift()!.unsubscribe();
             }
           },
-        ),
+        }),
       );
     });
   };

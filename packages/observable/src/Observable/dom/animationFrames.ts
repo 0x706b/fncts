@@ -31,7 +31,7 @@ function animationFramesInternal(timestampProvider?: TimestampProvider): Observa
         timestamp: timestampProvider ? now : timestamp,
         elapsed: now - start,
       });
-      if (!subscriber.closed) {
+      if (!subscriber._closed) {
         subscription.add(schedule(run));
       }
     };

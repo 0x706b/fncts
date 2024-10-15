@@ -46,7 +46,7 @@ export const Eval: EvalOps = {};
 export const enum EvalTag {
   Value,
   Defer,
-  Chain,
+  FlatMap,
 }
 
 export interface Value
@@ -67,7 +67,7 @@ export interface Defer
 
 export interface FlatMap
   extends EvalOp<
-    EvalTag.Chain,
+    EvalTag.FlatMap,
     {
       readonly i0: Primitive;
       readonly i1: (a: any) => Primitive;
@@ -77,7 +77,7 @@ export interface FlatMap
 type Primitive = Value | Defer | FlatMap;
 
 /**
- * @tsplus smart:remove
+ * @tsplus optimize remove
  */
 export function concrete(_: Eval<any>): asserts _ is Primitive {
   //

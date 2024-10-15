@@ -19,7 +19,6 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
   readonly [ObservableTypeId]: ObservableTypeId = ObservableTypeId;
 
   protected source: Observable<any, any, any> | undefined;
-  protected operator: Operator<E, A> | undefined;
   protected environment: Environment<any> = Environment();
 
   constructor(
@@ -80,19 +79,11 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
     };
   }
 
-  lift<R1, E1, A1>(operator: Operator<E1, A1>): Observable<R1, E1, A1> {
-    const observable    = new Observable<R1, E1, A1>();
-    observable.source   = this;
-    observable.operator = operator;
-    return observable;
-  }
-
   provideEnvironment(environment: Environment<R>): Observable<never, E, A>;
   provideEnvironment<In>(environment: Environment<In>): Observable<Exclude<R, In>, E, A>;
   provideEnvironment<In>(environment: Environment<In>): Observable<Exclude<R, In>, E, A> {
     const observable       = new Observable<never, E, A>(this.subscribeInternal);
     observable.source      = this.source;
-    observable.operator    = this.operator;
     observable.environment = this.environment.union(environment);
     return observable;
   }
@@ -104,15 +95,9 @@ export class Observable<R, E, A> implements Subscribable<E, A>, AsyncIterable<A>
     this: Observable<never, E, A>,
     observer?: Partial<Observer<E, A>> | ((value: A) => void),
   ): Subscription {
-    const subscriber: Subscriber<E, A> = isSubscriber(observer) ? observer : new SafeSubscriber(observer);
+    const subscriber: Subscriber<E, A> = isSubscriber(observer) ? observer : new Subscriber(observer);
 
-    subscriber.add(
-      this.operator
-        ? this.operator.call(subscriber, this.source, this.environment)
-        : this.source
-          ? this.subscribeInternal(subscriber, this.environment)
-          : this.trySubscribe(subscriber, this.environment),
-    );
+    subscriber.add(this.trySubscribe(subscriber, this.environment));
 
     return subscriber;
   }

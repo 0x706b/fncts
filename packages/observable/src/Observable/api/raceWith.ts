@@ -11,10 +11,7 @@ export function raceWith<O extends ReadonlyArray<ObservableInput<any, any>>>(...
     E | Observable.ErrorOf<O[number]>,
     A | Observable.TypeOf<O[number]>
   > => {
-    return !sources.length
-      ? fa
-      : fa.operate((source, subscriber, environment) => {
-          raceInit([source, ...sources])(subscriber as Subscriber<any, any>, environment);
-        });
+    // @ts-expect-error
+    return !sources.length ? fa : new Observable(raceInit([fa, ...sources]));
   };
 }

@@ -161,6 +161,15 @@ export function succeed_<A>(a: A, __tsplusTrace?: string) {
 }
 
 /**
+ * Completes the future with the specified value.
+ *
+ * @tsplus pipeable fncts.io.Future succeed
+ */
+export function succeedVoid_(a: void, __tsplusTrace?: string) {
+  return <E>(future: Future<E, void>): UIO<boolean> => succeed_(a, __tsplusTrace)(future);
+}
+
+/**
  * Retrieves the value of the future, suspending the fiber running the action
  * until the result is available.
  *

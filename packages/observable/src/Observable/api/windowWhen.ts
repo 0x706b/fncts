@@ -3,7 +3,7 @@
  */
 export function windowWhen(closingSelector: () => ObservableInput<never, never, any>) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, Observable<never, E, A>> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let window: Subject<never, E, A> | null;
       let closingSubscriber: Subscriber<E, any> | undefined;
       const handleError = (err: Cause<E>) => {
@@ -31,22 +31,19 @@ export function windowWhen(closingSelector: () => ObservableInput<never, never, 
         );
       };
       openWindow();
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => window!.next(value),
-            error: handleError,
-            complete: () => {
-              window!.complete();
-              subscriber.complete();
-            },
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => window!.next(value),
+          error: handleError,
+          complete: () => {
+            window!.complete();
+            subscriber.complete();
           },
-          () => {
+          finalize: () => {
             closingSubscriber?.unsubscribe();
             window = null!;
           },
-        ),
+        }),
       );
     });
   };

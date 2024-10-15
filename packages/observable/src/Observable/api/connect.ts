@@ -15,12 +15,12 @@ export function connect<R, E, A, R1, E1, B>(
 ) {
   return (fa: Observable<R, E, A>): Observable<R | R1, E | E1, B> => {
     const { connector } = config;
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       const subject = connector();
       Observable.from(selector(Observable.fromSubscribable(subject)))
         .provideEnvironment(environment)
         .subscribe(subscriber);
-      subscriber.add(source.provideEnvironment(environment).subscribe(subject));
+      subscriber.add(fa.provideEnvironment(environment).subscribe(subject));
     });
   };
 }

@@ -1,6 +1,6 @@
 {
   "name": "fncts",
-  "packageManager": "yarn@4.3.1",
+  "packageManager": "yarn@4.5.0",
   "type": "module",
   "license": "BSD 3-Clause",
   "repository": {
@@ -64,6 +64,7 @@
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "prettier-eslint-cli": "^8.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "5.6.2",
     "typescript-eslint": "^7.18.0",
     "vitest": "^2.1.1"

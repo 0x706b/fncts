@@ -15,7 +15,7 @@ export class AsyncAction<A> extends Action<A> {
   }
 
   schedule(state?: A, delay = 0): Subscription {
-    if (this.closed) {
+    if (this._closed) {
       return this;
     }
 
@@ -48,7 +48,7 @@ export class AsyncAction<A> extends Action<A> {
   }
 
   public execute(state: A, delay: number): unknown {
-    if (this.closed) {
+    if (this._closed) {
       throw new Error("executing a cancelled action");
     }
 
@@ -77,7 +77,7 @@ export class AsyncAction<A> extends Action<A> {
   }
 
   unsubscribe() {
-    if (!this.closed) {
+    if (!this._closed) {
       const { id, scheduler } = this;
       const { actions }       = scheduler;
 

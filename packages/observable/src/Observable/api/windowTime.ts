@@ -30,7 +30,7 @@ export function windowTime(windowTimeSpan: number, ...args: any[]) {
     const scheduler = popScheduler(args) ?? asyncScheduler;
     const windowCreationInterval: number | null = args[0] ?? null;
     const maxWindowSize: number                 = args[1] || Infinity;
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let windowRecords: WindowRecord<never, E, A>[] | null = [];
       let restartOnClose = false;
       const closeWindow  = (record: { window: Subject<never, E, A>; subs: Subscription }) => {
@@ -59,7 +59,7 @@ export function windowTime(windowTimeSpan: number, ...args: any[]) {
         ? subscriber.add(
             scheduler.schedule(function () {
               startWindow();
-              !this.closed && subscriber.add(this.schedule(null, windowCreationInterval));
+              !this._closed && subscriber.add(this.schedule(null, windowCreationInterval));
             }, windowCreationInterval),
           )
         : (restartOnClose = true);
@@ -70,8 +70,8 @@ export function windowTime(windowTimeSpan: number, ...args: any[]) {
         cb(subscriber);
         subscriber.unsubscribe();
       };
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             loop((record) => {
               record.window.next(value);

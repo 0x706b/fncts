@@ -5,13 +5,13 @@ export function retryWhen<E, R1, E1>(
   notifier: (errors: Observable<never, never, Cause<E>>) => Observable<R1, E1, any>,
 ) {
   return <R, A>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let innerSub: Subscription | null;
       let syncResub = false;
       let defects$: Subject<never, never, any>;
       const loop    = () => {
-        innerSub = source.provideEnvironment(environment).subscribe(
-          operatorSubscriber(subscriber, {
+        innerSub = fa.provideEnvironment(environment).subscribe(
+          subscriber.operate({
             error: (err) => {
               if (!defects$) {
                 defects$ = new Subject();

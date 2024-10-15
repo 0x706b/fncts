@@ -18,9 +18,9 @@ export function share<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R
       resetOnComplete = true,
       resetOnRefCountZero = true,
     } = options;
-    let connection: SafeSubscriber<E, A> | null = null;
-    let resetConnection: Subscription | null    = null;
-    let subject: Subject<R, E, A> | null        = null;
+    let connection: Subscriber<E, A> | null  = null;
+    let resetConnection: Subscription | null = null;
+    let subject: Subject<R, E, A> | null     = null;
     let refCount      = 0;
     let hasCompleted  = false;
     let hasErrored    = false;
@@ -38,7 +38,7 @@ export function share<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R
       reset();
       conn?.unsubscribe();
     };
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       refCount++;
       if (!hasErrored && !hasCompleted) {
         cancelReset();
@@ -52,7 +52,7 @@ export function share<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R
       });
       dest.provideEnvironment(environment).subscribe(subscriber);
       if (!connection) {
-        connection = new SafeSubscriber({
+        connection = new Subscriber({
           next: (value) => dest.next(value),
           error: (defect) => {
             hasErrored = true;
@@ -67,7 +67,7 @@ export function share<R, E, A, R1 = never, E1 = never, R2 = never, E2 = never, R
             dest.complete();
           },
         });
-        Observable.from(source).provideEnvironment(environment).subscribe(connection);
+        Observable.from(fa).provideEnvironment(environment).subscribe(connection);
       }
     });
   };

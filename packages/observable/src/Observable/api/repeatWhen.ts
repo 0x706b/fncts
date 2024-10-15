@@ -1,11 +1,11 @@
 /**
  * @tsplus pipeable fncts.observable.Observable repeatWhen
  */
-export function repeatWhen<R, E, A, R1, E1>(
+export function repeatWhen<R1, E1>(
   notifier: (notifications: Observable<never, never, void>) => Observable<R1, E1, any>,
 ) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let innerSub: Subscription | null;
       let syncResub = false;
       let completions$: Subject<never, never, void>;
@@ -37,8 +37,8 @@ export function repeatWhen<R, E, A, R1, E1>(
       };
       const loop = () => {
         isMainComplete = false;
-        innerSub       = source.provideEnvironment(environment).subscribe(
-          operatorSubscriber(subscriber, {
+        innerSub       = fa.provideEnvironment(environment).subscribe(
+          subscriber.operate({
             complete: () => {
               isMainComplete = true;
               !checkComplete() && getCompletionSubject().next();

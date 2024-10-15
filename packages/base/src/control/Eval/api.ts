@@ -1,7 +1,7 @@
 import type { _A } from "@fncts/base/types";
 
 import { EvalPrimitive, EvalTag } from "@fncts/base/control/Eval/definition";
-import { identity, tuple } from "@fncts/base/data/function";
+import { identity } from "@fncts/base/data/function";
 
 /**
  * @tsplus pipeable fncts.control.Eval and
@@ -17,7 +17,7 @@ export function and(that: Eval<boolean>) {
  */
 export function flatMap<A, B>(f: (a: A) => Eval<B>) {
   return (self: Eval<A>): Eval<B> => {
-    const primitive = new EvalPrimitive(EvalTag.Chain) as any;
+    const primitive = new EvalPrimitive(EvalTag.FlatMap) as any;
     primitive.i0    = self;
     primitive.i1    = f;
     return primitive;

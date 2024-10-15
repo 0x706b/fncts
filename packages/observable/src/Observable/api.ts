@@ -97,7 +97,7 @@ export function from<R = never, E = never, A = never>(input: ObservableInput<R, 
 
 export function fromArrayLike<A>(input: ArrayLike<A>): Observable<never, never, A> {
   return new Observable((s) => {
-    for (let i = 0; i < input.length && !s.closed; i++) {
+    for (let i = 0; i < input.length && !s._closed; i++) {
       s.next(input[i]!);
     }
     s.complete();
@@ -114,7 +114,7 @@ export function fromIterable<A>(iterable: Iterable<A>): Observable<never, never,
   return new Observable((s) => {
     for (const value of iterable) {
       s.next(value);
-      if (s.closed) {
+      if (s._closed) {
         return;
       }
     }
@@ -127,7 +127,7 @@ export function fromPromise<A>(promise: PromiseLike<A>): Observable<never, never
     promise
       .then(
         (value) => {
-          if (!s.closed) {
+          if (!s._closed) {
             s.next(value);
             s.complete();
           }
@@ -195,7 +195,7 @@ export function iterate<S>(options: IterateOptions<S>): Observable<never, never,
 async function process<A>(asyncIterable: AsyncIterable<A>, subscriber: Subscriber<never, A>) {
   for await (const value of asyncIterable) {
     subscriber.next(value);
-    if (subscriber.closed) {
+    if (subscriber._closed) {
       return;
     }
   }
@@ -282,7 +282,7 @@ export function scheduleArray<A>(input: ArrayLike<A>, scheduler: SchedulerLike):
         s.complete();
       } else {
         s.next(input[i++]!);
-        if (!s.closed) {
+        if (!s._closed) {
           this.schedule();
         }
       }
@@ -417,7 +417,7 @@ export function timer(
     }
     let n = 0;
     return scheduler.schedule(function () {
-      if (!s.closed) {
+      if (!s._closed) {
         s.next(n++);
         if (0 <= intervalDuration) {
           this.schedule(undefined, intervalDuration);
@@ -448,7 +448,7 @@ export function makeZip<O extends ReadonlyArray<ObservableInput<any, any>>>(
         subscriber.add(() => {
           buffers = completed = null!;
         });
-        for (let sourceIndex = 0; !subscriber.closed && sourceIndex < sources.length; sourceIndex++) {
+        for (let sourceIndex = 0; !subscriber._closed && sourceIndex < sources.length; sourceIndex++) {
           from(sources[sourceIndex]!)
             .provideEnvironment(environment)
             .subscribe(
@@ -486,7 +486,7 @@ export function fromIO<R, E, A>(io: IO<R, E, A>, scheduler: SchedulerLike = asyn
     const scheduled = scheduler.schedule(() => {
       fiber = io.provideEnvironment(env).unsafeRunFiber();
       fiber.addObserver((exit) => {
-        if (!s.closed) {
+        if (!s._closed) {
           exit.match(
             (cause) => s.error(cause),
             (a) => s.next(a),
@@ -539,12 +539,12 @@ export function ap<A, R1, E1>(fa: Observable<R1, E1, A>) {
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, B> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((destination, environment) => {
       let i = 0;
-      source.provideEnvironment(environment).subscribe(
-        new OperatorSubscriber(subscriber, {
+      return fa.provideEnvironment(environment).subscribe(
+        destination.operate({
           next: (value) => {
-            subscriber.next(f(i++, value));
+            destination.next(f(i++, value));
           },
         }),
       );
@@ -575,9 +575,9 @@ export function as<B>(b: Lazy<B>) {
  */
 export function mapError<E, E1>(f: (e: E) => E1) {
   return <R, A>(fa: Observable<R, E, A>): Observable<R, E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
-      source.provideEnvironment(environment).subscribe(
-        new OperatorSubscriber(subscriber, {
+    return new Observable((subscriber, environment) => {
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           error: (err) => {
             subscriber.error(err.map(f));
           },
@@ -591,9 +591,9 @@ export function mapError<E, E1>(f: (e: E) => E1) {
  * @tsplus getter fncts.observable.Observable swap
  */
 export function swap<R, E, A>(fa: Observable<R, E, A>): Observable<R, A, E> {
-  return fa.operate((source, subscriber, environment) => {
-    source.provideEnvironment(environment).subscribe(
-      new OperatorSubscriber(subscriber, {
+  return new Observable((subscriber, environment) => {
+    return fa.provideEnvironment(environment).subscribe(
+      subscriber.operate({
         next: (value) => {
           subscriber.error(Cause.fail(value));
         },
@@ -623,13 +623,13 @@ export function filterWithIndex<A>(
 ): <R, E>(fa: Observable<R, E, A>) => Observable<R, E, A>;
 export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let index = 0;
-      source
-        .provideEnvironment(environment)
-        .subscribe(
-          operatorSubscriber(subscriber, { next: (value) => predicate(index++, value) && subscriber.next(value) }),
-        );
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => predicate(index++, value) && subscriber.next(value),
+        }),
+      );
     });
   };
 }
@@ -652,10 +652,10 @@ export function filter<A>(predicate: Predicate<A>) {
  */
 export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, B> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let index = 0;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) =>
             f(index++, value).match(
               () => noop,
@@ -712,20 +712,20 @@ export function partition<A>(predicate: Predicate<A>) {
 export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
   return <R, E>(fa: Observable<R, E, A>): readonly [Observable<R, E, B>, Observable<R, E, C>] => {
     return [
-      fa.operate((source, subscriber, environment) => {
+      new Observable((subscriber, environment) => {
         let index = 0;
-        source.provideEnvironment(environment).subscribe(
-          operatorSubscriber(subscriber, {
+        return fa.provideEnvironment(environment).subscribe(
+          subscriber.operate({
             next: (value) => {
               f(index++, value).match((b) => subscriber.next(b), noop);
             },
           }),
         );
       }),
-      fa.operate((source, subscriber, environment) => {
+      new Observable((subscriber, environment) => {
         let index = 0;
-        source.provideEnvironment(environment).subscribe(
-          operatorSubscriber(subscriber, {
+        return fa.provideEnvironment(environment).subscribe(
+          subscriber.operate({
             next: (value) => {
               f(index++, value).match(noop, (c) => subscriber.next(c));
             },
@@ -762,7 +762,9 @@ export function mergeMapWithIndex<A, R1, E1, B>(
   concurrent = Infinity,
 ) {
   return <R, E>(ma: Observable<R, E, A>): Observable<R | R1, E | E1, B> => {
-    return ma.operate((source, sub, environment) => mergeInternal(source, sub, environment, f, concurrent));
+    return new Observable((subscriber, environment) => {
+      return mergeInternal(ma, subscriber, environment, f, concurrent);
+    });
   };
 }
 
@@ -814,7 +816,9 @@ export function flatten<R, E, R1, E1, A>(mma: Observable<R, E, Observable<R1, E1
  */
 export function foldLeftWithIndex<A, B>(initial: B, f: (index: number, acc: B, value: A) => B) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, B> => {
-    return fa.operate(scanInternal(f, initial, true, false, true));
+    return new Observable((subscriber, environment) => {
+      return scanInternal(fa, subscriber, environment, f, initial, true, false, true);
+    });
   };
 }
 
@@ -845,7 +849,7 @@ export function at(index: number) {
  */
 export function audit<A, R1, E1>(durationSelector: (value: A) => ObservableInput<R1, E1, any>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let lastValue: Maybe<A> = Nothing();
       let durationSubscriber: Subscriber<any, any> | null = null;
       let isComplete    = false;
@@ -863,7 +867,7 @@ export function audit<A, R1, E1>(durationSelector: (value: A) => ObservableInput
         durationSubscriber = null;
         isComplete && subscriber.complete();
       };
-      source.provideEnvironment(environment).subscribe(
+      return fa.provideEnvironment(environment).subscribe(
         operatorSubscriber(subscriber, {
           next: (value) => {
             lastValue = Just(value);
@@ -880,7 +884,7 @@ export function audit<A, R1, E1>(durationSelector: (value: A) => ObservableInput
           },
           complete: () => {
             isComplete = true;
-            (lastValue.isNothing() || !durationSubscriber || durationSubscriber.closed) && subscriber.complete();
+            (lastValue.isNothing() || !durationSubscriber || durationSubscriber._closed) && subscriber.complete();
           },
         }),
       );
@@ -902,10 +906,10 @@ export function auditTime(duration: number, scheduler: SchedulerLike = asyncSche
  */
 export function buffer<R1, E1>(closingNotifier: Observable<R1, E1, any>) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, ReadonlyArray<A>> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let buffer: A[] = [];
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => buffer.push(value),
           complete: () => {
             subscriber.next(buffer);
@@ -914,7 +918,7 @@ export function buffer<R1, E1>(closingNotifier: Observable<R1, E1, any>) {
         }),
       );
       closingNotifier.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+        subscriber.operate({
           next: () => {
             const b = buffer;
             buffer  = [];
@@ -936,43 +940,40 @@ export function buffer<R1, E1>(closingNotifier: Observable<R1, E1, any>) {
 export function bufferCount(bufferSize: number, startBufferEvery?: number) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, ReadonlyArray<A>> => {
     startBufferEvery = startBufferEvery ?? bufferSize;
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let buffers: A[][] = [];
       let count          = 0;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => {
-              let toEmit: A[][] | null = null;
-              if (count++ % startBufferEvery! === 0) {
-                buffers.push([]);
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => {
+            let toEmit: A[][] | null = null;
+            if (count++ % startBufferEvery! === 0) {
+              buffers.push([]);
+            }
+            for (const buffer of buffers) {
+              buffer.push(value);
+              if (bufferSize <= buffer.length) {
+                toEmit = toEmit ?? [];
+                toEmit.push(buffer);
               }
-              for (const buffer of buffers) {
-                buffer.push(value);
-                if (bufferSize <= buffer.length) {
-                  toEmit = toEmit ?? [];
-                  toEmit.push(buffer);
-                }
-              }
-              if (toEmit) {
-                for (const buffer of toEmit) {
-                  arrayRemove(buffers, buffer);
-                  subscriber.next(buffer);
-                }
-              }
-            },
-            complete: () => {
-              for (const buffer of buffers) {
+            }
+            if (toEmit) {
+              for (const buffer of toEmit) {
+                arrayRemove(buffers, buffer);
                 subscriber.next(buffer);
               }
-              subscriber.complete();
-            },
+            }
           },
-          () => {
+          complete: () => {
+            for (const buffer of buffers) {
+              subscriber.next(buffer);
+            }
+            subscriber.complete();
+          },
+          finalize: () => {
             buffers = null!;
           },
-        ),
+        }),
       );
     });
   };
@@ -996,7 +997,7 @@ export function bufferTime(config: BufferTimeConfig) {
       maxBufferSize = Infinity,
       scheduler = asyncScheduler,
     } = config;
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let bufferRecords:
         | {
             buffer: A[];
@@ -1024,38 +1025,40 @@ export function bufferTime(config: BufferTimeConfig) {
           subs.add(scheduler.schedule(() => emit(record), bufferTimeSpan));
         }
       };
+
       bufferCreationInterval !== null && bufferCreationInterval >= 0
         ? subscriber.add(
             scheduler.schedule(function () {
               startBuffer();
-              !this.closed && subscriber.add(this.schedule(null, bufferCreationInterval));
+              !this._closed && subscriber.add(this.schedule(null, bufferCreationInterval));
             }, bufferCreationInterval),
           )
         : (restartOnEmit = true);
+
       startBuffer();
-      const bufferTimeSubscriber = operatorSubscriber(
-        subscriber,
-        {
-          next: (value: A) => {
-            const recordsCopy = bufferRecords!.slice();
-            for (const record of recordsCopy) {
-              const { buffer } = record;
-              buffer.push(value);
-              maxBufferSize <= buffer.length && emit(record);
-            }
-          },
-          complete: () => {
-            while (bufferRecords?.length) {
-              subscriber.next(bufferRecords.shift()!.buffer);
-            }
-            bufferTimeSubscriber?.unsubscribe();
-            subscriber.complete();
-            subscriber.unsubscribe();
-          },
+
+      const bufferTimeSubscriber = subscriber.operate({
+        next: (value: A) => {
+          const recordsCopy = bufferRecords!.slice();
+          for (const record of recordsCopy) {
+            const { buffer } = record;
+            buffer.push(value);
+            maxBufferSize <= buffer.length && emit(record);
+          }
         },
-        () => (bufferRecords = null),
-      );
-      source.provideEnvironment(environment).subscribe(bufferTimeSubscriber);
+        complete: () => {
+          while (bufferRecords?.length) {
+            subscriber.next(bufferRecords.shift()!.buffer);
+          }
+          bufferTimeSubscriber?.unsubscribe();
+          subscriber.complete();
+          subscriber.unsubscribe();
+        },
+        finalize: () => {
+          bufferRecords = null;
+        },
+      });
+      return fa.provideEnvironment(environment).subscribe(bufferTimeSubscriber);
     });
   };
 }
@@ -1068,7 +1071,7 @@ export function bufferToggle<R1, E1, B, R2, E2>(
   closingSelector: (value: B) => ObservableInput<R2, E2, any>,
 ) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1 | R2, E | E1 | E2, ReadonlyArray<A>> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       const buffers: A[][] = [];
       from(openings)
         .provideEnvironment(environment)
@@ -1092,8 +1095,8 @@ export function bufferToggle<R1, E1, B, R2, E2>(
             complete: noop,
           }),
         );
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             for (const buffer of buffers) {
               buffer.push(value);
@@ -1116,7 +1119,7 @@ export function bufferToggle<R1, E1, B, R2, E2>(
  */
 export function bufferWhen<R1, E1>(closingSelector: () => ObservableInput<R1, E1, any>) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, ReadonlyArray<A>> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let buffer: A[] | null = null;
       let closingSubscriber: Subscriber<E | E1, A> | null = null;
       const openBuffer = () => {
@@ -1129,18 +1132,15 @@ export function bufferWhen<R1, E1>(closingSelector: () => ObservableInput<R1, E1
           .subscribe((closingSubscriber = operatorSubscriber(subscriber, { next: openBuffer, complete: noop })));
       };
       openBuffer();
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => buffer?.push(value),
-            complete: () => {
-              buffer && subscriber.next(buffer);
-              subscriber.complete();
-            },
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => buffer?.push(value),
+          complete: () => {
+            buffer && subscriber.next(buffer);
+            subscriber.complete();
           },
-          () => (buffer = closingSubscriber = null),
-        ),
+          finalize: () => (buffer = closingSubscriber = null),
+        }),
       );
     });
   };
@@ -1153,14 +1153,14 @@ export function catchAllCause<R, E, A, R1, E1, B>(
   f: (cause: Cause<E>, caught: Observable<R | R1, E | E1, A | B>) => ObservableInput<R | R1, E1, B>,
 ) {
   return (self: Observable<R, E, A>): Observable<R | R1, E1, A | B> => {
-    return self.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let innerSub: Subscription | null = null;
       let syncUnsub                     = false;
       let handledResult: Observable<R | R1, E1, B>;
-      innerSub                          = source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      innerSub                          = self.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           error: (cause) => {
-            handledResult = from(f(cause, source.catchAllCause(f)));
+            handledResult = from(f(cause, self.catchAllCause(f)));
             if (innerSub) {
               innerSub.unsubscribe();
               innerSub = null;
@@ -1192,7 +1192,7 @@ export function concatAll<R, E, R1, E1, A>(
 /**
  * @tsplus pipeable fncts.observable.Observable concat
  */
-export function concat<O extends ReadonlyArray<ObservableInput<any, any>>>(...sources: O) {
+export function concat<O extends ReadonlyArray<ObservableInput<any, any, any>>>(...sources: O) {
   return <R, E, A>(
     fa: Observable<R, E, A>,
   ): Observable<
@@ -1200,8 +1200,8 @@ export function concat<O extends ReadonlyArray<ObservableInput<any, any>>>(...so
     E | Observable.ErrorOf<O[number]>,
     A | Observable.TypeOf<O[number]>
   > => {
-    return fa.operate((source, subscriber, environment) => {
-      fromArrayLike([source, ...sources])
+    return new Observable((subscriber, environment) => {
+      return fromArrayLike([fa, ...sources])
         .concatAll.provideEnvironment(environment)
         .subscribe(subscriber as Subscriber<any, any>);
     });
@@ -1261,10 +1261,11 @@ export function zipLatest<O extends ReadonlyArray<ObservableInput<any, any, any>
     ]
   > => {
     if (!sources.length) {
-      return from(self).unsafeCoerce();
+      return unsafeCoerce(from(self));
     }
-    return from(self).operate((source, subscriber, environment) => {
-      combineLatestInternal(subscriber, environment, [source, ...sources]);
+
+    return new Observable((subscriber, environment) => {
+      return combineLatestInternal(subscriber, environment, [self, ...sources]);
     });
   };
 }
@@ -1283,7 +1284,7 @@ export function zipWithLatest<A, R1, E1, B, C>(that: ObservableInput<R1, E1, B>,
  */
 export function debounceWith<A, R1, E1>(durationSelector: (value: A) => ObservableInput<R1, E1, any>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let lastValue: Maybe<A> = Nothing();
       let durationSubscriber: Subscriber<E1, any> | null = null;
       const emit = () => {
@@ -1295,25 +1296,22 @@ export function debounceWith<A, R1, E1>(durationSelector: (value: A) => Observab
           subscriber.next(value);
         }
       };
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => {
-              durationSubscriber?.unsubscribe();
-              lastValue          = Just(value);
-              durationSubscriber = operatorSubscriber(subscriber, { next: emit, complete: noop });
-              from(durationSelector(value)).provideEnvironment(environment).subscribe(durationSubscriber);
-            },
-            complete: () => {
-              emit();
-              subscriber.complete();
-            },
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => {
+            durationSubscriber?.unsubscribe();
+            lastValue          = Just(value);
+            durationSubscriber = subscriber.operate({ next: emit, complete: noop });
+            from(durationSelector(value)).provideEnvironment(environment).subscribe(durationSubscriber);
           },
-          () => {
+          complete: () => {
+            emit();
+            subscriber.complete();
+          },
+          finalize: () => {
             lastValue = durationSubscriber = null!;
           },
-        ),
+        }),
       );
     });
   };
@@ -1324,7 +1322,7 @@ export function debounceWith<A, R1, E1>(durationSelector: (value: A) => Observab
  */
 export function debounce(dueTime: number, scheduler: SchedulerLike = asyncScheduler) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let activeTask: Subscription | null = null;
       let lastValue: A | null             = null;
       let lastTime: number | null         = null;
@@ -1347,27 +1345,24 @@ export function debounce(dueTime: number, scheduler: SchedulerLike = asyncSchedu
         }
         emit();
       }
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => {
-              lastValue = value;
-              lastTime  = scheduler.now();
-              if (!activeTask) {
-                activeTask = scheduler.schedule(emitWhenIdle, dueTime);
-                subscriber.add(activeTask);
-              }
-            },
-            complete: () => {
-              emit();
-              subscriber.complete();
-            },
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => {
+            lastValue = value;
+            lastTime  = scheduler.now();
+            if (!activeTask) {
+              activeTask = scheduler.schedule(emitWhenIdle, dueTime);
+              subscriber.add(activeTask);
+            }
           },
-          () => {
+          complete: () => {
+            emit();
+            subscriber.complete();
+          },
+          finalize: () => {
             lastValue = activeTask = null;
           },
-        ),
+        }),
       );
     });
   };
@@ -1377,9 +1372,9 @@ export function debounce(dueTime: number, scheduler: SchedulerLike = asyncSchedu
  * @tsplus getter fncts.observable.Observable either
  */
 export function either<R, E, A>(fa: Observable<R, E, A>): Observable<R, never, Either<E, A>> {
-  return fa.operate((source, subscriber, environment) => {
-    source.provideEnvironment(environment).subscribe(
-      operatorSubscriber(subscriber, {
+  return new Observable((subscriber, environment) => {
+    return fa.provideEnvironment(environment).subscribe(
+      subscriber.operate({
         next: (value) => {
           subscriber.next(Either.right(value));
         },
@@ -1426,10 +1421,10 @@ export function delay(due: number | Date, scheduler: SchedulerLike = asyncSchedu
  * @tsplus getter fncts.observable.Observable dematerialize
  */
 export function dematerialize<R, E, E1, A>(fa: Observable<R, E, Notification<E1, A>>): Observable<R, E | E1, A> {
-  return fa.operate((source, subscriber, environment) => {
-    source
+  return new Observable((subscriber, environment) => {
+    return fa
       .provideEnvironment(environment)
-      .subscribe(operatorSubscriber(subscriber, { next: (notification) => notification.observe(subscriber) }));
+      .subscribe(subscriber.operate({ next: (notification) => notification.observe(subscriber) }));
   });
 }
 
@@ -1438,9 +1433,9 @@ export function dematerialize<R, E, E1, A>(fa: Observable<R, E, Notification<E1,
  */
 export function ensuring(finalizer: () => void) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    return fa.operate((source, subscriber, environment) => {
-      source.provideEnvironment(environment).subscribe(subscriber);
+    return new Observable((subscriber, environment) => {
       subscriber.add(finalizer);
+      return fa.provideEnvironment(environment).subscribe(subscriber);
     });
   };
 }
@@ -1451,17 +1446,17 @@ export function ensuring(finalizer: () => void) {
 export function exhaustAll<R, E, R1, E1, A>(
   ffa: Observable<R, E, ObservableInput<R1, E1, A>>,
 ): Observable<R | R1, E | E1, A> {
-  return ffa.operate((source, subscriber, environment) => {
+  return new Observable((subscriber, environment) => {
     let isComplete                    = false;
     let innerSub: Subscription | null = null;
-    source.provideEnvironment(environment).subscribe(
+    return ffa.provideEnvironment(environment).subscribe(
       operatorSubscriber(subscriber, {
         next: (inner) => {
           if (!innerSub) {
             innerSub = from(inner)
               .provideEnvironment(environment)
               .subscribe(
-                operatorSubscriber(subscriber, {
+                subscriber.operate({
                   complete: () => {
                     innerSub = null;
                     isComplete && subscriber.complete();
@@ -1484,15 +1479,15 @@ export function exhaustAll<R, E, R1, E1, A>(
  */
 export function exhaustMapWithIndex<A, R1, E1, B>(f: (i: number, a: A) => ObservableInput<R1, E1, B>) {
   return <R, E>(self: Observable<R, E, A>): Observable<R | R1, E | E1, B> => {
-    return self.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let index = 0;
       let innerSub: Subscriber<E1, B> | null = null;
       let isComplete = false;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      self.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (outerValue) => {
             if (!innerSub) {
-              innerSub = operatorSubscriber(subscriber, {
+              innerSub = subscriber.operate({
                 complete: () => {
                   innerSub = null;
                   isComplete && subscriber.complete();
@@ -1529,9 +1524,9 @@ export function expandWithIndex<A, R1, E1, B>(
 ) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, B> => {
     concurrent = (concurrent || 0) < 1 ? Infinity : concurrent;
-    return fa.operate((source, subscriber, environment) =>
-      mergeInternal(source, subscriber, environment, f, concurrent, undefined, true),
-    );
+    return new Observable((subscriber, environment) => {
+      return mergeInternal(fa, subscriber, environment, f, concurrent, undefined, true);
+    });
   };
 }
 
@@ -1555,7 +1550,7 @@ export function findWithIndex<A>(
 ): <R, E>(fa: Observable<R, E, A>) => Observable<R, E, Maybe<A>>;
 export function findWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, Maybe<A>> => {
-    return fa.operate(findInternal(predicate, "value"));
+    return new Observable(findInternal(fa, predicate, "value"));
   };
 }
 
@@ -1583,7 +1578,7 @@ export function findIndexWithIndex<A>(
 ): <R, E>(fa: Observable<R, E, A>) => Observable<R, E, number>;
 export function findIndexWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, number> => {
-    return fa.operate(findInternal(predicate, "index"));
+    return new Observable(findInternal(fa, predicate, "index"));
   };
 }
 
@@ -1623,7 +1618,7 @@ export function forkJoin<A extends ReadonlyArray<ObservableInput<any, any>>>(
 >;
 export function forkJoin(...args: any[]): Observable<any, any, any> {
   const { args: sources, keys } = arrayOrObject(args);
-  return new Observable((s) => {
+  return new Observable((s, environment) => {
     const length = sources.length;
     if (!length) {
       s.complete();
@@ -1634,33 +1629,35 @@ export function forkJoin(...args: any[]): Observable<any, any, any> {
     let remainingEmissions   = length;
     for (let sourceIndex = 0; sourceIndex < length; sourceIndex++) {
       let hasValue = false;
-      from(sources[sourceIndex]).subscribe(
-        operatorSubscriber(s, {
-          next: (value: any) => {
-            if (!hasValue) {
-              hasValue = true;
-              remainingEmissions--;
-            }
-            values[sourceIndex] = value;
-          },
-          complete: () => {
-            if (!--remainingCompletions || !hasValue) {
-              if (!remainingEmissions) {
-                s.next(
-                  keys
-                    ? keys.reduce((b, k, i) => {
-                        // @ts-expect-error
-                        b[k] = values[i];
-                        return b;
-                      }, {})
-                    : values,
-                );
+      from(sources[sourceIndex])
+        .provideEnvironment(environment)
+        .subscribe(
+          s.operate({
+            next: (value: any) => {
+              if (!hasValue) {
+                hasValue = true;
+                remainingEmissions--;
               }
-              s.complete();
-            }
-          },
-        }),
-      );
+              values[sourceIndex] = value;
+            },
+            complete: () => {
+              if (!--remainingCompletions || !hasValue) {
+                if (!remainingEmissions) {
+                  s.next(
+                    keys
+                      ? keys.reduce((b, k, i) => {
+                          // @ts-expect-error
+                          b[k] = values[i];
+                          return b;
+                        }, {})
+                      : values,
+                  );
+                }
+                s.complete();
+              }
+            },
+          }),
+        );
     }
   });
 }
@@ -1669,9 +1666,9 @@ export function forkJoin(...args: any[]): Observable<any, any, any> {
  * @tsplus getter fncts.observable.Observable ignore
  */
 export function ignore<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, never> {
-  return fa.operate((source, subscriber, environment) => {
-    source.provideEnvironment(environment).subscribe(
-      operatorSubscriber(subscriber, {
+  return new Observable((subscriber, environment) => {
+    return fa.provideEnvironment(environment).subscribe(
+      subscriber.operate({
         next: noop,
       }),
     );
@@ -1682,9 +1679,9 @@ export function ignore<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, never
  * @tsplus getter fncts.observable.Observable isEmpty
  */
 export function isEmpty<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, boolean> {
-  return fa.operate((source, subscriber, environment) => {
-    source.provideEnvironment(environment).subscribe(
-      operatorSubscriber(subscriber, {
+  return new Observable((subscriber, environment) => {
+    return fa.provideEnvironment(environment).subscribe(
+      subscriber.operate({
         next: () => {
           subscriber.next(false);
           subscriber.complete();
@@ -1702,9 +1699,9 @@ export function isEmpty<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, bool
  * @tsplus getter fncts.observable.Observable materialize
  */
 export function materialize<R, E, A>(fa: Observable<R, E, A>): Observable<R, never, Notification<E, A>> {
-  return fa.operate((source, subscriber, environment) => {
-    source.provideEnvironment(environment).subscribe(
-      operatorSubscriber(subscriber, {
+  return new Observable((subscriber, environment) => {
+    return fa.provideEnvironment(environment).subscribe(
+      subscriber.operate({
         next: (value) => {
           subscriber.next(Notification.next(value));
         },
@@ -1737,10 +1734,10 @@ export function mergeScanWithIndex<A, R1, E1, B>(
   concurrent = Infinity,
 ) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, B> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let state = initial;
       return mergeInternal(
-        source,
+        fa,
         subscriber,
         environment,
         (index, value) => f(index, state, value),
@@ -1777,10 +1774,10 @@ export function onErrorResumeNext<R, E, A, O extends ReadonlyArray<ObservableInp
   E | Observable.ErrorOf<O[number]>,
   A | Observable.TypeOf<O[number]>
 > {
-  return fa.operate((source, subscriber, environment) => {
-    const remaining     = [source, ...sources];
+  return new Observable((subscriber, environment) => {
+    const remaining     = [fa, ...sources];
     const subscribeNext = () => {
-      if (!subscriber.closed) {
+      if (!subscriber._closed) {
         if (remaining.length > 0) {
           let nextSource: Observable<
             R | Observable.EnvironmentOf<O[number]>,
@@ -1793,7 +1790,7 @@ export function onErrorResumeNext<R, E, A, O extends ReadonlyArray<ObservableInp
             subscribeNext();
             return;
           }
-          const innerSub = operatorSubscriber(subscriber, { error: noop, complete: noop });
+          const innerSub = subscriber.operate({ error: noop, complete: noop });
           subscriber.add(nextSource.provideEnvironment(environment).subscribe(innerSub));
           innerSub.add(subscribeNext);
         } else {
@@ -1810,10 +1807,10 @@ export function onErrorResumeNext<R, E, A, O extends ReadonlyArray<ObservableInp
  */
 export function onEmpty<B>(f: Lazy<B>) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A | B> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let hasValue = false;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             hasValue = true;
             subscriber.next(value);
@@ -1837,13 +1834,13 @@ export function repeat(count = Infinity) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A> => {
     return count <= 0
       ? empty()
-      : fa.operate((source, subscriber, environment) => {
+      : new Observable((subscriber, environment) => {
           let repeats = 0;
           let innerSub: Subscription | null;
           const loop  = () => {
             let syncUnsub = false;
-            innerSub      = source.provideEnvironment(environment).subscribe(
-              operatorSubscriber(subscriber, {
+            innerSub      = fa.provideEnvironment(environment).subscribe(
+              subscriber.operate({
                 complete: () => {
                   if (++repeats < count) {
                     if (innerSub) {
@@ -1893,13 +1890,13 @@ export function retry(configOrCount: number | RetryConfig = Infinity) {
     const { count, resetOnSuccess = false } = config;
     return count <= 0
       ? fa
-      : fa.operate((source, subscriber, environment) => {
+      : new Observable((subscriber, environment) => {
           let retries = 0;
           let innerSub: Subscription | null;
           const loop  = () => {
             let syncUnsub = false;
-            innerSub      = source.provideEnvironment(environment).subscribe(
-              operatorSubscriber(subscriber, {
+            innerSub      = fa.provideEnvironment(environment).subscribe(
+              subscriber.operate({
                 next: (value) => {
                   if (resetOnSuccess) {
                     retries = 0;
@@ -1937,11 +1934,11 @@ export function retry(configOrCount: number | RetryConfig = Infinity) {
  */
 export function sample<R1, E1>(notifier: Observable<R1, E1, any>) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let hasValue            = false;
       let lastValue: A | null = null;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             hasValue  = true;
             lastValue = value;
@@ -1956,9 +1953,7 @@ export function sample<R1, E1>(notifier: Observable<R1, E1, any>) {
           subscriber.next(value);
         }
       };
-      notifier
-        .provideEnvironment(environment)
-        .subscribe(operatorSubscriber(subscriber, { next: emit, complete: noop }));
+      notifier.provideEnvironment(environment).subscribe(subscriber.operate({ next: emit, complete: noop }));
     });
   };
 }
@@ -1977,7 +1972,9 @@ export function sampleTime(period: number, scheduler: SchedulerLike = asyncSched
  */
 export function scanLeftWithIndex<A, B>(initial: B, f: (index: number, acc: B, value: A) => B) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, B> => {
-    return fa.operate(scanInternal(f, initial, true, true));
+    return new Observable((subscriber, environment) =>
+      scanInternal(fa, subscriber, environment, f, initial, true, true),
+    );
   };
 }
 
@@ -2030,11 +2027,11 @@ export function skipLast(skipCount: number) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A> => {
     return skipCount <= 0
       ? fa
-      : fa.operate((source, subscriber, environment) => {
+      : new Observable((subscriber, environment) => {
           let ring: A[] = new Array(skipCount);
           let seen      = 0;
-          source.provideEnvironment(environment).subscribe(
-            operatorSubscriber(subscriber, {
+          fa.provideEnvironment(environment).subscribe(
+            subscriber.operate({
               next: (value) => {
                 const valueIndex = seen++;
                 if (valueIndex < skipCount) {
@@ -2060,9 +2057,9 @@ export function skipLast(skipCount: number) {
  */
 export function skipUntil<R1, E1>(notifier: Observable<R1, E1, any>) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let taking           = false;
-      const skipSubscriber = operatorSubscriber(subscriber, {
+      const skipSubscriber = subscriber.operate({
         next: () => {
           skipSubscriber?.unsubscribe();
           taking = true;
@@ -2070,8 +2067,8 @@ export function skipUntil<R1, E1>(notifier: Observable<R1, E1, any>) {
         complete: noop,
       });
       from(notifier).provideEnvironment(environment).subscribe(skipSubscriber);
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => taking && subscriber.next(value),
         }),
       );
@@ -2084,11 +2081,11 @@ export function skipUntil<R1, E1>(notifier: Observable<R1, E1, any>) {
  */
 export function skipWhile<A>(predicate: PredicateWithIndex<number, A>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let taking = false;
       let index  = 0;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      return fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => (taking || (taking = !predicate(index++, value))) && subscriber.next(value),
         }),
       );
@@ -2100,10 +2097,10 @@ export function skipWhile<A>(predicate: PredicateWithIndex<number, A>) {
  * @tsplus pipeable fncts.observable.Observable startWith
  */
 export function startWith<B extends ReadonlyArray<unknown>>(...values: B) {
-  return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A | B[number]> => {
-    return fa.operate((source, subscriber) => {
+  return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A | Observable.TypeOf<B>> => {
+    return new Observable((subscriber, environment) => {
       // @ts-expect-error
-      source.concat(values).subscribe(subscriber);
+      return fa.concat(values).provideEnvironment(environment).subscribe(subscriber);
     });
   };
 }
@@ -2113,8 +2110,8 @@ export function startWith<B extends ReadonlyArray<unknown>>(...values: B) {
  */
 export function subscribeOn(scheduler: SchedulerLike, delay = 0) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    return fa.operate((source, subscriber, environment) => {
-      subscriber.add(scheduler.schedule(() => source.provideEnvironment(environment).subscribe(subscriber), delay));
+    return new Observable((subscriber, environment) => {
+      subscriber.add(scheduler.schedule(() => fa.provideEnvironment(environment).subscribe(subscriber), delay));
     });
   };
 }
@@ -2133,36 +2130,34 @@ export function switchAll<R, E, R1, E1, A>(
  */
 export function switchMapWithIndex<A, R1, E1, B>(f: (index: number, value: A) => ObservableInput<R1, E1, B>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, B> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((destination, environment) => {
       let innerSubscriber: Subscriber<E | E1, B> | null = null;
       let index           = 0;
       let isComplete      = false;
-      const checkComplete = () => isComplete && !innerSubscriber && subscriber.complete();
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => {
-              innerSubscriber?.unsubscribe();
-              const outerIndex = index++;
-              from(f(outerIndex, value))
-                .provideEnvironment(environment)
-                .subscribe(
-                  (innerSubscriber = operatorSubscriber(subscriber, {
-                    next: (innerValue) => subscriber.next(innerValue),
-                    complete: () => {
-                      innerSubscriber = null!;
-                      checkComplete();
-                    },
-                  })),
-                );
-            },
+      const checkComplete = () => isComplete && !innerSubscriber && destination.complete();
+
+      fa.provideEnvironment(environment).subscribe(
+        destination.operate({
+          next: (value) => {
+            innerSubscriber?.unsubscribe();
+            const outerIndex = index++;
+            from(f(outerIndex, value))
+              .provideEnvironment(environment)
+              .subscribe(
+                (innerSubscriber = destination.operate({
+                  next: (innerValue) => destination.next(innerValue),
+                  complete: () => {
+                    innerSubscriber = null!;
+                    checkComplete();
+                  },
+                })),
+              );
           },
-          () => {
+          complete: () => {
             isComplete = true;
             checkComplete();
           },
-        ),
+        }),
       );
     });
   };
@@ -2185,10 +2180,9 @@ export function switchScanWithIndex<A, R1, E1, B>(
   f: (index: number, acc: B, value: A) => ObservableInput<R1, E1, B>,
 ) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, B> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let state = initial;
-      source
-        .switchMapWithIndex((index, value) => from(f(index, state, value)).map((b) => ((state = b), b)))
+      fa.switchMapWithIndex((index, value) => from(f(index, state, value)).map((b) => ((state = b), b)))
         .provideEnvironment(environment)
         .subscribe(subscriber);
       return () => {
@@ -2214,10 +2208,10 @@ export function take(count: number) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A> => {
     return count <= 0
       ? empty()
-      : fa.operate((source, sub, environment) => {
+      : new Observable((sub, environment) => {
           let seen = 0;
-          source.provideEnvironment(environment).subscribe(
-            new OperatorSubscriber(sub, {
+          fa.provideEnvironment(environment).subscribe(
+            sub.operate({
               next: (value) => {
                 if (++seen <= count) {
                   sub.next(value);
@@ -2239,27 +2233,24 @@ export function takeLast(count: number) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R, E, A> => {
     return count <= 0
       ? empty()
-      : fa.operate((source, subscriber, environment) => {
+      : new Observable((subscriber, environment) => {
           let buffer: A[] = [];
-          source.provideEnvironment(environment).subscribe(
-            operatorSubscriber(
-              subscriber,
-              {
-                next: (value) => {
-                  buffer.push(value);
-                  count < buffer.length && buffer.shift();
-                },
-                complete: () => {
-                  for (const value of buffer) {
-                    subscriber.next(value);
-                  }
-                  subscriber.complete();
-                },
+          fa.provideEnvironment(environment).subscribe(
+            subscriber.operate({
+              next: (value) => {
+                buffer.push(value);
+                count < buffer.length && buffer.shift();
               },
-              () => {
+              complete: () => {
+                for (const value of buffer) {
+                  subscriber.next(value);
+                }
+                subscriber.complete();
+              },
+              finalize: () => {
                 buffer = null!;
               },
-            ),
+            }),
           );
         });
   };
@@ -2270,11 +2261,11 @@ export function takeLast(count: number) {
  */
 export function takeUntil<R1, E1>(notifier: ObservableInput<R1, E1, any>) {
   return <R, E, A>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       from(notifier)
         .provideEnvironment(environment)
-        .subscribe(operatorSubscriber(subscriber, { next: () => subscriber.complete(), complete: noop }));
-      !subscriber.closed && source.provideEnvironment(environment).subscribe(subscriber);
+        .subscribe(subscriber.operate({ next: () => subscriber.complete(), complete: noop }));
+      !subscriber._closed && fa.provideEnvironment(environment).subscribe(subscriber);
     });
   };
 }
@@ -2292,10 +2283,10 @@ export function takeWhileWithIndex<A>(
 ): <R, E>(fa: Observable<R, E, A>) => Observable<R, E, A>;
 export function takeWhileWithIndex<A>(predicate: PredicateWithIndex<number, A>, inclusive?: boolean) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let index = 0;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             const result = predicate(index++, value);
             (result || inclusive) && subscriber.next(value);
@@ -2329,9 +2320,9 @@ export function takeWhile<A>(predicate: Predicate<A>, inclusive?: boolean) {
  */
 export function tap<E, A>(observer: Partial<Observer<E, A>>) {
   return <R>(fa: Observable<R, E, A>): Observable<R, E, A> => {
-    return fa.operate((source, subscriber, environment) => {
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+    return new Observable((subscriber, environment) => {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             observer.next?.(value);
             subscriber.next(value);
@@ -2368,7 +2359,7 @@ export function throttle<A, R1, E1>(
   { leading, trailing }: ThrottleConfig = defaultThrottleConfig,
 ) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let sendValue: Maybe<A>            = Nothing();
       let throttled: Subscription | null = null;
       let isComplete                     = false;
@@ -2387,7 +2378,7 @@ export function throttle<A, R1, E1>(
       const startThrottling = (value: A) =>
         (throttled = from(durationSelector(value))
           .provideEnvironment(environment)
-          .subscribe(operatorSubscriber(subscriber, { next: endThrottling, complete: cleanupThrottling })));
+          .subscribe(subscriber.operate({ next: endThrottling, complete: cleanupThrottling })));
       const send = () => {
         if (sendValue.isJust()) {
           const { value } = sendValue;
@@ -2396,15 +2387,15 @@ export function throttle<A, R1, E1>(
           !isComplete && startThrottling(value);
         }
       };
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             sendValue = Just(value);
-            !(throttled && !throttled.closed) && (leading ? send() : startThrottling(value));
+            !(throttled && !throttled._closed) && (leading ? send() : startThrottling(value));
           },
           complete: () => {
             isComplete = true;
-            !(trailing && sendValue.isJust() && throttled && !throttled.closed) && subscriber.complete();
+            !(trailing && sendValue.isJust() && throttled && !throttled._closed) && subscriber.complete();
           },
         }),
       );
@@ -2476,7 +2467,7 @@ export function timeout(config: any) {
       scheduler = asyncScheduler,
       meta = null!,
     } = config as TimeoutConfig<R, E1, A, B, M>;
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       // eslint-disable-next-line prefer-const
       let originalSourceSubscription: Subscription;
       let timerSubscription: Subscription;
@@ -2501,25 +2492,22 @@ export function timeout(config: any) {
           delay,
         );
       };
-      originalSourceSubscription = source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(
-          subscriber,
-          {
-            next: (value) => {
-              timerSubscription?.unsubscribe();
-              seen++;
-              lastValue = Just(value);
-              subscriber.next(value);
-              each! > 0 && startTimer(each!);
-            },
+      originalSourceSubscription = fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
+          next: (value) => {
+            timerSubscription?.unsubscribe();
+            seen++;
+            lastValue = Just(value);
+            subscriber.next(value);
+            each! > 0 && startTimer(each!);
           },
-          () => {
-            if (!timerSubscription?.closed) {
+          finalize: () => {
+            if (!timerSubscription?._closed) {
               timerSubscription?.unsubscribe();
             }
             lastValue = Nothing();
           },
-        ),
+        }),
       );
       startTimer(first != null ? (typeof first === "number" ? first : +first - scheduler.now()) : each!);
     });
@@ -2538,9 +2526,8 @@ function toArrayAccumulator(arr: any[], value: any) {
  * @tsplus getter fncts.observable.Observable toArray
  */
 export function toArray<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, ReadonlyArray<A>> {
-  return fa.operate((source, subscriber, environment) => {
-    source
-      .foldLeft([] as A[], toArrayAccumulator)
+  return new Observable((subscriber, environment) => {
+    fa.foldLeft([] as A[], toArrayAccumulator)
       .provideEnvironment(environment)
       .subscribe(subscriber);
   });
@@ -2551,10 +2538,10 @@ export function toArray<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, Read
  */
 export function unique<A, K, R1, E1 = never>(toKey?: (value: A) => K, flushes?: Observable<R1, E1, any>) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R | R1, E | E1, A> => {
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let distinctKeys = HashSet.empty<A | K>();
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             const key = toKey ? toKey(value) : value;
             if (!distinctKeys.has(key)) {
@@ -2566,7 +2553,7 @@ export function unique<A, K, R1, E1 = never>(toKey?: (value: A) => K, flushes?: 
       );
       flushes
         ?.provideEnvironment(environment)
-        .subscribe(operatorSubscriber(subscriber, { next: () => (distinctKeys = HashSet.empty()), complete: noop }));
+        .subscribe(subscriber.operate({ next: () => (distinctKeys = HashSet.empty()), complete: noop }));
     });
   };
 }
@@ -2592,11 +2579,11 @@ export function uniqueUntilChanged<A, K = A>(
 ) {
   return <R, E>(fa: Observable<R, E, A>): Observable<R, E, A> => {
     const compare = "equals" in E ? E.equals : E;
-    return fa.operate((source, subscriber, environment) => {
+    return new Observable((subscriber, environment) => {
       let previousKey: K;
       let first = true;
-      source.provideEnvironment(environment).subscribe(
-        operatorSubscriber(subscriber, {
+      fa.provideEnvironment(environment).subscribe(
+        subscriber.operate({
           next: (value) => {
             const currentKey = keySelector(value);
             if (first || !compare(previousKey, currentKey)) {
@@ -2652,7 +2639,7 @@ function combineLatestInternal(
         const source      = scheduler ? observables[i]!.pipe(scheduled(scheduler)) : from(observables[i]!);
         let hasFirstValue = false;
         source.provideEnvironment(environment).subscribe(
-          operatorSubscriber(subscriber, {
+          subscriber.operate({
             next: (value) => {
               values[i] = value;
               if (!hasFirstValue) {
@@ -2675,15 +2662,16 @@ function combineLatestInternal(
   });
 }
 
-function findInternal<A>(
+function findInternal<R, E, A>(
+  source: Observable<R, E, A>,
   predicate: PredicateWithIndex<number, A>,
   emit: "value" | "index",
-): <R, E>(source: Observable<R, E, A>, subscriber: Subscriber<E, any>, environment: Environment<R>) => void {
+): (subscriber: Subscriber<E, any>, environment: Environment<R>) => void {
   const findIndex = emit === "index";
-  return (source, subscriber, environment) => {
+  return (subscriber, environment) => {
     let index = 0;
     source.provideEnvironment(environment).subscribe(
-      operatorSubscriber(subscriber, {
+      subscriber.operate({
         next: (value) => {
           const i = index++;
           if (predicate(index++, value)) {
@@ -2792,44 +2780,51 @@ function mergeInternal<R, E, A, R1, E1, B>(
 }
 
 export function scanInternal<R, E, A, B>(
+  source: Observable<R, E, A>,
+  subscriber: Subscriber<any, any>,
+  environment: Environment<R>,
   f: (index: number, acc: A, value: A) => B,
   initial: B,
   hasInitial: false,
   emitOnNext: boolean,
   emitBeforeComplete?: undefined | true,
-): (source: Observable<R, E, A>, subscriber: Subscriber<any, any>) => void;
+): Subscription;
 export function scanInternal<R, E, A, B>(
+  source: Observable<R, E, A>,
+  subscriber: Subscriber<any, any>,
+  environment: Environment<R>,
   f: (index: number, acc: B, value: A) => B,
   initial: B,
   hasInitial: true,
   emitOnNext: boolean,
   emitBeforeComplete?: undefined | true,
-): (source: Observable<R, E, A>, subscriber: Subscriber<any, any>) => void;
+): Subscription;
 export function scanInternal<R, E, A, B>(
+  source: Observable<R, E, A>,
+  subscriber: Subscriber<any, any>,
+  environment: Environment<R>,
   f: (index: number, acc: A | B, value: A) => B,
   initial: B,
   hasInitial: boolean,
   emitOnNext: boolean,
   emitBeforeComplete?: undefined | true,
-): (source: Observable<R, E, A>, subscriber: Subscriber<any, any>, environment: Environment<R>) => void {
-  return (source, subscriber, environment) => {
-    let hasState   = hasInitial;
-    let state: any = initial;
-    let index      = 0;
-    source.provideEnvironment(environment).subscribe(
-      operatorSubscriber(subscriber, {
-        next: (value) => {
-          const i = index++;
-          state   = hasState ? f(i, state, value) : ((hasState = true), value);
-          emitOnNext && subscriber.next(state);
-        },
-        complete:
-          emitBeforeComplete &&
-          (() => {
-            hasState && subscriber.next(state);
-            subscriber.complete();
-          }),
-      }),
-    );
-  };
+): Subscription {
+  let hasState   = hasInitial;
+  let state: any = initial;
+  let index      = 0;
+  return source.provideEnvironment(environment).subscribe(
+    subscriber.operate({
+      next: (value) => {
+        const i = index++;
+        state   = hasState ? f(i, state, value) : ((hasState = true), value);
+        emitOnNext && subscriber.next(state);
+      },
+      complete:
+        emitBeforeComplete &&
+        (() => {
+          hasState && subscriber.next(state);
+          subscriber.complete();
+        }),
+    }),
+  );
 }

@@ -12,7 +12,7 @@ export function run<A>(computation: Eval<A>): A {
   while (cur !== null) {
     concrete(cur);
     switch (cur._tag) {
-      case EvalTag.Chain:
+      case EvalTag.FlatMap:
         concrete(cur.i0);
         switch (cur.i0._tag) {
           case EvalTag.Value:

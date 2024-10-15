@@ -10,7 +10,7 @@ export function race<O extends ReadonlyArray<ObservableInput<any, any>>>(
 export function raceInit<R, E, A>(sources: ReadonlyArray<ObservableInput<R, E, A>>) {
   return (subscriber: Subscriber<E, A>, environment: Environment<R>) => {
     let subscriptions: Subscription[] = [];
-    for (let i = 0; subscriptions && !subscriber.closed && i < sources.length; i++) {
+    for (let i = 0; subscriptions && !subscriber._closed && i < sources.length; i++) {
       subscriptions.push(
         Observable.from(sources[i]!)
           .provideEnvironment(environment)

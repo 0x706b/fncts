@@ -94,9 +94,9 @@ export class Semaphore {
             case MaybeTag.Just: {
               const [[future, permits], queue] = waiter.value;
               if (n > permits) {
-                return loop(n - permits, Either.left(queue), acc < future.succeed(undefined));
+                return loop(n - permits, Either.left(queue), acc.zipLeft(future.succeed(undefined)));
               } else if (n === permits) {
-                return [acc > future.succeed(undefined), Either.left(queue)];
+                return [acc.zipRight(future.succeed(undefined)), Either.left(queue)];
               } else {
                 return [acc, Either.left(queue.prepend([future, permits - n]))];
               }

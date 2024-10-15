@@ -18,7 +18,7 @@ export class BehaviorSubject<A> extends Subject<never, never, A> {
 
   protected subscribeInternal(subscriber: Subscriber<never, A>) {
     const subscription = super.subscribeInternal(subscriber);
-    !subscription.closed && subscriber.next(this._value);
+    !subscription._closed && subscriber.next(this._value);
     return subscription;
   }
 

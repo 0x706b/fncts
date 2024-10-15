@@ -1,3 +1,5 @@
+import type { SubscriberOverrides } from "./Subscriber.js";
+
 export interface Operator<E, A> {
   call(subscriber: Subscriber<E, A>, source: any, environment: Environment<any>): Finalizer;
 }
@@ -44,7 +46,7 @@ export class OperatorSubscriber<E, A> extends Subscriber<E, A> {
       : super.complete;
   }
   unsubscribe() {
-    const { closed } = this;
+    const { _closed: closed } = this;
     super.unsubscribe();
     !closed && this.onFinalize?.();
   }
@@ -56,27 +58,13 @@ export function operatorSubscriber<E, A, E1, A1>(
 ): OperatorSubscriber<E, A> {
   return new OperatorSubscriber(destination, observer, onFinalize);
 }
+
 /**
- * @tsplus pipeable fncts.observable.Observable operate
+ * @tsplus pipeable fncts.observable.Subscriber operate
  */
-export function operate_<R, E, A, R1, E1, A1>(
-  f: (
-    source: Observable<R, E, A>,
-    subscriber: Subscriber<E1, A1>,
-    environment: Environment<R | R1>,
-  ) => (() => void) | void,
-) {
-  return (source: Observable<R, E, A>): Observable<R1, E1, A1> => {
-    return source.lift(function (
-      this: Subscriber<E1, A1>,
-      liftedSource: Observable<R, E, A>,
-      environment: Environment<R | R1>,
-    ) {
-      try {
-        f(liftedSource, this, environment);
-      } catch (err) {
-        this.error(Cause.halt(err));
-      }
-    });
+export function operate_<E1, A1>(config: SubscriberOverrides<E1, A1>) {
+  return <E, A>(destination: Subscriber<E, A>): Subscriber<E1, A1> => {
+    // @ts-expect-error
+    return new Subscriber<E1, A1>(destination, config);
   };
 }

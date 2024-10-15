@@ -103,7 +103,7 @@ import { AsyncSubject } from "@fncts/observable/Subject";
 /**
  * @tsplus global
  */
-import { isSubscriber, SafeSubscriber, Subscriber } from "@fncts/observable/Subscriber";
+import { isSubscriber, Subscriber } from "@fncts/observable/Subscriber";
 /**
  * @tsplus global
  */

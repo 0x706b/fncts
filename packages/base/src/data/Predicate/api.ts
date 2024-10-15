@@ -1,4 +1,5 @@
 /**
+ * @tsplus pipeable fncts.Predicate and
  * @tsplus pipeable-operator fncts.Predicate &&
  */
 export function and<A>(that: Predicate<A>) {
