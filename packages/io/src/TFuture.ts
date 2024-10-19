@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: TFuture/*.ts }
 export * from "./TFuture/api.js";
 export * from "./TFuture/constructors.js";

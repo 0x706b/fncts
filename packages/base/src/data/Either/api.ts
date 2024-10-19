@@ -294,7 +294,6 @@ export function toMaybe<E, A>(self: Either<E, A>): Maybe<A> {
   );
 }
 
- 
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/align.js";
 export * from "./api/alignWith.js";

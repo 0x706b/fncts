@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: Either/*.ts}
 export * from "./Either/api.js";
 export * from "./Either/constructors.js";

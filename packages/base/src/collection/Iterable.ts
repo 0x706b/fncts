@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: Iterable/*.ts }
 export * from "./Iterable/api.js";
 export * from "./Iterable/constructors.js";

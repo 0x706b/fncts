@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: exceptions/*.ts }
 export * from "./exceptions/ArrayIndexOutOfBoundsError.js";
 export * from "./exceptions/IllegalArgumentError.js";

@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: ImmutableNonEmptyArray/*.ts }
 export * from "./ImmutableNonEmptyArray/api.js";
 export * from "./ImmutableNonEmptyArray/constructors.js";

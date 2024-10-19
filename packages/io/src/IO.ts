@@ -1,11 +1,9 @@
- 
 // codegen:start { preset: barrel, include: IO/*.ts }
 export * from "./IO/api.js";
 export * from "./IO/definition.js";
 export * from "./IO/runtime.js";
 // codegen:end
 
- 
 // codegen:start { preset: barrel, include: IO/api/*.ts }
 export * from "./IO/api/acquireRelease.js";
 export * from "./IO/api/acquireReleaseExit.js";

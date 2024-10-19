@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: ./Parser/*.ts }
 export * from "./Parser/api.js";
 export * from "./Parser/definition.js";

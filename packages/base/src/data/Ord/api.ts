@@ -33,7 +33,6 @@ export function tuple<T extends ReadonlyArray<Ord<any>>>(
   return Ord.all(elements) as any;
 }
 
- 
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/contramap.js";
 export * from "./api/max.js";

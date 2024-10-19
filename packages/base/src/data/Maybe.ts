@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: Maybe/*.ts}
 export * from "./Maybe/api.js";
 export * from "./Maybe/constructors.js";

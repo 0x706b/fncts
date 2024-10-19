@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/dimapIO.js";
 export * from "./api/filterInputIO.js";

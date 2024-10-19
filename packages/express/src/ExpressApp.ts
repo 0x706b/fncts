@@ -81,7 +81,7 @@ export const makeExpressApp: IO<Scope | ExpressAppConfig, never, ExpressApp> = D
               r.unsafeRunFiber(
                 (open.get ? handler(req, res, next) : IO.interrupt).onTermination(config.exitHandler(req, res, next)),
               );
-            }
+            },
         ),
       );
   }

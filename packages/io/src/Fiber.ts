@@ -1,11 +1,10 @@
- 
 // codegen:start { preset: barrel, include: Fiber/*.ts }
 export * from "./Fiber/constructors.js";
 export * from "./Fiber/definition.js";
 export * from "./Fiber/FiberMessage.js";
 export * from "./Fiber/FiberRuntime.js";
 // codegen:end
- 
+
 // codegen:start { preset: barrel, include: Fiber/api/*.ts }
 export * from "./Fiber/api/await.js";
 export * from "./Fiber/api/awaitAll.js";

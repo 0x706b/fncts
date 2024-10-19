@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: ./Identity/*.ts }
 export * from "./Identity/api.js";
 export * from "./Identity/definition.js";

@@ -2,7 +2,6 @@ import type { PRef } from "./definition.js";
 
 import { identity } from "@fncts/base/data/function";
 
- 
 // codegen:start { preset: barrel, include: api/*.ts }
 export * from "./api/collect.js";
 export * from "./api/dimap.js";

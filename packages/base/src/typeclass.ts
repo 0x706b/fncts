@@ -1,4 +1,3 @@
- 
 // codegen:start { preset: barrel, include: ./typeclass/*.ts, exclude: typeclass/Showable.ts }
 export * from "./typeclass/Align.js";
 export * from "./typeclass/Alt.js";

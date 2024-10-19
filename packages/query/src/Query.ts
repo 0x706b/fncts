@@ -1,10 +1,8 @@
- 
 // codegen:start { preset: barrel, include: ./Query/*.ts }
 export * from "./Query/api.js";
 export * from "./Query/definition.js";
 // codegen:end
 
- 
 // codegen:start { preset: barrel, include: ./Query/api/*.ts }
 export * from "./Query/api/bimap.js";
 export * from "./Query/api/catchAllCause.js";
