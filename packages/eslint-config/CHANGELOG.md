@@ -1,5 +1,12 @@
 # @fncts/eslint-config
 
+## 0.0.23
+
+### Patch Changes
+
+- Updated dependencies [69fa085]
+  - @fncts/codegen@0.0.21
+
 ## 0.0.22
 
 ### Patch Changes

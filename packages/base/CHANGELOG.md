@@ -1,5 +1,12 @@
 # @fncts/base
 
+## 0.0.38
+
+### Patch Changes
+
+- 8b083c9: fix(pure): convert thrown error to cause
+  - @fncts/typelevel@0.0.19
+
 ## 0.0.37
 
 ### Patch Changes
