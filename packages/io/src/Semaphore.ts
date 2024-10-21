@@ -96,7 +96,7 @@ export class Semaphore {
               if (n > permits) {
                 return loop(n - permits, Either.left(queue), acc.zipLeft(future.succeed(undefined)));
               } else if (n === permits) {
-                return [acc.zipRight(future.succeed(undefined)), Either.left(queue)];
+                return [acc.zipRight(future.succeed().asUnit), Either.left(queue)];
               } else {
                 return [acc, Either.left(queue.prepend([future, permits - n]))];
               }

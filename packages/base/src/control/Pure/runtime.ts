@@ -190,8 +190,7 @@ export function unsafeRunAll<S1>(s: S1) {
         if (isPureError(e)) {
           current = Pure.failCauseNow(e.cause);
         } else {
-          failed = true;
-          result = Cause.halt(e);
+          current = Pure.failCauseNow(Cause.halt(e));
         }
       }
     }

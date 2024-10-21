@@ -146,8 +146,10 @@ export function isRegExp(u: unknown): u is RegExp {
   return isObject(u) && (getTag(u) === "[object RegExp]" || u instanceof RegExp);
 }
 
+const hasSharedArrayBuffer = "SharedArrayBuffer" in globalThis;
+
 export function isAnyArrayBuffer(u: unknown): u is ArrayBuffer | SharedArrayBuffer {
-  return u instanceof ArrayBuffer || u instanceof SharedArrayBuffer;
+  return u instanceof ArrayBuffer || (hasSharedArrayBuffer && u instanceof SharedArrayBuffer);
 }
 
 export function isArrayBuffer(u: unknown): u is ArrayBuffer {
