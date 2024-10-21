@@ -1,5 +1,14 @@
 # @fncts/query
 
+## 0.0.21
+
+### Patch Changes
+
+- Updated dependencies [8b083c9]
+  - @fncts/base@0.0.38
+  - @fncts/io@0.0.46
+  - @fncts/typelevel@0.0.19
+
 ## 0.0.20
 
 ### Patch Changes

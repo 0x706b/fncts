@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.21
+
+### Patch Changes
+
+- 69fa085: fix: sort barrel codegen imports
+
 ## 0.0.20
 
 ### Patch Changes

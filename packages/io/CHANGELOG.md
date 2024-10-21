@@ -1,5 +1,15 @@
 # @fncts/io
 
+## 0.0.46
+
+### Patch Changes
+
+- 8b083c9: fix(pure): convert thrown error to cause
+- Updated dependencies [8b083c9]
+  - @fncts/base@0.0.38
+  - @fncts/transformers@0.0.10
+  - @fncts/typelevel@0.0.19
+
 ## 0.0.45
 
 ### Patch Changes

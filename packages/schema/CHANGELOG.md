@@ -1,5 +1,13 @@
 # @fncts/schema
 
+## 0.0.19
+
+### Patch Changes
+
+- Updated dependencies [8b083c9]
+  - @fncts/base@0.0.38
+  - @fncts/typelevel@0.0.19
+
 ## 0.0.18
 
 ### Patch Changes
