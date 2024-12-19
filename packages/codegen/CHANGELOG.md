@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.22
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+
 ## 0.0.21
 
 ### Patch Changes

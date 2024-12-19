@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.19
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+
 ## 0.0.18
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @fncts/base
 
+## 0.0.40
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+- Updated dependencies [3295f1e]
+  - @fncts/io@0.0.47
+
 ## 0.0.39
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @fncts/cache
 
+## 0.0.17
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+- Updated dependencies [3295f1e]
+  - @fncts/base@0.0.39
+  - @fncts/io@0.0.47
+  - @fncts/transformers@0.0.11
+  - @fncts/typelevel@0.0.20
+
 ## 0.0.16
 
 ### Patch Changes

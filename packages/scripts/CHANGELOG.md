@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.24
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+
 ## 0.0.23
 
 ### Patch Changes

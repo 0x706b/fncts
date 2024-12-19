@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.24
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+- Updated dependencies [3295f1e]
+  - @fncts/codegen@0.0.22
+
 ## 0.0.23
 
 ### Patch Changes
