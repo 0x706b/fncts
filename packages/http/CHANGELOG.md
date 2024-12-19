@@ -1,5 +1,16 @@
 # @fncts/react
 
+## 0.0.8
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+- Updated dependencies [3295f1e]
+  - @fncts/base@0.0.39
+  - @fncts/io@0.0.47
+  - @fncts/schema@0.0.20
+  - @fncts/typelevel@0.0.20
+
 ## 0.0.7
 
 ### Patch Changes

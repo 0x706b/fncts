@@ -1,5 +1,15 @@
 # @fncts/query
 
+## 0.0.22
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+- Updated dependencies [3295f1e]
+  - @fncts/base@0.0.39
+  - @fncts/io@0.0.47
+  - @fncts/typelevel@0.0.20
+
 ## 0.0.21
 
 ### Patch Changes

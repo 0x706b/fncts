@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.20
+
+### Patch Changes
+
+- 3295f1e: chore: add types export
+
 ## 0.0.19
 
 ### Patch Changes
