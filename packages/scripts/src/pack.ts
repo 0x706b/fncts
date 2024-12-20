@@ -57,8 +57,10 @@ async function writePackageJson(project: Project, workspace: Workspace, mode: "c
   exports["./*"]     = {};
   exports["."]       = {};
 
-  exports["./*"].types = "./*.d.ts";
-  exports["."].types   = "./index.d.ts";
+  if (originalManifest?.["exports"]?.["."]?.["types"]) {
+    exports["./*"].types = "./*.d.ts";
+    exports["."].types   = "./index.d.ts";
+  }
 
   if (mode === "mjs" || mode === "both") {
     exports["./*"].import = "./_mjs/*.mjs";

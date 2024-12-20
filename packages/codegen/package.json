@@ -14,7 +14,13 @@
   "exports": {
     "./*": {
       "import": "./build/esm/*.js",
-      "require": "./build/cjs/*.cjs"
+      "require": "./build/cjs/*.cjs",
+      "types": "./build/dts/*.d.ts"
+    },
+    ".": {
+      "import": "./build/esm/index.js",
+      "require": "./build/cjs/index.cjs",
+      "types": "./build/dts/index.d.ts"
     }
   },
   "typesVersions": {

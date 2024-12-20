@@ -1,10 +1,11 @@
 {
+  "$schema": "http://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "moduleDetection": "force",
     "composite": true,
     "strict": true,
     "downlevelIteration": true,
-    "module": "ESNext",
+    "module": "Preserve",
     "target": "ES2020",
     "preserveSymlinks": true,
     "lib": ["ES2021", "ESNext.WeakRef", "DOM"],
@@ -12,7 +13,7 @@
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "moduleResolution": "node",
+    "moduleResolution": "node10",
     "ignoreDeprecations": "5.0",
     "paths": {
       "@fncts/typelevel/*": ["../typelevel/src/*"],
