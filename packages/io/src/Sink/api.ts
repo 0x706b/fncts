@@ -327,10 +327,7 @@ export function makeDropUntilIO<R, E, In>(
  *
  * @tsplus static fncts.io.SinkOps dropWhile
  */
-export function makeDropWhile<Err, In>(
-  predicate: Predicate<In>,
-  __tsplusTrace?: string,
-): Sink<never, never, In, In, any> {
+export function makeDropWhile<In>(predicate: Predicate<In>, __tsplusTrace?: string): Sink<never, never, In, In, any> {
   const loop: Channel<never, never, Conc<In>, any, never, Conc<In>, any> = Channel.readWith(
     (inp: Conc<In>) => {
       const leftover = inp.dropWhile(predicate);
@@ -1485,7 +1482,7 @@ export function raceWith<R, E, Z, R1, E1, In1, L1, Z1, E2, Z2, E3, Z3>(
       const that0     = that();
       const capacity0 = capacity();
       return Do((_) => {
-        const hub     = _(Hub.makeBounded<Either<Exit<never, any>, Conc<In & In1>>>(capacity()));
+        const hub     = _(Hub.makeBounded<Either<Exit<never, any>, Conc<In & In1>>>(capacity0));
         const c1      = _(Channel.fromHubScoped(hub));
         const c2      = _(Channel.fromHubScoped(hub));
         const reader  = Channel.toHub(hub);
@@ -1507,8 +1504,8 @@ export function raceWith<R, E, Z, R1, E1, In1, L1, Z1, E2, Z2, E3, Z3>(
  *
  * @tsplus static fncts.io.SinkOps service
  */
-export function service<S>(/** @tsplus auto */ tag: Tag<S>): Sink<S, never, unknown, never, S> {
-  return Sink.serviceWith(Function.identity);
+export function service<SId, S>(/** @tsplus auto */ tag: Tag<SId, S>): Sink<SId, never, unknown, never, S> {
+  return Sink.serviceWith(Function.identity, tag);
 }
 
 /**
@@ -1516,10 +1513,10 @@ export function service<S>(/** @tsplus auto */ tag: Tag<S>): Sink<S, never, unkn
  *
  * @tsplus static fncts.io.SinkOps serviceWith
  */
-export function serviceWith<S, Z>(
+export function serviceWith<SId, S, Z>(
   f: (service: S) => Z,
-  /** @tsplus auto */ tag: Tag<S>,
-): Sink<S, never, unknown, never, Z> {
+  /** @tsplus auto */ tag: Tag<SId, S>,
+): Sink<SId, never, unknown, never, Z> {
   return Sink.fromIO(IO.serviceWith(f, tag));
 }
 
@@ -1529,10 +1526,10 @@ export function serviceWith<S, Z>(
  *
  * @tsplus static fncts.io.SinkOps serviceWithIO
  */
-export function serviceWithIO<S, R, E, Z>(
+export function serviceWithIO<SId, S, R, E, Z>(
   f: (service: S) => IO<R, E, Z>,
-  /** @tsplus auto */ tag: Tag<S>,
-): Sink<S | R, E, unknown, never, Z> {
+  /** @tsplus auto */ tag: Tag<SId, S>,
+): Sink<SId | R, E, unknown, never, Z> {
   return Sink.fromIO(IO.serviceWithIO(f, tag));
 }
 
@@ -1542,10 +1539,10 @@ export function serviceWithIO<S, R, E, Z>(
  *
  * @tsplus static fncts.io.SinkOps serviceWithSink
  */
-export function serviceWithSink<S, R, E, In, L, Z>(
+export function serviceWithSink<SId, S, R, E, In, L, Z>(
   f: (service: S) => Sink<R, E, In, L, Z>,
-  /** @tsplus auto */ tag: Tag<S>,
-): Sink<S | R, E, In, L, Z> {
+  /** @tsplus auto */ tag: Tag<SId, S>,
+): Sink<SId | R, E, In, L, Z> {
   return new Sink(
     Channel.unwrap(
       IO.serviceWith(

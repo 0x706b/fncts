@@ -748,8 +748,8 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 /**
  * @tsplus pipeable fncts.observable.Observable provideService
  */
-export function provideService<S>(service: S, /** @tsplus auto */ tag: Tag<S>) {
-  return <R, E, A>(self: Observable<R, E, A>): Observable<Exclude<R, S>, E, A> => {
+export function provideService<SId, S>(service: S, /** @tsplus auto */ tag: Tag<SId, S>) {
+  return <R, E, A>(self: Observable<R, E, A>): Observable<Exclude<R, SId>, E, A> => {
     return self.contramapEnvironment((environment) => environment.add(service, tag) as Environment<R>);
   };
 }
@@ -1990,24 +1990,27 @@ export function scanLeft<A, B>(initial: B, f: (acc: B, value: A) => B) {
 /**
  * @tsplus static fncts.observable.ObservableOps service
  */
-export function service<S>(/** @tsplus auto */ tag: Tag<S>): Observable<S, never, S> {
+export function service<SId, S>(/** @tsplus auto */ tag: Tag<SId, S>): Observable<SId, never, S> {
   return Observable.serviceWithObservable((service) => Observable.of(service), tag);
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps serviceWith
  */
-export function serviceWith<S, A>(f: (service: S) => A, /** @tsplus auto */ tag: Tag<S>): Observable<S, never, A> {
+export function serviceWith<SId, S, A>(
+  f: (service: S) => A,
+  /** @tsplus auto */ tag: Tag<SId, S>,
+): Observable<SId, never, A> {
   return Observable.serviceWithObservable((service) => Observable.of(f(service)), tag);
 }
 
 /**
  * @tsplus static fncts.observable.ObservableOps serviceWithObservable
  */
-export function serviceWithObservable<S, R, E, A>(
+export function serviceWithObservable<SId, S, R, E, A>(
   f: (service: S) => Observable<R, E, A>,
-  /** @tsplus auto */ tag: Tag<S>,
-): Observable<S | R, E, A> {
+  /** @tsplus auto */ tag: Tag<SId, S>,
+): Observable<SId | R, E, A> {
   return Observable.environmentWithObservable((environment) => f(environment.unsafeGet(tag)));
 }
 

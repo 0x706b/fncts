@@ -59,6 +59,7 @@ export * from "./IO/api/sequenceT.js";
 export * from "./IO/api/sleep.js";
 export * from "./IO/api/stateful.js";
 export * from "./IO/api/supervised.js";
+export * from "./IO/api/tag.js";
 export * from "./IO/api/timeout.js";
 export * from "./IO/api/transplant.js";
 export * from "./IO/api/whenFiberRef.js";

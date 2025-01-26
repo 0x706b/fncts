@@ -3,13 +3,12 @@ import { ServiceNotFoundError } from "@fncts/base/data/Environment/ServiceNotFou
 /**
  * @tsplus pipeable fncts.Environment add
  */
-export function add<H extends S, S = H>(service: H, tag: Tag<S>): <R>(self: Environment<R>) => Environment<R | S>;
-export function add<H extends S, S = H, I = S>(
-  service: H,
-  tag: Tag<S, I>,
-): <R>(self: Environment<R>) => Environment<R | I>;
-export function add<H extends S, S = H>(service: H, tag: Tag<S>) {
-  return <R>(self: Environment<R>): Environment<R | S> => {
+export function add<S extends Value, Id = S, Value = Id>(
+  service: S,
+  tag: Tag<Id, Value>,
+): <R>(self: Environment<R>) => Environment<R | Id>;
+export function add<S extends Value, Id = S, Value = Id>(service: S, tag: Tag<Id, Value>) {
+  return <R>(self: Environment<R>): Environment<R | Id> => {
     return new Environment(self.map.set(tag, service));
   };
 }
@@ -19,13 +18,13 @@ export function add<H extends S, S = H>(service: H, tag: Tag<S>) {
  */
 export const empty = Environment();
 
-type Tags<R> = R extends infer S ? Tag<any, S> : never;
+type Tags<R> = R extends infer Id ? Tag<Id, any> : never;
 
 /**
  * @tsplus pipeable fncts.Environment get
  */
 export function get<R, T extends Tags<R>>(tag: T) {
-  return (self: Environment<R>): Tag.Service<T> => {
+  return (self: Environment<R>): Tag.Id<T> => {
     return unsafeCoerce(self.unsafeGet(tag));
   };
 }
@@ -33,9 +32,9 @@ export function get<R, T extends Tags<R>>(tag: T) {
 /**
  * @tsplus pipeable fncts.Environment getMaybe
  */
-export function getMaybe<S, I>(tag: Tag<S, I>) {
-  return <R>(self: Environment<R>): Maybe<S> => {
-    return self.cache.get(tag) as Maybe<S>;
+export function getMaybe<Id, Value>(tag: Tag<Id, Value>) {
+  return <R>(self: Environment<R>): Maybe<Value> => {
+    return self.cache.get(tag) as Maybe<Value>;
   };
 }
 
@@ -51,7 +50,7 @@ export function make(): Environment<never> {
  * @tsplus pipeable fncts.Environment union
  */
 export function union<R1>(that: Environment<R1>) {
-  return <R>(self: Environment<R>): Environment<R & R1> => {
+  return <R>(self: Environment<R>): Environment<R | R1> => {
     return new Environment(self.map.union(that.map));
   };
 }
@@ -59,17 +58,17 @@ export function union<R1>(that: Environment<R1>) {
 /**
  * @tsplus pipeable fncts.Environment unsafeGet
  */
-export function unsafeGet<S, I>(tag: Tag<S, I>) {
-  return <R>(self: Environment<R>): S => {
+export function unsafeGet<Id, Value>(tag: Tag<Id, Value>) {
+  return <R>(self: Environment<R>): Value => {
     return self.cache.get(tag).match(
       () => {
-        const iterator = self.map[Symbol.iterator]();
-        let service: S = null!;
+        const iterator     = self.map[Symbol.iterator]();
+        let service: Value = null!;
         let r: IteratorResult<readonly [Tag<unknown>, unknown]>;
         while (!(r = iterator.next()).done) {
           const [curTag, curService] = r.value;
-          if (curTag == tag) {
-            service = curService as S;
+          if (curTag.id === tag.id) {
+            service = curService as Value;
           }
         }
         if (service === null) throw new ServiceNotFoundError(tag);
@@ -78,7 +77,7 @@ export function unsafeGet<S, I>(tag: Tag<S, I>) {
           return service;
         }
       },
-      (a) => a as S,
+      (a) => a as Value,
     );
   };
 }
@@ -86,7 +85,7 @@ export function unsafeGet<S, I>(tag: Tag<S, I>) {
 /**
  * @tsplus pipeable fncts.Environment update
  */
-export function update<R, S extends R>(f: (s: S) => S, tag: Tag<S>) {
+export function update<R, Id extends R, Value>(f: (s: Value) => Value, tag: Tag<Id, Value>) {
   return (self: Environment<R>): Environment<R> => {
     return self.add(f(self.unsafeGet(tag)), tag);
   };

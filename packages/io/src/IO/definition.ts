@@ -51,7 +51,7 @@ declare module "@fncts/base/data/Exit/definition" {
 }
 
 declare module "@fncts/base/data/Tag/definition" {
-  export interface Tag<T, Identifier = T> extends IO<T, never, T> {}
+  export interface Tag<Id, Value> extends IO<Id, never, Value> {}
 }
 
 /**

@@ -125,24 +125,24 @@ export function fresh<R, E, A>(self: Layer<R, E, A>, __tsplusTrace?: string): La
 /**
  * @tsplus static fncts.io.LayerOps fromFunction
  */
-export function fromFunction<R, A>(
+export function fromFunction<IdR, R, IdA, A>(
   f: (r: R) => A,
-  /** @tsplus implicit local */ tagR: Tag<R>,
-  /** @tsplus implicit local */ tagA: Tag<A>,
+  tagR: Tag<IdR, R>,
+  tagA: Tag<IdA, A>,
   __tsplusTrace?: string,
-): Layer<R, never, A> {
-  return Layer.fromIOEnvironment(IO.serviceWith((service) => Environment.empty.add(f(service), Derive()), Derive()));
+): Layer<IdR, never, IdA> {
+  return Layer.fromIOEnvironment(IO.serviceWith((service) => Environment.empty.add(f(service), tagA), tagR));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps fromFunctionIO
  */
-export function fromFunctionIO<R, E, A, R1>(
+export function fromFunctionIO<IdR, R, E, IdA, A, R1>(
   f: (r: R) => IO<R1, E, A>,
-  tagR: Tag<R>,
-  tagA: Tag<A>,
+  tagR: Tag<IdR, R>,
+  tagA: Tag<IdA, A>,
   __tsplusTrace?: string,
-): Layer<R1 | R, E, A> {
+): Layer<R1 | IdR, E, IdA> {
   return Layer.fromIOEnvironment(
     IO.serviceWithIO((service) => f(service).map((a) => Environment.empty.add(a, tagA)), tagR),
   );
@@ -159,14 +159,14 @@ export function fromIOEnvironment<R, E, A>(io: IO<R, E, Environment<A>>, __tsplu
 /**
  * @tsplus static fncts.io.LayerOps fromIO
  */
-export function fromIO<R, E, A>(resource: IO<R, E, A>, tag: Tag<A>, __tsplusTrace?: string): Layer<R, E, A> {
+export function fromIO<R, E, A, Id>(resource: IO<R, E, A>, tag: Tag<Id, A>, __tsplusTrace?: string): Layer<R, E, Id> {
   return Layer.fromIOEnvironment(resource.map((a) => Environment().add(a, tag)));
 }
 
 /**
  * @tsplus static fncts.io.LayerOps fromValue
  */
-export function fromValue<A>(value: Lazy<A>, tag: Tag<A>, __tsplusTrace?: string): Layer<never, never, A> {
+export function fromValue<Id, A>(value: Lazy<A>, tag: Tag<Id, A>, __tsplusTrace?: string): Layer<never, never, Id> {
   return Layer.fromIO(IO.succeed(value), tag);
 }
 
@@ -334,11 +334,11 @@ export function scopedDiscard<R, E, A>(
 /**
  * @tsplus static fncts.io.LayerOps scoped
  */
-export function scoped<R, E, A>(
-  io: Lazy<IO<R, E, A>>,
-  tag: Tag<A>,
+export function scoped<R, E, Id, Value>(
+  io: Lazy<IO<R, E, Value>>,
+  tag: Tag<Id, Value>,
   __tsplusTrace?: string,
-): Layer<Exclude<R, Scope>, E, A> {
+): Layer<Exclude<R, Scope>, E, Id> {
   return Layer.scopedEnvironment(io().map((a) => Environment.empty.add(a, tag)));
 }
 
@@ -355,14 +355,18 @@ export function scopedEnvironment<R, E, A>(
 /**
  * @tsplus static fncts.io.LayerOps service
  */
-export function service<A>(tag: Tag<A>, __tsplusTrace?: string): Layer<A, never, A> {
+export function service<Id, Value>(tag: Tag<Id, Value>, __tsplusTrace?: string): Layer<Id, never, Id> {
   return Layer.fromIO(IO.service(tag), tag);
 }
 
 /**
  * @tsplus static fncts.io.LayerOps succeed
  */
-export function succeed<A>(resource: Lazy<A>, tag: Tag<A>, __tsplusTrace?: string): Layer<never, never, A> {
+export function succeed<Id, Value>(
+  resource: Lazy<Value>,
+  tag: Tag<Id, Value>,
+  __tsplusTrace?: string,
+): Layer<never, never, Id> {
   return Layer.fromIOEnvironment(IO.succeed(Environment.empty.add(resource(), tag)));
 }
 
@@ -383,7 +387,11 @@ export function succeedEnvironmentNow<A>(a: Environment<A>, __tsplusTrace?: stri
 /**
  * @tsplus static fncts.io.LayerOps succeedNow
  */
-export function succeedNow<A>(resource: A, tag: Tag<A>, __tsplusTrace?: string): Layer<never, never, A> {
+export function succeedNow<Id, Value>(
+  resource: Value,
+  tag: Tag<Id, Value>,
+  __tsplusTrace?: string,
+): Layer<never, never, Id> {
   return Layer.fromIOEnvironment(IO.succeedNow(Environment.empty.add(resource, tag)));
 }
 

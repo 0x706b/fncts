@@ -15,15 +15,15 @@ type IOTypeId = typeof IOTypeId;
  * @tsplus type fncts.Tag
  * @tsplus companion fncts.TagOps
  */
-export class Tag<in out T, in out Identifier = T> implements Hashable, Equatable {
+export class Tag<in out Id, in out Value = Id extends Tag<infer _, infer A> ? A : Id> implements Hashable, Equatable {
   readonly _ioOpCode                  = null;
   readonly _tag                       = "Tag";
   readonly [TagTypeId]: TagTypeId     = TagTypeId;
   readonly [IOTypeId]: IOTypeId       = IOTypeId;
   readonly trace?: string | undefined = undefined;
   declare [TagVariance]: {
-    readonly _T: (_: T) => T;
-    readonly _Identifier: (_: Identifier) => Identifier;
+    readonly _Id: (_: Id) => Id;
+    readonly _Value: (_: Value) => Value;
   };
 
   constructor(readonly id: string) {}
@@ -38,8 +38,12 @@ export class Tag<in out T, in out Identifier = T> implements Hashable, Equatable
 }
 
 export declare namespace Tag {
-  export type Service<T> = T extends Tag<infer A, any> ? A : never;
-  export type Identifier<T> = T extends Tag<any, infer A> ? A : never;
+  export type Id<T> = T extends Tag<infer A, any> ? A : never;
+  export type Value<T> = T extends Tag<any, infer A> ? A : never;
+
+  export interface TagClass<in out Id, in out Value = Id> extends Tag<Id, Value> {
+    new (_: never): Tag<Id, Value>;
+  }
 }
 
 export function isTag(u: unknown): u is Tag<unknown> {

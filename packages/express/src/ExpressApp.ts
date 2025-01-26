@@ -1,4 +1,3 @@
-import type { ExpressAppConfig } from "./ExpressAppConfig.js";
 import type { ErasedRequestHandlerIO, RequestHandlerRouteIO } from "./RequestHandlerIO";
 import type { _R } from "@fncts/base/types";
 import type { Express, NextFunction, Request, RequestHandler, Response } from "express";
@@ -10,8 +9,8 @@ import express from "express";
 
 import { NodeServerCloseError, NodeServerListenError } from "./errors.js";
 import { defaultExitHandler } from "./ExitHandler.js";
+import { ExpressAppConfig } from "./ExpressAppConfig.js";
 import { LiveExpressAppConfig } from "./ExpressAppConfig.js";
-import { ExpressAppConfigTag } from "./ExpressAppConfig.js";
 
 export interface ExpressApp {
   readonly app: Express;
@@ -36,7 +35,7 @@ export const makeExpressApp: IO<Scope | ExpressAppConfig, never, ExpressApp> = D
 
   const app = Δ(IO.succeed(() => express()));
 
-  const config = Δ(IO.service(ExpressAppConfigTag));
+  const config = Δ(IO.service(ExpressAppConfig));
 
   const server = Δ(
     IO.async<never, never, Server>((cb) => {

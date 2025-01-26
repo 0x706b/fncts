@@ -3,8 +3,6 @@ import type { Method } from "../Method.js";
 import type { PathInput, Route } from "../Route.js";
 
 import { RouteImpl } from "../Route/internal.js";
-import { ServerRequest } from "../ServerRequest.js";
-import { ServerResponse } from "../ServerResponse.js";
 import { Router } from "./definition.js";
 import { RouterInternal } from "./internal.js";
 
@@ -181,7 +179,7 @@ export function catchAllCause<E, R1, E1>(f: (e: Cause<E>) => Route.Handler<R1, E
 /**
  * @tsplus pipeable fncts.http.Router provideService
  */
-export function provideService<T>(service: T, tag: Tag<T>, __tsplusTrace?: string) {
-  return <R, E>(self: Router<R, E>): Router<Exclude<R, T>, E> =>
+export function provideService<TId, T>(service: T, tag: Tag<TId, T>, __tsplusTrace?: string) {
+  return <R, E>(self: Router<R, E>): Router<Exclude<R, TId>, E> =>
     self.use((handler) => handler.provideSomeService(service, tag));
 }
