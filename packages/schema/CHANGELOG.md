@@ -1,5 +1,16 @@
 # @fncts/schema
 
+## 0.0.21
+
+### Patch Changes
+
+- 5fa5f4d: chore: update tsplus
+- 258a3cb: fix: only export types if the package has them
+- Updated dependencies [5fa5f4d]
+- Updated dependencies [258a3cb]
+  - @fncts/base@0.0.40
+  - @fncts/typelevel@0.0.21
+
 ## 0.0.20
 
 ### Patch Changes

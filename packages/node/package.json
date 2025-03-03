@@ -1,6 +1,6 @@
 {
   "name": "@fncts/node",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "type": "module",
   "typesVersions": {
     "*": {
