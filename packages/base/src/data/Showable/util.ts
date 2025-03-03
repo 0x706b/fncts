@@ -54,7 +54,7 @@ for (let n = 0; n <= 0xff; ++n) {
   const hexOctet = n.toString(16).padStart(2, "0");
   byteToHex.push(hexOctet);
 }
-export function hex(arrayBuffer: ArrayBuffer) {
+export function hex(arrayBuffer: ArrayBuffer | Uint8Array<ArrayBuffer>) {
   const buff      = new Uint8Array(arrayBuffer);
   const hexOctets = Array<string>(buff.length);
   for (let i = 0; i < buff.length; ++i) {

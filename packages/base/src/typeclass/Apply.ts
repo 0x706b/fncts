@@ -339,9 +339,7 @@ export function sequenceT<F extends HKT, FC = HKT.None>(
  * internal
  * -------------------------------------------------------------------------------------------------
  */
-/**
- * @internal
- */
+
 function curried(f: Function, n: number, acc: ReadonlyArray<unknown>) {
   return function (x: unknown) {
     const combined = Array(acc.length + 1);
@@ -353,9 +351,7 @@ function curried(f: Function, n: number, acc: ReadonlyArray<unknown>) {
     return n === 0 ? f.apply(null, combined) : curried(f, n - 1, combined);
   };
 }
-/**
- * @internal
- */
+
 const tupleConstructors: Record<number, (a: unknown) => any> = {
   1: (a) => [a],
   2: (a) => (b: any) => [a, b],
@@ -363,18 +359,14 @@ const tupleConstructors: Record<number, (a: unknown) => any> = {
   4: (a) => (b: any) => (c: any) => (d: any) => [a, b, c, d],
   5: (a) => (b: any) => (c: any) => (d: any) => (e: any) => [a, b, c, d, e],
 };
-/**
- * @internal
- */
+
 function getTupleConstructor(len: number): (a: unknown) => any {
   if (!tupleConstructors.hasOwnProperty(len)) {
     tupleConstructors[len] = curried(tuple, len - 1, []);
   }
   return tupleConstructors[len]!;
 }
-/**
- * @internal
- */
+
 function getRecordConstructor(keys: ReadonlyArray<string>) {
   const len = keys.length;
   return curried(
@@ -389,9 +381,7 @@ function getRecordConstructor(keys: ReadonlyArray<string>) {
     [],
   );
 }
-/**
- * @internal
- */
+
 type InferMixStruct<F extends HKT, FC, P extends HKT.ParamName, T, KS> = HKT.MixStruct<
   F,
   P,
@@ -400,9 +390,7 @@ type InferMixStruct<F extends HKT, FC, P extends HKT.ParamName, T, KS> = HKT.Mix
     [K in keyof KS]: HKT.Infer<F, FC, P, KS[K]>;
   }
 >;
-/**
- * @internal
- */
+
 type InferMixTuple<F extends HKT, FC, P extends HKT.ParamName, T, KT> = HKT.MixStruct<
   F,
   P,

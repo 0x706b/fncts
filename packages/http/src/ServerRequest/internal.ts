@@ -66,8 +66,8 @@ export class ServerRequestImpl extends ServerRequest {
     );
   }
 
-  private arrayBufferIO: IO<never, RequestError, ArrayBuffer> | undefined;
-  get arrayBuffer(): IO<never, RequestError, ArrayBuffer> {
+  private arrayBufferIO: IO<never, RequestError, Uint8Array> | undefined;
+  get arrayBuffer(): IO<never, RequestError, Uint8Array> {
     if (this.arrayBufferIO) {
       return this.arrayBufferIO;
     }
@@ -75,7 +75,7 @@ export class ServerRequestImpl extends ServerRequest {
     this.arrayBufferIO = IO.fromPromiseCatch(
       this.source.arrayBuffer(),
       (error) => new RequestError(this, "Decode", error),
-    ).memoize.unsafeRun.getOrThrow;
+    ).map((buffer) => new Uint8Array(buffer)).memoize.unsafeRun.getOrThrow;
 
     return this.arrayBufferIO;
   }

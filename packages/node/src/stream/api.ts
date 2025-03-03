@@ -290,7 +290,7 @@ export function toUint8Array<E>(
       }),
     )
     .flatMap((stream) =>
-      IO.async<never, E, Uint8Array>((resume) => {
+      IO.async<never, E, Buffer>((resume) => {
         let buffer = Buffer.alloc(0);
         let bytes  = 0;
         stream.once("error", (err) => {

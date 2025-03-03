@@ -43,8 +43,8 @@ export abstract class IncomingMessageImpl<E> extends IncomingMessage<E> {
     return this.text.flatMap((text) => IO.tryCatch(() => UrlParams(new URLSearchParams(text)), this.onError));
   }
 
-  private arrayBufferIO: IO<never, E, ArrayBuffer> | undefined;
-  get arrayBuffer(): IO<never, E, ArrayBuffer> {
+  private arrayBufferIO: IO<never, E, Uint8Array> | undefined;
+  get arrayBuffer(): IO<never, E, Uint8Array> {
     if (this.arrayBufferIO) {
       return this.arrayBufferIO;
     }

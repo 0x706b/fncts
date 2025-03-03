@@ -15,6 +15,6 @@ export abstract class IncomingMessage<E> {
   abstract readonly json: IO<never, E, unknown>;
   abstract readonly text: IO<never, E, string>;
   abstract readonly urlParamsBody: IO<never, E, UrlParams>;
-  abstract readonly arrayBuffer: IO<never, E, ArrayBuffer>;
+  abstract readonly arrayBuffer: IO<never, E, Uint8Array>;
   abstract readonly stream: Stream<never, E, Uint8Array>;
 }
