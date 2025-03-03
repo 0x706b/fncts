@@ -1,5 +1,12 @@
 # @fncts/transformers
 
+## 0.0.12
+
+### Patch Changes
+
+- 5fa5f4d: chore: update tsplus
+- 258a3cb: fix: only export types if the package has them
+
 ## 0.0.11
 
 ### Patch Changes

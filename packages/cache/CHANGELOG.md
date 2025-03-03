@@ -1,5 +1,18 @@
 # @fncts/cache
 
+## 0.0.18
+
+### Patch Changes
+
+- 5fa5f4d: chore: update tsplus
+- 258a3cb: fix: only export types if the package has them
+- Updated dependencies [5fa5f4d]
+- Updated dependencies [258a3cb]
+  - @fncts/base@0.0.40
+  - @fncts/io@0.0.48
+  - @fncts/transformers@0.0.12
+  - @fncts/typelevel@0.0.21
+
 ## 0.0.17
 
 ### Patch Changes

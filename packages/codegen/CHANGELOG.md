@@ -1,5 +1,12 @@
 # @fncts/codegen
 
+## 0.0.23
+
+### Patch Changes
+
+- 5fa5f4d: chore: update tsplus
+- 258a3cb: fix: only export types if the package has them
+
 ## 0.0.22
 
 ### Patch Changes
