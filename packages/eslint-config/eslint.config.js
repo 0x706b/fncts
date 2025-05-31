@@ -8,20 +8,13 @@ import tseslint from "typescript-eslint";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const compat = new FlatCompat({
-  baseDirectory: dirname,
-  recommendedConfig: eslint.configs.recommended,
-});
+const compat = new FlatCompat({ baseDirectory: dirname, recommendedConfig: eslint.configs.recommended });
 
 export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.recommended, {
   plugins: {
     import: legacyPlugin(compat, "eslint-plugin-import", "import"),
     "simple-import-sort": legacyPlugin(compat, "eslint-plugin-simple-import-sort", "simple-import-sort"),
-    codegen: {
-      rules: {
-        codegen,
-      },
-    },
+    codegen: { rules: { codegen } },
     "@0x706b/align-assignments": legacyPlugin(
       compat,
       "@0x706b/eslint-plugin-align-assignments",
@@ -34,24 +27,12 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
     ),
   },
   settings: {
-    "import/parsers": {
-      "@typescript-eslint/parser": [".ts", ".tsx"],
-    },
-    "import/resolver": {
-      typescript: {
-        alwaysTryTypes: true,
-        project: `${dirname}/../config/tsconfig.base.json`,
-      },
-    },
+    "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },
+    "import/resolver": { typescript: { alwaysTryTypes: true, project: `${dirname}/../config/tsconfig.base.json` } },
   },
   rules: {
     "@0x706b/align-assignments/align-assignments": "error",
-    "@0x706b/module-specifier-extensions/module-specifier-extensions": [
-      "error",
-      {
-        remove: ["^@fncts.*$"],
-      },
-    ],
+    "@0x706b/module-specifier-extensions/module-specifier-extensions": ["error", { remove: ["^@fncts.*$"] }],
     "@typescript-eslint/consistent-type-imports": "warn",
     "@typescript-eslint/ban-types": "off",
     "@typescript-eslint/ban-ts-ignore": "off",
@@ -62,15 +43,13 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/no-empty-object-type": "off",
+    "@typescript-eslint/no-unused-expressions": "off",
+    "@typescript-eslint/no-unsafe-function-type": "off",
+    "@typescript-eslint/prefer-namespace-keyword": "off",
     quotes: ["warn", "double", { avoidEscape: true }],
-    "@typescript-eslint/semi": ["warn", "always"],
     "simple-import-sort/exports": "warn",
-    "simple-import-sort/imports": [
-      "warn",
-      {
-        groups: [["^.*\\u0000$"], ["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."]],
-      },
-    ],
+    "simple-import-sort/imports": ["warn", { groups: [["^.*\\u0000$"], ["^\\u0000"], ["^@?\\w"], ["^"], ["^\\."]] }],
     "codegen/codegen": [
       "error",
       {

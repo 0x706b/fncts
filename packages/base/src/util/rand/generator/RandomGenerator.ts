@@ -5,6 +5,7 @@ export default interface RandomGenerator {
   min(): number; //inclusive
   max(): number; //inclusive
 }
+
 function generateN(rng: RandomGenerator, num: number): number[] {
   const out: number[] = [];
   for (let idx = 0; idx != num; ++idx) {

@@ -3,8 +3,6 @@ import type * as BabelCore from "@babel/core";
 
 import * as t from "@babel/types";
 
-import { runBabelTransform } from "./util.js";
-
 export type Babel = typeof BabelCore;
 
 export default function tsplusTrace(_: Babel): PluginObj {
