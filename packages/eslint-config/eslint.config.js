@@ -62,7 +62,6 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
     ],
     "import/order": "off",
     "import/no-unresolved": "error",
-
     "no-case-declarations": "off",
     "no-empty": "off",
     "no-unexpected-multiline": "off",

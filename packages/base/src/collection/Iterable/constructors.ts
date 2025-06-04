@@ -1,7 +1,5 @@
 import { Iterable } from "@fncts/base/collection/Iterable/definition";
 
-import {} from "./definition.js";
-
 /**
  * @tsplus static fncts.IterableOps make
  */

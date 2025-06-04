@@ -55,7 +55,6 @@ export * from "./IO/api/schedule.js";
 export * from "./IO/api/scope.js";
 export * from "./IO/api/scoped.js";
 export * from "./IO/api/scopeWith.js";
-export * from "./IO/api/sequenceT.js";
 export * from "./IO/api/sleep.js";
 export * from "./IO/api/stateful.js";
 export * from "./IO/api/supervised.js";

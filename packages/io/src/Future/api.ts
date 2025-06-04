@@ -1,6 +1,7 @@
+import type { Pending } from "./State.js";
 import type { Canceler } from "@fncts/io/IO";
 
-import { Done, FutureStateTag, Pending } from "@fncts/io/Future/definition";
+import { Done, FutureStateTag } from "./State.js";
 
 /**
  * Exits the future with the specified exit, which will be propagated to all
@@ -42,7 +43,7 @@ export function failCause<E>(cause: Cause<E>, __tsplusTrace?: string) {
  * Completes the future with the result of the specified effect. If the
  * future has already been completed, the method will produce false.
  *
- * Note that `Future.completeWith` will be much faster, so consider using
+ * Note that `Future.fulfillWith` will be much faster, so consider using
  * that if you do not need to memoize the result of the specified effect.
  *
  * @tsplus pipeable fncts.io.Future fulfill
@@ -64,27 +65,13 @@ export function fulfill<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string) {
  * case te meaning of the "exactly once" guarantee of `Future` is that the
  * future can be completed with exactly one effect. For a version that
  * completes the future with the result of an IO see
- * `Future.complete`.
+ * `Future.fulfill`.
  *
  * @tsplus pipeable fncts.io.Future fulfillWith
  */
 export function fulfillWith<E, A>(io: FIO<E, A>, __tsplusTrace?: string) {
   return (future: Future<E, A>): UIO<boolean> => {
-    return IO.succeed(() => {
-      switch (future.state._tag) {
-        case FutureStateTag.Done: {
-          return false;
-        }
-        case FutureStateTag.Pending: {
-          const state  = future.state;
-          future.state = new Done(io);
-          state.joiners.reverse.forEach((f) => {
-            f(io);
-          });
-          return true;
-        }
-      }
-    });
+    return IO(future.unsafeFulfill(io));
   };
 }
 
@@ -129,6 +116,7 @@ export function interruptAs(id: FiberId, __tsplusTrace?: string) {
  * @tsplus getter fncts.io.Future isDone
  */
 export function isDone<E, A>(future: Future<E, A>, __tsplusTrace?: string): UIO<boolean> {
+  future.state.concrete();
   return IO.succeed(future.state._tag === FutureStateTag.Done);
 }
 
@@ -139,12 +127,13 @@ export function isDone<E, A>(future: Future<E, A>, __tsplusTrace?: string): UIO<
  * @tsplus getter fncts.io.Future poll
  */
 export function poll<E, A>(future: Future<E, A>, __tsplusTrace?: string): UIO<Maybe<FIO<E, A>>> {
-  return IO.succeed(() => {
+  return IO(() => {
+    future.state.concrete();
     switch (future.state._tag) {
       case FutureStateTag.Done: {
         return Just(future.state.value);
       }
-      case FutureStateTag.Pending: {
+      default: {
         return Nothing();
       }
     }
@@ -170,6 +159,28 @@ export function succeedVoid_(a: void, __tsplusTrace?: string) {
 }
 
 /**
+ * @tsplus pipeable fncts.io.Future unsafeFulfill
+ */
+export function unsafeFulfill<E, A>(io: FIO<E, A>) {
+  return (future: Future<E, A>): boolean => {
+    future.state.concrete();
+
+    switch (future.state._tag) {
+      case FutureStateTag.Link:
+      case FutureStateTag.Empty: {
+        const pending: Pending<E, A> = future.state;
+        future.state                 = new Done(io);
+        pending.complete(io);
+        return true;
+      }
+      default: {
+        return false;
+      }
+    }
+  };
+}
+
+/**
  * Retrieves the value of the future, suspending the fiber running the action
  * until the result is available.
  *
@@ -177,13 +188,7 @@ export function succeedVoid_(a: void, __tsplusTrace?: string) {
  */
 export function unsafeDone<E, A>(io: FIO<E, A>, __tsplusTrace?: string) {
   return (future: Future<E, A>): void => {
-    if (future.state._tag === FutureStateTag.Pending) {
-      const state  = future.state;
-      future.state = new Done(io);
-      state.joiners.reverse.forEach((f) => {
-        f(io);
-      });
-    }
+    future.unsafeFulfill(io);
   };
 }
 
@@ -191,8 +196,8 @@ export function unsafeDone<E, A>(io: FIO<E, A>, __tsplusTrace?: string) {
  * @tsplus pipeable fncts.io.Future unsafeSucceed
  */
 export function unsafeSucceed<A>(a: A, __tsplusTrace?: string) {
-  return (future: Future<never, A>): void => {
-    future.unsafeDone(IO.succeedNow(a));
+  return (future: Future<never, A>): boolean => {
+    return future.unsafeFulfill(IO.succeedNow(a));
   };
 }
 
@@ -204,21 +209,26 @@ export function unsafeSucceed<A>(a: A, __tsplusTrace?: string) {
  */
 export function wait<E, A>(future: Future<E, A>, __tsplusTrace?: string): IO<never, E, A> {
   return IO.defer(() => {
+    future.state.concrete();
     switch (future.state._tag) {
       case FutureStateTag.Done: {
         return future.state.value;
       }
-      case FutureStateTag.Pending: {
+      default: {
         return IO.asyncInterrupt<never, E, A>((k) => {
+          future.state.concrete();
           switch (future.state._tag) {
             case FutureStateTag.Done: {
-              return Either.right(future.state.value);
+              k(future.state.value);
+              break;
             }
-            case FutureStateTag.Pending: {
-              future.state = new Pending(future.state.joiners.prepend(k));
-              return Either.left(interruptJoiner(future, k));
+            default: {
+              future.state = future.state.add(k);
+              break;
             }
           }
+
+          return Either.left(interruptJoiner(future, k));
         }, future.blockingOn);
       }
     }
@@ -231,12 +241,13 @@ function interruptJoiner<E, A>(
   __tsplusTrace?: string,
 ): Canceler<never> {
   return IO.succeed(() => {
+    future.state.concrete();
     switch (future.state._tag) {
-      case FutureStateTag.Pending: {
-        future.state = new Pending(future.state.joiners.filter((j) => j !== joiner));
+      case FutureStateTag.Done: {
         break;
       }
-      case FutureStateTag.Done: {
+      default: {
+        future.state = future.state.remove(joiner);
         break;
       }
     }

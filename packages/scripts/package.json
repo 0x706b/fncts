@@ -17,7 +17,8 @@
     "lint": "yarn org:eslint src/**/*.ts",
     "format": "yarn org:prettier --list-different -w src/**/*.ts",
     "circular": "yarn org:madge --circular --no-spinner --warning build/esm",
-    "clean": "rm -rf ./build"
+    "clean": "rm -rf ./build",
+    "postclean": "yarn build-pack"
   },
   "devDependencies": {
     "@babel/plugin-syntax-class-properties": "^7.12.13",

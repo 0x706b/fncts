@@ -1,4 +1,6 @@
-import { Future, Pending } from "@fncts/io/Future/definition";
+import { Future } from "@fncts/io/Future/definition";
+
+import { State } from "./State.js";
 
 /**
  * Makes a new future to be completed by the fiber creating the future.
@@ -24,5 +26,5 @@ export function makeAs<E, A>(fiberId: FiberId, __tsplusTrace?: string) {
  * @tsplus static fncts.io.FutureOps unsafeMake
  */
 export function unsafeMake<E, A>(fiberId: FiberId) {
-  return new Future<E, A>(new Pending(List.empty()), fiberId);
+  return new Future<E, A>(State.Empty, fiberId);
 }

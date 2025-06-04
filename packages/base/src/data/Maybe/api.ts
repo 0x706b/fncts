@@ -51,10 +51,10 @@ export function some<A>(p: Predicate<A>) {
 /**
  * @tsplus pipeable fncts.Maybe filter
  */
-export function filter<A>(p: Predicate<A>): <B>(self: Maybe<A>) => Maybe<A>;
+export function filter<A>(p: Predicate<A>): (self: Maybe<A>) => Maybe<A>;
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: Maybe<A>) => Maybe<B>;
 export function filter<A>(p: Predicate<A>) {
-  return <B>(self: Maybe<A>): Maybe<A> => {
+  return (self: Maybe<A>): Maybe<A> => {
     self.concrete();
     return self._tag === MaybeTag.Just && p(self.value) ? self : Nothing();
   };
@@ -160,7 +160,7 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
- * `chain` + `fromNullable`
+ * `flatMap(fromNullable)`
  *
  * @tsplus pipeable fncts.Maybe mapNullable
  */

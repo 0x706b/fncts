@@ -81,13 +81,13 @@ export function aggregateAsyncWithinEither<R1, E1, A1, B, R2, C>(
 ) {
   return <R, E, A extends A1>(stream: Stream<R, E, A>): Stream<R | R1 | R2, E | E1, Either<C, B>> => {
     type LocalHandoffSignal = HandoffSignal<E | E1, A1>;
-    const deps = IO.sequenceT(
+    const deps = IO.all([
       Handoff<LocalHandoffSignal>(),
       Ref.make<SinkEndReason>(new ScheduleEnd()),
       Ref.make(Conc.empty<A1>()),
       schedule.driver,
       Ref.make(false),
-    );
+    ]);
     return Stream.fromIO(deps).flatMap(([handoff, sinkEndReason, sinkLeftovers, scheduleDriver, consumed]) => {
       const handoffProducer: Channel<never, E | E1, Conc<A1>, unknown, never, never, any> = Channel.readWithCause(
         (_in: Conc<A1>) => Channel.fromIO(handoff.offer(HandoffSignal.Emit(_in))).zipRight(handoffProducer),

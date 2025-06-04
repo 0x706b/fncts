@@ -576,11 +576,11 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     if (closeSubexecutors === null && runInProgressFinalizers === null && closeSelf === null) {
       return null;
     } else {
-      return IO.sequenceT(
+      return IO.all([
         this.ifNotNull(closeSubexecutors).result,
         this.ifNotNull(runInProgressFinalizers).result,
         this.ifNotNull(closeSelf).result,
-      )
+      ])
         .map(([a, b, c]) => a.zipRight(b).zipRight(c))
         .uninterruptible.flatMap(IO.fromExitNow);
     }

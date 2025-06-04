@@ -1201,6 +1201,7 @@ __metadata:
     "@eslint/js": "npm:9.28.0"
     "@fncts/codegen": "workspace:*"
     "@fncts/config": "workspace:*"
+    "@fncts/scripts": "workspace:*"
     "@types/eslint__js": "npm:^8.42.3"
     "@typescript-eslint/eslint-plugin": "npm:^8.33.0"
     "@typescript-eslint/experimental-utils": "npm:^5.62.0"
@@ -1385,8 +1386,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@fncts/transformers@workspace:packages/transformers"
   dependencies:
-    "@fncts/config": "workspace:*"
-    "@fncts/eslint-config": "workspace:*"
     "@fncts/scripts": "workspace:*"
     "@types/uuid": "npm:^10.0.0"
     uuid: "npm:^11.1.0"

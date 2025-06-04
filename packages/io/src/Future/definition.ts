@@ -1,3 +1,5 @@
+import type { State } from "./State.js";
+
 export const FutureTypeId = Symbol.for("fncts.io.Future");
 export type FutureTypeId = typeof FutureTypeId;
 
@@ -24,20 +26,3 @@ export declare namespace Future {
   type ErrorOf<X> = [X] extends [{ [FutureVariance]: { _E: (_: infer E) => infer E } }] ? E : never;
   type ValueOf<X> = [X] extends [{ [FutureVariance]: { _A: (_: infer A) => infer A } }] ? A : never;
 }
-
-export const enum FutureStateTag {
-  Done,
-  Pending,
-}
-
-export class Pending<E, A> {
-  readonly _tag = FutureStateTag.Pending;
-  constructor(readonly joiners: List<(_: FIO<E, A>) => void>) {}
-}
-
-export class Done<E, A> {
-  readonly _tag = FutureStateTag.Done;
-  constructor(readonly value: FIO<E, A>) {}
-}
-
-export type State<E, A> = Done<E, A> | Pending<E, A>;

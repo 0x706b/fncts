@@ -1,4 +1,3 @@
-import { IOError } from "@fncts/base/data/exceptions";
 import { FiberRuntime } from "@fncts/io/Fiber";
 import { FiberRefs } from "@fncts/io/FiberRefs";
 import { RuntimeFlag } from "@fncts/io/RuntimeFlag";

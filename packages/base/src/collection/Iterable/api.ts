@@ -1,6 +1,5 @@
 import type * as P from "@fncts/base/typeclass";
 
-import { Iterable } from "@fncts/base/collection/Iterable/definition";
 import { tuple } from "@fncts/base/data/function";
 
 /**

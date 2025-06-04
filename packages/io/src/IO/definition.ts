@@ -130,7 +130,7 @@ export interface Sync<A = any>
     }
   > {}
 
-export interface Async<R = any, E = any, A = any>
+export interface Async
   extends IOOp<
     IOTag.Async,
     {

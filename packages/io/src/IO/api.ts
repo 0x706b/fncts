@@ -141,29 +141,10 @@ export function bitap<E, A, R1, E1, R2, E2>(
 export function catchTagWith<N extends keyof E, K extends E[N] & string, E, R1, E1, A1>(
   tag: N,
   k: K,
-  f: (
-    e: Extract<
-      E,
-      {
-        [n in N]: K;
-      }
-    >,
-  ) => IO<R1, E1, A1>,
+  f: (e: Extract<E, { [n in N]: K }>) => IO<R1, E1, A1>,
   __tsplusTrace?: string,
 ) {
-  return <R, A>(
-    ma: IO<R, E, A>,
-  ): IO<
-    R | R1,
-    | Exclude<
-        E,
-        {
-          [n in N]: K;
-        }
-      >
-    | E1,
-    A | A1
-  > => {
+  return <R, A>(ma: IO<R, E, A>): IO<R | R1, Exclude<E, { [n in N]: K }> | E1, A | A1> => {
     return ma.catchAll((e) => {
       if (isObject(e) && tag in e && e[tag] === k) {
         return f(e as any);
@@ -240,39 +221,12 @@ export function catchJustDefect<R1, E1, A1>(f: (_: unknown) => Maybe<IO<R1, E1, 
  *
  * @tsplus pipeable IO catchTag
  */
-export function catchTag<
-  K extends E["_tag"] & string,
-  E extends {
-    _tag: string;
-  },
-  R1,
-  E1,
-  A1,
->(
+export function catchTag<K extends E["_tag"] & string, E extends { _tag: string }, R1, E1, A1>(
   k: K,
-  f: (
-    e: Extract<
-      E,
-      {
-        _tag: K;
-      }
-    >,
-  ) => IO<R1, E1, A1>,
+  f: (e: Extract<E, { _tag: K }>) => IO<R1, E1, A1>,
   __tsplusTrace?: string,
 ) {
-  return <R, A>(
-    ma: IO<R, E, A>,
-  ): IO<
-    R | R1,
-    | Exclude<
-        E,
-        {
-          _tag: K;
-        }
-      >
-    | E1,
-    A | A1
-  > => {
+  return <R, A>(ma: IO<R, E, A>): IO<R | R1, Exclude<E, { _tag: K }> | E1, A | A1> => {
     return ma.catch("_tag", k, f);
   };
 }
