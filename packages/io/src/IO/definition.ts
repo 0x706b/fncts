@@ -37,6 +37,7 @@ export declare namespace IO {
   export type EnvironmentOf<T> = [T] extends [{ [IOVariance]: { _R: () => infer R } }] ? R : never;
   export type ErrorOf<T> = [T] extends [{ [IOVariance]: { _E: () => infer E } }] ? E : never;
   export type ValueOf<T> = [T] extends [{ [IOVariance]: { _A: () => infer A } }] ? A : never;
+  export type Concrete = Primitive;
 }
 
 declare module "@fncts/base/data/Either/definition" {
@@ -90,15 +91,12 @@ export const enum IOTag {
   Async,
   OnSuccessAndFailure,
   OnSuccess,
-  OnFailure,
   UpdateRuntimeFlags,
   UpdateRuntimeFlagsWithin,
-  GenerateStackTrace,
   Stateful,
   WhileLoop,
   YieldNow,
   Commit,
-  RevertFlags,
   UpdateTrace,
   External,
 }
@@ -151,16 +149,6 @@ export interface OnSuccessAndFailure
     }
   > {}
 
-export interface OnFailure
-  extends IOOp<
-    IOTag.OnFailure,
-    {
-      readonly i0: Primitive;
-      readonly i1: (cause: Cause<unknown>) => Primitive;
-      readonly trace: string | undefined;
-    }
-  > {}
-
 export interface OnSuccess
   extends IOOp<
     IOTag.OnSuccess,
@@ -171,7 +159,7 @@ export interface OnSuccess
     }
   > {}
 
-export interface SucceedNow
+export interface Succeed
   extends IOOp<
     IOTag.SucceedNow,
     {
@@ -195,14 +183,6 @@ export interface UpdateRuntimeFlagsWithin
     {
       readonly i0: RuntimeFlagsPatch;
       readonly i1: (oldRuntimeFlags: RuntimeFlags) => Primitive;
-      readonly trace: string | undefined;
-    }
-  > {}
-
-export interface GenerateStackTrace
-  extends IOOp<
-    IOTag.GenerateStackTrace,
-    {
       readonly trace: string | undefined;
     }
   > {}
@@ -246,14 +226,12 @@ export interface Fail
 
 export type Primitive =
   | OnSuccessAndFailure
-  | OnFailure
   | OnSuccess
   | UpdateRuntimeFlagsWithin
   | Sync
   | Async
-  | SucceedNow
+  | Succeed
   | UpdateRuntimeFlags
-  | GenerateStackTrace
   | Stateful
   | WhileLoop
   | YieldNow
@@ -275,8 +253,6 @@ export type Primitive =
 export function concrete(io: IO<any, any, any>): Primitive {
   return io as Primitive;
 }
-
-export type EvaluationStep = OnSuccessAndFailure | OnFailure | OnSuccess;
 
 export type Canceler<R> = URIO<R, void>;
 

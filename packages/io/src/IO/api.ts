@@ -3,6 +3,7 @@ import type { ShowOptions } from "@fncts/base/data/Showable.js";
 import type * as P from "@fncts/base/typeclass";
 import type { _E, _R } from "@fncts/base/types";
 import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
+import type { WhileLoop } from "@fncts/io/IO/definition";
 import type { RuntimeFlags } from "@fncts/io/RuntimeFlags";
 
 import { IOError } from "@fncts/base/data/exceptions";
@@ -37,6 +38,34 @@ export function async<R, E, A>(
 export function absorbWith<R, E, A>(f: (e: E) => unknown, __tsplusTrace?: string) {
   return (ma: IO<R, E, A>): IO<R, unknown, A> =>
     ma.sandbox.matchIO((cause) => IO.failNow(cause.squashWith(f)), IO.succeedNow);
+}
+
+/**
+ * @tsplus pipeable fncts.io.IO exitWith
+ */
+export function exitWith<E, A, R1, E1, B>(f: (exit: Exit<E, A>) => IO<R1, E1, B>, __tsplusTrace?: string) {
+  return <R>(self: IO<R, E, A>): IO<R | R1, E1, B> => {
+    return self.matchCauseIO(
+      (cause) => f(Exit.failCause(cause)),
+      (a) => f(Exit.succeed(a)),
+    );
+  };
+}
+
+/**
+ * @tsplus static fncts.io.IOOps whileLoop
+ */
+export function whileLoop<R, E, A>(
+  check: Lazy<boolean>,
+  body: Lazy<IO<R, E, A>>,
+  process: (a: A) => any,
+  __tsPlusTrace?: string,
+): IO<R, E, void> {
+  const io = new IOPrimitive(IOTag.WhileLoop);
+  io.i0    = check;
+  io.i1    = body;
+  io.i2    = process;
+  return io as WhileLoop;
 }
 
 /**
@@ -326,7 +355,12 @@ export function condIO<R, R1, E, A>(
  * @tsplus static fncts.io.IOOps defer
  */
 export function defer<R = never, E = never, A = never>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, A> {
-  return IO.succeed(io).flatMap(identity);
+  const out = new IOPrimitive(IOTag.OnSuccess) as any;
+  out.i0    = IO.unit;
+  out.i1    = io;
+  out.trace = __tsplusTrace;
+
+  return out;
 }
 
 /**
@@ -1937,9 +1971,7 @@ export function updateRuntimeFlags(patch: RuntimeFlags.Patch, __tsplusTrace?: st
  * @tsplus static fncts.io.IOOps stackTrace
  */
 export function stackTrace(__tsplusTrace?: string): UIO<Trace> {
-  const io = new IOPrimitive(IOTag.GenerateStackTrace) as any;
-  io.trace = __tsplusTrace;
-  return io;
+  return IO.withFiberRuntime((state) => IO.succeedNow(state.generateStackTrace()));
 }
 
 /**

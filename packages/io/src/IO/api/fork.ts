@@ -51,7 +51,7 @@ export function unsafeFork<R, E, A, E1, B>(
   trace?: string,
 ): FiberRuntime<E, A> {
   const fiber = unsafeMakeChildFiber(effect, parentFiber, parentRuntimeFlags, overrideScope, trace);
-  fiber.resume(effect);
+  fiber.startConcurrently(effect);
   return fiber;
 }
 

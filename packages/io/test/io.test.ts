@@ -571,7 +571,7 @@ suite.concurrent("IO", () => {
           (_, fiber) => IO.succeed(fiber),
           (_, fiber) => IO.succeed(fiber),
         );
-        const fiber = Δ(IO.transplant((graft) => graft(race).fork.flatMap((fiber) => fiber.join)));
+        const fiber = Δ(IO.transplant((grafter) => grafter.graft(race).fork.flatMap((fiber) => fiber.join)));
         Δ(future.succeed());
         const exit = Δ(fiber.await);
         return exit.isSuccess().assert(isTrue);

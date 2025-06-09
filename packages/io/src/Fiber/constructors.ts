@@ -10,7 +10,7 @@ export function done<E, A>(exit: Exit<E, A>, __tsplusTrace?: string): Fiber<E, A
     IO.succeedNow(Conc()),
     IO.unit,
     IO.succeedNow(Just(exit)),
-    () => IO.succeedNow(exit),
+    () => IO.unit,
   );
 }
 

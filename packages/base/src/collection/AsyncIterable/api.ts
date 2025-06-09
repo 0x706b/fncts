@@ -1,3 +1,6 @@
+import { isPromiseLike } from "@fncts/base/data/Equatable";
+import { isPromise } from "@fncts/base/util/predicates";
+
 /**
  * @tsplus static fncts.AsyncIterableOps __call
  */
@@ -49,6 +52,61 @@ export function fromValues<A extends ReadonlyArray<any>>(...values: A): AsyncIte
 }
 
 /**
+ * @tsplus pipeable fncts.AsyncIterable filterMapWithIndex
+ */
+export function filterMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
+  return (self: AsyncIterable<A>): AsyncIterable<B> => {
+    return AsyncIterable<B>(() => {
+      let done       = false;
+      let i          = -1;
+      const iterator = self[Symbol.asyncIterator]();
+      let lastValue: B;
+
+      function getNextValue(): Promise<IteratorResult<B>> {
+        i++;
+        return iterator.next().then((result) => {
+          if (result.done) {
+            return iteratorReturn();
+          }
+
+          const value = f(i, result.value);
+
+          return value.match(
+            () => getNextValue(),
+            (b) => {
+              lastValue = b;
+              return { done: false, value: b };
+            },
+          );
+        });
+      }
+
+      function iteratorReturn() {
+        if (!done) {
+          done = true;
+          if (typeof iterator.return === "function") {
+            iterator.return();
+          }
+        }
+
+        return Promise.resolve({ done: true, value: lastValue });
+      }
+
+      return {
+        async next() {
+          if (done) {
+            return this.return!();
+          }
+
+          return getNextValue();
+        },
+        return: iteratorReturn,
+      };
+    });
+  };
+}
+
+/**
  * @tsplus pipeable fncts.AsyncIterable filterWithIndex
  */
 export function filterWithIndex<A, B extends A>(
@@ -59,19 +117,49 @@ export function filterWithIndex<A>(
 ): (self: AsyncIterable<A>) => AsyncIterable<A>;
 export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
   return (self: AsyncIterable<A>): AsyncIterable<A> => {
-    return AsyncIterable<A>(async function* () {
+    return AsyncIterable<A>(() => {
+      let done       = false;
       let i          = -1;
       const iterator = self[Symbol.asyncIterator]();
-      while (true) {
-        const result = await iterator.next();
-        if (result.done) {
-          break;
-        }
+      let lastValue: A;
+
+      function getNextValue(value: any): Promise<IteratorResult<A>> {
         i++;
-        if (predicate(i, result.value)) {
-          yield result.value;
-        }
+        return iterator.next(value).then((result) => {
+          if (result.done) {
+            return iteratorReturn(value);
+          }
+
+          if (predicate(i, result.value)) {
+            lastValue = result.value;
+            return { done: false, value: result.value };
+          } else {
+            return getNextValue(value);
+          }
+        });
       }
+
+      function iteratorReturn(value: any) {
+        if (!done) {
+          done = true;
+          if (typeof iterator.return === "function") {
+            iterator.return(value);
+          }
+        }
+
+        return Promise.resolve({ done, value: lastValue });
+      }
+
+      return {
+        async next(value) {
+          if (done) {
+            return this.return!(value);
+          }
+
+          return getNextValue(value);
+        },
+        return: iteratorReturn,
+      };
     });
   };
 }
@@ -190,8 +278,9 @@ export function zipWith<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) => C) {
             return this.return!();
           }
 
-          const [va, vb] = await Promise.all([ia.next(), ib.next()]);
-          return va.done || vb.done ? this.return!() : { done: false, value: f(va.value, vb.value) };
+          return Promise.all([ia.next(), ib.next()]).then(([va, vb]) => {
+            return va.done || vb.done ? this.return!() : { done: false, value: f(va.value, vb.value) };
+          });
         },
         return(value?: unknown) {
           if (!done) {
@@ -242,5 +331,39 @@ export function zipWithPromise<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) 
         },
       };
     });
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.AsyncIterable foldLeftWithIndex
+ */
+export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B | PromiseLike<B>) {
+  return (self: AsyncIterable<A>): Promise<B> => {
+    let res        = b;
+    let i          = -1;
+    const iterator = self[Symbol.asyncIterator]();
+
+    function pull(): Promise<B> {
+      return iterator.next().then((result) => {
+        i++;
+        if (result.done) {
+          return res;
+        } else {
+          const r = f(i, res, result.value);
+
+          if (isObject(r) && typeof r.then === "function") {
+            return r.then((b) => {
+              res = b;
+              return pull();
+            });
+          } else {
+            res = r as B;
+            return pull();
+          }
+        }
+      });
+    }
+
+    return pull();
   };
 }

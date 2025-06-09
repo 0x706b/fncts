@@ -47,11 +47,11 @@ export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A
 function fork<R, E, A, C>(
   io: Lazy<IO<R, E, A>>,
   restore: InterruptibilityRestorer,
-  graft: Grafter,
+  grafter: Grafter,
   future: Future<void, void>,
   ref: AtomicBoolean,
 ): IO<R, never, Fiber<E, A>> {
-  return graft(restore(io())).matchCauseIO(
+  return grafter.graft(restore(io())).matchCauseIO(
     (cause) => future.fail(undefined) > IO.refailCause(cause),
     (a) => {
       if (ref.getAndSet(true)) {

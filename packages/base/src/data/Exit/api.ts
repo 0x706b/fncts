@@ -78,6 +78,7 @@ export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>
 }
 
 /**
+ * @tsplus getter fncts.Conc collectAllConcurrent
  * @tsplus static fncts.ExitOps collectAllConcurrent
  */
 export function collectAllConcurrent<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
@@ -206,6 +207,17 @@ export function zipWithCause<E, A, G, B, C>(
       }
     }
   };
+}
+
+/**
+ * @tsplus getter fncts.Exit causeOrNull
+ */
+export function causeOrNull<E, A>(self: Exit<E, A>): Cause<E> | null {
+  if (self.isFailure()) {
+    return self.cause;
+  }
+
+  return null;
 }
 
 /**

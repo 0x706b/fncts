@@ -53,7 +53,7 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
     f: (b: B) => IO<R1, E1, readonly [C, A]>,
     __tsplusTrace?: string,
   ): IO<RA | RB | R1, EA | EB | E1, C> {
-    return this.withPermit(this.unsafeGet.flatMap(f).flatMap(([b, a]) => this.unsafeSet(a).as(b)));
+    return this.withPermit(this.unsafeGet.flatMap(f).flatMap(([c, a]) => this.unsafeSet(a).as(c)));
   }
 
   matchAllIO<RC, RD, EC, ED, C, D>(

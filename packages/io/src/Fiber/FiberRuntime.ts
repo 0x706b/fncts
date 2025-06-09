@@ -1,8 +1,9 @@
-import type { FiberStatus } from "../FiberStatus.js";
-import type { OnFailure, OnSuccess, OnSuccessAndFailure, UIO } from "../IO/definition.js";
+import type { Running } from "../FiberStatus.js";
+import type { OnSuccess, OnSuccessAndFailure, UIO, UpdateRuntimeFlags } from "../IO/definition.js";
 import type { WhileLoop } from "../IO/definition.js";
 import type { RuntimeFlags } from "../RuntimeFlags.js";
 
+import { IterableWeakSet } from "@fncts/base/collection/weak/IterableWeakSet";
 import { EitherTag } from "@fncts/base/data/Either";
 import { isIOError } from "@fncts/base/data/exceptions";
 import { ExitTag } from "@fncts/base/data/Exit";
@@ -11,95 +12,50 @@ import { Trace } from "@fncts/base/data/Trace";
 import { FiberTypeId, FiberVariance } from "@fncts/io/Fiber/definition";
 import { StackTraceBuilder } from "@fncts/io/internal/StackTraceBuilder";
 
-import { Done, Suspended } from "../FiberStatus.js";
-import { Running } from "../FiberStatus.js";
-import { FiberStatusTag } from "../FiberStatus.js";
+import { FiberStatus } from "../FiberStatus.js";
 import { LinkedQueue } from "../internal/MutableQueue.js";
-import { IOPrimitive, isIO } from "../IO/definition.js";
+import { IOPrimitive } from "../IO/definition.js";
 import { IOTag } from "../IO/definition.js";
 import { RuntimeFlag } from "../RuntimeFlag.js";
 import { FiberMessage, FiberMessageTag } from "./FiberMessage.js";
 
-export class RevertFlags {
-  readonly _ioOpCode = IOTag.RevertFlags;
-  constructor(
-    readonly patch: RuntimeFlags.Patch,
-    readonly trace?: string,
-  ) {}
-}
+const MAX_FORKS_BEFORE_YIELD      = 128;
+const MAX_DEPTH_BEFORE_TRAMPOLINE = 300;
+const INITIAL_STACK_SIZE          = 16;
+const STACK_IDX_GC_THRESHOLD      = 128;
 
-export class UpdateTrace {
-  readonly _ioOpCode = IOTag.UpdateTrace;
-  constructor(readonly trace?: string) {}
-}
+export type Continuation = OnSuccess | OnSuccessAndFailure | WhileLoop | UpdateRuntimeFlags;
 
-export type Continuation = OnSuccess | OnSuccessAndFailure | OnFailure | WhileLoop | UpdateTrace | RevertFlags;
-
+/* eslint perfectionist/sort-classes: "error" */
 /**
  * @tsplus type fncts.io.Fiber
  */
 export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
+  readonly _tag = "RuntimeFiber";
+
   readonly [FiberTypeId]: FiberTypeId = FiberTypeId;
+
   declare [FiberVariance]: {
     readonly _E: (_: never) => E;
     readonly _A: (_: never) => A;
   };
-  readonly _tag = "RuntimeFiber";
 
-  constructor(
-    readonly fiberId: FiberId.Runtime,
-    fiberRefs0: FiberRefs,
-    readonly runtimeFlags0: RuntimeFlags,
-  ) {
-    this._fiberRefs    = fiberRefs0;
-    this._runtimeFlags = runtimeFlags0;
-  }
-
-  private _fiberRefs: FiberRefs;
-  private _runtimeFlags: RuntimeFlags;
-  private queue            = new LinkedQueue<FiberMessage>();
-  private _children        = null! as Set<FiberRuntime<any, any>>;
-  private observers        = List<(_: Exit<E, A>) => void>();
-  private running          = false;
-  private stack            = new Stack<Continuation>();
-  private asyncInterruptor = null! as (_: IO<any, any, any>) => any;
-  private asyncTrace       = null! as string;
-  private asyncBlockinOn   = null! as FiberId;
-  private _exitValue       = null! as Exit<E, A>;
-
-  get id(): FiberId.Runtime {
-    return this.fiberId;
-  }
-
-  ask<A>(f: (fiberRuntime: FiberRuntime<any, any>, status: FiberStatus) => A): UIO<A> {
-    return IO.defer(() => {
-      const future = Future.unsafeMake<never, A>(this.fiberId);
-
-      this.tell(FiberMessage.Stateful((fiber, status) => future.unsafeDone(IO.succeed(f(fiber, status)))));
-
-      return future.await;
-    });
-  }
+  location = this.fiberId.location;
 
   get await(): UIO<Exit<E, A>> {
-    return IO.async<never, never, Exit<E, A>>(
-      (cb) =>
-        this.tell(
-          FiberMessage.Stateful((fiber, _) => {
-            if (fiber._exitValue !== null) cb(IO.succeedNow(fiber.exitValue()));
-            else fiber.addObserver((exit) => cb(IO.succeedNow(exit)));
-          }),
-        ),
-      this.id,
-    );
+    return IO.defer(this.awaitUnsafe());
   }
 
   get children(): UIO<Conc<FiberRuntime<any, any>>> {
-    return this.ask((fiber) => Conc.from(fiber.getChildren()));
+    return IO(this.childrenChunk(this._children));
   }
 
   get fiberRefs(): UIO<FiberRefs> {
-    return this.ask((fiber) => fiber.getFiberRefs());
+    return IO(this._fiberRefs);
+  }
+
+  get id(): FiberId.Runtime {
+    return this.fiberId;
   }
 
   get inheritAll(): UIO<void> {
@@ -124,33 +80,726 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
     });
   }
 
-  get runtimeFlags(): UIO<RuntimeFlags> {
-    return this.ask((state, status) => {
-      if (status._tag === FiberStatusTag.Done) return state._runtimeFlags;
-      else return status.runtimeFlags;
-    });
+  get poll(): UIO<Maybe<Exit<E, A>>> {
+    return IO.succeed(Maybe.fromNullable(this.exitValue()));
   }
 
-  interruptAsFork(fiberId: FiberId): UIO<void> {
-    return IO.succeed(() => {
-      const cause = Cause.interrupt(fiberId);
-      this.tell(FiberMessage.InterruptSignal(cause));
-    });
+  get runtimeFlags(): UIO<RuntimeFlags> {
+    return IO(this._runtimeFlags);
+  }
+
+  get scope() {
+    return FiberScope.unsafeMake(this);
+  }
+
+  get status(): UIO<FiberStatus> {
+    return IO(this.getStatus());
+  }
+
+  get trace(): UIO<Trace> {
+    return IO(this.generateStackTrace());
+  }
+
+  private _asyncContWith: ((_: IO<any, any, any>) => any) | null = null;
+
+  private _blockingOn: FiberId | null = null;
+
+  private _children                     = null! as IterableWeakSet<FiberRuntime<any, any>>;
+  private _exitValue: Exit<E, A> | null = null;
+  private _fiberRefs: FiberRefs;
+  private _forksSinceYield = 0;
+  private _lastTrace: string | undefined;
+  private _runtimeFlags: RuntimeFlags;
+  private _stack     = null! as Array<Continuation>;
+  private _stackSize = 0;
+  private inbox      = new LinkedQueue<FiberMessage>();
+  private observers  = List<(_: Exit<E, A>) => void>();
+  private running    = false;
+  constructor(
+    readonly fiberId: FiberId.Runtime,
+    fiberRefs0: FiberRefs,
+    readonly runtimeFlags0: RuntimeFlags,
+  ) {
+    this._fiberRefs    = fiberRefs0;
+    this._runtimeFlags = runtimeFlags0;
+  }
+  addChild(child: FiberRuntime<any, any>): void {
+    this.getChildren().add(child);
+  }
+
+  addChildren(children: Iterable<FiberRuntime<any, any>>): void {
+    if (this.isAlive()) {
+      const childs = this.getChildren();
+      if (this.shouldInterrupt()) {
+        const cause = this.getInterruptedCause();
+        for (const child of children) {
+          if (child.isAlive()) {
+            childs.add(child);
+            child.tellInterrupt(cause);
+          }
+        }
+      } else {
+        for (const child of children) {
+          if (child.isAlive()) {
+            childs.add(child);
+          }
+        }
+      }
+    } else {
+      const cause = this.getInterruptedCause();
+      for (const child of children) {
+        if (child.isAlive()) {
+          child.tellInterrupt(cause);
+        }
+      }
+    }
+  }
+
+  addObserver(observer: (exit: Exit<E, A>) => void): void {
+    if (this._exitValue !== null) observer(this._exitValue);
+    else this.observers = Cons(observer, this.observers);
+  }
+
+  deleteFiberRef(ref: FiberRef<any>): void {
+    this._fiberRefs = this._fiberRefs.delete(ref);
+  }
+
+  exitValue(): Exit<E, A> | null {
+    return this._exitValue;
+  }
+
+  generateStackTrace() {
+    const builder = new StackTraceBuilder();
+
+    const stack = this._stack;
+    const size  = this._stackSize;
+
+    if (stack !== null) {
+      let i = stack.length < size ? stack.length : size;
+
+      while (i >= 0) {
+        const k = stack[i];
+        if (k != null) {
+          builder.append(TraceElement.parse(k.trace));
+        }
+        i -= 1;
+      }
+
+      builder.append(TraceElement.parse(this.id.location));
+    }
+    return new Trace(this.fiberId, builder.result());
+  }
+
+  getChildren(): Set<FiberRuntime<any, any>> {
+    let children = this._children;
+    if (children === null) {
+      children       = new IterableWeakSet();
+      this._children = children;
+    }
+    return children;
+  }
+
+  getFiberRef<A>(fiberRef: FiberRef<A>): A {
+    if (this._fiberRefs.unFiberRefs.has(fiberRef)) {
+      return this._fiberRefs.unFiberRefs.unsafeGet(fiberRef)!.head[1] as A;
+    }
+    return fiberRef.initial;
+  }
+
+  getFiberRefs(): FiberRefs {
+    return this._fiberRefs;
+  }
+
+  getInterruptedCause(): Cause<never> {
+    return this.getFiberRef(FiberRef.interruptedCause);
   }
 
   getSupervisor(): Supervisor<any> {
     return this.getFiberRef(FiberRef.currentSupervisor);
   }
 
-  get poll(): UIO<Maybe<Exit<E, A>>> {
-    return IO.succeed(Maybe.fromNullable(this.exitValue()));
+  interruptAs(fiberId: FiberId, __tsplusTrace?: string): UIO<Exit<E, A>> {
+    return IO.defer(() => {
+      const exit = this._exitValue;
+      if (exit !== null) {
+        return Exit.succeed(exit);
+      } else {
+        const cause = Cause.interrupt(fiberId, Trace(this.fiberId, Conc.single(TraceElement.parse(__tsplusTrace))));
+        this.tell(FiberMessage.InterruptSignal(cause));
+        return this.awaitUnsafe(__tsplusTrace);
+      }
+    });
   }
 
-  private run(): void {
-    this.drainQueueOnCurrentThread();
+  interruptAsFork(fiberId: FiberId, __tsplusTrace?: string): UIO<void> {
+    return IO.succeed(() => {
+      const cause = Cause.interrupt(fiberId);
+      this.tell(FiberMessage.InterruptSignal(cause));
+    });
   }
 
-  private drainQueueOnCurrentThread(): void {
+  isAlive(): boolean {
+    return this.exitValue === null;
+  }
+
+  isDone(): boolean {
+    return this.exitValue !== null;
+  }
+
+  isFatal(t: unknown): boolean {
+    return this.getFiberRef(FiberRef.currentIsFatal).apply(t);
+  }
+
+  isInterrupted(): boolean {
+    return !this.getFiberRef(FiberRef.interruptedCause).isEmpty;
+  }
+
+  log(message: () => string, cause: Cause<any>, overrideLogLevel: Maybe<LogLevel>, trace?: string): void {
+    const logLevel    = overrideLogLevel.getOrElse(this.getFiberRef(FiberRef.currentLogLevel));
+    const spans       = this.getFiberRef(FiberRef.currentLogSpan);
+    const annotations = this.getFiberRef(FiberRef.currentLogAnnotations);
+    const contextMap  = this.getFiberRefs();
+    Logger.defaultString
+      .map((s) => console.log(s))
+      .filterLogLevel((level) => level >= LogLevel.Info)
+      .log(
+        TraceElement.parse(trace),
+        this.fiberId,
+        logLevel,
+        message,
+        cause,
+        contextMap.unFiberRefs,
+        spans,
+        annotations,
+      );
+  }
+
+  removeChild(child: FiberRuntime<any, any>) {
+    if (this._children !== null) {
+      this._children.delete(child);
+    }
+  }
+
+  removeObserver(observer: (exit: Exit<E, A>) => void): void {
+    this.observers = this.observers.filter((f) => f !== observer);
+  }
+
+  resume<R>(effect: IO<R, E, A>) {
+    this.tell(FiberMessage.Resume(effect));
+  }
+
+  runLoop(
+    effect: IO.Concrete,
+    minStackIndex: number,
+    startStackIndex: number,
+    currentDepth: number,
+    currentOps: number,
+  ): Exit<any, any> | null {
+    // assert(this.running, "Invalid state in FiberRuntime: Fiber is not running");
+
+    let cur: IO.Concrete | null = effect;
+    let ops                     = currentOps;
+    let stackIndex              = startStackIndex;
+
+    if (currentDepth >= MAX_DEPTH_BEFORE_TRAMPOLINE) {
+      this.inbox.enqueue(FiberMessage.Resume(effect));
+      return null;
+    }
+
+    while (true) {
+      if ((this._runtimeFlags & RuntimeFlag.OpSupervision) !== 0) {
+        this.getSupervisor().unsafeOnEffect(this, cur!);
+      }
+
+      cur = IO.concrete(this.drainQueueWhileRunning(cur!));
+
+      ops += 1;
+
+      if (ops > this.getFiberRef(FiberRef.currentMaxFiberOps)) {
+        this.updateLastTrace(cur.trace);
+        this.inbox.enqueue(FiberMessage.Resume(cur));
+
+        return null;
+      }
+
+      switch (cur._ioOpCode) {
+        case IOTag.SucceedNow: {
+          const value = cur.i0;
+
+          cur = null;
+
+          while (cur === null && stackIndex > minStackIndex) {
+            stackIndex        -= 1;
+            const continuation = this._stack[stackIndex];
+            this.popStackFrame(stackIndex);
+            switch (continuation._ioOpCode) {
+              case IOTag.OnSuccess:
+                cur = continuation.i1(value);
+                break;
+              case IOTag.OnSuccessAndFailure:
+                cur = continuation.i2(value);
+                break;
+              case IOTag.UpdateRuntimeFlags:
+                cur = this.patchRuntimeFlags(continuation.i0, null, null);
+                break;
+            }
+          }
+
+          if (cur === null) {
+            return Exit.succeed(value);
+          }
+
+          break;
+        }
+        case IOTag.Sync: {
+          this.updateLastTrace(cur.trace);
+          const value = cur.i0();
+
+          cur = null;
+
+          while (cur === null && stackIndex > minStackIndex) {
+            stackIndex        -= 1;
+            const continuation = this._stack[stackIndex];
+            this.popStackFrame(stackIndex);
+
+            switch (continuation._ioOpCode) {
+              case IOTag.OnSuccess:
+                cur = continuation.i1(value);
+                break;
+              case IOTag.OnSuccessAndFailure:
+                cur = continuation.i2(value);
+                break;
+              case IOTag.UpdateRuntimeFlags:
+                cur = this.patchRuntimeFlags(continuation.i0, null, null);
+                break;
+            }
+          }
+
+          if (cur === null) {
+            return Exit.succeed(value);
+          }
+          break;
+        }
+        case IOTag.OnSuccess: {
+          this.updateLastTrace(cur.trace);
+
+          const first = cur.i0;
+
+          if (first === IO.unit) {
+            cur = cur.i1(undefined);
+          } else {
+            stackIndex = this.pushStackFrame(cur, stackIndex);
+
+            const result = this.runLoop(first, stackIndex, stackIndex, currentDepth + 1, ops);
+            ops         += 1;
+
+            if (result === null) {
+              return null;
+            }
+
+            stackIndex -= 1;
+            this.popStackFrame(stackIndex);
+
+            switch (result._tag) {
+              case ExitTag.Success:
+                cur = cur.i1(result.value);
+                break;
+              case ExitTag.Failure:
+                cur = IO.concrete(IO.failCauseNow(result.cause));
+                break;
+            }
+          }
+          break;
+        }
+        case IOTag.OnSuccessAndFailure: {
+          this.updateLastTrace(cur.trace);
+
+          stackIndex = this.pushStackFrame(cur, stackIndex);
+
+          const result = this.runLoop(cur.i0, stackIndex, stackIndex, currentDepth + 1, ops);
+          ops         += 1;
+
+          if (result === null) {
+            return null;
+          }
+
+          stackIndex -= 1;
+          this.popStackFrame(stackIndex);
+
+          switch (result._tag) {
+            case ExitTag.Success: {
+              cur = cur.i2(result.value);
+              break;
+            }
+            case ExitTag.Failure: {
+              const cause = result.cause;
+              if (this.shouldInterrupt()) {
+                cur = IO.concrete(IO.failCauseNow(cause.stripFailures));
+              } else {
+                cur = cur.i1(result.cause);
+              }
+            }
+          }
+
+          break;
+        }
+        case IOTag.Async: {
+          this.updateLastTrace(cur.trace);
+          this._blockingOn = cur.i1();
+
+          cur = this.initiateAsync(cur.i0);
+
+          if (cur === null) {
+            cur = this.drainQueueAfterAsync();
+          }
+
+          if (cur === null) {
+            return null;
+          }
+
+          if (this.shouldInterrupt()) {
+            cur = IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
+          }
+
+          break;
+        }
+        case IOTag.UpdateRuntimeFlagsWithin: {
+          const trace = cur.trace;
+          this.updateLastTrace(trace);
+          const updateFlags     = cur.i0;
+          const oldRuntimeFlags = this._runtimeFlags;
+          const newRuntimeFlags = updateFlags.patch(oldRuntimeFlags);
+
+          if (newRuntimeFlags === oldRuntimeFlags) {
+            cur = IO.concrete(cur.i1(oldRuntimeFlags));
+          } else {
+            if (newRuntimeFlags.interruptible && this.isInterrupted()) {
+              cur = IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
+            } else {
+              this.patchRuntimeFlagsOnly(updateFlags);
+
+              const revertFlags = newRuntimeFlags.diff(oldRuntimeFlags);
+
+              const k = IO.updateRuntimeFlags(revertFlags, trace) as UpdateRuntimeFlags;
+
+              stackIndex = this.pushStackFrame(k, stackIndex);
+
+              const exit = this.runLoop(cur.i1(oldRuntimeFlags), stackIndex, stackIndex, currentDepth + 1, ops);
+              ops       += 1;
+
+              if (exit === null) {
+                return null;
+              }
+
+              stackIndex -= 1;
+              this.popStackFrame(stackIndex);
+
+              cur = this.patchRuntimeFlags(revertFlags, exit.causeOrNull, exit);
+            }
+          }
+          break;
+        }
+        case IOTag.Stateful: {
+          const trace = cur.trace;
+          this.updateLastTrace(trace);
+          cur = cur.i0(this, FiberStatus.running(this._runtimeFlags, trace) as Running);
+          break;
+        }
+        case IOTag.Fail: {
+          let cause = cur.i0();
+
+          cur = null;
+
+          while (cur === null && stackIndex > minStackIndex) {
+            stackIndex -= 1;
+
+            const continuation = this._stack[stackIndex];
+
+            this.popStackFrame(stackIndex);
+
+            switch (continuation._ioOpCode) {
+              case IOTag.OnSuccessAndFailure: {
+                if (this.shouldInterrupt()) {
+                  cause = cause.stripFailures;
+                } else {
+                  cur = continuation.i1(cause);
+                }
+                break;
+              }
+              case IOTag.UpdateRuntimeFlags:
+                cur = this.patchRuntimeFlags(continuation.i0, cause, null);
+                break;
+            }
+          }
+
+          if (cur === null) {
+            return Exit.failCause(cause);
+          }
+
+          break;
+        }
+        case IOTag.UpdateRuntimeFlags: {
+          this.updateLastTrace(cur.trace);
+          cur = this.patchRuntimeFlags(cur.i0, null, IO.unit);
+          break;
+        }
+        case IOTag.WhileLoop: {
+          const iterate = cur;
+          this.updateLastTrace(iterate.trace);
+          const check   = iterate.i0;
+          const body    = iterate.i1;
+          const process = iterate.i2;
+
+          stackIndex = this.pushStackFrame(iterate, stackIndex);
+
+          cur = null;
+
+          const nextDepth = currentDepth + 1;
+
+          while (cur === null && check()) {
+            const exit = this.runLoop(body(), stackIndex, stackIndex, nextDepth, ops);
+
+            if (exit === null) {
+              return null;
+            }
+
+            switch (exit._tag) {
+              case ExitTag.Success:
+                process(exit.value);
+                break;
+              case ExitTag.Failure:
+                cur = IO.concrete(IO.failCauseNow(exit.cause));
+                break;
+            }
+
+            ops += 1;
+          }
+
+          stackIndex -= 1;
+          this.popStackFrame(stackIndex);
+
+          if (cur === null) {
+            cur = IO.concrete(IO.unit);
+          }
+
+          break;
+        }
+        case IOTag.YieldNow: {
+          this.updateLastTrace(cur.trace);
+          this.inbox.enqueue(FiberMessage.Resume(IO.unit));
+          return null;
+        }
+        case IOTag.Commit: {
+          cur = IO.concrete(cur.commit);
+          break;
+        }
+        case IOTag.External: {
+          cur = IO.concrete(cur.toIO);
+          break;
+        }
+        case null: {
+          switch (cur._tag) {
+            case MaybeTag.Just: {
+              cur = IO.concrete(IO.succeedNow(cur.value));
+              break;
+            }
+            case MaybeTag.Nothing: {
+              cur = IO.concrete(IO.failNow(new NoSuchElementError()));
+              break;
+            }
+            case EitherTag.Left: {
+              cur = IO.concrete(IO.failNow(cur.left));
+              break;
+            }
+            case EitherTag.Right: {
+              cur = IO.concrete(IO.succeedNow(cur.right));
+              break;
+            }
+            case ExitTag.Failure: {
+              cur = IO.concrete(IO.failCauseNow(cur.cause));
+              break;
+            }
+            case ExitTag.Success: {
+              cur = IO.concrete(IO.succeedNow(cur.value));
+              break;
+            }
+            case "Tag": {
+              cur = IO.concrete(IO.service(cur));
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    throw new Error("runLoop must exist with a return statement from within the while loop");
+  }
+
+  setFiberRef<A>(fiberRef: FiberRef<A>, value: A): void {
+    this._fiberRefs = this._fiberRefs.updateAs(this.fiberId, fiberRef, value);
+  }
+
+  setFiberRefs(fiberRefs0: FiberRefs): void {
+    this._fiberRefs = fiberRefs0;
+  }
+
+  shouldYieldBeforeFork(): boolean {
+    if (this._runtimeFlags.cooperativeYielding) {
+      this._forksSinceYield += 1;
+      return this._forksSinceYield >= MAX_FORKS_BEFORE_YIELD;
+    }
+
+    return false;
+  }
+
+  start<R>(effect: IO<R, E, A>) {
+    let result: Exit<E, A> | null = null;
+
+    if (!this.running) {
+      try {
+        this.running = true;
+        result       = this.evaluateEffect(0, IO.concrete(effect));
+      } finally {
+        this.running = false;
+        if (!this.inbox.isEmpty) {
+          this.drainQueueLaterOnExecutor();
+        }
+      }
+    } else {
+      this.tell(FiberMessage.Resume(effect));
+    }
+
+    return result;
+  }
+
+  startConcurrently(io: IO<any, E, A>): void {
+    this.tell(FiberMessage.Resume(io));
+  }
+
+  startFork<R>(effect: IO<R, E, A>): void {
+    this.tell(FiberMessage.Resume(effect));
+  }
+
+  startSuspended(): (io: IO<any, E, A>) => any {
+    let alreadyCalled = false;
+    const callback    = (io: IO<any, E, A>) => {
+      if (!alreadyCalled) {
+        alreadyCalled = true;
+        this.tell(FiberMessage.Resume(io));
+      }
+    };
+
+    this._asyncContWith = callback;
+
+    return callback;
+  }
+
+  tell(message: FiberMessage): void {
+    this.inbox.enqueue(message);
+    if (!this.running) {
+      this.running = true;
+      this.drainQueueLaterOnExecutor();
+    }
+  }
+
+  tellAddChild(child: FiberRuntime<any, any>): void {
+    return this.tell(FiberMessage.Stateful((parentFiber) => parentFiber.addChild(child)));
+  }
+
+  tellAddChildren(children: Iterable<FiberRuntime<any, any>>): void {
+    return this.tell(FiberMessage.Stateful((parentFiber) => parentFiber.addChildren(children)));
+  }
+
+  tellInterrupt(cause: Cause<never>): void {
+    this.tell(FiberMessage.InterruptSignal(cause));
+  }
+
+  transferChildren(scope: FiberScope) {
+    const children = this._children;
+    if (children !== null && children.size > 0) {
+      const childs   = this.childrenChunk(children);
+      this._children = null!;
+      if (!childs.isEmpty) {
+        const flags = this._runtimeFlags;
+        for (const child of childs) {
+          scope.unsafeAdd(this, flags, child);
+        }
+      }
+    }
+  }
+
+  updateFiberRef<A>(fiberRef: FiberRef<A>, f: (a: A) => A): void {
+    this.setFiberRef(fiberRef, f(this.getFiberRef(fiberRef)));
+  }
+
+  private addInterruptedCause(cause: Cause<never>): void {
+    const oldSC = this.getFiberRef(FiberRef.interruptedCause);
+    if (oldSC.contains(cause)) {
+      return;
+    }
+    this.setFiberRef(FiberRef.interruptedCause, Cause.sequential(oldSC, cause));
+  }
+
+  private awaitUnsafe(trace?: string): UIO<Exit<E, A>> {
+    const exitValue = this._exitValue;
+    if (exitValue !== null) {
+      return Exit.succeed(exitValue);
+    } else {
+      return IO.asyncInterrupt<never, never, Exit<E, A>>(
+        (k) => {
+          const cb = (exit: Exit<any, any>) => k(IO.succeedNow(exit));
+          this.addObserver(cb);
+          return Either.left(IO(this.removeObserver(cb)));
+        },
+        this.id,
+        trace,
+      );
+    }
+  }
+
+  private childrenChunk(children: IterableWeakSet<FiberRuntime<any, any>>): Conc<FiberRuntime<any, any>> {
+    if (children === null) {
+      return Conc.empty();
+    }
+    const builder = Conc.builder<FiberRuntime<any, any>>();
+    children.forEach((child) => {
+      if (child !== null) {
+        builder.append(child);
+      }
+    });
+    return builder.result();
+  }
+
+  private drainQueueAfterAsync(): IO.Concrete | null {
+    let resumption: IO.Concrete | null = null;
+    let message = this.inbox.dequeue(null!);
+
+    while (message !== null) {
+      switch (message._tag) {
+        case FiberMessageTag.InterruptSignal:
+          this.processNewInterruptSignal(message.cause);
+          break;
+        case FiberMessageTag.Stateful:
+          this.processStatefulMessage(message.onFiber);
+          break;
+        case FiberMessageTag.Resume:
+          resumption = IO.concrete(message.cont);
+          break;
+      }
+
+      message = this.inbox.dequeue(null!);
+    }
+
+    return resumption;
+  }
+
+  private drainQueueLaterOnExecutor(): void {
+    // assert(this.running, "Invalid state in FiberRuntime: Fiber is not running");
+
+    this.getFiberRef(FiberRef.currentScheduler).scheduleTask(() => this.run());
+  }
+
+  private drainQueueOnCurrentThread(depth: number): void {
     // assert(this.running, "Invalid state in FiberRuntime: Fiber is not running");
 
     let recurse = true;
@@ -162,9 +811,9 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
       }
       try {
         while (evaluationSignal === EvaluationSignal.Continue) {
-          evaluationSignal = this.queue.isEmpty
+          evaluationSignal = this.inbox.isEmpty
             ? EvaluationSignal.Done
-            : this.evaluateMessageWhileSuspended(this.queue.dequeue(null!));
+            : this.evaluateMessageWhileSuspended(depth, this.inbox.dequeue(null!));
         }
       } finally {
         this.running = false;
@@ -173,7 +822,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
         }
       }
 
-      if (!this.queue.isEmpty && !this.running) {
+      if (!this.inbox.isEmpty && !this.running) {
         this.running = true;
         if (evaluationSignal === EvaluationSignal.YieldNow) {
           this.drainQueueLaterOnExecutor();
@@ -187,445 +836,219 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
     }
   }
 
-  private drainQueueLaterOnExecutor(): void {
-    // assert(this.running, "Invalid state in FiberRuntime: Fiber is not running");
-
-    this.getFiberRef(FiberRef.currentScheduler).scheduleTask(() => this.run());
-  }
-
-  private drainQueueWhileRunning(
-    runtimeFlags: RuntimeFlags,
-    lastTrace: string,
-    cur0: IO<any, any, any>,
-  ): IO<any, any, any> {
+  private drainQueueWhileRunning(cur0: IO.Concrete): IO<any, any, any> {
     let cur = cur0;
 
-    while (!this.queue.isEmpty) {
-      const message = this.queue.dequeue(null!);
+    let message = this.inbox.dequeue(null!);
 
+    while (message) {
       switch (message._tag) {
         case FiberMessageTag.InterruptSignal: {
+          this.updateLastTrace(cur.trace);
           this.processNewInterruptSignal(message.cause);
-          cur = runtimeFlags.interruptible ? IO.failCause(message.cause) : cur;
-          break;
-        }
-        case FiberMessageTag.GenStackTrace: {
-          const oldCur = cur;
-          cur          = IO.stackTrace(undefined).flatMap((stackTrace) => {
-            message.onTrace(stackTrace);
-            return oldCur;
-          }, undefined);
+          if (this.isInterruptible()) {
+            cur = IO.concrete(IO.failCauseNow(message.cause));
+          }
           break;
         }
         case FiberMessageTag.Stateful: {
-          message.onFiber(this, new Running(runtimeFlags, lastTrace));
+          this.processStatefulMessage(message.onFiber);
           break;
         }
         case FiberMessageTag.Resume: {
           throw new IllegalStateError("It is illegal to have multiple concurrent run loops in a single fiber");
         }
-        case FiberMessageTag.YieldNow: {
-          const oldCur = cur;
-          cur          = IO.yieldNow.flatMap(() => oldCur, undefined);
-          break;
-        }
       }
+
+      message = this.inbox.dequeue(null!);
     }
 
     return cur;
   }
 
-  private evaluateEffect(effect0: IO<any, any, any>) {
-    // assert(this.running, "Invalid state in FiberRuntime: Fiber is not running");
+  private ensureStackCapacity(size: number) {
+    const stack       = this._stack;
+    const stackLength = stack.length;
+    if (stackLength < size) {
+      const newSize  = (size & (size - 1)) == 0 ? size : highestOneBit(size) << 1;
+      const newStack = new Array<Continuation>(newSize);
+      copyArray(stack, 0, newStack, 0, stackLength);
+      this._stack = newStack;
+    }
+  }
 
-    this.getSupervisor().unsafeOnResume(this);
+  private evaluateEffect(initialDepth: number, effect0: IO.Concrete): Exit<E, A> | null {
+    // assert(this.running, "Invalid state in FiberRuntime: Fiber is not running");
+    this._asyncContWith = null;
+    this._blockingOn    = null;
+
+    this.updateLastTrace(effect0.trace);
+
+    const supervisor = this.getSupervisor();
+    supervisor.unsafeOnResume(this);
+
+    if (this._stack === null) {
+      this._stack = new Array(INITIAL_STACK_SIZE);
+    }
 
     try {
-      let effect: IO<any, any, any>;
-
-      if (this._runtimeFlags.interruptible && this.isInterrupted()) {
-        effect = IO.failCause(this.getInterruptedCause());
-      } else {
-        effect = effect0;
-      }
-
-      let finalExit = null! as Exit<E, A>;
+      let effect: IO.Concrete | null   = effect0;
+      let finalExit: Exit<E, A> | null = null;
 
       while (effect !== null) {
         try {
-          const exit         = this.runLoop(effect);
-          this._runtimeFlags = this._runtimeFlags.enable(RuntimeFlag.WindDown);
-          const interruption = this.interruptAllChildren();
-
-          if (interruption === null) {
-            if (this.queue.isEmpty) {
-              finalExit = exit;
-              this.setExitValue(exit);
-            } else {
-              this.tell(FiberMessage.Resume(IO.fromExitNow(exit)));
-            }
-
-            effect = null!;
-          } else {
-            effect = interruption.flatMap(() => IO.fromExitNow(exit), this.id.location);
+          if (this.shouldInterrupt()) {
+            effect = IO.concrete(IO.failCause(this.getInterruptedCause()));
           }
-        } catch (e) {
-          if (isIO(e)) {
-            if (IO.concrete(e)._ioOpCode === IOTag.YieldNow) {
-              if (this._runtimeFlags.cooperativeYielding) {
-                this.tell(FiberMessage.YieldNow);
-                this.tell(FiberMessage.Resume(IO.unit));
-                effect = null!;
-              } else {
-                effect = IO.unit;
-              }
-            } else if (IO.concrete(e)._ioOpCode === IOTag.Async) {
-              effect = null!;
-            } else {
-              throw new Error(`Unhandled op ${IO.concrete(e)._ioOpCode}`);
-            }
+
+          const exit = this.runLoop(effect, 0, this._stackSize, initialDepth, 0);
+
+          if (exit === null) {
+            this._forksSinceYield = 0;
+            effect                = null;
           } else {
-            throw e;
+            this._runtimeFlags = this._runtimeFlags.enable(RuntimeFlag.WindDown);
+            const interruption = this.interruptAllChildren();
+
+            if (interruption === null) {
+              if (this.inbox.isEmpty) {
+                finalExit = exit;
+
+                supervisor.unsafeOnEnd(finalExit, this);
+
+                this.setExitValue(exit);
+              } else {
+                this.tell(FiberMessage.Resume(IO.fromExitNow(exit)));
+              }
+
+              effect = null;
+            } else {
+              effect = IO.concrete(interruption.flatMap(() => IO.fromExitNow(exit), this.id.location));
+            }
+          }
+        } catch (t) {
+          if (this.isFatal(t)) {
+            // TODO
+          }
+
+          if (isIOError(t)) {
+            effect = IO.concrete(IO.failCauseNow(t.cause));
+          } else {
+            effect = IO.concrete(IO.failCauseNow(Cause.halt(t)));
           }
         }
       }
+
+      return finalExit;
     } finally {
+      this.gcStack();
       this.getSupervisor().unsafeOnSuspend(this);
     }
   }
 
-  runLoop(effect: IO<any, any, any>): Exit<any, any> {
-    // assert(this.running, "Invalid state in FiberRuntime: Fiber is not running");
+  private evaluateMessageWhileSuspended(depth: number, fiberMessage: FiberMessage): EvaluationSignal {
+    switch (fiberMessage._tag) {
+      case FiberMessageTag.InterruptSignal: {
+        this.processNewInterruptSignal(fiberMessage.cause);
 
-    let cur       = IO.concrete(effect);
-    let lastTrace = undefined! as string;
-    let ops       = 0;
-
-    while (true) {
-      if ((this._runtimeFlags & RuntimeFlag.OpSupervision) !== 0) {
-        this.getSupervisor().unsafeOnEffect(this, cur);
+        return EvaluationSignal.Continue;
       }
+      case FiberMessageTag.Stateful: {
+        this.processStatefulMessage(fiberMessage.onFiber);
 
-      const nextTrace = IO.concrete(cur).trace;
-      if (nextTrace !== undefined) lastTrace = nextTrace;
-
-      cur = IO.concrete(this.drainQueueWhileRunning(this._runtimeFlags, lastTrace, cur));
-
-      ops += 1;
-
-      if (ops > this.getFiberRef(FiberRef.currentMaxFiberOps)) {
-        ops          = 0;
-        const oldCur = cur;
-        const trace  = lastTrace;
-        cur          = IO.concrete(IO.yieldNow.flatMap(() => oldCur, trace));
+        return EvaluationSignal.Continue;
       }
-      try {
-        switch (cur._ioOpCode) {
-          case IOTag.Sync: {
-            const value = cur.i0();
-            const cont  = this.getNextSuccessCont();
-            if (cont) {
-              switch (cont._ioOpCode) {
-                case IOTag.OnSuccess: {
-                  cur = IO.concrete(cont.i1(value));
-                  break;
-                }
-                case IOTag.OnSuccessAndFailure: {
-                  cur = IO.concrete(cont.i2(value));
-                  break;
-                }
-                case IOTag.WhileLoop: {
-                  cont.i2(value);
-                  if (cont.i0()) {
-                    this.stack.push(cont);
-                    cur = IO.concrete(cont.i1());
-                  } else {
-                    cur = IO.concrete(IO.unit);
-                  }
-                  break;
-                }
-                case IOTag.RevertFlags: {
-                  this.patchRuntimeFlags(this._runtimeFlags, cont.patch);
-                  if (this._runtimeFlags.interruptible && this.isInterrupted()) {
-                    cur = IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
-                  } else {
-                    cur = IO.concrete(IO.succeedNow(value));
-                  }
-                  break;
-                }
-                case IOTag.UpdateTrace: {
-                  if (cont.trace !== undefined) lastTrace = cont.trace;
-                  cur = IO.concrete(IO.unit);
-                  break;
-                }
-              }
-            } else {
-              return Exit.succeed(value);
-            }
-            break;
-          }
-          case IOTag.OnSuccessAndFailure:
-          case IOTag.OnFailure:
-          case IOTag.OnSuccess: {
-            this.stack.push(cur);
-            cur = IO.concrete(cur.i0);
-            break;
-          }
-          case IOTag.Async: {
-            this.asyncTrace     = lastTrace;
-            this.asyncBlockinOn = cur.i1();
-            this.initiateAsync(this._runtimeFlags, cur.i0);
-            throw cur;
-          }
-          case IOTag.UpdateRuntimeFlagsWithin: {
-            const updateFlags     = cur.i0;
-            const oldRuntimeFlags = this._runtimeFlags;
-            const newRuntimeFlags = updateFlags.patch(oldRuntimeFlags);
-
-            if (newRuntimeFlags === oldRuntimeFlags) {
-              cur = IO.concrete(cur.i1(oldRuntimeFlags));
-            } else {
-              if (newRuntimeFlags.interruptible && this.isInterrupted()) {
-                cur = IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
-              } else {
-                this.patchRuntimeFlags(this._runtimeFlags, updateFlags);
-                const revertFlags = newRuntimeFlags.diff(oldRuntimeFlags);
-                this.stack.push(new RevertFlags(revertFlags));
-                cur = IO.concrete(cur.i1(oldRuntimeFlags));
-              }
-            }
-            break;
-          }
-          case IOTag.GenerateStackTrace: {
-            cur = IO.concrete(IO.succeedNow(this.generateStackTrace()));
-            break;
-          }
-          case IOTag.Stateful: {
-            cur = IO.concrete(cur.i0(this, new Running(this._runtimeFlags, lastTrace)));
-            break;
-          }
-          case IOTag.SucceedNow: {
-            const oldCur = cur;
-            const cont   = this.getNextSuccessCont();
-            if (cont) {
-              switch (cont._ioOpCode) {
-                case IOTag.OnSuccess: {
-                  cur = IO.concrete(cont.i1(oldCur.i0));
-                  break;
-                }
-                case IOTag.OnSuccessAndFailure: {
-                  cur = IO.concrete(cont.i2(oldCur.i0));
-                  break;
-                }
-                case IOTag.WhileLoop: {
-                  cont.i2(oldCur.i0);
-                  if (cont.i0()) {
-                    this.stack.push(cont);
-                    cur = IO.concrete(cont.i1());
-                  } else {
-                    cur = IO.concrete(IO.unit);
-                  }
-                  break;
-                }
-                case IOTag.RevertFlags: {
-                  this.patchRuntimeFlags(this._runtimeFlags, cont.patch);
-                  if (this._runtimeFlags.interruptible && this.isInterrupted()) {
-                    cur = IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
-                  }
-                  break;
-                }
-                case IOTag.UpdateTrace: {
-                  if (cont.trace !== undefined) lastTrace = cont.trace;
-                  cur = IO.concrete(IO.unit);
-                  break;
-                }
-              }
-            } else {
-              return Exit.succeed(oldCur.i0);
-            }
-            break;
-          }
-          case IOTag.Fail: {
-            const cause = cur.i0();
-            const cont  = this.getNextFailCont();
-            if (cont) {
-              switch (cont._ioOpCode) {
-                case IOTag.OnFailure:
-                case IOTag.OnSuccessAndFailure: {
-                  if (!(this._runtimeFlags.interruptible && this.isInterrupted())) {
-                    cur = IO.concrete(cont.i1(cause));
-                  } else {
-                    cur = IO.concrete(IO.failCauseNow(cause.stripFailures));
-                  }
-                  break;
-                }
-                case IOTag.RevertFlags: {
-                  this.patchRuntimeFlags(this._runtimeFlags, cont.patch);
-                  if (this._runtimeFlags.interruptible && this.isInterrupted()) {
-                    const interruptedCause = this.getInterruptedCause();
-                    if (cause.contains(interruptedCause)) {
-                      cur = IO.concrete(IO.failCauseNow(cause));
-                    } else {
-                      cur = IO.concrete(IO.failCauseNow(Cause.sequential(cause, this.getInterruptedCause())));
-                    }
-                  }
-                  break;
-                }
-                case IOTag.UpdateTrace: {
-                  if (cont.trace !== undefined) lastTrace = cont.trace;
-                  cur = IO.concrete(IO.unit);
-                  break;
-                }
-              }
-            } else {
-              return Exit.failCause(cause);
-            }
-            break;
-          }
-          case IOTag.UpdateRuntimeFlags: {
-            this.patchRuntimeFlags(this._runtimeFlags, cur.i0);
-            cur = IO.concrete(IO.unit);
-            break;
-          }
-          case IOTag.WhileLoop: {
-            const iterate = cur;
-            const check   = iterate.i0;
-            const body    = iterate.i1;
-            if (check()) {
-              cur = IO.concrete(body());
-              this.stack.push(iterate);
-            } else {
-              cur = IO.concrete(IO.unit);
-            }
-            break;
-          }
-          case IOTag.YieldNow: {
-            throw cur;
-          }
-          case IOTag.Commit: {
-            cur = IO.concrete(cur.commit);
-            break;
-          }
-          case IOTag.External: {
-            cur = IO.concrete(cur.toIO);
-            break;
-          }
-          case null: {
-            switch (cur._tag) {
-              case MaybeTag.Just: {
-                cur = IO.concrete(IO.succeedNow(cur.value));
-                break;
-              }
-              case MaybeTag.Nothing: {
-                cur = IO.concrete(IO.failNow(new NoSuchElementError()));
-                break;
-              }
-              case EitherTag.Left: {
-                cur = IO.concrete(IO.failNow(cur.left));
-                break;
-              }
-              case EitherTag.Right: {
-                cur = IO.concrete(IO.succeedNow(cur.right));
-                break;
-              }
-              case ExitTag.Failure: {
-                cur = IO.concrete(IO.failCauseNow(cur.cause));
-                break;
-              }
-              case ExitTag.Success: {
-                cur = IO.concrete(IO.succeedNow(cur.value));
-                break;
-              }
-              case "Tag": {
-                cur = IO.concrete(IO.service(cur));
-                break;
-              }
-            }
-          }
+      case FiberMessageTag.Resume: {
+        const nextEffect = fiberMessage.cont;
+        const exit       = this.evaluateEffect(depth, IO.concrete(nextEffect));
+        if (exit === null) {
+          return EvaluationSignal.YieldNow;
         }
-      } catch (e) {
-        if (isIOError(e)) {
-          cur = IO.concrete(IO.failCauseNow(e.cause));
-        } else if (
-          isIO(e) &&
-          (IO.concrete(e)._ioOpCode === IOTag.Async || IO.concrete(e)._ioOpCode === IOTag.YieldNow)
-        ) {
-          throw e;
-        } else if (isInterruptedException(e)) {
-          cur = IO.concrete(IO.failCauseNow(Cause.parallel(Cause.halt(e), Cause.interrupt(FiberId.none))));
+        return EvaluationSignal.Continue;
+      }
+    }
+  }
+
+  /**
+   * Removes references of entries from the stack higher than the current index
+   * so that they can be garbage collected.
+   *
+   * @note
+   *   We only GC up to the {@link STACK_IDX_GC_THRESHOLD} index because
+   *   we know that entries in indices higher than that have been auto-gc'd
+   *   during the runloop
+   * @note
+   *   This method MUST be invoked by the fiber itself while it's still running.
+   */
+  private gcStack(): void {
+    const fromIndex = this._stackSize;
+    if (fromIndex === 0) {
+      this._stack = null!;
+    } else {
+      const stack   = this._stack;
+      const toIndex = Math.min(STACK_IDX_GC_THRESHOLD, stack.length);
+
+      if (fromIndex < toIndex && stack[fromIndex] !== null) {
+        stack.fill(null!, fromIndex, toIndex);
+      }
+    }
+  }
+
+  private getStatus(): FiberStatus {
+    if (this._exitValue !== null) {
+      return FiberStatus.done;
+    } else {
+      if (this._asyncContWith !== null) {
+        return FiberStatus.suspended(this._runtimeFlags, this._blockingOn ?? FiberId.none, this._lastTrace);
+      } else {
+        return FiberStatus.running(this._runtimeFlags, this._lastTrace);
+      }
+    }
+  }
+
+  private initiateAsync(asyncRegister: (k: (_: IO<any, any, any>) => void) => any): IO.Concrete | null {
+    let alreadyCalled = false;
+
+    const callback = (effect: IO<any, any, any>) => {
+      if (!alreadyCalled) {
+        alreadyCalled = true;
+        this.tell(FiberMessage.Resume(effect));
+      }
+    };
+
+    if (this.isInterruptible()) {
+      this._asyncContWith = callback;
+    } else {
+      this._asyncContWith = () => void 0;
+    }
+
+    try {
+      const sync = asyncRegister(callback);
+
+      if (sync != null) {
+        if (!alreadyCalled) {
+          alreadyCalled       = true;
+          this._asyncContWith = null;
+          this._blockingOn    = null;
+          return sync;
         } else {
-          cur = IO.concrete(IO.failCauseNow(Cause.halt(e, Trace(this.fiberId, Conc(TraceElement.parse(lastTrace))))));
+          this.log(
+            () =>
+              "Async operation attempted synchronous resumption, but its callback was already invoked; synchronous value will be discarded",
+            Cause.empty(),
+            Just(LogLevel.Error),
+            this.id.location,
+          );
+
+          return null;
         }
+      } else {
+        return null;
       }
-    }
-  }
+    } catch (t) {
+      callback(IO.failCauseNow(Cause.halt(t)));
 
-  getInterruptedCause(): Cause<never> {
-    return this.getFiberRef(FiberRef.interruptedCause);
-  }
-
-  isInterrupted(): boolean {
-    return !this.getFiberRef(FiberRef.interruptedCause).isEmpty;
-  }
-
-  getFiberRef<A>(fiberRef: FiberRef<A>): A {
-    if (this._fiberRefs.unFiberRefs.has(fiberRef)) {
-      return this._fiberRefs.unFiberRefs.unsafeGet(fiberRef)!.head[1] as A;
-    }
-    return fiberRef.initial;
-  }
-
-  tell(message: FiberMessage): void {
-    this.queue.enqueue(message);
-    if (!this.running) {
-      this.running = true;
-      this.drainQueueLaterOnExecutor();
-    }
-  }
-
-  exitValue(): Exit<E, A> {
-    return this._exitValue;
-  }
-
-  addObserver(observer: (exit: Exit<E, A>) => void): void {
-    if (this._exitValue !== null) observer(this._exitValue);
-    else this.observers = Cons(observer, this.observers);
-  }
-
-  getChildren(): Set<FiberRuntime<any, any>> {
-    if (this._children === null) {
-      this._children = new Set();
-    }
-    return this._children;
-  }
-
-  getFiberRefs(): FiberRefs {
-    return this._fiberRefs;
-  }
-
-  setFiberRefs(fiberRefs0: FiberRefs): void {
-    this._fiberRefs = fiberRefs0;
-  }
-
-  private patchRuntimeFlags(oldRuntimeFlags: RuntimeFlags, patch: RuntimeFlags.Patch): RuntimeFlags {
-    const newRuntimeFlags = patch.patch(oldRuntimeFlags);
-
-    this._runtimeFlags = newRuntimeFlags;
-
-    return newRuntimeFlags;
-  }
-
-  private sendInterruptSignalToAllChildren(): boolean {
-    if (this._children === null || this._children.size === 0) return false;
-    else {
-      let told = false;
-      for (const child of this._children) {
-        if (child !== null) {
-          child.tell(FiberMessage.InterruptSignal(Cause.interrupt(this.id)));
-          told = true;
-        }
-      }
-      return told;
+      return null;
     }
   }
 
@@ -663,96 +1086,119 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
     }
   }
 
-  private initiateAsync(runtimeFlags: RuntimeFlags, asyncRegister: (k: (_: IO<any, any, any>) => void) => any): void {
-    let alreadyCalled = false;
+  private isInterruptible() {
+    return this._runtimeFlags.interruptible;
+  }
 
-    const callback = (effect: IO<any, any, any>) => {
-      if (!alreadyCalled) {
-        alreadyCalled = true;
-        this.tell(FiberMessage.Resume(effect));
+  private patchRuntimeFlags<R, E, A>(
+    patch: RuntimeFlags.Patch,
+    cause: Cause<E> | null,
+    continueEffect: IO<R, E, A> | null,
+  ): IO.Concrete | null {
+    const changed          = this.patchRuntimeFlagsOnly(patch);
+    const interruptEnabled = patch.isEnabled(RuntimeFlag.Interruption);
+
+    if (changed && interruptEnabled && this.shouldInterrupt()) {
+      if (cause !== null) {
+        return IO.concrete(IO.failCauseNow(Cause.sequential(cause, this.getInterruptedCause())));
+      } else {
+        return IO.concrete(IO.failCauseNow(this.getInterruptedCause()));
       }
-    };
-
-    if (runtimeFlags.interruptible) this.asyncInterruptor = callback;
-
-    try {
-      asyncRegister(callback);
-    } catch (e) {
-      callback(IO.failCauseNow(Cause.halt(e)));
+    } else if (cause !== null) {
+      return IO.concrete(IO.failCauseNow(cause));
+    } else {
+      return IO.concrete(continueEffect!);
     }
   }
 
-  setFiberRef<A>(fiberRef: FiberRef<A>, value: A): void {
-    this._fiberRefs = this._fiberRefs.updateAs(this.fiberId, fiberRef, value);
+  private patchRuntimeFlagsOnly(patch: RuntimeFlags.Patch): boolean {
+    const oldFlags = this._runtimeFlags;
+    const newFlags = patch.patch(oldFlags);
+    const changed  = oldFlags !== newFlags;
+    if (changed) {
+      if (patch.isEnabled(RuntimeFlag.CurrentFiber)) {
+        // TODO
+      } else {
+        // TODO
+      }
+
+      this._runtimeFlags = newFlags;
+    }
+
+    return changed;
   }
 
-  private addInterruptedCause(cause: Cause<never>): void {
-    const oldSC = this.getFiberRef(FiberRef.interruptedCause);
-    if (oldSC.contains(cause)) {
-      return;
+  /**
+   * Sets the `_stackSize` to `nextStackIndex`.
+   *
+   * This method might also null out the entry in the stack to allow it to be
+   * GC'd, but only if the index is >= `FiberRuntime.StackIdxGcThreshold`.
+   *
+   * This is based on the assumption that when the stack is shallow, the entries
+   * in the array will keep being overwritten as the pointer moves up and down.
+   */
+  private popStackFrame(nextStackIndex: number): void {
+    if (nextStackIndex >= STACK_IDX_GC_THRESHOLD) {
+      this._stack[nextStackIndex] = null!;
     }
-    this.setFiberRef(FiberRef.interruptedCause, Cause.sequential(oldSC, cause));
+    this._stackSize = nextStackIndex;
   }
 
   private processNewInterruptSignal(cause: Cause<never>): void {
     this.addInterruptedCause(cause);
     this.sendInterruptSignalToAllChildren();
+
+    const k = this._asyncContWith;
+
+    if (k !== null) {
+      k(IO.failCauseNow(cause));
+    }
   }
 
-  private evaluateMessageWhileSuspended(fiberMessage: FiberMessage): EvaluationSignal {
-    switch (fiberMessage._tag) {
-      case FiberMessageTag.InterruptSignal: {
-        this.processNewInterruptSignal(fiberMessage.cause);
-
-        if (this.asyncInterruptor !== null) {
-          this.asyncInterruptor(IO.failCause(fiberMessage.cause));
-          this.asyncInterruptor = null!;
-        }
-
-        return EvaluationSignal.Continue;
-      }
-      case FiberMessageTag.GenStackTrace: {
-        fiberMessage.onTrace(this.generateStackTrace());
-        return EvaluationSignal.Continue;
-      }
-      case FiberMessageTag.Stateful: {
-        let status: FiberStatus;
-        if (this._exitValue !== null) {
-          status = new Done();
-        } else if (this.asyncTrace === null) {
-          status = new Running(this._runtimeFlags, null!);
-        } else {
-          status = new Suspended(this._runtimeFlags, this.asyncBlockinOn, this.asyncTrace);
-        }
-
-        fiberMessage.onFiber(this, status);
-
-        return EvaluationSignal.Continue;
-      }
-      case FiberMessageTag.Resume: {
-        this.asyncInterruptor = null!;
-        this.asyncTrace       = null!;
-        this.asyncBlockinOn   = null!;
-
-        this.evaluateEffect(fiberMessage.cont);
-
-        return EvaluationSignal.Continue;
-      }
-      case FiberMessageTag.YieldNow: {
-        return EvaluationSignal.YieldNow;
+  private processStatefulMessage(onFiber: (_: FiberRuntime<any, any>) => void): void {
+    try {
+      onFiber(this);
+    } catch (t) {
+      if (this.isFatal(t)) {
+        // TODO
+      } else {
+        this.log(
+          () => `An unexpected error was encountered while processing stateful fiber message with callback ${onFiber}`,
+          Cause.halt(t),
+          Just(LogLevel.Error),
+          this.id.location,
+        );
       }
     }
   }
 
-  private generateStackTrace() {
-    const builder = new StackTraceBuilder();
+  private pushStackFrame(k: Continuation, stackIndex: number): number {
+    const newSize = stackIndex + 1;
 
-    const stack = this.stack.clone();
-    while (stack.hasNext) {
-      builder.append(TraceElement.parse(stack.pop()!.trace));
+    this.ensureStackCapacity(newSize);
+
+    this._stack[stackIndex] = k;
+    this._stackSize         = newSize;
+
+    return newSize;
+  }
+
+  private run(): void {
+    this.drainQueueOnCurrentThread(0);
+  }
+
+  private sendInterruptSignalToAllChildren(): boolean {
+    if (this._children === null || this._children.size === 0) return false;
+    else {
+      let told = false;
+      for (const child of this._children) {
+        if (child !== null) {
+          child.tell(FiberMessage.InterruptSignal(Cause.interrupt(this.id)));
+          told = true;
+        }
+      }
+      return told;
     }
-
-    return new Trace(this.fiberId, builder.result());
   }
 
   private setExitValue(exit: Exit<E, A>): void {
@@ -763,110 +1209,14 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
     this.observers = List.empty();
   }
 
-  resume<R>(effect: IO<R, E, A>) {
-    this.tell(FiberMessage.Resume(effect));
+  private shouldInterrupt() {
+    return this.isInterruptible() && this.isInterrupted();
   }
 
-  start<R>(effect: IO<R, E, A>) {
-    if (!this.running) {
-      try {
-        this.running = true;
-        this.evaluateEffect(effect);
-      } finally {
-        this.running = false;
-        if (!this.queue.isEmpty) {
-          this.drainQueueLaterOnExecutor();
-        }
-      }
-    } else {
-      this.tell(FiberMessage.Resume(effect));
+  private updateLastTrace(newTrace?: string): void {
+    if (newTrace !== null && newTrace !== "" && this._lastTrace !== newTrace) {
+      this._lastTrace = newTrace;
     }
-  }
-
-  startFork<R>(effect: IO<R, E, A>): void {
-    this.tell(FiberMessage.Resume(effect));
-  }
-
-  updateFiberRef<A>(fiberRef: FiberRef<A>, f: (a: A) => A): void {
-    this.setFiberRef(fiberRef, f(this.getFiberRef(fiberRef)));
-  }
-
-  removeObserver(observer: (exit: Exit<E, A>) => void): void {
-    this.observers = this.observers.filter((f) => f !== observer);
-  }
-
-  addChild(child: FiberRuntime<any, any>): void {
-    this.getChildren().add(child);
-  }
-
-  removeChild(child: FiberRuntime<any, any>) {
-    if (this._children !== null) {
-      this._children.delete(child);
-    }
-  }
-
-  get scope() {
-    return FiberScope.unsafeMake(this);
-  }
-
-  log(message: () => string, cause: Cause<any>, overrideLogLevel: Maybe<LogLevel>, trace?: string): void {
-    const logLevel    = overrideLogLevel.getOrElse(this.getFiberRef(FiberRef.currentLogLevel));
-    const spans       = this.getFiberRef(FiberRef.currentLogSpan);
-    const annotations = this.getFiberRef(FiberRef.currentLogAnnotations);
-    const contextMap  = this.getFiberRefs();
-    Logger.defaultString
-      .map((s) => console.log(s))
-      .filterLogLevel((level) => level >= LogLevel.Info)
-      .log(
-        TraceElement.parse(trace),
-        this.fiberId,
-        logLevel,
-        message,
-        cause,
-        contextMap.unFiberRefs,
-        spans,
-        annotations,
-      );
-  }
-
-  deleteFiberRef(ref: FiberRef<any>): void {
-    this._fiberRefs = this._fiberRefs.delete(ref);
-  }
-
-  location = this.fiberId.location;
-
-  get status(): UIO<FiberStatus> {
-    return this.ask((_, status) => status);
-  }
-
-  get trace(): UIO<Trace> {
-    return IO.defer(() => {
-      const future = Future.unsafeMake<never, Trace>(this.fiberId);
-      this.tell(FiberMessage.GenStackTrace((trace) => future.unsafeDone(IO.succeedNow(trace))));
-      return future.await;
-    });
-  }
-
-  getNextSuccessCont() {
-    while (this.stack.hasNext) {
-      const frame = this.stack.pop()!;
-      if (frame._ioOpCode !== IOTag.OnFailure) {
-        return frame;
-      }
-    }
-  }
-
-  getNextFailCont() {
-    while (this.stack.hasNext) {
-      const frame = this.stack.pop()!;
-      if (frame._ioOpCode !== IOTag.OnSuccess && frame._ioOpCode !== IOTag.WhileLoop) {
-        return frame;
-      }
-    }
-  }
-
-  isFatal(t: unknown): boolean {
-    return this.getFiberRef(FiberRef.currentIsFatal).apply(t);
   }
 }
 
@@ -874,4 +1224,26 @@ const enum EvaluationSignal {
   Continue,
   YieldNow,
   Done,
+}
+
+export function highestOneBit(i: number) {
+  i |= i >> 1;
+  i |= i >> 2;
+  i |= i >> 4;
+  i |= i >> 8;
+  i |= i >> 16;
+  return i - (i >>> 1);
+}
+
+function copyArray<A>(
+  source: ArrayLike<A>,
+  sourcePos: number,
+  dest: Array<A> | Uint8Array,
+  destPos: number,
+  length: number,
+): void {
+  const j = Math.min(source.length, sourcePos + length);
+  for (let i = sourcePos; i < j; i++) {
+    dest[destPos + i - sourcePos] = source[i]!;
+  }
 }

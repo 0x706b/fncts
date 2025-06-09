@@ -933,7 +933,7 @@ export function debounce(duration: Lazy<Duration>, __tsplusTrace?: string) {
         Do((Δ) => {
           const handoff = Δ(Handoff<HandoffSignal<E, A>>());
           function enqueue(last: Conc<A>, __tsplusTrace?: string) {
-            return grafter(Clock.sleep(duration).as(last).fork).map((f) => consumer(DebounceState.Previous(f)));
+            return grafter.graft(Clock.sleep(duration).as(last).fork).map((f) => consumer(DebounceState.Previous(f)));
           }
           const producer: Channel<R, E, Conc<A>, unknown, E, never, unknown> = Channel.readWithCause(
             (inp: Conc<A>) =>

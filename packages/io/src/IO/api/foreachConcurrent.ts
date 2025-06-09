@@ -1,5 +1,8 @@
+import type { FiberRuntime } from "@fncts/io/Fiber";
+
 import { identity } from "@fncts/base/data/function";
 import { AtomicNumber } from "@fncts/base/internal/AtomicNumber";
+import { IOPrimitive, IOTag } from "@fncts/io/IO";
 
 /**
  * Applies the function `f` to each element of the `Iterable<A>` and runs
@@ -62,40 +65,54 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
     if (size === 0) {
       return IO.unit;
     }
+    if (size === 1) {
+      return f(arr[0]).asUnit;
+    }
     return IO.uninterruptibleMask((restore) => {
       const future = Future.unsafeMake<void, void>(FiberId.none);
       const ref    = new AtomicNumber(0);
       return IO.transplant((graft) =>
-        IO.concurrentFinalizersMask((restoreFinalizers) =>
-          IO.foreach(
-            as,
-            (a) =>
-              graft(
-                restore(restoreFinalizers(IO.defer(f(a)))).matchCauseIO(
-                  (cause) => future.fail(undefined).zipRight(IO.failCauseNow(cause)),
-                  () => {
-                    if (ref.incrementAndGet() === size) {
-                      future.unsafeDone(IO.unit);
-                    }
-                    return IO.unit;
-                  },
-                ),
-              ).forkDaemon,
-          ),
+        IO.foreach(
+          as,
+          (a) =>
+            graft.graftOnExitWith(restore(f(a)), (exit) =>
+              exit.match(
+                () => {
+                  future.unsafeDone(IO.failNow(undefined));
+                },
+                () => {
+                  if (ref.incrementAndGet() === size) {
+                    future.unsafeDone(IO.unit);
+                  }
+                },
+              ),
+            ).forkDaemon,
         ),
       ).flatMap((fibers) =>
         restore(future.await).matchCauseIO(
-          (cause) =>
+          (cause0) =>
             foreachConcurrentUnbounded(fibers, (f) => f.interrupt).flatMap((exits) =>
-              Exit.collectAllConcurrent(exits).match(
-                () => IO.failCauseNow(cause.stripFailures),
+              exits.collectAllConcurrent.match(
+                () => IO.failCauseNow(cause0.stripFailures),
                 (exit) =>
-                  exit.isFailure()
-                    ? IO.failCauseNow(Cause.parallel(cause.stripFailures, exit.cause))
-                    : IO.failCauseNow(cause.stripFailures),
+                  exit.match(
+                    (cause) => IO.failCauseNow(Cause.parallel(cause0.stripFailures, cause)),
+                    () => IO.failCauseNow(cause0.stripFailures),
+                  ),
               ),
             ),
-          () => IO.foreachDiscard(fibers, (fiber) => fiber.inheritRefs),
+          () => {
+            const it = fibers[Symbol.iterator]();
+            let result: IteratorResult<FiberRuntime<E, any>>;
+            return IO.whileLoop(
+              () => !!result?.done,
+              () => {
+                result = it.next();
+                return (result.value as FiberRuntime<E, any>).inheritAll;
+              },
+              () => undefined,
+            );
+          },
         ),
       );
     });

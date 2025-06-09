@@ -623,7 +623,7 @@ export class ChannelExecutor<Env, InErr, InElem, InDone, OutErr, OutElem, OutDon
     if (finalizers.isEmpty()) {
       return IO.unit;
     }
-    return IO.foreach(finalizers, (cont) => cont(exit).result)
+    return this.provide(IO.foreach(finalizers, (cont) => cont(exit).result))
       .map((results) => Exit.collectAll(results).getOrElse(Exit.unit as Exit<never, unknown>))
       .flatMap(IO.fromExitNow);
   }

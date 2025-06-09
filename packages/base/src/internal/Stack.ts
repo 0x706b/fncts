@@ -13,6 +13,9 @@ export class Stack<A> {
   get isEmpty(): boolean {
     return !this.hasNext;
   }
+  get size(): number {
+    return this.node?.size ?? 0;
+  }
   peek(): A | undefined {
     if (this.node) {
       return this.node.value;
@@ -26,13 +29,14 @@ export class Stack<A> {
     }
   }
   push(value: A): void {
-    this.node = { value, previous: this.node };
+    this.node = { value, previous: this.node, size: (this.node?.size ?? 0) + 1 };
   }
 }
 
 interface Node<A> {
   readonly value: A;
   readonly previous?: Node<A>;
+  readonly size: number;
 }
 
 /**
@@ -46,5 +50,5 @@ export function makeStack<A>(): Stack<A> {
  * @tsplus static fncts.StackOps single
  */
 export function single<A>(value: A): Stack<A> {
-  return new Stack({ value });
+  return new Stack({ value, size: 1 });
 }

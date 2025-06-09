@@ -7,6 +7,6 @@ import type { FiberRuntime } from "@fncts/io/Fiber/FiberRuntime";
  *
  * @tsplus getter fncts.io.IO forkDaemon
  */
-export function forkDaemon<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, FiberRuntime<E, A>> {
-  return ma.fork.daemonChildren;
+export function forkDaemon<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): URIO<R, FiberRuntime<E, A>> {
+  return self.forkWithScopeOverride(FiberScope.global);
 }

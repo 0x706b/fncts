@@ -56,6 +56,8 @@ export interface FiberCommon<E, A> extends Fiber<E, A> {
    */
   readonly interruptAsFork: (fiberId: FiberId) => UIO<void>;
 
+  readonly interruptAs: (fiberId: FiberId) => UIO<Exit<E, A>>;
+
   /**
    * Tentatively observes the fiber, but returns immediately if it is not already done.
    */
@@ -114,6 +116,8 @@ export class SyntheticFiber<E, A> implements FiberCommon<E, A> {
   ) {
     this.await = wait;
   }
+
+  interruptAs = (fiberId: FiberId): UIO<Exit<E, A>> => this.interruptAsFork(fiberId) > this.await;
 }
 
 export type ConcreteFiber<E, A> = Fiber.Runtime<E, A> | Fiber.Synthetic<E, A>;

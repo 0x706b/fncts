@@ -1,6 +1,7 @@
 import type * as P from "@fncts/base/typeclass";
 
 import { tuple } from "@fncts/base/data/function";
+import { isNumber } from "@fncts/base/util/predicates";
 
 /**
  * @tsplus pipeable fncts.Iterable ap
@@ -629,14 +630,65 @@ export function replicate<A>(n: number, a: A): Iterable<A> {
 }
 
 /**
+ * @tsplus getter fncts.Iterable intrinsicSize
+ */
+export function intrinsicSize<A>(self: Iterable<A>): Maybe<number> {
+  if (self.hasProperty("size") && isNumber(self["size"])) {
+    return Just(self.size);
+  }
+
+  if (self.hasProperty("length") && isNumber(self["length"])) {
+    return Just(self.length);
+  }
+
+  return Nothing();
+}
+
+/**
  * @tsplus getter fncts.Iterable size
  */
 export function size<A>(self: Iterable<A>): number {
-  let len = 0;
-  for (const _ of self) {
-    len += 1;
-  }
-  return len;
+  return self.intrinsicSize.getOrElse(() => {
+    let len = 0;
+
+    for (const _ of self) {
+      len += 1;
+    }
+
+    return len;
+  });
+}
+
+/**
+ * @tsplus getter fncts.Iterable isEmpty
+ */
+export function isEmpty<A>(self: Iterable<A>): boolean {
+  return self.intrinsicSize.match(
+    () => {
+      for (const _ of self) {
+        return false;
+      }
+
+      return true;
+    },
+    (n) => n <= 0,
+  );
+}
+
+/**
+ * @tsplus getter fncts.Iterable isNonEmpty
+ */
+export function isNonEmpty<A>(self: Iterable<A>): boolean {
+  return self.intrinsicSize.match(
+    () => {
+      for (const _ of self) {
+        return true;
+      }
+
+      return false;
+    },
+    (n) => n > 0,
+  );
 }
 
 /**

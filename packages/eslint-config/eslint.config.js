@@ -2,6 +2,7 @@ import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
 import { codegen } from "@fncts/codegen/codegen";
 import { legacyPlugin } from "@fncts/eslint-config/legacyPlugin";
+import perfectionist from "eslint-plugin-perfectionist";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import tseslint from "typescript-eslint";
@@ -25,6 +26,7 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
       "@0x706b/eslint-plugin-module-specifier-extensions",
       "@0x706b/module-specifier-extensions",
     ),
+    perfectionist,
   },
   settings: {
     "import/parsers": { "@typescript-eslint/parser": [".ts", ".tsx"] },

@@ -18,6 +18,11 @@ export abstract class FiberScope {
     runtimeFlags: RuntimeFlags,
     child: FiberRuntime<any, any>,
   ): void;
+  abstract unsafeAddAll(
+    currentFiber: FiberRuntime<any, any>,
+    runtimeFlags: RuntimeFlags,
+    children: Iterable<FiberRuntime<any, any>>,
+  ): void;
 }
 
 export class Global extends FiberScope {
@@ -27,6 +32,17 @@ export class Global extends FiberScope {
   unsafeAdd(_currentFiber: FiberRuntime<any, any>, runtimeFlags: RuntimeFlags, child: FiberRuntime<any, any>): void {
     if (runtimeFlags.fiberRoots) {
       Fiber._roots.add(child);
+    }
+  }
+  unsafeAddAll(
+    _currentFiber: FiberRuntime<any, any>,
+    runtimeFlags: RuntimeFlags,
+    children: Iterable<FiberRuntime<any, any>>,
+  ): void {
+    if (runtimeFlags.fiberRoots) {
+      for (const child of children) {
+        Fiber._roots.add(child);
+      }
     }
   }
 }
@@ -44,10 +60,32 @@ export class Local extends FiberScope {
       if (currentFiber === parent) {
         parent.addChild(child);
       } else {
-        parent.tell(FiberMessage.Stateful((parentFiber) => parentFiber.addChild(child)));
+        parent.tellAddChild(child);
       }
     } else {
-      child.tell(FiberMessage.InterruptSignal(Cause.interrupt(currentFiber.id)));
+      child.tellInterrupt(Cause.interrupt(currentFiber.id));
+    }
+  }
+  unsafeAddAll(
+    currentFiber: FiberRuntime<any, any>,
+    _runtimeFlags: RuntimeFlags,
+    children: Iterable<FiberRuntime<any, any>>,
+  ): void {
+    if (children.isNonEmpty) {
+      const parent = this.parentRef.deref();
+
+      if (parent != null) {
+        if (currentFiber === parent) {
+          parent.addChildren(children);
+        } else {
+          parent.tellAddChildren(children);
+        }
+      } else {
+        const cause = Cause.interrupt(currentFiber.id);
+        for (const child of children) {
+          child.tellInterrupt(cause);
+        }
+      }
     }
   }
 }
