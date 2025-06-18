@@ -26,12 +26,11 @@ import { HashSet } from "@fncts/base/collection/immutable/HashSet/definition";
 /**
  * @tsplus global
  */
-import { ImmutableArray } from "@fncts/base/collection/immutable/ImmutableArray/definition";
+import {} from "@fncts/base/collection/immutable/ImmutableArray/definition";
 /**
  * @tsplus global
  */
 import {
-  ImmutableNonEmptyArray,
   NonEmptyArray,
   ReadonlyNonEmptyArray,
 } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";

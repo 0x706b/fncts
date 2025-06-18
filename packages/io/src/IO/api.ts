@@ -1577,8 +1577,8 @@ export function repeatWhileIO<A, R1, E1>(f: (a: A) => IO<R1, E1, boolean>, __tsp
  * @tsplus pipeable fncts.io.IO replicate
  */
 export function replicate(n: number, __tsplusTrace?: string) {
-  return <R, E, A>(self: IO<R, E, A>): ImmutableArray<IO<R, E, A>> => {
-    return ImmutableArray.range(0, n).map(() => self);
+  return <R, E, A>(self: IO<R, E, A>): ReadonlyArray<IO<R, E, A>> => {
+    return Array.range(0, n).map(() => self);
   };
 }
 

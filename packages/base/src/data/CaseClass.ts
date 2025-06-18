@@ -8,7 +8,7 @@ const keysSymbol = Symbol.for("fncts.CaseClass.keys");
 const argsSymbol = Symbol.for("fncts.CaseClass.args");
 
 export interface CaseArgs {
-  readonly [CaseClassTypeId]: ImmutableArray<string>;
+  readonly [CaseClassTypeId]: ReadonlyArray<string>;
 }
 
 export interface Copy<T> {
@@ -16,7 +16,7 @@ export interface Copy<T> {
 }
 
 export interface CaseConstructor {
-  [CaseClassTypeId]: ImmutableArray<string>;
+  [CaseClassTypeId]: ReadonlyArray<string>;
   new <T>(args: Equals<T, {}> extends True ? void : T): T & Copy<T> & CaseArgs;
 }
 
@@ -31,14 +31,14 @@ export const CaseClass: CaseConstructor = class<T extends Record<PropertyKey, an
   implements Hashable, Equatable, CaseArgs
 {
   private [argsSymbol]: T;
-  private [keysSymbol]: ImmutableArray<string> = ImmutableArray.empty();
+  private [keysSymbol]: ReadonlyArray<string> = [];
   constructor(args: T) {
     this[argsSymbol] = args;
-    this[keysSymbol] = args ? Object.keys(args).asImmutableArray : ImmutableArray.empty();
+    this[keysSymbol] = args ? Object.keys(args) : [];
     Object.assign(this, args);
   }
 
-  get [CaseClassTypeId](): ImmutableArray<string> {
+  get [CaseClassTypeId](): ReadonlyArray<string> {
     return this[keysSymbol];
   }
 

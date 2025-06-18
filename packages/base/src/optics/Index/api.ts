@@ -27,7 +27,7 @@ export function array<A = never>(): Index<ReadonlyArray<A>, number, A> {
     index: (i) =>
       Optional({
         getOrModify: (s) => (i in s ? Either.right(s[i]!) : Either.left(s)),
-        set: (a) => (s) => s.updateAt(i, a),
+        set: (a) => (s) => s.unsafeUpdateAt(i, a),
       }),
   });
 }

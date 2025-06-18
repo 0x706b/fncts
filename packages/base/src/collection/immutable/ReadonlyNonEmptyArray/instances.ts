@@ -1,4 +1,4 @@
-import type { ImmutableNonEmptyArrayF } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
+import type { ReadonlyNonEmptyArrayF } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
 import type * as P from "@fncts/base/typeclass";
 
 import {
@@ -20,7 +20,7 @@ import { make } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/co
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Semialign
  */
-export const Semialign = HKT.instance<P.Semialign<ImmutableNonEmptyArrayF>>({
+export const Semialign = HKT.instance<P.Semialign<ReadonlyNonEmptyArrayF>>({
   map,
   alignWith,
 });
@@ -28,14 +28,14 @@ export const Semialign = HKT.instance<P.Semialign<ImmutableNonEmptyArrayF>>({
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Functor
  */
-export const Functor = HKT.instance<P.Functor<ImmutableNonEmptyArrayF>>({
+export const Functor = HKT.instance<P.Functor<ReadonlyNonEmptyArrayF>>({
   map,
 });
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps FunctorWithIndex
  */
-export const FunctorWithIndex = HKT.instance<P.FunctorWithIndex<ImmutableNonEmptyArrayF>>({
+export const FunctorWithIndex = HKT.instance<P.FunctorWithIndex<ReadonlyNonEmptyArrayF>>({
   map,
   mapWithIndex,
 });
@@ -43,7 +43,7 @@ export const FunctorWithIndex = HKT.instance<P.FunctorWithIndex<ImmutableNonEmpt
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Apply
  */
-export const Apply = HKT.instance<P.Apply<ImmutableNonEmptyArrayF>>({
+export const Apply = HKT.instance<P.Apply<ReadonlyNonEmptyArrayF>>({
   ...Functor,
   zip: cross,
   zipWith: crossWith,
@@ -52,7 +52,7 @@ export const Apply = HKT.instance<P.Apply<ImmutableNonEmptyArrayF>>({
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Applicative
  */
-export const Applicative = HKT.instance<P.Applicative<ImmutableNonEmptyArrayF>>({
+export const Applicative = HKT.instance<P.Applicative<ReadonlyNonEmptyArrayF>>({
   ...Apply,
   pure: make,
 });
@@ -60,7 +60,7 @@ export const Applicative = HKT.instance<P.Applicative<ImmutableNonEmptyArrayF>>(
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Monad
  */
-export const Monad = HKT.instance<P.Monad<ImmutableNonEmptyArrayF>>({
+export const Monad = HKT.instance<P.Monad<ReadonlyNonEmptyArrayF>>({
   ...Applicative,
   flatMap,
 });
@@ -68,7 +68,7 @@ export const Monad = HKT.instance<P.Monad<ImmutableNonEmptyArrayF>>({
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Foldable
  */
-export const Foldable = HKT.instance<P.Foldable<ImmutableNonEmptyArrayF>>({
+export const Foldable = HKT.instance<P.Foldable<ReadonlyNonEmptyArrayF>>({
   foldLeft,
   foldRight,
 });
@@ -76,7 +76,7 @@ export const Foldable = HKT.instance<P.Foldable<ImmutableNonEmptyArrayF>>({
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps FoldableWithIndex
  */
-export const FoldableWithIndex = HKT.instance<P.FoldableWithIndex<ImmutableNonEmptyArrayF>>({
+export const FoldableWithIndex = HKT.instance<P.FoldableWithIndex<ReadonlyNonEmptyArrayF>>({
   ...Foldable,
   foldLeftWithIndex,
   foldRightWithIndex,
@@ -85,7 +85,7 @@ export const FoldableWithIndex = HKT.instance<P.FoldableWithIndex<ImmutableNonEm
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Traversable
  */
-export const Traversable = HKT.instance<P.Traversable<ImmutableNonEmptyArrayF>>({
+export const Traversable = HKT.instance<P.Traversable<ReadonlyNonEmptyArrayF>>({
   ...Functor,
   ...Foldable,
   traverse: traverse,
@@ -94,7 +94,7 @@ export const Traversable = HKT.instance<P.Traversable<ImmutableNonEmptyArrayF>>(
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps TraversableWithIndex
  */
-export const TraversableWithIndex = HKT.instance<P.TraversableWithIndex<ImmutableNonEmptyArrayF>>({
+export const TraversableWithIndex = HKT.instance<P.TraversableWithIndex<ReadonlyNonEmptyArrayF>>({
   ...Functor,
   ...FunctorWithIndex,
   ...FoldableWithIndex,

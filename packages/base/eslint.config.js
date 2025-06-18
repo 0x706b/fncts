@@ -13,12 +13,14 @@ export default tseslint.config(...baseConfig, {
     "src/data/Exit/api.ts",
     "src/data/These/api.ts",
     "src/collection/Iterable/api.ts",
+    "src/collection/immutable/ImmutableArray/api.ts",
     // "src/collection/immutable/List/api.ts",
   ],
   rules: {
     "perfectionist/sort-modules": [
       "error",
       {
+        type: "natural",
         groups: [
           "declare-enum",
           "export-enum",

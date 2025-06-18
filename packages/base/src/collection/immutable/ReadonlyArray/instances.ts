@@ -1,4 +1,4 @@
-import type { ImmutableArrayF } from "@fncts/base/collection/immutable/ImmutableArray/definition";
+import type { ReadonlyArrayF } from "@fncts/base/collection/immutable/ReadonlyArray/definition";
 import type * as P from "@fncts/base/typeclass";
 
 import {
@@ -27,13 +27,13 @@ import {
   wiltWithIndex,
   wither,
   witherWithIndex,
-} from "@fncts/base/collection/immutable/ImmutableArray/api";
-import { empty } from "@fncts/base/collection/immutable/ImmutableArray/constructors";
+} from "@fncts/base/collection/immutable/ReadonlyArray/api";
+import { empty } from "@fncts/base/collection/immutable/ReadonlyArray/constructors";
 
 /**
  * @tsplus implicit
  */
-export const Align = HKT.instance<P.Align<ImmutableArrayF>>({
+export const Align = HKT.instance<P.Align<ReadonlyArrayF>>({
   map,
   alignWith,
   nil: empty,
@@ -41,20 +41,20 @@ export const Align = HKT.instance<P.Align<ImmutableArrayF>>({
 /**
  * @tsplus implicit
  */
-export const Functor = HKT.instance<P.Functor<ImmutableArrayF>>({
+export const Functor = HKT.instance<P.Functor<ReadonlyArrayF>>({
   map,
 });
 /**
  * @tsplus implicit
  */
-export const FunctorWithIndex = HKT.instance<P.FunctorWithIndex<ImmutableArrayF>>({
+export const FunctorWithIndex = HKT.instance<P.FunctorWithIndex<ReadonlyArrayF>>({
   map,
   mapWithIndex,
 });
 /**
  * @tsplus implicit
  */
-export const Apply = HKT.instance<P.Apply<ImmutableArrayF>>({
+export const Apply = HKT.instance<P.Apply<ReadonlyArrayF>>({
   map,
   zip: cross,
   zipWith: crossWith,
@@ -62,34 +62,34 @@ export const Apply = HKT.instance<P.Apply<ImmutableArrayF>>({
 /**
  * @tsplus implicit
  */
-export const Applicative = HKT.instance<P.Applicative<ImmutableArrayF>>({
+export const Applicative = HKT.instance<P.Applicative<ReadonlyArrayF>>({
   map,
   zip: cross,
   zipWith: crossWith,
-  pure: (a) => ImmutableArray(a),
+  pure: (a) => [a],
 });
 /**
  * @tsplus implicit
  */
-export const Alt = HKT.instance<P.Alt<ImmutableArrayF>>({
+export const Alt = HKT.instance<P.Alt<ReadonlyArrayF>>({
   map,
   alt,
 });
 /**
  * @tsplus implicit
  */
-export const Alternative = HKT.instance<P.Alternative<ImmutableArrayF>>({
+export const Alternative = HKT.instance<P.Alternative<ReadonlyArrayF>>({
   map,
   zip: cross,
   zipWith: crossWith,
-  pure: (a) => ImmutableArray(a),
+  pure: (a) => [a],
   alt,
   nil: empty,
 });
 /**
  * @tsplus implicit
  */
-export const Filterable = HKT.instance<P.Filterable<ImmutableArrayF>>({
+export const Filterable = HKT.instance<P.Filterable<ReadonlyArrayF>>({
   map,
   filter: filter,
   filterMap: filterMap,
@@ -99,7 +99,7 @@ export const Filterable = HKT.instance<P.Filterable<ImmutableArrayF>>({
 /**
  * @tsplus implicit
  */
-export const FilterableWithIndex = HKT.instance<P.FilterableWithIndex<ImmutableArrayF>>({
+export const FilterableWithIndex = HKT.instance<P.FilterableWithIndex<ReadonlyArrayF>>({
   ...FunctorWithIndex,
   ...Filterable,
   filterWithIndex: filterWithIndex,
@@ -110,14 +110,14 @@ export const FilterableWithIndex = HKT.instance<P.FilterableWithIndex<ImmutableA
 /**
  * @tsplus implicit
  */
-export const Foldable = HKT.instance<P.Foldable<ImmutableArrayF>>({
+export const Foldable = HKT.instance<P.Foldable<ReadonlyArrayF>>({
   foldLeft,
   foldRight,
 });
 /**
  * @tsplus implicit
  */
-export const FoldableWithIndex = HKT.instance<P.FoldableWithIndex<ImmutableArrayF>>({
+export const FoldableWithIndex = HKT.instance<P.FoldableWithIndex<ReadonlyArrayF>>({
   ...Foldable,
   foldLeftWithIndex,
   foldRightWithIndex,
@@ -125,21 +125,21 @@ export const FoldableWithIndex = HKT.instance<P.FoldableWithIndex<ImmutableArray
 /**
  * @tsplus implicit
  */
-export const FlatMap = HKT.instance<P.FlatMap<ImmutableArrayF>>({
+export const FlatMap = HKT.instance<P.FlatMap<ReadonlyArrayF>>({
   ...Functor,
   flatMap,
 });
 /**
  * @tsplus implicit
  */
-export const Monad = HKT.instance<P.Monad<ImmutableArrayF>>({
+export const Monad = HKT.instance<P.Monad<ReadonlyArrayF>>({
   ...Applicative,
   ...FlatMap,
 });
 /**
  * @tsplus implicit
  */
-export const Traversable = HKT.instance<P.Traversable<ImmutableArrayF>>({
+export const Traversable = HKT.instance<P.Traversable<ReadonlyArrayF>>({
   ...Functor,
   ...Foldable,
   traverse,
@@ -147,7 +147,7 @@ export const Traversable = HKT.instance<P.Traversable<ImmutableArrayF>>({
 /**
  * @tsplus implicit
  */
-export const TraversableWithIndex = HKT.instance<P.TraversableWithIndex<ImmutableArrayF>>({
+export const TraversableWithIndex = HKT.instance<P.TraversableWithIndex<ReadonlyArrayF>>({
   ...Traversable,
   ...FoldableWithIndex,
   ...FunctorWithIndex,
@@ -156,7 +156,7 @@ export const TraversableWithIndex = HKT.instance<P.TraversableWithIndex<Immutabl
 /**
  * @tsplus implicit
  */
-export const Witherable = HKT.instance<P.Witherable<ImmutableArrayF>>({
+export const Witherable = HKT.instance<P.Witherable<ReadonlyArrayF>>({
   ...Traversable,
   ...Filterable,
   wither,
@@ -165,7 +165,7 @@ export const Witherable = HKT.instance<P.Witherable<ImmutableArrayF>>({
 /**
  * @tsplus implicit
  */
-export const WitherableWithIndex = HKT.instance<P.WitherableWithIndex<ImmutableArrayF>>({
+export const WitherableWithIndex = HKT.instance<P.WitherableWithIndex<ReadonlyArrayF>>({
   ...TraversableWithIndex,
   ...FilterableWithIndex,
   ...Witherable,

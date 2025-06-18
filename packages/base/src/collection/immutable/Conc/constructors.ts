@@ -1,4 +1,3 @@
-import { ImmutableArray } from "../ImmutableArray.js";
 import { ByteChunk, Chunk, Singleton } from "./definition.js";
 
 /**
@@ -27,7 +26,7 @@ export function make<A>(...as: ReadonlyArray<A>): Conc<A> {
  * @tsplus static fncts.ConcOps range
  */
 export function range(start: number, end: number): Conc<number> {
-  return Conc.fromArray(ImmutableArray.range(start, end)._array);
+  return Conc.fromArray(Array.range(start, end));
 }
 
 /**

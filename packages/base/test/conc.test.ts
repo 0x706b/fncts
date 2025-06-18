@@ -50,8 +50,8 @@ suite.concurrent("Conc", () => {
         return r.foldLeft(l, (acc, a) => acc.append(a));
       }
       return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
-        const actual   = ImmutableArray.replicate(100, bs).foldLeft(as, addAll);
-        const expected = ImmutableArray.replicate(100, bs).foldLeft(as, (bs, as) => bs.concat(as));
+        const actual   = Array.replicate(100, bs).foldLeft(as, addAll);
+        const expected = Array.replicate(100, bs).foldLeft(as, (bs, as) => bs.concat(as));
         return actual.assert(strictEqualTo(expected));
       });
     });
@@ -100,8 +100,8 @@ suite.concurrent("Conc", () => {
         return l.foldRight(r, (a, acc) => acc.prepend(a));
       }
       return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
-        const actual   = ImmutableArray.replicate(100, as).foldRight(bs, addAll);
-        const expected = ImmutableArray.replicate(100, as).foldRight(bs, (as, bs) => as.concat(bs));
+        const actual   = Array.replicate(100, as).foldRight(bs, addAll);
+        const expected = Array.replicate(100, as).foldRight(bs, (as, bs) => as.concat(bs));
         return actual.assert(strictEqualTo(expected));
       });
     });

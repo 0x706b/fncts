@@ -163,7 +163,7 @@ export function filterTags(f: (tag: string) => boolean) {
 export function filterByArgs(args: TestArgs) {
   return <R, E>(spec: Spec<R, E>): Spec<R, E> => {
     return spec
-      .filterTags(args.tagSearchTerms.elem(String.Eq))
+      .filterTags((t) => args.tagSearchTerms.elem(t))
       .flatMap((spec) =>
         spec.filterLabels((label) => args.testSearchTerms.findIndex((term) => term.includes(label)) === -1),
       )

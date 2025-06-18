@@ -335,14 +335,14 @@ export function record<A>(codomain: Guard<A>): Guard<Record<string, A>> {
 }
 
 /**
- * @tsplus derive fncts.Guard[fncts.ImmutableArray]<_> 10
+ * @tsplus derive fncts.Guard[fncts.ReadonlyArray]<_> 10
  */
-export function deriveImmutableArray<A extends ImmutableArray<any>>(
-  ...[element]: [A] extends [ImmutableArray<infer A>] ? [element: Guard<A>] : never
+export function deriveImmutableArray<A extends ReadonlyArray<any>>(
+  ...[element]: [A] extends [ReadonlyArray<infer A>] ? [element: Guard<A>] : never
 ): Guard<A> {
   return Guard((u): u is A => {
-    if (ImmutableArray.is(u)) {
-      return u._array.every(element.is);
+    if (Array.isArray(u)) {
+      return u.every(element.is);
     }
     return false;
   });
@@ -351,18 +351,18 @@ export function deriveImmutableArray<A extends ImmutableArray<any>>(
 /**
  * @tsplus static fncts.GuardOps immutableArray
  */
-export function immutableArray<A>(base: Guard<A>): Guard<ImmutableArray<A>> {
+export function immutableArray<A>(base: Guard<A>): Guard<ReadonlyArray<A>> {
   return Derive();
 }
 
 /**
- * @tsplus derive fncts.Guard[fncts.ImmutableNonEmptyArray]<_> 10
+ * @tsplus derive fncts.Guard[fncts.ReadonlyNonEmptyArray]<_> 10
  */
-export function deriveImmutableNonEmptyArray<A extends ImmutableNonEmptyArray<any>>(
-  ...[elem]: [A] extends [ImmutableNonEmptyArray<infer _A>] ? [elem: Guard<_A>] : never
+export function deriveImmutableNonEmptyArray<A extends ReadonlyNonEmptyArray<any>>(
+  ...[elem]: [A] extends [ReadonlyNonEmptyArray<infer _A>] ? [elem: Guard<_A>] : never
 ): Guard<A> {
   return Guard((u): u is A => {
-    if (ImmutableNonEmptyArray.is(u)) {
+    if (Array.isArray(u)) {
       return u.every(elem.is);
     }
     return false;
@@ -372,7 +372,7 @@ export function deriveImmutableNonEmptyArray<A extends ImmutableNonEmptyArray<an
 /**
  * @tsplus static fncts.GuardOps immutableNonEmptyArray
  */
-export function immutableNonEmptyArray<A>(base: Guard<A>): Guard<ImmutableNonEmptyArray<A>> {
+export function immutableNonEmptyArray<A>(base: Guard<A>): Guard<ReadonlyNonEmptyArray<A>> {
   return Derive();
 }
 

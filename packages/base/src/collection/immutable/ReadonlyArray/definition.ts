@@ -15,6 +15,14 @@ declare global {
   export interface ArrayConstructor {}
 }
 
+export interface ReadonlyArrayF extends HKT {
+  type: ReadonlyArray<this["A"]>;
+  variance: {
+    A: "+";
+  };
+  index: number;
+}
+
 export type ESArray<A> = globalThis.Array<A>;
 export type ESReadonlyArray<A> = globalThis.ReadonlyArray<A>;
 
