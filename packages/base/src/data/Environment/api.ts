@@ -3,10 +3,13 @@ import { ServiceNotFoundError } from "@fncts/base/data/Environment/ServiceNotFou
 /**
  * @tsplus pipeable fncts.Environment add
  */
-export function add<H extends S, S = H>(service: H, tag: Tag<S>): <R>(self: Environment<R>) => Environment<R | S>;
+export function add<H extends S, S = H>(
+  service: H,
+  /** @tsplus auto */ tag: Tag<S>,
+): <R>(self: Environment<R>) => Environment<R | S>;
 export function add<H extends S, S = H, I = S>(
   service: H,
-  tag: Tag<S, I>,
+  /** @tsplus auto */ tag: Tag<S, I>,
 ): <R>(self: Environment<R>) => Environment<R | I>;
 export function add<H extends S, S = H>(service: H, tag: Tag<S>) {
   return <R>(self: Environment<R>): Environment<R | S> => {
@@ -35,7 +38,7 @@ export function get<R, T extends Tags<R>>(tag: T) {
  */
 export function getMaybe<S, I>(tag: Tag<S, I>) {
   return <R>(self: Environment<R>): Maybe<S> => {
-    return self.cache.get(tag) as Maybe<S>;
+    return unsafeCoerce(self.cache.get(tag));
   };
 }
 

@@ -36,8 +36,8 @@ function foldLoop<E, Z>(
   out: List<Either<CauseCase, Z>>,
 ): List<Z> {
   if (inp.isNonEmpty()) {
-    const head   = inp.unsafeHead;
-    const causes = inp.unsafeTail;
+    const head   = inp.head;
+    const causes = inp.tail;
     switch (head._tag) {
       case CauseTag.Empty:
         return foldLoop(cases, causes, out.prepend(Either.right(cases.Empty())));

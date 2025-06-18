@@ -1,22 +1,6 @@
 import type { Nullable } from "@fncts/base/types";
 
 /**
- * @tsplus static fncts.MaybeOps just
- * @tsplus static fncts.JustOps __call
- */
-export function just<A>(a: A, __tsplusTrace?: string): Maybe<A> {
-  return new Just(a, __tsplusTrace);
-}
-
-/**
- * @tsplus static fncts.MaybeOps nothing
- * @tsplus static fncts.NothingOps __call
- */
-export function nothing<A = never>(__tsplusTrace?: string): Maybe<A> {
-  return new Nothing(__tsplusTrace);
-}
-
-/**
  * @tsplus static fncts.MaybeOps fromNullable
  */
 export function fromNullable<A>(a: Nullable<A>): Maybe<NonNullable<A>> {
@@ -38,6 +22,44 @@ export function fromPredicate<A, B extends A>(a: A, p: Refinement<A, B>): Maybe<
 export function fromPredicate<A>(a: A, p: Predicate<A>): Maybe<A> {
   return p(a) ? Just(a) : Nothing();
 }
+/**
+ * @tsplus static fncts.MaybeOps just
+ * @tsplus static fncts.JustOps __call
+ */
+export function just<A>(a: A, __tsplusTrace?: string): Maybe<A> {
+  return new Just(a, __tsplusTrace);
+}
+/**
+ * @tsplus static fncts.MaybeOps nothing
+ * @tsplus static fncts.NothingOps __call
+ */
+export function nothing<A = never>(__tsplusTrace?: string): Maybe<A> {
+  return new Nothing(__tsplusTrace);
+}
+
+/**
+ * @tsplus static fncts.MaybeOps partial
+ */
+export function partial<P extends ReadonlyArray<unknown>, A>(f: (miss: () => never) => (...params: P) => A) {
+  return (...params: P): Maybe<A> => {
+    try {
+      return Just(f(raisePartial)(...params));
+    } catch (e) {
+      if (e instanceof PartialException) {
+        return Nothing();
+      }
+      throw e;
+    }
+  };
+}
+
+class PartialException {
+  readonly _tag = "PartialException";
+}
+
+function raisePartial(): never {
+  throw new PartialException();
+}
 
 /**
  * @tsplus static fncts.MaybeOps tryCatch
@@ -55,28 +77,4 @@ export function tryCatch<A>(thunk: () => A): Maybe<A> {
  */
 export function tryCatchK<P extends ReadonlyArray<unknown>, A>(f: (...params: P) => A) {
   return (...params: P): Maybe<A> => tryCatch(() => f(...params));
-}
-
-class PartialException {
-  readonly _tag = "PartialException";
-}
-
-function raisePartial(): never {
-  throw new PartialException();
-}
-
-/**
- * @tsplus static fncts.MaybeOps partial
- */
-export function partial<P extends ReadonlyArray<unknown>, A>(f: (miss: () => never) => (...params: P) => A) {
-  return (...params: P): Maybe<A> => {
-    try {
-      return Just(f(raisePartial)(...params));
-    } catch (e) {
-      if (e instanceof PartialException) {
-        return Nothing();
-      }
-      throw e;
-    }
-  };
 }

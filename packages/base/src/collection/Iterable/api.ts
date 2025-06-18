@@ -3,6 +3,15 @@ import type * as P from "@fncts/base/typeclass";
 import { tuple } from "@fncts/base/data/function";
 import { isNumber } from "@fncts/base/util/predicates";
 
+type PartitionHandleResult<A> =
+  | {
+      emit: true;
+      value: A;
+    }
+  | {
+      emit: false;
+    };
+
 /**
  * @tsplus pipeable fncts.Iterable ap
  */
@@ -40,73 +49,6 @@ export function append<B>(b: B) {
           }
           if (typeof ia.return === "function") {
             ia.return();
-          }
-          return { done, value };
-        },
-      };
-    });
-  };
-}
-
-/**
- * @tsplus getter fncts.Iterable toIterable
- */
-export function toIterable<A>(self: Iterable<A>): Iterable<A> {
-  return self;
-}
-
-/**
- * @tsplus getter fncts.Iterable toArray
- */
-export function toArray<A>(self: Iterable<A>): Array<A> {
-  return Array.from(self);
-}
-
-/**
- * @tsplus pipeable fncts.Iterable flatMap
- */
-export function flatMap<A, B>(f: (a: A) => Iterable<B>) {
-  return (self: Iterable<A>): Iterable<B> => {
-    return Iterable.make<B>(() => {
-      const ia    = self[Symbol.iterator]();
-      let ib: Iterator<B>;
-      let va: IteratorResult<A>;
-      let vb: IteratorResult<B>;
-      let done    = false;
-      const pullA = (onDone: () => IteratorResult<B>): IteratorResult<B> => {
-        va = ia.next();
-        if (va.done) {
-          return onDone();
-        }
-        ib = f(va.value)[Symbol.iterator]();
-        return pullB(onDone);
-      };
-      const pullB = (onDone: () => IteratorResult<B>): IteratorResult<B> => {
-        if (!ib) {
-          return pullA(onDone);
-        }
-        vb = ib!.next();
-        if (!vb.done) {
-          return { done, value: vb.value };
-        }
-        return pullA(onDone);
-      };
-      return {
-        next() {
-          if (done) {
-            return this.return!();
-          }
-          return pullB(() => this.return!());
-        },
-        return(value?: unknown) {
-          if (!done) {
-            done = true;
-            if (typeof ia.return === "function") {
-              ia.return();
-            }
-            if (ib && typeof ib.return === "function") {
-              ib.return();
-            }
           }
           return { done, value };
         },
@@ -315,6 +257,7 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
  */
 export function find<A, B extends A>(refinement: Refinement<A, B>): (self: Iterable<A>) => Maybe<B>;
 export function find<A>(predicate: Predicate<A>): (self: Iterable<A>) => Maybe<A>;
+
 export function find<A>(predicate: Predicate<A>) {
   return (self: Iterable<A>): Maybe<A> => {
     for (const value of self) {
@@ -343,6 +286,68 @@ export function findIndex<A>(p: Predicate<A>) {
 }
 
 /**
+ * @tsplus pipeable fncts.Iterable flatMap
+ */
+export function flatMap<A, B>(f: (a: A) => Iterable<B>) {
+  return (self: Iterable<A>): Iterable<B> => {
+    return Iterable.make<B>(() => {
+      const ia    = self[Symbol.iterator]();
+      let ib: Iterator<B>;
+      let va: IteratorResult<A>;
+      let vb: IteratorResult<B>;
+      let done    = false;
+      const pullA = (onDone: () => IteratorResult<B>): IteratorResult<B> => {
+        va = ia.next();
+        if (va.done) {
+          return onDone();
+        }
+        ib = f(va.value)[Symbol.iterator]();
+        return pullB(onDone);
+      };
+      const pullB = (onDone: () => IteratorResult<B>): IteratorResult<B> => {
+        if (!ib) {
+          return pullA(onDone);
+        }
+        vb = ib!.next();
+        if (!vb.done) {
+          return { done, value: vb.value };
+        }
+        return pullA(onDone);
+      };
+      return {
+        next() {
+          if (done) {
+            return this.return!();
+          }
+          return pullB(() => this.return!());
+        },
+        return(value?: unknown) {
+          if (!done) {
+            done = true;
+            if (typeof ia.return === "function") {
+              ia.return();
+            }
+            if (ib && typeof ib.return === "function") {
+              ib.return();
+            }
+          }
+          return { done, value };
+        },
+      };
+    });
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Iterable foldLeft
+ */
+export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
+  return (self: Iterable<A>): B => {
+    return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
+  };
+}
+
+/**
  * @tsplus pipeable fncts.Iterable foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
@@ -354,15 +359,6 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
       res = f(i, res, value);
     }
     return res;
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Iterable foldLeft
- */
-export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
-  return (self: Iterable<A>): B => {
-    return self.foldLeftWithIndex(b, (_, b, a) => f(b, a));
   };
 }
 
@@ -391,6 +387,15 @@ export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus au
 }
 
 /**
+ * @tsplus pipeable fncts.Iterable foldRight
+ */
+export function foldRight<A, B>(b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>) {
+  return (self: Iterable<A>): Eval<B> => {
+    return self.foldRightWithIndex(b, (_, a, b) => f(a, b));
+  };
+}
+
+/**
  * @tsplus pipeable fncts.Iterable foldRightWithIndex
  */
 export function foldRightWithIndex<A, B>(b: Eval<B>, f: (i: number, a: A, b: Eval<B>) => Eval<B>) {
@@ -409,13 +414,75 @@ export function foldRightWithIndex<A, B>(b: Eval<B>, f: (i: number, a: A, b: Eva
   };
 }
 
+function handlePartition<A>(
+  predicate: PredicateWithIndex<number, A>,
+  i: number,
+  a: A,
+  h: boolean,
+): PartitionHandleResult<A> {
+  return h === predicate(i, a) ? { emit: true, value: a } : { emit: false };
+}
+
+function handlePartitionMap<A, B, C>(
+  f: (i: number, a: A) => Either<B, C>,
+  i: number,
+  a: A,
+  h: "Left" | "Right",
+): PartitionHandleResult<B | C> {
+  const bc = f(i, a);
+  Either.concrete(bc);
+  return h === "Left" && bc._tag === "Left"
+    ? { emit: true, value: bc.left }
+    : h === "Right" && bc._tag === "Right"
+      ? { emit: true, value: bc.right }
+      : { emit: false };
+}
+
 /**
- * @tsplus pipeable fncts.Iterable foldRight
+ * @tsplus getter fncts.Iterable intrinsicSize
  */
-export function foldRight<A, B>(b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>) {
-  return (self: Iterable<A>): Eval<B> => {
-    return self.foldRightWithIndex(b, (_, a, b) => f(a, b));
-  };
+export function intrinsicSize<A>(self: Iterable<A>): Maybe<number> {
+  if (self.hasProperty("size") && isNumber(self["size"])) {
+    return Just(self.size);
+  }
+
+  if (self.hasProperty("length") && isNumber(self["length"])) {
+    return Just(self.length);
+  }
+
+  return Nothing();
+}
+
+/**
+ * @tsplus getter fncts.Iterable isEmpty
+ */
+export function isEmpty<A>(self: Iterable<A>): boolean {
+  return self.intrinsicSize.match(
+    () => {
+      for (const _ of self) {
+        return false;
+      }
+
+      return true;
+    },
+    (n) => n <= 0,
+  );
+}
+
+/**
+ * @tsplus getter fncts.Iterable isNonEmpty
+ */
+export function isNonEmpty<A>(self: Iterable<A>): boolean {
+  return self.intrinsicSize.match(
+    () => {
+      for (const _ of self) {
+        return true;
+      }
+
+      return false;
+    },
+    (n) => n > 0,
+  );
 }
 
 /**
@@ -462,27 +529,38 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
   };
 }
 
-type PartitionHandleResult<A> =
-  | {
-      emit: true;
-      value: A;
-    }
-  | {
-      emit: false;
-    };
-function handlePartitionMap<A, B, C>(
-  f: (i: number, a: A) => Either<B, C>,
-  i: number,
-  a: A,
-  h: "Left" | "Right",
-): PartitionHandleResult<B | C> {
-  const bc = f(i, a);
-  Either.concrete(bc);
-  return h === "Left" && bc._tag === "Left"
-    ? { emit: true, value: bc.left }
-    : h === "Right" && bc._tag === "Right"
-      ? { emit: true, value: bc.right }
-      : { emit: false };
+/**
+ * @tsplus pipeable fncts.Iterable partition
+ */
+export function partition<A, B extends A>(
+  p: Refinement<A, B>,
+): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<B>];
+export function partition<A>(p: Predicate<A>): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
+export function partition<A>(p: Predicate<A>) {
+  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] => {
+    return self.partitionWithIndex((_, a) => p(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Iterable partitionMap
+ */
+export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
+  return (self: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => {
+    return self.partitionMapWithIndex((_, a) => f(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Iterable partitionMapWithIndex
+ */
+export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
+  return (self: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => {
+    return tuple(
+      Iterable.make(() => partitionMapWithIndexIterator(self, f, "Left")) as Iterable<B>,
+      Iterable.make(() => partitionMapWithIndexIterator(self, f, "Right")) as Iterable<C>,
+    );
+  };
 }
 
 function partitionMapWithIndexIterator<A, B, C>(
@@ -524,33 +602,21 @@ function partitionMapWithIndexIterator<A, B, C>(
 }
 
 /**
- * @tsplus pipeable fncts.Iterable partitionMap
+ * @tsplus pipeable fncts.Iterable partitionWithIndex
  */
-export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
-  return (self: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => {
-    return self.partitionMapWithIndex((_, a) => f(a));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Iterable partitionMapWithIndex
- */
-export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
-  return (self: Iterable<A>): readonly [Iterable<B>, Iterable<C>] => {
+export function partitionWithIndex<A, B extends A>(
+  p: RefinementWithIndex<number, A, B>,
+): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<B>];
+export function partitionWithIndex<A>(
+  p: PredicateWithIndex<number, A>,
+): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
+export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
+  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] => {
     return tuple(
-      Iterable.make(() => partitionMapWithIndexIterator(self, f, "Left")) as Iterable<B>,
-      Iterable.make(() => partitionMapWithIndexIterator(self, f, "Right")) as Iterable<C>,
+      Iterable.make(() => partitionWithIndexIterator(self, p, false)),
+      Iterable.make(() => partitionWithIndexIterator(self, p, true)),
     );
   };
-}
-
-function handlePartition<A>(
-  predicate: PredicateWithIndex<number, A>,
-  i: number,
-  a: A,
-  h: boolean,
-): PartitionHandleResult<A> {
-  return h === predicate(i, a) ? { emit: true, value: a } : { emit: false };
 }
 
 function partitionWithIndexIterator<A>(
@@ -592,56 +658,10 @@ function partitionWithIndexIterator<A>(
 }
 
 /**
- * @tsplus pipeable fncts.Iterable partition
- */
-export function partition<A, B extends A>(
-  p: Refinement<A, B>,
-): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<B>];
-export function partition<A>(p: Predicate<A>): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
-export function partition<A>(p: Predicate<A>) {
-  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] => {
-    return self.partitionWithIndex((_, a) => p(a));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Iterable partitionWithIndex
- */
-export function partitionWithIndex<A, B extends A>(
-  p: RefinementWithIndex<number, A, B>,
-): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<B>];
-export function partitionWithIndex<A>(
-  p: PredicateWithIndex<number, A>,
-): (self: Iterable<A>) => readonly [Iterable<A>, Iterable<A>];
-export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
-  return (self: Iterable<A>): readonly [Iterable<A>, Iterable<A>] => {
-    return tuple(
-      Iterable.make(() => partitionWithIndexIterator(self, p, false)),
-      Iterable.make(() => partitionWithIndexIterator(self, p, true)),
-    );
-  };
-}
-
-/**
  * @tsplus static fncts.IterableOps replicate
  */
 export function replicate<A>(n: number, a: A): Iterable<A> {
   return Iterable.makeBy(n, () => a);
-}
-
-/**
- * @tsplus getter fncts.Iterable intrinsicSize
- */
-export function intrinsicSize<A>(self: Iterable<A>): Maybe<number> {
-  if (self.hasProperty("size") && isNumber(self["size"])) {
-    return Just(self.size);
-  }
-
-  if (self.hasProperty("length") && isNumber(self["length"])) {
-    return Just(self.length);
-  }
-
-  return Nothing();
 }
 
 /**
@@ -657,38 +677,6 @@ export function size<A>(self: Iterable<A>): number {
 
     return len;
   });
-}
-
-/**
- * @tsplus getter fncts.Iterable isEmpty
- */
-export function isEmpty<A>(self: Iterable<A>): boolean {
-  return self.intrinsicSize.match(
-    () => {
-      for (const _ of self) {
-        return false;
-      }
-
-      return true;
-    },
-    (n) => n <= 0,
-  );
-}
-
-/**
- * @tsplus getter fncts.Iterable isNonEmpty
- */
-export function isNonEmpty<A>(self: Iterable<A>): boolean {
-  return self.intrinsicSize.match(
-    () => {
-      for (const _ of self) {
-        return true;
-      }
-
-      return false;
-    },
-    (n) => n > 0,
-  );
 }
 
 /**
@@ -732,6 +720,20 @@ export function take(n: number) {
       };
     });
   };
+}
+
+/**
+ * @tsplus getter fncts.Iterable toArray
+ */
+export function toArray<A>(self: Iterable<A>): Array<A> {
+  return Array.from(self);
+}
+
+/**
+ * @tsplus getter fncts.Iterable toIterable
+ */
+export function toIterable<A>(self: Iterable<A>): Iterable<A> {
+  return self;
 }
 
 /**

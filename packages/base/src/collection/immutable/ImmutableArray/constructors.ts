@@ -18,9 +18,9 @@ export function empty<A = never>(): ImmutableArray<A> {
  */
 export function makeBy<A>(n: number, f: (i: number) => A): ImmutableArray<A> {
   const j   = Math.max(0, Math.floor(n));
-  const out = [];
+  const out = Array(n);
   for (let i = 0; i < j; i++) {
-    out.push(f(i));
+    out[i] = f(i);
   }
   return out.asImmutableArray;
 }

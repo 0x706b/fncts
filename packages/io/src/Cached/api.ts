@@ -4,11 +4,11 @@ import { CachedInternal } from "@fncts/io/Cached/internal";
 /**
  * @tsplus static fncts.io.CachedOps auto
  */
-export function auto<R, Error, Resource>(
+export function auto<R, Error, Resource, R2, E2, O>(
   acquire: IO<R, Error, Resource>,
-  policy: Schedule<any, any, any>,
+  policy: Schedule<R2, E2, O>,
   __tsplusTrace?: string,
-): IO<R | Scope, never, Cached<Error, Resource>> {
+): IO<R | R2 | Scope, never, Cached<Error, Resource>> {
   return Do((Δ) => {
     const manual = Δ(Cached.manual(acquire));
     Δ(IO.acquireRelease(IO.interruptible(manual.refresh.schedule(policy)).forkDaemon, (fiber) => fiber.interrupt));

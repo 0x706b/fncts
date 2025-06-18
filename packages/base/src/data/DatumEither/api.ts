@@ -9,49 +9,7 @@ import { EitherT } from "../EitherT/definition.js";
 
 const _Initial: DatumEither<never, never> = Datum.initial();
 
-/**
- * @tsplus static fncts.DatumEitherOps initial
- */
-export function initial<E = never, A = never>(): DatumEither<E, A> {
-  return _Initial;
-}
-
 const _Pending: DatumEither<never, never> = Datum.pending();
-
-/**
- * @tsplus static fncts.DatumEitherOps pending
- */
-export function pending<E = never, A = never>(): DatumEither<E, A> {
-  return _Pending;
-}
-
-/**
- * @tsplus static fncts.DatumEitherOps refreshLeft
- */
-export function refreshLeft<E, A = never>(e: E): DatumEither<E, A> {
-  return Datum.refresh(Either.left(e));
-}
-
-/**
- * @tsplus static fncts.DatumEitherOps refreshRight
- */
-export function refreshRight<E = never, A = never>(a: A): DatumEither<E, A> {
-  return Datum.replete(Either.right(a));
-}
-
-/**
- * @tsplus static fncts.DatumEitherOps repleteLeft
- */
-export function repleteLeft<E, A = never>(e: E): DatumEither<E, A> {
-  return Datum.replete(Either.left(e));
-}
-
-/**
- * @tsplus static fncts.DatumEitherOps repleteRight
- */
-export function repleteRight<E = never, A = never>(a: A): DatumEither<E, A> {
-  return Datum.replete(Either.right(a));
-}
 
 /**
  * @tsplus pipeable fncts.DatumEither bimap
@@ -117,6 +75,39 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * @tsplus static fncts.DatumEitherOps pending
+ */
+export function pending<E = never, A = never>(): DatumEither<E, A> {
+  return _Pending;
+}
+
+/**
+ * @tsplus static fncts.DatumEitherOps refreshLeft
+ */
+export function refreshLeft<E, A = never>(e: E): DatumEither<E, A> {
+  return Datum.refresh(Either.left(e));
+}
+/**
+ * @tsplus static fncts.DatumEitherOps refreshRight
+ */
+export function refreshRight<E = never, A = never>(a: A): DatumEither<E, A> {
+  return Datum.replete(Either.right(a));
+}
+/**
+ * @tsplus static fncts.DatumEitherOps repleteLeft
+ */
+export function repleteLeft<E, A = never>(e: E): DatumEither<E, A> {
+  return Datum.replete(Either.left(e));
+}
+
+/**
+ * @tsplus static fncts.DatumEitherOps repleteRight
+ */
+export function repleteRight<E = never, A = never>(a: A): DatumEither<E, A> {
+  return Datum.replete(Either.right(a));
+}
+
+/**
  * @tsplus pipeable fncts.DatumEither flatMap
  */
 export const flatMap: <A, E1, B>(
@@ -169,6 +160,13 @@ export function getOrElse<E, B, C>(onEmpty: () => B, onLeft: (e: E) => C) {
   return <A>(self: DatumEither<E, A>): A | B | C => {
     return self.match3(onEmpty, onLeft, Function.identity);
   };
+}
+
+/**
+ * @tsplus static fncts.DatumEitherOps initial
+ */
+export function initial<E = never, A = never>(): DatumEither<E, A> {
+  return _Initial;
 }
 
 /**
@@ -328,7 +326,7 @@ export const toReplete: <E, A>(self: DatumEither<E, A>) => DatumEither<E, A> = _
 /**
  * @tsplus getter fncts.DatumEither traverse
  */
-export function _traverse<E, A>(self: DatumEither<E, A>) {
+export function traverse_<E, A>(self: DatumEither<E, A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
     <K, Q, W, X, I, S, R, E1, B>(
       f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E1, B>,

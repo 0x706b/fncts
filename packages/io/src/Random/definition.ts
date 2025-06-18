@@ -2,6 +2,7 @@ import type { ArrayInt } from "@fncts/base/util/rand";
 
 /**
  * @tsplus static fncts.io.RandomOps Tag
+ * @tsplus implicit
  */
 export const RandomTag = Tag<Random>("fncts.io.Random");
 

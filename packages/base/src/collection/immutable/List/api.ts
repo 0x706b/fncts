@@ -353,7 +353,7 @@ export function unsafeLast<A>(self: List<A>): A {
   }
   let these = self;
   let scout = self.tail;
-  while (!scout.isEmpty()) {
+  while (scout.isNonEmpty()) {
     these = scout;
     scout = scout.tail;
   }
@@ -363,7 +363,7 @@ export function unsafeLast<A>(self: List<A>): A {
 function copyToArrayWithIndex<A>(list: List<A>, arr: Array<[number, A]>): void {
   let these = list;
   let i     = 0;
-  while (!these.isEmpty()) {
+  while (these.isNonEmpty()) {
     arr[i] = [i, these.head];
     these  = these.tail;
     i++;

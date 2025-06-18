@@ -48,6 +48,21 @@ export function contramapIO<A, RC, EC, C>(f: (c: C) => IO<RC, EC, A>, __tsplusTr
   };
 }
 
+/**
+ * Transforms messages published to and taken from the hub using the
+ * specified functions.
+ *
+ * @tsplus pipeable fncts.io.Hub dimap
+ */
+export function dimap<A, B, C, D>(f: (c: C) => A, g: (b: B) => D, __tsplusTrace?: string) {
+  return <RA, RB, EA, EB>(self: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB, EA, EB, C, D> => {
+    return self.dimapIO(
+      (c) => IO.succeedNow(f(c)),
+      (b) => IO.succeedNow(g(b)),
+    );
+  };
+}
+
 class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
   RC | RA,
   RD | RB,
@@ -80,21 +95,6 @@ class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
 
 /**
  * Transforms messages published to and taken from the hub using the
- * specified functions.
- *
- * @tsplus pipeable fncts.io.Hub dimap
- */
-export function dimap<A, B, C, D>(f: (c: C) => A, g: (b: B) => D, __tsplusTrace?: string) {
-  return <RA, RB, EA, EB>(self: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB, EA, EB, C, D> => {
-    return self.dimapIO(
-      (c) => IO.succeedNow(f(c)),
-      (b) => IO.succeedNow(g(b)),
-    );
-  };
-}
-
-/**
- * Transforms messages published to and taken from the hub using the
  * specified effectual functions.
  *
  * @tsplus pipeable fncts.io.Hub dimapIO
@@ -107,6 +107,17 @@ export function dimapIO<A, B, RC, EC, C, RD, ED, D>(
   return <RA, RB, EA, EB>(source: PHub<RA, RB, EA, EB, A, B>): PHub<RC | RA, RD | RB, EA | EC, EB | ED, C, D> => {
     concrete(source);
     return new DimapIO(source, f, g);
+  };
+}
+
+/**
+ * Filters messages published to the hub using the specified function.
+ *
+ * @tsplus pipeable fncts.io.Hub filterInput
+ */
+export function filterInput<A>(f: (a: A) => boolean, __tsplusTrace?: string) {
+  return <RA, RB, EA, EB, B>(self: PHub<RA, RB, EA, EB, A, B>) => {
+    return self.filterInputIO((a) => IO.succeedNow(f(a)));
   };
 }
 
@@ -145,13 +156,13 @@ export function filterInputIO<A, R1, E1>(f: (a: A) => IO<R1, E1, boolean>, __tsp
 }
 
 /**
- * Filters messages published to the hub using the specified function.
+ * Filters messages taken from the hub using the specified function.
  *
- * @tsplus pipeable fncts.io.Hub filterInput
+ * @tsplus pipeable fncts.io.Hub filterOutput
  */
-export function filterInput<A>(f: (a: A) => boolean, __tsplusTrace?: string) {
-  return <RA, RB, EA, EB, B>(self: PHub<RA, RB, EA, EB, A, B>) => {
-    return self.filterInputIO((a) => IO.succeedNow(f(a)));
+export function filterOutput<B>(f: (b: B) => boolean, __tsplusTrace?: string) {
+  return <RA, RB, EA, EB, A>(self: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB, EA, EB, A, B> => {
+    return self.filterOutputIO((b) => IO.succeedNow(f(b)));
   };
 }
 
@@ -185,17 +196,6 @@ export function filterOutputIO<B, R1, E1>(f: (a: B) => IO<R1, E1, boolean>, __ts
   return <RA, RB, EA, EB, A>(source: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB | R1, EA, EB | E1, A, B> => {
     concrete(source);
     return new FilterOutputIO(source, f);
-  };
-}
-
-/**
- * Filters messages taken from the hub using the specified function.
- *
- * @tsplus pipeable fncts.io.Hub filterOutput
- */
-export function filterOutput<B>(f: (b: B) => boolean, __tsplusTrace?: string) {
-  return <RA, RB, EA, EB, A>(self: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB, EA, EB, A, B> => {
-    return self.filterOutputIO((b) => IO.succeedNow(f(b)));
   };
 }
 
@@ -287,28 +287,6 @@ export function mapIO<B, RC, EC, C>(f: (b: B) => IO<RC, EC, C>, __tsplusTrace?: 
   };
 }
 
-class ToQueue<RA, RB, EA, EB, A, B> implements PEnqueue<RA, RB, EA, EB, A, B> {
-  readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
-  readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
-  declare [QueueVariance]: {
-    readonly _RA: (_: never) => RA;
-    readonly _RB: (_: never) => RB;
-    readonly _EA: (_: never) => EA;
-    readonly _EB: (_: never) => EB;
-    readonly _A: (_: A) => void;
-    readonly _B: (_: never) => B;
-  };
-  constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>) {}
-  awaitShutdown = this.source.awaitShutdown;
-  capacity      = this.source.capacity;
-  isShutdown    = this.source.isShutdown;
-  shutdown      = this.source.shutdown;
-  size          = this.source.size;
-  offer         = (a: A): IO<RA, EA, boolean> => this.source.publish(a);
-  offerAll      = (as: Iterable<A>): IO<RA, EA, boolean> => this.source.publishAll(as);
-  takeUpTo      = (): IO<never, never, Conc<never>> => IO.succeedNow(Conc.empty());
-}
-
 /**
  * Publishes a message to the hub, returning whether the message was
  * published to the hub.
@@ -346,6 +324,16 @@ export function shutdown<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>,
 }
 
 /**
+ * The current number of messages in the hub.
+ *
+ * @tsplus getter fncts.io.Hub size
+ */
+export function size<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, __tsplusTrace?: string): UIO<number> {
+  concrete(self);
+  return self.size;
+}
+
+/**
  * Subscribes to receive messages from the hub. The resulting subscription
  * can be evaluated multiple times within the scope of the managed to take a
  * message from the hub each time.
@@ -360,14 +348,26 @@ export function subscribe<RA, RB, EA, EB, A, B>(
   return self.subscribe;
 }
 
-/**
- * The current number of messages in the hub.
- *
- * @tsplus getter fncts.io.Hub size
- */
-export function size<RA, RB, EA, EB, A, B>(self: PHub<RA, RB, EA, EB, A, B>, __tsplusTrace?: string): UIO<number> {
-  concrete(self);
-  return self.size;
+class ToQueue<RA, RB, EA, EB, A, B> implements PEnqueue<RA, RB, EA, EB, A, B> {
+  readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
+  readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
+  declare [QueueVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
+  constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>) {}
+  awaitShutdown = this.source.awaitShutdown;
+  capacity      = this.source.capacity;
+  isShutdown    = this.source.isShutdown;
+  shutdown      = this.source.shutdown;
+  size          = this.source.size;
+  offer         = (a: A): IO<RA, EA, boolean> => this.source.publish(a);
+  offerAll      = (as: Iterable<A>): IO<RA, EA, boolean> => this.source.publishAll(as);
+  takeUpTo      = (): IO<never, never, Conc<never>> => IO.succeedNow(Conc.empty());
 }
 
 /**

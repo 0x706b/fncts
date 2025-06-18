@@ -5,9 +5,9 @@ export function addFinalizerExit<R>(
   finalizer: (exit: Exit<any, any>) => URIO<R, any>,
   __tsplusTrace?: string,
 ): IO<R | Scope, never, void> {
-  return Do((_) => {
-    const environment = _(IO.environment<R>());
-    const scope       = _(IO.scope);
-    _(scope.addFinalizerExit(Finalizer.get((exit) => finalizer(exit).provideEnvironment(environment))));
+  return Do((Δ) => {
+    const environment = Δ(IO.environment<R>());
+    const scope       = Δ(IO.scope);
+    Δ(scope.addFinalizerExit(Finalizer.get((exit) => finalizer(exit).provideEnvironment(environment))));
   });
 }

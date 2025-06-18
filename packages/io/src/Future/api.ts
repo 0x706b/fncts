@@ -109,6 +109,25 @@ export function interruptAs(id: FiberId, __tsplusTrace?: string) {
   };
 }
 
+function interruptJoiner<E, A>(
+  future: Future<E, A>,
+  joiner: (a: FIO<E, A>) => void,
+  __tsplusTrace?: string,
+): Canceler<never> {
+  return IO.succeed(() => {
+    future.state.concrete();
+    switch (future.state._tag) {
+      case FutureStateTag.Done: {
+        break;
+      }
+      default: {
+        future.state = future.state.remove(joiner);
+        break;
+      }
+    }
+  });
+}
+
 /**
  * Checks for completion of this Future. Produces true if this future has
  * already been completed with a value or an error and false otherwise.
@@ -159,6 +178,18 @@ export function succeedVoid_(a: void, __tsplusTrace?: string) {
 }
 
 /**
+ * Retrieves the value of the future, suspending the fiber running the action
+ * until the result is available.
+ *
+ * @tsplus pipeable fncts.io.Future unsafeDone
+ */
+export function unsafeDone<E, A>(io: FIO<E, A>, __tsplusTrace?: string) {
+  return (future: Future<E, A>): void => {
+    future.unsafeFulfill(io);
+  };
+}
+
+/**
  * @tsplus pipeable fncts.io.Future unsafeFulfill
  */
 export function unsafeFulfill<E, A>(io: FIO<E, A>) {
@@ -177,18 +208,6 @@ export function unsafeFulfill<E, A>(io: FIO<E, A>) {
         return false;
       }
     }
-  };
-}
-
-/**
- * Retrieves the value of the future, suspending the fiber running the action
- * until the result is available.
- *
- * @tsplus pipeable fncts.io.Future unsafeDone
- */
-export function unsafeDone<E, A>(io: FIO<E, A>, __tsplusTrace?: string) {
-  return (future: Future<E, A>): void => {
-    future.unsafeFulfill(io);
   };
 }
 
@@ -230,25 +249,6 @@ export function wait<E, A>(future: Future<E, A>, __tsplusTrace?: string): IO<nev
 
           return Either.left(interruptJoiner(future, k));
         }, future.blockingOn);
-      }
-    }
-  });
-}
-
-function interruptJoiner<E, A>(
-  future: Future<E, A>,
-  joiner: (a: FIO<E, A>) => void,
-  __tsplusTrace?: string,
-): Canceler<never> {
-  return IO.succeed(() => {
-    future.state.concrete();
-    switch (future.state._tag) {
-      case FutureStateTag.Done: {
-        break;
-      }
-      default: {
-        future.state = future.state.remove(joiner);
-        break;
       }
     }
   });

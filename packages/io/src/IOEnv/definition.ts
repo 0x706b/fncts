@@ -12,7 +12,4 @@ export const IOEnv: IOEnvOps = {};
 /**
  * @tsplus static fncts.io.IOEnvOps environment
  */
-export const environment = Environment()
-  .add(Clock.Live, Clock.Tag)
-  .add(Random.Live, Random.Tag)
-  .add(Console.Live, Console.Tag);
+export const environment = Environment().add(Clock.Live).add(Random.Live).add(Console.Live);

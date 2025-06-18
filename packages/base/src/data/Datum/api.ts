@@ -18,86 +18,6 @@ export function initial<A = never>(): Datum<A> {
 const _Pending = new Pending();
 
 /**
- * @tsplus static fncts.DatumOps pending
- * @tsplus static fncts.Datum.PendingOps __call
- */
-export function pending<A = never>(): Datum<A> {
-  return _Pending;
-}
-
-/**
- * @tsplus static fncts.DatumOps refresh
- * @tsplus static fncts.Datum.RefreshOps __call
- */
-export function refresh<A>(value: A): Datum<A> {
-  return new Refresh(value);
-}
-
-/**
- * @tsplus static fncts.DatumOps replete
- * @tsplus static fncts.Datum.RepleteOps __call
- */
-export function replete<A>(value: A): Datum<A> {
-  return new Replete(value);
-}
-
-/**
- * @tsplus getter fncts.Datum value
- */
-export function left<E, A>(self: Datum<A>): A | undefined {
-  return self.isNonEmpty() ? self.value : undefined;
-}
-
-/**
- * @tsplus fluent fncts.Datum isInitial
- */
-export function isInitial<A>(self: Datum<A>): self is Initial {
-  return self._tag === DatumTag.Initial;
-}
-
-/**
- * @tsplus fluent fncts.Datum isPending
- */
-export function isPending<A>(self: Datum<A>): self is Pending {
-  return self._tag === DatumTag.Pending;
-}
-
-/**
- * @tsplus fluent fncts.Datum isRefresh
- */
-export function isRefresh<A>(self: Datum<A>): self is Refresh<A> {
-  return self._tag === DatumTag.Refresh;
-}
-
-/**
- * @tsplus fluent fncts.Datum isReplete
- */
-export function isReplete<A>(self: Datum<A>): self is Replete<A> {
-  return self._tag === DatumTag.Replete;
-}
-
-/**
- * @tsplus fluent fncts.Datum isEmpty
- */
-export function isEmpty<A>(self: Datum<A>): self is Initial | Pending {
-  return self.isInitial() || self.isPending();
-}
-
-/**
- * @tsplus fluent fncts.Datum isNonEmpty
- */
-export function isNonEmpty<A>(self: Datum<A>): self is Refresh<A> | Replete<A> {
-  return self.isRefresh() || self.isReplete();
-}
-
-/**
- * @tsplus fluent fncts.Datum isLoading
- */
-export function isLoading<A>(self: Datum<A>): self is Pending | Refresh<A> {
-  return self.isPending() || self.isRefresh();
-}
-
-/**
  * @tsplus pipeable fncts.Datum elem
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
@@ -107,20 +27,6 @@ export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
       Pending: () => false,
       Refresh: (value) => E.equals(value)(a),
       Replete: (value) => E.equals(value)(a),
-    });
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Datum some
- */
-export function some<A>(p: Predicate<A>) {
-  return (self: Datum<A>): boolean => {
-    return self.match({
-      Initial: () => false,
-      Pending: () => false,
-      Refresh: p,
-      Replete: p,
     });
   };
 }
@@ -138,7 +44,9 @@ export function extend<A, B>(f: (wa: Datum<A>) => B) {
  * @tsplus pipeable fncts.Datum filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: Datum<A>) => Datum<B>;
+
 export function filter<A>(p: Predicate<A>): (self: Datum<A>) => Datum<A>;
+
 export function filter<A>(p: Predicate<A>) {
   return (self: Datum<A>): Datum<A> => {
     return self.match({
@@ -245,6 +153,77 @@ export function getOrElse<B>(b: Lazy<B>) {
 }
 
 /**
+ * @tsplus fluent fncts.Datum isEmpty
+ */
+export function isEmpty<A>(self: Datum<A>): self is Initial | Pending {
+  return self.isInitial() || self.isPending();
+}
+
+/**
+ * @tsplus fluent fncts.Datum isInitial
+ */
+export function isInitial<A>(self: Datum<A>): self is Initial {
+  return self._tag === DatumTag.Initial;
+}
+
+/**
+ * @tsplus fluent fncts.Datum isLoading
+ */
+export function isLoading<A>(self: Datum<A>): self is Pending | Refresh<A> {
+  return self.isPending() || self.isRefresh();
+}
+
+/**
+ * @tsplus fluent fncts.Datum isNonEmpty
+ */
+export function isNonEmpty<A>(self: Datum<A>): self is Refresh<A> | Replete<A> {
+  return self.isRefresh() || self.isReplete();
+}
+/**
+ * @tsplus fluent fncts.Datum isPending
+ */
+export function isPending<A>(self: Datum<A>): self is Pending {
+  return self._tag === DatumTag.Pending;
+}
+/**
+ * @tsplus fluent fncts.Datum isRefresh
+ */
+export function isRefresh<A>(self: Datum<A>): self is Refresh<A> {
+  return self._tag === DatumTag.Refresh;
+}
+
+/**
+ * @tsplus fluent fncts.Datum isReplete
+ */
+export function isReplete<A>(self: Datum<A>): self is Replete<A> {
+  return self._tag === DatumTag.Replete;
+}
+
+/**
+ * @tsplus getter fncts.Datum value
+ */
+export function left<E, A>(self: Datum<A>): A | undefined {
+  return self.isNonEmpty() ? self.value : undefined;
+}
+
+/**
+ * @tsplus pipeable fncts.Datum map
+ */
+export function map<A, B>(f: (a: A) => B) {
+  return (self: Datum<A>): Datum<B> => {
+    switch (self._tag) {
+      case DatumTag.Initial:
+      case DatumTag.Pending:
+        return self;
+      case DatumTag.Refresh:
+        return Refresh(f(self.value));
+      case DatumTag.Replete:
+        return Replete(f(self.value));
+    }
+  };
+}
+
+/**
  * @tsplus pipeable fncts.Datum match
  */
 export function match<A, B, C, D, E>(cases: {
@@ -286,23 +265,6 @@ export function match2<A, B, C>(onEmpty: (isLoading: boolean) => B, onValue: (a:
 }
 
 /**
- * @tsplus pipeable fncts.Datum map
- */
-export function map<A, B>(f: (a: A) => B) {
-  return (self: Datum<A>): Datum<B> => {
-    switch (self._tag) {
-      case DatumTag.Initial:
-      case DatumTag.Pending:
-        return self;
-      case DatumTag.Refresh:
-        return Refresh(f(self.value));
-      case DatumTag.Replete:
-        return Replete(f(self.value));
-    }
-  };
-}
-
-/**
  * @tsplus pipeable fncts.Datum orElse
  */
 export function orElse<B>(that: Lazy<Datum<B>>) {
@@ -320,7 +282,9 @@ export function orElse<B>(that: Lazy<Datum<B>>) {
  * @tsplus pipeable fncts.Datum partition
  */
 export function partition<A, B extends A>(p: Refinement<A, B>): (self: Datum<A>) => [Datum<A>, Datum<B>];
+
 export function partition<A>(p: Predicate<A>): (self: Datum<A>) => [Datum<A>, Datum<A>];
+
 export function partition<A>(p: Predicate<A>) {
   return (self: Datum<A>): [Datum<A>, Datum<A>] => {
     return [self.filter(p.invert), self.filter(p)];
@@ -345,6 +309,42 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
           (b) => [Replete(b), Initial()],
           (c) => [Initial(), Replete(c)],
         ),
+    });
+  };
+}
+
+/**
+ * @tsplus static fncts.DatumOps pending
+ * @tsplus static fncts.Datum.PendingOps __call
+ */
+export function pending<A = never>(): Datum<A> {
+  return _Pending;
+}
+/**
+ * @tsplus static fncts.DatumOps refresh
+ * @tsplus static fncts.Datum.RefreshOps __call
+ */
+export function refresh<A>(value: A): Datum<A> {
+  return new Refresh(value);
+}
+/**
+ * @tsplus static fncts.DatumOps replete
+ * @tsplus static fncts.Datum.RepleteOps __call
+ */
+export function replete<A>(value: A): Datum<A> {
+  return new Replete(value);
+}
+
+/**
+ * @tsplus pipeable fncts.Datum some
+ */
+export function some<A>(p: Predicate<A>) {
+  return (self: Datum<A>): boolean => {
+    return self.match({
+      Initial: () => false,
+      Pending: () => false,
+      Refresh: p,
+      Replete: p,
     });
   };
 }
@@ -375,7 +375,7 @@ export function toReplete<A>(self: Datum<A>): Datum<A> {
 /**
  * @tsplus getter fncts.Datum traverse
  */
-export function _traverse<A>(self: Datum<A>) {
+export function traverse_<A>(self: Datum<A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
     <K, Q, W, X, I, S, R, E1, B>(
       f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E1, B>,
@@ -398,6 +398,7 @@ export function zip<B>(that: Datum<B>) {
     return self.zipWith(that, (a, b) => Zipped(a, b));
   };
 }
+
 /**
  * @tsplus pipeable fncts.Datum zipWith
  */

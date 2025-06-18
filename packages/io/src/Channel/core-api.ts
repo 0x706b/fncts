@@ -1,25 +1,31 @@
 import { tuple } from "@fncts/base/data/function";
 
-import { ChannelPrimitive, ChannelTag, ContinuationK, Done, Fail, Fold } from "./definition.js";
+import { ChannelPrimitive, ChannelTag } from "./definition.js";
+
+/* eslint perfectionist/sort-modules: "error" */
 
 /**
- * Halt a channel with the specified cause
+ * Returns a new channel that is the sequential composition of this channel and the specified
+ * channel. The returned channel terminates with a tuple of the terminal values of both channels.
  *
- * @tsplus static fncts.io.ChannelOps failCause
+ * @tsplus pipeable fncts.io.Channel cross
  */
-export function failCause<E>(result: Lazy<Cause<E>>): Channel<never, unknown, unknown, unknown, E, never, never> {
-  const op = new ChannelPrimitive(ChannelTag.Halt);
-  op.i0    = result;
-  return op as any;
-}
-
-/**
- * Halt a channel with the specified cause
- *
- * @tsplus static fncts.io.ChannelOps failCauseNow
- */
-export function failCauseNow<E>(result: Cause<E>): Channel<never, unknown, unknown, unknown, E, never, never> {
-  return Channel.failCause(result);
+export function cross<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
+  that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
+) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
+  ): Channel<
+    Env | Env1,
+    InErr & InErr1,
+    InElem & InElem1,
+    InDone & InDone1,
+    OutErr | OutErr1,
+    OutElem | OutElem1,
+    readonly [OutDone, OutDone1]
+  > => {
+    return self.flatMap((z) => that.map((z2) => tuple(z, z2)));
+  };
 }
 
 /**
@@ -43,36 +49,23 @@ export function endNow<OutDone>(result: OutDone): Channel<never, unknown, unknow
 }
 
 /**
- * End a channel with the specified result
+ * Halt a channel with the specified cause
  *
- * @tsplus static fncts.io.ChannelOps succeed
+ * @tsplus static fncts.io.ChannelOps failCause
  */
-export function succeed<Z>(z: Lazy<Z>): Channel<never, unknown, unknown, unknown, never, never, Z> {
-  return Channel.end(z);
+export function failCause<E>(result: Lazy<Cause<E>>): Channel<never, unknown, unknown, unknown, E, never, never> {
+  const op = new ChannelPrimitive(ChannelTag.Halt);
+  op.i0    = result;
+  return op as any;
 }
 
 /**
- * End a channel with the specified result
+ * Halt a channel with the specified cause
  *
- * @tsplus static fncts.io.ChannelOps succeedNow
+ * @tsplus static fncts.io.ChannelOps failCauseNow
  */
-export function succeedNow<Z>(z: Z): Channel<never, unknown, unknown, unknown, never, never, Z> {
-  return Channel.end(z);
-}
-
-/**
- * Returns a new channel, which is the same as this one, except the terminal value of the
- * returned channel is created by applying the specified function to the terminal value of this
- * channel.
- *
- * @tsplus pipeable fncts.io.Channel map
- */
-export function map<OutDone, OutDone2>(f: (out: OutDone) => OutDone2) {
-  return <Env, InErr, InElem, InDone, OutErr, OutElem>(
-    self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2> => {
-    return self.flatMap((z) => Channel.succeedNow(f(z)));
-  };
+export function failCauseNow<E>(result: Cause<E>): Channel<never, unknown, unknown, unknown, E, never, never> {
+  return Channel.failCause(result);
 }
 
 /**
@@ -111,27 +104,36 @@ export function flatMap<OutDone, Env1, InErr1, InElem1, InDone1, OutErr1, OutEle
 }
 
 /**
- * Returns a new channel that is the sequential composition of this channel and the specified
- * channel. The returned channel terminates with a tuple of the terminal values of both channels.
+ * Returns a new channel, which is the same as this one, except the terminal value of the
+ * returned channel is created by applying the specified function to the terminal value of this
+ * channel.
  *
- * @tsplus pipeable fncts.io.Channel cross
+ * @tsplus pipeable fncts.io.Channel map
  */
-export function cross<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>(
-  that: Channel<Env1, InErr1, InElem1, InDone1, OutErr1, OutElem1, OutDone1>,
-) {
-  return <Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>(
+export function map<OutDone, OutDone2>(f: (out: OutDone) => OutDone2) {
+  return <Env, InErr, InElem, InDone, OutErr, OutElem>(
     self: Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone>,
-  ): Channel<
-    Env | Env1,
-    InErr & InErr1,
-    InElem & InElem1,
-    InDone & InDone1,
-    OutErr | OutErr1,
-    OutElem | OutElem1,
-    readonly [OutDone, OutDone1]
-  > => {
-    return self.flatMap((z) => that.map((z2) => tuple(z, z2)));
+  ): Channel<Env, InErr, InElem, InDone, OutErr, OutElem, OutDone2> => {
+    return self.flatMap((z) => Channel.succeedNow(f(z)));
   };
+}
+
+/**
+ * End a channel with the specified result
+ *
+ * @tsplus static fncts.io.ChannelOps succeed
+ */
+export function succeed<Z>(z: Lazy<Z>): Channel<never, unknown, unknown, unknown, never, never, Z> {
+  return Channel.end(z);
+}
+
+/**
+ * End a channel with the specified result
+ *
+ * @tsplus static fncts.io.ChannelOps succeedNow
+ */
+export function succeedNow<Z>(z: Z): Channel<never, unknown, unknown, unknown, never, never, Z> {
+  return Channel.end(z);
 }
 
 /**

@@ -74,22 +74,22 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
- * @tsplus pipeable fncts.Either foldRight
- */
-export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
-  return <E>(self: Either<E, A>): B => {
-    self.concrete();
-    return self._tag === EitherTag.Left ? b : f(self.right, b);
-  };
-}
-
-/**
  * @tsplus pipeable fncts.Either foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
   return <E>(self: Either<E, A>): M => {
     self.concrete();
     return self._tag === EitherTag.Left ? M.nat : f(self.right);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Either foldRight
+ */
+export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
+  return <E>(self: Either<E, A>): B => {
+    self.concrete();
+    return self._tag === EitherTag.Left ? b : f(self.right, b);
   };
 }
 
@@ -104,6 +104,15 @@ export function getLeft<E, A>(self: Either<E, A>): Maybe<E> {
 }
 
 /**
+ * @tsplus pipeable fncts.Either getOrElse
+ */
+export function getOrElse<E, B>(orElse: (e: E) => B) {
+  return <A>(self: Either<E, A>): A | B => {
+    return self.match(orElse, identity);
+  };
+}
+
+/**
  * @tsplus getter fncts.Either getRight
  */
 export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
@@ -111,15 +120,6 @@ export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
     (_e) => Nothing(),
     (a) => Just(a),
   );
-}
-
-/**
- * @tsplus pipeable fncts.Either getOrElse
- */
-export function getOrElse<E, B>(orElse: (e: E) => B) {
-  return <A>(self: Either<E, A>): A | B => {
-    return self.match(orElse, identity);
-  };
 }
 
 /**
@@ -196,7 +196,7 @@ export function swap<E, A>(self: Either<E, A>): Either<A, E> {
 /**
  * @tsplus getter fncts.Either traverse
  */
-export function _traverse<E, A>(self: Either<E, A>) {
+export function traverse_<E, A>(self: Either<E, A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
     <K, Q, W, X, I, S, R, E1, B>(
       f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E1, B>,
@@ -207,25 +207,15 @@ export function _traverse<E, A>(self: Either<E, A>) {
       );
 }
 
-export const traverse_: P.Traversable<EitherF>["traverse"] = (A) => (f) => (self) => self.traverse(A)(f);
+export const traverse: P.Traversable<EitherF>["traverse"] = (A) => (f) => (self) => self.traverse(A)(f);
 
 /**
- * @tsplus pipeable fncts.Either zipWith
+ * @tsplus pipeable fncts.Either filter
  */
-export function zipWith<A, E2, B, C>(fb: Either<E2, B>, f: (a: A, b: B) => C) {
-  return <E1>(self: Either<E1, A>): Either<E1 | E2, C> => {
+export function filter<E, A>(f: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
+  return (self: Either<E, A>): Either<E, A> => {
     self.concrete();
-    fb.concrete();
-    return self._tag === EitherTag.Left ? self : fb._tag === EitherTag.Left ? fb : Right(f(self.right, fb.right));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Either zip
- */
-export function zip<E1, B>(that: Either<E1, B>) {
-  return <E, A>(self: Either<E, A>): Either<E | E1, Zipped.Make<A, B>> => {
-    return self.zipWith(that, (a, b) => Zipped(a, b));
+    return self._tag === EitherTag.Left ? self : f(self.right) ? self : Left(M.nat);
   };
 }
 
@@ -245,12 +235,12 @@ export function filterMap<E, A, B>(f: (a: A) => Maybe<B>, /** @tsplus auto */ M:
 }
 
 /**
- * @tsplus pipeable fncts.Either filter
+ * @tsplus pipeable fncts.Either partition
  */
-export function filter<E, A>(f: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
-  return (self: Either<E, A>): Either<E, A> => {
+export function partition<E, A>(p: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
+  return (self: Either<E, A>): readonly [Either<E, A>, Either<E, A>] => {
     self.concrete();
-    return self._tag === EitherTag.Left ? self : f(self.right) ? self : Left(M.nat);
+    return self._tag === EitherTag.Left ? [self, self] : p(self.right) ? [Left(M.nat), self] : [self, Left(M.nat)];
   };
 }
 
@@ -275,16 +265,6 @@ export function partitionMap<E, A, B, C>(f: (a: A) => Either<B, C>, /** @tsplus 
 }
 
 /**
- * @tsplus pipeable fncts.Either partition
- */
-export function partition<E, A>(p: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
-  return (self: Either<E, A>): readonly [Either<E, A>, Either<E, A>] => {
-    self.concrete();
-    return self._tag === EitherTag.Left ? [self, self] : p(self.right) ? [Left(M.nat), self] : [self, Left(M.nat)];
-  };
-}
-
-/**
  * @tsplus getter fncts.Either toMaybe
  */
 export function toMaybe<E, A>(self: Either<E, A>): Maybe<A> {
@@ -292,6 +272,26 @@ export function toMaybe<E, A>(self: Either<E, A>): Maybe<A> {
     () => Nothing(),
     (a) => Just(a),
   );
+}
+
+/**
+ * @tsplus pipeable fncts.Either zip
+ */
+export function zip<E1, B>(that: Either<E1, B>) {
+  return <E, A>(self: Either<E, A>): Either<E | E1, Zipped.Make<A, B>> => {
+    return self.zipWith(that, (a, b) => Zipped(a, b));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Either zipWith
+ */
+export function zipWith<A, E2, B, C>(fb: Either<E2, B>, f: (a: A, b: B) => C) {
+  return <E1>(self: Either<E1, A>): Either<E1 | E2, C> => {
+    self.concrete();
+    fb.concrete();
+    return self._tag === EitherTag.Left ? self : fb._tag === EitherTag.Left ? fb : Right(f(self.right, fb.right));
+  };
 }
 
 // codegen:start { preset: barrel, include: api/*.ts }

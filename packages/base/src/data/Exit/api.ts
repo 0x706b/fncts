@@ -13,57 +13,23 @@ export function ap<E, A>(that: Exit<E, A>) {
 }
 
 /**
- * @tsplus pipeable fncts.Exit zipLeft
- */
-export function zipLeft<G, B>(that: Exit<G, B>) {
-  return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
-    return self.zipWithCause(that, (a, _) => a, Cause.sequential);
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Exit zipRight
- */
-export function zipRight<G, B>(that: Exit<G, B>) {
-  return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
-    return self.zipWithCause(that, (_, b) => b, Cause.sequential);
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Exit zipLeftConcurrent
- */
-export function zipLeftConcurrent<G, B>(that: Exit<G, B>) {
-  return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
-    return self.zipWithCause(that, (a, _) => a, Cause.parallel);
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Exit zipRightConcurrent
- */
-export function zipRightConcurrent<G, B>(that: Exit<G, B>) {
-  return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
-    return self.zipWithCause(that, (_, b) => b, Cause.parallel);
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Exit flatMap
- */
-export function flatMap<A, G, B>(f: (a: A) => Exit<G, B>) {
-  return <E>(ma: Exit<E, A>): Exit<E | G, B> => {
-    return ma.isFailure() ? ma : f(ma.value);
-  };
-}
-
-/**
  * @tsplus pipeable fncts.Exit bimap
  */
 export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
   return (self: Exit<E1, A>): Exit<E2, B> => {
     return self.isFailure() ? Exit.failCause(self.cause.map(f)) : Exit.succeed(g(self.value));
   };
+}
+
+/**
+ * @tsplus getter fncts.Exit causeOrNull
+ */
+export function causeOrNull<E, A>(self: Exit<E, A>): Cause<E> | null {
+  if (self.isFailure()) {
+    return self.cause;
+  }
+
+  return null;
 }
 
 /**
@@ -90,10 +56,31 @@ export function collectAllConcurrent<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<
 }
 
 /**
+ * @tsplus pipeable fncts.Exit flatMap
+ */
+export function flatMap<A, G, B>(f: (a: A) => Exit<G, B>) {
+  return <E>(ma: Exit<E, A>): Exit<E | G, B> => {
+    return ma.isFailure() ? ma : f(ma.value);
+  };
+}
+
+/**
  * @tsplus getter fncts.Exit flatten
  */
 export function flatten<E, G, A>(mma: Exit<E, Exit<G, A>>): Exit<E | G, A> {
   return mma.flatMap(identity);
+}
+
+/**
+ * Returns the Exit's Success value if it exists, or throws the pretty-printed Cause if it doesn't
+ *
+ * @tsplus getter fncts.Exit getOrThrow
+ */
+export function getOrThrow<E, A>(self: Exit<E, A>): A {
+  if (self.isFailure()) {
+    throw new IOError(self.cause);
+  }
+  return self.value;
 }
 
 /**
@@ -140,12 +127,15 @@ export function match<E, A, B, C>(onFailure: (e: Cause<E>) => B, onSuccess: (a: 
 }
 
 /**
- * @tsplus pipeable fncts.Exit zipWith
+ * Returns the Exit's Success value if it exists
+ *
+ * @tsplus getter fncts.Exit value
  */
-export function zipWith<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
-  return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
-    return fa.zipWithCause(fb, f, Cause.sequential);
-  };
+export function value<E, A>(self: Exit<E, A>): A | undefined {
+  if (self.isFailure()) {
+    return undefined;
+  }
+  return self.value;
 }
 
 /**
@@ -158,20 +148,56 @@ export function zip<EB, B>(that: Exit<EB, B>) {
 }
 
 /**
- * @tsplus pipeable fncts.Exit zipWithConcurrent
- */
-export function zipWithConcurrent<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
-  return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
-    return fa.zipWithCause(fb, f, Cause.parallel);
-  };
-}
-
-/**
  * @tsplus pipeable fncts.Exit zipConcurrent
  */
 export function zipConcurrent<EB, B>(that: Exit<EB, B>) {
   return <EA, A>(self: Exit<EA, A>): Exit<EA | EB, readonly [A, B]> => {
     return self.zipWithConcurrent(that, tuple);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Exit zipLeft
+ */
+export function zipLeft<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
+    return self.zipWithCause(that, (a, _) => a, Cause.sequential);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Exit zipLeftConcurrent
+ */
+export function zipLeftConcurrent<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, A> => {
+    return self.zipWithCause(that, (a, _) => a, Cause.parallel);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Exit zipRight
+ */
+export function zipRight<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
+    return self.zipWithCause(that, (_, b) => b, Cause.sequential);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Exit zipRightConcurrent
+ */
+export function zipRightConcurrent<G, B>(that: Exit<G, B>) {
+  return <E, A>(self: Exit<E, A>): Exit<E | G, B> => {
+    return self.zipWithCause(that, (_, b) => b, Cause.parallel);
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Exit zipWith
+ */
+export function zipWith<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
+  return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
+    return fa.zipWithCause(fb, f, Cause.sequential);
   };
 }
 
@@ -210,36 +236,10 @@ export function zipWithCause<E, A, G, B, C>(
 }
 
 /**
- * @tsplus getter fncts.Exit causeOrNull
+ * @tsplus pipeable fncts.Exit zipWithConcurrent
  */
-export function causeOrNull<E, A>(self: Exit<E, A>): Cause<E> | null {
-  if (self.isFailure()) {
-    return self.cause;
-  }
-
-  return null;
-}
-
-/**
- * Returns the Exit's Success value if it exists
- *
- * @tsplus getter fncts.Exit value
- */
-export function value<E, A>(self: Exit<E, A>): A | undefined {
-  if (self.isFailure()) {
-    return undefined;
-  }
-  return self.value;
-}
-
-/**
- * Returns the Exit's Success value if it exists, or throws the pretty-printed Cause if it doesn't
- *
- * @tsplus getter fncts.Exit getOrThrow
- */
-export function getOrThrow<E, A>(self: Exit<E, A>): A {
-  if (self.isFailure()) {
-    throw new IOError(self.cause);
-  }
-  return self.value;
+export function zipWithConcurrent<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
+  return <EA>(fa: Exit<EA, A>): Exit<EA | EB, C> => {
+    return fa.zipWithCause(fb, f, Cause.parallel);
+  };
 }

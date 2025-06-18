@@ -3,22 +3,6 @@ import type { Nullable } from "@fncts/base/types";
 import { Either, Left, Right } from "./definition.js";
 
 /**
- * @tsplus static fncts.EitherOps left
- * @tsplus static fncts.Either.LeftOps __call
- */
-export function left<E = never, A = never>(e: E, __tsplusTrace?: string): Either<E, A> {
-  return new Left(e, __tsplusTrace);
-}
-
-/**
- * @tsplus static fncts.EitherOps right
- * @tsplus static fncts.Either.RightOps __call
- */
-export function right<E = never, A = never>(a: A, __tsplusTrace?: string): Either<E, A> {
-  return new Right(a, __tsplusTrace);
-}
-
-/**
  * @tsplus static fncts.EitherOps fromMaybe
  * @tsplus pipeable fncts.Maybe toEither
  */
@@ -55,6 +39,20 @@ export function fromPredicate<E, A, B extends A>(value: A, p: Refinement<A, B>, 
 export function fromPredicate<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A>;
 export function fromPredicate<E, A>(value: A, p: Predicate<A>, otherwise: (a: A) => E): Either<E, A> {
   return p(value) ? Right(value) : left(otherwise(value));
+}
+/**
+ * @tsplus static fncts.EitherOps left
+ * @tsplus static fncts.Either.LeftOps __call
+ */
+export function left<E = never, A = never>(e: E, __tsplusTrace?: string): Either<E, A> {
+  return new Left(e, __tsplusTrace);
+}
+/**
+ * @tsplus static fncts.EitherOps right
+ * @tsplus static fncts.Either.RightOps __call
+ */
+export function right<E = never, A = never>(a: A, __tsplusTrace?: string): Either<E, A> {
+  return new Right(a, __tsplusTrace);
 }
 
 /**

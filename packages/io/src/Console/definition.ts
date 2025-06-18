@@ -10,5 +10,6 @@ export abstract class Console {
 
 /**
  * @tsplus static fncts.io.ConsoleOps Tag
+ * @tsplus implicit
  */
 export const ConsoleTag = Tag<Console>("fncts.io.Console");
