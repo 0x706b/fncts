@@ -143,8 +143,14 @@ export function unsafeRunAll<S1>(s: S1) {
               environment.push(currPure.i1);
               current             = new PurePrimitive(PureTag.Match) as any;
               (current as any).i0 = currPure;
-              (current as any).i1 = (e: any) => Pure.succeedNow(environment.pop()).flatMap(() => Pure.failNow(e));
-              (current as any).i2 = (a: any) => Pure.succeedNow(environment.pop()).flatMap(() => Pure.succeedNow(a));
+              (current as any).i1 = (log: Conc<any>, e: Cause<any>) => {
+                environment.pop();
+                return Pure.failCauseNow(e).writeAll(log);
+              };
+              (current as any).i2 = (a: any) => {
+                environment.pop();
+                return Pure.succeedNow(a);
+              };
               break;
             }
             case PureTag.Modify: {

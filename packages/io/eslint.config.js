@@ -7,6 +7,10 @@ export default tseslint.config(...baseConfig, {
     "perfectionist/sort-modules": [
       "error",
       {
+        type: "natural",
+        fallbackSort: {
+          type: "alphabetical",
+        },
         groups: [
           "unknown",
           "declare-enum",

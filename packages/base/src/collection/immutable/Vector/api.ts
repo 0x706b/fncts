@@ -82,65 +82,6 @@ export function append<A>(a: A) {
 }
 
 /**
- * @tsplus pipeable fncts.Vector filterMapWithIndex
- */
-export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
-  return (self: Vector<A>): Vector<B> => {
-    return self.foldLeftWithIndex(Vector.emptyPushable(), (i, acc, a) =>
-      f(i, a).match(
-        () => acc,
-        (b) => acc.push(b),
-      ),
-    );
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Vector filterMap
- */
-export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
-  return (self: Vector<A>): Vector<B> => {
-    return self.filterMapWithIndex((_, a) => f(a));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Vector filterWithIndex
- */
-export function filterWithIndex<A, B extends A>(
-  refinement: RefinementWithIndex<number, A, B>,
-): (self: Vector<A>) => Vector<B>;
-export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>): (self: Vector<A>) => Vector<A>;
-export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
-  return (self: Vector<A>): Vector<A> => {
-    return self.foldLeftWithIndex(Vector.emptyPushable(), (i, acc, a) => (predicate(i, a) ? acc.push(a) : acc));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.Vector filter
- */
-export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => Vector<B>;
-export function filter<A>(predicate: Predicate<A>): (self: Vector<A>) => Vector<A>;
-export function filter<A>(predicate: Predicate<A>) {
-  return (self: Vector<A>): Vector<A> => {
-    return self.filterWithIndex((_, a) => predicate(a));
-  };
-}
-
-/**
- * Maps a function over a Vector and concatenates all the resulting
- * Vectors together.
- *
- * @tsplus pipeable fncts.Vector flatMap
- */
-export function flatMap<A, B>(f: (a: A) => Vector<B>) {
-  return (self: Vector<A>): Vector<B> => {
-    return self.map(f).flatten;
-  };
-}
-
-/**
  * Splits the Vector into chunks of the given size.
  *
  * @tsplus pipeable fncts.Vector chunksOf
@@ -213,20 +154,109 @@ export function concat<A>(that: Vector<A>) {
     }
   };
 }
+/**
+ * @tsplus pipeable fncts.Vector filter
+ */
+export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => Vector<B>;
 
-type ContainsState = {
-  element: any;
-  result: boolean;
-};
+export function filter<A>(predicate: Predicate<A>): (self: Vector<A>) => Vector<A>;
+export function filter<A>(predicate: Predicate<A>) {
+  return (self: Vector<A>): Vector<A> => {
+    return self.filterWithIndex((_, a) => predicate(a));
+  };
+}
+/**
+ * @tsplus pipeable fncts.Vector filterMap
+ */
+export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
+  return (self: Vector<A>): Vector<B> => {
+    return self.filterMapWithIndex((_, a) => f(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Vector filterMapWithIndex
+ */
+export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
+  return (self: Vector<A>): Vector<B> => {
+    return self.foldLeftWithIndex(Vector.emptyPushable(), (i, acc, a) =>
+      f(i, a).match(
+        () => acc,
+        (b) => acc.push(b),
+      ),
+    );
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Vector filterWithIndex
+ */
+export function filterWithIndex<A, B extends A>(
+  refinement: RefinementWithIndex<number, A, B>,
+): (self: Vector<A>) => Vector<B>;
+
+export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>): (self: Vector<A>) => Vector<A>;
+export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
+  return (self: Vector<A>): Vector<A> => {
+    return self.foldLeftWithIndex(Vector.emptyPushable(), (i, acc, a) => (predicate(i, a) ? acc.push(a) : acc));
+  };
+}
+
+/**
+ * Maps a function over a Vector and concatenates all the resulting
+ * Vectors together.
+ *
+ * @tsplus pipeable fncts.Vector flatMap
+ */
+export function flatMap<A, B>(f: (a: A) => Vector<B>) {
+  return (self: Vector<A>): Vector<B> => {
+    return self.map(f).flatten;
+  };
+}
 
 const containsState: ContainsState = {
   element: undefined,
   result: false,
 };
 
-function containsCb(value: any, state: ContainsState): boolean {
-  return !(state.result = value === state.element);
-}
+type ContainsState = {
+  element: any;
+  result: boolean;
+};
+
+type ElemState = {
+  element: any;
+  equals: (y: any) => (x: any) => boolean;
+  result: boolean;
+};
+
+type FindIndexState = {
+  predicate: (a: any) => boolean;
+  found: boolean;
+  index: number;
+};
+
+type FindNotIndexState = {
+  predicate: (a: any) => boolean;
+  index: number;
+};
+
+type FoldWhileState<A, B> = {
+  predicate: Predicate<B>;
+  result: B;
+  f: (i: number, b: B, a: A) => B;
+};
+
+type IndexOfState = {
+  element: any;
+  found: boolean;
+  index: number;
+};
+
+type PredState = {
+  predicate: (a: any) => boolean;
+  result: any;
+};
 
 /**
  * Returns `true` if the Vector contains the specified element.
@@ -241,6 +271,10 @@ export function contains<A>(element: A) {
     containsState.result  = false;
     return foldLeftCb(containsCb, containsState, self).result;
   };
+}
+
+function containsCb(value: any, state: ContainsState): boolean {
+  return !(state.result = value === state.element);
 }
 
 /**
@@ -292,20 +326,6 @@ export function dropRepeatsWith<A>(predicate: (a: A, b: A) => boolean) {
   };
 }
 
-type FindNotIndexState = {
-  predicate: (a: any) => boolean;
-  index: number;
-};
-
-function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
-  if (state.predicate(value)) {
-    ++state.index;
-    return true;
-  } else {
-    return false;
-  }
-}
-
 /**
  * Removes the first elements in the Vector for which the predicate returns
  * `true`.
@@ -321,16 +341,6 @@ export function dropWhile<A>(predicate: Predicate<A>) {
   };
 }
 
-type ElemState = {
-  element: any;
-  equals: (y: any) => (x: any) => boolean;
-  result: boolean;
-};
-
-function elemCb(value: any, state: ElemState): boolean {
-  return !(state.result = state.equals(state.element)(value));
-}
-
 /**
  * @tsplus pipeable fncts.Vector elem
  */
@@ -341,40 +351,9 @@ export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
     return foldLeftCb(elemCb, elemState, self).result;
   };
 }
-/**
- * Returns true if the two Vectors are equivalent.
- *
- * @complexity O(n)
- * @tsplus pipeable fncts.Vector equals
- */
-export function equals<A>(that: Vector<A>) {
-  return (self: Vector<A>): boolean => {
-    return self.corresponds(that, Equatable.strictEquals);
-  };
-}
 
-type PredState = {
-  predicate: (a: any) => boolean;
-  result: any;
-};
-
-function everyCb<A>(value: A, state: any): boolean {
-  return (state.result = state.predicate(value));
-}
-
-/**
- * Returns `true` if and only if the predicate function returns `true`
- * for all elements in the given Vector.
- *
- * @complexity O(n)
- * @tsplus pipeable fncts.Vector every
- */
-export function every<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => self is Vector<B>;
-export function every<A>(predicate: Predicate<A>): (self: Vector<A>) => boolean;
-export function every<A>(predicate: Predicate<A>) {
-  return (self: Vector<A>): boolean => {
-    return foldLeftCb<A, PredState>(everyCb, { predicate, result: true }, self).result;
-  };
+function elemCb(value: any, state: ElemState): boolean {
+  return !(state.result = state.equals(state.element)(value));
 }
 
 /**
@@ -394,22 +373,35 @@ export function emptyPushable<A = never>(): MutableVector<A> {
   return new Vector(0, 0, 0, [], undefined, []) as any;
 }
 
-function someCb<A>(value: A, state: PredState): boolean {
-  return !(state.result = state.predicate(value));
+/**
+ * Returns true if the two Vectors are equivalent.
+ *
+ * @complexity O(n)
+ * @tsplus pipeable fncts.Vector equals
+ */
+export function equals<A>(that: Vector<A>) {
+  return (self: Vector<A>): boolean => {
+    return self.corresponds(that, Equatable.strictEquals);
+  };
 }
 
 /**
- * Returns true if and only if there exists an element in the Vector for
- * which the predicate returns true.
+ * Returns `true` if and only if the predicate function returns `true`
+ * for all elements in the given Vector.
  *
  * @complexity O(n)
- *
- * @tsplus pipeable fncts.Vector some
+ * @tsplus pipeable fncts.Vector every
  */
-export function some<A>(predicate: Predicate<A>) {
+export function every<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => self is Vector<B>;
+export function every<A>(predicate: Predicate<A>): (self: Vector<A>) => boolean;
+export function every<A>(predicate: Predicate<A>) {
   return (self: Vector<A>): boolean => {
-    return foldLeftCb<A, PredState>(someCb, { predicate, result: false }, self).result;
+    return foldLeftCb<A, PredState>(everyCb, { predicate, result: true }, self).result;
   };
+}
+
+function everyCb<A>(value: A, state: any): boolean {
+  return (state.result = state.predicate(value));
 }
 
 /**
@@ -425,15 +417,13 @@ export function find<A>(predicate: Predicate<A>) {
   };
 }
 
-type FindIndexState = {
-  predicate: (a: any) => boolean;
-  found: boolean;
-  index: number;
-};
-
-function findIndexCb<A>(value: A, state: FindIndexState): boolean {
-  ++state.index;
-  return !(state.found = state.predicate(value));
+function findCb<A>(value: A, state: PredState): boolean {
+  if (state.predicate(value)) {
+    state.result = value;
+    return false;
+  } else {
+    return true;
+  }
 }
 
 /**
@@ -449,6 +439,11 @@ export function findIndex<A>(predicate: Predicate<A>) {
     const { found, index } = foldLeftCb<A, FindIndexState>(findIndexCb, { predicate, found: false, index: -1 }, self);
     return found ? index : -1;
   };
+}
+
+function findIndexCb<A>(value: A, state: FindIndexState): boolean {
+  ++state.index;
+  return !(state.found = state.predicate(value));
 }
 
 /**
@@ -479,6 +474,15 @@ export function findLastIndex<A>(predicate: Predicate<A>) {
   };
 }
 
+function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
+  if (state.predicate(value)) {
+    ++state.index;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 /**
  * Flattens a Vector of Vectors into a Vector. Note that this function does
  * not flatten recursively. It removes one level of nesting only.
@@ -492,29 +496,6 @@ export function flatten<A>(self: Vector<Vector<A>>): Vector<A> {
 }
 
 /**
- * Converts an array, an array-like, or an iterable into a Vector.
- *
- * @complexity O(n)
- * @tsplus static fncts.VectorOps from
- */
-export function from<A>(sequence: A[] | ArrayLike<A> | Iterable<A>): Vector<A>;
-export function from<A>(sequence: any): Vector<A> {
-  const l = emptyPushable<A>();
-  if (sequence.length > 0 && (sequence[0] !== undefined || 0 in sequence)) {
-    for (let i = 0; i < sequence.length; ++i) {
-      l.push(sequence[i]);
-    }
-  } else if (Symbol.iterator in sequence) {
-    const iterator = sequence[Symbol.iterator]();
-    let cur;
-    while (!(cur = iterator.next()).done) {
-      l.push(cur.value);
-    }
-  }
-  return l;
-}
-
-/**
  * Folds a function over a Vector. Left-associative.
  *
  * @tsplus pipeable fncts.Vector foldLeft
@@ -523,49 +504,6 @@ export function foldLeft<A, B>(initial: B, f: (acc: B, a: A) => B) {
   return (self: Vector<A>): B => {
     return self.foldLeftWithIndex(initial, (_, b, a) => f(b, a));
   };
-}
-
-/**
- * @tsplus pipeable fncts.Vector foldLeftWithIndex
- */
-export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
-  return (self: Vector<A>): B => {
-    const suffixSize = getSuffixSize(self);
-    const prefixSize = getPrefixSize(self);
-    let [acc, index] = foldLeftPrefix(f, b, self.prefix, prefixSize);
-    if (self.root !== undefined) {
-      [acc, index] = foldLeftNode(f, acc, self.root, getDepth(self), index);
-    }
-    return foldLeftSuffix(f, acc, self.suffix, suffixSize, index)[0];
-  };
-}
-
-type FoldWhileState<A, B> = {
-  predicate: Predicate<B>;
-  result: B;
-  f: (i: number, b: B, a: A) => B;
-};
-
-/**
- * Similar to `foldl`. But, for each element it calls the predicate function
- * _before_ the folding function and stops folding if it returns `false`.
- *
- *
- * @example
- * const isOdd = (_acc:, x) => x % 2 === 1;
- *
- * const xs = V.vector(1, 3, 5, 60, 777, 800);
- * foldlWhile(isOdd, (n, m) => n + m, 0, xs) //=> 9
- *
- * const ys = V.vector(2, 4, 6);
- * foldlWhile(isOdd, (n, m) => n + m, 111, ys) //=> 111
- */
-function foldWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolean {
-  if (state.predicate(state.result) === false) {
-    return false;
-  }
-  state.result = state.f(i, state.result, a);
-  return true;
 }
 
 /**
@@ -581,15 +519,17 @@ export function foldLeftWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, b: 
 }
 
 /**
- * @tsplus pipeable fncts.Vector foldRightWhile
+ * @tsplus pipeable fncts.Vector foldLeftWithIndex
  */
-export function foldRightWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, a: A, b: B) => B) {
+export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
   return (self: Vector<A>): B => {
-    return foldRightCb<A, FoldWhileState<A, B>>(
-      foldWhileCb,
-      { predicate: cont, result: b, f: (i, b, a) => f(i, a, b) },
-      self,
-    ).result;
+    const suffixSize = getSuffixSize(self);
+    const prefixSize = getPrefixSize(self);
+    let [acc, index] = foldLeftPrefix(f, b, self.prefix, prefixSize);
+    if (self.root !== undefined) {
+      [acc, index] = foldLeftNode(f, acc, self.root, getDepth(self), index);
+    }
+    return foldLeftSuffix(f, acc, self.suffix, suffixSize, index)[0];
   };
 }
 
@@ -624,6 +564,19 @@ export function foldRight<A, B>(initial: B, f: (value: A, acc: B) => B) {
 }
 
 /**
+ * @tsplus pipeable fncts.Vector foldRightWhile
+ */
+export function foldRightWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, a: A, b: B) => B) {
+  return (self: Vector<A>): B => {
+    return foldRightCb<A, FoldWhileState<A, B>>(
+      foldWhileCb,
+      { predicate: cont, result: b, f: (i, b, a) => f(i, a, b) },
+      self,
+    ).result;
+  };
+}
+
+/**
  * Folds a function over a Vector. Right-associative.
  *
  * @complexity O(n)
@@ -639,6 +592,28 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
     }
     return foldRightPrefix(f, acc, self.prefix, prefixSize, j)[0];
   };
+}
+
+/**
+ * Similar to `foldl`. But, for each element it calls the predicate function
+ * _before_ the folding function and stops folding if it returns `false`.
+ *
+ *
+ * @example
+ * const isOdd = (_acc:, x) => x % 2 === 1;
+ *
+ * const xs = V.vector(1, 3, 5, 60, 777, 800);
+ * foldlWhile(isOdd, (n, m) => n + m, 0, xs) //=> 9
+ *
+ * const ys = V.vector(2, 4, 6);
+ * foldlWhile(isOdd, (n, m) => n + m, 111, ys) //=> 111
+ */
+function foldWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolean {
+  if (state.predicate(state.result) === false) {
+    return false;
+  }
+  state.result = state.f(i, state.result, a);
+  return true;
 }
 
 /**
@@ -666,6 +641,29 @@ export function forEachWithIndex<A>(f: (i: number, a: A) => void) {
   return (self: Vector<A>): void => {
     self.foldLeftWithIndex(undefined as void, (index, _, element) => f(index, element));
   };
+}
+
+/**
+ * Converts an array, an array-like, or an iterable into a Vector.
+ *
+ * @complexity O(n)
+ * @tsplus static fncts.VectorOps from
+ */
+export function from<A>(sequence: A[] | ArrayLike<A> | Iterable<A>): Vector<A>;
+export function from<A>(sequence: any): Vector<A> {
+  const l = emptyPushable<A>();
+  if (sequence.length > 0 && (sequence[0] !== undefined || 0 in sequence)) {
+    for (let i = 0; i < sequence.length; ++i) {
+      l.push(sequence[i]);
+    }
+  } else if (Symbol.iterator in sequence) {
+    const iterator = sequence[Symbol.iterator]();
+    let cur;
+    while (!(cur = iterator.next()).done) {
+      l.push(cur.value);
+    }
+  }
+  return l;
 }
 
 /**
@@ -729,17 +727,6 @@ export function includes<A>(element: A) {
   };
 }
 
-type IndexOfState = {
-  element: any;
-  found: boolean;
-  index: number;
-};
-
-function indexOfCb(value: any, state: IndexOfState): boolean {
-  ++state.index;
-  return !(state.found = Equatable.strictEquals(value, state.element));
-}
-
 /**
  * Returns the index of the _first_ element in the Vector that is equal
  * to the given element. If no such element is found `-1` is returned.
@@ -755,16 +742,9 @@ export function indexOf<A>(element: A) {
   };
 }
 
-/**
- * Inserts the given element at the given index in the Vector.
- *
- * @complexity O(log(n))
- * @tsplus pipeable fncts.Vector insertAt
- */
-export function insertAt<A>(index: number, element: A) {
-  return (self: Vector<A>): Vector<A> => {
-    return self.slice(0, index).append(element).concat(self.slice(index, self.length));
-  };
+function indexOfCb(value: any, state: IndexOfState): boolean {
+  ++state.index;
+  return !(state.found = Equatable.strictEquals(value, state.element));
 }
 
 /**
@@ -776,6 +756,18 @@ export function insertAt<A>(index: number, element: A) {
 export function insertAllAt<A>(index: number, elements: Vector<A>) {
   return (self: Vector<A>): Vector<A> => {
     return self.slice(0, index).concat(elements).concat(self.slice(index, self.length));
+  };
+}
+
+/**
+ * Inserts the given element at the given index in the Vector.
+ *
+ * @complexity O(log(n))
+ * @tsplus pipeable fncts.Vector insertAt
+ */
+export function insertAt<A>(index: number, element: A) {
+  return (self: Vector<A>): Vector<A> => {
+    return self.slice(0, index).append(element).concat(self.slice(index, self.length));
   };
 }
 
@@ -856,19 +848,6 @@ export function makeBy<A>(n: number, f: (index: number) => A): Vector<A> {
 }
 
 /**
- * @tsplus pipeable fncts.Vector mapAccum
- */
-export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
-  return (self: Vector<A>): readonly [Vector<B>, S] => {
-    return self.foldLeft([Vector.emptyPushable(), s], ([acc, s], a) => {
-      const r = f(s, a);
-      acc.push(r[0]);
-      return [acc, r[1]];
-    });
-  };
-}
-
-/**
  * Applies a function to each element in the given Vector and returns a
  * new Vector of the values that the function return.
  *
@@ -878,6 +857,19 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
 export function map<A, B>(f: (a: A) => B) {
   return (self: Vector<A>): Vector<B> => {
     return self.mapWithIndex((_, a) => f(a));
+  };
+}
+
+/**
+ * @tsplus pipeable fncts.Vector mapAccum
+ */
+export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
+  return (self: Vector<A>): readonly [Vector<B>, S] => {
+    return self.foldLeft([Vector.emptyPushable(), s], ([acc, s], a) => {
+      const r = f(s, a);
+      acc.push(r[0]);
+      return [acc, r[1]];
+    });
   };
 }
 
@@ -902,13 +894,6 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 }
 
 /**
- * @tsplus getter fncts.Vector mutableClone
- */
-export function mutableClone<A>(self: Vector<A>): MutableVector<A> {
-  return new Vector(self.bits, self.offset, self.length, self.prefix, self.root, self.suffix) as any;
-}
-
-/**
  * Returns a Vector that has the entry specified by the index replaced with
  * the value returned by applying the function to the value.
  *
@@ -926,6 +911,13 @@ export function modifyAt<A>(i: number, f: (a: A) => A) {
     }
     return self.updateAt(i, f(self.unsafeGet(i)!));
   };
+}
+
+/**
+ * @tsplus getter fncts.Vector mutableClone
+ */
+export function mutableClone<A>(self: Vector<A>): MutableVector<A> {
+  return new Vector(self.bits, self.offset, self.length, self.prefix, self.root, self.suffix) as any;
 }
 
 /**
@@ -1188,6 +1180,24 @@ export function slice(from: number, to: number) {
 }
 
 /**
+ * Returns true if and only if there exists an element in the Vector for
+ * which the predicate returns true.
+ *
+ * @complexity O(n)
+ *
+ * @tsplus pipeable fncts.Vector some
+ */
+export function some<A>(predicate: Predicate<A>) {
+  return (self: Vector<A>): boolean => {
+    return foldLeftCb<A, PredState>(someCb, { predicate, result: false }, self).result;
+  };
+}
+
+function someCb<A>(value: A, state: PredState): boolean {
+  return !(state.result = state.predicate(value));
+}
+
+/**
  * @tsplus pipeable fncts.Vector sort
  */
 export function sort<A>(/** @tsplus auto */ O: Ord<A>) {
@@ -1283,22 +1293,6 @@ export function take(n: number) {
 }
 
 /**
- * Takes the first elements in the Vector for which the predicate returns
- * `true`.
- *
- * @complexity `O(k + log(n))` where `k` is the number of elements satisfying
- * the predicate.
- *
- * @tsplus pipeable fncts.Vector takeWhile
- */
-export function takeWhile<A>(predicate: Predicate<A>) {
-  return (self: Vector<A>): Vector<A> => {
-    const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, self);
-    return self.slice(0, index);
-  };
-}
-
-/**
  * Takes the last `n` elements from a Vector and returns them in a new
  * Vector.
  *
@@ -1328,6 +1322,22 @@ export function takeLastWhile<A>(predicate: Predicate<A>) {
 }
 
 /**
+ * Takes the first elements in the Vector for which the predicate returns
+ * `true`.
+ *
+ * @complexity `O(k + log(n))` where `k` is the number of elements satisfying
+ * the predicate.
+ *
+ * @tsplus pipeable fncts.Vector takeWhile
+ */
+export function takeWhile<A>(predicate: Predicate<A>) {
+  return (self: Vector<A>): Vector<A> => {
+    const { index } = foldLeftCb(findNotIndexCb, { predicate, index: 0 }, self);
+    return self.slice(0, index);
+  };
+}
+
+/**
  * Converts a Vector into an array.
  *
  * @complexity `O(n)`
@@ -1352,16 +1362,27 @@ export function toList<A>(self: Vector<A>): List<A> {
 }
 
 /**
+ * @tsplus getter fncts.Vector traverse
+ */
+export function traverse_<A>(self: Vector<A>) {
+  return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
+    <K, Q, W, X, I, S, R, E, B>(
+      f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
+    ): HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, Vector<B>> =>
+      self.traverseWithIndex(G)((_, a) => f(a));
+}
+/**
  * @tsplus getter fncts.Vector traverseWithIndex
  */
-export function _traverseWithIndex<A>(
+export function traverseWithIndex_<A>(
   self: Vector<A>,
 ): <G extends HKT, GC = HKT.None>(
   G: P.Applicative<G, GC>,
 ) => <K, Q, W, X, I, S, R, E, B>(
   f: (i: number, a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
 ) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, Vector<B>>;
-export function _traverseWithIndex<A>(
+
+export function traverseWithIndex_<A>(
   self: Vector<A>,
 ): <G>(G: P.Applicative<HKT.F<G>>) => <B>(f: (i: number, a: A) => HKT.FK1<G, B>) => HKT.FK1<G, Vector<B>> {
   return (G) => (f) =>
@@ -1375,33 +1396,11 @@ export function _traverseWithIndex<A>(
     );
 }
 
-/**
- * @tsplus getter fncts.Vector traverse
- */
-export function _traverse<A>(self: Vector<A>) {
-  return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
-    <K, Q, W, X, I, S, R, E, B>(
-      f: (a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
-    ): HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, Vector<B>> =>
-      self.traverseWithIndex(G)((_, a) => f(a));
-}
-
 export const traverseWithIndex: P.TraversableWithIndex<VectorF>["traverseWithIndex"] = (G) => (f) => (self) =>
   self.traverseWithIndex(G)(f);
 
 export const traverse: Traversable<VectorF>["traverse"] = (G) => (f) => (self) =>
   self.traverseWithIndex(G)((_, a) => f(a));
-
-/**
- * Returns a new Vector without repeated elements by using the given
- * Eq instance to determine when elements are equal
- *
- * @complexity `O(n)`
- * @tsplus pipeable fncts.Vector uniq
- */
-export function uniq<A>(E: Eq<A>) {
-  return (self: Vector<A>) => self.dropRepeatsWith((a, b) => E.equals(b)(a));
-}
 
 /**
  * @tsplus static fncts.VectorOps unfold
@@ -1423,13 +1422,15 @@ export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Vector<
   return out;
 }
 
-function findCb<A>(value: A, state: PredState): boolean {
-  if (state.predicate(value)) {
-    state.result = value;
-    return false;
-  } else {
-    return true;
-  }
+/**
+ * Returns a new Vector without repeated elements by using the given
+ * Eq instance to determine when elements are equal
+ *
+ * @complexity `O(n)`
+ * @tsplus pipeable fncts.Vector uniq
+ */
+export function uniq<A>(E: Eq<A>) {
+  return (self: Vector<A>) => self.dropRepeatsWith((a, b) => E.equals(b)(a));
 }
 
 /**

@@ -26,6 +26,11 @@ export function always<A>(make: Lazy<A>): Eval<A> {
   return Eval.defer(Eval.now(make()));
 }
 
+/**
+ * @tsplus static fncts.control.EvalOps unit
+ */
+export const unit: Eval<void> = Eval.now(undefined);
+
 const UNSET = Symbol.for("@tsplus/base/control/Eval/UNSET");
 
 /**

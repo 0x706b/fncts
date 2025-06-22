@@ -1,4 +1,4 @@
-import type { ReadonlyNonEmptyArrayF } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
+import type { ReadonlyNonEmptyArrayF } from "@fncts/base/collection/immutable/ReadonlyNonEmptyArray/definition";
 import type * as P from "@fncts/base/typeclass";
 
 import {
@@ -14,8 +14,8 @@ import {
   mapWithIndex,
   traverse,
   traverseWithIndex,
-} from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/api";
-import { make } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/constructors";
+} from "@fncts/base/collection/immutable/ReadonlyNonEmptyArray/api";
+import { make } from "@fncts/base/collection/immutable/ReadonlyNonEmptyArray/constructors";
 
 /**
  * @tsplus static fncts.ImmutableNonEmptyArrayOps Semialign

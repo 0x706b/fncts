@@ -451,7 +451,6 @@ export function findIndex<A>(predicate: Predicate<A>) {
  * @tsplus pipeable fncts.ReadonlyArray findLast
  */
 export function findLast<A, B extends A>(p: Refinement<A, B>): (as: ReadonlyArray<A>) => Maybe<B>;
-
 export function findLast<A>(p: Predicate<A>): (as: ReadonlyArray<A>) => Maybe<A>;
 export function findLast<A>(p: Predicate<A>) {
   return (as: ReadonlyArray<A>): Maybe<A> => {
@@ -525,9 +524,7 @@ export function findMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
  * @tsplus pipeable fncts.ReadonlyArray findWithIndex
  */
 export function findWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (as: ReadonlyArray<A>) => Maybe<B>;
-
 export function findWithIndex<A>(p: PredicateWithIndex<number, A>): (as: ReadonlyArray<A>) => Maybe<A>;
-
 export function findWithIndex<A>(p: PredicateWithIndex<number, A>) {
   return (as: ReadonlyArray<A>): Maybe<A> => {
     const len = as.length;
@@ -552,12 +549,11 @@ export function flatMap<A, B>(f: (a: A) => ReadonlyArray<B>) {
  */
 export function flatMapWithIndex<A, B>(f: (i: number, a: A) => ReadonlyArray<B>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
-    let outLen      = 0;
-    const selfArray = self;
-    const len       = selfArray.length;
-    const temp      = Array<Array<B>>(len);
+    let outLen = 0;
+    const len  = self.length;
+    const temp = Array<Array<B>>(len);
     for (let i = 0; i < len; i++) {
-      const e   = selfArray[i]!;
+      const e   = self[i]!;
       const arr = f(i, e);
       outLen   += arr.length;
       temp[i]   = arr! as Array<B>;

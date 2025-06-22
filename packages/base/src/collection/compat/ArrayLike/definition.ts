@@ -2,10 +2,10 @@ declare global {
   /**
    * @tsplus type fncts.ArrayLike
    */
-  interface ArrayLike<T> {}
+  export interface ArrayLike<T> {}
 
   /**
    * @tsplus type fncts.ArrayLike
    */
-  interface RelativeIndexable<T> {}
+  export interface RelativeIndexable<T> {}
 }

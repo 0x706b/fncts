@@ -322,7 +322,9 @@ class AppendN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.start.toIterable.concat(this.buffer.toIterable.take(this.bufferUsed))[Symbol.iterator]() as Iterator<A>;
+    return this.start.toIterable
+      .concat((<ArrayLike<A>>this.buffer).toIterable.take(this.bufferUsed))
+      [Symbol.iterator]();
   }
 
   append<A1>(a: A1): ConcImplementation<A | A1> {
@@ -382,7 +384,7 @@ class AppendN<A> extends ConcImplementation<A> {
   }
 }
 
-class PrependN<A> extends ConcImplementation<A> {
+export class PrependN<A> extends ConcImplementation<A> {
   readonly _tag = ConcTag.PrependN;
 
   length: number;
@@ -405,10 +407,9 @@ class PrependN<A> extends ConcImplementation<A> {
   }
 
   [Symbol.iterator](): Iterator<A> {
-    return this.buffer
-      .slice(BUFFER_SIZE - this.bufferUsed, this.buffer.length)
-      .toIterable.concat(this.end)
-      [Symbol.iterator]() as Iterator<A>;
+    return (<ArrayLike<A>>this.buffer.slice(BUFFER_SIZE - this.bufferUsed, this.buffer.length)).toIterable
+      .concat(this.end)
+      [Symbol.iterator]();
   }
 
   prepend<A1>(a: A1): ConcImplementation<A | A1> {

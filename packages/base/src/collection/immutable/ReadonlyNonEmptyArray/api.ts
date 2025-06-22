@@ -1,6 +1,6 @@
-import type { ReadonlyNonEmptyArrayF } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
+import type { ReadonlyNonEmptyArrayF } from "@fncts/base/collection/immutable/ReadonlyNonEmptyArray/definition";
 
-import { allocWithHead } from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/constructors";
+import { allocWithHead } from "@fncts/base/collection/immutable/ReadonlyNonEmptyArray/constructors";
 import { identity } from "@fncts/base/data/function";
 import * as P from "@fncts/base/typeclass";
 

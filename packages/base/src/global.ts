@@ -6,10 +6,6 @@ import type {} from "@fncts/base";
 /**
  * @tsplus global
  */
-import {} from "@fncts/base/collection/compat/Array";
-/**
- * @tsplus global
- */
 import { Conc, ConcBuilder } from "@fncts/base/collection/immutable/Conc";
 /**
  * @tsplus global
@@ -26,22 +22,22 @@ import { HashSet } from "@fncts/base/collection/immutable/HashSet/definition";
 /**
  * @tsplus global
  */
-import {} from "@fncts/base/collection/immutable/ImmutableArray/definition";
+import { Cons, List, Nil } from "@fncts/base/collection/immutable/List/definition";
+/**
+ * @tsplus global
+ */
+import { Queue as ImmutableQueue } from "@fncts/base/collection/immutable/Queue/definition";
+/**
+ * @tsplus global
+ */
+import {} from "@fncts/base/collection/immutable/ReadonlyArray/definition";
 /**
  * @tsplus global
  */
 import {
   NonEmptyArray,
   ReadonlyNonEmptyArray,
-} from "@fncts/base/collection/immutable/ImmutableNonEmptyArray/definition";
-/**
- * @tsplus global
- */
-import { Cons, List, Nil } from "@fncts/base/collection/immutable/List/definition";
-/**
- * @tsplus global
- */
-import { Queue as ImmutableQueue } from "@fncts/base/collection/immutable/Queue/definition";
+} from "@fncts/base/collection/immutable/ReadonlyNonEmptyArray/definition";
 /**
  * @tsplus global
  */

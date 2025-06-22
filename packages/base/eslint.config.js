@@ -14,6 +14,7 @@ export default tseslint.config(...baseConfig, {
     "src/data/These/api.ts",
     "src/collection/Iterable/api.ts",
     "src/collection/immutable/ImmutableArray/api.ts",
+    "src/collection/immutable/Vector/api.ts",
     // "src/collection/immutable/List/api.ts",
   ],
   rules: {
@@ -21,6 +22,9 @@ export default tseslint.config(...baseConfig, {
       "error",
       {
         type: "natural",
+        fallbackSort: {
+          type: "alphabetical",
+        },
         groups: [
           "declare-enum",
           "export-enum",

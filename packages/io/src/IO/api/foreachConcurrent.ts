@@ -103,14 +103,13 @@ function foreachConcurrentUnboundedDiscard<R, E, A>(
             ),
           () => {
             const it = fibers[Symbol.iterator]();
-            let result: IteratorResult<FiberRuntime<E, any>>;
+            let result: IteratorResult<FiberRuntime<E, any>> = it.next();
             return IO.whileLoop(
-              () => !!result?.done,
+              () => !result.done,
+              () => (result.value as FiberRuntime<E, any>).inheritAll,
               () => {
                 result = it.next();
-                return (result.value as FiberRuntime<E, any>).inheritAll;
               },
-              () => undefined,
             );
           },
         ),

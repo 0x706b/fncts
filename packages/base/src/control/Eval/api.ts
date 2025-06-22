@@ -4,6 +4,15 @@ import { EvalPrimitive, EvalTag } from "@fncts/base/control/Eval/definition";
 import { identity } from "@fncts/base/data/function";
 
 /**
+ * @tsplus pipeable fncts.control.Eval ap
+ */
+export function ap<A>(fa: Eval<A>) {
+  return <B>(self: Eval<(a: A) => B>): Eval<B> => {
+    return self.zipWith(fa, (f, a) => f(a));
+  };
+}
+
+/**
  * @tsplus pipeable fncts.control.Eval and
  */
 export function and(that: Eval<boolean>) {
@@ -22,6 +31,43 @@ export function flatMap<A, B>(f: (a: A) => Eval<B>) {
     primitive.i1    = f;
     return primitive;
   };
+}
+
+/**
+ * @tsplus static fncts.control.EvalOps whileLoop
+ */
+export function whileLoop<A>(check: Lazy<boolean>, body: Lazy<Eval<A>>, process: (a: A) => void): Eval<void> {
+  return Eval.defer(() => {
+    if (check()) {
+      return body().flatMap((a) => {
+        process(a);
+        return whileLoop(check, body, process);
+      });
+    } else {
+      return Eval.unit;
+    }
+  });
+}
+
+/**
+ * @tsplus static fncts.control.EvalOps forEach
+ */
+export function forEach<A, B>(as: Iterable<A>, f: (a: A) => Eval<B>): Eval<Conc<B>> {
+  return Eval.defer(() => {
+    const iterator               = as[Symbol.iterator]();
+    let value: IteratorResult<A> = iterator.next();
+
+    const out = new ConcBuilder<B>();
+
+    return Eval.whileLoop(
+      () => !value?.done,
+      () => f(value!.value),
+      (b) => {
+        out.append(b);
+        value = iterator.next();
+      },
+    ).map(() => out.result());
+  });
 }
 
 /**
@@ -58,24 +104,75 @@ export function zip<B>(fb: Eval<B>) {
   };
 }
 
-/**
- * @tsplus pipeable fncts.control.Eval ap
- */
-export function ap<A>(fa: Eval<A>) {
-  return <B>(self: Eval<(a: A) => B>): Eval<B> => {
-    return self.zipWith(fa, (f, a) => f(a));
-  };
+export function foreachWithIndex<A, B>(as: Iterable<A>, f: (index: number, a: A) => Eval<B>): Eval<ReadonlyArray<B>> {
+  return Eval.defer(() => {
+    const it = as[Symbol.iterator]();
+    let i    = 0;
+    let result: IteratorResult<A> = it.next();
+
+    const out: Array<B> = [];
+
+    return Eval.whileLoop(
+      () => !result.done,
+      () => f(i, result.value),
+      (b) => {
+        i++;
+        result = it.next();
+        out.push(b);
+      },
+    ).map(() => out);
+  });
 }
 
 /**
- * @tsplus static fncts.control.EvalOps sequenceT
+ * @tsplus static fncts.control.EvalOps foreach
  */
-export function sequenceT<A extends Array<Eval<any>>>(
-  ...computations: A
-): Eval<{
-  [K in keyof A]: _A<A[K]>;
-}> {
-  return Eval.defer(Eval.now(computations.map((e) => e.run)) as Eval<any>);
+export function foreach<A, B>(as: Iterable<A>, f: (a: A) => Eval<B>): Eval<ReadonlyArray<B>> {
+  return Eval.defer(() => {
+    const it = as[Symbol.iterator]();
+    let result: IteratorResult<A> = it.next();
+    const out: Array<B>           = [];
+    return Eval.whileLoop(
+      () => !result.done,
+      () => f(result.value),
+      (b) => {
+        result = it.next();
+        out.push(b);
+      },
+    ).map(() => out);
+  });
+}
+
+/**
+ * @tsplus static fncts.control.EvalOps all
+ */
+export function all<A extends ReadonlyArray<Eval<any>>>(...computations: A): Eval<{ [K in keyof A]: _A<A[K]> }>;
+export function all<A extends Iterable<Eval<any>>>(
+  computations: A,
+): [A] extends [Iterable<infer A>] ? Eval<ReadonlyArray<_A<A>>> : never;
+export function all<A extends Record<string, Eval<any>>>(computations: A): Eval<{ [K in keyof A]: _A<A[K]> }>;
+export function all(
+  ...args: [Record<string, Eval<any>>] | [Iterable<Eval<any>>] | ReadonlyArray<Eval<any>>
+): Eval<any> {
+  if (args.length === 1) {
+    const arg = args[0];
+    if (Symbol.iterator in arg) {
+      return Eval.foreach(<Iterable<Eval<any>>>arg, identity);
+    } else {
+      return Eval.foreach(
+        Object.entries(arg).map(([k, computation]) => (<Eval<any>>computation).map((value) => [k, value] as const)),
+        identity,
+      ).map((result) => {
+        const out: Record<string, any> = {};
+        for (const [k, v] of result) {
+          out[k] = v;
+        }
+        return out;
+      });
+    }
+  } else {
+    return Eval.foreach(<Iterable<Eval<any>>>args, identity);
+  }
 }
 
 class GenEval<A> {
@@ -113,7 +210,3 @@ export function gen<T extends GenEval<any>, A>(
     return runGenEval(state, iterator);
   });
 }
-
-// codegen:start { preset: barrel, include: api/*.ts }
-export * from "./api/sequenceArray.js";
-// codegen:end
