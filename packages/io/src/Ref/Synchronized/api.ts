@@ -201,8 +201,8 @@ export function modifyJustIO<A, R1, E1, B>(
  * @tsplus pipeable fncts.io.Ref.Synchronized updateAndGetIO
  */
 export function updateAndGetIO<A, R1, E1>(f: (a: A) => IO<R1, E1, A>, __tsplusTrace?: string) {
-  return <RA, RB, EA, EB>(ref: PRef.Synchronized<RA, RB, EA, EB, A, A>): IO<RA | RB | R1, E1 | EA | EB, void> => {
-    return ref.modifyIO((a) => f(a).map((r) => [r, r])).asUnit;
+  return <RA, RB, EA, EB>(ref: PRef.Synchronized<RA, RB, EA, EB, A, A>): IO<RA | RB | R1, E1 | EA | EB, A> => {
+    return ref.modifyIO((a) => f(a).map((r) => [r, r]));
   };
 }
 

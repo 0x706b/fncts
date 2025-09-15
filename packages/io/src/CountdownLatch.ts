@@ -27,6 +27,8 @@ export class CountdownLatch {
   readonly count: UIO<number> = this._count.get;
 
   readonly increment: UIO<void> = this._count.update((n) => n + 1);
+
+  readonly isOpen: UIO<boolean> = this._count.get.map((count) => count === 0);
 }
 
 /**

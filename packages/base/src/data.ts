@@ -38,6 +38,7 @@ export type {} from "./data/Environment.js";
 export type {} from "./data/Either.js";
 export type {} from "./data/Duration.js";
 export type {} from "./data/DatumEither.js";
+export type {} from "./data/Datum.js";
 export type {} from "./data/Date.js";
 export type {} from "./data/Data.js";
 export type {} from "./data/Const.js";
