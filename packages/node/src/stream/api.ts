@@ -147,21 +147,38 @@ function writeIO<A>(writable: stream.Writable | NodeJS.WritableStream, encoding?
     if (chunk.length === 0) {
       return IO.unit;
     } else {
-      return IO.async<never, never, void>((resume) => {
+      return IO.asyncIO<never, never, void>((resume) => {
         const iterator = chunk[Symbol.iterator]();
-        const next     = iterator.next();
-        function loop() {
-          const item    = next;
-          const success = writable.write(item.value, encoding as any);
-          if (next.done) {
-            resume(IO.unit);
-          } else if (success) {
-            loop();
-          } else {
-            writable.once("drain", loop);
-          }
-        }
-        loop();
+
+        let done = false;
+        let next: IteratorResult<any> = iterator.next();
+
+        return IO.whileLoop(
+          () => !done,
+          () => {
+            if (next!.done) {
+              return IO(() => {
+                done = true;
+                resume(IO.unit);
+              });
+            }
+
+            const success = writable.write(next.value, encoding as any);
+
+            if (!success) {
+              return IO.async((k) => {
+                writable.once("drain", () => {
+                  k(IO.unit);
+                });
+              });
+            } else {
+              return IO.unit;
+            }
+          },
+          () => {
+            next = iterator.next();
+          },
+        );
       });
     }
   };

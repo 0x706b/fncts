@@ -200,13 +200,6 @@ export function isReplete<A>(self: Datum<A>): self is Replete<A> {
 }
 
 /**
- * @tsplus getter fncts.Datum value
- */
-export function left<E, A>(self: Datum<A>): A | undefined {
-  return self.isNonEmpty() ? self.value : undefined;
-}
-
-/**
  * @tsplus pipeable fncts.Datum map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -282,9 +275,7 @@ export function orElse<B>(that: Lazy<Datum<B>>) {
  * @tsplus pipeable fncts.Datum partition
  */
 export function partition<A, B extends A>(p: Refinement<A, B>): (self: Datum<A>) => [Datum<A>, Datum<B>];
-
 export function partition<A>(p: Predicate<A>): (self: Datum<A>) => [Datum<A>, Datum<A>];
-
 export function partition<A>(p: Predicate<A>) {
   return (self: Datum<A>): [Datum<A>, Datum<A>] => {
     return [self.filter(p.invert), self.filter(p)];
@@ -320,6 +311,7 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 export function pending<A = never>(): Datum<A> {
   return _Pending;
 }
+
 /**
  * @tsplus static fncts.DatumOps refresh
  * @tsplus static fncts.Datum.RefreshOps __call
@@ -327,6 +319,7 @@ export function pending<A = never>(): Datum<A> {
 export function refresh<A>(value: A): Datum<A> {
   return new Refresh(value);
 }
+
 /**
  * @tsplus static fncts.DatumOps replete
  * @tsplus static fncts.Datum.RepleteOps __call
@@ -362,7 +355,6 @@ export function toPending<A>(self: Datum<A>): Datum<A> {
     case DatumTag.Replete:
       return Refresh(self.value);
   }
-  // return self.isEmpty() ? self : Refresh(self.value);
 }
 
 /**
@@ -386,6 +378,13 @@ export function traverse_<A>(self: Datum<A>) {
         Refresh: (a) => f(a).pipe(G.map((b) => Refresh(b))),
         Replete: (a) => f(a).pipe(G.map((b) => Replete(b))),
       });
+}
+
+/**
+ * @tsplus getter fncts.Datum value
+ */
+export function value<A>(self: Datum<A>): A | undefined {
+  return self.isNonEmpty() ? self.value : undefined;
 }
 
 export const traverse: P.Traversable<DatumF>["traverse"] = (G) => (f) => (self) => self.traverse(G)(f);

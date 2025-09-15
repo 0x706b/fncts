@@ -170,21 +170,17 @@ export function comprehension<A, B, C, D, R>(
   f: (a: A, b: B, c: C, d: D) => R,
   g?: (a: A, b: B, c: C, d: D) => boolean,
 ): ReadonlyArray<R>;
-
 export function comprehension<A, B, C, R>(
   input: [ReadonlyArray<A>, ReadonlyArray<B>, ReadonlyArray<C>],
   f: (a: A, b: B, c: C) => R,
   g?: (a: A, b: B, c: C) => boolean,
 ): ReadonlyArray<R>;
-
 export function comprehension<A, B, R>(
   input: [ReadonlyArray<A>, ReadonlyArray<B>],
   f: (a: A, b: B) => R,
   g?: (a: A, b: B) => boolean,
 ): ReadonlyArray<R>;
-
 export function comprehension<A, R>(input: [ReadonlyArray<A>], f: (a: A) => R, g?: (a: A) => boolean): ReadonlyArray<R>;
-
 export function comprehension<A, R>(
   input: ReadonlyArray<ReadonlyArray<A>>,
   f: (...xs: ReadonlyArray<A>) => R,
@@ -241,6 +237,7 @@ export function cross<B>(fb: ReadonlyArray<B>) {
     return self.crossWith(fb, (a, b) => Zipped(a, b));
   };
 }
+
 /**
  * @tsplus pipeable fncts.ReadonlyArray crossWith
  */
@@ -249,6 +246,7 @@ export function crossWith<A, B, C>(fb: ReadonlyArray<B>, f: (a: A, b: B) => C) {
     return self.flatMap((a) => fb.map((b) => f(a, b)));
   };
 }
+
 /**
  * @tsplus pipeable fncts.ReadonlyArray deleteAt
  */
@@ -257,6 +255,7 @@ export function deleteAt(i: number) {
     return as.isOutOfBound(i) ? Nothing() : Just(as.unsafeDeleteAt(i));
   };
 }
+
 /**
  * @tsplus pipeable fncts.ReadonlyArray difference
  */
@@ -326,9 +325,7 @@ export function elem<A>(a: A, /** @tsplus auto */ E: P.Eq<A>) {
  * @tsplus pipeable fncts.ReadonlyArray every
  */
 export function every<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => self is ReadonlyArray<B>;
-
 export function every<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => boolean;
-
 export function every<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): boolean => {
     return self.everyWithIndex((_, a) => p(a));
@@ -341,7 +338,6 @@ export function every<A>(p: Predicate<A>) {
 export function everyWithIndex<A, B extends A>(
   p: RefinementWithIndex<number, A, B>,
 ): (self: ReadonlyArray<A>) => self is ReadonlyArray<B>;
-
 export function everyWithIndex<A>(p: PredicateWithIndex<number, A>): (self: ReadonlyArray<A>) => boolean;
 export function everyWithIndex<A>(p: PredicateWithIndex<number, A>) {
   return (self: ReadonlyArray<A>): boolean => {
@@ -354,17 +350,18 @@ export function everyWithIndex<A>(p: PredicateWithIndex<number, A>) {
     return result;
   };
 }
+
 /**
  * @tsplus pipeable fncts.ReadonlyArray filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
-
 export function filter<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => ReadonlyArray<A>;
 export function filter<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
     return self.filterWithIndex((_, a) => p(a));
   };
 }
+
 /**
  * @tsplus pipeable fncts.ReadonlyArray filterMap
  */
@@ -948,7 +945,6 @@ export function mutate<A>(f: (self: Array<A>) => void) {
 export function partition<A, B extends A>(
   p: Refinement<A, B>,
 ): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<B>];
-
 export function partition<A>(
   p: Predicate<A>,
 ): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
@@ -957,6 +953,7 @@ export function partition<A>(p: Predicate<A>) {
     return self.partitionWithIndex((_, a) => p(a));
   };
 }
+
 /**
  * @tsplus pipeable fncts.ReadonlyArray partitionMap
  */
@@ -988,6 +985,7 @@ export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B,
     return [left, right];
   };
 }
+
 /**
  * @tsplus pipeable fncts.ReadonlyArray partitionWithIndex
  */
@@ -997,7 +995,6 @@ export function partitionWithIndex<A, B extends A>(
 export function partitionWithIndex<A>(
   p: PredicateWithIndex<number, A>,
 ): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
-
 export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
   return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => {
     const left: Array<A>  = [];
@@ -1189,7 +1186,6 @@ export function spanIndexRight<A>(predicate: Predicate<A>) {
 export function spanLeft<A, B extends A>(
   p: Refinement<A, B>,
 ): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<B>, ReadonlyArray<A>];
-
 export function spanLeft<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
 export function spanLeft<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => {
@@ -1212,11 +1208,9 @@ export function spanLeft<A>(p: Predicate<A>) {
 export function spanRight<A, B extends A>(
   p: Refinement<A, B>,
 ): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<B>];
-
 export function spanRight<A>(
   p: Predicate<A>,
 ): (self: ReadonlyArray<A>) => readonly [ReadonlyArray<A>, ReadonlyArray<A>];
-
 export function spanRight<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => {
     const i    = self.spanIndexRight(p);

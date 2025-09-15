@@ -165,7 +165,10 @@ export function fromInterop<A>(subscribable: {
   );
 }
 
-function _if<R, E, A, R1, E1, B>(
+/**
+ * @tsplus static fncts.observable.ObservableOps if
+ */
+export function _if<R, E, A, R1, E1, B>(
   condition: () => boolean,
   onTrue: ObservableInput<R, E, A>,
   onFalse: ObservableInput<R1, E1, B>,
@@ -182,6 +185,9 @@ export interface IterateOptions<S> {
   readonly scheduler?: SchedulerLike;
 }
 
+/**
+ * @tsplus static fncts.observable.ObservableOps iterate
+ */
 export function iterate<S>(options: IterateOptions<S>): Observable<never, never, S> {
   const { initialState, cont, iterate, scheduler } = options;
   function* gen() {

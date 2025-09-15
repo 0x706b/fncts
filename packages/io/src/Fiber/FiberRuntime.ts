@@ -661,6 +661,7 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
       } finally {
         this.running = false;
         if (!this.inbox.isEmpty) {
+          this.running = true;
           this.drainQueueLaterOnExecutor();
         }
       }

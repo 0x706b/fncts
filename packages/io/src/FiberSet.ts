@@ -5,12 +5,16 @@ export type FiberSetTypeId = typeof FiberSetTypeId;
  * @tsplus type fncts.io.FiberSet
  * @tsplus companion fncts.io.FiberSetOps
  */
-export class FiberSet<E, A> {
+export class FiberSet<E, A> implements Iterable<Fiber<E, A>> {
   readonly [FiberSetTypeId]: FiberSetTypeId = FiberSetTypeId;
   constructor(
     readonly backing: Set<Fiber.Runtime<E, A>>,
     readonly future: Future<unknown, never>,
   ) {}
+
+  [Symbol.iterator](): Iterator<Fiber<E, A>> {
+    return this.backing[Symbol.iterator]();
+  }
 }
 
 /**
@@ -111,5 +115,5 @@ export function join<E, A>(self: FiberSet<E, A>): FIO<E, never> {
  * @tsplus getter fncts.io.FiberSet clear
  */
 export function clear<E, A>(self: FiberSet<E, A>): UIO<void> {
-  return IO.foreach(self.backing, (fiber) => fiber.interrupt) > IO(self.backing.clear());
+  return IO.foreach(self.backing, (fiber) => fiber.interruptFork) > IO(self.backing.clear());
 }
