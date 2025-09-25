@@ -36,11 +36,26 @@ export function deriveLiteral<A extends LiteralValue>(
 
 type MaybeKeys<A> = { [K in keyof A]: A[K] extends Maybe<any> ? K : never }[keyof A];
 
+type IndexSignatures<A extends Record<PropertyKey, any>> = UnionToTuple<
+  {
+    [K in keyof A]: Check<Check.IsLiteral<K>> extends Check.True ? never : { key: Schema<K>; value: Schema<A[K]> };
+  }[keyof A]
+>;
+
+type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+
+type LastInUnion<U> =
+  UnionToIntersection<U extends any ? (x: U) => void : never> extends (x: infer L) => void ? L : never;
+
+type UnionToTuple<U, T extends any[] = []> = [U] extends [never]
+  ? T
+  : UnionToTuple<Exclude<U, LastInUnion<U>>, [LastInUnion<U>, ...T]>;
+
 /**
  * @tsplus derive fncts.schema.Schema<_> 20
  */
 export function deriveStruct<A extends Record<string, any>>(
-  ...[requiredFields, optionalFields, maybeFields]: Check<Check.IsStruct<A>> extends Check.True
+  ...[requiredFields, optionalFields, maybeFields, indexSchema]: Check<Check.IsStruct<A>> extends Check.True
     ? [
         ...[
           requiredFields: {
@@ -55,12 +70,13 @@ export function deriveStruct<A extends Record<string, any>>(
               },
             ]),
         ...([MaybeKeys<A>] extends [never]
-          ? []
+          ? [maybeFields: {}]
           : [
               maybeFields: {
                 [k in MaybeKeys<A>]: [A[k]] extends [Maybe<infer _A>] ? Schema<_A> : never;
               },
             ]),
+        ...[indexSchema: IndexSignatures<A>],
       ]
     : never
 ): Schema<A> {
@@ -68,6 +84,9 @@ export function deriveStruct<A extends Record<string, any>>(
   let propertySignatures                     = ownKeys(requiredFields).map((key) =>
     // @ts-expect-error
     AST.createPropertySignature(key, requiredFields[key]!.ast, false, true),
+  );
+  const indexSignatures = (indexSchema as ReadonlyArray<{ key: Schema<any>; value: Schema<any> }>).map(
+    ({ key, value }) => AST.createIndexSignature(key.ast as any, value.ast, false),
   );
 
   if (optionalFields) {
@@ -77,7 +96,7 @@ export function deriveStruct<A extends Record<string, any>>(
     );
   }
 
-  const struct = Schema.fromAST(AST.createTypeLiteral(propertySignatures, Vector.empty()));
+  const struct = Schema.fromAST(AST.createTypeLiteral(propertySignatures, Vector.from(indexSignatures)));
 
   if (maybeFieldsKeys.isEmpty()) {
     return struct as Schema<any>;
@@ -98,7 +117,7 @@ export function deriveStruct<A extends Record<string, any>>(
           ),
         ),
       ),
-      Vector.empty(),
+      Vector.from(indexSignatures),
     ),
   );
 
@@ -110,7 +129,7 @@ export function deriveStruct<A extends Record<string, any>>(
           AST.createPropertySignature(key, Schema.maybe(maybeFields![key]!).ast, false, true),
         ),
       ),
-      Vector.empty(),
+      Vector.from(indexSignatures),
     ),
   );
 
@@ -141,7 +160,7 @@ export function deriveStruct<A extends Record<string, any>>(
 /**
  * @tsplus derive fncts.schema.Schema<_> 10
  */
-export function deriveTuple<A extends ReadonlyArray<unknown>>(
+export function deriveTuple<A extends ReadonlyArray<any>>(
   ...[components]: Check<Check.IsTuple<A>> extends Check.True ? [components: { [K in keyof A]: Schema<A[K]> }] : never
 ): Schema<A> {
   return unsafeCoerce(Schema.tuple(...components));

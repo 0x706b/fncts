@@ -38,6 +38,10 @@ import { ASTAnnotationMap } from "@fncts/schema/ASTAnnotationMap";
 /**
  * @tsplus global
  */
+import {} from "@fncts/schema/Eq";
+/**
+ * @tsplus global
+ */
 import { ParseError } from "@fncts/schema/ParseError";
 /**
  * @tsplus global

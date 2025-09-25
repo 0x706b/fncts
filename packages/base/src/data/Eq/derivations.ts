@@ -40,23 +40,16 @@ export function deriveStruct<A extends Record<string, any>>(
       ]
     : never
 ): Eq<A> {
-  return Eq({
-    equals: (y) => (x) => {
-      for (const field in requiredFields) {
-        // @ts-expect-error
-        if (!(requiredFields[field] as Eq<any>).equals(y[field])(x[field])) {
-          return false;
-        }
-      }
-      for (const field in optionalFields) {
-        if ((field in x && !(field in y)) || (field in y && !(field in x))) {
-          return false;
-        }
-        if (!(optionalFields[field] as Eq<any>).equals(y[field])(x[field])) {
-          return false;
-        }
-      }
-      return true;
-    },
-  });
+  return Eq.struct<any, any>(requiredFields, optionalFields);
+}
+
+/**
+ * @tsplus derive fncts.Eq<|> 30
+ */
+export function deriveUnion<A extends ReadonlyArray<unknown>>(
+  ...members: {
+    [K in keyof A]: Eq<A[K]>;
+  }
+): Eq<A[number]> {
+  return Eq.union(members);
 }

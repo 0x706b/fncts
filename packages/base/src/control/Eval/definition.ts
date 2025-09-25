@@ -47,8 +47,6 @@ export const enum EvalTag {
   Value,
   Defer,
   FlatMap,
-  WhileLoop,
-  Continuation,
 }
 
 export interface Value

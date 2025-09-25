@@ -52,8 +52,13 @@ export declare namespace Check {
   /**
    * @tsplus type fncts.Check.IsLiteral
    */
-  type IsLiteral<A extends string | number | boolean | bigint | null> = Not<
-    Extends<string, A> | Extends<number, A> | Extends<boolean, A> | Extends<bigint, A> | Extends<null, A>
+  type IsLiteral<A extends string | number | boolean | symbol | bigint | null> = Not<
+    | Extends<string, A>
+    | Extends<number, A>
+    | Extends<boolean, A>
+    | Extends<bigint, A>
+    | Extends<null, A>
+    | Extends<symbol, A>
   >;
 
   /**

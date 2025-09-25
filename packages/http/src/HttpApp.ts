@@ -115,11 +115,15 @@ export function toWebHandlerRuntime<R>(runtime: Runtime<R>) {
         (req as any)[resolveSymbol] = resolve;
         (req as any)[rejectSymbol]  = reject;
         const fiber                 = run(
-          self.provideSomeService(req, ServerRequest.Tag).map((res) => res.toWeb(req.method === "HEAD")).scoped,
+          handled.provideSomeService(req, ServerRequest.Tag).map((res) => res.toWeb(req.method === "HEAD")).scoped,
         );
-        request.signal.addEventListener("abort", () => {
-          fiber.interruptAsFork(clientAbortFiberId);
-        });
+        request.signal.addEventListener(
+          "abort",
+          () => {
+            fiber.interruptAsFork(clientAbortFiberId);
+          },
+          { once: true },
+        );
       });
   };
 }

@@ -6,7 +6,6 @@ import type * as Net from "node:net";
 import type { Duplex } from "node:stream";
 
 import { BodyTag } from "@fncts/http/Body";
-import { IncomingMessage } from "@fncts/http/IncomingMessage";
 import { ResponseError } from "@fncts/http/ResponseError";
 import { Server } from "@fncts/http/Server";
 import { clientAbortFiberId, ServeError } from "@fncts/http/ServerError";

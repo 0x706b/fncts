@@ -1839,6 +1839,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/pluginutils@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@rollup/pluginutils@npm:5.3.0"
+  dependencies:
+    "@types/estree": "npm:^1.0.0"
+    estree-walker: "npm:^2.0.2"
+    picomatch: "npm:^4.0.2"
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 10/6c7dbab90e0ca5918a36875f745a0f30b47d5e0f45b42ed381ad8f7fed76b23e935766b66e3ae75375a42a80369569913abc8fd2529f4338471a1b2b4dfebaff
+  languageName: node
+  linkType: hard
+
 "@rollup/rollup-android-arm-eabi@npm:4.12.1":
   version: 4.12.1
   resolution: "@rollup/rollup-android-arm-eabi@npm:4.12.1"
@@ -6449,6 +6465,7 @@ __metadata:
     "@eslint/eslintrc": "npm:^3.3.1"
     "@eslint/js": "npm:9.28.0"
     "@fncts/scripts": "workspace:*"
+    "@rollup/pluginutils": "npm:^5.3.0"
     "@tsplus/installer": "npm:0.0.188"
     "@types/benchmark": "npm:^2.1.5"
     "@typescript-eslint/eslint-plugin": "npm:^8.33.0"

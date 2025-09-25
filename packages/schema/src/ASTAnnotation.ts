@@ -107,3 +107,10 @@ export const GenHookTag = Tag<Hook<any>>();
  * @tsplus static fncts.schema.ASTAnnotationOps GenHook
  */
 export const GenHook = new ASTAnnotation(GenHookTag, "GenHook", (_, b) => b);
+
+export const EqHookTag = Tag<Hook<Eq<any>>>();
+
+/**
+ * @tsplus static fncts.schema.ASTAnnotationOps EqHook
+ */
+export const EqHook = new ASTAnnotation(EqHookTag, "EqHook", (_, b) => b);
