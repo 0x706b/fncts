@@ -1,5 +1,18 @@
 # @fncts/query
 
+## 0.0.24
+
+### Patch Changes
+
+- d8c6d12: chore: update dependencies
+- 6c91692: chore: misc updates
+- Updated dependencies [d8c6d12]
+- Updated dependencies [6c91692]
+- Updated dependencies [b429884]
+  - @fncts/base@0.0.41
+  - @fncts/io@0.0.49
+  - @fncts/typelevel@0.0.22
+
 ## 0.0.23
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @fncts/codegen
 
+## 0.0.24
+
+### Patch Changes
+
+- d8c6d12: chore: update dependencies
+- 6c91692: chore: misc updates
+
 ## 0.0.23
 
 ### Patch Changes

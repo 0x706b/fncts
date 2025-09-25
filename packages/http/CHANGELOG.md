@@ -1,5 +1,21 @@
 # @fncts/react
 
+## 0.0.10
+
+### Patch Changes
+
+- d8c6d12: chore: update dependencies
+- 6c91692: chore: misc updates
+- b429884: feat(schema): add Eq derivation
+- Updated dependencies [0837343]
+- Updated dependencies [d8c6d12]
+- Updated dependencies [6c91692]
+- Updated dependencies [b429884]
+  - @fncts/schema@0.0.22
+  - @fncts/base@0.0.41
+  - @fncts/io@0.0.49
+  - @fncts/typelevel@0.0.22
+
 ## 0.0.9
 
 ### Patch Changes

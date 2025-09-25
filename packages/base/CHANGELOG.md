@@ -1,5 +1,17 @@
 # @fncts/base
 
+## 0.0.41
+
+### Patch Changes
+
+- d8c6d12: chore: update dependencies
+- 6c91692: chore: misc updates
+- b429884: feat(schema): add Eq derivation
+- Updated dependencies [d8c6d12]
+- Updated dependencies [6c91692]
+- Updated dependencies [b429884]
+  - @fncts/typelevel@0.0.22
+
 ## 0.0.40
 
 ### Patch Changes
