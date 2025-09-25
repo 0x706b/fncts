@@ -1344,6 +1344,7 @@ __metadata:
     "@fncts/eslint-config": "workspace:*"
     "@fncts/scripts": "workspace:*"
     "@fncts/typelevel": "workspace:*"
+    hotscript: "npm:^1.0.13"
   languageName: unknown
   linkType: soft
 
@@ -7177,6 +7178,13 @@ __metadata:
   dependencies:
     function-bind: "npm:^1.1.2"
   checksum: 10/7898a9c1788b2862cf0f9c345a6bec77ba4a0c0983c7f19d610c382343d4f98fa260686b225dfb1f88393a66679d2ec58ee310c1d6868c081eda7918f32cc70a
+  languageName: node
+  linkType: hard
+
+"hotscript@npm:^1.0.13":
+  version: 1.0.13
+  resolution: "hotscript@npm:1.0.13"
+  checksum: 10/c384f44965c8481877f65dacaf1b7162e71ee0b54f5b4a7c28afa7c19e3233fdace3ae61de50984986cf150c392143b577314d30affdbd87e80a394b4042618f
   languageName: node
   linkType: hard
 

@@ -1,5 +1,6 @@
 import type {
   Element,
+  NumberKeyword,
   Refinement,
   StringKeyword,
   SymbolKeyword,
@@ -134,9 +135,10 @@ function formatElement(ast: Element, verbose: boolean): string {
 }
 
 function getParameterBase(
-  self: StringKeyword | SymbolKeyword | TemplateLiteral | Refinement,
-): StringKeyword | SymbolKeyword | TemplateLiteral {
+  self: StringKeyword | NumberKeyword | SymbolKeyword | TemplateLiteral | Refinement,
+): StringKeyword | SymbolKeyword | NumberKeyword | TemplateLiteral {
   switch (self._tag) {
+    case ASTTag.NumberKeyword:
     case ASTTag.StringKeyword:
     case ASTTag.SymbolKeyword:
     case ASTTag.TemplateLiteral:

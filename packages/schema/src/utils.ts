@@ -39,6 +39,7 @@ export function getKeysForIndexSignature(
   parameter: IndexSignature["parameter"],
 ): Vector<string> | Vector<symbol> {
   switch (parameter._tag) {
+    case ASTTag.NumberKeyword:
     case ASTTag.StringKeyword:
     case ASTTag.TemplateLiteral:
       return Vector.from(Object.keys(input));

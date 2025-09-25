@@ -693,7 +693,7 @@ export function createPropertySignature(
 
 export class IndexSignature {
   constructor(
-    readonly parameter: StringKeyword | SymbolKeyword | TemplateLiteral | Refinement,
+    readonly parameter: StringKeyword | SymbolKeyword | TemplateLiteral | NumberKeyword | Refinement,
     readonly type: AST,
     readonly isReadonly: boolean,
   ) {}
@@ -703,7 +703,7 @@ export class IndexSignature {
  * @tsplus static fncts.schema.ASTOps createIndexSignature
  */
 export function createIndexSignature(
-  parameter: StringKeyword | SymbolKeyword | TemplateLiteral | Refinement,
+  parameter: StringKeyword | SymbolKeyword | TemplateLiteral | NumberKeyword | Refinement,
   type: AST,
   isReadonly: boolean,
 ): IndexSignature {
@@ -1136,7 +1136,9 @@ export function appendElement(element: Element) {
   };
 }
 
-export function getParameter(x: IndexSignature["parameter"]): StringKeyword | SymbolKeyword | TemplateLiteral {
+export function getParameter(
+  x: IndexSignature["parameter"],
+): StringKeyword | NumberKeyword | SymbolKeyword | TemplateLiteral {
   return isRefinement(x) ? getParameter(x.from as any) : x;
 }
 
