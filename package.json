@@ -17,7 +17,7 @@
     "build-pack": "yarn build && yarn workspaces foreach -Ap run build-pack",
     "format": "yarn workspaces foreach -Ap run format",
     "clean": "yarn workspaces foreach -Ap run clean && yarn postclean",
-    "test": "yarn build && yarn vitest",
+    "test": "yarn vitest",
     "test:watch": "yarn org:concurrently 'yarn build --watch' 'yarn org:vitest --watch'",
     "build-lint-deps": "yarn workspaces foreach -Rp --topological-dev --from @fncts/codegen run build-pack",
     "lint": "yarn workspaces foreach -Ap run lint",
@@ -70,7 +70,7 @@
     "ts-node": "^10.9.2",
     "typescript": "5.8.3",
     "typescript-eslint": "^8.33.0",
-    "vitest": "^2.1.9"
+    "vitest": "^3.2.4"
   },
   "resolutions": {
     "@babel/types": "^7.27.3"

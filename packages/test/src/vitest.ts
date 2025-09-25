@@ -86,15 +86,15 @@ export const it = (() => {
   }
 
   function itIO<E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) {
-    return V.it.concurrent(name, () => runTestIO(io), options);
+    return V.it.concurrent(name, options, () => runTestIO(io));
   }
 
   return Object.assign(it, {
     skip: (name: string, test: Lazy<TestResult | Promise<void> | void>, options?: V.TestOptions) => {
-      return V.it.skip(name, () => runTest(test), options);
+      return V.it.skip(name, options, () => runTest(test));
     },
     only: (name: string, test: Lazy<TestResult | Promise<void> | void>, options?: V.TestOptions) => {
-      return V.it.only(name, () => runTest(test), options);
+      return V.it.only(name, options, () => runTest(test));
     },
     check: check,
     checkIO: checkIO,
@@ -105,10 +105,10 @@ export const it = (() => {
         return itIO(name, io().scoped, options);
       },
       skip: <E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) => {
-        return V.it.skip(name, () => runTestIO(io), options);
+        return V.it.skip(name, options, () => runTestIO(io));
       },
-      only: <E, A>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) => {
-        return V.it.only(name, () => runTestIO(io), options);
+      only: <E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) => {
+        return V.it.only(name, options, () => runTestIO(io));
       },
     }),
   });
