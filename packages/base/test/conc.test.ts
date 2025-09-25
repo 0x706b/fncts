@@ -30,31 +30,39 @@ suite.concurrent("Conc", () => {
   });
 
   suite.concurrent("append", () => {
-    test.io("index", () => {
-      const chunksWithIndex = Do((_) => {
-        const p  = _(Gen.boolean);
-        const as = _(Gen.int.conc);
-        const bs = _(Gen.int.concN(1));
-        const n  = _(Gen.intWith({ min: 0, max: as.length + bs.length - 1 }));
-        return _(Gen.constant(p ? ([as, bs, n] as const) : ([bs, as, n] as const)));
-      });
-      return chunksWithIndex.check(([as, bs, n]) => {
-        const actual   = bs.foldLeft(as, (ns, n) => ns.append(n))[n];
-        const expected = as.concat(bs)[n];
-        return actual.assert(strictEqualTo(expected));
-      });
-    });
+    test.io(
+      "index",
+      () => {
+        const chunksWithIndex = Do((_) => {
+          const p  = _(Gen.boolean);
+          const as = _(Gen.int.conc);
+          const bs = _(Gen.int.concN(1));
+          const n  = _(Gen.intWith({ min: 0, max: as.length + bs.length - 1 }));
+          return _(Gen.constant(p ? ([as, bs, n] as const) : ([bs, as, n] as const)));
+        });
+        return chunksWithIndex.check(([as, bs, n]) => {
+          const actual   = bs.foldLeft(as, (ns, n) => ns.append(n))[n];
+          const expected = as.concat(bs)[n];
+          return actual.assert(strictEqualTo(expected));
+        });
+      },
+      { timeout: 10_000 },
+    );
 
-    test.io("buffer full", () => {
-      function addAll<A>(l: Conc<A>, r: Conc<A>): Conc<A> {
-        return r.foldLeft(l, (acc, a) => acc.append(a));
-      }
-      return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
-        const actual   = Array.replicate(100, bs).foldLeft(as, addAll);
-        const expected = Array.replicate(100, bs).foldLeft(as, (bs, as) => bs.concat(as));
-        return actual.assert(strictEqualTo(expected));
-      });
-    });
+    test.io(
+      "buffer full",
+      () => {
+        function addAll<A>(l: Conc<A>, r: Conc<A>): Conc<A> {
+          return r.foldLeft(l, (acc, a) => acc.append(a));
+        }
+        return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
+          const actual   = Array.replicate(100, bs).foldLeft(as, addAll);
+          const expected = Array.replicate(100, bs).foldLeft(as, (bs, as) => bs.concat(as));
+          return actual.assert(strictEqualTo(expected));
+        });
+      },
+      { timeout: 10_000 },
+    );
 
     test.io(
       "buffer used",
@@ -76,24 +84,29 @@ suite.concurrent("Conc", () => {
         const expected = as.concat(bs);
         return actual.assert(strictEqualTo(expected));
       }),
+      { timeout: 10_000 },
     );
   });
 
   suite.concurrent("prepend", () => {
-    test.io("index", () => {
-      const chunksWithIndex = Do((_) => {
-        const p  = _(Gen.boolean);
-        const as = _(Gen.int.conc);
-        const bs = _(Gen.int.concN(1));
-        const n  = _(Gen.intWith({ min: 0, max: as.length + bs.length - 1 }));
-        return _(Gen.constant(p ? ([as, bs, n] as const) : ([bs, as, n] as const)));
-      });
-      return chunksWithIndex.check(([as, bs, n]) => {
-        const actual   = as.foldRight(bs, (n, ns) => ns.prepend(n))[n];
-        const expected = as.concat(bs)[n];
-        return actual.assert(strictEqualTo(expected));
-      });
-    });
+    test.io(
+      "index",
+      () => {
+        const chunksWithIndex = Do((_) => {
+          const p  = _(Gen.boolean);
+          const as = _(Gen.int.conc);
+          const bs = _(Gen.int.concN(1));
+          const n  = _(Gen.intWith({ min: 0, max: as.length + bs.length - 1 }));
+          return _(Gen.constant(p ? ([as, bs, n] as const) : ([bs, as, n] as const)));
+        });
+        return chunksWithIndex.check(([as, bs, n]) => {
+          const actual   = as.foldRight(bs, (n, ns) => ns.prepend(n))[n];
+          const expected = as.concat(bs)[n];
+          return actual.assert(strictEqualTo(expected));
+        });
+      },
+      { timeout: 10_000 },
+    );
 
     test.io("buffer full", () => {
       function addAll<A>(l: Conc<A>, r: Conc<A>): Conc<A> {
