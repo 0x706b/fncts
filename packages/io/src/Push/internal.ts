@@ -1,5 +1,16 @@
 import type { RuntimeFiber } from "@fncts/io/Fiber";
 
+export function withScope<R, E, A>(
+  f: (scope: Scope.Closeable) => IO<R, E, A>,
+  executionStrategy: ExecutionStrategy,
+): IO<R | Scope, E, A> {
+  return IO.bracketExit(
+    IO.scopeWith((scope) => scope.forkWith(executionStrategy)),
+    f,
+    (scope, exit) => scope.close(exit),
+  );
+}
+
 export function withScopedFork<R, E, A>(
   f: (fork: <R, E, A>(io: IO<R, E, A>) => IO<R, never, RuntimeFiber<E, A>>) => IO<R, E, A>,
 ): IO<R, E, A> {

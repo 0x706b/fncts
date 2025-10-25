@@ -1,58 +1,85 @@
-import { AtomicReference } from "@fncts/base/internal/AtomicReference";
-import { IO } from "@fncts/io/IO";
-import { withExhaust, withSwitch, withUnboundedConcurrency } from "@fncts/io/Push/internal";
+import type { MergeStrategy } from "./MergeStrategy.js";
+import type { UnsafeSink } from "@fncts/io/Push/Sink";
 
-import { Push, PushTypeId, PushVariance, Sink } from "./definition.js";
+import { IO, IOTag } from "@fncts/io/IO";
+import { FlattenStrategy, UnboundedStrategy } from "@fncts/io/Push";
+import { Push, PushPrimitive, PushTag } from "@fncts/io/Push";
+import { SyncProducer } from "@fncts/io/Push/Producer/SyncProducer";
+import { Sink } from "@fncts/io/Push/Sink";
+import { Scope } from "@fncts/io/Scope";
 
-/**
- * @tsplus pipeable fncts.io.Push as
- */
-export function as<B>(b: Lazy<B>) {
-  return <R, E, A>(self: Push<R, E, A>): Push<R, E, B> => {
-    return self.map(b);
-  };
+import { FromIO, FromScheduled, type IOProducer, Scheduled } from "./Producer/IOProducer.js";
+
+class BracketExit<R, E, A, R1, E1, B, R2, E2, C> extends Push<R | R1 | R2, E | E1 | E2, B> {
+  constructor(
+    readonly acquire: IO<R, E, A>,
+    readonly use: (a: A) => Push<R1, E1, B>,
+    readonly release: (a: A, exit: Exit<unknown, unknown>) => IO<R2, E2, C>,
+  ) {
+    super();
+  }
+
+  run<R3>(sink: Push.UnsafeSink<R3, E | E1 | E2, B>): IO<R | R1 | R2 | R3, never, void> {
+    return IO.bracketExit(
+      this.acquire,
+      (a) => this.use(a).run(sink),
+      (a, exit) => this.release(a, exit).catchAllCause(sink.onFailure),
+    ).catchAllCause(sink.onFailure);
+  }
 }
 
-interface UnsafeSink<E, A> {
-  event: (value: A) => void;
-  error: (cause: Cause<E>) => void;
+/**
+ * @tsplus static fncts.io.PushOps bracketExit
+ */
+export function bracketExit<R, E, A, R1, E1, B, R2, E2, C>(
+  acquire: IO<R, E, A>,
+  use: (a: A) => Push<R1, E1, B>,
+  release: (a: A, exit: Exit<unknown, unknown>) => IO<R2, E2, C>,
+): Push<R | R1 | R2, E | E1 | E2, B> {
+  return new BracketExit(acquire, use, release);
 }
 
-/**
- * @tsplus static fncts.io.PushOps asyncInterrupt
- */
-export function asyncInterrupt<R, E, A>(
-  make: (emitter: UnsafeSink<E, A>) => Either<IO<R, never, void>, Push<R, E, A>>,
-): Push<R, E, A> {
-  return Push<R, E, A>(
-    <R1>(sink: Sink<R | R1, E, A>) =>
+class CombineLatest<R, E, A> extends Push<R | Scope, E, ReadonlyArray<A>> {
+  private static UNSET = Symbol();
+
+  constructor(readonly streams: Iterable<Push<R, E, A>>) {
+    super();
+  }
+
+  run<R1>(sink: UnsafeSink<R1, E, readonly A[]>): IO<Scope | R | R1, never, void> {
+    return UnboundedStrategy.withFork((fork) =>
       Do((Δ) => {
-        const future  = Δ(Future.make<never, void>());
-        const scope   = Δ(IO.scope);
-        const runtime = Δ(IO.runtime<R | R1>());
-        const unsafeSink: UnsafeSink<E, A> = {
-          event: (value) => runtime.unsafeRunOrFork(sink.event(value).forkIn(scope)),
-          error: (cause) => runtime.unsafeRunOrFork(sink.error(cause).fulfill(future).forkIn(scope)),
-        };
-        const eitherPush = Δ(IO(make(unsafeSink)));
+        const size          = this.streams.size;
+        const latch         = Δ(CountdownLatch(size));
+        const ref: Array<A> = Array(size).fill(CombineLatest.UNSET, 0, size);
+        const emitIfReady   = IO.defer(sink.onSuccess(ref)).whenIO(latch.isOpen);
+
         Δ(
-          eitherPush.match(
-            (canceller) => future.await.onInterrupt(canceller),
-            (push) => push.run(sink),
+          IO.foreach(this.streams.zipWithIndex, ([i, stream]) =>
+            fork(
+              stream.run(
+                Sink.unsafeMake(
+                  (value) =>
+                    IO.defer(() => {
+                      const indexEmpty = ref[i] === CombineLatest.UNSET;
+
+                      ref[i] = value;
+
+                      if (indexEmpty) {
+                        return latch.countDown;
+                      } else {
+                        return IO.unit;
+                      }
+                    }) > emitIfReady,
+                  (cause) => sink.onFailure(cause),
+                ),
+              ),
+            ),
           ),
         );
-      }).scoped,
-  );
-}
-
-/**
- * @tsplus static fncts.io.PushOps async
- */
-export function async<E, A>(make: (sink: UnsafeSink<E, A>) => void): Push<never, E, A> {
-  return Push.asyncInterrupt((sink) => {
-    make(sink);
-    return Either.left(IO.unit);
-  });
+      }),
+    );
+  }
 }
 
 /**
@@ -60,168 +87,130 @@ export function async<E, A>(make: (sink: UnsafeSink<E, A>) => void): Push<never,
  */
 export function combineLatest<A extends ReadonlyArray<Push<any, any, any>>>(
   streams: [...A],
-): Push<Push.EnvironmentOf<A[number]>, Push.ErrorOf<A[number]>, { [K in keyof A]: Push.ValueOf<A[K]> }>;
-export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, ReadonlyArray<A>>;
-export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, ReadonlyArray<A>> {
-  return Push((emitter) =>
-    Do((Δ) => {
-      const size          = streams.size;
-      const ref: Array<A> = Δ(IO(Array(size)));
-      const emitIfReady   = IO(ref.filter((a) => a != null)).flatMap((as) =>
-        as.length === size ? emitter.event(as) : IO.unit,
-      );
-      Δ(
-        IO.foreachConcurrent(streams.zipWithIndex, ([i, stream]) =>
-          stream.run(
-            Sink(
-              (value) => IO((ref[i] = value)) > emitIfReady,
-              (cause) => emitter.error(cause),
-            ),
-          ),
-        ),
-      );
-    }),
-  );
+): Push<Push.EnvironmentOf<A[number]> | Scope, Push.ErrorOf<A[number]>, { [K in keyof A]: Push.ValueOf<A[K]> }>;
+
+export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R | Scope, E, ReadonlyArray<A>>;
+export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R | Scope, E, ReadonlyArray<A>> {
+  return new CombineLatest(streams);
+}
+class ContramapEnvironment<R, E, A, R1> extends Push<R1, E, A> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly f: (r: Environment<R1>) => Environment<R>,
+  ) {
+    super();
+  }
+
+  run<R2>(sink: UnsafeSink<R2, E, A>): IO<R1 | R2, never, void> {
+    return this.self.run(sink).contramapEnvironment(this.f);
+  }
 }
 
 /**
- * @tsplus pipeable fncts.io.PushOps combineLatestWith
+ * @tsplus pipeable fncts.io.Push contramapEnvironment
  */
-export function combineLatestWith<A, R1, E1, B, C>(that: Push<R1, E1, B>, f: (a: A, b: B) => C) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, C> => {
-    return Push.combineLatest([self, that]).map(([a, b]) => f(a, b));
-  };
+export function contramapEnvironment<R, R1>(f: (r: Environment<R1>) => Environment<R>) {
+  return <E, A>(self: Push<R, E, A>): Push<R1, E, A> => new ContramapEnvironment(self, f);
 }
 
-/**
- * @tsplus pipeable fncts.io.Push debounce
- */
-export function debounce(duration: Lazy<Duration>) {
-  return <R, E, A>(self: Push<R, E, A>): Push<R, E, A> => {
-    return self.switchMapIO((a) => IO.succeedNow(a).delay(duration));
-  };
+class Defer<R, E, A> extends Push<R, E, A> {
+  constructor(readonly self: Lazy<Push<R, E, A>>) {
+    super();
+  }
+  run<R1>(sink: UnsafeSink<R1, E, A>): IO<R | R1, never, void> {
+    return IO.defer(this.self().run(sink));
+  }
 }
 
 /**
  * @tsplus static fncts.io.PushOps defer
  */
 export function defer<R, E, A>(self: Lazy<Push<R, E, A>>): Push<R, E, A> {
-  return Push((emitter) => IO(self).flatMap((push) => push.run(emitter)));
+  return new Defer(self);
 }
 
 /**
- * @tsplus pipeable fncts.io.Push exhaustMap
+ * @tsplus static fncts.io.PushOps failCause
  */
-export function exhaustMap<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push((sink) => withExhaust((fork) => self.run(Sink((a) => fork(f(a).run(sink)), sink.error))));
-  };
+export function failCause<E>(cause: Lazy<Cause<E>>): Push<never, E, never> {
+  const op = new PushPrimitive(PushTag.FailCause) as any;
+  op.i0    = cause;
+  return op;
 }
 
 /**
- * @tsplus pipeable fncts.io.Push exhaustMapIO
+ * @tsplus static fncts.io.PushOps failCauseNow
  */
-export function exhaustMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return self.exhaustMap((a) => Push.fromIO(f(a)));
-  };
+export function failCauseNow<E>(cause: Cause<E>): Push<never, E, never> {
+  const op = new PushPrimitive(PushTag.FailCause) as any;
+  op.i0    = () => cause;
+  return op;
 }
 
 /**
- * @tsplus pipeable fncts.io.Push filterIO
+ * @tsplus static fncts.io.PushOps failNow
  */
-export function filterIO<A, R1, E1>(predicate: (a: A) => IO<R1, E1, boolean>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, A> => {
-    return Push((sink) =>
-      self.run(
-        Sink(
-          (a) =>
-            predicate(a)
-              .flatMap((b) => (b ? sink.event(a) : IO.unit))
-              .catchAllCause(sink.error),
-          sink.error,
-        ),
+export function failNow<E>(error: E): Push<never, E, never> {
+  return Push.failCauseNow(Cause.fail(error));
+}
+
+class Filter<R, E, A, B extends A = A> extends Push<R, E, B> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly p: Predicate<A>,
+  ) {
+    super();
+  }
+  run<R1>(sink: UnsafeSink<R1, E, B>): IO<R | R1, never, void> {
+    return this.self.run(
+      Sink.unsafeMake(
+        (value) => {
+          if (this.p(value)) {
+            return sink.onSuccess(value as B);
+          } else {
+            return IO.unit;
+          }
+        },
+        (cause) => sink.onFailure(cause),
       ),
     );
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push filterMapIO
- */
-export function filterMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, Maybe<B>>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push((sink) =>
-      self.run(
-        Sink(
-          (a) =>
-            f(a)
-              .flatMap((mb) => mb.match(() => IO.unit, sink.event))
-              .catchAllCause(sink.error),
-          sink.error,
-        ),
-      ),
-    );
-  };
+  }
 }
 
 /**
  * @tsplus pipeable fncts.io.Push filter
  */
-export function filter<A, B extends A>(refinement: Refinement<A, B>): <R, E>(self: Push<R, E, A>) => Push<R, E, B>;
-export function filter<A>(predicate: Predicate<A>): <R, E>(self: Push<R, E, A>) => Push<R, E, A>;
-export function filter<A>(predicate: Predicate<A>) {
-  return <R, E>(self: Push<R, E, A>): Push<R, E, A> => {
-    return Push((sink) => self.run(Sink((a) => (predicate(a) ? sink.event(a) : IO.unit), sink.error)));
-  };
+export function filter<A, B extends A>(p: Refinement<A, B>): <R, E>(self: Push<R, E, A>) => Push<R, E, B>;
+export function filter<A>(p: Predicate<A>): <R, E>(self: Push<R, E, A>) => Push<R, E, A>;
+export function filter<A>(p: Predicate<A>) {
+  return <R, E>(self: Push<R, E, A>): Push<R, E, A> => new Filter(self, p);
+}
+class FilterMap<R, E, A, B> extends Push<R, E, B> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly f: (value: A) => Maybe<B>,
+  ) {
+    super();
+  }
+  run<R1>(sink: UnsafeSink<R1, E, B>): IO<R | R1, never, void> {
+    return this.self.run(
+      Sink.unsafeMake(
+        (value) =>
+          this.f(value).match(
+            () => IO.unit,
+            (b) => sink.onSuccess(b),
+          ),
+        (cause) => sink.onFailure(cause),
+      ),
+    );
+  }
 }
 
 /**
  * @tsplus pipeable fncts.io.Push filterMap
  */
-export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R, E, B> => {
-    return Push((sink) => self.run(Sink((a) => f(a).match(() => IO.unit, sink.event), sink.error)));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push flatMapConcurrentBounded
- */
-export function flatMapConcurrentBounded<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>, concurrency: number) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push(<R2>(emitter: Sink<R | R1 | R2, E | E1, B>) =>
-      Do((Δ) => {
-        const semaphore = Δ(Semaphore(concurrency));
-        Δ(self.flatMapConcurrentUnbounded((a) => f(a).transform((io) => semaphore.withPermit(io))).run(emitter));
-      }),
-    );
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push flatMapConcurrentUnbounded
- */
-export function flatMapConcurrentUnbounded<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push((sink) => withUnboundedConcurrency((fork) => self.run(Sink((a) => fork(f(a).run(sink)), sink.error))));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push flatMapConcurrent
- */
-export function flatMapConcurrent<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push.unwrap(
-      IO.concurrency.map((concurrency) =>
-        concurrency.match(
-          () => self.flatMapConcurrentUnbounded(f),
-          (n) => self.flatMapConcurrentBounded(f, n),
-        ),
-      ),
-    );
-  };
+export function filterMap<A, B>(f: (value: A) => Maybe<B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R, E, B> => new FilterMap(self, f);
 }
 
 /**
@@ -229,478 +218,363 @@ export function flatMapConcurrent<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
  */
 export function flatMap<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return self.flatMapConcurrentBounded(f, 1);
+    const op = new PushPrimitive(PushTag.OnSuccess);
+    op.i0    = self;
+    op.i1    = f;
+    return op;
   };
 }
 
 /**
- * @tsplus getter fncts.io.Push flatten
+ * @tsplus pipeable fncts.io.Push flatMapUnbounded
  */
-export function flatten<R, E, R1, E1, A>(self: Push<R, E, Push<R1, E1, A>>): Push<R | R1, E | E1, A> {
-  return self.flatMap(Function.identity);
+export function flatMapUnbounded<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> =>
+    self.flatMapWithStrategy(f, FlattenStrategy.Unbounded, ExecutionStrategy.concurrent);
 }
 
+/**
+ * @tsplus pipeable fncts.io.Push flatMapWithStrategy
+ */
+export function flatMapWithStrategy<A, R1, E1, B>(
+  f: (a: A) => Push<R1, E1, B>,
+  flattenStrategy: FlattenStrategy,
+  executionStrategy: ExecutionStrategy,
+) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
+    const op = new PushPrimitive(PushTag.OnSuccessWithStrategy);
+    op.i0    = self;
+    op.i1    = f;
+    op.i2    = flattenStrategy;
+    op.i3    = executionStrategy;
+    return op;
+  };
+}
+
+/**
+ * @tsplus static fncts.io.PushOps fromArray
+ */
+export function fromArray<A extends ReadonlyArray<any>>(array: A): Push<never, never, A[number]> {
+  return Push.fromSyncProducer(SyncProducer.fromArray(array));
+}
 /**
  * @tsplus static fncts.io.PushOps fromIO
  */
-export function fromIO<R, E, A>(io: Lazy<IO<R, E, A>>): Push<R, E, A> {
-  return Push((emitter) =>
-    IO.defer(io).matchCauseIO(
-      (cause) => emitter.error(cause),
-      (value) => emitter.event(value),
-    ),
-  );
+export function fromIO<R, E, A>(io: IO<R, E, A>): Push<R, E, A> {
+  const concrete = IO.concrete(io);
+  switch (concrete._ioOpCode) {
+    case IOTag.SucceedNow: {
+      return Push.succeedNow(concrete.i0);
+    }
+    case IOTag.Fail: {
+      return Push.failCause<any>(concrete.i0);
+    }
+    case IOTag.Sync: {
+      return Push.fromSyncProducer(SyncProducer.fromSync(concrete.i0));
+    }
+    default: {
+      return Push.fromIOProducer(new FromIO(io));
+    }
+  }
 }
-
 /**
- * @tsplus static fncts.io.PushOps fromAsyncIterable
+ * @tsplus static fncts.io.PushOps fromIOProducer
  */
-export function fromAsyncIterable<A>(iterable: AsyncIterable<A>): Push<never, never, A> {
-  return Push(<R>(sink: Sink<R, never, A>) =>
-    IO.asyncIO<R, never, void>((cb) => IO.defer(fromAsyncIterableLoop(iterable[Symbol.asyncIterator](), sink, cb))),
-  );
-}
-
-function fromAsyncIterableLoop<A, R>(
-  iterator: AsyncIterator<A>,
-  sink: Sink<R, never, A>,
-  cb: (io: UIO<void>) => void,
-  __tsplusTrace?: string,
-): IO<R, never, void> {
-  return IO.fromPromiseHalt(iterator.next).matchCauseIO(
-    (cause) => sink.error(cause),
-    (result) => (result.done ? IO(cb(IO.unit)) : sink.event(result.value) > fromAsyncIterableLoop(iterator, sink, cb)),
-  );
+export function fromIOProducer<R, E, A>(producer: IOProducer<R, E, A>): Push<R, E, A> {
+  const op = new PushPrimitive(PushTag.ProducerIO);
+  op.i0    = producer;
+  return op;
 }
 
 /**
  * @tsplus static fncts.io.PushOps fromIterable
  */
 export function fromIterable<A>(iterable: Iterable<A>): Push<never, never, A> {
-  return Push(<R>(sink: Sink<R, never, A>) =>
-    IO.asyncIO<R, never, void>((cb) => IO.defer(fromIterableLoop(iterable[Symbol.iterator](), sink, cb))),
-  );
-}
-
-function fromIterableLoop<A, R>(
-  iterator: Iterator<A>,
-  sink: Sink<R, never, A>,
-  cb: (io: UIO<void>) => void,
-): IO<R, never, void> {
-  return IO.defer(() => {
-    const value = iterator.next();
-    return value.done ? IO(cb(IO.unit)) : sink.event(value.value) > fromIterableLoop(iterator, sink, cb);
-  });
+  return Push.fromSyncProducer(SyncProducer.fromIterable(iterable));
 }
 
 /**
- * @tsplus getter fncts.io.Push multicast
+ * @tsplus static fncts.io.PushOps fromScheduled
  */
-export function multicast<R, E, A>(self: Push<R, E, A>): Push<R, E, A> {
-  return new Multicast(self);
+export function fromScheduled<R, E, I, R1, O>(io: IO<R, E, I>, schedule: Schedule<R1, I, O>): Push<R | R1, E, O> {
+  return Push.fromIOProducer(new FromScheduled(io, schedule));
 }
 
-interface MulticastObserver<E, A> {
-  readonly sink: Sink<any, E, A>;
-  readonly environment: Environment<any>;
+/**
+ * @tsplus static fncts.io.PushOps fromSyncProducer
+ */
+export function fromSyncProducer<A>(producer: SyncProducer<A>): Push<never, never, A> {
+  const op = new PushPrimitive(PushTag.ProducerSync) as any;
+  op.i0    = producer;
+  return op;
 }
 
-export class Multicast<R, E, A> implements Push<R, E, A>, Sink<never, E, A> {
-  readonly [PushTypeId]: PushTypeId = PushTypeId;
-  declare [PushVariance]: {
-    readonly _R: (_: never) => R;
-    readonly _E: (_: never) => E;
-    readonly _A: (_: never) => A;
-  };
-  protected observers: Array<MulticastObserver<E, A>> = [];
-  protected fiber: Fiber<never, unknown> | undefined;
-  constructor(readonly push: Push<R, E, A>) {}
+/**
+ * @tsplus static fncts.io.PushOps haltNow
+ */
+export function haltNow(error: unknown): Push<never, never, never> {
+  return Push.failCauseNow(Cause.halt(error));
+}
 
-  run<R1>(sink: Sink<R1, E, A>): IO<R | R1, never, void> {
-    return Do((Δ) => {
-      const environment = Δ(IO.environment<R1>());
-      Δ(
-        IO.defer(() => {
-          let io: URIO<R, void> = IO.unit;
-          if (this.observers.push({ sink: sink, environment }) === 1) {
-            io = this.push.run(this).forkDaemon.flatMap((fiber) => IO((this.fiber = fiber)));
-          }
-          return io > this.fiber!.await.ensuring(this.removeSink(sink));
-        }),
+/**
+ * @tsplus static fncts.io.PushOps __call
+ */
+export function makePush<R, E, A>(
+  run: <R1>(sink: Push.UnsafeSink<R1, E, A>) => IO<R | R1, never, unknown>,
+): Push<R, E, A> {
+  const op = new PushPrimitive(PushTag.FromPush) as any;
+  op.i0    = run;
+  return op;
+}
+
+class Map<R, E, A, B> extends Push<R, E, B> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly f: (a: A) => B,
+  ) {
+    super();
+  }
+  run<R1>(sink: UnsafeSink<R1, E, B>): IO<R | R1, never, void> {
+    return this.self.run(
+      Sink.unsafeMake(
+        (value) => sink.onSuccess(this.f(value)),
+        (cause) => sink.onFailure(cause),
+      ),
+    );
+  }
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push map
+ */
+export function map<A, B>(f: (a: A) => B) {
+  return <R, E>(self: Push<R, E, A>): Push<R, E, B> => new Map(self, f);
+}
+
+class MapAccum<R, E, A, S, B> extends Push<R, E, B> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly seed: S,
+    readonly f: (acc: S, a: A) => readonly [S, B],
+  ) {
+    super();
+  }
+
+  run<R1>(sink: UnsafeSink<R1, E, B>): IO<R | R1, never, void> {
+    return IO.defer(() => {
+      let acc = this.seed;
+      return this.self.run(
+        Sink.unsafeMake(
+          (value) => {
+            const [s, b] = this.f(acc, value);
+            acc          = s;
+            return sink.onSuccess(b);
+          },
+          (cause) => sink.onFailure(cause),
+        ),
       );
     });
   }
-
-  event(value: A) {
-    return IO.defer(IO.foreachDiscard(this.observers.slice(), (observer) => this.runValue(value, observer)));
-  }
-
-  error(cause: Cause<E>) {
-    return IO.defer(IO.foreachDiscard(this.observers.slice(), (observer) => this.runError(cause, observer)));
-  }
-
-  protected runValue(value: A, observer: MulticastObserver<E, A>) {
-    return observer.sink
-      .event(value)
-      .provideEnvironment(observer.environment)
-      .catchAllCause(() => this.removeSink(observer.sink));
-  }
-
-  protected runError(cause: Cause<E>, observer: MulticastObserver<E, A>) {
-    return observer.sink
-      .error(cause)
-      .provideEnvironment(observer.environment)
-      .catchAllCause(() => this.removeSink(observer.sink));
-  }
-
-  protected removeSink(sink: Sink<any, E, A>) {
-    return IO.defer(() => {
-      if (this.observers.length === 0) {
-        return IO.unit;
-      }
-      const index = this.observers.findIndex((observer) => observer.sink === sink);
-      if (index > -1) {
-        this.observers.splice(index, 1);
-        if (this.observers.length === 0) {
-          const interrupt = this.fiber!.interrupt;
-          this.fiber      = undefined;
-          return interrupt;
-        }
-      }
-      return IO.unit;
-    });
-  }
 }
 
 /**
- * @tsplus getter fncts.io.Push hold
+ * @tsplus pipeable fncts.io.Push mapAccum
  */
-export function hold<R, E, A>(self: Push<R, E, A>): Push<R, E, A> {
-  return new Hold(self);
+export function mapAccum<A, S, B>(seed: S, f: (acc: S, a: A) => readonly [S, B]) {
+  return <R, E>(self: Push<R, E, A>): Push<R, E, B> => new MapAccum(self, seed, f);
 }
 
-export class Hold<R, E, A> extends Multicast<R, E, A> {
-  readonly current = new AtomicReference(Nothing<A>());
-
-  constructor(public push: Push<R, E, A>) {
-    super(push);
+class MapIO<R, E, A, R1, E1, B> extends Push<R | R1, E | E1, B> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly f: (a: A) => IO<R1, E1, B>,
+  ) {
+    super();
   }
 
-  run<R1>(sink: Sink<R1, E, A>): IO<R | R1, never, void> {
-    const current = this.current.get;
-
-    if (current.isJust()) {
-      return sink.event(current.value) > super.run(sink);
-    }
-
-    return super.run(sink);
-  }
-
-  event(value: A): IO<never, never, void> {
-    return IO.defer(() => {
-      this.current.set(Just(value));
-      return super.event(value);
-    });
-  }
-}
-
-/**
- * @tsplus pipeable fncts.io.Push map 1
- */
-export function map<A, B>(f: (a: A) => B) {
-  return <R, E>(self: Push<R, E, A>): Push<R, E, B> => {
-    return self.mapIO((a) => IO.succeedNow(f(a)));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push mapError
- */
-export function mapError<E, E1>(f: (e: E) => E1) {
-  return <R, A>(self: Push<R, E, A>): Push<R, E1, A> => {
-    return Push((emitter) =>
-      self.run(
-        Sink(
-          (value) => emitter.event(value),
-          (cause) => emitter.error(cause.map(f)),
-        ),
+  run<R2>(sink: UnsafeSink<R2, E | E1, B>): IO<R | R1 | R2, never, void> {
+    return this.self.run(
+      Sink.unsafeMake(
+        (value) => this.f(value).matchCauseIO(sink.onFailure, sink.onSuccess),
+        (cause) => sink.onFailure(cause),
       ),
     );
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push mapErrorCause
- */
-export function mapErrorCause<E, E1>(f: (cause: Cause<E>) => Cause<E1>) {
-  return <R, A>(self: Push<R, E, A>): Push<R, E1, A> => {
-    return Push((emitter) =>
-      self.run(
-        Sink(
-          (value) => emitter.event(value),
-          (cause) => emitter.error(f(cause)),
-        ),
-      ),
-    );
-  };
+  }
 }
 
 /**
  * @tsplus pipeable fncts.io.Push mapIO
  */
 export function mapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => new MapIO(self, f);
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push mapIOWithStrategy
+ */
+export function mapIOWithStrategy<A, R1, E1, B>(
+  f: (a: A) => IO<R1, E1, B>,
+  flattenStrategy: FlattenStrategy,
+  executionStrategy: ExecutionStrategy,
+) {
   return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> =>
-    Push((emitter) =>
-      self.run(
-        Sink(
-          (value) =>
-            f(value).matchCauseIO(
-              (cause) => emitter.error(cause),
-              (b) => emitter.event(b),
-            ),
-          (cause) => emitter.error(cause),
-        ),
-      ),
-    );
+    self.flatMapWithStrategy((a) => Push.fromIO(f(a)), flattenStrategy, executionStrategy);
+}
+
+class MergeWithStrategy<Ps extends ReadonlyArray<Push<any, any, any>>> extends Push<
+  Push.EnvironmentOf<Ps[number]>,
+  Push.ErrorOf<Ps[number]>,
+  Push.ValueOf<Ps[number]>
+> {
+  constructor(
+    readonly ps: Ps,
+    readonly mergeStrategy: MergeStrategy,
+  ) {
+    super();
+  }
+
+  run<R1>(
+    sink: UnsafeSink<R1, Push.ErrorOf<Ps[number]>, Push.ValueOf<Ps[number]>>,
+  ): IO<Push.EnvironmentOf<Ps[number]> | R1, never, void> {
+    return this.mergeStrategy.runMerge(this.ps, sink);
+  }
 }
 
 /**
- * @tsplus pipeable fncts.io.Push merge
+ * @tsplus static fncts.io.PushOps mergeWithStrategy
  */
-export function merge<R1, E1, B>(that: Push<R1, E1, B>) {
-  return <R, E, A>(self: Push<R, E, A>): Push<R | R1, E | E1, A | B> => {
-    return Push.mergeAll([self, that]);
-  };
-}
-
-/**
- * @tsplus static fncts.io.PushOps mergeAll
- */
-export function mergeAll<A extends ReadonlyArray<Push<any, any, any>>>(
-  streams: [...A],
-): Push<Push.EnvironmentOf<A[number]>, Push.ErrorOf<A[number]>, Push.ValueOf<A[number]>>;
-export function mergeAll<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, A>;
-export function mergeAll<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R, E, A> {
-  return Push((sink) =>
-    IO.foreachConcurrentDiscard(streams, (stream) =>
-      stream.run(Sink(sink.event, (cause) => (cause.isInterruptedOnly ? IO.unit : sink.error(cause)))),
-    ),
-  );
+export function mergeWithStrategy<Ps extends ReadonlyArray<Push<any, any, any>>>(
+  streams: Ps,
+  mergeStrategy: MergeStrategy,
+): Push<Push.EnvironmentOf<Ps[number]>, Push.ErrorOf<Ps[number]>, Push.ValueOf<Ps[number]>> {
+  return new MergeWithStrategy(streams, mergeStrategy);
 }
 
 /**
  * @tsplus pipeable fncts.io.Push observe
  */
-export function observe<A, R1, E1>(f: (a: A) => IO<R1, E1, void>, __tsplusTrace?: string) {
-  return <R, E>(self: Push<R, E, A>): IO<R | R1 | Scope, E | E1, void> => {
-    return Do((Δ) => {
-      const future = Δ(Future.make<E | E1, void>());
-      const fiber  = Δ(
-        self
-          .run(
-            Sink(
-              (a) => f(a).catchAllCause((cause) => future.failCause(cause)),
-              (cause) => future.failCause(cause),
-            ),
-          )
-          .flatMap(() => future.succeed(undefined)).forkScoped,
-      );
-
-      Δ(future.await);
-      Δ(fiber.interruptFork);
-    });
+export function observe<A, R1>(f: (a: A) => IO<R1, never, void>) {
+  return <R, E>(self: Push<R, E, A>): IO<R | R1, never, void> => {
+    return self.run(Sink.unsafeMake(f, (cause) => IO.failCause(cause).orHalt));
   };
 }
 
-/**
- * @tsplus static fncts.io.PushOps repeatIOMaybe
- */
-export function repeatIOMaybe<R, E, A>(io: IO<R, Maybe<E>, A>, __tsplusTrace?: string): Push<R, E, A> {
-  return Push.unfoldIO(undefined, () =>
-    io
-      .map((a) => Just([a, undefined] as const))
-      .catchAll((maybeError) => maybeError.match(() => IO.succeedNow(Nothing()), IO.failNow)),
-  );
+class OrElseCause<R, E, A, R1, E1, B> extends Push<R | R1, E | E1, A | B> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly that: (cause: Cause<E>) => Push<R1, E1, B>,
+  ) {
+    super();
+  }
+  run<R2>(sink: UnsafeSink<R2, E | E1, A | B>): IO<R | R1 | R2, never, void> {
+    return this.self.run(Sink.unsafeMake(sink.onSuccess, (cause) => this.that(cause).run(sink)));
+  }
 }
 
 /**
- * @tsplus getter fncts.io.Push runCollect
+ * @tsplus pipeable fncts.io.Push orElseCause
  */
-export function runCollect<R, E, A>(self: Push<R, E, A>): IO<R | Scope, E, Conc<A>> {
-  return IO.defer(() => {
-    const out: Array<A> = [];
-    return self.observe((a) => IO(out.push(a))).as(Conc.fromArray(out));
-  });
+export function orElseCause<E, R1, E1, B>(that: (cause: Cause<E>) => Push<R1, E1, B>) {
+  return <R, A>(self: Push<R, E, A>): Push<R | R1, E | E1, A | B> => new OrElseCause(self, that);
 }
 
 /**
- * @tsplus getter fncts.io.Push runDrain
+ * @tsplus pipeable fncts.io.Push provideEnvironment
  */
-export function runDrain<R, E, A>(self: Push<R, E, A>): IO<R | Scope, E, void> {
-  return self.observe(() => IO.unit);
+export function provideEnvironment<R>(environment: Environment<R>) {
+  return <E, A>(self: Push<R, E, A>): Push<never, E, A> => self.provideSomeEnvironment(environment);
+}
+
+class ProvideLayer<R, E, A, R1, E1, R2> extends Push<Exclude<R, R2> | R1, E | E1, A> {
+  constructor(
+    readonly self: Push<R, E, A>,
+    readonly layer: Layer<R1, E1, R2>,
+  ) {
+    super();
+  }
+  run<R3>(sink: UnsafeSink<R3, E | E1, A>): IO<R1 | Exclude<R, R2> | R3, never, void> {
+    return IO.bracketExit(
+      Scope.make,
+      (scope) =>
+        this.layer
+          .build(scope)
+          .matchCauseIO(sink.onFailure, (environment) => this.self.run(sink).provideSomeEnvironment(environment)),
+      (scope, exit) => scope.close(exit),
+    );
+  }
 }
 
 /**
- * @tsplus static fncts.io.PushOps scoped
+ * @tsplus pipeable fncts.io.Push provideLayer
  */
-export function scoped<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string): Push<Exclude<R, Scope>, E, A> {
-  return Push((emitter) =>
-    IO.defer(io).scoped.matchCauseIO(
-      (cause) => emitter.error(cause),
-      (value) => emitter.event(value),
-    ),
-  );
+export function provideLayer<R1, E1, R2>(layer: Layer<R1, E1, R2>) {
+  return <R, E, A>(self: Push<R, E, A>): Push<Exclude<R, R2> | R1, E | E1, A> => new ProvideLayer(self, layer);
+}
+
+/**
+ * @tsplus pipeable fncts.io.Push provideSomeEnvironment
+ */
+export function provideSomeEnvironment<R1>(environment: Environment<R1>) {
+  return <R, E, A>(self: Push<R, E, A>): Push<Exclude<R, R1>, E, A> =>
+    self.contramapEnvironment((r) => r.union(environment));
+}
+
+/**
+ * @tsplus static fncts.io.PushOps schedule
+ */
+export function schedule<R, E, A, R1, O>(io: IO<R, E, A>, schedule: Schedule<R1, unknown, O>): Push<R | R1, E, A> {
+  return Push.fromIOProducer(new Scheduled(io, schedule));
 }
 
 /**
  * @tsplus static fncts.io.PushOps succeed
  */
 export function succeed<A>(value: Lazy<A>): Push<never, never, A> {
-  return Push.fromIO(IO.succeed(value));
+  return Push.fromSyncProducer(SyncProducer.fromSync(value));
+}
+
+/**
+ * @tsplus static fncts.io.PushOps succeedNow
+ */
+export function succeedNow<A>(value: A): Push<never, never, A> {
+  return Push.fromSyncProducer(SyncProducer.Success(value));
 }
 
 /**
  * @tsplus pipeable fncts.io.Push switchMap
  */
-export function switchMap<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return Push((sink) => withSwitch((fork) => self.run(Sink((a) => fork(f(a).run(sink)), sink.error))));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push switchMapIO
- */
-export function switchMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> => {
-    return self.switchMap((a) => Push.fromIO(f(a)));
-  };
-}
-
-/**
- * @tsplus pipeable fncts.io.Push tap
- */
-export function tap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>) {
-  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, A> => {
-    return Push((sink) => self.run(Sink((a) => f(a).matchCauseIO(sink.error, () => sink.event(a)), sink.error)));
-  };
+export function switchMap<A, R1, E1, B>(f: (a: A) => Push<R1, E1, B>, executionStrategy?: ExecutionStrategy) {
+  return <R, E>(self: Push<R, E, A>): Push<R | R1, E | E1, B> =>
+    self.flatMapWithStrategy(f, FlattenStrategy.Switch, executionStrategy ?? ExecutionStrategy.sequential);
 }
 
 /**
  * @tsplus pipeable fncts.io.Push transform
  */
-export function transform<R1 = never>(f: <R, E, A>(io: IO<R, E, A>) => IO<R | R1, E, A>) {
-  return <R, E, A>(self: Push<R, E, A>): Push<R | R1, E, A> => Push((emitter) => f(self.run(emitter)));
-}
-
-function unfoldLoop<S, A, R1>(
-  s: S,
-  f: (s: S) => Maybe<readonly [A, S]>,
-  emitter: Sink<R1, never, A>,
-): IO<R1, never, void> {
-  return f(s).match(
-    () => IO.unit,
-    ([a, s]) => emitter.event(a) > unfoldLoop(s, f, emitter),
-  );
-}
-
-/**
- * @tsplus static fncts.io.PushOps unfold
- */
-export function unfold<S, A>(s: S, f: (s: S) => Maybe<readonly [A, S]>): Push<never, never, A> {
-  return Push((emitter) => unfoldLoop(s, f, emitter));
-}
-
-function unfoldIOLoop<S, R, E, A, R1>(
-  s: S,
-  f: (s: S) => IO<R, E, Maybe<readonly [A, S]>>,
-  emitter: Sink<R1, E, A>,
-): IO<R | R1, never, void> {
-  return f(s)
-    .flatMap((result) =>
-      result.match(
-        () => IO.unit,
-        ([a, s]) => emitter.event(a) > unfoldIOLoop(s, f, emitter),
-      ),
-    )
-    .catchAllCause((cause) => emitter.error(cause));
-}
-
-/**
- * @tsplus static fncts.io.PushOps unfoldIO
- */
-export function unfoldIO<S, R, E, A>(s: S, f: (s: S) => IO<R, E, Maybe<readonly [A, S]>>): Push<R, E, A> {
-  return Push((emitter) => unfoldIOLoop(s, f, emitter));
-}
-
-/**
- * @tsplus pipeable fncts.io.Push untilFuture
- */
-export function untilFuture<E1, B>(future: Future<E1, B>) {
-  return <R, E, A>(self: Push<R, E, A>): Push<R, E | E1, A> => {
-    return Push(<R1>(sink: Sink<R1, E | E1, A>) =>
-      IO.asyncIO<R | R1, never, void>((cb) => {
-        const exit = IO(cb(IO.unit));
-        return Do((Δ) => {
-          const streamFiber = Δ(self.run(sink).fork);
-          const futureFiber = Δ(
-            future.await
-              .matchCauseIO(
-                (cause) => sink.error(cause),
-                () => IO.unit,
-              )
-              .zipRight(exit).fork,
-          );
-          Δ(Fiber.joinAll([streamFiber, futureFiber]));
-        });
-      }),
-    );
+export function transform<R, R1>(f: (io: IO<R, never, void>) => IO<R1, never, void>) {
+  return <E, A>(self: Push<R, E, A>): Push<R | R1, E, A> => {
+    const op = new PushPrimitive(PushTag.Transform);
+    op.i0    = self;
+    op.i1    = f;
+    return op;
   };
 }
 
-/**
- * @tsplus pipeable fncts.io.Push untilPush
- */
-export function untilPush<R1, E1, B>(signal: Push<R1, E1, B>) {
-  return <R, E, A>(self: Push<R, E, A>): Push<R | R1, E | E1, A> => {
-    return Push(<R2>(sink: Sink<R2, E | E1, A>) =>
-      IO.asyncIO<R | R1 | R2, never, void>((cb) => {
-        const exit = IO(cb(IO.unit));
-        return Do((Δ) => {
-          const signalFiber = Δ(
-            signal.run(
-              Sink(
-                () => exit,
-                (cause) => sink.error(cause),
-              ),
-            ).fork,
-          );
-          const streamFiber = Δ(self.run(sink).fork);
-          Δ(Fiber.joinAll([signalFiber, streamFiber]));
-        });
-      }),
+class Unwrap<R, E, R1, E1, A> extends Push<R | R1, E | E1, A> {
+  constructor(readonly io: IO<R, E, Push<R1, E1, A>>) {
+    super();
+  }
+  run<R2>(sink: UnsafeSink<R2, E | E1, A>): IO<R | R1 | R2, never, void> {
+    return this.io.matchCauseIO(
+      (cause) => sink.onFailure(cause),
+      (stream) => stream.run(sink),
     );
-  };
+  }
 }
 
 /**
  * @tsplus static fncts.io.PushOps unwrap
  */
 export function unwrap<R, E, R1, E1, A>(io: IO<R, E, Push<R1, E1, A>>): Push<R | R1, E | E1, A> {
-  return Push.fromIO(io).flatten;
+  return new Unwrap(io);
 }
-
-/**
- * @tsplus static fncts.io.PushOps unwrapScoped
- */
-export function unwrapScoped<R, E, R1, E1, A>(
-  self: IO<R, E, Push<R1, E1, A>>,
-  __tsplusTrace?: string,
-): Push<R1 | Exclude<R, Scope>, E | E1, A> {
-  return Push.scoped(self).flatten;
-}
-
-/**
- * @tsplus static fncts.io.PushOps never
- */
-export const never = Push.fromIO(IO.never);

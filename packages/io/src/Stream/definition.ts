@@ -1,5 +1,4 @@
 import type { _A, _E, _R } from "@fncts/base/types";
-
 export const StreamVariance = Symbol.for("fncts.io.Stream.Variance");
 export type StreamVariance = typeof StreamVariance;
 
