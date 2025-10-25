@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.22
+
+### Patch Changes
+
+- 2fb3d95: feat: base push stream implementation
+
 ## 0.0.21
 
 ### Patch Changes

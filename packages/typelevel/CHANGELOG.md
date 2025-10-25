@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.23
+
+### Patch Changes
+
+- 2fb3d95: feat: base push stream implementation
+
 ## 0.0.22
 
 ### Patch Changes
