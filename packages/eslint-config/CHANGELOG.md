@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.27
+
+### Patch Changes
+
+- 2fb3d95: feat: base push stream implementation
+- Updated dependencies [2fb3d95]
+  - @fncts/codegen@0.0.25
+
 ## 0.0.26
 
 ### Patch Changes

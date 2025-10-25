@@ -1,5 +1,13 @@
 # @fncts/pattern
 
+## 0.0.31
+
+### Patch Changes
+
+- 2fb3d95: feat: base push stream implementation
+- Updated dependencies [2fb3d95]
+  - @fncts/base@0.0.42
+
 ## 0.0.30
 
 ### Patch Changes

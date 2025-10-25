@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.25
+
+### Patch Changes
+
+- 2fb3d95: feat: base push stream implementation
+
 ## 0.0.24
 
 ### Patch Changes
