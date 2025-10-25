@@ -20,6 +20,16 @@ export function makeAddFinalizer(finalizer: Lazy<UIO<void>>, __tsplusTrace?: str
 }
 
 /**
+ * @tsplus static fncts.io.ScopeOps addFinalizerExit
+ */
+export function makeAddFinalizerExit(
+  finalizer: (exit: Exit<any, any>) => UIO<any>,
+  __tsplusTrace?: string,
+): IO<Scope, never, void> {
+  return IO.serviceWithIO((scope) => scope.addFinalizerExit(Finalizer.get(finalizer)), Scope.Tag);
+}
+
+/**
  * @tsplus static fncts.io.ScopeOps concurrent
  * @tsplus static fncts.io.Scope.CloseableOps concurrent
  */
@@ -131,3 +141,15 @@ export function use<R, E, A>(io: Lazy<IO<R, E, A>>, __tsplusTrace?: string) {
     return self.extend(io).onExit((exit) => self.close(exit));
   };
 }
+
+/**
+ * @tsplus getter fncts.io.Scope awaitClose
+ */
+export function awaitClose(scope: Scope): UIO<void> {
+  return IO.asyncIO((cb) => scope.addFinalizer(IO(() => cb(IO.unit))));
+}
+
+/**
+ * @tsplus static fncts.io.ScopeOps awaitClose
+ */
+export const wait: IO<Scope, never, void> = IO.asyncIO((cb) => Scope.addFinalizer(IO(() => cb(IO.unit))));

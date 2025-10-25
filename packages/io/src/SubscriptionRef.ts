@@ -7,7 +7,7 @@ export type SubscriptionRefTypeId = typeof SubscriptionRefTypeId;
 export class SubscriptionRefInternal<A> extends PSynchronizedInternal<never, never, never, never, A, A> {
   readonly [SubscriptionRefTypeId]: SubscriptionRefTypeId = SubscriptionRefTypeId;
   constructor(
-    readonly semaphore: Semaphore,
+    semaphore: Semaphore,
     readonly hub: Hub<A>,
     readonly ref: Ref<A>,
   ) {

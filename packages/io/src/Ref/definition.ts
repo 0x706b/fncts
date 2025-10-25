@@ -75,6 +75,32 @@ export interface ModifiableRef<RA, RB, EA, EB, A, B> {
   modify<C>(f: (b: B) => readonly [C, A], __tsplusTrace?: string): IO<RA | RB, EA | EB, C>;
 }
 
+export interface MappableRef<RA, RB, EA, EB, A, B> {
+  readonly [RefVariance]: {
+    readonly _RA: (_: never) => RA;
+    readonly _RB: (_: never) => RB;
+    readonly _EA: (_: never) => EA;
+    readonly _EB: (_: never) => EB;
+    readonly _A: (_: A) => void;
+    readonly _B: (_: never) => B;
+  };
+
+  match<EC, ED, C, D>(
+    ea: (_: EA) => EC,
+    eb: (_: EB) => ED,
+    ca: (_: C) => Either<EC, A>,
+    bd: (_: B) => Either<ED, D>,
+  ): PRef<RA, RB, EC, ED, C, D>;
+
+  matchAll<EC, ED, C, D>(
+    ea: (_: EA) => EC,
+    eb: (_: EB) => ED,
+    ec: (_: EB) => EC,
+    ca: (_: C) => (_: B) => Either<EC, A>,
+    bd: (_: B) => Either<ED, D>,
+  ): PRef<RA | RB, RB, EC, ED, C, D>;
+}
+
 export abstract class RefInternal<RA, RB, EA, EB, A, B>
   implements
     PRef<RA, RB, EA, EB, A, B>,

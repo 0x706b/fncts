@@ -2,7 +2,14 @@ import baseConfig from "@fncts/eslint-config";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(...baseConfig, {
-  files: ["src/IO/api.ts", "src/Channel/api.ts", "src/Stream/api.ts", "src/Hub/api.ts", "src/Future/api.ts"],
+  files: [
+    "src/IO/api.ts",
+    "src/Channel/api.ts",
+    "src/Stream/api.ts",
+    "src/Hub/api.ts",
+    "src/Future/api.ts",
+    "src/Push/api.ts",
+  ],
   rules: {
     "perfectionist/sort-modules": [
       "error",
