@@ -44,6 +44,7 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
+    "@types/node": "^25.2.2",
     "@types/uuid": "^10.0.0"
   }
 }

@@ -409,9 +409,9 @@ export function rm(path: fs.PathLike, options?: fs.RmOptions): FIO<ErrnoExceptio
   });
 }
 
-export function rmdir(path: fs.PathLike, options?: fs.RmDirOptions): FIO<ErrnoException, void> {
+export function rmdir(path: fs.PathLike): FIO<ErrnoException, void> {
   return IO.async<never, NodeJS.ErrnoException, void>((cb) => {
-    fs.rmdir(path, options ?? {}, unitErrorCallback(cb));
+    fs.rmdir(path, unitErrorCallback(cb));
   });
 }
 

@@ -82,14 +82,14 @@ export class IterableWeakMap<K extends object, V> implements Iterable<readonly [
     return n;
   }
 
-  [Symbol.iterator](this: this): IterableIterator<[K, V]> {
+  [Symbol.iterator](this: this): MapIterator<[K, V]> {
     return this.entries();
   }
   get [Symbol.toStringTag](): string {
     return this.weakMap[Symbol.toStringTag];
   }
 
-  *entries(this: this): IterableIterator<[K, V]> {
+  *entries(this: this): MapIterator<[K, V]> {
     for (const ref of this.refSet) {
       const key = ref.deref();
       if (!key) continue;
@@ -98,13 +98,13 @@ export class IterableWeakMap<K extends object, V> implements Iterable<readonly [
     }
   }
 
-  *keys(this: this): IterableIterator<K> {
+  *keys(this: this): MapIterator<K> {
     for (const [key] of this) {
       yield key;
     }
   }
 
-  *values(): IterableIterator<V> {
+  *values(): MapIterator<V> {
     for (const [, value] of this) {
       yield value;
     }

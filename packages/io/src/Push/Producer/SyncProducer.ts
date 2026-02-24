@@ -1,4 +1,4 @@
-import type { Push } from "@fncts/io/Push";
+import type { Push } from "@fncts/io/Push/definition";
 
 export const enum SyncProducerTag {
   Success,

@@ -31,12 +31,14 @@
     "org:concurrently": "cd $INIT_CWD && concurrently",
     "org:madge": "cd $INIT_CWD && madge",
     "org:vitest": "cd $INIT_CWD && vitest",
-    "org:prettier-eslint": "cd $INIT_CWD && prettier-eslint"
+    "org:prettier-eslint": "cd $INIT_CWD && prettier-eslint",
+    "org:dpdm": "cd $INIT_CWD && dpdm"
   },
   "devDependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.2.0",
     "@0x706b/prettier-eslint-8": "^0.0.3",
+    "@0x706b/tsplus-installer": "0.0.189",
     "@babel/cli": "^7.27.2",
     "@babel/core": "7.27.4",
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
@@ -48,8 +50,8 @@
     "@eslint/js": "9.28.0",
     "@fncts/scripts": "workspace:*",
     "@rollup/pluginutils": "^5.3.0",
-    "@tsplus/installer": "0.0.188",
     "@types/benchmark": "^2.1.5",
+    "@types/node": "^25.2.2",
     "@typescript-eslint/eslint-plugin": "^8.33.0",
     "@typescript-eslint/experimental-utils": "^5.62.0",
     "@typescript-eslint/parser": "^8.33.0",
@@ -58,6 +60,7 @@
     "babel-plugin-replace-import-extension": "^1.1.5",
     "benchmark": "^2.1.4",
     "concurrently": "^9.1.2",
+    "dpdm": "^3.14.0",
     "eslint": "9.28.0",
     "eslint-import-resolver-typescript": "3.10.1",
     "eslint-plugin-import": "^2.31.0",

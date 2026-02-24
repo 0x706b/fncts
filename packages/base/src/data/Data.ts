@@ -102,7 +102,6 @@ export const TaggedClass = <Tag extends string | symbol, Key extends string | sy
 ): TaggedDataClassConstructor<Tag, Key> => {
   if (key) {
     class Base extends Structural<any> {
-      // @ts-expect-error
       readonly [key] = tag;
     }
     return Base as any;

@@ -1,3 +1,5 @@
+import { Scheduler } from "./Scheduler.js";
+
 export class AsyncScheduler extends Scheduler {
   public actions: Array<AsyncAction<any>> = [];
 

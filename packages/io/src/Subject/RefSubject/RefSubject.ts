@@ -12,6 +12,16 @@ import type { IO } from "@fncts/io/IO";
 import { RefTypeId, RefVariance, SynchronizedTypeId } from "../../Ref.js";
 import { PSubject } from "../definition.js";
 
+/**
+ * @tsplus type fncts.io.RefSubject.RefSubject
+ * @tsplus companion fncts.io.RefSubject.RefSubjectOps
+ */
+export interface RefSubject<R, E, A> extends PRefSubject<R, R, E, E, E, A, A> {}
+
+/**
+ * @tsplus type fncts.io.RefSubject.PRefSubject
+ * @tsplus companion fncts.io.RefSubject.PRefSubjectOps
+ */
 export abstract class PRefSubject<EnvIn, EnvOut, ErrIn, ErrOut, ErrInRef, In, Out>
   extends PSubject<EnvIn, EnvOut, ErrIn, ErrOut, In, Out>
   implements

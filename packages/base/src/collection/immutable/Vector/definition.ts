@@ -1,7 +1,9 @@
 import type { Node } from "@fncts/base/collection/immutable/Vector/internal";
+import type { ShowComputationExternal } from "@fncts/base/data/Showable";
 
 import { foldLeftCb } from "@fncts/base/collection/immutable/Vector/internal";
 import { ForwardVectorIterator } from "@fncts/base/collection/immutable/Vector/internal";
+import { _show, show, showComputationComplex } from "@fncts/base/data/Showable";
 
 export const VectorVariance = Symbol.for("fncts.Vector.Variance");
 export type VectorVariance = typeof VectorVariance;
@@ -50,6 +52,13 @@ export class Vector<A> implements Iterable<A> {
   [Symbol.equals](that: unknown): boolean {
     return isVector(that) && (this as Vector<A>).corresponds(that, Equatable.strictEquals);
   }
+  get [Symbol.showable](): ShowComputationExternal {
+    return showComputationComplex({
+      base: Pure.succeedNow("Vector"),
+      braces: ["[", "]"],
+      indices: this.traverseToConc(Pure.Applicative)((a) => _show(a)),
+    });
+  }
 }
 
 /**
@@ -70,6 +79,7 @@ export interface MutableVector<A> {
   [Symbol.iterator]: () => Iterator<A>;
   [Symbol.hash]: number;
   [Symbol.equals](that: unknown): boolean;
+  get [Symbol.showable](): ShowComputationExternal;
   /**
    * This property doesn't exist at run-time. It exists to prevent a
    * MutableVector from being assignable to a Vector.

@@ -21,13 +21,13 @@ export class TestConsole implements Console {
     readonly debugState: FiberRef<boolean>,
   ) {}
   show(...input: ReadonlyArray<unknown>): UIO<void> {
-    return this.consoleState.update((data) =>
-      data.copy({
+    return this.consoleState.update((data) => {
+      return data.copy({
         output: data.output.concat(
           input.foldLeft(Vector.empty(), (b, a) => b.append(showWithOptions(a, { colors: false }))),
         ),
-      }),
-    );
+      });
+    });
   }
   print(line: string): UIO<void> {
     return this.consoleState.update((data) =>

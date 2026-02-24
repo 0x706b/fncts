@@ -45,7 +45,7 @@ export class Headers {
   }
 }
 
-export declare module Headers {
+export declare namespace Headers {
   export type Input = Readonly<Record<string, string>> | Iterable<readonly [string, string]>;
 }
 

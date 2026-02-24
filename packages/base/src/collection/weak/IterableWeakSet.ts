@@ -50,11 +50,11 @@ export class IterableWeakSet<A extends object> implements Iterable<A>, Set<A> {
     return this.weakMap.has(value);
   }
 
-  keys(): IterableIterator<A> {
+  keys(): MapIterator<A> {
     return this[Symbol.iterator]();
   }
 
-  values(): IterableIterator<A> {
+  values(): MapIterator<A> {
     return this[Symbol.iterator]();
   }
 
@@ -87,7 +87,7 @@ export class IterableWeakSet<A extends object> implements Iterable<A>, Set<A> {
     return n;
   }
 
-  *[Symbol.iterator](this: this): IterableIterator<A> {
+  *[Symbol.iterator](this: this): MapIterator<A> {
     for (const ref of this.refSet) {
       const key = ref.deref();
       if (!key) continue;
@@ -99,7 +99,7 @@ export class IterableWeakSet<A extends object> implements Iterable<A>, Set<A> {
     return this.refSet[Symbol.toStringTag];
   }
 
-  *entries(this: this): IterableIterator<[A, A]> {
+  *entries(this: this): MapIterator<[A, A]> {
     for (const ref of this.refSet) {
       const key = ref.deref();
       if (!key) continue;

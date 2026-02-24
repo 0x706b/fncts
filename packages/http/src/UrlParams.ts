@@ -6,7 +6,7 @@ export class UrlParams {
   constructor(readonly backing: ReadonlyArray<readonly [string, string]>) {}
 }
 
-export declare module UrlParams {
+export declare namespace UrlParams {
   export type Input = Readonly<Record<string, string>> | Iterable<readonly [string, string]> | URLSearchParams;
 }
 

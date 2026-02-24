@@ -102,7 +102,6 @@ export function Tagged<Tag extends string | symbol, Key extends string | symbol>
 ): CaseConstructorTagged<Tag, string> {
   if (key) {
     class X extends CaseClass<{}> {
-      // @ts-expect-error
       readonly [key] = tag;
     }
     // @ts-expect-error

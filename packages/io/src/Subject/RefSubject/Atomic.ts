@@ -2,7 +2,9 @@ import type { Runtime } from "@fncts/io/IO/runtime";
 import type { UnsafeSink } from "@fncts/io/Push/Sink";
 import type { Scope } from "@fncts/io/Scope";
 
-import { IO } from "@fncts/io/IO";
+import { EitherTag } from "@fncts/base/data/Either";
+import { ExitTag } from "@fncts/base/data/Exit";
+import { IO, IOTag } from "@fncts/io/IO";
 import { PSynchronizedInternal } from "@fncts/io/Ref/Synchronized/definition";
 
 import { FutureRef } from "../DeferredRef.js";
@@ -14,10 +16,43 @@ export class Atomic<R, E, A> extends PRefSubject<never, never, E, E, E, A, A> {
   constructor(
     readonly fiberId: FiberId,
     readonly initial: IO<R, E, A>,
-    readonly runtime: Runtime<R>,
+    readonly runtime: Runtime<R | Scope>,
     readonly scope: Scope.Closeable,
   ) {
     super();
+
+    const onSuccess = (a: A) => this.futureRef.done(Exit.succeed(a));
+    const onCause   = (cause: Cause<E>) => this.futureRef.done(Exit.failCause(cause));
+    const onError   = (e: E) => onCause(Cause.fail(e));
+    const io        = IO.concrete(initial);
+    switch (io._ioOpCode) {
+      case IOTag.SucceedNow:
+        onSuccess(io.i0);
+        break;
+      case null: {
+        switch (io._tag) {
+          case MaybeTag.Just:
+            onSuccess(io.value);
+            break;
+          case MaybeTag.Nothing:
+            onError(new NoSuchElementError() as E);
+            break;
+          case EitherTag.Right:
+            onSuccess(io.right);
+            break;
+          case EitherTag.Left:
+            onError(io.left);
+            break;
+          case ExitTag.Success:
+            onSuccess(io.value);
+            break;
+          case ExitTag.Failure:
+            onCause(io.cause);
+            break;
+        }
+        break;
+      }
+    }
   }
 
   readonly semaphore                = Semaphore.unsafeMake(1);

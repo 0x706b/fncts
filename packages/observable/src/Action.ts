@@ -1,3 +1,5 @@
+import type { Scheduler } from "./Scheduler.js";
+
 export class Action<A> extends Subscription {
   constructor(scheduler: Scheduler, work: (this: SchedulerAction<A>, state?: A) => void) {
     super();

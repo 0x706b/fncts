@@ -4,4 +4,5 @@ export * from "./Subject/Atomic.js"
 export * from "./Subject/DeferredRef.js"
 export * from "./Subject/definition.js"
 export * from "./Subject/Hold.js"
+export * from "./Subject/RefSubject.js"
 // codegen:end

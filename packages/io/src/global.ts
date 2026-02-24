@@ -138,6 +138,14 @@ import { Stream } from "@fncts/io/Stream/definition";
 /**
  * @tsplus global
  */
+import { Subject } from "@fncts/io/Subject";
+/**
+ * @tsplus global
+ */
+import { PRefSubject, RefSubject } from "@fncts/io/Subject/RefSubject/RefSubject";
+/**
+ * @tsplus global
+ */
 import { SubscriptionRef } from "@fncts/io/SubscriptionRef";
 /**
  * @tsplus global

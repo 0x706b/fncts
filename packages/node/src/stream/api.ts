@@ -28,6 +28,7 @@ function fromReadableChannel<E, A = Uint8Array>(
     ([readable, queue]) => readableTake(readable, queue, chunkSize),
     ([readable, queue]) =>
       IO(() => {
+        // @ts-expect-error
         readable.removeAllListeners();
         if ("closed" in readable && !readable.closed) {
           readable.destroy();
@@ -42,15 +43,18 @@ function readableOffer<E>(
   onError: (error: unknown) => E,
 ) {
   return IO(() => {
+    // @ts-expect-error
     readable.on("readable", () => {
       const size = queue.unsafeSize;
       if (size.isJust() && size.value <= 0) {
         queue.offer(Either.right(void 0)).unsafeRun;
       }
     });
+    // @ts-expect-error
     readable.on("error", (err) => {
       queue.unsafeOffer(Either.left(Exit.fail(onError(err))));
     });
+    // @ts-expect-error
     readable.on("end", () => {
       queue.unsafeOffer(Either.left(Exit.unit));
     });
@@ -129,6 +133,7 @@ function writeInput<IE, A>(
         if ("closed" in writable && writable.closed) {
           resume(IO.unit);
         } else {
+          // @ts-expect-error
           writable.once("finish", () => resume(IO.unit));
         }
       })
@@ -167,6 +172,7 @@ function writeIO<A>(writable: stream.Writable | NodeJS.WritableStream, encoding?
 
             if (!success) {
               return IO.async((k) => {
+                // @ts-expect-error
                 writable.once("drain", () => {
                   k(IO.unit);
                 });
@@ -194,7 +200,9 @@ function writableOutput<IE, OE>(
       function handleError(err: unknown) {
         future.unsafeDone(IO.failNow(onError(err)));
       }
+      // @ts-expect-error
       writable.on("error", handleError);
+      // @ts-expect-error
       return future.await.ensuring(IO(writable.removeListener("error", handleError)));
     }),
   );
@@ -262,6 +270,7 @@ export function toString<E>(
   })
     .acquireRelease((stream) =>
       IO(() => {
+        // @ts-expect-error
         stream.removeAllListeners();
         if ("closed" in stream && !stream.closed) {
           stream.destroy();
@@ -272,12 +281,15 @@ export function toString<E>(
       IO.async<never, E, string>((resume) => {
         let string = "";
         let bytes  = 0;
+        // @ts-expect-error
         stream.once("error", (err) => {
           resume(IO.failNow(onFailure(err)));
         });
+        // @ts-expect-error
         stream.once("end", () => {
           resume(IO.succeedNow(string));
         });
+        // @ts-expect-error
         stream.on("data", (chunk) => {
           string += chunk;
           bytes  += Buffer.byteLength(chunk);
@@ -300,6 +312,7 @@ export function toUint8Array<E>(
   return IO(readable)
     .acquireRelease((stream) =>
       IO(() => {
+        // @ts-expect-error
         stream.removeAllListeners();
         if ("closed" in stream && !stream.closed) {
           stream.destroy();
@@ -310,12 +323,15 @@ export function toUint8Array<E>(
       IO.async<never, E, Buffer>((resume) => {
         let buffer = Buffer.alloc(0);
         let bytes  = 0;
+        // @ts-expect-error
         stream.once("error", (err) => {
           resume(IO.failNow(onFailure(err)));
         });
+        // @ts-expect-error
         stream.once("end", () => {
           resume(IO.succeedNow(buffer));
         });
+        // @ts-expect-error
         stream.on("data", (chunk) => {
           buffer = Buffer.concat([buffer, chunk]);
           bytes += chunk.length;

@@ -2,8 +2,8 @@ import type { MergeStrategy } from "./MergeStrategy.js";
 import type { UnsafeSink } from "@fncts/io/Push/Sink";
 
 import { IO, IOTag } from "@fncts/io/IO";
-import { FlattenStrategy, UnboundedStrategy } from "@fncts/io/Push";
-import { Push, PushPrimitive, PushTag } from "@fncts/io/Push";
+import { Push, PushPrimitive, PushTag } from "@fncts/io/Push/definition";
+import { FlattenStrategy, UnboundedStrategy } from "@fncts/io/Push/FlattenStrategy";
 import { SyncProducer } from "@fncts/io/Push/Producer/SyncProducer";
 import { Sink } from "@fncts/io/Push/Sink";
 import { Scope } from "@fncts/io/Scope";

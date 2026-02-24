@@ -240,6 +240,7 @@ export function fromWebSocket(
                   return new SocketCloseError("Close", chunk.code, chunk.reason, chunk);
                 });
               } else {
+                // @ts-expect-error -- tsplus-6.0.0
                 return IO.tryCatch(ws.send(chunk), (error) => new SocketGenericError("Write", error));
               }
             }).forever,
