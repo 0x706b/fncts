@@ -257,7 +257,6 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
  */
 export function find<A, B extends A>(refinement: Refinement<A, B>): (self: Iterable<A>) => Maybe<B>;
 export function find<A>(predicate: Predicate<A>): (self: Iterable<A>) => Maybe<A>;
-
 export function find<A>(predicate: Predicate<A>) {
   return (self: Iterable<A>): Maybe<A> => {
     for (const value of self) {

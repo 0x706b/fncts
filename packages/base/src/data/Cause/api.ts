@@ -506,17 +506,13 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
 
           if (l.isJust() && result.isJust()) {
             result = Just(Cause.sequential(l.value, result.value));
-          }
-
-          if (l.isNothing() && result.isJust()) {
+          } else if (l.isNothing() && result.isJust()) {
             result = Just(result.value);
-          }
-
-          if (l.isJust() && result.isNothing()) {
+          } else if (l.isJust() && result.isNothing()) {
             result = Just(l.value);
+          } else {
+            result = Nothing();
           }
-
-          result = Nothing();
 
           continue popping;
         }
@@ -529,17 +525,13 @@ export function flipCauseOption<E>(self: Cause<Maybe<E>>): Maybe<Cause<E>> {
 
           if (l.isJust() && result.isJust()) {
             result = Just(Cause.parallel(l.value, result.value));
-          }
-
-          if (l.isNothing() && result.isJust()) {
+          } else if (l.isNothing() && result.isJust()) {
             result = Just(result.value);
-          }
-
-          if (l.isJust() && result.isNothing()) {
+          } else if (l.isJust() && result.isNothing()) {
             result = Just(l.value);
+          } else {
+            result = Nothing();
           }
-
-          result = Nothing();
 
           continue popping;
         }

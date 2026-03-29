@@ -365,9 +365,8 @@ export function join(separator: string) {
     let result: IteratorResult<string>;
     while (!(result = iterator.next()).done) {
       if (first) {
-        first  = false;
-        s     += result.value;
-        result = iterator.next();
+        first = false;
+        s    += result.value;
       } else {
         s += separator;
         s += result.value;

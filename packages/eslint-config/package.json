@@ -10,18 +10,18 @@
   "dependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.2.0",
-    "@eslint/compat": "^1.2.9",
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "9.28.0",
+    "@eslint/compat": "^2.0.3",
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "10.0.1",
     "@fncts/codegen": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
     "@typescript-eslint/experimental-utils": "^5.62.0",
-    "@typescript-eslint/parser": "^8.33.0",
-    "eslint-import-resolver-typescript": "3.10.1",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-perfectionist": "^4.14.0",
+    "@typescript-eslint/parser": "^8.57.2",
+    "eslint-import-resolver-typescript": "4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-perfectionist": "^5.7.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "typescript-eslint": "^8.33.0"
+    "typescript-eslint": "^8.57.2"
   },
   "peerDependencies": {
     "eslint": "^9.6.0"
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/eslint__js": "^8.42.3"
+    "@types/eslint__js": "^9.14.0"
   },
   "exports": {
     ".": {

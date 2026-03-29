@@ -1367,9 +1367,7 @@ export function failNow<E>(error: E, __tsplusTrace?: string): Stream<never, E, n
  * @tsplus pipeable fncts.io.Stream filter
  */
 export function filter<A, B extends A>(refinement: Refinement<A, B>): <R, E>(fa: Stream<R, E, A>) => Stream<R, E, B>;
-
 export function filter<A>(predicate: Predicate<A>): <R, E>(fa: Stream<R, E, A>) => Stream<R, E, A>;
-
 export function filter<A>(predicate: Predicate<A>, __tsplusTrace?: string) {
   return <R, E>(fa: Stream<R, E, A>): Stream<R, E, A> => {
     return fa.mapChunks((chunk) => chunk.filter(predicate));

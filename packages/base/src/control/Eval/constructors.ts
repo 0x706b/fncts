@@ -38,5 +38,6 @@ const UNSET = Symbol.for("@tsplus/base/control/Eval/UNSET");
  */
 export function later<A>(make: Lazy<A>): Eval<A> {
   let v: A | typeof UNSET = UNSET;
+  // eslint-disable-next-line no-useless-assignment
   return Eval(v === UNSET ? (((v = make()), (make = null!)), v) : v);
 }

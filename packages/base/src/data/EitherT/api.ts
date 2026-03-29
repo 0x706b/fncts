@@ -157,7 +157,6 @@ export function orElse<F extends HKT, FC = HKT.None>(
   HKT.Mix<F, "E", [EF, EF1]>,
   Either<E | E1, A | B>
 >;
-
 export function orElse<F>(F: P.Monad<HKT.F1<F>>) {
   return <E, A, E1, B>(
     that: Lazy<HKT.FK1<F, Either<E1, B>>>,

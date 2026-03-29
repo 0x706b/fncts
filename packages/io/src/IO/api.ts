@@ -518,13 +518,11 @@ export function filterOrElse<A, B extends A, R1, E1, A1>(
   or: (a: Exclude<A, B>) => IO<R1, E1, A1>,
   __tsplusTrace?: string,
 ): <R, E>(fa: IO<R, E, A>) => IO<R | R1, E | E1, B | A1>;
-
 export function filterOrElse<A, R1, E1, A1>(
   predicate: Predicate<A>,
   or: (a: A) => IO<R1, E1, A1>,
   __tsplusTrace?: string,
 ): <R, E>(fa: IO<R, E, A>) => IO<R | R1, E | E1, A | A1>;
-
 export function filterOrElse<A>(predicate: Predicate<A>, or: unknown, __tsplusTrace?: string) {
   return <R, E, R1, E1, A1>(fa: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
     return fa.flatMap(
@@ -542,12 +540,10 @@ export function filterOrFail<A, B extends A, E1>(
   refinement: Refinement<A, B>,
   failWith: (a: Exclude<A, B>) => E1,
 ): <R, E>(fa: IO<R, E, A>) => IO<R, E | E1, B>;
-
 export function filterOrFail<A, E1>(
   predicate: Predicate<A>,
   failWith: (a: A) => E1,
 ): <R, E>(fa: IO<R, E, A>) => IO<R, E | E1, A>;
-
 export function filterOrFail<A>(predicate: Predicate<A>, failWith: unknown, __tsplusTrace?: string) {
   return <R, E, E1>(fa: IO<R, E, A>): IO<R, E | E1, A> => {
     return fa.filterOrElse(predicate, (a) => IO.failNow((failWith as (a: A) => E1)(a)));
@@ -568,7 +564,6 @@ export function filterOrHalt<A>(
   haltWith: (a: A) => unknown,
   __tsplusTrace?: string,
 ): <R, E>(fa: IO<R, E, A>) => IO<R, E, A>;
-
 export function filterOrHalt<A>(predicate: Predicate<A>, haltWith: unknown, __tsplusTrace?: string) {
   return <R, E>(fa: IO<R, E, A>): IO<R, E, A> => {
     return fa.filterOrElse(predicate, (a) => IO.haltNow((haltWith as (a: A) => unknown)(a)));

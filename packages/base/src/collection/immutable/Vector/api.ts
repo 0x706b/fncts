@@ -158,7 +158,6 @@ export function concat<A>(that: Vector<A>) {
  * @tsplus pipeable fncts.Vector filter
  */
 export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => Vector<B>;
-
 export function filter<A>(predicate: Predicate<A>): (self: Vector<A>) => Vector<A>;
 export function filter<A>(predicate: Predicate<A>) {
   return (self: Vector<A>): Vector<A> => {
@@ -194,7 +193,6 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 export function filterWithIndex<A, B extends A>(
   refinement: RefinementWithIndex<number, A, B>,
 ): (self: Vector<A>) => Vector<B>;
-
 export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>): (self: Vector<A>) => Vector<A>;
 export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
   return (self: Vector<A>): Vector<A> => {
@@ -1078,9 +1076,10 @@ export function single<A>(a: A): Vector<A> {
 export function slice(from: number, to: number) {
   return <A>(self: Vector<A>): Vector<A> => {
     let { bits, length } = self;
-    let _to              = to;
-    let _from            = from;
-    _to                  = Math.min(length, to);
+    // eslint-disable-next-line no-useless-assignment
+    let _to   = to;
+    let _from = from;
+    _to       = Math.min(length, to);
     // Handle negative indices
     if (_from < 0) {
       _from = length + from;
@@ -1381,7 +1380,6 @@ export function traverseWithIndex_<A>(
 ) => <K, Q, W, X, I, S, R, E, B>(
   f: (i: number, a: A) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, B>,
 ) => HKT.Kind<G, GC, K, Q, W, X, I, S, R, E, Vector<B>>;
-
 export function traverseWithIndex_<A>(
   self: Vector<A>,
 ): <G>(G: P.Applicative<HKT.F<G>>) => <B>(f: (i: number, a: A) => HKT.FK1<G, B>) => HKT.FK1<G, Vector<B>> {

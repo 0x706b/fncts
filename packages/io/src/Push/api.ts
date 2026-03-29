@@ -10,6 +10,17 @@ import { Scope } from "@fncts/io/Scope";
 
 import { FromIO, FromScheduled, type IOProducer, Scheduled } from "./Producer/IOProducer.js";
 
+/**
+ * @tsplus static fncts.io.PushOps bracketExit
+ */
+export function bracketExit<R, E, A, R1, E1, B, R2, E2, C>(
+  acquire: IO<R, E, A>,
+  use: (a: A) => Push<R1, E1, B>,
+  release: (a: A, exit: Exit<unknown, unknown>) => IO<R2, E2, C>,
+): Push<R | R1 | R2, E | E1 | E2, B> {
+  return new BracketExit(acquire, use, release);
+}
+
 class BracketExit<R, E, A, R1, E1, B, R2, E2, C> extends Push<R | R1 | R2, E | E1 | E2, B> {
   constructor(
     readonly acquire: IO<R, E, A>,
@@ -29,14 +40,10 @@ class BracketExit<R, E, A, R1, E1, B, R2, E2, C> extends Push<R | R1 | R2, E | E
 }
 
 /**
- * @tsplus static fncts.io.PushOps bracketExit
+ * @tsplus static fncts.io.PushOps defer
  */
-export function bracketExit<R, E, A, R1, E1, B, R2, E2, C>(
-  acquire: IO<R, E, A>,
-  use: (a: A) => Push<R1, E1, B>,
-  release: (a: A, exit: Exit<unknown, unknown>) => IO<R2, E2, C>,
-): Push<R | R1 | R2, E | E1 | E2, B> {
-  return new BracketExit(acquire, use, release);
+export function defer<R, E, A>(self: Lazy<Push<R, E, A>>): Push<R, E, A> {
+  return new Defer(self);
 }
 
 class CombineLatest<R, E, A> extends Push<R | Scope, E, ReadonlyArray<A>> {
@@ -88,11 +95,11 @@ class CombineLatest<R, E, A> extends Push<R | Scope, E, ReadonlyArray<A>> {
 export function combineLatest<A extends ReadonlyArray<Push<any, any, any>>>(
   streams: [...A],
 ): Push<Push.EnvironmentOf<A[number]> | Scope, Push.ErrorOf<A[number]>, { [K in keyof A]: Push.ValueOf<A[K]> }>;
-
 export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R | Scope, E, ReadonlyArray<A>>;
 export function combineLatest<R, E, A>(streams: Iterable<Push<R, E, A>>): Push<R | Scope, E, ReadonlyArray<A>> {
   return new CombineLatest(streams);
 }
+
 class ContramapEnvironment<R, E, A, R1> extends Push<R1, E, A> {
   constructor(
     readonly self: Push<R, E, A>,
@@ -120,13 +127,6 @@ class Defer<R, E, A> extends Push<R, E, A> {
   run<R1>(sink: UnsafeSink<R1, E, A>): IO<R | R1, never, void> {
     return IO.defer(this.self().run(sink));
   }
-}
-
-/**
- * @tsplus static fncts.io.PushOps defer
- */
-export function defer<R, E, A>(self: Lazy<Push<R, E, A>>): Push<R, E, A> {
-  return new Defer(self);
 }
 
 /**

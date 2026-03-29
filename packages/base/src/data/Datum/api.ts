@@ -44,9 +44,7 @@ export function extend<A, B>(f: (wa: Datum<A>) => B) {
  * @tsplus pipeable fncts.Datum filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: Datum<A>) => Datum<B>;
-
 export function filter<A>(p: Predicate<A>): (self: Datum<A>) => Datum<A>;
-
 export function filter<A>(p: Predicate<A>) {
   return (self: Datum<A>): Datum<A> => {
     return self.match({

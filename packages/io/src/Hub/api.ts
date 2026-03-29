@@ -63,6 +63,18 @@ export function dimap<A, B, C, D>(f: (c: C) => A, g: (b: B) => D, __tsplusTrace?
   };
 }
 
+/**
+ * Transforms messages taken from the hub using the specified effectual
+ * function.
+ *
+ * @tsplus pipeable fncts.io.Hub mapIO
+ */
+export function mapIO<B, RC, EC, C>(f: (b: B) => IO<RC, EC, C>, __tsplusTrace?: string) {
+  return <RA, RB, EA, EB, A>(self: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RC | RB, EA, EB | EC, A, C> => {
+    return self.dimapIO(IO.succeedNow, f);
+  };
+}
+
 class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
   RC | RA,
   RD | RB,
@@ -166,6 +178,19 @@ export function filterOutput<B>(f: (b: B) => boolean, __tsplusTrace?: string) {
   };
 }
 
+/**
+ * Filters messages taken from the hub using the specified effectual
+ * function.
+ *
+ * @tsplus pipeable fncts.io.Hub filterOutputIO
+ */
+export function filterOutputIO<B, R1, E1>(f: (a: B) => IO<R1, E1, boolean>, __tsplusTrace?: string) {
+  return <RA, RB, EA, EB, A>(source: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB | R1, EA, EB | E1, A, B> => {
+    concrete(source);
+    return new FilterOutputIO(source, f);
+  };
+}
+
 class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB | RB1, EA, EB | EB1, A, B> {
   constructor(
     readonly source: PHubInternal<RA, RB, EA, EB, A, B>,
@@ -184,19 +209,6 @@ class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB
   subscribe  = this.source.subscribe.map((queue) => queue.filterOutputIO(this.f));
   publish    = (a: A) => this.source.publish(a);
   publishAll = (as: Iterable<A>) => this.source.publishAll(as);
-}
-
-/**
- * Filters messages taken from the hub using the specified effectual
- * function.
- *
- * @tsplus pipeable fncts.io.Hub filterOutputIO
- */
-export function filterOutputIO<B, R1, E1>(f: (a: B) => IO<R1, E1, boolean>, __tsplusTrace?: string) {
-  return <RA, RB, EA, EB, A>(source: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB | R1, EA, EB | E1, A, B> => {
-    concrete(source);
-    return new FilterOutputIO(source, f);
-  };
 }
 
 /**
@@ -272,18 +284,6 @@ export function makeUnbounded<A>(__tsplusTrace?: string): UIO<Hub<A>> {
 export function map<B, C>(f: (b: B) => C, __tsplusTrace?: string) {
   return <RA, RB, EA, EB, A>(self: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RB, EA, EB, A, C> => {
     return self.mapIO((b) => IO.succeedNow(f(b)));
-  };
-}
-
-/**
- * Transforms messages taken from the hub using the specified effectual
- * function.
- *
- * @tsplus pipeable fncts.io.Hub mapIO
- */
-export function mapIO<B, RC, EC, C>(f: (b: B) => IO<RC, EC, C>, __tsplusTrace?: string) {
-  return <RA, RB, EA, EB, A>(self: PHub<RA, RB, EA, EB, A, B>): PHub<RA, RC | RB, EA, EB | EC, A, C> => {
-    return self.dimapIO(IO.succeedNow, f);
   };
 }
 

@@ -590,8 +590,9 @@ export function prependNodeToTree<A>(l: MutableVector<A>, array: A[]): Vector<A>
     }
     return l;
   } else {
-    const node    = new Node(undefined, array);
-    const depth   = getDepth(l);
+    const node  = new Node(undefined, array);
+    const depth = getDepth(l);
+    // eslint-disable-next-line no-useless-assignment
     let newOffset = 0;
     if (l.root.sizes === undefined) {
       if (l.offset !== 0) {
@@ -935,8 +936,9 @@ export const concatBuffer = new Array(3);
  */
 export function concatAffixes<A>(left: Vector<A>, right: Vector<A>): number {
   // TODO: Try and find a neat way to reduce the LOC here
-  let nr           = 0;
-  let arrIdx       = 0;
+  let nr     = 0;
+  let arrIdx = 0;
+  // eslint-disable-next-line no-useless-assignment
   let i            = 0;
   let length       = getSuffixSize(left);
   concatBuffer[nr] = [];
@@ -1237,8 +1239,10 @@ function foldLeftNodeCb<A, B>(
 export function foldLeftCb<A, B>(cb: FoldCb<A, B>, state: B, l: Vector<A>): B {
   const prefixSize = getPrefixSize(l);
   let i            = prefixSize - 1;
-  let cont         = true;
-  [cont, i]        = foldRightArrayCb(cb, state, l.prefix, prefixSize, 0, i);
+  // eslint-disable-next-line no-useless-assignment
+  let cont = true;
+  // eslint-disable-next-line no-useless-assignment
+  [cont, i] = foldRightArrayCb(cb, state, l.prefix, prefixSize, 0, i);
   if (!cont) {
     return state;
   }
@@ -1280,12 +1284,14 @@ export function foldRightCb<A, B>(cb: FoldCb<A, B>, state: B, l: Vector<A>): B {
   const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
   let i            = l.length - 1;
-  let cont         = true;
-  [cont, i]        = foldRightArrayCb(cb, state, l.suffix, suffixSize, 0, i);
+  // eslint-disable-next-line no-useless-assignment
+  let cont  = true;
+  [cont, i] = foldRightArrayCb(cb, state, l.suffix, suffixSize, 0, i);
   if (!cont) {
     return state;
   }
   if (l.root !== undefined) {
+    // eslint-disable-next-line no-useless-assignment
     [cont, i] = foldRightNodeCb(cb, state, l.root, getDepth(l), i);
     if (!cont) {
       return state;
