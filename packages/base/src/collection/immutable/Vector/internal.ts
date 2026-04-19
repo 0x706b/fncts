@@ -986,6 +986,9 @@ export let newAffix: any[];
 //   return n & ~(~0 << ((depth + 1) * branchBits));
 // }
 
+/**
+ * Copies a node slice and adjusts child pointers and size tables.
+ */
 function sliceNode(
   node: Node,
   index: number,
@@ -1040,6 +1043,9 @@ function sliceNode(
  */
 export let newOffset = 0;
 
+/**
+ * Slices all elements before `index` from the tree.
+ */
 export function sliceLeft(tree: Node, depth: number, index: number, offset: number, top: boolean): Node | undefined {
   let { index: newIndex, path, updatedOffset } = getPath(index, offset, depth, tree.sizes);
   if (depth === 0) {
@@ -1103,6 +1109,9 @@ export function sliceRight(node: Node, depth: number, index: number, offset: num
   }
 }
 
+/**
+ * Slices a tree-backed Vector range and updates prefix, root, and suffix.
+ */
 export function sliceTreeVector<A>(
   from: number,
   to: number,
@@ -1178,6 +1187,9 @@ export function zeroOffset(): void {
 
 type FoldCb<Input, State> = (input: Input, state: State, index: number) => boolean;
 
+/**
+ * Left-folds an array segment with early termination support.
+ */
 function foldLeftArrayCb<A, B>(
   cb: FoldCb<A, B>,
   state: B,
@@ -1192,6 +1204,9 @@ function foldLeftArrayCb<A, B>(
   return [i === to, i + offset + 1];
 }
 
+/**
+ * Right-folds an array segment with early termination support.
+ */
 function foldRightArrayCb<A, B>(
   cb: FoldCb<A, B>,
   state: B,
@@ -1206,6 +1221,9 @@ function foldRightArrayCb<A, B>(
   return [i === to - 1, offset];
 }
 
+/**
+ * Traverses a node from left to right while invoking a mutable fold callback.
+ */
 function foldLeftNodeCb<A, B>(
   cb: FoldCb<A, B>,
   state: B,
@@ -1258,6 +1276,9 @@ export function foldLeftCb<A, B>(cb: FoldCb<A, B>, state: B, l: Vector<A>): B {
   return state;
 }
 
+/**
+ * Traverses a node from right to left while invoking a mutable fold callback.
+ */
 function foldRightNodeCb<A, B>(
   cb: FoldCb<A, B>,
   state: B,
@@ -1280,6 +1301,9 @@ function foldRightNodeCb<A, B>(
   return [true, j];
 }
 
+/**
+ * Folds a Vector from right to left using a mutable callback state.
+ */
 export function foldRightCb<A, B>(cb: FoldCb<A, B>, state: B, l: Vector<A>): B {
   const suffixSize = getSuffixSize(l);
   const prefixSize = getPrefixSize(l);
@@ -1302,6 +1326,9 @@ export function foldRightCb<A, B>(cb: FoldCb<A, B>, state: B, l: Vector<A>): B {
   return state;
 }
 
+/**
+ * Folds the prefix from logical left to right while tracking indices.
+ */
 export function foldLeftPrefix<A, B>(f: (i: number, b: B, a: A) => B, b: B, array: A[], length: number): [B, number] {
   let acc = b;
   let j   = 0;
@@ -1311,6 +1338,9 @@ export function foldLeftPrefix<A, B>(f: (i: number, b: B, a: A) => B, b: B, arra
   return [acc, j];
 }
 
+/**
+ * Folds a tree node from left to right while tracking indices.
+ */
 export function foldLeftNode<A, B>(
   f: (i: number, b: B, a: A) => B,
   b: B,
@@ -1330,6 +1360,9 @@ export function foldLeftNode<A, B>(
   return [acc, j];
 }
 
+/**
+ * Folds a suffix array from left to right while tracking indices.
+ */
 export function foldLeftSuffix<A, B>(
   f: (i: number, b: B, a: A) => B,
   b: B,
@@ -1345,6 +1378,9 @@ export function foldLeftSuffix<A, B>(
   return [acc, j];
 }
 
+/**
+ * Folds the prefix from right to left while tracking indices.
+ */
 export function foldRightPrefix<A, B>(
   f: (i: number, a: A, b: B) => B,
   b: B,
@@ -1360,6 +1396,9 @@ export function foldRightPrefix<A, B>(
   return [acc, j];
 }
 
+/**
+ * Folds a tree node from right to left while tracking indices.
+ */
 export function foldRightNode<A, B>(
   f: (i: number, a: A, b: B) => B,
   b: B,
@@ -1379,6 +1418,9 @@ export function foldRightNode<A, B>(
   return [acc, j];
 }
 
+/**
+ * Folds a suffix array from right to left while tracking indices.
+ */
 export function foldRightSuffix<A, B>(
   f: (i: number, a: A, b: B) => B,
   b: B,
@@ -1394,6 +1436,9 @@ export function foldRightSuffix<A, B>(
   return [acc, j];
 }
 
+/**
+ * Maps an array segment and returns the updated running index.
+ */
 function mapArray<A, B>(f: (i: number, a: A) => B, array: A[], offset: number): [B[], number] {
   const result = new Array(array.length);
   for (let i = 0; i < array.length; ++i) {
@@ -1402,6 +1447,9 @@ function mapArray<A, B>(f: (i: number, a: A) => B, array: A[], offset: number): 
   return [result, offset + array.length];
 }
 
+/**
+ * Maps all values in a node while preserving its shape.
+ */
 export function mapNode<A, B>(
   f: (i: number, a: A) => B,
   node: Node,
@@ -1425,6 +1473,9 @@ export function mapNode<A, B>(
   }
 }
 
+/**
+ * Maps prefix values using logical Vector indices.
+ */
 export function mapPrefix<A, B>(f: (i: number, a: A) => B, prefix: A[], length: number): B[] {
   const newPrefix = new Array(length);
   for (let i = length - 1; 0 <= i; --i) {
@@ -1433,6 +1484,9 @@ export function mapPrefix<A, B>(f: (i: number, a: A) => B, prefix: A[], length: 
   return newPrefix;
 }
 
+/**
+ * Maps suffix values using logical Vector indices.
+ */
 export function mapAffix<A, B>(f: (i: number, a: A) => B, suffix: A[], length: number, totalLength: number): B[] {
   const priorLength = totalLength - length;
   const newSuffix   = new Array(length);
@@ -1442,6 +1496,9 @@ export function mapAffix<A, B>(f: (i: number, a: A) => B, suffix: A[], length: n
   return newSuffix;
 }
 
+/**
+ * Pushes an element and returns the same array instance.
+ */
 export function arrayPush<A>(array: A[], a: A): A[] {
   array.push(a);
   return array;

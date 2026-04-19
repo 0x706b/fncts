@@ -24,6 +24,8 @@ export function absorbWith<R, E, A>(f: (e: E) => unknown, __tsplusTrace?: string
 }
 
 /**
+ * Replaces the success value with the specified constant value.
+ *
  * @tsplus pipeable fncts.io.IO as
  */
 export function as<B>(b: Lazy<B>, __tsplusTrace?: string) {
@@ -51,6 +53,8 @@ export function asJustError<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string):
 }
 
 /**
+ * Replaces the success value with `undefined`.
+ *
  * @tsplus getter fncts.io.IO asUnit
  */
 export function asUnit<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, void> {
@@ -214,6 +218,8 @@ export function catchTagWith<K extends keyof E, T extends E[K] & string, E, R1, 
 }
 
 /**
+ * Returns an effect that succeeds with the full `Cause` of failure, or an empty `Cause` on success.
+ *
  * @tsplus getter fncts.io.IO cause
  */
 export function cause<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, never, Cause<E>> {
@@ -221,6 +227,8 @@ export function cause<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R,
 }
 
 /**
+ * Exposes the full `Cause` of failure as the error channel of this effect.
+ *
  * @tsplus pipeable fncts.io.IO causeAsError
  */
 export function causeAsError(__tsplusTrace?: string) {
@@ -243,6 +251,8 @@ export function checkInterruptible<R, E, A>(
 }
 
 /**
+ * Transforms the success value using a partial function, failing with the given error if the function is undefined.
+ *
  * @tsplus pipeable fncts.io.IO collect
  */
 export function collect<A, E1, A1>(f: Lazy<E1>, pf: (a: A) => Maybe<A1>, __tsplusTrace?: string) {
@@ -252,6 +262,8 @@ export function collect<A, E1, A1>(f: Lazy<E1>, pf: (a: A) => Maybe<A1>, __tsplu
 }
 
 /**
+ * Transforms the success value using an effectful partial function, failing with the given error if undefined.
+ *
  * @tsplus pipeable fncts.io.IO collectIO
  */
 export function collectIO<A, R1, E1, A1, E2>(
@@ -265,6 +277,8 @@ export function collectIO<A, R1, E1, A1, E2>(
 }
 
 /**
+ * Runs `onTrue` if the boolean is true, otherwise runs `onFalse`.
+ *
  * @tsplus static fncts.io.IOOps if
  */
 export function cond<R, E, A, R1, E1, A1>(
@@ -277,6 +291,8 @@ export function cond<R, E, A, R1, E1, A1>(
 }
 
 /**
+ * Runs `onTrue` if the boolean is true, otherwise fails with the result of `onFalse`.
+ *
  * @tsplus static fncts.io.IOOps condIO
  */
 export function condIO<R, R1, E, A>(
@@ -356,6 +372,8 @@ export function either<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): URIO
 }
 
 /**
+ * Converts a `Cause` error channel back into regular failures.
+ *
  * @tsplus pipeable fncts.io.IO errorAsCause
  */
 export function errorAsCause(__tsplusTrace?: string) {
@@ -365,6 +383,8 @@ export function errorAsCause(__tsplusTrace?: string) {
 }
 
 /**
+ * Retries this effect until it succeeds, ignoring all errors.
+ *
  * @tsplus getter fncts.io.IO eventually
  */
 export function eventually<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, never, A> {
@@ -372,6 +392,8 @@ export function eventually<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): 
 }
 
 /**
+ * Applies the given function to the `Exit` of this effect, whether success or failure.
+ *
  * @tsplus pipeable fncts.io.IO exitWith
  */
 export function exitWith<E, A, R1, E1, B>(f: (exit: Exit<E, A>) => IO<R1, E1, B>, __tsplusTrace?: string) {
@@ -384,6 +406,8 @@ export function exitWith<E, A, R1, E1, B>(f: (exit: Exit<E, A>) => IO<R1, E1, B>
 }
 
 /**
+ * Applies a function to the effect itself, returning the result in a new effect on success.
+ *
  * @tsplus pipeable fncts.io.IO extend
  */
 export function extend<R, E, A, B>(f: (io: IO<R, E, A>) => B, __tsplusTrace?: string) {
@@ -393,6 +417,8 @@ export function extend<R, E, A, B>(f: (io: IO<R, E, A>) => B, __tsplusTrace?: st
 }
 
 /**
+ * Creates an effect that fails with the specified lazily-evaluated error.
+ *
  * @tsplus static fncts.io.IOOps fail
  */
 export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): FIO<E, never> {
@@ -421,6 +447,8 @@ export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E,
 }
 
 /**
+ * Creates an effect that fails with the specified error immediately (not lazily).
+ *
  * @tsplus static fncts.io.IOOps failNow
  */
 export function failNow<E>(e: E, __tsplusTrace?: string): FIO<E, never> {
@@ -435,6 +463,8 @@ export function failNow<E>(e: E, __tsplusTrace?: string): FIO<E, never> {
 export const fiberId: IO<never, never, FiberId> = IO.fiberIdWith((id) => IO.succeedNow(id));
 
 /**
+ * Accesses the current fiber's `FiberId` and uses it to produce an effect.
+ *
  * @tsplus static fncts.io.IOOps fiberIdWith
  */
 export function fiberIdWith<R, E, A>(f: (id: FiberId.Runtime) => IO<R, E, A>): IO<R, E, A> {
@@ -464,6 +494,8 @@ export function filter<A, R, E>(
 }
 
 /**
+ * Filters and maps elements using an effectful function that returns `Maybe`.
+ *
  * @tsplus static fncts.io.IOOps filterMap
  */
 export function filterMap<A, R, E, B>(
@@ -475,6 +507,8 @@ export function filterMap<A, R, E, B>(
 }
 
 /**
+ * Filters and maps elements using an indexed effectful function that returns `Maybe`.
+ *
  * @tsplus static fncts.io.IOOps filterMapWithIndex
  */
 export function filterMapWithIndex<A, R, E, B>(
@@ -597,6 +631,8 @@ export function flatMap<A, R1, E1, B>(f: (a: A) => IO<R1, E1, B>, __tsplusTrace?
 }
 
 /**
+ * Maps the error channel with an effectful function that returns a new error.
+ *
  * @tsplus pipeable fncts.io.IO flatMapError
  */
 export function flatMapError<R1, E, E1>(f: (e: E) => IO<R1, never, E1>, __tsplusTrace?: string) {
@@ -606,6 +642,8 @@ export function flatMapError<R1, E, E1>(f: (e: E) => IO<R1, never, E1>, __tsplus
 }
 
 /**
+ * Flattens a nested effect by running the inner effect.
+ *
  * @tsplus getter fncts.io.IO flatten
  */
 export function flatten<R, E, R1, E1, A>(self: IO<R, E, IO<R1, E1, A>>, __tsplusTrace?: string): IO<R | R1, E | E1, A> {
@@ -615,6 +653,7 @@ export function flatten<R, E, R1, E1, A>(self: IO<R, E, IO<R1, E1, A>>, __tsplus
  * Folds an `Iterable<A>` using an effectful function f, working sequentially from left to right.
  *
  * @tsplus static fncts.io.IOOps foldLeft
+ *
  * @tsplus fluent fncts.Iterable foldLeftIO
  */
 export function foldLeft<A, B, R, E>(
@@ -630,6 +669,7 @@ export function foldLeft<A, B, R, E>(
  * Combines an array of `IO`s using a `Monoid`
  *
  * @tsplus static fncts.io.IOOps foldMap
+ *
  * @tsplus fluent fncts.Iterable foldMapIO
  */
 export function foldMap<R, E, A, M>(
@@ -644,6 +684,7 @@ export function foldMap<R, E, A, M>(
  * Performs a right-associative fold of an `Iterable<A>`
  *
  * @tsplus static fncts.io.IOOps foldRight
+ *
  * @tsplus fluent fncts.Iterable foldRightIO
  */
 export function foldRight<A, B, R, E>(
@@ -673,6 +714,7 @@ function foldRightLoop<A, B, R, E>(
  * If you do not need the results, see `foreachUnit` for a more efficient implementation.
  *
  * @tsplus static fncts.io.IOOps foreach
+ *
  * @tsplus fluent fncts.Iterable foreachIO
  */
 export function foreach<A, R, E, B>(
@@ -696,6 +738,7 @@ export function foreach<A, R, E, B>(
  * produced IOs sequentially.
  *
  * @tsplus static fncts.io.IOOps foreachDiscard
+ *
  * @tsplus fluent fncts.Iterable foreachDiscardIO
  */
 export function foreachDiscard<A, R, E, B>(
@@ -714,6 +757,7 @@ export function foreachDiscard<A, R, E, B>(
  * If you do not need the results, see `foreachUnit` for a more efficient implementation.
  *
  * @tsplus static fncts.io.IOOps foreachWithIndex
+ *
  * @tsplus fluent fncts.Iterable foreachWithIndexIO
  */
 export function foreachWithIndex<A, R, E, B>(
@@ -733,7 +777,10 @@ export function foreachWithIndex<A, R, E, B>(
 }
 
 /**
+ * Applies a function with index to each element, discarding results.
+ *
  * @tsplus static fncts.io.IOOps foreachWithIndexDiscard
+ *
  * @tsplus fluent fncts.Iterable foreachWithIndexDiscardIO
  */
 export function foreachWithIndexDiscard<A, R, E, B>(
@@ -776,6 +823,7 @@ export function fromEither<E, A>(either: Lazy<Either<E, A>>, __tsplusTrace?: str
  * Lifts an `Either` into an `IO`
  *
  * @tsplus static fncts.io.IOOps fromEitherNow
+ *
  * @tsplus getter fncts.Either toIO
  */
 export function fromEitherNow<E, A>(either: Either<E, A>, __tsplusTrace?: string): IO<never, E, A> {
@@ -786,6 +834,7 @@ export function fromEitherNow<E, A>(either: Either<E, A>, __tsplusTrace?: string
  * Lifts an `Eval` into an `IO`
  *
  * @tsplus static fncts.io.IOOps fromEval
+ *
  * @tsplus getter fncts.Eval toIO
  */
 export function fromEval<A>(computation: Eval<A>, __tsplusTrace?: string): IO<never, never, A> {
@@ -805,6 +854,7 @@ export function fromExit<E, A>(exit: Lazy<Exit<E, A>>, __tsplusTrace?: string): 
  * Creates a `IO` from an exit value
  *
  * @tsplus static fncts.io.IOOps fromExitNow
+ *
  * @tsplus getter fncts.Exit toIO
  */
 export function fromExitNow<E, A>(exit: Exit<E, A>, __tsplusTrace?: string): FIO<E, A> {
@@ -822,7 +872,10 @@ export function fromMaybe<A>(maybe: Lazy<Maybe<A>>, __tsplusTrace?: string): FIO
 }
 
 /**
+ * Lifts a `Maybe` into an `IO`, failing with `NoSuchElementError` if the value is `Nothing`.
+ *
  * @tsplus static fncts.io.IOOps fromMaybeNow
+ *
  * @tsplus getter fncts.Maybe toIO
  */
 export function fromMaybeNow<A = never>(maybe: Maybe<A>, __tsplusTrace?: string): IO<never, NoSuchElementError, A> {
@@ -883,6 +936,8 @@ export function get<R, E, A>(ma: IO<R, E, Maybe<A>>, __tsplusTrace?: string): IO
 }
 
 /**
+ * Returns the current fiber's `FiberRefs`.
+ *
  * @tsplus static fncts.io.IOOps getFiberRefs
  */
 export function getFiberRefs(__tsplusTrace?: string): UIO<FiberRefs> {
@@ -952,6 +1007,8 @@ export function haltNow(e: unknown, __tsplusTrace?: string): UIO<never> {
 }
 
 /**
+ * Runs `onTrue` if the boolean effect succeeds with true, otherwise runs `onFalse`.
+ *
  * @tsplus pipeable fncts.io.IO ifIO
  */
 export function ifIO<R1, E1, B, R2, E2, C>(
@@ -965,6 +1022,8 @@ export function ifIO<R1, E1, B, R2, E2, C>(
 }
 
 /**
+ * Discards both success and failure, returning `void`.
+ *
  * @tsplus getter fncts.io.IO ignore
  */
 export function ignore<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): URIO<R, void> {
@@ -1022,6 +1081,8 @@ export function iterate<R, E, A>(
 }
 
 /**
+ * Unwraps a `Maybe` value, failing with `Nothing` if the value is absent.
+ *
  * @tsplus getter fncts.io.IO just
  */
 export function just<R, E, A>(self: IO<R, E, Maybe<A>>): IO<R, Maybe<E>, A> {
@@ -1041,6 +1102,8 @@ export function left<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<Either<A, never
 }
 
 /**
+ * Logs the specified message at the default log level.
+ *
  * @tsplus static fncts.io.IOOps log
  */
 export function log(message: Lazy<string>, __tsplusTrace?: string): UIO<void> {
@@ -1151,7 +1214,10 @@ export function mapErrorCause<E, E1>(f: (cause: Cause<E>) => Cause<E1>, __tsplus
 }
 
 /**
+ * Maps the success value with a function that may throw, catching exceptions into typed errors.
+ *
  * @tsplus static fncts.io.IOOps mapTryCatch
+ *
  * @tsplus pipeable fncts.io.IO mapTryCatch
  */
 export function mapTryCatch<A, E1, B>(f: (a: A) => B, onThrow: (u: unknown) => E1, __tsplusTrace?: string) {
@@ -1215,6 +1281,8 @@ export function matchCauseIO<E, A, R1, E1, A1, R2, E2, A2>(
 }
 
 /**
+ * Handles both failure and success cases with effectful handlers.
+ *
  * @tsplus pipeable fncts.io.IO matchIO
  */
 export function matchIO<R1, R2, E, E1, E2, A, A1, A2>(
@@ -1246,6 +1314,8 @@ export function matchTraceIO<E, A, R1, E1, A1, R2, E2, A2>(
 }
 
 /**
+ * Returns `Just` with the success value or `Nothing` on failure.
+ *
  * @tsplus getter fncts.io.IO maybe
  */
 export function maybe<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): URIO<R, Maybe<A>> {
@@ -1253,6 +1323,8 @@ export function maybe<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): URIO<
 }
 
 /**
+ * Merges error and success channels into a single success channel.
+ *
  * @tsplus getter fncts.io.IO merge
  */
 export function merge<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, never, A | E> {
@@ -1274,6 +1346,8 @@ export function mergeAll<R, E, A, B>(
 }
 
 /**
+ * Creates an effect that fails with the specified lazily-evaluated `Cause` without adding trace info.
+ *
  * @tsplus static fncts.io.IOOps refailCause
  */
 export function refailCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): FIO<E, never> {
@@ -1284,6 +1358,8 @@ export function refailCause<E>(cause: Lazy<Cause<E>>, __tsplusTrace?: string): F
 }
 
 /**
+ * Creates an effect that fails with the specified `Cause` without adding trace info.
+ *
  * @tsplus static fncts.io.IOOps refailCauseNow
  */
 export function refailCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<E, never> {
@@ -1294,6 +1370,8 @@ export function refailCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): FIO<
 }
 
 /**
+ * Logs the value with formatting options for display.
+ *
  * @tsplus static fncts.io.IOOps show
  */
 export function show(message: Lazy<unknown>, options?: Partial<ShowOptions>, __tsplusTrace?: string): UIO<void> {
@@ -1301,6 +1379,8 @@ export function show(message: Lazy<unknown>, options?: Partial<ShowOptions>, __t
 }
 
 /**
+ * An effect that succeeds with `Nothing`.
+ *
  * @tsplus static fncts.io.IOOps nothing
  */
 export const nothing = IO.succeedNow(Nothing());
@@ -1315,6 +1395,8 @@ export function absolve<R, E, E1, A>(self: IO<R, E, Either<E1, A>>, __tsplusTrac
 }
 
 /**
+ * Imports a synchronous side-effect, catching non-fatal exceptions as failures.
+ *
  * @tsplus static fncts.io.IOOps attempt
  */
 export function attempt<A>(effect: Lazy<A>, __tsplusTrace?: string): FIO<unknown, A> {
@@ -1370,6 +1452,7 @@ export function optional<R, E, A>(self: IO<R, Maybe<E>, A>, __tsplusTrace?: stri
  * effect is true the specified effect will not be evaluated.
  *
  * @tsplus pipeable fncts.io.IO or
+ *
  * @tsplus pipeable-operator fncts.io.IO ||
  */
 export function or<R1, E1>(or: IO<R1, E1, boolean>, __tsplusTrace?: string) {
@@ -1379,6 +1462,8 @@ export function or<R1, E1>(or: IO<R1, E1, boolean>, __tsplusTrace?: string) {
 }
 
 /**
+ * Executes the fallback effect if this effect fails.
+ *
  * @tsplus pipeable fncts.io.IO orElse
  */
 export function orElse<R1, E1, A1>(that: Lazy<IO<R1, E1, A1>>, __tsplusTrace?: string) {
@@ -1388,6 +1473,8 @@ export function orElse<R1, E1, A1>(that: Lazy<IO<R1, E1, A1>>, __tsplusTrace?: s
 }
 
 /**
+ * Returns an effect that succeeds with `Left(a)` or falls back to `Right(a1)`.
+ *
  * @tsplus pipeable fncts.io.IO orElseEither
  */
 export function orElseEither<R1, E1, A1>(that: Lazy<IO<R1, E1, A1>>, __tsplusTrace?: string) {
@@ -1397,6 +1484,8 @@ export function orElseEither<R1, E1, A1>(that: Lazy<IO<R1, E1, A1>>, __tsplusTra
 }
 
 /**
+ * Replaces any failure with the specified error.
+ *
  * @tsplus pipeable fncts.io.IO orElseFail
  */
 export function orElseFail<E1>(e: Lazy<E1>, __tsplusTrace?: string) {
@@ -1406,6 +1495,8 @@ export function orElseFail<E1>(e: Lazy<E1>, __tsplusTrace?: string) {
 }
 
 /**
+ * Falls back to the specified effect if the error is `Nothing`.
+ *
  * @tsplus pipeable fncts.io.IO orElseMaybe
  */
 export function orElseMaybe<R1, E1, A1>(that: Lazy<IO<R1, Maybe<E1>, A1>>, __tsplusTrace?: string) {
@@ -1415,6 +1506,8 @@ export function orElseMaybe<R1, E1, A1>(that: Lazy<IO<R1, Maybe<E1>, A1>>, __tsp
 }
 
 /**
+ * Replaces any failure with the specified success value.
+ *
  * @tsplus pipeable fncts.io.IO orElseSucceed
  */
 export function orElseSucceed<A1>(a: Lazy<A1>, __tsplusTrace?: string) {
@@ -1424,6 +1517,8 @@ export function orElseSucceed<A1>(a: Lazy<A1>, __tsplusTrace?: string) {
 }
 
 /**
+ * Converts failures to defects (halts the fiber with the error).
+ *
  * @tsplus getter fncts.io.IO orHalt
  */
 export function orHalt<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, never, A> {
@@ -1431,6 +1526,8 @@ export function orHalt<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R
 }
 
 /**
+ * Converts failures to defects while preserving the cause structure.
+ *
  * @tsplus getter fncts.io.IO orHaltKeep
  */
 export function orHaltKeep<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, never, A> {
@@ -1438,6 +1535,8 @@ export function orHaltKeep<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): 
 }
 
 /**
+ * Converts failures to defects using the specified function.
+ *
  * @tsplus pipeable fncts.io.IO orHaltWith
  */
 export function orHaltWith<E>(f: (e: E) => unknown, __tsplusTrace?: string) {
@@ -1582,6 +1681,8 @@ export function repeatWhileIO<A, R1, E1>(f: (a: A) => IO<R1, E1, boolean>, __tsp
 }
 
 /**
+ * Creates an array of `n` copies of this effect.
+ *
  * @tsplus pipeable fncts.io.IO replicate
  */
 export function replicate(n: number, __tsplusTrace?: string) {
@@ -1591,6 +1692,8 @@ export function replicate(n: number, __tsplusTrace?: string) {
 }
 
 /**
+ * Unwraps a `Maybe` success value, failing with the given error if `Nothing`.
+ *
  * @tsplus pipeable fncts.io.IO require
  */
 export function require<E>(error: Lazy<E>, __tsplusTrace?: string) {
@@ -1675,6 +1778,8 @@ export function sandbox<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<
 }
 
 /**
+ * Applies a function to the sandboxed version of this effect and then unsandboxes it.
+ *
  * @tsplus pipeable fncts.io.IO sandboxWith
  */
 export function sandboxWith<R, E, A, E1>(f: (_: IO<R, Cause<E>, A>) => IO<R, Cause<E1>, A>, __tsplusTrace?: string) {
@@ -1684,6 +1789,8 @@ export function sandboxWith<R, E, A, E1>(f: (_: IO<R, Cause<E>, A>) => IO<R, Cau
 }
 
 /**
+ * Executes all effects in the iterable sequentially and collects results.
+ *
  * @tsplus static fncts.io.IOOps sequenceIterable
  */
 export function sequenceIterable<R, E, A>(as: Iterable<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, Conc<A>> {
@@ -1691,6 +1798,8 @@ export function sequenceIterable<R, E, A>(as: Iterable<IO<R, E, A>>, __tsplusTra
 }
 
 /**
+ * Executes all effects in the iterable sequentially, discarding results.
+ *
  * @tsplus static fncts.io.IOOps sequenceIterableDiscard
  */
 export function sequenceIterableDiscard<R, E, A>(as: Iterable<IO<R, E, A>>, __tsplusTrace?: string): IO<R, E, void> {
@@ -1703,6 +1812,7 @@ export function sequenceIterableDiscard<R, E, A>(as: Iterable<IO<R, E, A>>, __ts
  * throws exceptions, then do not use this method, use `IO.tryCatch`
  *
  * @tsplus static fncts.io.IOOps succeed
+ *
  * @tsplus static fncts.io.IOOps __call
  */
 export function succeed<A>(effect: Lazy<A>, __tsplusTrace?: string): UIO<A> {
@@ -1725,6 +1835,8 @@ export function succeedNow<A>(value: A, __tsplusTrace?: string): IO<never, never
 }
 
 /**
+ * Runs a summary effect before and after this effect, combining results with the given function.
+ *
  * @tsplus pipeable fncts.io.IO summarized
  */
 export function summarized<R1, E1, B, C>(summary: IO<R1, E1, B>, f: (start: B, end: B) => C, __tsplusTrace?: string) {
@@ -1843,6 +1955,8 @@ export function tryCatch<E, A>(effect: Lazy<A>, onThrow: (error: unknown) => E, 
 }
 
 /**
+ * Runs the fallback on failure (excluding defects), or applies onSuccess on success.
+ *
  * @tsplus pipeable fncts.io.IO tryOrElse
  */
 export function tryOrElse<A, R1, E1, A1, R2, E2, A2>(
@@ -1856,6 +1970,8 @@ export function tryOrElse<A, R1, E1, A1, R2, E2, A2>(
 }
 
 /**
+ * An effect that succeeds with `undefined`.
+ *
  * @tsplus static fncts.io.IOOps unit
  */
 export const unit: UIO<void> = IO.succeedNow(undefined);
@@ -1912,11 +2028,15 @@ export function updateFiberRefs(
 }
 
 /**
+ * Alias for the `pipe` function, allowing fluent-style composition.
+ *
  * @tsplus fluent fncts.io.IO __call
  */
 export const via: typeof pipe = pipe;
 
 /**
+ * Returns the current stack trace of the fiber.
+ *
  * @tsplus static fncts.io.IOOps stackTrace
  */
 export function stackTrace(__tsplusTrace?: string): UIO<Trace> {
@@ -1924,6 +2044,8 @@ export function stackTrace(__tsplusTrace?: string): UIO<Trace> {
 }
 
 /**
+ * Updates the runtime flags for the current fiber.
+ *
  * @tsplus static fncts.io.IOOps updateRuntimeFlags
  */
 export function updateRuntimeFlags(patch: RuntimeFlags.Patch, __tsplusTrace?: string): IO<never, never, void> {
@@ -1934,6 +2056,8 @@ export function updateRuntimeFlags(patch: RuntimeFlags.Patch, __tsplusTrace?: st
 }
 
 /**
+ * Conditionally runs this effect if the boolean is true.
+ *
  * @tsplus pipeable fncts.io.IO when
  */
 export function when(b: Lazy<boolean>, __tsplusTrace?: string) {
@@ -1946,6 +2070,7 @@ export function when(b: Lazy<boolean>, __tsplusTrace?: string) {
  * The moral equivalent of `if (p) exp` when `p` has side-effects
  *
  * @tsplus pipeable fncts.io.IO whenIO
+ *
  * @tsplus static fncts.io.IOOps whenIO
  */
 export function whenIO<R1, E1>(mb: IO<R1, E1, boolean>, __tsplusTrace?: string) {
@@ -1955,6 +2080,8 @@ export function whenIO<R1, E1>(mb: IO<R1, E1, boolean>, __tsplusTrace?: string) 
 }
 
 /**
+ * Primitive loop that repeatedly executes the body while the condition is true.
+ *
  * @tsplus static fncts.io.IOOps whileLoop
  */
 export function whileLoop<R, E, A>(
@@ -1971,6 +2098,8 @@ export function whileLoop<R, E, A>(
 }
 
 /**
+ * Accesses the current fiber's runtime and status to produce an effect.
+ *
  * @tsplus static fncts.io.IOOps withFiberRuntime
  */
 export function withFiberRuntime<R, E, A>(
@@ -1993,6 +2122,8 @@ export function withFiberRuntime<R, E, A>(
 export const yieldNow: UIO<void> = new IOPrimitive(IOTag.YieldNow) as any;
 
 /**
+ * Combines two effects into a tuple of their results.
+ *
  * @tsplus pipeable fncts.io.IO zip
  */
 export function zip<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: string) {
@@ -2002,7 +2133,10 @@ export function zip<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: string) {
 }
 
 /**
+ * Runs both effects sequentially, keeping only the result of the first.
+ *
  * @tsplus pipeable fncts.io.IO zipLeft
+ *
  * @tsplus pipeable-operator fncts.io.IO <
  */
 export function zipLeft<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
@@ -2015,6 +2149,7 @@ export function zipLeft<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
  * Combine two effectful actions, keeping only the result of the second
  *
  * @tsplus pipeable fncts.io.IO zipRight
+ *
  * @tsplus pipeable-operator fncts.io.IO >
  */
 export function zipRight<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
@@ -2024,6 +2159,8 @@ export function zipRight<R1, E1, B>(fb: IO<R1, E1, B>, __tsplusTrace?: string) {
 }
 
 /**
+ * Combines two effects and applies the given function to their results.
+ *
  * @tsplus pipeable fncts.io.IO zipWith
  */
 export function zipWith<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A, b: B) => C, __tsplusTrace?: string) {
@@ -2059,6 +2196,7 @@ const adapter = (_: any, __tsplusTrace?: string) => {
 };
 
 /**
+ *
  * @tsplus static fncts.io.IOOps gen
  * @gen
  */

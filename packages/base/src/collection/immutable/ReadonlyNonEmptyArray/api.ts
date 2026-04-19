@@ -5,6 +5,8 @@ import { identity } from "@fncts/base/data/function";
 import * as P from "@fncts/base/typeclass";
 
 /**
+ * Applies each function in `self` to every value in `fa`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray ap
  */
 export function ap_<A>(fa: ReadonlyNonEmptyArray<A>) {
@@ -14,6 +16,8 @@ export function ap_<A>(fa: ReadonlyNonEmptyArray<A>) {
 }
 
 /**
+ * Returns a new non-empty array with `last` appended to the end.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray append
  */
 export function append<B>(last: B) {
@@ -29,6 +33,8 @@ export function append<B>(last: B) {
 }
 
 /**
+ * Aligns two non-empty arrays into `These`, preserving extra elements.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray align
  */
 export function align<B>(fb: ReadonlyNonEmptyArray<B>) {
@@ -38,6 +44,8 @@ export function align<B>(fb: ReadonlyNonEmptyArray<B>) {
 }
 
 /**
+ * Aligns two arrays and maps each aligned value with `f`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray alignWith
  */
 export function alignWith<A, B, C>(fb: ReadonlyNonEmptyArray<B>, f: (_: These<A, B>) => C) {
@@ -64,7 +72,10 @@ export function alignWith<A, B, C>(fb: ReadonlyNonEmptyArray<B>, f: (_: These<A,
 }
 
 /**
+ * Maps each element to a non-empty array and concatenates the results.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray flatMap
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray flatMap1
  */
 export function flatMap<A, B>(f: (a: A) => ReadonlyNonEmptyArray<B>) {
@@ -74,6 +85,8 @@ export function flatMap<A, B>(f: (a: A) => ReadonlyNonEmptyArray<B>) {
 }
 
 /**
+ * Index-aware variant of `flatMap`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray flatMapWithIndex
  */
 export function flatMapWithIndex<A, B>(f: (i: number, a: A) => ReadonlyNonEmptyArray<B>) {
@@ -107,6 +120,8 @@ export function flatMapWithIndex<A, B>(f: (i: number, a: A) => ReadonlyNonEmptyA
 }
 
 /**
+ * Repeatedly consumes chunks with `f` and collects each produced value.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray chop
  */
 export function chop<A, B>(f: (as: ReadonlyNonEmptyArray<A>) => readonly [B, ReadonlyArray<A>]) {
@@ -124,6 +139,8 @@ export function chop<A, B>(f: (as: ReadonlyNonEmptyArray<A>) => readonly [B, Rea
 }
 
 /**
+ * Splits a non-empty array into non-empty chunks of size `n`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray chunksOf
  */
 export function chunksOf(n: number) {
@@ -133,6 +150,8 @@ export function chunksOf(n: number) {
 }
 
 /**
+ * Concatenates a readonly array to the end of a non-empty array.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray concat
  */
 export function concat<B>(that: ReadonlyArray<B>) {
@@ -154,6 +173,8 @@ export function concat<B>(that: ReadonlyArray<B>) {
 }
 
 /**
+ * Computes the cartesian product of two non-empty arrays using `f`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray crossWith
  */
 export function crossWith<A, B, C>(fb: ReadonlyNonEmptyArray<B>, f: (a: A, b: B) => C) {
@@ -163,6 +184,8 @@ export function crossWith<A, B, C>(fb: ReadonlyNonEmptyArray<B>, f: (a: A, b: B)
 }
 
 /**
+ * Computes the cartesian product as pairs.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray cross
  */
 export function cross<B>(fb: ReadonlyNonEmptyArray<B>) {
@@ -172,6 +195,8 @@ export function cross<B>(fb: ReadonlyNonEmptyArray<B>) {
 }
 
 /**
+ * Checks whether `a` appears in the array using the provided equality.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray elem
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: P.Eq<A>) {
@@ -188,6 +213,8 @@ export function elem<A>(a: A, /** @tsplus auto */ E: P.Eq<A>) {
 }
 
 /**
+ * Flattens a non-empty array of non-empty arrays by one level.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray flatten
  */
 export function flatten<A>(self: ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>>): ReadonlyNonEmptyArray<A> {
@@ -195,6 +222,8 @@ export function flatten<A>(self: ReadonlyNonEmptyArray<ReadonlyNonEmptyArray<A>>
 }
 
 /**
+ * Folds all elements using a semigroup.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray fold
  */
 export function fold<A>(/** @tsplus auto */ S: P.Semigroup<A>) {
@@ -204,6 +233,8 @@ export function fold<A>(/** @tsplus auto */ S: P.Semigroup<A>) {
 }
 
 /**
+ * Left-folds the array starting from `b`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -213,6 +244,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Left-folds with access to each element index.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
@@ -227,6 +260,8 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
 }
 
 /**
+ * Maps each element with its index and combines results with a monoid.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray foldMapWithIndex
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
@@ -236,6 +271,8 @@ export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus au
 }
 
 /**
+ * Maps each element and combines results with a monoid.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
@@ -245,6 +282,8 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>
 }
 
 /**
+ * Right-folds the array starting from `b`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
@@ -254,6 +293,8 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 }
 
 /**
+ * Right-folds with access to each element index.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray foldRightWithIndex
  */
 export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
@@ -267,6 +308,8 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
 }
 
 /**
+ * Groups consecutive equal elements into non-empty runs.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray group
  */
 export function group<A>(/** @tsplus auto */ E: P.Eq<A>) {
@@ -288,6 +331,9 @@ export function group<A>(/** @tsplus auto */ E: P.Eq<A>) {
   };
 }
 
+/**
+ * Sorts the array and then groups equal adjacent elements.
+ */
 export function groupSort<A>(
   as: ReadonlyNonEmptyArray<A>,
   /** @tsplus auto */ O: P.Ord<A>,
@@ -296,6 +342,8 @@ export function groupSort<A>(
 }
 
 /**
+ * Returns `true` when `i` is outside valid array bounds.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray isOutOfBound
  */
 export function isOutOfBound(i: number) {
@@ -305,6 +353,8 @@ export function isOutOfBound(i: number) {
 }
 
 /**
+ * Maps each element with `f`.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -314,6 +364,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Maps each element with `f`, providing its index.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -327,6 +379,8 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 }
 
 /**
+ * Returns the maximum element according to the provided ordering.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray max
  */
 export function max<A>(/** @tsplus auto */ O: P.Ord<A>) {
@@ -338,6 +392,8 @@ export function max<A>(/** @tsplus auto */ O: P.Ord<A>) {
 }
 
 /**
+ * Returns the minimum element according to the provided ordering.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray max
  */
 export function min<A>(/** @tsplus auto */ O: P.Ord<A>) {
@@ -349,6 +405,8 @@ export function min<A>(/** @tsplus auto */ O: P.Ord<A>) {
 }
 
 /**
+ * Creates a mutable copy of the non-empty array.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray mutableClone
  */
 export function mutableClone<A>(as: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<A> {
@@ -356,6 +414,8 @@ export function mutableClone<A>(as: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyA
 }
 
 /**
+ * Returns a new non-empty array with `head` prepended.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray prepend
  */
 export function prepend<B>(head: B) {
@@ -371,6 +431,8 @@ export function prepend<B>(head: B) {
 }
 
 /**
+ * Reverses the array while preserving non-empty structure.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray reverse
  */
 export function reverse<A>(self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArray<A> {
@@ -385,6 +447,8 @@ export function reverse<A>(self: ReadonlyNonEmptyArray<A>): ReadonlyNonEmptyArra
 }
 
 /**
+ * Splits the array at `n`, keeping the first part non-empty.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray splitAt
  */
 export function splitAt(n: number) {
@@ -395,6 +459,8 @@ export function splitAt(n: number) {
 }
 
 /**
+ * Returns a sorted copy using the provided ordering.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray sort
  */
 export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
@@ -406,6 +472,8 @@ export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
 }
 
 /**
+ * Traverses with index using an applicative and collects results.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray traverseWithIndex
  */
 export function _traverseWithIndex<A>(
@@ -427,6 +495,8 @@ export function _traverseWithIndex<A>(
 }
 
 /**
+ * Traverses using an applicative, ignoring indices.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray traverse
  */
 export function _traverse<A>(
@@ -447,6 +517,8 @@ export const traverse: P.Traversable<ReadonlyNonEmptyArrayF>["traverse"] = (G) =
   self.traverseWithIndex(G)((_, a) => f(a));
 
 /**
+ * Removes duplicate elements, keeping the first occurrence of each value.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray uniq
  */
 export function uniq<A>(/** @tsplus auto */ E: P.Eq<A>) {
@@ -467,6 +539,8 @@ export function uniq<A>(/** @tsplus auto */ E: P.Eq<A>) {
 }
 
 /**
+ * Zips two arrays with `f`, truncating to the shorter length.
+ *
  * @tsplus pipeable fncts.ReadonlyNonEmptyArray zipWith
  */
 export function zipWith<A, B, C>(fb: ReadonlyNonEmptyArray<B>, f: (a: A, b: B) => C) {

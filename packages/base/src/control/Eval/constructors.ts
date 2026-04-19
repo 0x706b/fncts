@@ -1,6 +1,8 @@
 import { EvalPrimitive, EvalTag } from "@fncts/base/control/Eval/definition";
 
 /**
+ * Lift a strict value into `Eval`.
+ *
  * @tsplus static fncts.control.EvalOps now
  */
 export function now<A>(a: A): Eval<A> {
@@ -10,6 +12,8 @@ export function now<A>(a: A): Eval<A> {
 }
 
 /**
+ * Delay creation of a computation until evaluation.
+ *
  * @tsplus static fncts.control.EvalOps defer
  */
 export function defer<A>(make: Lazy<Eval<A>>): Eval<A> {
@@ -19,7 +23,10 @@ export function defer<A>(make: Lazy<Eval<A>>): Eval<A> {
 }
 
 /**
+ * Recompute a lazy value each time it is evaluated.
+ *
  * @tsplus static fncts.control.EvalOps always
+ *
  * @tsplus static fncts.control.EvalOps __call
  */
 export function always<A>(make: Lazy<A>): Eval<A> {
@@ -27,6 +34,8 @@ export function always<A>(make: Lazy<A>): Eval<A> {
 }
 
 /**
+ * An `Eval` that produces `undefined`.
+ *
  * @tsplus static fncts.control.EvalOps unit
  */
 export const unit: Eval<void> = Eval.now(undefined);
@@ -34,6 +43,8 @@ export const unit: Eval<void> = Eval.now(undefined);
 const UNSET = Symbol.for("@tsplus/base/control/Eval/UNSET");
 
 /**
+ * Lazily compute a value once and memoize the result.
+ *
  * @tsplus static fncts.control.EvalOps later
  */
 export function later<A>(make: Lazy<A>): Eval<A> {

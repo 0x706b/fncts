@@ -2,6 +2,8 @@ import { isPromiseLike } from "@fncts/base/data/Equatable";
 import { isPromise } from "@fncts/base/util/predicates";
 
 /**
+ * Create an `AsyncIterable` from an async iterator factory.
+ *
  * @tsplus static fncts.AsyncIterableOps __call
  */
 export function asyncIterable<A>(iterator: Lazy<AsyncIterator<A>>): AsyncIterable<A> {
@@ -13,6 +15,8 @@ export function asyncIterable<A>(iterator: Lazy<AsyncIterator<A>>): AsyncIterabl
 }
 
 /**
+ * Lift a synchronous iterable into an `AsyncIterable`.
+ *
  * @tsplus static fncts.AsyncIterableOps from
  */
 export function from<A>(iterable: Iterable<A>): AsyncIterable<A> {
@@ -45,6 +49,8 @@ export function from<A>(iterable: Iterable<A>): AsyncIterable<A> {
 }
 
 /**
+ * Create an `AsyncIterable` from a list of values.
+ *
  * @tsplus static fncts.AsyncIterableOps fromValues
  */
 export function fromValues<A extends ReadonlyArray<any>>(...values: A): AsyncIterable<A[number]> {
@@ -52,6 +58,8 @@ export function fromValues<A extends ReadonlyArray<any>>(...values: A): AsyncIte
 }
 
 /**
+ * Map with index and discard `Nothing` results.
+ *
  * @tsplus pipeable fncts.AsyncIterable filterMapWithIndex
  */
 export function filterMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
@@ -62,6 +70,9 @@ export function filterMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
       const iterator = self[Symbol.asyncIterator]();
       let lastValue: B;
 
+      /**
+       * Pull the next matching value from the source iterator.
+       */
       function getNextValue(): Promise<IteratorResult<B>> {
         i++;
         return iterator.next().then((result) => {
@@ -81,6 +92,9 @@ export function filterMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
         });
       }
 
+      /**
+       * Close iteration and return the final iterator result.
+       */
       function iteratorReturn() {
         if (!done) {
           done = true;
@@ -107,6 +121,8 @@ export function filterMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
 }
 
 /**
+ * Filter values using an index-aware predicate.
+ *
  * @tsplus pipeable fncts.AsyncIterable filterWithIndex
  */
 export function filterWithIndex<A, B extends A>(
@@ -123,6 +139,9 @@ export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
       const iterator = self[Symbol.asyncIterator]();
       let lastValue: A;
 
+      /**
+       * Pull the next value that satisfies the predicate.
+       */
       function getNextValue(value: any): Promise<IteratorResult<A>> {
         i++;
         return iterator.next(value).then((result) => {
@@ -139,6 +158,9 @@ export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
         });
       }
 
+      /**
+       * Close iteration and propagate the optional return value.
+       */
       function iteratorReturn(value: any) {
         if (!done) {
           done = true;
@@ -165,6 +187,8 @@ export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
 }
 
 /**
+ * Filter values using a predicate.
+ *
  * @tsplus pipeable fncts.AsyncIterable filter
  */
 export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: AsyncIterable<A>) => AsyncIterable<B>;
@@ -176,6 +200,8 @@ export function filter<A>(predicate: Predicate<A>) {
 }
 
 /**
+ * Map values with access to their index.
+ *
  * @tsplus pipeable fncts.AsyncIterable mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -211,6 +237,8 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 }
 
 /**
+ * Map values.
+ *
  * @tsplus pipeable fncts.AsyncIterable map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -220,6 +248,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Map values with index using an async mapping function.
+ *
  * @tsplus pipeable fncts.AsyncIterable mapPromiseWithIndex
  */
 export function mapPromiseWithIndex<A, B>(f: (i: number, a: A) => Promise<B>) {
@@ -255,6 +285,8 @@ export function mapPromiseWithIndex<A, B>(f: (i: number, a: A) => Promise<B>) {
 }
 
 /**
+ * Map values using an async mapping function.
+ *
  * @tsplus pipeable fncts.AsyncIterable mapPromise
  */
 export function mapPromise<A, B>(f: (a: A) => Promise<B>) {
@@ -264,6 +296,8 @@ export function mapPromise<A, B>(f: (a: A) => Promise<B>) {
 }
 
 /**
+ * Zip two async iterables with a synchronous combining function.
+ *
  * @tsplus pipeable fncts.AsyncIterable zipWith
  */
 export function zipWith<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) => C) {
@@ -300,6 +334,8 @@ export function zipWith<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) => C) {
 }
 
 /**
+ * Zip two async iterables with an async combining function.
+ *
  * @tsplus pipeable fncts.AsyncIterable zipWithPromise
  */
 export function zipWithPromise<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) => Promise<C>) {
@@ -335,6 +371,8 @@ export function zipWithPromise<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) 
 }
 
 /**
+ * Left-fold values with index, allowing async accumulation.
+ *
  * @tsplus pipeable fncts.AsyncIterable foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B | PromiseLike<B>) {
@@ -343,6 +381,9 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B | 
     let i          = -1;
     const iterator = self[Symbol.asyncIterator]();
 
+    /**
+     * Recursively pull elements and update the accumulator.
+     */
     function pull(): Promise<B> {
       return iterator.next().then((result) => {
         i++;

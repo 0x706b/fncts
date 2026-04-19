@@ -2,6 +2,8 @@ import type { POptional } from "@fncts/base/optics/Optional";
 import type { PPrism, PPrismPartiallyApplied } from "@fncts/base/optics/Prism";
 
 /**
+ * Begins a focus chain with a prism while keeping `reverseGet` available.
+ *
  * @tsplus fluent global focus
  */
 export function focus<S, T, A, B>(self: S, prism: PPrism<S, T, A, B>): PPrismPartiallyApplied<T, A, B> {

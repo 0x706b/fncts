@@ -1,6 +1,8 @@
 import { RoseTree } from "./definition.js";
 
 /**
+ * Creates a rose tree node with an optional child forest.
+ *
  * @tsplus static fncts.RoseTreeOps __call
  */
 export function make<A>(value: A, forest: Vector<RoseTree<A>> = Vector.empty()): RoseTree<A> {
@@ -8,6 +10,8 @@ export function make<A>(value: A, forest: Vector<RoseTree<A>> = Vector.empty()):
 }
 
 /**
+ * Folds the tree depth-first from left to right.
+ *
  * @tsplus pipeable fncts.RoseTree foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -17,6 +21,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Folds the tree from right to left using reversed traversal order.
+ *
  * @tsplus pipeable fncts.RoseTree foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
@@ -26,6 +32,8 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 }
 
 /**
+ * Tail-recursive worker for left folds over tree levels.
+ *
  * @tsplus tailRec
  */
 function foldLeftLoop<A, B>(
@@ -51,6 +59,8 @@ function foldLeftLoop<A, B>(
 }
 
 /**
+ * Maps each node value while preserving tree structure.
+ *
  * @tsplus pipeable fncts.RoseTree map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -60,6 +70,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Maps node values while threading a state through the traversal.
+ *
  * @tsplus pipeable fncts.RoseTree mapAccum
  */
 export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [S, B]) {
@@ -70,6 +82,8 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [S, B]) {
 }
 
 /**
+ * Maps node values with a zero-based traversal index.
+ *
  * @tsplus pipeable fncts.RoseTree mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -85,6 +99,8 @@ interface MapAcc<A, B> {
 }
 
 /**
+ * Tail-recursive worker for stateful tree mapping.
+ *
  * @tsplus tailRec
  */
 function mapAccumLoop<S, A, B>(
@@ -121,6 +137,8 @@ function mapAccumLoop<S, A, B>(
 }
 
 /**
+ * Builds a rose tree by repeatedly expanding seed values.
+ *
  * @tsplus static fncts.RoseTreeOps unfold
  */
 export function unfold<A, B>(b: B, f: (b: B) => readonly [A, Vector<B>]): RoseTree<A> {
@@ -135,6 +153,8 @@ interface UnfoldAcc<A, B> {
 }
 
 /**
+ * Tail-recursive worker for unfolding rose trees.
+ *
  * @tsplus tailRec
  */
 function unfoldLoop<A, B>(
@@ -163,6 +183,8 @@ function unfoldLoop<A, B>(
 }
 
 /**
+ * Combines two trees node-by-node with the provided function.
+ *
  * @tsplus pipeable fncts.RoseTree zipWith
  */
 export function zipWith<A, B, C>(that: RoseTree<B>, f: (a: A, b: B) => C) {
@@ -172,6 +194,8 @@ export function zipWith<A, B, C>(that: RoseTree<B>, f: (a: A, b: B) => C) {
 }
 
 /**
+ * Zips two trees while carrying an additional accumulator state.
+ *
  * @tsplus pipeable fncts.RoseTree zipWithAccum
  */
 export function zipWithAccum<A, S, B, C>(that: RoseTree<B>, s: S, f: (s: S, a: A, b: B) => readonly [S, C]) {
@@ -189,6 +213,8 @@ export interface ZipWithAcc<A, B, C> {
 }
 
 /**
+ * Tail-recursive worker for stateful tree zipping.
+ *
  * @tsplus tailRec
  */
 export function zipWithAccumLoop<S, A, B, C>(
@@ -239,6 +265,8 @@ export function zipWithAccumLoop<S, A, B, C>(
 }
 
 /**
+ * Renders a string tree as an ASCII branch diagram.
+ *
  * @tsplus getter fncts.RoseTree draw
  */
 export function draw(tree: RoseTree<string>): string {
@@ -252,6 +280,8 @@ interface DrawAcc {
 }
 
 /**
+ * Tail-recursive worker that assembles drawn tree lines.
+ *
  * @tsplus tailRec
  */
 function drawLoop(indentation: Vector<string>, acc: DrawAcc, stack: List<DrawAcc>): string {

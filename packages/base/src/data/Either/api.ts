@@ -5,6 +5,8 @@ import { identity } from "../function.js";
 import { EitherTag, EitherTypeId, Left, Right } from "./definition.js";
 
 /**
+ * Applies a function inside an `Either` to a value inside another `Either`.
+ *
  * @tsplus pipeable fncts.Either ap
  */
 export function ap<A, E2>(fa: Either<E2, A>) {
@@ -16,6 +18,8 @@ export function ap<A, E2>(fa: Either<E2, A>) {
 }
 
 /**
+ * Maps both the left and right sides of an `Either`.
+ *
  * @tsplus pipeable fncts.Either bimap
  */
 export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
@@ -26,6 +30,8 @@ export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
 }
 
 /**
+ * Recovers from a `Left` value by running the provided handler.
+ *
  * @tsplus pipeable fncts.Either catchAll
  */
 export function catchAll<E1, E2, B>(f: (e: E1) => Either<E2, B>) {
@@ -36,6 +42,8 @@ export function catchAll<E1, E2, B>(f: (e: E1) => Either<E2, B>) {
 }
 
 /**
+ * Conditionally recovers from a `Left` value using a partial handler.
+ *
  * @tsplus pipeable fncts.Either catchJust
  */
 export function catchJust<E1, E2, B>(f: (e: E1) => Maybe<Either<E2, B>>) {
@@ -45,6 +53,8 @@ export function catchJust<E1, E2, B>(f: (e: E1) => Maybe<Either<E2, B>>) {
 }
 
 /**
+ * Maps a `Left` value into a `Right` value.
+ *
  * @tsplus pipeable fncts.Either catchMap
  */
 export function catchMap<E, B>(f: (e: E) => B) {
@@ -54,6 +64,8 @@ export function catchMap<E, B>(f: (e: E) => B) {
 }
 
 /**
+ * Chains computations that may fail, propagating the first `Left`.
+ *
  * @tsplus pipeable fncts.Either flatMap
  */
 export function flatMap<A, E2, B>(f: (a: A) => Either<E2, B>) {
@@ -64,6 +76,8 @@ export function flatMap<A, E2, B>(f: (a: A) => Either<E2, B>) {
 }
 
 /**
+ * Folds over the `Right` value from the left with an initial accumulator.
+ *
  * @tsplus pipeable fncts.Either foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -74,6 +88,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Maps a `Right` value to a monoid and returns the monoid identity on `Left`.
+ *
  * @tsplus pipeable fncts.Either foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
@@ -84,6 +100,8 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>
 }
 
 /**
+ * Folds over the `Right` value from the right with an initial accumulator.
+ *
  * @tsplus pipeable fncts.Either foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
@@ -94,6 +112,8 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 }
 
 /**
+ * Extracts the left value as a `Maybe`.
+ *
  * @tsplus getter fncts.Either getLeft
  */
 export function getLeft<E, A>(self: Either<E, A>): Maybe<E> {
@@ -104,6 +124,8 @@ export function getLeft<E, A>(self: Either<E, A>): Maybe<E> {
 }
 
 /**
+ * Returns the `Right` value or computes a fallback from the `Left` value.
+ *
  * @tsplus pipeable fncts.Either getOrElse
  */
 export function getOrElse<E, B>(orElse: (e: E) => B) {
@@ -113,6 +135,8 @@ export function getOrElse<E, B>(orElse: (e: E) => B) {
 }
 
 /**
+ * Extracts the right value as a `Maybe`.
+ *
  * @tsplus getter fncts.Either getRight
  */
 export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
@@ -123,6 +147,8 @@ export function getRight<E, A>(self: Either<E, A>): Maybe<A> {
 }
 
 /**
+ * Checks whether a value is an `Either`.
+ *
  * @tsplus static fncts.EitherOps isEither
  */
 export function isEither(u: unknown): u is Either<unknown, unknown> {
@@ -130,7 +156,10 @@ export function isEither(u: unknown): u is Either<unknown, unknown> {
 }
 
 /**
+ * Returns true when this `Either` is a `Left`.
+ *
  * @tsplus fluent fncts.Either isLeft
+ *
  * @tsplus static fncts.EitherOps isLeft
  */
 export function isLeft<E, A>(self: Either<E, A>): self is Left<E> {
@@ -139,7 +168,10 @@ export function isLeft<E, A>(self: Either<E, A>): self is Left<E> {
 }
 
 /**
+ * Returns true when this `Either` is a `Right`.
+ *
  * @tsplus fluent fncts.Either isRight
+ *
  * @tsplus static fncts.EitherOps isRight
  */
 export function isRight<E, A>(self: Either<E, A>): self is Right<A> {
@@ -148,7 +180,10 @@ export function isRight<E, A>(self: Either<E, A>): self is Right<A> {
 }
 
 /**
+ * Maps the `Right` value.
+ *
  * @tsplus static fncts.EitherOps map
+ *
  * @tsplus pipeable fncts.Either map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -159,6 +194,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Maps the `Left` value.
+ *
  * @tsplus pipeable fncts.Either mapLeft
  */
 export function mapLeft<E1, E2>(f: (e: E1) => E2) {
@@ -169,6 +206,8 @@ export function mapLeft<E1, E2>(f: (e: E1) => E2) {
 }
 
 /**
+ * Merges both sides into a single value.
+ *
  * @tsplus getter fncts.Either value
  */
 export function merge<E, A>(self: Either<E, A>): E | A {
@@ -176,6 +215,8 @@ export function merge<E, A>(self: Either<E, A>): E | A {
 }
 
 /**
+ * Returns the fallback `Either` when this value is `Left`.
+ *
  * @tsplus pipeable fncts.Either orElse
  */
 export function orElse<E2, B>(that: Lazy<Either<E2, B>>) {
@@ -186,6 +227,8 @@ export function orElse<E2, B>(that: Lazy<Either<E2, B>>) {
 }
 
 /**
+ * Swaps left and right sides.
+ *
  * @tsplus getter fncts.Either swap
  */
 export function swap<E, A>(self: Either<E, A>): Either<A, E> {
@@ -194,6 +237,8 @@ export function swap<E, A>(self: Either<E, A>): Either<A, E> {
 }
 
 /**
+ * Traverses the `Right` value with an applicative effect.
+ *
  * @tsplus getter fncts.Either traverse
  */
 export function traverse_<E, A>(self: Either<E, A>) {
@@ -210,6 +255,8 @@ export function traverse_<E, A>(self: Either<E, A>) {
 export const traverse: P.Traversable<EitherF>["traverse"] = (A) => (f) => (self) => self.traverse(A)(f);
 
 /**
+ * Keeps a `Right` value only when it satisfies the predicate.
+ *
  * @tsplus pipeable fncts.Either filter
  */
 export function filter<E, A>(f: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
@@ -220,6 +267,8 @@ export function filter<E, A>(f: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>
 }
 
 /**
+ * Maps and filters a `Right` value with a `Maybe`-returning function.
+ *
  * @tsplus pipeable fncts.Either filterMap
  */
 export function filterMap<E, A, B>(f: (a: A) => Maybe<B>, /** @tsplus auto */ M: P.Monoid<E>) {
@@ -235,6 +284,8 @@ export function filterMap<E, A, B>(f: (a: A) => Maybe<B>, /** @tsplus auto */ M:
 }
 
 /**
+ * Partitions a `Right` value based on a predicate.
+ *
  * @tsplus pipeable fncts.Either partition
  */
 export function partition<E, A>(p: Predicate<A>, /** @tsplus auto */ M: P.Monoid<E>) {
@@ -245,6 +296,8 @@ export function partition<E, A>(p: Predicate<A>, /** @tsplus auto */ M: P.Monoid
 }
 
 /**
+ * Partitions a `Right` value by mapping it to another `Either`.
+ *
  * @tsplus pipeable fncts.Either partitionMap
  */
 export function partitionMap<E, A, B, C>(f: (a: A) => Either<B, C>, /** @tsplus auto */ M: P.Monoid<E>) {
@@ -265,6 +318,8 @@ export function partitionMap<E, A, B, C>(f: (a: A) => Either<B, C>, /** @tsplus 
 }
 
 /**
+ * Converts an `Either` to `Maybe`, discarding the `Left` value.
+ *
  * @tsplus getter fncts.Either toMaybe
  */
 export function toMaybe<E, A>(self: Either<E, A>): Maybe<A> {
@@ -275,6 +330,8 @@ export function toMaybe<E, A>(self: Either<E, A>): Maybe<A> {
 }
 
 /**
+ * Combines two `Either` values into a tuple when both are `Right`.
+ *
  * @tsplus pipeable fncts.Either zip
  */
 export function zip<E1, B>(that: Either<E1, B>) {
@@ -284,6 +341,8 @@ export function zip<E1, B>(that: Either<E1, B>) {
 }
 
 /**
+ * Combines two `Either` values with a function when both are `Right`.
+ *
  * @tsplus pipeable fncts.Either zipWith
  */
 export function zipWith<A, E2, B, C>(fb: Either<E2, B>, f: (a: A, b: B) => C) {

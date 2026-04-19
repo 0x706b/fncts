@@ -1,4 +1,6 @@
 /**
+ * Runs a finalizer with access to all child fibers after this effect completes.
+ *
  * @tsplus pipeable fncts.io.IO ensuringChildren
  */
 export function ensuringChildren<R1>(

@@ -4,6 +4,8 @@ import { identity, tuple } from "../function.js";
 import { ExitTag } from "./definition.js";
 
 /**
+ * Apply a successful function to a successful value.
+ *
  * @tsplus pipeable fncts.Exit ap
  */
 export function ap<E, A>(that: Exit<E, A>) {
@@ -13,6 +15,8 @@ export function ap<E, A>(that: Exit<E, A>) {
 }
 
 /**
+ * Map both failure and success channels.
+ *
  * @tsplus pipeable fncts.Exit bimap
  */
 export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
@@ -22,6 +26,8 @@ export function bimap<E1, A, E2, B>(f: (e: E1) => E2, g: (a: A) => B) {
 }
 
 /**
+ * Return the failure cause or `null` on success.
+ *
  * @tsplus getter fncts.Exit causeOrNull
  */
 export function causeOrNull<E, A>(self: Exit<E, A>): Cause<E> | null {
@@ -33,6 +39,8 @@ export function causeOrNull<E, A>(self: Exit<E, A>): Cause<E> | null {
 }
 
 /**
+ * Collect exits, combining failures sequentially.
+ *
  * @tsplus static fncts.ExitOps collectAll
  */
 export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
@@ -44,7 +52,10 @@ export function collectAll<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>
 }
 
 /**
+ * Collect exits, combining failures in parallel.
+ *
  * @tsplus getter fncts.Conc collectAllConcurrent
+ *
  * @tsplus static fncts.ExitOps collectAllConcurrent
  */
 export function collectAllConcurrent<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<E, Conc<A>>> {
@@ -56,6 +67,8 @@ export function collectAllConcurrent<E, A>(exits: Conc<Exit<E, A>>): Maybe<Exit<
 }
 
 /**
+ * Sequence computations, short-circuiting on failure.
+ *
  * @tsplus pipeable fncts.Exit flatMap
  */
 export function flatMap<A, G, B>(f: (a: A) => Exit<G, B>) {
@@ -65,6 +78,8 @@ export function flatMap<A, G, B>(f: (a: A) => Exit<G, B>) {
 }
 
 /**
+ * Flatten a nested `Exit`.
+ *
  * @tsplus getter fncts.Exit flatten
  */
 export function flatten<E, G, A>(mma: Exit<E, Exit<G, A>>): Exit<E | G, A> {
@@ -84,6 +99,8 @@ export function getOrThrow<E, A>(self: Exit<E, A>): A {
 }
 
 /**
+ * Map the success channel.
+ *
  * @tsplus pipeable fncts.Exit map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -93,6 +110,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Map only the typed error values in the failure cause.
+ *
  * @tsplus pipeable fncts.Exit mapError
  */
 export function mapError<E1, E2>(f: (e: E1) => E2) {
@@ -102,6 +121,8 @@ export function mapError<E1, E2>(f: (e: E1) => E2) {
 }
 
 /**
+ * Map the full failure cause.
+ *
  * @tsplus pipeable fncts.Exit mapErrorCause
  */
 export function mapErrorCause<E1, E2>(f: (e: Cause<E1>) => Cause<E2>) {
@@ -111,6 +132,8 @@ export function mapErrorCause<E1, E2>(f: (e: Cause<E1>) => Cause<E2>) {
 }
 
 /**
+ * Fold an `Exit` into a single value.
+ *
  * @tsplus pipeable fncts.Exit match
  */
 export function match<E, A, B, C>(onFailure: (e: Cause<E>) => B, onSuccess: (a: A) => C) {
@@ -139,6 +162,8 @@ export function value<E, A>(self: Exit<E, A>): A | undefined {
 }
 
 /**
+ * Combine two exits into a tuple sequentially.
+ *
  * @tsplus pipeable fncts.Exit zip
  */
 export function zip<EB, B>(that: Exit<EB, B>) {
@@ -148,6 +173,8 @@ export function zip<EB, B>(that: Exit<EB, B>) {
 }
 
 /**
+ * Combine two exits into a tuple concurrently.
+ *
  * @tsplus pipeable fncts.Exit zipConcurrent
  */
 export function zipConcurrent<EB, B>(that: Exit<EB, B>) {
@@ -157,6 +184,8 @@ export function zipConcurrent<EB, B>(that: Exit<EB, B>) {
 }
 
 /**
+ * Sequence two exits and keep the left success value.
+ *
  * @tsplus pipeable fncts.Exit zipLeft
  */
 export function zipLeft<G, B>(that: Exit<G, B>) {
@@ -166,6 +195,8 @@ export function zipLeft<G, B>(that: Exit<G, B>) {
 }
 
 /**
+ * Run both exits concurrently and keep the left success value.
+ *
  * @tsplus pipeable fncts.Exit zipLeftConcurrent
  */
 export function zipLeftConcurrent<G, B>(that: Exit<G, B>) {
@@ -175,6 +206,8 @@ export function zipLeftConcurrent<G, B>(that: Exit<G, B>) {
 }
 
 /**
+ * Sequence two exits and keep the right success value.
+ *
  * @tsplus pipeable fncts.Exit zipRight
  */
 export function zipRight<G, B>(that: Exit<G, B>) {
@@ -184,6 +217,8 @@ export function zipRight<G, B>(that: Exit<G, B>) {
 }
 
 /**
+ * Run both exits concurrently and keep the right success value.
+ *
  * @tsplus pipeable fncts.Exit zipRightConcurrent
  */
 export function zipRightConcurrent<G, B>(that: Exit<G, B>) {
@@ -193,6 +228,8 @@ export function zipRightConcurrent<G, B>(that: Exit<G, B>) {
 }
 
 /**
+ * Combine two successful values with `f`, sequentially.
+ *
  * @tsplus pipeable fncts.Exit zipWith
  */
 export function zipWith<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
@@ -202,6 +239,8 @@ export function zipWith<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {
 }
 
 /**
+ * Combine two exits with custom success and cause combiners.
+ *
  * @tsplus pipeable fncts.Exit zipWithCause
  */
 export function zipWithCause<E, A, G, B, C>(
@@ -236,6 +275,8 @@ export function zipWithCause<E, A, G, B, C>(
 }
 
 /**
+ * Combine two successful values with `f`, in parallel.
+ *
  * @tsplus pipeable fncts.Exit zipWithConcurrent
  */
 export function zipWithConcurrent<A, EB, B, C>(fb: Exit<EB, B>, f: (a: A, b: B) => C) {

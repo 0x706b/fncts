@@ -12,11 +12,13 @@ import { CommitState } from "./CommitState.js";
 import { Done, Suspend } from "./TryCommit.js";
 
 /**
+ *
  * @tsplus type fncts.io.Journal
  */
 export type Journal = Map<Atomic<any>, Entry>;
 
 /**
+ *
  * @tsplus type fncts.io.JournalOps
  */
 export interface JournalOps {}
@@ -86,6 +88,7 @@ export function analyzeJournal(journal: Journal): JournalAnalysis {
 }
 
 /**
+ *
  * @tsplus static fncts.io.JournalOps emptyTodoMap
  */
 export const emptyTodoMap = HashMap.empty<TxnId, Todo>();
@@ -100,7 +103,7 @@ export function collectTodos(journal: Journal): Map<TxnId, Todo> {
   const allTodos: Map<TxnId, Todo> = new Map();
   for (const entry of journal) {
     const tref: Atomic<unknown> = entry[1].use((entry) => entry.tref as Atomic<unknown>);
-    const todos                 = tref.todo.get;
+    const todos = tref.todo.get;
     for (const todo of todos) {
       allTodos.set(todo[0], todo[1]);
     }
@@ -145,7 +148,7 @@ export function addTodo(txnId: TxnId, todoEffect: Todo) {
   return (journal: Journal): boolean => {
     let added = false;
     for (const entry of journal.values()) {
-      const tref    = entry.use((entry) => entry.tref as Atomic<unknown>);
+      const tref = entry.use((entry) => entry.tref as Atomic<unknown>);
       const oldTodo = tref.todo.get;
       if (!oldTodo.has(txnId)) {
         const newTodo = oldTodo.set(txnId, todoEffect);
@@ -159,11 +162,13 @@ export function addTodo(txnId: TxnId, todoEffect: Todo) {
 
 /**
  * Finds all the new todo targets that are not already tracked in the `oldJournal`.
+ *
+ * @tsplus static fncts.io.JournalOps untrackedTodoTargets
  */
 export function untrackedTodoTargets(oldJournal: Journal, newJournal: Journal): Journal {
   const untracked: Journal = new Map();
   for (const entry of newJournal) {
-    const key   = entry[0];
+    const key = entry[0];
     const value = entry[1];
     if (
       // We already tracked this one
@@ -187,8 +192,8 @@ export function tryCommitSync<R, E, A>(
   scheduler: Scheduler,
 ): TryCommit<E, A> {
   const journal: Journal = new Map();
-  const value            = new STMDriver(stm, journal, fiberId, r).run();
-  const analysis         = journal.analyze();
+  const value = new STMDriver(stm, journal, fiberId, r).run();
+  const analysis = journal.analyze();
   if (analysis === ReadWrite) {
     journal.commit();
   } else if (analysis === Invalid) {
@@ -221,8 +226,8 @@ function tryCommit<R, E, A>(
   scheduler: Scheduler,
 ): TryCommit<E, A> {
   const journal: Journal = new Map();
-  const value            = new STMDriver(stm, journal, fiberId, r).run();
-  const analysis         = journal.analyze();
+  const value = new STMDriver(stm, journal, fiberId, r).run();
+  const analysis = journal.analyze();
   if (analysis === ReadWrite) {
     journal.commit();
   } else if (analysis === Invalid) {

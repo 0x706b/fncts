@@ -37,6 +37,7 @@ export const interrupt: IO<never, never, never> = IO.fiberId.flatMap(IO.interrup
  * exactly what you are doing. Instead, you should use `uninterruptibleMask`.
  *
  * @tsplus getter fncts.io.IO interruptible
+ *
  * @tsplus static fncts.io.IOOps interruptible
  */
 export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
@@ -56,6 +57,7 @@ export function interruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string
  * interruption of an inner effect that has been made interruptible).
  *
  * @tsplus getter fncts.io.IO uninterruptible
+ *
  * @tsplus static fncts.io.IOOps uninterruptible
  */
 export function uninterruptible<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
@@ -85,6 +87,8 @@ export function uninterruptibleMask<R, E, A>(
 }
 
 /**
+ * Runs the finalizer after this effect completes, whether by success, failure, or interruption.
+ *
  * @tsplus pipeable fncts.io.IO ensuring
  */
 export function ensuring<R1>(finalizer: IO<R1, never, any>, __tsplusTrace?: string) {
@@ -156,6 +160,8 @@ export function onInterruptWith<R1, E1>(
 }
 
 /**
+ * Runs a cleanup effect when this effect exits, whether by success, failure, or interruption.
+ *
  * @tsplus pipeable fncts.io.IO onExit
  */
 export function onExit<E, A, R1, E1>(cleanup: (exit: Exit<E, A>) => IO<R1, E1, any>, __tsplusTrace?: string) {

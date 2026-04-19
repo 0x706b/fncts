@@ -16,6 +16,8 @@ import { identity, pipe, tuple } from "@fncts/base/data/function";
 import { Stack } from "@fncts/base/internal/Stack";
 
 /**
+ * Align two collections, preserving unmatched values in `These`.
+ *
  * @tsplus pipeable fncts.Conc align
  */
 export function align<B>(fb: Conc<B>) {
@@ -25,6 +27,8 @@ export function align<B>(fb: Conc<B>) {
 }
 
 /**
+ * Align two collections and map each aligned step.
+ *
  * @tsplus pipeable fncts.Conc alignWith
  */
 export function alignWith<A, B, C>(fb: Conc<B>, f: (_: These<A, B>) => C) {
@@ -52,6 +56,8 @@ export function alignWith<A, B, C>(fb: Conc<B>, f: (_: These<A, B>) => C) {
   };
 }
 /**
+ * Append an element to the end of the collection.
+ *
  * @tsplus pipeable fncts.Conc append
  */
 export function append<A2>(a: A2) {
@@ -61,6 +67,9 @@ export function append<A2>(a: A2) {
   };
 }
 
+/**
+ * Mutable builder used to append values and return a final `Conc`.
+ */
 export class ConcBuilder<A> {
   constructor(private conc: Conc<A> = Conc.empty()) {}
   append(a: A): ConcBuilder<A> {
@@ -73,6 +82,8 @@ export class ConcBuilder<A> {
 }
 
 /**
+ * Create a mutable builder for incrementally constructing a `Conc`.
+ *
  * @tsplus static fncts.ConcOps builder
  */
 export function builder<A>(): ConcBuilder<A> {
@@ -80,6 +91,8 @@ export function builder<A>(): ConcBuilder<A> {
 }
 
 /**
+ * Map each element to a `Conc` and flatten the results.
+ *
  * @tsplus pipeable fncts.Conc flatMap
  */
 export function flatMap<A, B>(f: (a: A) => Conc<B>) {
@@ -101,6 +114,8 @@ export function flatMap<A, B>(f: (a: A) => Conc<B>) {
 }
 
 /**
+ * Perform depth-first stack-safe recursive chaining.
+ *
  * @tsplus static fncts.ConcOps chainRecDepthFirst
  */
 export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
@@ -122,6 +137,8 @@ export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>):
 }
 
 /**
+ * Perform breadth-first stack-safe recursive chaining.
+ *
  * @tsplus static fncts.ConcOps chainRecBreadthFirst
  */
 export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>): Conc<B> {
@@ -129,6 +146,9 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>
   let buffer    = Conc.empty<Either<A, B>>();
   let out       = Conc.empty<B>();
 
+  /**
+   * Process one recursive step and enqueue further work.
+   */
   function go(e: Either<A, B>): void {
     Either.concrete(e);
     if (e._tag === EitherTag.Left) {
@@ -152,6 +172,8 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => Conc<Either<A, B>>
 }
 
 /**
+ * Split the collection by repeatedly consuming chunks.
+ *
  * @tsplus pipeable fncts.Conc chop
  */
 export function chop<A, B>(f: (as: Conc<A>) => readonly [B, Conc<A>]) {
@@ -168,6 +190,8 @@ export function chop<A, B>(f: (as: Conc<A>) => readonly [B, Conc<A>]) {
 }
 
 /**
+ * Split the collection into chunks of size `n`.
+ *
  * @tsplus pipeable fncts.Conc chunksOf
  */
 export function chunksOf(n: number) {
@@ -209,6 +233,8 @@ export function collectWhile<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * Discard `Nothing` values and keep present values.
+ *
  * @tsplus getter fncts.Conc compact
  */
 export function compact<A>(self: Conc<Maybe<A>>): Conc<A> {
@@ -216,6 +242,8 @@ export function compact<A>(self: Conc<Maybe<A>>): Conc<A> {
 }
 
 /**
+ * Concatenate two collections.
+ *
  * @tsplus pipeable fncts.Conc concat
  */
 export function concat<B>(that: Conc<B>) {
@@ -227,15 +255,19 @@ export function concat<B>(that: Conc<B>) {
 }
 
 /**
+ * Check whether the collection contains a value using `Eq`.
+ *
  * @tsplus pipeable fncts.Conc elem
  */
-export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
+export function elem<A>(a: A, /** Equality instance used for comparison. @tsplus auto */ E: Eq<A>) {
   return (self: Conc<A>): boolean => {
     return self.some((el) => E.equals(a)(el));
   };
 }
 
 /**
+ * Check whether at least one element satisfies a predicate.
+ *
  * @tsplus pipeable fncts.Conc some
  */
 export function some<A>(predicate: Predicate<A>) {
@@ -255,6 +287,8 @@ export function some<A>(predicate: Predicate<A>) {
 }
 
 /**
+ * Drop the first `n` elements.
+ *
  * @tsplus pipeable fncts.Conc drop
  */
 export function drop(n: number) {
@@ -281,6 +315,8 @@ export function drop(n: number) {
 }
 
 /**
+ * Drop elements until the predicate becomes true.
+ *
  * @tsplus pipeable fncts.Conc dropUntil
  */
 export function dropUntil<A>(p: Predicate<A>) {
@@ -299,6 +335,8 @@ export function dropUntil<A>(p: Predicate<A>) {
 }
 
 /**
+ * Drop elements while the predicate is true.
+ *
  * @tsplus pipeable fncts.Conc dropWhile
  */
 export function dropWhile<A>(p: Predicate<A>) {
@@ -337,6 +375,8 @@ export function dropWhile<A>(p: Predicate<A>) {
 }
 
 /**
+ * Keep elements that satisfy a predicate.
+ *
  * @tsplus pipeable fncts.Conc filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: Conc<A>) => Conc<B>;
@@ -348,6 +388,8 @@ export function filter<A>(p: Predicate<A>) {
 }
 
 /**
+ * Map elements and discard `Nothing` results.
+ *
  * @tsplus pipeable fncts.Conc filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
@@ -357,6 +399,8 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * Map with index and discard `Nothing` results.
+ *
  * @tsplus pipeable fncts.Conc filterMapWithIndex
  */
 export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
@@ -381,6 +425,8 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 }
 
 /**
+ * Filter elements with an index-aware predicate.
+ *
  * @tsplus pipeable fncts.Conc filterWithIndex
  */
 export function filterWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: Conc<A>) => Conc<B>;
@@ -431,6 +477,8 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
 }
 
 /**
+ * Find the first element that satisfies a predicate.
+ *
  * @tsplus pipeable fncts.Conc find
  */
 export function find<A>(f: (a: A) => boolean) {
@@ -454,6 +502,8 @@ export function find<A>(f: (a: A) => boolean) {
 }
 
 /**
+ * Flatten one level of nested `Conc` values.
+ *
  * @tsplus getter fncts.Conc flatten
  */
 export function flatten<A>(self: Conc<Conc<A>>): Conc<A> {
@@ -485,6 +535,8 @@ export function foldLeftWhile<A, B>(b: B, p: Predicate<B>, f: (b: B, a: A) => B)
 }
 
 /**
+ * Left-fold elements into an accumulator.
+ *
  * @tsplus pipeable fncts.Conc foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -494,6 +546,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Left-fold elements with index.
+ *
  * @tsplus pipeable fncts.Conc foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
@@ -515,24 +569,36 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
 }
 
 /**
+ * Map each element to a monoid and combine the results.
+ *
  * @tsplus pipeable fncts.Conc foldMap
  */
-export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
+export function foldMap<A, M>(
+  f: (a: A) => M,
+  /** Monoid used to combine mapped values. @tsplus auto */ M: P.Monoid<M>,
+) {
   return (fa: Conc<A>): M => {
     return fa.foldMapWithIndex((_, a) => f(a), M);
   };
 }
 
 /**
+ * Map each element with index to a monoid and combine the results.
+ *
  * @tsplus pipeable fncts.Conc foldMapWithIndex
  */
-export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
+export function foldMapWithIndex<A, M>(
+  f: (i: number, a: A) => M,
+  /** Monoid used to combine mapped values. @tsplus auto */ M: P.Monoid<M>,
+) {
   return (fa: Conc<A>): M => {
     return fa.foldLeftWithIndex(M.nat, (i, b, a) => M.combine(f(i, a))(b));
   };
 }
 
 /**
+ * Right-fold elements into an accumulator.
+ *
  * @tsplus pipeable fncts.Conc foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
@@ -542,6 +608,8 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 }
 
 /**
+ * Right-fold elements with index.
+ *
  * @tsplus pipeable fncts.Conc foldRightWithIndex
  */
 export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
@@ -563,6 +631,8 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
 }
 
 /**
+ * Apply an effectful function to each element.
+ *
  * @tsplus pipeable fncts.Conc forEach
  */
 export function forEach<A, B>(f: (a: A) => B) {
@@ -573,6 +643,8 @@ export function forEach<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Apply an effectful function to each element with index.
+ *
  * @tsplus pipeable fncts.Conc forEachWithIndex
  */
 export function forEachWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -583,6 +655,8 @@ export function forEachWithIndex<A, B>(f: (i: number, a: A) => B) {
 }
 
 /**
+ * Safely get the element at an index.
+ *
  * @tsplus pipeable fncts.Conc get
  */
 export function get(n: number) {
@@ -592,6 +666,8 @@ export function get(n: number) {
 }
 
 /**
+ * Get the first element, if present.
+ *
  * @tsplus getter fncts.Conc head
  */
 export function head<A>(self: Conc<A>): Maybe<A> {
@@ -603,6 +679,8 @@ export function head<A>(self: Conc<A>): Maybe<A> {
 }
 
 /**
+ * Get all elements except the last one.
+ *
  * @tsplus getter fncts.Conc init
  */
 export function init<A>(self: Conc<A>): Maybe<Conc<A>> {
@@ -613,6 +691,8 @@ export function init<A>(self: Conc<A>): Maybe<Conc<A>> {
 }
 
 /**
+ * Intercalate elements with a separator and flatten.
+ *
  * @tsplus pipeable fncts.Conc join
  */
 export function join(separator: string) {
@@ -625,6 +705,8 @@ export function join(separator: string) {
 }
 
 /**
+ * Get the last element, if present.
+ *
  * @tsplus getter fncts.Conc last
  */
 export function last<A>(self: Conc<A>): Maybe<A> {
@@ -636,6 +718,8 @@ export function last<A>(self: Conc<A>): Maybe<A> {
 }
 
 /**
+ * Transform each element.
+ *
  * @tsplus pipeable fncts.Conc map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -670,6 +754,9 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [S, B]) {
   };
 }
 
+/**
+ * Map a contiguous array-like segment from left to right.
+ */
 function mapArrayLike<A, B>(as: ArrayLike<A>, len: number, startIndex: number, f: (i: number, a: A) => B): Conc<B> {
   let bs = Conc.empty<B>();
   for (let i = 0; i < len; i++) {
@@ -678,6 +765,9 @@ function mapArrayLike<A, B>(as: ArrayLike<A>, len: number, startIndex: number, f
   return bs;
 }
 
+/**
+ * Map a right-aligned array-like segment preserving logical indices.
+ */
 function mapArrayLikeReverse<A, B>(
   as: ArrayLike<A>,
   len: number,
@@ -729,6 +819,8 @@ class PrependFrame<A, B> {
 type Frame<A, B> = DoneFrame | ConcatLeftFrame<A> | ConcatRightFrame<B> | AppendFrame<A> | PrependFrame<A, B>;
 
 /**
+ * Transform each element with index.
+ *
  * @tsplus pipeable fncts.Conc mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -824,6 +916,8 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 }
 
 /**
+ * Check whether the collection is empty.
+ *
  * @tsplus getter fncts.Conc isEmpty
  */
 export function isEmpty<A>(self: Conc<A>): boolean {
@@ -832,6 +926,8 @@ export function isEmpty<A>(self: Conc<A>): boolean {
 }
 
 /**
+ * Check whether the collection has at least one element.
+ *
  * @tsplus getter fncts.Conc isNonEmpty
  */
 export function isNonEmpty<A>(conc: Conc<A>): boolean {
@@ -839,6 +935,8 @@ export function isNonEmpty<A>(conc: Conc<A>): boolean {
 }
 
 /**
+ * Split elements into those that fail and pass a predicate.
+ *
  * @tsplus pipeable fncts.Conc partition
  */
 export function partition<A, B extends A>(p: Refinement<A, B>): (self: Conc<A>) => readonly [Conc<A>, Conc<B>];
@@ -850,6 +948,8 @@ export function partition<A>(p: Predicate<A>) {
 }
 
 /**
+ * Split elements using an `Either` mapping function.
+ *
  * @tsplus pipeable fncts.Conc partitionMap
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
@@ -859,6 +959,8 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 }
 
 /**
+ * Split elements with index using an `Either` mapping function.
+ *
  * @tsplus pipeable fncts.Conc partitionMapWithIndex
  */
 export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
@@ -885,6 +987,8 @@ export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B,
 }
 
 /**
+ * Split elements with an index-aware predicate.
+ *
  * @tsplus pipeable fncts.Conc partitionWithIndex
  */
 export function partitionWithIndex<A, B extends A>(
@@ -916,6 +1020,8 @@ export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
 }
 
 /**
+ * Prepend an element to the beginning of the collection.
+ *
  * @tsplus pipeable fncts.Conc prepend
  */
 export function prepend<B>(a: B) {
@@ -926,6 +1032,8 @@ export function prepend<B>(a: B) {
 }
 
 /**
+ * Reverse the collection order.
+ *
  * @tsplus getter fncts.Conc reverse
  */
 export function reverse<A>(self: Conc<A>): Iterable<A> {
@@ -954,6 +1062,8 @@ export function reverse<A>(self: Conc<A>): Iterable<A> {
 }
 
 /**
+ * Separate a collection of `Either` values.
+ *
  * @tsplus getter fncts.Conc separate
  */
 export function separate<E, A>(self: Conc<Either<E, A>>): readonly [Conc<E>, Conc<A>] {
@@ -961,6 +1071,8 @@ export function separate<E, A>(self: Conc<Either<E, A>>): readonly [Conc<E>, Con
 }
 
 /**
+ * Extract a subrange of elements.
+ *
  * @tsplus pipeable fncts.Conc slice
  */
 export function slice(from: number, to: number) {
@@ -973,6 +1085,8 @@ export function slice(from: number, to: number) {
 }
 
 /**
+ * Split the collection at an index.
+ *
  * @tsplus pipeable fncts.Conc splitAt
  */
 export function splitAt(n: number) {
@@ -1012,6 +1126,8 @@ export function splitWhere<A>(f: (a: A) => boolean) {
 }
 
 /**
+ * Get all elements except the first one.
+ *
  * @tsplus getter fncts.Conc tail
  */
 export function tail<A>(conc: Conc<A>): Maybe<Conc<A>> {
@@ -1022,6 +1138,8 @@ export function tail<A>(conc: Conc<A>): Maybe<Conc<A>> {
 }
 
 /**
+ * Take the first `n` elements.
+ *
  * @tsplus pipeable fncts.Conc take
  */
 export function take(n: number) {
@@ -1032,6 +1150,8 @@ export function take(n: number) {
 }
 
 /**
+ * Take elements while the predicate is true.
+ *
  * @tsplus pipeable fncts.Conc takeWhile
  */
 export function takeWhile<A>(p: Predicate<A>) {
@@ -1069,12 +1189,20 @@ export function takeWhile<A>(p: Predicate<A>) {
   };
 }
 
+/**
+ * `Traversable` instance implementation for `Conc`.
+ */
 export const traverse: P.Traversable<ConcF>["traverse"] = (G) => (f) => (self) => self.traverse(G)(f);
 
+/**
+ * `TraversableWithIndex` instance implementation for `Conc`.
+ */
 export const traverseWithIndex: P.TraversableWithIndex<ConcF>["traverseWithIndex"] = (G) => (f) => (self) =>
   self.traverseWithIndex(G)(f);
 
 /**
+ * Traverse elements with index in an applicative context.
+ *
  * @tsplus getter fncts.Conc traverseWithIndex
  */
 export function _traverseWithIndex<A>(
@@ -1097,6 +1225,8 @@ export function _traverseWithIndex<A>(
 }
 
 /**
+ * Traverse elements in an applicative context.
+ *
  * @tsplus getter fncts.Conc traverse
  */
 export function _traverse<A>(
@@ -1110,6 +1240,8 @@ export function _traverse<A>(
 }
 
 /**
+ * Materialize the collection into a mutable buffer array.
+ *
  * @tsplus getter fncts.Conc toBuffer
  */
 export function toBuffer(self: Conc<Byte>): Uint8Array {
@@ -1118,6 +1250,8 @@ export function toBuffer(self: Conc<Byte>): Uint8Array {
 }
 
 /**
+ * Build a collection by unfolding from a seed.
+ *
  * @tsplus static fncts.ConcOps unfold
  */
 export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A> {
@@ -1136,7 +1270,10 @@ export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Conc<A>
 }
 
 /**
+ * Unsafely read the element at an index.
+ *
  * @tsplus pipeable fncts.Conc unsafeGet
+ *
  * @tsplus pipeable-index fncts.Conc
  */
 export function unsafeGet(n: number) {
@@ -1175,6 +1312,8 @@ export function unsafeTail<A>(self: Conc<A>): Conc<A> {
 }
 
 /**
+ * Unsafely update the element at an index.
+ *
  * @tsplus pipeable fncts.Conc unsafeUpdateAt
  */
 export function unsafeUpdateAt<A1>(i: number, a: A1) {
@@ -1185,6 +1324,8 @@ export function unsafeUpdateAt<A1>(i: number, a: A1) {
 }
 
 /**
+ * Safely update the element at an index.
+ *
  * @tsplus pipeable fncts.Conc updateAt
  */
 export function updateAt<A1>(i: number, a: A1) {
@@ -1198,6 +1339,8 @@ export function updateAt<A1>(i: number, a: A1) {
 }
 
 /**
+ * Zip two collections into pairs.
+ *
  * @tsplus pipeable fncts.Conc zip
  */
 export function zip<B>(fb: Conc<B>) {
@@ -1207,6 +1350,8 @@ export function zip<B>(fb: Conc<B>) {
 }
 
 /**
+ * Zip two collections with a combining function.
+ *
  * @tsplus pipeable fncts.Conc zipWith
  */
 export function zipWith<A, B, C>(fb: Conc<B>, f: (a: A, b: B) => C) {
@@ -1250,6 +1395,8 @@ export function zipWith<A, B, C>(fb: Conc<B>, f: (a: A, b: B) => C) {
 }
 
 /**
+ * Pair each element with its index.
+ *
  * @tsplus getter fncts.Conc zipWithIndex
  */
 export function zipWithIndex<A>(self: Conc<A>): Conc<readonly [A, number]> {
@@ -1257,6 +1404,8 @@ export function zipWithIndex<A>(self: Conc<A>): Conc<readonly [A, number]> {
 }
 
 /**
+ * Pair each element with its index starting from an offset.
+ *
  * @tsplus pipeable fncts.Conc zipWithIndexOffset
  */
 export function zipWithIndexOffset(offset: number) {

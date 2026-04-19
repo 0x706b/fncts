@@ -1,4 +1,6 @@
 /**
+ * Returns the first element.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray head
  */
 export function head<A>(self: ReadonlyNonEmptyArray<A>): A {
@@ -6,6 +8,8 @@ export function head<A>(self: ReadonlyNonEmptyArray<A>): A {
 }
 
 /**
+ * Returns all elements except the last.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray init
  */
 export function init<A>(self: ReadonlyNonEmptyArray<A>): ReadonlyArray<A> {
@@ -13,6 +17,8 @@ export function init<A>(self: ReadonlyNonEmptyArray<A>): ReadonlyArray<A> {
 }
 
 /**
+ * Returns the last element.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray last
  */
 export function last<A>(self: ReadonlyNonEmptyArray<A>): A {
@@ -20,6 +26,8 @@ export function last<A>(self: ReadonlyNonEmptyArray<A>): A {
 }
 
 /**
+ * Returns all elements except the first.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray tail
  */
 export function tail<A>(self: ReadonlyNonEmptyArray<A>): ReadonlyArray<A> {
@@ -27,6 +35,8 @@ export function tail<A>(self: ReadonlyNonEmptyArray<A>): ReadonlyArray<A> {
 }
 
 /**
+ * Splits into the initial segment and the last element.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray unappend
  */
 export function unappend<A>(self: ReadonlyNonEmptyArray<A>): readonly [ReadonlyArray<A>, A] {
@@ -34,6 +44,8 @@ export function unappend<A>(self: ReadonlyNonEmptyArray<A>): readonly [ReadonlyA
 }
 
 /**
+ * Splits into the first element and the remaining tail.
+ *
  * @tsplus getter fncts.ReadonlyNonEmptyArray unprepend
  */
 export function unprepend<A>(self: ReadonlyNonEmptyArray<A>): readonly [A, ReadonlyArray<A>] {

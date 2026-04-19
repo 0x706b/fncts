@@ -5,6 +5,7 @@ import { pipe } from "@fncts/base/data/function";
 import { PTraversal } from "@fncts/base/optics/Traversal";
 
 /**
+ *
  * @tsplus type fncts.optics.POptional
  */
 export interface POptional<S, T, A, B> extends PTraversal<S, T, A, B> {
@@ -25,6 +26,7 @@ export interface POptionalMin<S, T, A, B> {
 }
 
 /**
+ *
  * @tsplus type fncts.optics.POptionalOps
  */
 export interface POptionalOps {}
@@ -32,6 +34,8 @@ export interface POptionalOps {}
 export const POptional: POptionalOps = {};
 
 /**
+ * Builds a polymorphic optional from `getOrModify` and `set` primitives.
+ *
  * @tsplus static fncts.optics.POptionalOps __call
  */
 export function makePOptional<S, T, A, B>(F: POptionalMin<S, T, A, B>): POptional<S, T, A, B> {
@@ -51,11 +55,13 @@ export function makePOptional<S, T, A, B>(F: POptionalMin<S, T, A, B>): POptiona
 }
 
 /**
+ *
  * @tsplus type fncts.optics.Optional
  */
 export interface Optional<S, A> extends POptional<S, S, A, A> {}
 
 /**
+ *
  * @tsplus type fncts.optics.OptionalOps
  */
 export interface OptionalOps extends POptionalOps {}
@@ -63,6 +69,8 @@ export interface OptionalOps extends POptionalOps {}
 export const Optional: OptionalOps = {};
 
 /**
+ * Builds a monomorphic `Optional` from `getOrModify` and `set` primitives.
+ *
  * @tsplus static fncts.optics.OptionalOps __call
  */
 export function makeOptional<S, A>(F: POptionalMin<S, S, A, A>): Optional<S, A> {

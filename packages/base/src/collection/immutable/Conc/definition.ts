@@ -25,7 +25,10 @@ export interface ConcF extends HKT {
 }
 
 /**
+ * Immutable, indexed sequence with efficient concatenation and slicing.
+ *
  * @tsplus type fncts.Conc
+ *
  * @tsplus companion fncts.ConcOps
  */
 export abstract class Conc<A> implements Iterable<A>, Hashable, Equatable {
@@ -716,6 +719,8 @@ export class ByteChunk<A> extends ConcImplementation<A> {
 }
 
 /**
+ * Narrow a generic `Conc` to its concrete runtime representation.
+ *
  * @tsplus macro remove
  */
 export function concrete<A>(
@@ -724,6 +729,9 @@ export function concrete<A>(
   //
 }
 
+/**
+ * Copy a segment from a source array-like into a destination buffer.
+ */
 function copyArray<A>(
   source: ArrayLike<A>,
   sourcePos: number,
@@ -738,6 +746,8 @@ function copyArray<A>(
 }
 
 /**
+ * Create a `Conc` from an array-like value.
+ *
  * @tsplus static fncts.ConcOps fromArray
  */
 export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
@@ -749,6 +759,8 @@ export function fromArray<A>(array: ArrayLike<A>): ConcImplementation<A> {
 }
 
 /**
+ * Check whether a value is a `Conc`.
+ *
  * @tsplus static fncts.ConcOps is
  */
 export function isConc<A>(u: Iterable<A>): u is Conc<A>;
@@ -758,6 +770,8 @@ export function isConc(u: unknown): u is Conc<unknown> {
 }
 
 /**
+ * Check pairwise correspondence of two collections using a predicate.
+ *
  * @tsplus pipeable fncts.Conc corresponds
  */
 export function corresponds<A, B>(bs: Conc<B>, f: (a: A, b: B) => boolean) {
@@ -807,6 +821,8 @@ export function corresponds<A, B>(bs: Conc<B>, f: (a: A, b: B) => boolean) {
 }
 
 /**
+ * Convert the collection to a plain array.
+ *
  * @tsplus getter fncts.Conc toArray
  */
 export function toArray<A>(conc: Conc<A>): ReadonlyArray<A> {

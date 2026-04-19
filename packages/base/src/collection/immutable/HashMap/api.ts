@@ -32,6 +32,8 @@ export function makeWith<K, V>(config: P.HashEq<K>): HashMap<K, V> {
 }
 
 /**
+ * Construct a map from key-value tuples.
+ *
  * @tsplus static fncts.HashMapOps __call
  */
 export function make<K, V>(...items: ReadonlyArray<readonly [K, V]>): HashMap<K, V> {
@@ -43,6 +45,8 @@ export function make<K, V>(...items: ReadonlyArray<readonly [K, V]>): HashMap<K,
 }
 
 /**
+ * Construct a map from an iterable of key-value tuples.
+ *
  * @tsplus static fncts.HashMapOps from
  */
 export function from<K, V>(items: Iterable<readonly [K, V]>): HashMap<K, V> {
@@ -469,6 +473,8 @@ export function filter<A>(predicate: Predicate<A>) {
 }
 
 /**
+ * Partition entries using a function that returns an `Either`.
+ *
  * @tsplus pipeable fncts.HashMap partitionMapWithIndex
  */
 export function partitionMapWithIndex<K, V, A, B>(f: (i: K, a: V) => Either<A, B>) {
@@ -490,6 +496,8 @@ export function partitionMapWithIndex<K, V, A, B>(f: (i: K, a: V) => Either<A, B
 }
 
 /**
+ * Partition values using a function that returns an `Either`.
+ *
  * @tsplus pipeable fncts.HashMap partitionMap
  */
 export function partitionMap<V, A, B>(f: (a: V) => Either<A, B>) {
@@ -499,6 +507,8 @@ export function partitionMap<V, A, B>(f: (a: V) => Either<A, B>) {
 }
 
 /**
+ * Partition entries using a predicate that also receives the key.
+ *
  * @tsplus pipeable fncts.HashMap partitionWithIndex
  */
 export function partitionWithIndex<K, V, B extends V>(
@@ -523,6 +533,8 @@ export function partitionWithIndex<K, V>(predicate: PredicateWithIndex<K, V>) {
 }
 
 /**
+ * Partition values using a predicate.
+ *
  * @tsplus pipeable fncts.HashMap partition
  */
 export function partition<V, B extends V>(
@@ -629,6 +641,8 @@ export function foldLeft<V, Z>(z: Z, f: (z: Z, v: V) => Z) {
 }
 
 /**
+ * Find the first value matching a key-aware predicate.
+ *
  * @tsplus pipeable fncts.HashMap findWithIndex
  */
 export function findWithIndex<K, V, B extends V>(p: RefinementWithIndex<K, V, B>): (self: HashMap<K, V>) => Maybe<B>;
@@ -643,6 +657,8 @@ export function findWithIndex<K, V>(p: PredicateWithIndex<K, V>) {
 }
 
 /**
+ * Find the first value matching a predicate.
+ *
  * @tsplus pipeable fncts.HashMap find
  */
 export function find<V, B extends V>(p: Refinement<V, B>): <K>(self: HashMap<K, V>) => Maybe<B>;
@@ -657,6 +673,8 @@ export function find<V>(p: Predicate<V>) {
 }
 
 /**
+ * Traverse entries with their keys in an applicative context.
+ *
  * @tsplus getter fncts.HashMap traverseWithIndex
  */
 export function _traverseWithIndex<K, A>(
@@ -679,6 +697,8 @@ export function _traverseWithIndex<K, A>(
 }
 
 /**
+ * Traverse values in an applicative context.
+ *
  * @tsplus getter fncts.HashMap traverse
  */
 export function _traverse<K, A>(
@@ -691,13 +711,23 @@ export function _traverse<K, A>(
   return (G) => (f) => self.traverseWithIndex(G)((_, a) => f(a));
 }
 
+/**
+ * TraversableWithIndex instance traversal for `HashMap`.
+ */
 export const traverseWithIndex: P.TraversableWithIndex<HashMapF>["traverseWithIndex"] = (G) => (f) => (ta) =>
   ta.traverseWithIndex(G)(f);
 
+/**
+ * Traversable instance traversal for `HashMap` values.
+ */
 export const traverse: P.Traversable<HashMapF>["traverse"] = (G) => (f) => (ta) =>
   ta.traverseWithIndex(G)((_, a) => f(a));
 
 /**
+ * Unsafely read the value for `key`.
+ *
+ * Returns `undefined` when the key is missing.
+ *
  * @tsplus pipeable fncts.HashMap unsafeGet
  */
 export function unsafeGet<K>(key: K) {
@@ -707,6 +737,8 @@ export function unsafeGet<K>(key: K) {
 }
 
 /**
+ * Traverse with a function that may filter out values.
+ *
  * @tsplus getter fncts.HashMap witherWithIndex
  */
 export function _witherWithIndex<K, A>(
@@ -720,6 +752,8 @@ export function _witherWithIndex<K, A>(
 }
 
 /**
+ * Traverse values with a function that may filter out values.
+ *
  * @tsplus getter fncts.HashMap wither
  */
 export function _wither<K, A>(
@@ -732,12 +766,20 @@ export function _wither<K, A>(
   return (G) => (f) => self.witherWithIndex(G)((_, a) => f(a));
 }
 
+/**
+ * WitherableWithIndex instance traversal that may drop entries.
+ */
 export const witherWithIndex: P.WitherableWithIndex<HashMapF>["witherWithIndex"] = (G) => (f) => (wa) =>
   wa.witherWithIndex(G)(f);
 
+/**
+ * Witherable instance traversal over values that may drop entries.
+ */
 export const wither: P.Witherable<HashMapF>["wither"] = (G) => (f) => (wa) => wa.witherWithIndex(G)((_, a) => f(a));
 
 /**
+ * Traverse entries and separate `Left` and `Right` results.
+ *
  * @tsplus getter fncts.HashMap wiltWithIndex
  */
 export function _wiltWithIndex<K, A>(
@@ -751,6 +793,8 @@ export function _wiltWithIndex<K, A>(
 }
 
 /**
+ * Traverse values and separate `Left` and `Right` results.
+ *
  * @tsplus getter fncts.HashMap wilt
  */
 export function _wilt<K, A>(
@@ -763,12 +807,20 @@ export function _wilt<K, A>(
   return (G) => (f) => self.wiltWithIndex(G)((_, a) => f(a));
 }
 
+/**
+ * WitherableWithIndex instance traversal that separates `Either` results.
+ */
 export const wiltWithIndex: P.WitherableWithIndex<HashMapF>["wiltWithIndex"] = (G) => (f) => (wa) =>
   wa.wiltWithIndex(G)(f);
 
+/**
+ * Witherable instance traversal that separates `Either` results.
+ */
 export const wilt: P.Witherable<HashMapF>["wilt"] = (G) => (f) => (wa) => wa.wiltWithIndex(G)((_, a) => f(a));
 
 /**
+ * Union two maps, combining collisions with `f`.
+ *
  * @tsplus pipeable fncts.HashMap unionWith
  */
 export function unionWith<K, A>(that: Iterable<readonly [K, A]>, f: (x: A, y: A) => A) {
@@ -787,6 +839,8 @@ export function unionWith<K, A>(that: Iterable<readonly [K, A]>, f: (x: A, y: A)
 }
 
 /**
+ * Union two maps, preferring values from `that` on key collisions.
+ *
  * @tsplus pipeable fncts.HashMap union
  */
 export function union<K, A>(that: Iterable<readonly [K, A]>) {
@@ -800,6 +854,8 @@ export function union<K, A>(that: Iterable<readonly [K, A]>) {
 }
 
 /**
+ * Remove `k` and return the removed value with the updated map.
+ *
  * @tsplus pipeable fncts.HashMap pop
  */
 export function pop<K>(k: K) {

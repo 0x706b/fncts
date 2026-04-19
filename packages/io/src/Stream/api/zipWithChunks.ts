@@ -14,6 +14,9 @@ class PullRight<A1> {
 
 type State<A1, A2> = PullBoth | PullLeft<A2> | PullRight<A1>;
 
+/**
+ * Advance the zip state by pulling from both channels and applying the chunk combiner.
+ */
 function pull<R, E, A1, R1, E1, A2, A3>(
   state: State<A1, A2>,
   pullLeft: IO<R, Maybe<E>, Conc<A1>>,
@@ -66,6 +69,9 @@ function pull<R, E, A1, R1, E1, A2, A3>(
   }
 }
 
+/**
+ * Process a successful chunk pair, returning the output and the next state.
+ */
 function handleSuccess<A1, A2, A3>(
   leftChunk: Conc<A1>,
   rightChunk: Conc<A2>,
@@ -80,6 +86,8 @@ function handleSuccess<A1, A2, A3>(
 }
 
 /**
+ * Zip two streams chunk-by-chunk using a custom combiner function.
+ *
  * @tsplus pipeable fncts.io.Stream zipWithChunks
  */
 export function zipWithChunks<A, R1, E1, B, C>(

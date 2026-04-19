@@ -1,7 +1,10 @@
 import type { Check } from "@fncts/typelevel";
 
 /**
+ * Create a schema for Maybe values.
+ *
  * @tsplus static fncts.schema.SchemaOps maybe
+ *
  * @tsplus getter fncts.schema.Schema maybe
  */
 export function maybe<A>(value: Schema<A>): Schema<Maybe<A>> {
@@ -12,7 +15,10 @@ export function maybe<A>(value: Schema<A>): Schema<Maybe<A>> {
 }
 
 /**
+ * Create a Maybe schema from a schema, mapping null/undefined to Nothing.
+ *
  * @tsplus static fncts.schema.SchemaOps maybeFromNullable
+ *
  * @tsplus getter fncts.schema.Schema maybeFromNullable
  */
 export function maybeFromNullable<A>(value: Schema<A>): Schema<Maybe<A>> {
@@ -22,6 +28,8 @@ export function maybeFromNullable<A>(value: Schema<A>): Schema<Maybe<A>> {
 }
 
 /**
+ * Derive a Maybe schema from a Maybe type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.Maybe]<_> 10
  */
 export function deriveMaybe<A extends Maybe<any>>(

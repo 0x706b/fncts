@@ -1,4 +1,6 @@
 /**
+ * Ensures that any fibers forked by this effect will be daemon fibers.
+ *
  * @tsplus getter fncts.io.IO daemonChildren
  */
 export function daemonChildren<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {

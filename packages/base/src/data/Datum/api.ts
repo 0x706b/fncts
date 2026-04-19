@@ -8,7 +8,10 @@ import { Zipped } from "@fncts/base/data/Zipped";
 const _Initial = new Initial();
 
 /**
+ * Constructs an `Initial` `Datum`.
+ *
  * @tsplus static fncts.DatumOps initial
+ *
  * @tsplus static fncts.Datum.InitialOps __call
  */
 export function initial<A = never>(): Datum<A> {
@@ -18,6 +21,8 @@ export function initial<A = never>(): Datum<A> {
 const _Pending = new Pending();
 
 /**
+ * Returns true if the `Datum` contains the specified value.
+ *
  * @tsplus pipeable fncts.Datum elem
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
@@ -32,6 +37,8 @@ export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
 }
 
 /**
+ * Extends a `Datum` by computing a new value from the whole `Datum`.
+ *
  * @tsplus pipeable fncts.Datum extend
  */
 export function extend<A, B>(f: (wa: Datum<A>) => B) {
@@ -41,6 +48,8 @@ export function extend<A, B>(f: (wa: Datum<A>) => B) {
 }
 
 /**
+ * Keeps the value only if it satisfies the predicate.
+ *
  * @tsplus pipeable fncts.Datum filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: Datum<A>) => Datum<B>;
@@ -57,6 +66,8 @@ export function filter<A>(p: Predicate<A>) {
 }
 
 /**
+ * Maps and filters the value with a `Maybe`-returning function.
+ *
  * @tsplus pipeable fncts.Datum filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
@@ -79,6 +90,8 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * Chains computations while preserving loading/replete state.
+ *
  * @tsplus pipeable fncts.Datum flatMap
  */
 export function flatMap<A, B>(f: (a: A) => Datum<B>) {
@@ -95,6 +108,8 @@ export function flatMap<A, B>(f: (a: A) => Datum<B>) {
 }
 
 /**
+ * Folds over the value from the left with an initial accumulator.
+ *
  * @tsplus pipeable fncts.Datum foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -109,6 +124,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Maps the value to a monoid or returns the monoid identity when empty.
+ *
  * @tsplus pipeable fncts.Datum foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
@@ -123,6 +140,8 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>
 }
 
 /**
+ * Folds over the value from the right with an initial accumulator.
+ *
  * @tsplus pipeable fncts.Datum foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
@@ -137,6 +156,8 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 }
 
 /**
+ * Returns the contained value or computes a fallback when empty.
+ *
  * @tsplus pipeable fncts.Datum getOrElse
  */
 export function getOrElse<B>(b: Lazy<B>) {
@@ -151,6 +172,8 @@ export function getOrElse<B>(b: Lazy<B>) {
 }
 
 /**
+ * Returns true when the `Datum` has no value.
+ *
  * @tsplus fluent fncts.Datum isEmpty
  */
 export function isEmpty<A>(self: Datum<A>): self is Initial | Pending {
@@ -158,6 +181,8 @@ export function isEmpty<A>(self: Datum<A>): self is Initial | Pending {
 }
 
 /**
+ * Returns true when the `Datum` is `Initial`.
+ *
  * @tsplus fluent fncts.Datum isInitial
  */
 export function isInitial<A>(self: Datum<A>): self is Initial {
@@ -165,6 +190,8 @@ export function isInitial<A>(self: Datum<A>): self is Initial {
 }
 
 /**
+ * Returns true when the `Datum` is currently loading.
+ *
  * @tsplus fluent fncts.Datum isLoading
  */
 export function isLoading<A>(self: Datum<A>): self is Pending | Refresh<A> {
@@ -172,18 +199,24 @@ export function isLoading<A>(self: Datum<A>): self is Pending | Refresh<A> {
 }
 
 /**
+ * Returns true when the `Datum` contains a value.
+ *
  * @tsplus fluent fncts.Datum isNonEmpty
  */
 export function isNonEmpty<A>(self: Datum<A>): self is Refresh<A> | Replete<A> {
   return self.isRefresh() || self.isReplete();
 }
 /**
+ * Returns true when the `Datum` is `Pending`.
+ *
  * @tsplus fluent fncts.Datum isPending
  */
 export function isPending<A>(self: Datum<A>): self is Pending {
   return self._tag === DatumTag.Pending;
 }
 /**
+ * Returns true when the `Datum` is `Refresh`.
+ *
  * @tsplus fluent fncts.Datum isRefresh
  */
 export function isRefresh<A>(self: Datum<A>): self is Refresh<A> {
@@ -191,6 +224,8 @@ export function isRefresh<A>(self: Datum<A>): self is Refresh<A> {
 }
 
 /**
+ * Returns true when the `Datum` is `Replete`.
+ *
  * @tsplus fluent fncts.Datum isReplete
  */
 export function isReplete<A>(self: Datum<A>): self is Replete<A> {
@@ -198,6 +233,8 @@ export function isReplete<A>(self: Datum<A>): self is Replete<A> {
 }
 
 /**
+ * Maps the contained value.
+ *
  * @tsplus pipeable fncts.Datum map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -215,6 +252,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Pattern matches on all `Datum` states.
+ *
  * @tsplus pipeable fncts.Datum match
  */
 export function match<A, B, C, D, E>(cases: {
@@ -238,6 +277,8 @@ export function match<A, B, C, D, E>(cases: {
 }
 
 /**
+ * Pattern matches on empty vs value states with loading flag.
+ *
  * @tsplus pipeable fncts.Datum match2
  */
 export function match2<A, B, C>(onEmpty: (isLoading: boolean) => B, onValue: (a: A, isLoading: boolean) => C) {
@@ -256,6 +297,8 @@ export function match2<A, B, C>(onEmpty: (isLoading: boolean) => B, onValue: (a:
 }
 
 /**
+ * Returns the fallback `Datum` when this `Datum` is empty.
+ *
  * @tsplus pipeable fncts.Datum orElse
  */
 export function orElse<B>(that: Lazy<Datum<B>>) {
@@ -270,6 +313,8 @@ export function orElse<B>(that: Lazy<Datum<B>>) {
 }
 
 /**
+ * Partitions a `Datum` value using a predicate.
+ *
  * @tsplus pipeable fncts.Datum partition
  */
 export function partition<A, B extends A>(p: Refinement<A, B>): (self: Datum<A>) => [Datum<A>, Datum<B>];
@@ -281,6 +326,8 @@ export function partition<A>(p: Predicate<A>) {
 }
 
 /**
+ * Partitions a `Datum` value by mapping it to an `Either`.
+ *
  * @tsplus pipeable fncts.Datum partitionMap
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
@@ -303,7 +350,10 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 }
 
 /**
+ * Constructs a `Pending` `Datum`.
+ *
  * @tsplus static fncts.DatumOps pending
+ *
  * @tsplus static fncts.Datum.PendingOps __call
  */
 export function pending<A = never>(): Datum<A> {
@@ -311,7 +361,10 @@ export function pending<A = never>(): Datum<A> {
 }
 
 /**
+ * Constructs a `Refresh` `Datum` with a value.
+ *
  * @tsplus static fncts.DatumOps refresh
+ *
  * @tsplus static fncts.Datum.RefreshOps __call
  */
 export function refresh<A>(value: A): Datum<A> {
@@ -319,7 +372,10 @@ export function refresh<A>(value: A): Datum<A> {
 }
 
 /**
+ * Constructs a `Replete` `Datum` with a value.
+ *
  * @tsplus static fncts.DatumOps replete
+ *
  * @tsplus static fncts.Datum.RepleteOps __call
  */
 export function replete<A>(value: A): Datum<A> {
@@ -327,6 +383,8 @@ export function replete<A>(value: A): Datum<A> {
 }
 
 /**
+ * Returns true if the `Datum` has a value satisfying the predicate.
+ *
  * @tsplus pipeable fncts.Datum some
  */
 export function some<A>(p: Predicate<A>) {
@@ -341,6 +399,8 @@ export function some<A>(p: Predicate<A>) {
 }
 
 /**
+ * Converts the `Datum` to its loading form.
+ *
  * @tsplus getter fncts.Datum toPending
  */
 export function toPending<A>(self: Datum<A>): Datum<A> {
@@ -356,6 +416,8 @@ export function toPending<A>(self: Datum<A>): Datum<A> {
 }
 
 /**
+ * Converts a non-empty `Datum` to `Replete`.
+ *
  * @tsplus getter fncts.Datum toReplete
  */
 export function toReplete<A>(self: Datum<A>): Datum<A> {
@@ -363,6 +425,8 @@ export function toReplete<A>(self: Datum<A>): Datum<A> {
 }
 
 /**
+ * Traverses the value with an applicative effect.
+ *
  * @tsplus getter fncts.Datum traverse
  */
 export function traverse_<A>(self: Datum<A>) {
@@ -379,6 +443,8 @@ export function traverse_<A>(self: Datum<A>) {
 }
 
 /**
+ * Extracts the contained value, if present.
+ *
  * @tsplus getter fncts.Datum value
  */
 export function value<A>(self: Datum<A>): A | undefined {
@@ -388,6 +454,8 @@ export function value<A>(self: Datum<A>): A | undefined {
 export const traverse: P.Traversable<DatumF>["traverse"] = (G) => (f) => (self) => self.traverse(G)(f);
 
 /**
+ * Combines two `Datum`s into a tuple when both are non-empty.
+ *
  * @tsplus pipeable fncts.Datum zip
  */
 export function zip<B>(that: Datum<B>) {
@@ -397,6 +465,8 @@ export function zip<B>(that: Datum<B>) {
 }
 
 /**
+ * Combines two `Datum`s with a function when both are non-empty.
+ *
  * @tsplus pipeable fncts.Datum zipWith
  */
 export function zipWith<A, B, C>(that: Datum<B>, f: (a: A, b: B) => C) {

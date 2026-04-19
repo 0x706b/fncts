@@ -1,4 +1,6 @@
 /**
+ * Folds dictionary values from left to right.
+ *
  * @tsplus pipeable fncts.Dictionary foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -8,6 +10,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Folds dictionary entries from left to right with keys.
+ *
  * @tsplus pipeable fncts.Dictionary foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (k: string, b: B, a: A) => B) {
@@ -24,6 +28,8 @@ export function foldLeftWithIndex<A, B>(b: B, f: (k: string, b: B, a: A) => B) {
 }
 
 /**
+ * Returns the value for a key as a `Maybe`.
+ *
  * @tsplus pipeable fncts.Dictionary get
  */
 export function get(key: string) {
@@ -33,6 +39,8 @@ export function get(key: string) {
 }
 
 /**
+ * Returns a new dictionary with the key set to the value.
+ *
  * @tsplus pipeable fncts.Dictionary set
  */
 export function set<A>(key: string, value: A) {
@@ -42,6 +50,8 @@ export function set<A>(key: string, value: A) {
 }
 
 /**
+ * Returns a new dictionary without the given key.
+ *
  * @tsplus pipeable fncts.Dictionary remove
  */
 export function remove(key: string) {
@@ -53,6 +63,8 @@ export function remove(key: string) {
 }
 
 /**
+ * Updates a key by mapping its optional value.
+ *
  * @tsplus pipeable fncts.Dictionary update
  */
 export function update<A>(key: string, f: (a: Maybe<A>) => Maybe<A>) {
@@ -65,6 +77,8 @@ export function update<A>(key: string, f: (a: Maybe<A>) => Maybe<A>) {
 }
 
 /**
+ * Returns the dictionary keys.
+ *
  * @tsplus getter fncts.Dictionary keys
  */
 export function keys<A>(self: Dictionary<A>): ReadonlyArray<string> {
@@ -72,6 +86,8 @@ export function keys<A>(self: Dictionary<A>): ReadonlyArray<string> {
 }
 
 /**
+ * Maps each value in the dictionary.
+ *
  * @tsplus pipeable fncts.Dictionary map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -81,6 +97,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Maps each key-value pair in the dictionary.
+ *
  * @tsplus pipeable fncts.Dictionary mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (k: string, a: A) => B) {
@@ -97,7 +115,10 @@ export function mapWithIndex<A, B>(f: (k: string, a: A) => B) {
 }
 
 /**
+ * Creates a dictionary from a record.
+ *
  * @tsplus static fncts.DictionaryOps __call
+ *
  * @tsplus macro identity
  */
 export function fromRecord<A>(self: Record<string, A>): Dictionary<A> {
@@ -105,7 +126,10 @@ export function fromRecord<A>(self: Record<string, A>): Dictionary<A> {
 }
 
 /**
+ * Returns the underlying record for a dictionary.
+ *
  * @tsplus getter fncts.Dictionary toRecord
+ *
  * @tsplus macro identity
  */
 export function toRecord<A>(self: Dictionary<A>): Record<string, A> {
@@ -113,6 +137,8 @@ export function toRecord<A>(self: Dictionary<A>): Record<string, A> {
 }
 
 /**
+ * Returns the value for a key or `undefined` when absent.
+ *
  * @tsplus pipeable fncts.Dictionary unsafeGet
  */
 export function unsafeGet(key: string) {

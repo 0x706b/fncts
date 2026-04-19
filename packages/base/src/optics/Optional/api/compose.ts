@@ -2,6 +2,8 @@ import { identity } from "@fncts/base/data/function";
 import { POptional } from "@fncts/base/optics/Optional/definition";
 
 /**
+ * Composes two `POptional` optics into one optional path.
+ *
  * @tsplus pipeable fncts.optics.POptional compose 3
  */
 export function compose<A, B, C, D>(that: POptional<A, B, C, D>) {

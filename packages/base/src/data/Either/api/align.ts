@@ -4,6 +4,8 @@ import type { Either } from "../definition.js";
 import { identity } from "../../function.js";
 
 /**
+ * Aligns two `Either` values into a `These`, preserving single-sided successes.
+ *
  * @tsplus pipeable fncts.Either align
  */
 export function align<E2, B>(fb: Either<E2, B>) {

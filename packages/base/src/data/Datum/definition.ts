@@ -16,11 +16,13 @@ export interface DatumF extends HKT {
 }
 
 /**
+ *
  * @tsplus type fncts.Datum
  */
 export type Datum<A> = Initial | Pending | Refresh<A> | Replete<A>;
 
 /**
+ *
  * @tsplus type fncts.DatumOps
  */
 export interface DatumOps {}
@@ -29,7 +31,9 @@ export const Datum: DatumOps = {};
 const datumHash       = Hashable.string("fncts.Datum");
 const initialHash     = Hashable.combine(datumHash, Hashable.string(DatumTag.Initial));
 /**
+ *
  * @tsplus type fncts.Datum.Initial
+ *
  * @tsplus companion fncts.Datum.InitialOps
  */
 export class Initial implements Hashable, Equatable {
@@ -46,7 +50,9 @@ export class Initial implements Hashable, Equatable {
 const pendingHash = Hashable.combine(datumHash, Hashable.string(DatumTag.Pending));
 
 /**
+ *
  * @tsplus type fncts.Datum.Pending
+ *
  * @tsplus companion fncts.Datum.PendingOps
  */
 export class Pending implements Hashable, Equatable {
@@ -61,7 +67,9 @@ export class Pending implements Hashable, Equatable {
 }
 
 /**
+ *
  * @tsplus type fncts.Datum.Refresh
+ *
  * @tsplus companion fncts.Datum.RefreshOps
  */
 export class Refresh<A> implements Hashable, Equatable {
@@ -77,7 +85,9 @@ export class Refresh<A> implements Hashable, Equatable {
 }
 
 /**
+ *
  * @tsplus type fncts.Datum.Replete
+ *
  * @tsplus companion fncts.Datum.RepleteOps
  */
 export class Replete<A> implements Hashable, Equatable {
@@ -93,6 +103,8 @@ export class Replete<A> implements Hashable, Equatable {
 }
 
 /**
+ * Checks whether a value is a `Datum`.
+ *
  * @tsplus static fncts.DatumOps is
  */
 export function isDatum(u: unknown): u is Datum<unknown> {

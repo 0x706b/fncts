@@ -41,11 +41,13 @@ export interface PTRef<out EA, out EB, in A, out B> {
 }
 
 /**
+ *
  * @tsplus type fncts.io.TRef
  */
 export type TRef<A> = PTRef<never, never, A, A>;
 
 /**
+ *
  * @tsplus type fncts.io.TRefOps
  */
 export interface TRefOps {}
@@ -335,6 +337,8 @@ export class DerivedAll<EA, EB, A, B> extends TRefInternal<EA, EB, A, B> {
 }
 
 /**
+ * Narrows a public `PTRef` to one of its concrete internal implementations.
+ *
  * @tsplus macro remove
  */
 export function concrete<EA, EB, A, B>(

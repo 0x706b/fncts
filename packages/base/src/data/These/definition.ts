@@ -8,6 +8,7 @@ export const TheseTypeId = Symbol.for("fncts.data.These");
 export type TheseTypeId = typeof TheseTypeId;
 
 /**
+ *
  * @tsplus type fncts.These.Left
  */
 export class Left<E> {
@@ -17,6 +18,7 @@ export class Left<E> {
 }
 
 /**
+ *
  * @tsplus type fncts.These.Right
  */
 export class Right<A> {
@@ -26,6 +28,7 @@ export class Right<A> {
 }
 
 /**
+ *
  * @tsplus type fncts.These.Both
  */
 export class Both<E, A> {
@@ -38,11 +41,13 @@ export class Both<E, A> {
 }
 
 /**
+ *
  * @tsplus type fncts.These
  */
 export type These<E, A> = Left<E> | Right<A> | Both<E, A>;
 
 /**
+ *
  * @tsplus type fncts.TheseOps
  */
 export interface TheseOps {}
@@ -50,6 +55,8 @@ export interface TheseOps {}
 export const These: TheseOps = {};
 
 /**
+ * Checks whether a value is a `These`.
+ *
  * @tsplus static fncts.TheseOps isThese
  */
 export function isThese(u: unknown): u is These<unknown, unknown> {

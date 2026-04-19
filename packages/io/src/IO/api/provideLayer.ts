@@ -1,4 +1,6 @@
 /**
+ * Provides this effect with its required environment from a Layer.
+ *
  * @tsplus pipeable fncts.io.IO provideLayer
  */
 export function provideLayer<RIn, E, ROut>(layer: Layer<RIn, E, ROut>, __tsplusTrace?: string) {

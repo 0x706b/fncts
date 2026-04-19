@@ -1,6 +1,8 @@
 import type { FiberRefsPatch } from "@fncts/io/FiberRefs";
 
 /**
+ * Returns a memoized version of this effect that caches its result.
+ *
  * @tsplus getter fncts.io.IO memoize
  */
 export function memoize<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): UIO<IO<R, E, A>> {

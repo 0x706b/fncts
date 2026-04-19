@@ -4,6 +4,8 @@ import type { Grafter } from "./transplant.js";
 import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
 
 /**
+ * Combines two effects concurrently into a tuple.
+ *
  * @tsplus pipeable fncts.io.IO zipConcurrent
  */
 export function zipConcurrent<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: string) {
@@ -13,6 +15,8 @@ export function zipConcurrent<R1, E1, B>(that: IO<R1, E1, B>, __tsplusTrace?: st
 }
 
 /**
+ * Combines two effects concurrently with the specified function.
+ *
  * @tsplus pipeable fncts.io.IO zipWithConcurrent
  */
 export function zipWithConcurrent<A, R1, E1, B, C>(that: IO<R1, E1, B>, f: (a: A, b: B) => C, __tsplusTrace?: string) {

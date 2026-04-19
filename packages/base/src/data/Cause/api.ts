@@ -16,6 +16,8 @@ import {
 } from "./definition.js";
 
 /**
+ * Replaces all typed failures in this `Cause` with a constant value.
+ *
  * @tsplus pipeable fncts.Cause as
  */
 export function as<B>(b: Lazy<B>) {
@@ -30,6 +32,7 @@ export function as<B>(b: Lazy<B>) {
  * @note If one of the `Cause`s is `Empty`, the non-empty `Cause` is returned
  *
  * @tsplus static fncts.CauseOps parallel
+ *
  * @tsplus static fncts.Cause.ParallelOps __call
  */
 export function parallel<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
@@ -108,6 +111,7 @@ export function defects<E>(self: Cause<E>): List<unknown> {
  * The empty `Cause`
  *
  * @tsplus static fncts.CauseOps empty
+ *
  * @tsplus static fncts.Cause.EmptyOps __call
  */
 export function empty<A>(): Cause<A> {
@@ -118,6 +122,7 @@ export function empty<A>(): Cause<A> {
  * Constructs a `Cause` from a single value, representing a typed failure
  *
  * @tsplus static fncts.CauseOps fail
+ *
  * @tsplus static fncts.Cause.FailOps __call
  */
 export function fail<E = never>(value: E, trace: Trace = Trace.none): Cause<E> {
@@ -228,6 +233,8 @@ export function filterDefects(p: Predicate<unknown>) {
 }
 
 /**
+ * Internal tail-recursive loop used by `find`.
+ *
  * @tsplus tailRec
  */
 function findLoop<A, B>(self: Cause<A>, f: (cause: Cause<A>) => Maybe<B>, stack: List<Cause<A>>): Maybe<B> {
@@ -266,6 +273,8 @@ export function find<E, A>(f: (cause: Cause<E>) => Maybe<A>) {
 }
 
 /**
+ * Flattens a nested `Cause` by one level.
+ *
  * @tsplus getter fncts.Cause flatten
  */
 export function flatten<A>(self: Cause<Cause<A>>): Cause<A> {
@@ -555,6 +564,7 @@ export function foldLeft<A, B>(b: B, f: (b: B, cause: Cause<A>) => Maybe<B>) {
 
 /**
  * @internal
+ *
  * @tsplus tailRec
  */
 function foldLeftLoop<A, B>(self: Cause<A>, b: B, f: (b: B, a: Cause<A>) => Maybe<B>, stack: List<Cause<A>>): B {
@@ -578,6 +588,7 @@ function foldLeftLoop<A, B>(self: Cause<A>, b: B, f: (b: B, a: Cause<A>) => Mayb
  * Constructs a `Cause` from a single `unknown`, representing an untyped failure
  *
  * @tsplus static fncts.CauseOps halt
+ *
  * @tsplus static fncts.Cause.HaltOps __call
  */
 export function halt(value: unknown, trace: Trace = Trace.none): Cause<never> {
@@ -609,6 +620,7 @@ export function haltMaybe<E>(self: Cause<E>): Maybe<unknown> {
  * Constructs a `Cause` from an `Id`, representing an interruption of asynchronous computation
  *
  * @tsplus static fncts.CauseOps interrupt
+ *
  * @tsplus static fncts.Cause.InterruptOps __call
  */
 export function interrupt(id: FiberId, trace: Trace = Trace.none): Cause<never> {
@@ -634,6 +646,8 @@ export function isFail<E>(self: Cause<E>): self is Fail<E> {
 }
 
 /**
+ * Returns true if this `Cause` is a `Halt`.
+ *
  * @tsplus fluent fncts.Cause isHalt
  */
 export function isHalt<E>(self: Cause<E>): self is Halt {
@@ -670,6 +684,7 @@ export function isInterrupted<E>(self: Cause<E>): boolean {
 /**
  * Determines if the `Cause` contains only interruptions and not any `Die` or
  * `Fail` causes.
+ *
  * @tsplus getter fncts.Cause isInterruptedOnly
  */
 export function isInterruptedOnly<E>(self: Cause<E>): boolean {
@@ -685,6 +700,8 @@ export function isInterruptedOnly<E>(self: Cause<E>): boolean {
 }
 
 /**
+ * Returns true if this `Cause` contains at least one typed failure.
+ *
  * @tsplus getter fncts.Cause isFailure
  */
 export function isFailure<E>(self: Cause<E>): boolean {
@@ -791,6 +808,8 @@ export function keepDefects<E>(self: Cause<E>): Maybe<Cause<never>> {
 }
 
 /**
+ * Maps typed failures in this `Cause`.
+ *
  * @tsplus pipeable fncts.Cause map
  */
 export function map<A, B>(f: (e: A) => B) {
@@ -800,6 +819,8 @@ export function map<A, B>(f: (e: A) => B) {
 }
 
 /**
+ * Transforms all trace information in this `Cause`.
+ *
  * @tsplus pipeable fncts.Cause mapTrace
  */
 export function mapTrace(f: (trace: Trace) => Trace) {
@@ -817,7 +838,10 @@ export function mapTrace(f: (trace: Trace) => Trace) {
 }
 
 /**
+ * Wraps a cause with stackless metadata.
+ *
  * @tsplus static fncts.CauseOps stackless
+ *
  * @tsplus static fncts.Cause.StacklessOps __call
  */
 export function stackless<E>(cause: Cause<E>, stackless: boolean): Cause<E> {
@@ -1037,7 +1061,9 @@ export function squashWith<E>(f: (e: E) => unknown) {
  * @note If one of the `Cause`s is `Empty`, the non-empty `Cause` is returned
  *
  * @tsplus static fncts.CauseOps sequential
+ *
  * @tsplus static fncts.Cause.SequentialOps __call
+ *
  * @tsplus operator fncts.Cause +
  */
 export function sequential<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E1> {
@@ -1050,6 +1076,7 @@ export function sequential<E, E1>(left: Cause<E>, right: Cause<E1>): Cause<E | E
  * @note If the stack trace is empty, the original `Cause` is returned.
  *
  * @tsplus static fncts.CauseOps traced
+ *
  * @tsplus static fncts.Cause.TracedOps __call
  */
 export function traced<E>(cause: Cause<E>, trace: Trace): Cause<E> {

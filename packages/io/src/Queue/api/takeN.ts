@@ -1,6 +1,8 @@
 import type { PDequeue } from "@fncts/io/Queue";
 
 /**
+ * Take exactly `n` values from the queue, blocking until enough elements are available.
+ *
  * @tsplus pipeable fncts.io.Queue takeN
  */
 export function takeN(n: number, __tsplusTrace?: string) {

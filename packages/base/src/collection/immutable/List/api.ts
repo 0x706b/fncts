@@ -18,6 +18,8 @@ import { _Nil } from "@fncts/base/collection/immutable/List/definition";
 import { ListBuffer } from "@fncts/base/collection/mutable/ListBuffer";
 
 /**
+ * Maps each element to a list and flattens the results.
+ *
  * @tsplus pipeable fncts.List flatMap
  */
 export function flatMap<A, B>(f: (a: A) => List<B>) {
@@ -45,6 +47,8 @@ export function flatMap<A, B>(f: (a: A) => List<B>) {
 }
 
 /**
+ * Concatenates this list with `that`.
+ *
  * @tsplus pipeable fncts.List concat
  */
 export function concat<B>(that: List<B>) {
@@ -54,6 +58,8 @@ export function concat<B>(that: List<B>) {
 }
 
 /**
+ * Checks whether any element satisfies `p`.
+ *
  * @tsplus pipeable fncts.List some
  */
 export function some<A>(p: Predicate<A>) {
@@ -70,6 +76,8 @@ export function some<A>(p: Predicate<A>) {
 }
 
 /**
+ * Keeps elements that satisfy `p`.
+ *
  * @tsplus pipeable fncts.List filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: List<A>) => List<B>;
@@ -80,6 +88,9 @@ export function filter<A>(p: Predicate<A>) {
   };
 }
 
+/**
+ * Skips elements until one satisfies the effective predicate.
+ */
 function noneIn<A>(l: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   while (true) {
     if (l.isEmpty()) {
@@ -94,6 +105,9 @@ function noneIn<A>(l: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   }
 }
 
+/**
+ * Advances through a contiguous run that satisfies the effective predicate.
+ */
 function allIn<A>(start: List<A>, remaining: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   while (true) {
     if (remaining.isEmpty()) {
@@ -108,6 +122,9 @@ function allIn<A>(start: List<A>, remaining: List<A>, p: Predicate<A>, isFlipped
   }
 }
 
+/**
+ * Copies matching segments into a new list after the first mismatch.
+ */
 function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   const newHead   = new Cons(unsafeHead(origStart), _Nil);
   let toProcess   = origStart.unsafeTail as Cons<A>;
@@ -143,11 +160,16 @@ function partialFill<A>(origStart: List<A>, firstMiss: List<A>, p: Predicate<A>,
   return newHead;
 }
 
+/**
+ * Shared filter implementation used by `filter` variants.
+ */
 function filterCommon<A>(list: List<A>, p: Predicate<A>, isFlipped: boolean): List<A> {
   return noneIn(list, p, isFlipped);
 }
 
 /**
+ * Applies `f` to each element for side effects.
+ *
  * @tsplus pipeable fncts.List forEach
  */
 export function forEach<A, U>(f: (a: A) => U) {
@@ -161,6 +183,8 @@ export function forEach<A, U>(f: (a: A) => U) {
 }
 
 /**
+ * Returns the first element as a `Maybe`.
+ *
  * @tsplus getter fncts.List head
  */
 export function head<A>(self: List<A>): Maybe<A> {
@@ -168,6 +192,8 @@ export function head<A>(self: List<A>): Maybe<A> {
 }
 
 /**
+ * Joins string elements with `separator`.
+ *
  * @tsplus pipeable fncts.List join
  */
 export function join(separator: string) {
@@ -180,6 +206,8 @@ export function join(separator: string) {
 }
 
 /**
+ * Returns the number of elements in the list.
+ *
  * @tsplus getter fncts.List length
  */
 export function length<A>(list: List<A>): number {
@@ -193,6 +221,8 @@ export function length<A>(list: List<A>): number {
 }
 
 /**
+ * Maps each element with `f`.
+ *
  * @tsplus pipeable fncts.List map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -215,6 +245,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Prepends an element to the front of the list.
+ *
  * @tsplus pipeable fncts.List prepend
  */
 export function prepend<B>(elem: B) {
@@ -224,6 +256,8 @@ export function prepend<B>(elem: B) {
 }
 
 /**
+ * Prepends `elem` to `self` using `+`.
+ *
  * @tsplus operator fncts.List +
  */
 export function prependOperator<A, B>(elem: A, self: List<B>): List<A | B> {
@@ -231,6 +265,8 @@ export function prependOperator<A, B>(elem: A, self: List<B>): List<A | B> {
 }
 
 /**
+ * Prepends all elements of `prefix` to the list.
+ *
  * @tsplus pipeable fncts.List prependAll
  */
 export function prependAll<B>(prefix: List<B>) {
@@ -255,6 +291,8 @@ export function prependAll<B>(prefix: List<B>) {
 }
 
 /**
+ * Returns the list in reverse order.
+ *
  * @tsplus getter fncts.List reverse
  */
 export function reverse<A>(self: List<A>): List<A> {
@@ -268,6 +306,8 @@ export function reverse<A>(self: List<A>): List<A> {
 }
 
 /**
+ * Sorts the list using an `Ord` instance.
+ *
  * @tsplus pipeable fncts.List sort
  */
 export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
@@ -277,6 +317,8 @@ export function sort<A>(/** @tsplus auto */ O: P.Ord<A>) {
 }
 
 /**
+ * Sorts the list using a custom comparator.
+ *
  * @tsplus pipeable fncts.List sortWith
  */
 export function sortWith<A>(compare: (x: A, y: A) => P.Ordering) {
@@ -301,6 +343,8 @@ export function sortWith<A>(compare: (x: A, y: A) => P.Ordering) {
 }
 
 /**
+ * Returns all elements except the first as a `Maybe`.
+ *
  * @tsplus getter fncts.List tail
  */
 export function tail<A>(self: List<A>): Maybe<List<A>> {
@@ -308,6 +352,8 @@ export function tail<A>(self: List<A>): Maybe<List<A>> {
 }
 
 /**
+ * Takes the first `n` elements.
+ *
  * @tsplus pipeable fncts.List take
  */
 export function take(n: number) {
@@ -335,6 +381,8 @@ export function take(n: number) {
 }
 
 /**
+ * Returns the first element, throwing if empty.
+ *
  * @tsplus getter fncts.List unsafeHead
  */
 export function unsafeHead<A>(self: List<A>): A {
@@ -345,6 +393,8 @@ export function unsafeHead<A>(self: List<A>): A {
 }
 
 /**
+ * Returns the last element, throwing if empty.
+ *
  * @tsplus getter fncts.List unsafeLast
  */
 export function unsafeLast<A>(self: List<A>): A {
@@ -360,6 +410,9 @@ export function unsafeLast<A>(self: List<A>): A {
   return these.head;
 }
 
+/**
+ * Copies list values into `arr` paired with their original index.
+ */
 function copyToArrayWithIndex<A>(list: List<A>, arr: Array<[number, A]>): void {
   let these = list;
   let i     = 0;

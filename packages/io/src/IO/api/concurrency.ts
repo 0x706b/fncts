@@ -52,6 +52,8 @@ const MakeConcurrent =
 const MakeConcurrentUnbounded: ConcurrencyRestorer = (io) => io.withConcurrencyUnbounded;
 
 /**
+ * Runs with the specified concurrency, providing a restore function.
+ *
  * @tsplus static fncts.io.IOOps withConcurrencyMask
  */
 export function withConcurrencyMask<R, E, A>(n: number, f: (restore: ConcurrencyRestorer) => IO<R, E, A>): IO<R, E, A> {
@@ -64,6 +66,8 @@ export function withConcurrencyMask<R, E, A>(n: number, f: (restore: Concurrency
 }
 
 /**
+ * Runs with unbounded concurrency, providing a restore function.
+ *
  * @tsplus static fncts.io.IOOps withConcurrencyUnboundedMask
  */
 export function withConcurrencyUnboundedMask<R, E, A>(f: (restore: ConcurrencyRestorer) => IO<R, E, A>): IO<R, E, A> {

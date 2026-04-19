@@ -20,7 +20,9 @@ const DEFAULT_INITIAL_CAPACITY = 16;
 const DEFAULT_LOAD_FACTOR      = 0.75;
 
 /**
+ *
  * @tsplus type fncts.MutableHashMap
+ *
  * @tsplus companion fncts.MutableHashMapOps
  */
 export class HashMap<K, V> implements Iterable<readonly [K, V]> {
@@ -33,10 +35,16 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     this.threshold = this.newThreshold(this.table.length);
   }
 
+  /**
+   * Iterates over key-value pairs currently stored in the map.
+   */
   [Symbol.iterator](): Iterator<readonly [K, V]> {
     return new HashMapIterator(this.table, (nd) => [nd.key, nd.value]);
   }
 
+  /**
+   * Creates an empty map using the default capacity and load factor.
+   */
   static empty<K, V>(config?: HashEq<K>): HashMap<K, V> {
     return new HashMap(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, config);
   }
@@ -47,37 +55,61 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
 
   private contentSize = 0;
 
+  /**
+   * Returns the number of entries in the map.
+   */
   get size(): number {
     return this.contentSize;
   }
 
+  /**
+   * Returns true when the map contains the provided key.
+   */
   has(key: K): boolean {
     return this.findNode(key) !== undefined;
   }
 
+  /**
+   * Returns the value for a key, or undefined if the key is absent.
+   */
   unsafeGet(key: K): V | undefined {
     return this.findNode(key)?.value;
   }
 
+  /**
+   * Looks up a key and returns its value wrapped in Maybe.
+   */
   get(key: K): Maybe<V> {
     const n = this.findNode(key);
     return n ? Just(n.value) : Nothing();
   }
 
+  /**
+   * Inserts or replaces a key with the provided value.
+   */
   set(key: K, value: V): Maybe<V> {
     return this._set(key, value, true);
   }
 
+  /**
+   * Removes a key and returns the removed value when present.
+   */
   delete(key: K): Maybe<V> {
     const n = this._delete(key);
     return n ? Just(n.value) : Nothing();
   }
 
+  /**
+   * Removes all entries from the map.
+   */
   clear(): void {
     this.table.fill(undefined);
     this.contentSize = 0;
   }
 
+  /**
+   * Computes an updated value from the current one, inserting, replacing, or deleting the key.
+   */
   updateWith(key: K, f: (v: Maybe<V>) => Maybe<V>): Maybe<V> {
     const hash                               = this.computeHash(key);
     const indexedHash                        = this.index(hash);
@@ -134,6 +166,9 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     return nextValue;
   }
 
+  /**
+   * Applies a callback to each entry in the map.
+   */
   forEach<U>(f: (k: K, v: V) => U): void {
     for (let i = 0; i < this.table.length; i++) {
       const n = this.table[i];
@@ -141,6 +176,9 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     }
   }
 
+  /**
+   * Inserts or updates a key, optionally returning the previous value.
+   */
   private _set(key: K, value: V, getOld: boolean) {
     if (this.contentSize + 1 >= this.threshold) {
       this.growTable(this.table.length * 2);
@@ -150,6 +188,9 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     return this._set0(key, value, getOld, hash, idx);
   }
 
+  /**
+   * Inserts or updates using a precomputed hash.
+   */
   private _setHash(key: K, value: V, hash: number, getOld: boolean) {
     if (this.contentSize + 1 >= this.threshold) {
       this.growTable(this.table.length * 2);
@@ -158,6 +199,9 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     return this._set0(key, value, getOld, hash, idx);
   }
 
+  /**
+   * Handles bucket insertion logic while maintaining hash order in chains.
+   */
   private _set0(key: K, value: V, getOld: boolean, hash: number, idx: number): Maybe<V> {
     let n = this.table[idx];
     if (n === undefined) {
@@ -185,10 +229,16 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     return Nothing();
   }
 
+  /**
+   * Removes a key by computing its hash first.
+   */
   private _delete(key: K): Node<K, V> | undefined {
     return this._deleteHash(key, this.computeHash(key));
   }
 
+  /**
+   * Removes a key from its bucket using a precomputed hash.
+   */
   private _deleteHash(key: K, hash: number): Node<K, V> | undefined {
     const idx = this.index(hash);
     const nd  = this.table[idx];
@@ -214,24 +264,39 @@ export class HashMap<K, V> implements Iterable<readonly [K, V]> {
     }
   }
 
+  /**
+   * Computes the resize threshold for a table size.
+   */
   private newThreshold(size: number) {
     return Math.floor(size * this.loadFactor);
   }
 
+  /**
+   * Computes the improved hash used for table indexing.
+   */
   private computeHash(k: K): number {
     return improveHash(this.config.hash(k));
   }
 
+  /**
+   * Maps a hash to a bucket index in the current table.
+   */
   private index(hash: number) {
     return hash & (this.table.length - 1);
   }
 
+  /**
+   * Finds the node associated with the given key.
+   */
   private findNode(key: K): Node<K, V> | undefined {
     const hash = this.computeHash(key);
     const n    = this.table[this.index(hash)];
     return n === undefined ? n : n.findNode(key, hash, this.config.equals);
   }
 
+  /**
+   * Resizes the table and redistributes nodes across expanded buckets.
+   */
   private growTable(newLen: number) {
     assert(newLen >= 0, `New HashMap table size ${newLen}`);
     let oldLen     = this.table.length;
@@ -288,6 +353,9 @@ class Node<K, V> {
     public next: Node<K, V> | undefined,
   ) {}
 
+  /**
+   * Scans this chain for a node matching the key and hash.
+   */
   findNode(k: K, h: number, equals: (y: K) => (x: K) => boolean): Node<K, V> | undefined {
     let n: Node<K, V> | undefined = this;
     while (n) {
@@ -300,6 +368,9 @@ class Node<K, V> {
     return undefined;
   }
 
+  /**
+   * Applies a callback to each node in this chain.
+   */
   forEach<U>(f: (k: K, v: V) => U): void {
     let n: Node<K, V> | undefined = this;
     while (n) {
@@ -321,6 +392,9 @@ export class HashMapIterator<K, V, A> implements Iterator<A> {
     this.len = table.length;
   }
 
+  /**
+   * Produces the next iterator value, advancing across buckets as needed.
+   */
   next(): IteratorResult<A> {
     if (this.done) {
       return this.return();
@@ -343,6 +417,9 @@ export class HashMapIterator<K, V, A> implements Iterator<A> {
     return { done: false, value };
   }
 
+  /**
+   * Finalizes iteration and reports completion.
+   */
   return(value?: unknown): IteratorReturnResult<unknown> {
     if (!this.done) {
       this.done = true;

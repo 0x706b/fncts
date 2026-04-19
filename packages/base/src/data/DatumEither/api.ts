@@ -12,12 +12,16 @@ const _Initial: DatumEither<never, never> = Datum.initial();
 const _Pending: DatumEither<never, never> = Datum.pending();
 
 /**
+ * Maps both error and success values.
+ *
  * @tsplus pipeable fncts.DatumEither bimap
  */
 export const bimap: <E, A, E1, B>(f: (e: E) => E1, g: (a: A) => B) => (self: DatumEither<E, A>) => DatumEither<E1, B> =
   EitherT.bimap(Datum.Functor);
 
 /**
+ * Returns true if a success value exists and satisfies the predicate.
+ *
  * @tsplus pipeable fncts.DatumEither exists
  */
 export function exists<A, B extends A>(p: Refinement<A, B>): <E>(self: DatumEither<E, A>) => self is DatumEither<E, B>;
@@ -33,6 +37,8 @@ export function exists<A>(p: Predicate<A>) {
 }
 
 /**
+ * Keeps a success value only if it satisfies the predicate.
+ *
  * @tsplus pipeable fncts.DatumEither filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): <E>(self: DatumEither<E, A>) => DatumEither<E, B>;
@@ -51,6 +57,8 @@ export function filter<A>(p: Predicate<A>) {
 }
 
 /**
+ * Maps and filters success values with a `Maybe`-returning function.
+ *
  * @tsplus pipeable fncts.DatumEither filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
@@ -75,6 +83,8 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * Constructs a `Pending` `DatumEither`.
+ *
  * @tsplus static fncts.DatumEitherOps pending
  */
 export function pending<E = never, A = never>(): DatumEither<E, A> {
@@ -82,18 +92,24 @@ export function pending<E = never, A = never>(): DatumEither<E, A> {
 }
 
 /**
+ * Constructs a refreshing `Left` value.
+ *
  * @tsplus static fncts.DatumEitherOps refreshLeft
  */
 export function refreshLeft<E, A = never>(e: E): DatumEither<E, A> {
   return Datum.refresh(Either.left(e));
 }
 /**
+ * Constructs a refreshing `Right` value.
+ *
  * @tsplus static fncts.DatumEitherOps refreshRight
  */
 export function refreshRight<E = never, A = never>(a: A): DatumEither<E, A> {
   return Datum.replete(Either.right(a));
 }
 /**
+ * Constructs a replete `Left` value.
+ *
  * @tsplus static fncts.DatumEitherOps repleteLeft
  */
 export function repleteLeft<E, A = never>(e: E): DatumEither<E, A> {
@@ -101,6 +117,8 @@ export function repleteLeft<E, A = never>(e: E): DatumEither<E, A> {
 }
 
 /**
+ * Constructs a replete `Right` value.
+ *
  * @tsplus static fncts.DatumEitherOps repleteRight
  */
 export function repleteRight<E = never, A = never>(a: A): DatumEither<E, A> {
@@ -108,6 +126,8 @@ export function repleteRight<E = never, A = never>(a: A): DatumEither<E, A> {
 }
 
 /**
+ * Chains computations on success values.
+ *
  * @tsplus pipeable fncts.DatumEither flatMap
  */
 export const flatMap: <A, E1, B>(
@@ -115,6 +135,8 @@ export const flatMap: <A, E1, B>(
 ) => <E>(self: DatumEither<E, A>) => DatumEither<E | E1, B> = EitherT.flatMap(Datum.Monad);
 
 /**
+ * Folds over success values from the left with an initial accumulator.
+ *
  * @tsplus pipeable fncts.DatumEither foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -128,6 +150,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Maps success values to a monoid or returns the monoid identity.
+ *
  * @tsplus pipeable fncts.DatumEither foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
@@ -141,6 +165,8 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>
 }
 
 /**
+ * Folds over success values from the right with an initial accumulator.
+ *
  * @tsplus pipeable fncts.DatumEither foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
@@ -154,6 +180,8 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 }
 
 /**
+ * Returns the success value or computes a fallback for empty/left states.
+ *
  * @tsplus pipeable fncts.DatumEither getOrElse
  */
 export function getOrElse<E, B, C>(onEmpty: () => B, onLeft: (e: E) => C) {
@@ -163,6 +191,8 @@ export function getOrElse<E, B, C>(onEmpty: () => B, onLeft: (e: E) => C) {
 }
 
 /**
+ * Constructs an `Initial` `DatumEither`.
+ *
  * @tsplus static fncts.DatumEitherOps initial
  */
 export function initial<E = never, A = never>(): DatumEither<E, A> {
@@ -170,6 +200,8 @@ export function initial<E = never, A = never>(): DatumEither<E, A> {
 }
 
 /**
+ * Maps success values.
+ *
  * @tsplus pipeable fncts.DatumEither map
  */
 export const map: <E, A, B>(f: (a: A) => B) => (self: DatumEither<E, A>) => DatumEither<E, B> = EitherT.map(
@@ -177,6 +209,8 @@ export const map: <E, A, B>(f: (a: A) => B) => (self: DatumEither<E, A>) => Datu
 );
 
 /**
+ * Maps error values.
+ *
  * @tsplus pipeable fncts.DatumEither mapLeft
  */
 export const mapLeft: <E, E1>(f: (e: E) => E1) => <A>(self: DatumEither<E, A>) => DatumEither<E1, A> = EitherT.mapLeft(
@@ -184,6 +218,8 @@ export const mapLeft: <E, E1>(f: (e: E) => E1) => <A>(self: DatumEither<E, A>) =
 );
 
 /**
+ * Pattern matches on all states with loading information for left/right.
+ *
  * @tsplus pipeable fncts.DatumEither match
  */
 export function match<E, A, B, C, D, F>(
@@ -205,6 +241,8 @@ export function match<E, A, B, C, D, F>(
 }
 
 /**
+ * Pattern matches on empty, left, and right states with loading flags.
+ *
  * @tsplus pipeable fncts.DatumEither match3
  */
 export function match3<E, A, B, C, D>(
@@ -225,6 +263,8 @@ export function match3<E, A, B, C, D>(
 }
 
 /**
+ * Pattern matches on all low-level `DatumEither` states.
+ *
  * @tsplus pipeable fncts.DatumEither matchAll
  */
 export function matchAll<E, A, B, C, D, F, G, H>(cases: {
@@ -262,6 +302,8 @@ export function matchAll<E, A, B, C, D, F, G, H>(cases: {
 }
 
 /**
+ * Pattern matches on initial/pending/refresh/replete as `Datum<Either<...>>`.
+ *
  * @tsplus pipeable fncts.DatumEither matchEither
  */
 export const matchEither: <E, A, B, C, D, F>(cases: {
@@ -272,6 +314,8 @@ export const matchEither: <E, A, B, C, D, F>(cases: {
 }) => (self: DatumEither<E, A>) => B | C | D | F = _.match;
 
 /**
+ * Returns the fallback when this value is empty or left.
+ *
  * @tsplus pipeable fncts.DatumEither orElse
  */
 export const orElse: <E1, B>(
@@ -279,6 +323,8 @@ export const orElse: <E1, B>(
 ) => <E, A>(self: DatumEither<E, A>) => DatumEither<E | E1, A | B> = EitherT.orElse(Datum.Monad);
 
 /**
+ * Partitions success values using a predicate.
+ *
  * @tsplus pipeable fncts.DatumEither partition
  */
 export function partition<A, B extends A>(
@@ -292,6 +338,8 @@ export function partition<A>(p: Predicate<A>) {
 }
 
 /**
+ * Partitions success values by mapping them to an `Either`.
+ *
  * @tsplus pipeable fncts.DatumEither partitionMap
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
@@ -315,15 +363,21 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
   };
 }
 /**
+ * Converts this value to its loading form.
+ *
  * @tsplus getter fncts.DatumEither toPending
  */
 export const toPending: <E, A>(self: DatumEither<E, A>) => DatumEither<E, A> = _.toPending;
 /**
+ * Converts non-empty values to their replete form.
+ *
  * @tsplus getter fncts.DatumEither toReplete
  */
 export const toReplete: <E, A>(self: DatumEither<E, A>) => DatumEither<E, A> = _.toReplete;
 
 /**
+ * Traverses success values with an applicative effect.
+ *
  * @tsplus getter fncts.DatumEither traverse
  */
 export function traverse_<E, A>(self: DatumEither<E, A>) {
@@ -344,6 +398,8 @@ export function traverse_<E, A>(self: DatumEither<E, A>) {
 export const traverse: P.Traversable<DatumEitherF>["traverse"] = (G) => (f) => (self) => self.traverse(G)(f);
 
 /**
+ * Combines two values with a function when both are successful.
+ *
  * @tsplus pipeable fncts.DatumEither zipWith
  */
 export const zipWith: <A, E1, B, C>(
@@ -352,6 +408,8 @@ export const zipWith: <A, E1, B, C>(
 ) => <E>(self: DatumEither<E, A>) => DatumEither<E | E1, C> = EitherT.zipWith(Datum.Apply);
 
 /**
+ * Combines two values into a tuple when both are successful.
+ *
  * @tsplus pipeable fncts.DatumEither zip
  */
 export function zip<E1, B>(that: DatumEither<E1, B>) {

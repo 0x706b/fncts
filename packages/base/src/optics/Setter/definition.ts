@@ -1,4 +1,5 @@
 /**
+ *
  * @tsplus type fncts.optics.PSetter
  */
 export interface PSetter<S, T, A, B> {
@@ -12,6 +13,7 @@ export interface PSetterPartiallyApplied<T, A, B> {
 }
 
 /**
+ *
  * @tsplus type fncts.optics.PSetterOps
  */
 export interface PSetterOps {}
@@ -19,6 +21,8 @@ export interface PSetterOps {}
 export const PSetter: PSetterOps = {};
 
 /**
+ * Builds a `PSetter` by returning the provided setter unchanged.
+ *
  * @tsplus static fncts.optics.PSetterOps __call
  */
 export function makePSetter<S, T, A, B>(F: PSetter<S, T, A, B>): PSetter<S, T, A, B> {
@@ -26,16 +30,20 @@ export function makePSetter<S, T, A, B>(F: PSetter<S, T, A, B>): PSetter<S, T, A
 }
 
 /**
+ *
  * @tsplus type fncts.optics.Setter
  */
 export interface Setter<S, A> extends PSetter<S, S, A, A> {}
 
 /**
+ *
  * @tsplus type fncts.optics.SetterOps
  */
 export interface SetterOps extends PSetterOps {}
 
 /**
+ * Builds a monomorphic `Setter` from a polymorphic setter definition.
+ *
  * @tsplus static fncts.optics.SetterOps __call
  */
 export function makeSetter<S, A>(F: PSetter<S, S, A, A>): Setter<S, A> {

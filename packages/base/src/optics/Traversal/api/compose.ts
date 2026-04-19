@@ -1,6 +1,8 @@
 import { PTraversal } from "@fncts/base/optics/Traversal/definition";
 
 /**
+ * Composes two traversals so the resulting traversal visits the inner focus through both.
+ *
  * @tsplus pipeable fncts.optics.PTraversal compose 4
  */
 export function compose<A, B, C, D>(that: PTraversal<A, B, C, D>) {

@@ -1,6 +1,8 @@
 import { TheseJson } from "@fncts/base/json/TheseJson";
 
 /**
+ * Derives a runtime guard for a specific `These` type.
+ *
  * @tsplus derive fncts.Guard[fncts.These]<_> 10
  */
 export function deriveGuard<A extends These<any, any>>(

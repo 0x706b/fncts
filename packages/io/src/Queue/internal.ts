@@ -176,6 +176,9 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
   }
 }
 
+/**
+ * Construct a `Queue` instance from its internal components.
+ */
 function unsafeCreateQueue<A>(
   queue: MutableQueue<A>,
   takers: MutableQueue<Future<never, A>>,
@@ -186,11 +189,17 @@ function unsafeCreateQueue<A>(
   return new UnsafeQueue(queue, takers, shutdownHook, shutdownFlag, strategy);
 }
 
+/**
+ * Factory that wraps a `MutableQueue` into a `Queue` with a concurrency strategy.
+ */
 export function unsafeMakeQueue<A>(strategy: Strategy<A>): (queue: MutableQueue<A>) => IO<never, never, Queue<A>> {
   return (queue) =>
     Future.make<never, void>().map((p) => unsafeCreateQueue(queue, unbounded(), p, new AtomicBoolean(false), strategy));
 }
 
+/**
+ * Enqueue all elements from a `Conc` into a mutable queue, returning remaining elements.
+ */
 export function unsafeOfferAll<A>(q: MutableQueue<A>, as: Conc<A>): Conc<A> {
   let bs = as;
   while (bs.length > 0) {
@@ -203,6 +212,9 @@ export function unsafeOfferAll<A>(q: MutableQueue<A>, as: Conc<A>): Conc<A> {
   return bs;
 }
 
+/**
+ * Dequeue all available elements from a mutable queue.
+ */
 export function unsafePollAll<A>(q: MutableQueue<A>): Conc<A> {
   let as = Conc.empty<A>();
   while (!q.isEmpty) {
@@ -211,10 +223,16 @@ export function unsafePollAll<A>(q: MutableQueue<A>): Conc<A> {
   return as;
 }
 
+/**
+ * Resolve a `Future` with a value, without blocking.
+ */
 export function unsafeCompletePromise<A>(p: Future<never, A>, a: A) {
   return p.unsafeDone(IO.succeedNow(a));
 }
 
+/**
+ * Remove all occurrences of a specific value from the mutable queue.
+ */
 export function unsafeRemove<A>(q: MutableQueue<A>, a: A) {
   return unsafeOfferAll(
     q,
@@ -222,6 +240,9 @@ export function unsafeRemove<A>(q: MutableQueue<A>, a: A) {
   );
 }
 
+/**
+ * Dequeue up to `max` elements from a mutable queue.
+ */
 function unsafeDequeueN<A>(q: MutableQueue<A>, max: number): Conc<A> {
   let j  = 0;
   let as = Conc.empty<A>();
@@ -237,6 +258,9 @@ function unsafeDequeueN<A>(q: MutableQueue<A>, max: number): Conc<A> {
   return as;
 }
 
+/**
+ * Resolve waiting takers with available queue elements.
+ */
 export function unsafeCompleteTakers<A>(
   strategy: Strategy<A>,
   queue: MutableQueue<A>,

@@ -1,4 +1,6 @@
 /**
+ * Returns a cached version of this effect that expires after the specified duration.
+ *
  * @tsplus pipeable fncts.io.IO cached
  */
 export function cached(timeToLive: Lazy<Duration>, __tsplusTrace?: string) {
@@ -7,6 +9,8 @@ export function cached(timeToLive: Lazy<Duration>, __tsplusTrace?: string) {
   };
 }
 /**
+ * Returns a cached effect with an invalidation function to clear the cache.
+ *
  * @tsplus pipeable fncts.io.IO cachedInvalidate
  */
 export function cachedInvalidate(timeToLive: Lazy<Duration>, __tsplusTrace?: string) {

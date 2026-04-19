@@ -9,6 +9,9 @@ export interface SortedMapIterable<K, V> extends Iterable<readonly [K, V]> {
   [Symbol.iterator](): SortedMapIterator<K, V>;
 }
 
+/**
+ * Creates an iterable that yields entries in ascending key order.
+ */
 export function forward<K, V>(self: SortedMap<K, V>): SortedMapIterable<K, V> {
   return {
     ord: self.ord,
@@ -24,6 +27,9 @@ export function forward<K, V>(self: SortedMap<K, V>): SortedMapIterable<K, V> {
   };
 }
 
+/**
+ * Creates an iterable that yields entries in descending key order.
+ */
 export function backward<K, V>(self: SortedMap<K, V>): SortedMapIterable<K, V> {
   return {
     ord: self.ord,
@@ -47,6 +53,9 @@ export class SortedMapIterator<K, V> implements Iterator<readonly [K, V]> {
     readonly direction: 0 | 1,
   ) {}
 
+  /**
+   * Returns the current entry and advances according to iterator direction.
+   */
   next(): IteratorResult<readonly [K, V]> {
     if (this.isEmpty) {
       return { done: true, value: this.count };
@@ -66,6 +75,9 @@ export class SortedMapIterator<K, V> implements Iterator<readonly [K, V]> {
     return { done: false, value };
   }
 
+  /**
+   * Returns `true` when there is no current node.
+   */
   get isEmpty(): boolean {
     return this.stack.length === 0;
   }

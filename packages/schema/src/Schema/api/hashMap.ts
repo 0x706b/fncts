@@ -6,6 +6,8 @@ import { HashMap } from "@fncts/base/collection/immutable/HashMap";
 import { ASTAnnotation } from "@fncts/schema/ASTAnnotation";
 
 /**
+ * Create a schema for HashMap values.
+ *
  * @tsplus static fncts.schema.SchemaOps hashMap
  */
 export function hashMap<K, V>(key: Schema<K>, value: Schema<V>): Schema<HashMap<K, V>> {
@@ -15,6 +17,8 @@ export function hashMap<K, V>(key: Schema<K>, value: Schema<V>): Schema<HashMap<
 }
 
 /**
+ * Create a HashMap schema from a record representation.
+ *
  * @tsplus static fncts.schema.SchemaOps hashMapFromRecord
  */
 export function hashMapFromRecord<K extends string | symbol, V>(
@@ -41,6 +45,8 @@ export function hashMapFromRecord<K extends string | symbol, V>(
 }
 
 /**
+ * Derive a HashMap schema from a HashMap type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.HashMap]<_> 10
  */
 export function deriveHashMap<A extends HashMap<any, any>>(

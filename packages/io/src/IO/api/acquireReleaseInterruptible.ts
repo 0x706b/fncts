@@ -1,4 +1,6 @@
 /**
+ * Acquires an interruptible resource, ensuring it is released when the scope closes.
+ *
  * @tsplus static fncts.io.IOOps acquireReleaseInterruptible
  */
 export function acquireReleaseInterruptible<R, E, A, R1>(

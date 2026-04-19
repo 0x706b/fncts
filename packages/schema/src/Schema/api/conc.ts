@@ -8,6 +8,8 @@ export function conc<A>(value: Schema<A>): Schema<Conc<A>> {
 }
 
 /**
+ * Create a Conc schema from an array representation.
+ *
  * @tsplus static fncts.schema.SchemaOps concFromArray
  */
 export function concFromArray<A>(value: Schema<A>): Schema<Conc<A>> {
@@ -19,6 +21,8 @@ export function concFromArray<A>(value: Schema<A>): Schema<Conc<A>> {
 }
 
 /**
+ * Derive a Conc schema from a Conc type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.Conc]<_> 10
  */
 export function deriveConc<A extends Conc<any>>(

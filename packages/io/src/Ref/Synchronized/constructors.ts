@@ -1,6 +1,8 @@
 import { PSynchronizedInternal } from "./definition.js";
 
 /**
+ * Unsafely create a synchronized `Ref` with an eager initial value.
+ *
  * @tsplus static fncts.io.Ref.SynchronizedOps unsafeMake
  */
 export function unsafeMakeSynchronized<A>(a: A, __tsplusTrace?: string): Ref.Synchronized<A> {
@@ -10,6 +12,8 @@ export function unsafeMakeSynchronized<A>(a: A, __tsplusTrace?: string): Ref.Syn
 }
 
 /**
+ * Create a synchronized `Ref` from a lazy initial value.
+ *
  * @tsplus static fncts.io.Ref.SynchronizedOps make
  */
 export function makeSynchronized<A>(a: Lazy<A>, __tsplusTrace?: string): UIO<Ref.Synchronized<A>> {

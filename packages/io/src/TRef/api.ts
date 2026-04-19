@@ -154,6 +154,8 @@ export function updateJustAndGet<A>(f: (a: A) => Maybe<A>, __tsplusTrace?: strin
 }
 
 /**
+ * Unsafely sets the value of the `TRef` in the provided journal.
+ *
  * @tsplus pipeable fncts.io.TRef unsafeSet
  */
 export function unsafeSet<A>(journal: Journal, a: A, __tsplusTrace?: string) {

@@ -7,11 +7,13 @@ export const ExitTypeId = Symbol.for("fncts.Exit");
 export type ExitTypeId = typeof ExitTypeId;
 
 /**
+ *
  * @tsplus type fncts.Exit
  */
 export type Exit<E, A> = Success<A> | Failure<E>;
 
 /**
+ *
  * @tsplus type fncts.ExitOps
  */
 export interface ExitOps {}
@@ -30,7 +32,9 @@ const _failureHash = Hashable.string("fncts.Exit.Failure");
 const _successHash = Hashable.string("fncts.Exit.Success");
 
 /**
+ *
  * @tsplus type fncts.Exit.Failure
+ *
  * @tsplus companion fncts.Exit.FailureOps
  */
 export class Failure<E> {
@@ -56,7 +60,9 @@ export class Failure<E> {
 }
 
 /**
+ *
  * @tsplus type fncts.Exit.Success
+ *
  * @tsplus companion fncts.Exit.SuccessOps
  */
 export class Success<A> implements P.Hashable, P.Equatable {
@@ -82,6 +88,8 @@ export class Success<A> implements P.Hashable, P.Equatable {
 }
 
 /**
+ * Test whether a value is an `Exit`.
+ *
  * @tsplus static fncts.ExitOps isExit
  */
 export function isExit(u: unknown): u is Exit<unknown, unknown> {
@@ -89,6 +97,8 @@ export function isExit(u: unknown): u is Exit<unknown, unknown> {
 }
 
 /**
+ * Check whether an `Exit` is a failure.
+ *
  * @tsplus fluent fncts.Exit isFailure
  */
 export function isFailure<E, A>(exit: Exit<E, A>): exit is Failure<E> {
@@ -96,6 +106,8 @@ export function isFailure<E, A>(exit: Exit<E, A>): exit is Failure<E> {
 }
 
 /**
+ * Check whether an `Exit` failed due to interruption.
+ *
  * @tsplus fluent fncts.Exit isInterrupt
  */
 export function isInterrupt<E, A>(exit: Exit<E, A>): exit is Failure<E> {
@@ -103,6 +115,8 @@ export function isInterrupt<E, A>(exit: Exit<E, A>): exit is Failure<E> {
 }
 
 /**
+ * Check whether an `Exit` is a success.
+ *
  * @tsplus fluent fncts.Exit isSuccess
  */
 export function isSuccess<E, A>(exit: Exit<E, A>): exit is Success<A> {
@@ -110,6 +124,8 @@ export function isSuccess<E, A>(exit: Exit<E, A>): exit is Success<A> {
 }
 
 /**
+ * Normalize an inferred `Exit` type.
+ *
  * @tsplus unify fncts.Exit
  */
 export function unifyExit<X extends Exit<any, any>>(

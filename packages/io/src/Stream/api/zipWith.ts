@@ -1,6 +1,8 @@
 import { zipChunks } from "../internal/util.js";
 
 /**
+ * Zip two streams element-wise, combining paired values with `f`.
+ *
  * @tsplus pipeable fncts.io.Stream zipWith
  */
 export function zipWith<A, R1, E1, B, C>(that: Stream<R1, E1, B>, f: (a: A, b: B) => C, __tsplusTrace?: string) {

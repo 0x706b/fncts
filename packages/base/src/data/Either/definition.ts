@@ -23,7 +23,9 @@ const IOTypeId = Symbol.for("fncts.io.IO");
 type IOTypeId = typeof IOTypeId;
 
 /**
+ *
  * @tsplus type fncts.Either
+ *
  * @tsplus companion fncts.EitherOps
  */
 export abstract class Either<E, A> {
@@ -40,7 +42,9 @@ export abstract class Either<E, A> {
 const leftHash = Hashable.string(EitherTag.Left);
 
 /**
+ *
  * @tsplus type fncts.Either.Left
+ *
  * @tsplus companion fncts.Either.LeftOps
  */
 export class Left<E> extends Either<E, never> {
@@ -64,7 +68,9 @@ export class Left<E> extends Either<E, never> {
 const rightHash = Hashable.string(EitherTag.Right);
 
 /**
+ *
  * @tsplus type fncts.Either.Right
+ *
  * @tsplus companion fncts.Either.RightOps
  */
 export class Right<A> extends Either<never, A> {
@@ -86,6 +92,8 @@ export class Right<A> extends Either<never, A> {
 }
 
 /**
+ * Widens an `Either` to its inferred union types.
+ *
  * @tsplus unify fncts.Either
  */
 export function unifyEither<X extends Either<any, any>>(
@@ -95,8 +103,12 @@ export function unifyEither<X extends Either<any, any>>(
 }
 
 /**
+ * Narrows an `Either` to its concrete runtime variants.
+ *
  * @tsplus fluent fncts.Either concrete
+ *
  * @tsplus static fncts.EitherOps concrete
+ *
  * @tsplus macro remove
  */
 export function concrete<E, A>(self: Either<E, A>): asserts self is Left<E> | Right<A> {

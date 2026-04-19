@@ -3,6 +3,8 @@ import type * as P from "@fncts/base/typeclass";
 import { PTraversal } from "@fncts/base/optics/Traversal/definition";
 
 /**
+ * Builds a traversal for any traversable container by delegating to its traverse implementation.
+ *
  * @tsplus static fncts.optics.PTraversalOps fromTraversable
  */
 export function fromTraversable<F extends HKT, FC = HKT.None>(T: P.Traversable<F, FC>) {

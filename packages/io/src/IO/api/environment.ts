@@ -55,6 +55,8 @@ export function provideEnvironment<R>(r: Environment<R>, __tsplusTrace?: string)
 }
 
 /**
+ * Provides a partial environment to this effect.
+ *
  * @tsplus pipeable fncts.io.IO provideSomeEnvironment
  */
 export function provideSomeEnvironment<R0>(environment: Environment<R0>, __tsplusTrace?: string) {
@@ -64,6 +66,8 @@ export function provideSomeEnvironment<R0>(environment: Environment<R0>, __tsplu
 }
 
 /**
+ * Provides a single service to this effect.
+ *
  * @tsplus pipeable fncts.io.IO provideService
  */
 export function provideService<T>(service: T, tag: Tag<T>, __tsplusTrace?: string) {
@@ -73,7 +77,10 @@ export function provideService<T>(service: T, tag: Tag<T>, __tsplusTrace?: strin
 }
 
 /**
+ * Provides a single service to this effect, leaving other requirements.
+ *
  * @tsplus pipeable fncts.io.IO provideSomeService
+ *
  * @tsplus static fncts.io.IOAspects provideSomeService
  */
 export function provideSomeService<T>(service: T, tag: Tag<T>, __tsplusTrace?: string) {
@@ -83,18 +90,24 @@ export function provideSomeService<T>(service: T, tag: Tag<T>, __tsplusTrace?: s
 }
 
 /**
+ * Accesses the specified service from the environment.
+ *
  * @tsplus static fncts.io.IOOps service
  */
 export function service<T>(tag: Tag<T>, __tsplusTrace?: string): IO<T, never, T> {
   return IO.serviceWithIO(IO.succeedNow, tag);
 }
 /**
+ * Accesses the specified service and maps it with the given function.
+ *
  * @tsplus static fncts.io.IOOps serviceWith
  */
 export function serviceWith<S, A>(f: (service: S) => A, tag: Tag<S>, __tsplusTrace?: string): IO<S, never, A> {
   return IO.serviceWithIO((s) => IO.succeedNow(f(s)), tag);
 }
 /**
+ * Accesses the specified service and uses it to produce an effect.
+ *
  * @tsplus static fncts.io.IOOps serviceWithIO
  */
 export function serviceWithIO<T, R, E, A>(

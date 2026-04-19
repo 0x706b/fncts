@@ -10,17 +10,22 @@ export const CauseTypeId = Symbol.for("fncts.Cause");
 export type CauseTypeId = typeof CauseTypeId;
 
 /**
+ *
  * @tsplus type fncts.Cause
  */
 export type Cause<E> = Empty | Halt | Interrupt | Fail<E> | Sequential<E> | Parallel<E> | Stackless<E>;
 
 /**
+ *
  * @tsplus type fncts.CauseOps
  */
 export interface CauseOps {}
 
 export const Cause: CauseOps = {};
 
+/**
+ * Checks whether a value is a `Cause`.
+ */
 export function isCause(u: unknown): u is Cause<unknown> {
   return isObject(u) && CauseTypeId in u;
 }
@@ -38,6 +43,7 @@ export const enum CauseTag {
 const _emptyHash = Hashable.string("fncts.Cause");
 
 /**
+ *
  * @tsplus companion fncts.Cause.EmptyOps
  */
 export class Empty implements Equatable {
@@ -72,6 +78,7 @@ export class Empty implements Equatable {
 export const _Empty = new Empty();
 
 /**
+ *
  * @tsplus companion fncts.Cause.FailOps
  */
 export class Fail<E> implements Equatable {
@@ -112,6 +119,7 @@ export class Fail<E> implements Equatable {
 }
 
 /**
+ *
  * @tsplus companion fncts.Cause.HaltOps
  */
 export class Halt implements Equatable {
@@ -152,6 +160,7 @@ export class Halt implements Equatable {
 }
 
 /**
+ *
  * @tsplus companion fncts.Cause.InterruptOps
  */
 export class Interrupt implements Equatable {
@@ -193,6 +202,7 @@ export class Interrupt implements Equatable {
 }
 
 /**
+ *
  * @tsplus companion fncts.Cause.SequentialOps
  */
 export class Sequential<E> implements Equatable {
@@ -229,6 +239,7 @@ export class Sequential<E> implements Equatable {
 }
 
 /**
+ *
  * @tsplus companion fncts.Cause.ParallelOps
  */
 export class Parallel<E> implements Equatable {
@@ -265,6 +276,7 @@ export class Parallel<E> implements Equatable {
 }
 
 /**
+ *
  * @tsplus companion fncts.Cause.StacklessOps
  */
 export class Stackless<E> implements Equatable {

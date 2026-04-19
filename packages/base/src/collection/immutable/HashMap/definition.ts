@@ -20,7 +20,10 @@ export const HashMapTypeId = Symbol.for("fncts.HashMap");
 export type HashMapTypeId = typeof HashMapTypeId;
 
 /**
+ * Immutable hash array mapped trie for key-value entries.
+ *
  * @tsplus type fncts.HashMap
+ *
  * @tsplus companion fncts.HashMapOps
  */
 export class HashMap<in out K, in out V> implements Iterable<readonly [K, V]>, Hashable, Equatable {
@@ -39,16 +42,25 @@ export class HashMap<in out K, in out V> implements Iterable<readonly [K, V]>, H
     public size: number,
   ) {}
 
+  /**
+   * Iterate key-value entries in the map.
+   */
   [Symbol.iterator](): Iterator<readonly [K, V]> {
     return new HashMapIterator(this, identity);
   }
 
+  /**
+   * Compute a structural hash from all key-value entries.
+   */
   get [Symbol.hash](): number {
     return Hashable.iterator(
       new HashMapIterator(this, ([k, v]) => Hashable.combine(Hashable.unknown(k), Hashable.unknown(v))),
     );
   }
 
+  /**
+   * Compare maps by size and entry-wise structural equality.
+   */
   [Symbol.equals](other: unknown): boolean {
     return (
       isHashMap(other) &&
@@ -59,6 +71,8 @@ export class HashMap<in out K, in out V> implements Iterable<readonly [K, V]>, H
 }
 
 /**
+ * Test whether a value is a `HashMap`.
+ *
  * @tsplus static fncts.HashMapOps is
  */
 export function isHashMap<K, V>(u: Iterable<readonly [K, V]>): u is HashMap<K, V>;
@@ -77,6 +91,9 @@ export class HashMapIterator<K, V, T> implements IterableIterator<T> {
     this.v = visitLazy(this.map.root, this.f, undefined);
   }
 
+  /**
+   * Return the next lazily discovered element.
+   */
   next(): IteratorResult<T> {
     this.v.concrete();
     if (this.v.isNothing()) {
@@ -87,6 +104,9 @@ export class HashMapIterator<K, V, T> implements IterableIterator<T> {
     return { done: false, value: v0.value };
   }
 
+  /**
+   * Create a fresh iterator over the same map.
+   */
   [Symbol.iterator](): IterableIterator<T> {
     return new HashMapIterator(this.map, this.f);
   }
@@ -96,10 +116,16 @@ type Cont<K, V, A> =
   | [len: number, children: Node<K, V>[], i: number, f: (node: readonly [K, V]) => A, cont: Cont<K, V, A>]
   | undefined;
 
+/**
+ * Continue lazy traversal from a stored continuation.
+ */
 function applyCont<K, V, A>(cont: Cont<K, V, A>) {
   return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : Nothing();
 }
 
+/**
+ * Visit children lazily from index `i` until a value is found.
+ */
 function visitLazyChildren<K, V, A>(
   len: number,
   children: Node<K, V>[],

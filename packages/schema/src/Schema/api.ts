@@ -8,6 +8,8 @@ import { ASTTag, concrete, TemplateLiteralSpan } from "../AST.js";
 import { ownKeys } from "../utils.js";
 
 /**
+ * Construct a `Schema` from its abstract syntax tree representation.
+ *
  * @tsplus static fncts.schema.SchemaOps fromAST
  */
 export function make<A>(ast: AST): Schema<A> {
@@ -15,6 +17,8 @@ export function make<A>(ast: AST): Schema<A> {
 }
 
 /**
+ * Attach an annotation to the schema.
+ *
  * @tsplus pipeable fncts.schema.Schema annotate
  */
 export function annotate<V>(annotation: ASTAnnotation<V>, value: V) {
@@ -24,6 +28,8 @@ export function annotate<V>(annotation: ASTAnnotation<V>, value: V) {
 }
 
 /**
+ * Create a new type-level declaration schema with custom encode/decode logic.
+ *
  * @tsplus static fncts.schema.SchemaOps declaration
  */
 export function declaration(
@@ -43,6 +49,8 @@ export function declaration(
 }
 
 /**
+ * Narrow a schema using a refinement predicate.
+ *
  * @tsplus pipeable fncts.schema.Schema filter
  */
 export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Schema<A>) => Schema<B>;
@@ -55,6 +63,8 @@ export function filter<A>(predicate: Predicate<A>) {
 }
 
 /**
+ * Brand a schema with a validated refinement.
+ *
  * @tsplus pipeable fncts.schema.Schema brand
  */
 export function brand<A, K extends string>(validation: Validation<A, K>) {
@@ -73,6 +83,8 @@ function makeLiteral<Literal extends LiteralValue>(value: Literal): Schema<Liter
 }
 
 /**
+ * Create a schema matching one or more literal values.
+ *
  * @tsplus static fncts.schema.SchemaOps literal
  */
 export function literal<Literals extends ReadonlyArray<LiteralValue>>(...literals: Literals): Schema<Literals[number]> {
@@ -80,24 +92,35 @@ export function literal<Literals extends ReadonlyArray<LiteralValue>>(...literal
 }
 
 /**
+ * A schema that never parses successfully.
+ *
  * @tsplus static fncts.schema.SchemaOps never
+ *
  * @tsplus implicit
  */
 export const never: Schema<never> = Schema.fromAST(AST.neverKeyword);
 
 /**
+ * A schema accepting any value.
+ *
  * @tsplus static fncts.schema.SchemaOps unknown
+ *
  * @tsplus implicit
  */
 export const unknown: Schema<unknown> = Schema.fromAST(AST.unknownKeyword);
 
 /**
+ * A schema accepting any value including null and undefined.
+ *
  * @tsplus static fncts.schema.SchemaOps any
  */
 export const any: Schema<any> = Schema.fromAST(AST.anyKeyword);
 
 /**
+ * Schema utility for `_undefined`.
+ *
  * @tsplus static fncts.schema.SchemaOps undefined
+ *
  * @tsplus implicit
  */
 export const _undefined: Schema<undefined> = Schema.fromAST(AST.undefinedKeyword);
@@ -105,7 +128,10 @@ export const _undefined: Schema<undefined> = Schema.fromAST(AST.undefinedKeyword
 export { _undefined as undefined };
 
 /**
+ * Schema utility for `_null`.
+ *
  * @tsplus static fncts.schema.SchemaOps null
+ *
  * @tsplus implicit
  */
 export const _null: Schema<null> = Schema.fromAST(AST.createLiteral(null));
@@ -113,7 +139,10 @@ export const _null: Schema<null> = Schema.fromAST(AST.createLiteral(null));
 export { _null as null };
 
 /**
+ * Schema utility for `_void`.
+ *
  * @tsplus static fncts.schema.SchemaOps void
+ *
  * @tsplus implicit
  */
 export const _void: Schema<void> = Schema.fromAST(AST.voidKeyword);
@@ -121,47 +150,69 @@ export const _void: Schema<void> = Schema.fromAST(AST.voidKeyword);
 export { _void as void };
 
 /**
+ * A schema matching string values.
+ *
  * @tsplus static fncts.schema.SchemaOps string
+ *
  * @tsplus implicit
  */
 export const string: Schema<string> = Schema.fromAST(AST.stringKeyword);
 
 /**
+ * A schema matching number values.
+ *
  * @tsplus static fncts.schema.SchemaOps number
+ *
  * @tsplus implicit
  */
 export const number: Schema<number> = Schema.fromAST(AST.numberKeyword);
 
 /**
+ * A schema matching boolean values.
+ *
  * @tsplus static fncts.schema.SchemaOps boolean
+ *
  * @tsplus implicit
  */
 export const boolean: Schema<boolean> = Schema.fromAST(AST.booleanKeyword);
 
 /**
+ * A schema matching bigint values.
+ *
  * @tsplus static fncts.schema.SchemaOps bigint
+ *
  * @tsplus implicit
  */
 export const bigint: Schema<bigint> = Schema.fromAST(AST.bigIntKeyword);
 
 /**
+ * A schema matching symbol values.
+ *
  * @tsplus static fncts.schema.SchemaOps symbol
+ *
  * @tsplus implicit
  */
 export const symbol: Schema<symbol> = Schema.fromAST(AST.symbolKeyword);
 
 /**
+ * A schema matching non-primitive values.
+ *
  * @tsplus static fncts.schema.SchemaOps object
+ *
  * @tsplus implicit
  */
 export const object: Schema<object> = Schema.fromAST(AST.objectKeyword);
 
 /**
+ * A schema matching Date instances.
+ *
  * @tsplus static fncts.schema.SchemaOps date
  */
 export const date: Schema<Date> = Schema.object.instanceOf(Date);
 
 /**
+ * A schema that accepts Date, string, or number and coerces to Date.
+ *
  * @tsplus implicit
  */
 export const implicitDate: Schema<Date> = Schema.unknown.transformOrFail(
@@ -177,7 +228,10 @@ export const implicitDate: Schema<Date> = Schema.unknown.transformOrFail(
 );
 
 /**
+ * Create a schema that matches any of the given member schemas.
+ *
  * @tsplus derive fncts.schema.Schema<|> 30
+ *
  * @tsplus static fncts.schema.SchemaOps union
  */
 export function union<A extends ReadonlyArray<unknown>>(
@@ -189,6 +243,8 @@ export function union<A extends ReadonlyArray<unknown>>(
 }
 
 /**
+ * Create a schema that accepts the original type or null.
+ *
  * @tsplus getter fncts.schema.Schema nullable
  */
 export function nullable<A>(self: Schema<A>): Schema<A | null> {
@@ -196,6 +252,8 @@ export function nullable<A>(self: Schema<A>): Schema<A | null> {
 }
 
 /**
+ * Create a schema for a specific unique symbol.
+ *
  * @tsplus static fncts.schema.SchemaOps uniqueSymbol
  */
 export function uniqueSymbol<S extends symbol>(symbol: S, annotations?: ASTAnnotationMap): Schema<S> {
@@ -203,6 +261,8 @@ export function uniqueSymbol<S extends symbol>(symbol: S, annotations?: ASTAnnot
 }
 
 /**
+ * Mark a schema as optional in a struct context.
+ *
  * @tsplus getter fncts.schema.Schema optional
  */
 export function optional<A>(self: Schema<A>): OptionalSchema<A> {
@@ -212,6 +272,8 @@ export function optional<A>(self: Schema<A>): OptionalSchema<A> {
 }
 
 /**
+ * Check whether a schema is marked optional.
+ *
  * @tsplus fluent fncts.schema.Schema isOptional
  */
 export function isOptional<A>(self: Schema<A>): self is OptionalSchema<A> {
@@ -221,6 +283,8 @@ export function isOptional<A>(self: Schema<A>): self is OptionalSchema<A> {
 export type OptionalSchemaKeys<T> = { [K in keyof T]: T[K] extends OptionalSchema<any> ? K : never }[keyof T];
 
 /**
+ * Mark a schema as optional during parsing, producing Maybe.
+ *
  * @tsplus getter fncts.schema.Schema parseOptional
  */
 export function parseOptional<A>(self: Schema<A>): Schema<Maybe<A>> {
@@ -230,6 +294,8 @@ export function parseOptional<A>(self: Schema<A>): Schema<Maybe<A>> {
 }
 
 /**
+ * Check whether a schema is marked parse-optional.
+ *
  * @tsplus fluent fncts.schema.Schema isParseOptional
  */
 export function isParseOptional<A>(self: Schema<A>): boolean {
@@ -243,6 +309,8 @@ export type Spread<A> = {
   : never;
 
 /**
+ * Create a schema for an object with fixed property schemas.
+ *
  * @tsplus static fncts.schema.SchemaOps struct
  */
 export function struct<Fields extends Record<PropertyKey, Schema<any>>>(
@@ -324,6 +392,8 @@ export function struct<Fields extends Record<PropertyKey, Schema<any>>>(
 }
 
 /**
+ * Create a schema for a fixed-length tuple of element schemas.
+ *
  * @tsplus static fncts.schema.SchemaOps tuple
  */
 export function tuple<Elements extends ReadonlyArray<Schema<any>>>(
@@ -335,6 +405,8 @@ export function tuple<Elements extends ReadonlyArray<Schema<any>>>(
 }
 
 /**
+ * Create a lazily evaluated schema for recursive types.
+ *
  * @tsplus static fncts.schema.SchemaOps lazy
  */
 export function lazy<A>(f: () => Schema<A>, annotations?: ASTAnnotationMap): Schema<A> {
@@ -342,7 +414,10 @@ export function lazy<A>(f: () => Schema<A>, annotations?: ASTAnnotationMap): Sch
 }
 
 /**
+ * Create a schema for a readonly array of items.
+ *
  * @tsplus static fncts.schema.SchemaOps array
+ *
  * @tsplus getter fncts.schema.Schema array
  */
 export function array<A>(item: Schema<A>): Schema<ReadonlyArray<A>> {
@@ -350,7 +425,10 @@ export function array<A>(item: Schema<A>): Schema<ReadonlyArray<A>> {
 }
 
 /**
+ * Create a schema for a mutable array of items.
+ *
  * @tsplus static fncts.schema.SchemaOps mutableArray
+ *
  * @tsplus getter fncts.schema.Schema mutableArray
  */
 export function mutableArray<A>(item: Schema<A>): Schema<Array<A>> {
@@ -358,6 +436,8 @@ export function mutableArray<A>(item: Schema<A>): Schema<Array<A>> {
 }
 
 /**
+ * Create a schema for a record with uniform key and value types.
+ *
  * @tsplus static fncts.schema.SchemaOps record
  */
 export function record<K extends string | symbol, V>(
@@ -368,6 +448,8 @@ export function record<K extends string | symbol, V>(
 }
 
 /**
+ * Create a schema from a TypeScript enum.
+ *
  * @tsplus static fncts.schema.SchemaOps enum
  */
 export function enum_<A extends { [x: string]: string | number }>(enums: A): Schema<A[keyof A]> {
@@ -436,6 +518,8 @@ function combineTemplateLiterals(
 }
 
 /**
+ * Create a schema from a template literal of schema parts.
+ *
  * @tsplus static fncts.schema.SchemaOps templateLiteral
  */
 export function templateLiteral<T extends [Schema<any>, ...Array<Schema<any>>]>(
@@ -449,7 +533,10 @@ export function templateLiteral<T extends [Schema<any>, ...Array<Schema<any>>]>(
 }
 
 /**
+ * Create a schema matching the keys of the given schema.
+ *
  * @tsplus static fncts.schema.SchemaOps keyof
+ *
  * @tsplus getter fncts.schema.Schema keyof
  */
 export function keyof<A>(self: Schema<A>): Schema<keyof A> {
@@ -471,6 +558,8 @@ function isOverlappingIndexSignatures(x: TypeLiteral, y: TypeLiteral): boolean {
 }
 
 /**
+ * Merge two struct schemas into a combined schema.
+ *
  * @tsplus pipeable fncts.schema.Schema extend
  */
 export function extend<B>(that: Schema<B>) {
@@ -502,6 +591,8 @@ export function extend<B>(that: Schema<B>) {
 }
 
 /**
+ * Narrow a schema to instances of a constructor.
+ *
  * @tsplus pipeable fncts.schema.Schema instanceOf
  */
 export function instanceOf<A extends abstract new (...args: any) => any>(constructor: A) {
@@ -513,6 +604,8 @@ export function instanceOf<A extends abstract new (...args: any) => any>(constru
 }
 
 /**
+ * Transform between schemas with fallible decode/encode.
+ *
  * @tsplus pipeable fncts.schema.Schema transformOrFail
  */
 export function transformOrFail<A, B>(
@@ -526,6 +619,8 @@ export function transformOrFail<A, B>(
 }
 
 /**
+ * Transform between schemas with total decode/encode.
+ *
  * @tsplus pipeable fncts.schema.Schema transform
  */
 export function transform<A, B>(
@@ -543,6 +638,8 @@ export function transform<A, B>(
 }
 
 /**
+ * Select a subset of properties from a struct schema.
+ *
  * @tsplus pipeable fncts.schema.Schema pick
  */
 export function pick<A, Keys extends ReadonlyArray<keyof A>>(...keys: Keys) {
@@ -552,6 +649,8 @@ export function pick<A, Keys extends ReadonlyArray<keyof A>>(...keys: Keys) {
 }
 
 /**
+ * Remove properties from a struct schema.
+ *
  * @tsplus pipeable fncts.schema.Schema omit
  */
 export function omit<A, Keys extends ReadonlyArray<keyof A>>(...keys: Keys) {

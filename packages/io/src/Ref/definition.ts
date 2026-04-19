@@ -8,6 +8,7 @@ export const RefTypeId = Symbol.for("fncts.io.Ref");
 export type RefTypeId = typeof RefTypeId;
 
 /**
+ *
  * @tsplus type fncts.io.Ref
  */
 export interface PRef<RA, RB, EA, EB, A, B> {
@@ -39,6 +40,7 @@ export declare namespace Ref {
 }
 
 /**
+ *
  * @tsplus type fncts.io.RefOps
  */
 export interface RefOps {}
@@ -165,6 +167,8 @@ export abstract class RefInternal<RA, RB, EA, EB, A, B>
 }
 
 /**
+ * Assert that a `PRef` is backed by `RefInternal`.
+ *
  * @tsplus macro remove
  */
 export function concrete<RA, RB, EA, EB, A, B>(

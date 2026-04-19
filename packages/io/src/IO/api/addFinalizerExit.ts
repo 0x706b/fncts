@@ -1,4 +1,6 @@
 /**
+ * Adds a finalizer to the current scope that receives the exit value when the scope closes.
+ *
  * @tsplus static fncts.io.IOOps addFinalizerExit
  */
 export function addFinalizerExit<R>(

@@ -1,6 +1,8 @@
 import type { EitherJson } from "@fncts/base/json/EitherJson";
 
 /**
+ * Create a schema for an Either with separate left/right schemas.
+ *
  * @tsplus static fncts.schema.SchemaOps either
  */
 export function either<E, A>(left: Schema<E>, right: Schema<A>): Schema<Either<E, A>> {
@@ -24,6 +26,8 @@ function eitherJson<E, A>(left: Schema<E>, right: Schema<A>): Schema<EitherJson<
 }
 
 /**
+ * Create an Either schema with a JSON-friendly representation.
+ *
  * @tsplus static fncts.schema.SchemaOps eitherFromJson
  */
 export function eitherFromJson<E, A>(left: Schema<E>, right: Schema<A>): Schema<Either<E, A>> {
@@ -54,6 +58,8 @@ export function eitherFromJson<E, A>(left: Schema<E>, right: Schema<A>): Schema<
 }
 
 /**
+ * Derive an Either schema from an Either type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.Either]<_> 10
  */
 export function deriveEither<A extends Either<any, any>>(

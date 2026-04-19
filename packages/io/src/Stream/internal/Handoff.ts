@@ -3,7 +3,9 @@ import type { SinkEndReason } from "./SinkEndReason.js";
 import { tuple } from "@fncts/base/data/function";
 
 /**
+ *
  * @tsplus type fncts.io.Stream.Handoff
+ *
  * @tsplus companion fncts.io.Stream.HandoffOps
  */
 export class Handoff<A> {
@@ -36,6 +38,8 @@ export class Full<A> {
 export type State<A> = Empty | Full<A>;
 
 /**
+ * Create a new `Handoff` for passing values between stream producers and consumers.
+ *
  * @tsplus static fncts.io.Stream.HandoffOps __call
  */
 export function make<A>(): UIO<Handoff<A>> {
@@ -45,6 +49,8 @@ export function make<A>(): UIO<Handoff<A>> {
 }
 
 /**
+ * Send a value through the handoff, suspending if the channel is full.
+ *
  * @tsplus pipeable fncts.io.Stream.Handoff offer
  */
 export function offer<A>(a: A) {
@@ -64,6 +70,8 @@ export function offer<A>(a: A) {
 }
 
 /**
+ * Receive a value from the handoff, suspending if empty.
+ *
  * @tsplus getter fncts.io.Stream.Handoff take
  */
 export function take<A>(handoff: Handoff<A>): UIO<A> {
@@ -81,6 +89,8 @@ export function take<A>(handoff: Handoff<A>): UIO<A> {
 }
 
 /**
+ * Non-blocking attempt to receive a value from the handoff.
+ *
  * @tsplus getter fncts.io.Stream.Handoff poll
  */
 export function poll<A>(handoff: Handoff<A>): UIO<Maybe<A>> {
@@ -128,17 +138,21 @@ export class End {
 }
 
 /**
+ *
  * @tsplus type fncts.io.Stream.HandoffSignal
  */
 export type HandoffSignal<E, A> = Emit<A> | Halt<E> | End;
 
 /**
+ *
  * @tsplus type fncts.io.Stream.HandoffSignalOps
  */
 export interface HandoffSignalOps {}
 export const HandoffSignal: HandoffSignalOps = {};
 
 /**
+ * Create a signal that emits a chunk of values.
+ *
  * @tsplus static fncts.io.Stream.HandoffSignalOps Emit
  */
 export function emit<A>(els: Conc<A>): HandoffSignal<never, A> {
@@ -146,6 +160,8 @@ export function emit<A>(els: Conc<A>): HandoffSignal<never, A> {
 }
 
 /**
+ * Create a signal that halts the stream with an error cause.
+ *
  * @tsplus static fncts.io.Stream.HandoffSignalOps Halt
  */
 export function halt<E>(error: Cause<E>): HandoffSignal<E, never> {
@@ -153,6 +169,8 @@ export function halt<E>(error: Cause<E>): HandoffSignal<E, never> {
 }
 
 /**
+ * Create a signal that ends the stream with a reason.
+ *
  * @tsplus static fncts.io.Stream.HandoffSignalOps End
  */
 export function end(reason: SinkEndReason): HandoffSignal<never, never> {
@@ -160,6 +178,8 @@ export function end(reason: SinkEndReason): HandoffSignal<never, never> {
 }
 
 /**
+ * Fold over a `HandoffSignal` with case handlers.
+ *
  * @tsplus pipeable fncts.io.Stream.HandoffSignal match
  */
 export function matchSignal<E, A, B, D, F>(cases: {

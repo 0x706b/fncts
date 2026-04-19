@@ -8,7 +8,10 @@ export const TypeId = Symbol.for("fncts.SortedMap");
 export type TypeId = typeof TypeId;
 
 /**
+ * Immutable ordered map backed by a red-black tree.
+ *
  * @tsplus type fncts.SortedMap
+ *
  * @tsplus companion fncts.SortedMapOps
  */
 export class SortedMap<K, V> implements SortedMapIterable<K, V> {

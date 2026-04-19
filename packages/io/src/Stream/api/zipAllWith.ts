@@ -3,6 +3,8 @@ import { tuple } from "@fncts/base/data/function";
 import { zipChunks } from "../internal/util.js";
 
 /**
+ * Merge two streams, applying a function to handle left-only, right-only, and paired elements.
+ *
  * @tsplus pipeable fncts.io.Stream zipAllWith
  */
 export function zipAllWith<A, R1, E1, B, C, D, F>(
@@ -41,6 +43,9 @@ class PullRight<A> {
 
 type State<A, B> = DrainLeft | DrainRight | PullBoth | PullLeft<B> | PullRight<A>;
 
+/**
+ * Advance the zip state by pulling from both channels according to the current state.
+ */
 function pull<R, E, A, R1, E1, B, C, D, F>(
   state: State<A, B>,
   pullLeft: IO<R, Maybe<E>, Conc<A>>,
@@ -125,6 +130,9 @@ function pull<R, E, A, R1, E1, B, C, D, F>(
   }
 }
 
+/**
+ * Zip two chunks together and return the output chunk along with the remaining state.
+ */
 function zipWithChunks<A, B, C>(
   leftChunk: Conc<A>,
   rightChunk: Conc<B>,

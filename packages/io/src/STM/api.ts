@@ -44,7 +44,9 @@ export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>, __tsplusTrace?
 }
 
 /**
- * @tsplus static fncts.io.STMOps Effect
+ * Creates an STM effect from a raw function.
+ *
+ * @tsplus static fncts.io.STMOps makeEffect
  */
 export function makeEffect<R, E, A>(
   f: (journal: Journal, fiberId: FiberId, r: Environment<R>) => A,
@@ -216,6 +218,8 @@ export function check(predicate: () => boolean, __tsplusTrace?: string): STM<nev
 /**
  * Commits this transaction atomically, regardless of whether the transaction
  * is a success or a failure.
+ *
+ * @tsplus getter fncts.io.STM commitEither
  */
 export function commitEither<R, E, A>(stm: STM<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
   return stm.either.commit.absolve;
@@ -443,6 +447,8 @@ export function fromEitherNow<E, A>(e: Either<E, A>, __tsplusTrace?: string): ST
 
 /**
  * Unwraps the optional success of this effect, but can fail with an None value.
+ *
+ * @tsplus getter fncts.io.STM get
  */
 export function get<R, E, A>(stm: STM<R, E, Maybe<A>>, __tsplusTrace?: string): STM<R, Maybe<E>, A> {
   return stm.matchSTM(
@@ -507,7 +513,7 @@ export function head<R, E, A>(stm: STM<R, E, Iterable<A>>, __tsplusTrace?: strin
   return stm.matchSTM(
     (e) => STM.failNow(Just(e)),
     (ia) => {
-      const it   = ia[Symbol.iterator]();
+      const it = ia[Symbol.iterator]();
       const next = it.next();
       return next.done ? STM.failNow(Nothing()) : STM.succeedNow(next.value);
     },
@@ -695,7 +701,10 @@ export function zipWith<A, R1, E1, B, C>(that: STM<R1, E1, B>, f: (a: A, b: B) =
 }
 
 /**
+ * Sequentially zips this value with the specified one, discarding the right value.
+ *
  * @tsplus pipeable fncts.io.STM zipLeft
+ *
  * @tsplus opipeable-operator fncts.io.STM <
  */
 export function zipLeft<R1, E1, B>(that: STM<R1, E1, B>, __tsplusTrace?: string) {
@@ -705,7 +714,10 @@ export function zipLeft<R1, E1, B>(that: STM<R1, E1, B>, __tsplusTrace?: string)
 }
 
 /**
+ * Sequentially zips this value with the specified one, discarding the left value.
+ *
  * @tsplus pipeable fncts.io.STM zipRight
+ *
  * @tsplus pipeable-operator fncts.io.STM >
  */
 export function zipRight<R1, E1, B>(that: STM<R1, E1, B>, __tsplusTrace?: string) {

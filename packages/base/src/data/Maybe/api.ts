@@ -5,6 +5,8 @@ import { identity } from "../function.js";
 import { MaybeTag } from "./definition.js";
 
 /**
+ * Applies a function inside a `Maybe` to a value inside another `Maybe`.
+ *
  * @tsplus pipeable fncts.Maybe ap
  */
 export function ap<A>(fa: Maybe<A>) {
@@ -16,6 +18,8 @@ export function ap<A>(fa: Maybe<A>) {
 }
 
 /**
+ * Returns true if this `Maybe` contains the specified value.
+ *
  * @tsplus pipeable fncts.Maybe elem
  */
 export function elem<A>(elem: A, /** @tsplus auto */ E: Eq<A>) {
@@ -26,6 +30,8 @@ export function elem<A>(elem: A, /** @tsplus auto */ E: Eq<A>) {
 }
 
 /**
+ * Keeps the value only if it satisfies the predicate.
+ *
  * @tsplus pipeable fncts.Maybe filter
  */
 export function filter<A>(p: Predicate<A>): (self: Maybe<A>) => Maybe<A>;
@@ -37,6 +43,8 @@ export function filter<A>(p: Predicate<A>) {
   };
 }
 /**
+ * Maps and filters a value with a `Maybe`-returning function.
+ *
  * @tsplus pipeable fncts.Maybe filter
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
@@ -58,6 +66,8 @@ export function flatMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * Flattens a nested `Maybe`.
+ *
  * @tsplus getter fncts.Maybe flatten
  */
 export function flatten<A>(self: Maybe<Maybe<A>>): Maybe<A> {
@@ -65,6 +75,8 @@ export function flatten<A>(self: Maybe<Maybe<A>>): Maybe<A> {
 }
 
 /**
+ * Folds over the value from the left with an initial accumulator.
+ *
  * @tsplus pipeable fncts.Maybe foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -75,6 +87,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Maps the value to a monoid or returns the monoid identity for `Nothing`.
+ *
  * @tsplus pipeable fncts.Maybe foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>) {
@@ -84,6 +98,8 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>) 
   };
 }
 /**
+ * Folds over the value from the right with an initial accumulator.
+ *
  * @tsplus pipeable fncts.Maybe foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
@@ -105,6 +121,8 @@ export function getOrElse<B>(orElse: Lazy<B>) {
 }
 
 /**
+ * Returns the contained value or throws if this is `Nothing`.
+ *
  * @tsplus getter fncts.Maybe getOrThrow
  */
 export function getOrThrow<A>(self: Maybe<A>): A {
@@ -141,6 +159,8 @@ export function mapNullable<A, B>(f: (a: A) => Nullable<B>) {
 }
 
 /**
+ * Returns the fallback `Maybe` when this value is `Nothing`.
+ *
  * @tsplus pipeable fncts.Maybe orElse
  */
 export function orElse<B>(fb: Lazy<Maybe<B>>) {
@@ -150,6 +170,8 @@ export function orElse<B>(fb: Lazy<Maybe<B>>) {
   };
 }
 /**
+ * Partitions a `Maybe` value based on a predicate.
+ *
  * @tsplus pipeable fncts.Maybe partition
  */
 export function partition<A>(p: Predicate<A>): (self: Maybe<A>) => readonly [Maybe<A>, Maybe<A>];
@@ -162,6 +184,8 @@ export function partition<A>(p: Predicate<A>) {
 }
 
 /**
+ * Partitions a `Maybe` value by mapping it to an `Either`.
+ *
  * @tsplus pipeable fncts.Maybe partitionMap
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
@@ -179,6 +203,8 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 }
 
 /**
+ * Returns true if this is `Just` and the predicate holds.
+ *
  * @tsplus pipeable fncts.Maybe some
  */
 export function some<A>(p: Predicate<A>) {
@@ -198,6 +224,8 @@ export function toUndefined<A>(self: Maybe<A>): A | undefined {
 }
 
 /**
+ * Combines two `Maybe` values into a tuple when both are `Just`.
+ *
  * @tsplus pipeable fncts.Maybe zip
  */
 export function zip<B>(that: Maybe<B>) {
@@ -207,6 +235,8 @@ export function zip<B>(that: Maybe<B>) {
 }
 
 /**
+ * Combines two `Maybe` values with a function when both are `Just`.
+ *
  * @tsplus pipeable fncts.Maybe zipWith
  */
 export function zipWith<A, B, C>(fb: Maybe<B>, f: (a: A, b: B) => C) {

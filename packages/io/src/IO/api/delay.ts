@@ -1,4 +1,6 @@
 /**
+ * Delays the execution of this effect by the specified duration.
+ *
  * @tsplus pipeable fncts.io.IO delay
  */
 export function delay(duration: Lazy<Duration>) {

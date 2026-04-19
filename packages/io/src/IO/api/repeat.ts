@@ -1,4 +1,6 @@
 /**
+ * Repeats this effect according to the specified schedule.
+ *
  * @tsplus getter fncts.io.IO repeat
  */
 export function repeat<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
@@ -7,6 +9,8 @@ export function repeat<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
 }
 
 /**
+ * Repeats this effect according to the schedule, with a fallback on failure.
+ *
  * @tsplus getter fncts.io.IO repeatOrElse
  */
 export function repeatOrElse<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {
@@ -18,6 +22,8 @@ export function repeatOrElse<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string)
 }
 
 /**
+ * Repeats this effect according to the schedule, returning either the fallback or schedule output.
+ *
  * @tsplus getter fncts.io.IO repeatOrElseEither
  */
 export function repeatOrElseEither<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string) {

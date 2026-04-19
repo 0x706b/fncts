@@ -1,4 +1,6 @@
 /**
+ * Returns an empty array.
+ *
  * @tsplus static fncts.ArrayOps empty
  */
 export function empty<A = never>(): ReadonlyArray<A> {
@@ -6,6 +8,8 @@ export function empty<A = never>(): ReadonlyArray<A> {
 }
 
 /**
+ * Builds an array of length `n` by mapping each index.
+ *
  * @tsplus static fncts.ArrayOps makeBy
  */
 export function makeBy<A>(n: number, f: (i: number) => A): ReadonlyArray<A> {
@@ -18,6 +22,8 @@ export function makeBy<A>(n: number, f: (i: number) => A): ReadonlyArray<A> {
 }
 
 /**
+ * Builds an inclusive range from `start` to `end`.
+ *
  * @tsplus static fncts.ArrayOps range
  */
 export function range(start: number, end: number): ReadonlyArray<number> {
@@ -25,6 +31,8 @@ export function range(start: number, end: number): ReadonlyArray<number> {
 }
 
 /**
+ * Builds an array of length `n` filled with `a`.
+ *
  * @tsplus static fncts.ArrayOps replicate
  */
 export function replicate<A>(n: number, a: A): ReadonlyArray<A> {
@@ -32,14 +40,19 @@ export function replicate<A>(n: number, a: A): ReadonlyArray<A> {
 }
 
 /**
- * tsplus static fncts.ArrayOps __call
+ * Builds an array from the provided values.
+ *
+ * @tsplus static fncts.ArrayOps __call
  */
 export function make<A>(...values: ReadonlyArray<A>): ReadonlyArray<A> {
   return values;
 }
 
 /**
+ * Treats a mutable array as readonly without copying.
+ *
  * @tsplus getter fncts.Array asReadonlyArray
+ *
  * @tsplus macro identity
  */
 export function asReadonlyArray<A>(self: Array<A>): ReadonlyArray<A> {

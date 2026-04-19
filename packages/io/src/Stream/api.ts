@@ -232,6 +232,8 @@ export function as<B>(b: Lazy<B>, __tsplusTrace?: string) {
 }
 
 /**
+ * Create a stream from an async callback that can be called multiple times.
+ *
  * @tsplus static fncts.io.StreamOps async
  */
 export function async<R, E, A>(
@@ -246,6 +248,8 @@ export function async<R, E, A>(
 }
 
 /**
+ * Create an async stream that can be interrupted by a canceler.
+ *
  * @tsplus static fncts.io.StreamOps asyncInterrupt
  */
 export function asyncInterrupt<R, E, A>(
@@ -290,6 +294,8 @@ export function asyncInterrupt<R, E, A>(
 }
 
 /**
+ * Create a stream from an async callback that performs an effect during registration.
+ *
  * @tsplus static fncts.io.StreamOps asyncIO
  */
 export function asyncIO<R, E, A, R1 = R, E1 = E>(
@@ -453,6 +459,8 @@ export function buffer(capacity: number, __tsplusTrace?: string) {
 }
 
 /**
+ * Buffer chunks into a queue, allowing the producer to run independently of the consumer.
+ *
  * @tsplus pipeable fncts.io.Stream bufferChunks
  */
 export function bufferChunks(capacity: number, __tsplusTrace?: string) {
@@ -878,6 +886,8 @@ export function crossWith<A, R1, E1, B, C>(fb: Stream<R1, E1, B>, f: (a: A, b: B
 }
 
 /**
+ * Delay the emission of elements by the specified duration, emitting only the most recent value.
+ *
  * @tsplus pipeable fncts.io.Stream debounce
  */
 export function debounce(duration: Lazy<Duration>, __tsplusTrace?: string) {
@@ -976,6 +986,8 @@ function defaultIfEmptyWriter<R, E, A, R1, E1, B>(
 }
 
 /**
+ * Lazily defer creation of a stream until it is consumed.
+ *
  * @tsplus static fncts.io.StreamOps defer
  */
 export function defer<R, E, A>(self: Lazy<Stream<R, E, A>>): Stream<R, E, A> {
@@ -1229,6 +1241,8 @@ export function zipRight<R1, E1, A1>(that: Stream<R1, E1, A1>, __tsplusTrace?: s
 }
 
 /**
+ * A stream that emits no elements.
+ *
  * @tsplus static fncts.io.StreamOps empty
  */
 export const empty: Stream<never, never, never> = Stream.fromChunkNow(Conc.empty<never>());
@@ -1272,6 +1286,8 @@ function endWhenWriter<E, A, E1>(
 }
 
 /**
+ * Run the finalizer when the stream ends, regardless of success or failure.
+ *
  * @tsplus pipeable fncts.io.Stream ensuring
  */
 export function ensuring<R1>(finalizer: IO<R1, never, any>, __tsplusTrace?: string) {
@@ -1281,6 +1297,8 @@ export function ensuring<R1>(finalizer: IO<R1, never, any>, __tsplusTrace?: stri
 }
 
 /**
+ * Create a stream that emits the environment as a single value.
+ *
  * @tsplus static fncts.io.StreamOps environment
  */
 export function environment<R>(__tsplusTrace?: string): Stream<R, never, Environment<R>> {
@@ -1364,6 +1382,8 @@ export function failNow<E>(error: E, __tsplusTrace?: string): Stream<never, E, n
   return new Stream(Channel.failNow(error));
 }
 /**
+ * Keep only elements that satisfy a predicate.
+ *
  * @tsplus pipeable fncts.io.Stream filter
  */
 export function filter<A, B extends A>(refinement: Refinement<A, B>): <R, E>(fa: Stream<R, E, A>) => Stream<R, E, B>;
@@ -1375,6 +1395,8 @@ export function filter<A>(predicate: Predicate<A>, __tsplusTrace?: string) {
 }
 
 /**
+ * Keep only elements that satisfy an effectful predicate.
+ *
  * @tsplus pipeable fncts.io.Stream filterIO
  */
 export function filterIO<A, R1, E1>(f: (a: A) => IO<R1, E1, boolean>, __tsplusTrace?: string) {
@@ -1407,6 +1429,8 @@ function filterIOLoop<R, E, A, R1, E1>(
 }
 
 /**
+ * Map elements and discard `Nothing` results.
+ *
  * @tsplus pipeable fncts.io.Stream filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>, __tsplusTrace?: string) {
@@ -1416,6 +1440,8 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>, __tsplusTrace?: string) {
 }
 
 /**
+ * Map elements effectfully and discard `Nothing` results.
+ *
  * @tsplus pipeable fncts.io.Stream filterMapIO
  */
 export function filterMapIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, Maybe<B>>, __tsplusTrace?: string) {
@@ -1573,6 +1599,8 @@ export function forever<R, E, A>(stream: Stream<R, E, A>, __tsplusTrace?: string
 }
 
 /**
+ * Create a stream from an async iterable.
+ *
  * @tsplus static fncts.io.StreamOps fromAsyncIterable
  */
 export function fromAsyncIterable<A>(iterable: AsyncIterable<A>, __tsplusTrace?: string): Stream<unknown, never, A> {
@@ -1615,6 +1643,7 @@ export function fromChunkNow<O>(c: Conc<O>, __tsplusTrace?: string): Stream<neve
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps fromHub
  */
 export function fromHub<A>(
@@ -1626,6 +1655,7 @@ export function fromHub<A>(
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps fromHubScoped
  */
 export function fromHubScoped<A>(
@@ -1662,6 +1692,7 @@ export function fromIOMaybe<R, E, A>(fa: IO<R, Maybe<E>, A>, __tsplusTrace?: str
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps fromIterable
  */
 export function fromIterable<A>(
@@ -1698,6 +1729,7 @@ export function fromIterable<A>(
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps fromIterableSingle
  */
 export function fromIterableSingle<A>(iterable: Iterable<A>, __tsplusTrace?: string): Stream<unknown, never, A> {
@@ -1716,6 +1748,7 @@ export function fromIterableSingle<A>(iterable: Iterable<A>, __tsplusTrace?: str
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps fromPull
  */
 export function fromPull<R, E, A>(
@@ -1756,6 +1789,7 @@ export function fromQueue<RA, RB, EA, EB, A, B>(
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps fromQueueWithShutdown
  */
 export function fromQueueWithShutdown<RA, RB, EA, EB, A, B>(
@@ -1767,6 +1801,7 @@ export function fromQueueWithShutdown<RA, RB, EA, EB, A, B>(
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps fromReadableStream
  */
 export function fromReadableStream<A, E>(
@@ -1874,6 +1909,7 @@ function haltWhenWriter<E, A, E1>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream interleave
  */
 export function interleave<R1, E1, B>(sb: Stream<R1, E1, B>, __tsplusTrace?: string) {
@@ -1967,6 +2003,7 @@ export function interruptWhen<R1, E1>(io: IO<R1, E1, any>, __tsplusTrace?: strin
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream interruptWhen
  */
 export function interruptWhenFuture<E1>(future: Future<E1, unknown>, __tsplusTrace?: string) {
@@ -2213,6 +2250,7 @@ export function mapIOConcurrently<A, R1, E1, B>(n: number, f: (a: A) => IO<R1, E
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream mapIOConcurrentlyUnordered
  */
 export function mapIOConcurrentlyUnordered<A, R1, E1, B>(n: number, f: (a: A) => IO<R1, E1, B>) {
@@ -2263,6 +2301,7 @@ export function merge<R1, E1, B>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream mergeEither
  */
 export function mergeEither<R1, E1, B>(fb: Stream<R1, E1, B>, __tsplusTrace?: string) {
@@ -2369,6 +2408,7 @@ export function mergeRight<R1, E1, B>(that: Stream<R1, E1, B>, __tsplusTrace?: s
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream mergeWith
  */
 export function mergeWith<A, R1, E1, A1, B, C>(
@@ -2481,6 +2521,7 @@ export function orElseSucceed<A1>(a: Lazy<A1>, __tsplusTrace?: string) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream pipeThrough
  */
 export function pipeThrough<A, R1, E1, L, Z>(sa: Sink<R1, E1, A, L, Z>, __tsplusTrace?: string) {
@@ -2490,6 +2531,7 @@ export function pipeThrough<A, R1, E1, L, Z>(sa: Sink<R1, E1, A, L, Z>, __tsplus
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream pipeThroughChannelOrFail
  */
 export function pipeThroughChannelOrFail<A, R1, E1, B>(channel: Channel<R1, never, Conc<A>, any, E1, Conc<B>, any>) {
@@ -2511,6 +2553,7 @@ export function provideEnvironment<R>(r: Environment<R>, __tsplusTrace?: string)
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream provideLayer
  */
 export function provideLayer<RIn, ROut, E1>(layer: Layer<RIn, E1, ROut>, __tsplusTrace?: string) {
@@ -2520,6 +2563,7 @@ export function provideLayer<RIn, ROut, E1>(layer: Layer<RIn, E1, ROut>, __tsplu
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream provideSomeLayer
  */
 export function provideSomeLayer<RIn, E1, ROut>(layer: Layer<RIn, E1, ROut>, __tsplusTrace?: string) {
@@ -2681,6 +2725,7 @@ export function runDrain<R, E, A>(stream: Stream<R, E, A>, __tsplusTrace?: strin
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream runForeachScoped
  */
 export function runForeachScoped<A, R2, E2>(f: (a: A) => IO<R2, E2, any>, __tsplusTrace?: string) {
@@ -2904,6 +2949,7 @@ export function sliding(chunkSize: number, stepSize: number, __tsplusTrace?: str
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream split
  */
 export function split<A>(predicate: Predicate<A>, __tsplusTrace?: string) {
@@ -3001,6 +3047,7 @@ export function takeUntil<A>(p: Predicate<A>, __tsplusTrace?: string) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream takeUntilIO
  */
 export function takeUntilIO<A, R1, E1>(f: (a: A) => IO<R1, E1, boolean>, __tsplusTrace?: string) {
@@ -3052,6 +3099,7 @@ function takeUntilLoop<R, E, A>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream tap
  */
 export function tap<A, R1, E1>(f: (a: A) => IO<R1, E1, any>, __tsplusTrace?: string) {
@@ -3247,6 +3295,7 @@ export function toQueue(capacity = 2, __tsplusTrace?: string) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream toQueueDropping
  */
 export function toQueueDropping(capacity = 2, __tsplusTrace?: string) {
@@ -3260,6 +3309,7 @@ export function toQueueDropping(capacity = 2, __tsplusTrace?: string) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream toQueueOfElements
  */
 export function toQueueOfElements(capacity = 2, __tsplusTrace?: string) {
@@ -3273,6 +3323,7 @@ export function toQueueOfElements(capacity = 2, __tsplusTrace?: string) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.io.Stream toQueueSliding
  */
 export function toQueueSliding(capacity = 2, __tsplusTrace?: string) {
@@ -3303,6 +3354,7 @@ export function toQueueUnbounded<R, E, A>(
 }
 
 /**
+ *
  * @tsplus getter fncts.io.Stream toReadableStream
  */
 export function toReadableStream<E, A>(self: Stream<never, E, A>, __tsplusTrace?: string): ReadableStream<A> {
@@ -3338,6 +3390,7 @@ export function toReadableStream<E, A>(self: Stream<never, E, A>, __tsplusTrace?
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps unfold
  */
 export function unfold<S, A>(
@@ -3349,6 +3402,7 @@ export function unfold<S, A>(
 }
 
 /**
+ *
  * @tsplus static fncts.io.StreamOps unfoldChunk
  */
 export function unfoldChunk<S, A>(
@@ -3436,6 +3490,7 @@ export function unwrapScoped<R0, E0, R, E, A>(
 }
 
 /**
+ *
  * @tsplus getter fncts.io.Stream zipWithIndex
  */
 export function zipWithIndex_<R, E, A>(

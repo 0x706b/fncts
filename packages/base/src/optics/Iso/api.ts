@@ -5,6 +5,8 @@ import type { PPrism } from "@fncts/base/optics/Prism";
 import { PIso } from "@fncts/base/optics/Iso/definition";
 
 /**
+ * Composes two isomorphisms into a single isomorphism.
+ *
  * @tsplus pipeable fncts.optics.PIso compose
  */
 export function compose<A, B, C, D>(that: PIso<A, B, C, D>) {
@@ -17,6 +19,8 @@ export function compose<A, B, C, D>(that: PIso<A, B, C, D>) {
 }
 
 /**
+ * Focuses a source value through an isomorphism and exposes lens and prism operations.
+ *
  * @tsplus fluent global focus
  */
 export function focus<S, T, A, B>(self: S, iso: PIso<S, T, A, B>): PIsoPartiallyApplied<T, A, B> {

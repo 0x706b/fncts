@@ -1,4 +1,6 @@
 /**
+ * Returns an effect that runs at most once, subsequent calls return immediately.
+ *
  * @tsplus getter fncts.io.IO once
  */
 export function once<R, E, A>(self: IO<R, E, A>, __tsplusTrace?: string): UIO<IO<R, E, void>> {

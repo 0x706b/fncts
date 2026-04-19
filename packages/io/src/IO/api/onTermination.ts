@@ -1,4 +1,6 @@
 /**
+ * Runs a cleanup effect when this effect terminates (defect or interruption, not failure).
+ *
  * @tsplus pipeable fncts.io.IO onTermination
  */
 export function onTermination<R1>(cleanup: (cause: Cause<never>) => URIO<R1, any>, __tsplusTrace?: string) {

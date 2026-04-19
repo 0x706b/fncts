@@ -4,6 +4,8 @@ import { These } from "../../These.js";
 import { EitherTag, Right } from "../definition.js";
 
 /**
+ * Aligns two `Either` values and maps the resulting `These`.
+ *
  * @tsplus pipeable fncts.Either alignWith
  */
 export function alignWith<A, E2, B, C>(fb: Either<E2, B>, f: (_: These<A, B>) => C) {

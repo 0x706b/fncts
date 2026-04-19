@@ -31,6 +31,8 @@ function renderCause<E>(cause: Cause<E>): string {
 }
 
 /**
+ * Renders a human-readable string representation of this `Cause`.
+ *
  * @tsplus getter fncts.Cause prettyPrint
  */
 export function prettyPrint<E>(self: Cause<E>): string {

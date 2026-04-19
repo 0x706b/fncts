@@ -1,4 +1,6 @@
 /**
+ * Attaches a finalizer that receives the exit value when the scope closes.
+ *
  * @tsplus pipeable fncts.io.IO withFinalizerExit
  */
 export function withFinalizerExit<A, R1>(

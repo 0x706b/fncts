@@ -10,7 +10,10 @@ import { RenderParam } from "../../data/RenderParam.js";
 import { Assertion } from "./definition.js";
 
 /**
+ * Combines two assertions, succeeding only when both succeed.
+ *
  * @tsplus pipeable fncts.test.Assertion and
+ *
  * @tsplus pipeable-operator fncts.test.Assertion &&
  */
 export function and<A>(that: Assertion<A>) {
@@ -23,11 +26,15 @@ export function and<A>(that: Assertion<A>) {
 }
 
 /**
+ * An assertion that always succeeds.
+ *
  * @tsplus static fncts.test.AssertionOps anything
  */
 export const anything: Assertion<any> = Assertion.make("anything", [], () => true);
 
 /**
+ * Asserts that a number is within a tolerance of a reference value.
+ *
  * @tsplus static fncts.test.AssertionOps approximatelyEquals
  */
 export function approximatelyEquals(reference: number, tolerance: number): Assertion<number> {
@@ -39,6 +46,8 @@ export function approximatelyEquals(reference: number, tolerance: number): Asser
 }
 
 /**
+ * Creates an assertion with a name, parameters, and a predicate.
+ *
  * @tsplus static fncts.test.AssertionOps make
  */
 export function assertion<A>(
@@ -62,6 +71,8 @@ export function assertion<A>(
 }
 
 /**
+ * Creates an assertion that returns a `FreeBooleanAlgebra` directly.
+ *
  * @tsplus static fncts.test.AssertionOps direct
  */
 export function assertionDirect<A>(
@@ -73,6 +84,8 @@ export function assertionDirect<A>(
 }
 
 /**
+ * Creates a recursive assertion that delegates to a nested assertion.
+ *
  * @tsplus static fncts.test.AssertionOps rec
  */
 export function assertionRec<A, B>(
@@ -103,24 +116,39 @@ export function assertionRec<A, B>(
   return resultAssertion.value;
 }
 
+/**
+ * Asserts that an iterable contains a specific element.
+ */
 export function contains<A>(element: A): Assertion<Iterable<A>> {
   return Assertion.make("contains", [RenderParam(element)], (ia) =>
     ia.find((a) => Equatable.deepEquals(a, element)).isJust(),
   );
 }
 
+/**
+ * Asserts that a `Cause` contains another cause.
+ */
 export function containsCause<E>(cause: Cause<E>): Assertion<Cause<E>> {
   return Assertion.make("containsCause", [RenderParam(cause)], (c) => c.contains(cause));
 }
 
+/**
+ * Asserts that a string contains a substring.
+ */
 export function containsString(element: string): Assertion<string> {
   return Assertion.make("containsString", [RenderParam(element)], (str) => str.includes(element));
 }
 
+/**
+ * Asserts that at least one element in an iterable satisfies the given assertion.
+ */
 export function some<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
   return Assertion.rec("some", [RenderParam(assertion)], assertion, (ia) => ia.find((a) => assertion.test(a)));
 }
 
+/**
+ * Asserts that an `Exit` fails with an error matching the given assertion.
+ */
 export function fails<E>(assertion: Assertion<E>): Assertion<Exit<any, any>> {
   return Assertion.rec("fails", [RenderParam(assertion)], assertion, (exit) =>
     exit.match(
@@ -131,6 +159,8 @@ export function fails<E>(assertion: Assertion<E>): Assertion<Exit<any, any>> {
 }
 
 /**
+ * Asserts that every element in an iterable satisfies the given assertion.
+ *
  * @tsplus getter fncts.test.Assertion every
  */
 export function every<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
@@ -143,6 +173,9 @@ export function every<A>(assertion: Assertion<A>): Assertion<Iterable<A>> {
   );
 }
 
+/**
+ * Asserts that an `Exit` halts with a defect matching the given assertion.
+ */
 export function halts(assertion: Assertion<any>): Assertion<Exit<any, any>> {
   return Assertion.rec("halts", [RenderParam(assertion)], assertion, (exit) =>
     exit.match(
@@ -152,20 +185,35 @@ export function halts(assertion: Assertion<any>): Assertion<Exit<any, any>> {
   );
 }
 
+/**
+ * Asserts that a value is strictly equal to the expected value.
+ */
 export function strictEqualTo(expected: unknown): Assertion<unknown> {
   return Assertion.make("strictEqualTo", [RenderParam(expected)], (actual) => Equatable.strictEquals(actual, expected));
 }
 
+/**
+ * Asserts that a value is deeply equal to the expected value.
+ */
 export function deepEqualTo<A>(expected: A): Assertion<A> {
   return Assertion.make("deepEqualTo", [RenderParam(expected)], (actual) => Equatable.deepEquals(actual, expected));
 }
 
+/**
+ * Asserts that a value equals the expected value using a custom `Eq` instance.
+ */
 export function equals<A>(expected: A, E: Eq<A>): Assertion<A> {
   return Assertion.make("equals", [RenderParam(expected)], E.equals(expected));
 }
 
+/**
+ * Asserts that a boolean is `false`.
+ */
 export const isFalse: Assertion<boolean> = Assertion.make("isFalse", [], (b) => !b);
 
+/**
+ * Asserts that an `Exit` is interrupted.
+ */
 export const isInterrupted: Assertion<Exit<any, any>> = Assertion.make("isInterrupted", [], (exit) =>
   exit.match(
     (cause) => cause.interrupted,
@@ -173,6 +221,9 @@ export const isInterrupted: Assertion<Exit<any, any>> = Assertion.make("isInterr
   ),
 );
 
+/**
+ * Asserts that an `Exit` is interrupted and has no other causes.
+ */
 export const isOnlyInterrupted: Assertion<Exit<any, any>> = Assertion.make("isOnlyInterrupted", [], (exit) =>
   exit.match(
     (cause) => cause.isInterrupt(),
@@ -180,6 +231,9 @@ export const isOnlyInterrupted: Assertion<Exit<any, any>> = Assertion.make("isOn
   ),
 );
 
+/**
+ * Asserts that an `Either` is a `Left` matching the given assertion.
+ */
 export function isLeft<A>(assertion: Assertion<A>): Assertion<Either<A, any>> {
   return Assertion.rec("isLeft", [RenderParam(assertion)], assertion, (actual) =>
     actual.match(
@@ -189,12 +243,21 @@ export function isLeft<A>(assertion: Assertion<A>): Assertion<Either<A, any>> {
   );
 }
 
+/**
+ * Asserts that a `Maybe` is `Just` and matches the given assertion.
+ */
 export function isJust<A>(assertion: Assertion<A>): Assertion<Maybe<A>> {
   return Assertion.rec("isJust", [RenderParam(assertion)], assertion, identity);
 }
 
+/**
+ * Asserts that a `Maybe` is `Nothing`.
+ */
 export const isNothing: Assertion<Maybe<any>> = Assertion.make("isNothing", [], (actual) => actual.isNothing());
 
+/**
+ * Asserts that an `Either` is a `Right` matching the given assertion.
+ */
 export function isRight<A>(assertion: Assertion<A>): Assertion<Either<any, A>> {
   return Assertion.rec("isRight", [RenderParam(assertion)], assertion, (actual) =>
     actual.match(
@@ -204,21 +267,38 @@ export function isRight<A>(assertion: Assertion<A>): Assertion<Either<any, A>> {
   );
 }
 
+/**
+ * Asserts that a boolean is `true`.
+ */
 export const isTrue: Assertion<boolean> = Assertion.make("isTrue", [], identity);
 
+/**
+ * Asserts that an iterable is empty.
+ */
 export const isEmpty: Assertion<Iterable<any>> = Assertion.make("isEmpty", [], (actual) => actual.size === 0);
 
+/**
+ * Asserts that a value is `undefined`.
+ */
 export const isUnit: Assertion<void> = Assertion.make("isUnit", [], (actual) => actual === void 0);
 
+/**
+ * Asserts that a number is less than or equal to a given value.
+ */
 export function isLessThanOrEqualTo(n: number): Assertion<number> {
   return Assertion.make("isLessThanOrEqualTo", [RenderParam(n)], (actual) => actual <= n);
 }
 
+/**
+ * Asserts that a number is greater than or equal to a given value.
+ */
 export function isGreaterThanOrEqualTo(n: number): Assertion<number> {
   return Assertion.make("isGreaterThanOrEqualTo", [RenderParam(n)], (actual) => actual >= n);
 }
 
 /**
+ * Attaches a label to an assertion for clearer output.
+ *
  * @tsplus pipeable fncts.test.Assertion label
  */
 export function label(label: string) {
@@ -228,6 +308,8 @@ export function label(label: string) {
 }
 
 /**
+ * Negates an assertion.
+ *
  * @tsplus getter fncts.test.Assertion invert
  */
 export function not<A>(assertion: Assertion<A>): Assertion<A> {
@@ -235,7 +317,10 @@ export function not<A>(assertion: Assertion<A>): Assertion<A> {
 }
 
 /**
+ * Combines two assertions, succeeding when at least one succeeds.
+ *
  * @tsplus pipeable fncts.test.Assertion or
+ *
  * @tsplus pipeable-operator fncts.test.Assertion ||
  */
 export function or<A>(that: Assertion<A>) {
@@ -248,6 +333,8 @@ export function or<A>(that: Assertion<A>) {
 }
 
 /**
+ * Asserts that an `Exit` succeeds with a value matching the given assertion.
+ *
  * @tsplus getter fncts.test.Assertion succeeds
  */
 export function succeeds<A>(assertion: Assertion<A>): Assertion<Exit<any, A>> {
@@ -260,6 +347,8 @@ export function succeeds<A>(assertion: Assertion<A>): Assertion<Exit<any, A>> {
 }
 
 /**
+ * Tests a value against an assertion, returning `true` if it passes.
+ *
  * @tsplus pipeable fncts.test.Assertion test
  */
 export function test<A>(actual: A) {
@@ -268,8 +357,14 @@ export function test<A>(actual: A) {
   };
 }
 
+/**
+ * An assertion that can only succeed
+ */
 export const completes = Assertion.make("completes", [], () => true);
 
+/**
+ * Asserts that an iterable has a size matching the given assertion.
+ */
 export function hasSize<A>(assertion: Assertion<number>): Assertion<Iterable<A>> {
   return Assertion.rec("hasSize", [RenderParam(assertion)], assertion, (iterable) => Just(iterable.size));
 }

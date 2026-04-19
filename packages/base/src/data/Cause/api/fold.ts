@@ -20,6 +20,8 @@ class StacklessCase {
 type CauseCase = BothCase | ThenCase | StacklessCase;
 
 /**
+ * Internal stack-safe loop used to fold a `Cause`.
+ *
  * @tsplus tailRec
  */
 function foldLoop<E, Z>(

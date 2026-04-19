@@ -3,6 +3,9 @@ import type { Ordering } from "@fncts/base/typeclass";
 
 import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/node";
 
+/**
+ * Copies all structural fields from `v` into `node`.
+ */
 export function swapNode<K, V>(node: Node<K, V>, v: Node<K, V>): void {
   node.key   = v.key;
   node.value = v.value;
@@ -12,22 +15,37 @@ export function swapNode<K, V>(node: Node<K, V>, v: Node<K, V>): void {
   node.count = v.count;
 }
 
+/**
+ * Returns `true` when the node is the leaf sentinel.
+ */
 export function isEmptyNode<K, V>(node: RBNode<K, V>): node is Leaf {
   return node === null;
 }
 
+/**
+ * Recreates a node with a different color.
+ */
 function repaintNode<K, V>(n: RBNode<K, V>, c: Color): RBNode<K, V> {
   return n === Leaf ? Leaf : new Node(c, n.left, n.key, n.value, n.right, n.count);
 }
 
+/**
+ * Creates a shallow clone of a node.
+ */
 function cloneNode<K, V>(n: RBNode<K, V>): RBNode<K, V> {
   return n === Leaf ? Leaf : new Node(n.color, n.left, n.key, n.value, n.right, n.count);
 }
 
+/**
+ * Recomputes the cached subtree size for a node.
+ */
 function recountNode<K, V>(n: Node<K, V>): void {
   n.count = 1 + (n.left ? n.left.count : 0) + (n.right ? n.right.count : 0);
 }
 
+/**
+ * Rebuilds parent links and counts along an updated search path.
+ */
 export function rebuildModifiedPath<K, V>(nodeStack: Array<Node<K, V>>, orderStack: Array<Ordering>, inc = 1): void {
   for (let s = nodeStack.length - 2; s >= 0; --s) {
     const n = nodeStack[s]!;
@@ -39,6 +57,9 @@ export function rebuildModifiedPath<K, V>(nodeStack: Array<Node<K, V>>, orderSta
   }
 }
 
+/**
+ * Restores red-black invariants after inserting along `nodeStack`.
+ */
 export function balanceModifiedPath<K, V>(nodeStack: Array<Node<K, V>>): void {
   for (let s = nodeStack.length - 1; s > 1; --s) {
     const parent = nodeStack[s - 1]!;
@@ -166,6 +187,9 @@ export function balanceModifiedPath<K, V>(nodeStack: Array<Node<K, V>>): void {
   nodeStack[0]!.color = Color.B;
 }
 
+/**
+ * Fixes a double-black violation after deleting a black leaf.
+ */
 export function fixDoubleBlack<K, V>(stack: Array<Node<K, V>>): void {
   let node: Node<K, V>, parent: Node<K, V>, sibling: RBNode<K, V>, nibling: RBNode<K, V>;
   for (let i = stack.length - 1; i >= 0; --i) {

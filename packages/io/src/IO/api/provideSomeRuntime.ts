@@ -4,6 +4,8 @@ import { FiberRefsPatch } from "@fncts/io/FiberRefs";
 import { defaultRuntime } from "@fncts/io/IO";
 
 /**
+ * Provides part of the environment from a Runtime.
+ *
  * @tsplus pipeable fncts.io.IO provideSomeRuntime
  */
 export function provideSomeRuntime<R>(runtime: Runtime<R>) {

@@ -1,4 +1,6 @@
 /**
+ * Provides access to an effect that produces a collection of child fibers.
+ *
  * @tsplus static fncts.io.IOOps withChildren
  */
 export function withChildren<R, E, A>(

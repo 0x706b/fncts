@@ -15,6 +15,9 @@ export function takeBetween(min: number, max: number, __tsplusTrace?: string) {
   };
 }
 
+/**
+ * Recursively collect remaining elements until the minimum threshold is met.
+ */
 function takeRemainderLoop<RA, RB, EA, EB, A, B>(
   queue: PDequeue<RA, RB, EA, EB, A, B>,
   min: number,

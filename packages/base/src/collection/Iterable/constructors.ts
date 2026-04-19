@@ -1,6 +1,8 @@
 import { Iterable } from "@fncts/base/collection/Iterable/definition";
 
 /**
+ * Create an iterable from an iterator factory.
+ *
  * @tsplus static fncts.IterableOps make
  */
 export function makeIterable<A>(iterator: () => Iterator<A>): Iterable<A> {
@@ -10,6 +12,8 @@ export function makeIterable<A>(iterator: () => Iterator<A>): Iterable<A> {
 }
 
 /**
+ * Create an empty iterable.
+ *
  * @tsplus static fncts.IterableOps empty
  */
 export function empty<A>(): Iterable<A> {
@@ -21,6 +25,8 @@ export function empty<A>(): Iterable<A> {
 }
 
 /**
+ * Create an iterable containing exactly one element.
+ *
  * @tsplus static fncts.IterableOps single
  */
 export function single<A>(a: A): Iterable<A> {
@@ -45,6 +51,8 @@ export function single<A>(a: A): Iterable<A> {
 }
 
 /**
+ * Build an iterable of length `n` from an index-based function.
+ *
  * @tsplus static fncts.IterableOps makeBy
  */
 export function makeBy<A>(n: number, f: (i: number) => A): Iterable<A> {
@@ -66,6 +74,8 @@ export function makeBy<A>(n: number, f: (i: number) => A): Iterable<A> {
 }
 
 /**
+ * Create an inclusive numeric range from `start` to `end`.
+ *
  * @tsplus static fncts.IterableOps range
  */
 export function range(start: number, end: number): Iterable<number> {

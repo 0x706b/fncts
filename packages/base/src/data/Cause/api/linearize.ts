@@ -1,6 +1,8 @@
 import { Fail, Halt, Interrupt, Sequential, Stackless } from "../definition.js";
 
 /**
+ * Converts a `Cause` into a set of linearized failure paths.
+ *
  * @tsplus getter fncts.Cause linearize
  */
 export function linearize<E>(self: Cause<E>): HashSet<Cause<E>> {
