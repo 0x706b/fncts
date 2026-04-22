@@ -14,14 +14,14 @@
   },
   "exports": {
     "./*": {
+      "types": "./build/dts/*.d.ts",
       "import": "./build/esm/*.js",
-      "require": "./build/cjs/*.cjs",
-      "types": "./build/dts/*.d.ts"
+      "require": "./build/cjs/*.cjs"
     },
     ".": {
+      "types": "./build/dts/index.d.ts",
       "import": "./build/esm/index.js",
-      "require": "./build/cjs/index.cjs",
-      "types": "./build/dts/index.d.ts"
+      "require": "./build/cjs/index.cjs"
     }
   },
   "typesVersions": {
