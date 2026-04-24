@@ -1,3 +1,5 @@
+import type { EqualsContext } from "../Equatable.js";
+
 import { isObject } from "../../util/predicates.js";
 
 export const enum MaybeTag {
@@ -42,7 +44,7 @@ export abstract class Maybe<A> {
  * @tsplus type fncts.Just
  * @tsplus companion fncts.JustOps
  */
-export class Just<A> extends Maybe<A> {
+export class Just<A> extends Maybe<A> implements Equatable {
   readonly _tag = MaybeTag.Just;
   constructor(
     readonly value: A,
@@ -50,8 +52,8 @@ export class Just<A> extends Maybe<A> {
   ) {
     super();
   }
-  [Symbol.equals](that: unknown): boolean {
-    return isMaybe(that) && that.isJust() && Equatable.strictEquals(this.value, that.value);
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return isMaybe(that) && that.isJust() && context.comparator(this.value, that.value);
   }
   get [Symbol.hash]() {
     return Hashable.combine(_justHash, Hashable.unknown(this.value));
@@ -62,7 +64,7 @@ export class Just<A> extends Maybe<A> {
  * @tsplus type fncts.Nothing
  * @tsplus companion fncts.NothingOps
  */
-export class Nothing extends Maybe<never> {
+export class Nothing extends Maybe<never> implements Equatable {
   readonly _tag = MaybeTag.Nothing;
   constructor(readonly trace?: string) {
     super();

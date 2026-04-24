@@ -1,9 +1,10 @@
 import type { Node } from "@fncts/base/collection/immutable/Vector/internal";
+import type { EqualsContext } from "@fncts/base/data/Equatable";
 import type { ShowComputationExternal } from "@fncts/base/data/Showable";
 
 import { foldLeftCb } from "@fncts/base/collection/immutable/Vector/internal";
 import { ForwardVectorIterator } from "@fncts/base/collection/immutable/Vector/internal";
-import { _show, show, showComputationComplex } from "@fncts/base/data/Showable";
+import { _show, showComputationComplex } from "@fncts/base/data/Showable";
 
 export const VectorVariance = Symbol.for("fncts.Vector.Variance");
 export type VectorVariance = typeof VectorVariance;
@@ -25,7 +26,7 @@ export interface VectorF extends HKT {
  * @tsplus type fncts.Vector
  * @tsplus companion fncts.VectorOps
  */
-export class Vector<A> implements Iterable<A> {
+export class Vector<A> implements Iterable<A>, Equatable {
   readonly [VectorTypeId]: VectorTypeId = VectorTypeId;
   declare [VectorVariance]: {
     readonly _A: (_: never) => A;
@@ -49,8 +50,8 @@ export class Vector<A> implements Iterable<A> {
   get [Symbol.hash](): number {
     return Hashable.iterator(this[Symbol.iterator]());
   }
-  [Symbol.equals](that: unknown): boolean {
-    return isVector(that) && (this as Vector<A>).corresponds(that, Equatable.strictEquals);
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return isVector(that) && (this as Vector<A>).corresponds(that, context.comparator);
   }
   get [Symbol.showable](): ShowComputationExternal {
     return showComputationComplex({

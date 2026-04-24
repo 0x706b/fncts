@@ -1,3 +1,4 @@
+import type { EqualsContext } from "@fncts/base/data/Equatable";
 import type { Declaration, Refinement, Transform, Tuple, TypeLiteral, Union } from "@fncts/schema/AST";
 
 export const enum ParseErrorTag {
@@ -30,16 +31,31 @@ export type ParseError =
   | UnionError
   | IterableError;
 
+type ParseErrorNode = ParseError | IndexError | KeyError | MissingError | UnexpectedError | UnionMemberError;
+
+function hasTag<K extends ParseErrorNode["_tag"]>(u: unknown, tag: K): u is Extract<ParseErrorNode, { _tag: K }> {
+  return typeof u === "object" && u !== null && "_tag" in u && (u as ParseErrorNode)._tag === tag;
+}
+
 /**
  * @tsplus companion fncts.schema.ParseError.DeclarationError
  */
-export class DeclarationError {
+export class DeclarationError implements Equatable {
   readonly _tag = ParseErrorTag.Declaration;
   constructor(
     readonly ast: Declaration,
     readonly actual: unknown,
     readonly error: ParseError,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Declaration) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual) &&
+      context.comparator(this.error, that.error)
+    );
+  }
 }
 
 /**
@@ -53,12 +69,20 @@ export function declarationError(ast: Declaration, actual: unknown, error: Parse
 /**
  * @tsplus companion fncts.schema.ParseError.TypeError
  */
-export class TypeError {
+export class TypeError implements Equatable {
   readonly _tag = ParseErrorTag.Type;
   constructor(
     readonly ast: AST,
     readonly actual: unknown,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Type) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual)
+    );
+  }
 }
 
 /**
@@ -72,7 +96,7 @@ export function typeError(expected: AST, actual: unknown): TypeError {
 /**
  * @tsplus companion fncts.schema.ParseError.TypeLiteralError
  */
-export class TypeLiteralError {
+export class TypeLiteralError implements Equatable {
   readonly _tag = ParseErrorTag.TypeLiteral;
   constructor(
     readonly ast: TypeLiteral,
@@ -80,6 +104,16 @@ export class TypeLiteralError {
     readonly errors: Vector<KeyError>,
     readonly output: { readonly [x: string]: unknown } = {},
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.TypeLiteral) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual) &&
+      context.comparator(this.errors, that.errors) &&
+      context.comparator(this.output, that.output)
+    );
+  }
 }
 
 /**
@@ -98,7 +132,7 @@ export function typeLiteralError(
 /**
  * @tsplus companion fncts.schema.ParseError.TupleError
  */
-export class TupleError {
+export class TupleError implements Equatable {
   readonly _tag = ParseErrorTag.Tuple;
   constructor(
     readonly ast: Tuple,
@@ -106,6 +140,16 @@ export class TupleError {
     readonly errors: Vector<IndexError>,
     readonly output: ReadonlyArray<unknown> = [],
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Tuple) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual) &&
+      context.comparator(this.errors, that.errors) &&
+      context.comparator(this.output, that.output)
+    );
+  }
 }
 
 /**
@@ -124,12 +168,20 @@ export function tupleError(
 /**
  * @tsplus companion fncts.schema.ParseError.IndexError
  */
-export class IndexError {
+export class IndexError implements Equatable {
   readonly _tag = ParseErrorTag.Index;
   constructor(
     readonly index: number,
     readonly error: ParseError | MissingError | UnexpectedError,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Index) &&
+      context.comparator(this.index, that.index) &&
+      context.comparator(this.error, that.error)
+    );
+  }
 }
 
 /**
@@ -143,13 +195,22 @@ export function indexError(index: number, error: ParseError | MissingError | Une
 /**
  * @tsplus companion fncts.schema.ParseError.KeyError
  */
-export class KeyError {
+export class KeyError implements Equatable {
   readonly _tag = ParseErrorTag.Key;
   constructor(
     readonly keyAST: AST,
     readonly key: any,
     readonly error: ParseError | MissingError | UnexpectedError,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Key) &&
+      context.comparator(this.keyAST, that.keyAST) &&
+      context.comparator(this.key, that.key) &&
+      context.comparator(this.error, that.error)
+    );
+  }
 }
 
 /**
@@ -163,8 +224,12 @@ export function keyError(keyAST: AST, key: any, error: ParseError | MissingError
 /**
  * @tsplus companion fncts.schema.ParseError.MissingError
  */
-export class MissingError {
+export class MissingError implements Equatable {
   readonly _tag = ParseErrorTag.Missing;
+
+  [Symbol.equals](that: unknown): boolean {
+    return hasTag(that, ParseErrorTag.Missing);
+  }
 }
 
 /**
@@ -175,9 +240,13 @@ export const missingError = new MissingError();
 /**
  * @tsplus companion fncts.schema.ParseError.UnexpectedError
  */
-export class UnexpectedError {
+export class UnexpectedError implements Equatable {
   readonly _tag = ParseErrorTag.Unexpected;
   constructor(readonly actual: unknown) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ParseErrorTag.Unexpected) && context.comparator(this.actual, that.actual);
+  }
 }
 
 /**
@@ -191,13 +260,22 @@ export function unexpectedError(actual: unknown): UnexpectedError {
 /**
  * @tsplus companion fncts.schema.ParseError.UnionError
  */
-export class UnionError {
+export class UnionError implements Equatable {
   readonly _tag = ParseErrorTag.Union;
   constructor(
     readonly ast: Union,
     readonly actual: unknown,
     readonly errors: Vector<TypeError | TypeLiteralError | UnionMemberError>,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Union) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual) &&
+      context.comparator(this.errors, that.errors)
+    );
+  }
 }
 
 /**
@@ -215,12 +293,20 @@ export function unionError(
 /**
  * @tsplus companion fncts.schema.ParseError.UnionMemberError
  */
-export class UnionMemberError {
+export class UnionMemberError implements Equatable {
   readonly _tag = ParseErrorTag.UnionMember;
   constructor(
     readonly ast: AST,
     readonly error: ParseError,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.UnionMember) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.error, that.error)
+    );
+  }
 }
 
 /**
@@ -234,7 +320,7 @@ export function unionMemberError(ast: AST, error: ParseError): UnionMemberError 
 /**
  * @tsplus companion fncts.schema.ParseError.RefinementError
  */
-export class RefinementError {
+export class RefinementError implements Equatable {
   readonly _tag = ParseErrorTag.Refinement;
   constructor(
     readonly ast: Refinement,
@@ -242,6 +328,16 @@ export class RefinementError {
     readonly kind: "From" | "Predicate",
     readonly error: ParseError,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Refinement) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual) &&
+      context.comparator(this.kind, that.kind) &&
+      context.comparator(this.error, that.error)
+    );
+  }
 }
 
 /**
@@ -260,7 +356,7 @@ export function refinementError(
 /**
  * @tsplus companion fncts.schema.ParseError.TransformationError
  */
-export class TransformationError {
+export class TransformationError implements Equatable {
   readonly _tag = ParseErrorTag.Transformation;
   constructor(
     readonly ast: Transform,
@@ -268,6 +364,16 @@ export class TransformationError {
     readonly kind: "Encoded" | "Transformation" | "Type",
     readonly error: ParseError,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Transformation) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual) &&
+      context.comparator(this.kind, that.kind) &&
+      context.comparator(this.error, that.error)
+    );
+  }
 }
 
 /**
@@ -286,13 +392,22 @@ export function transformationError(
 /**
  * @tsplus companion fncts.schema.ParseError.IterableError
  */
-export class IterableError {
+export class IterableError implements Equatable {
   readonly _tag = ParseErrorTag.Iterable;
   constructor(
     readonly ast: AST,
     readonly actual: unknown,
     readonly errors: Vector<IndexError | KeyError>,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ParseErrorTag.Iterable) &&
+      context.comparator(this.ast, that.ast) &&
+      context.comparator(this.actual, that.actual) &&
+      context.comparator(this.errors, that.errors)
+    );
+  }
 }
 
 /**

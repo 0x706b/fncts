@@ -1,3 +1,5 @@
+import type { EqualsContext } from "@fncts/base/data/Equatable";
+
 import type { Union } from "@fncts/typelevel";
 declare const validSym: unique symbol;
 export declare namespace Brand {
@@ -42,11 +44,15 @@ export declare namespace Brand {
  * @tsplus companion fncts.ValidationOps
  * @tsplus derive nominal
  */
-export class Validation<in out A, in out K extends string> {
+export class Validation<in out A, in out K extends string> implements Equatable {
   constructor(
     readonly validate: Refinement<A, A & Brand.Valid<A, K>>,
     readonly name: K,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return that instanceof Validation && this.name === that.name && context.comparator(this.validate, that.validate);
+  }
 }
 
 /**

@@ -1,5 +1,6 @@
 import type { MutableVector } from "@fncts/base/collection/immutable/Vector";
 import type { Validation as ValidationType } from "@fncts/base/data/Branded";
+import type { EqualsContext } from "@fncts/base/data/Equatable";
 
 import { show } from "@fncts/base/data/Showable";
 import { memoize } from "@fncts/schema/utils";
@@ -18,10 +19,12 @@ export abstract class Annotated {
  * @tsplus type fncts.schema.AST
  * @tsplus companion fncts.schema.ASTOps
  */
-export abstract class AST extends Annotated {
+export abstract class AST extends Annotated implements Equatable {
   readonly [ASTTypeId]: ASTTypeId = ASTTypeId;
 
   abstract clone(newProperties: Partial<this>): AST;
+
+  abstract [Symbol.equals](that: unknown, context: EqualsContext): boolean;
 
   toString(verbose: boolean = false): string {
     return this.show(verbose);
@@ -97,6 +100,14 @@ export function concrete(_: AST): asserts _ is Concrete {
   //
 }
 
+export function isAST(u: unknown): u is AST {
+  return isObject(u) && ASTTypeId in u;
+}
+
+function hasTag<K extends Concrete["_tag"]>(u: unknown, tag: K): u is Extract<Concrete, { _tag: K }> {
+  return isAST(u) && (u as Concrete)._tag === tag;
+}
+
 export function getAnnotations<V>(key: ASTAnnotation<V>) {
   return (self: Annotated): Maybe<V> => {
     return self.annotations.get(key);
@@ -110,7 +121,7 @@ export function getAnnotations<V>(key: ASTAnnotation<V>) {
 /**
  * @tsplus type fncts.schema.AST.Declaration
  */
-export class Declaration extends AST {
+export class Declaration extends AST implements Equatable {
   readonly _tag = ASTTag.Declaration;
   constructor(
     readonly typeParameters: Vector<AST>,
@@ -131,6 +142,16 @@ export class Declaration extends AST {
       newProperties.decode ?? this.decode,
       newProperties.encode ?? this.encode,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Declaration) &&
+      context.comparator(this.typeParameters, that.typeParameters) &&
+      context.comparator(this.decode, that.decode) &&
+      context.comparator(this.encode, that.encode) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
@@ -161,7 +182,7 @@ export function isDeclaration(self: AST): self is Declaration {
 
 export type LiteralValue = string | number | boolean | null | bigint;
 
-export class Literal extends AST {
+export class Literal extends AST implements Equatable {
   readonly _tag = ASTTag.Literal;
   constructor(
     readonly literal: LiteralValue,
@@ -172,6 +193,14 @@ export class Literal extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new Literal(newProperties.literal ?? this.literal, newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Literal) &&
+      context.comparator(this.literal, that.literal) &&
+      context.comparator(this.annotations, that.annotations)
+    );
   }
 }
 
@@ -194,7 +223,7 @@ export function isLiteral(self: AST): self is Literal {
  * UniqueSymbol
  */
 
-export class UniqueSymbol extends AST {
+export class UniqueSymbol extends AST implements Equatable {
   readonly _tag = ASTTag.UniqueSymbol;
   constructor(
     readonly symbol: symbol,
@@ -205,6 +234,14 @@ export class UniqueSymbol extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new UniqueSymbol(newProperties.symbol ?? this.symbol, newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.UniqueSymbol) &&
+      context.comparator(this.symbol, that.symbol) &&
+      context.comparator(this.annotations, that.annotations)
+    );
   }
 }
 
@@ -230,7 +267,7 @@ export function isUniqueSymbol(self: AST): self is UniqueSymbol {
  * UndefinedKeyword
  */
 
-export class UndefinedKeyword extends AST {
+export class UndefinedKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.UndefinedKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -238,6 +275,10 @@ export class UndefinedKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new UndefinedKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.UndefinedKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -252,7 +293,7 @@ export const undefinedKeyword: UndefinedKeyword = new UndefinedKeyword(
  * VoidKeyword
  */
 
-export class VoidKeyword extends AST {
+export class VoidKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.VoidKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -260,6 +301,10 @@ export class VoidKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new VoidKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.VoidKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -272,7 +317,7 @@ export const voidKeyword: VoidKeyword = new VoidKeyword(ASTAnnotationMap.empty.a
  * NeverKeyword
  */
 
-export class NeverKeyword extends AST {
+export class NeverKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.NeverKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -280,6 +325,10 @@ export class NeverKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new NeverKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.NeverKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -294,7 +343,7 @@ export const neverKeyword: NeverKeyword = new NeverKeyword(
  * UnknownKeyword
  */
 
-export class UnknownKeyword extends AST {
+export class UnknownKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.UnknownKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -302,6 +351,10 @@ export class UnknownKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new UnknownKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.UnknownKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -316,7 +369,7 @@ export const unknownKeyword: UnknownKeyword = new UnknownKeyword(
  * AnyKeyword
  */
 
-export class AnyKeyword extends AST {
+export class AnyKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.AnyKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -324,6 +377,10 @@ export class AnyKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new AnyKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.AnyKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -336,7 +393,7 @@ export const anyKeyword: AnyKeyword = new AnyKeyword(ASTAnnotationMap.empty.anno
  * StringKeyword
  */
 
-export class StringKeyword extends AST {
+export class StringKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.StringKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -344,6 +401,10 @@ export class StringKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new StringKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.StringKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -366,7 +427,7 @@ export function isStringKeyword(self: AST): self is StringKeyword {
  * NumberKeyword
  */
 
-export class NumberKeyword extends AST {
+export class NumberKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.NumberKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -374,6 +435,10 @@ export class NumberKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new NumberKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.NumberKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -396,7 +461,7 @@ export function isNumberKeyword(self: AST): self is NumberKeyword {
  * BooleanKeyword
  */
 
-export class BooleanKeyword extends AST {
+export class BooleanKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.BooleanKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -404,6 +469,10 @@ export class BooleanKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new BooleanKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.BooleanKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -426,7 +495,7 @@ export function isBooleanKeyword(self: AST): self is BooleanKeyword {
  * BigIntKeyword
  */
 
-export class BigIntKeyword extends AST {
+export class BigIntKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.BigIntKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -434,6 +503,10 @@ export class BigIntKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new BigIntKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.BigIntKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -456,7 +529,7 @@ export function isBigIntKeyword(self: AST): self is BigIntKeyword {
  * SymbolKeyword
  */
 
-export class SymbolKeyword extends AST {
+export class SymbolKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.SymbolKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -464,6 +537,10 @@ export class SymbolKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new SymbolKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.SymbolKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -486,7 +563,7 @@ export function isSymbolKeyword(self: AST): self is SymbolKeyword {
  * ObjectKeyword
  */
 
-export class ObjectKeyword extends AST {
+export class ObjectKeyword extends AST implements Equatable {
   readonly _tag = ASTTag.ObjectKeyword;
   constructor(readonly annotations: ASTAnnotationMap = ASTAnnotationMap.empty) {
     super();
@@ -494,6 +571,10 @@ export class ObjectKeyword extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new ObjectKeyword(newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return hasTag(that, ASTTag.ObjectKeyword) && context.comparator(this.annotations, that.annotations);
   }
 }
 
@@ -508,7 +589,7 @@ export const objectKeyword: ObjectKeyword = new ObjectKeyword(
  * Enum
  */
 
-export class Enum extends AST {
+export class Enum extends AST implements Equatable {
   readonly _tag = ASTTag.Enum;
   constructor(
     readonly enums: Vector<readonly [string, string | number]>,
@@ -519,6 +600,18 @@ export class Enum extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new Enum(newProperties.enums ?? this.enums, newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Enum) &&
+      this.enums.corresponds(
+        that.enums,
+        ([leftName, leftValue], [rightName, rightValue]) =>
+          context.comparator(leftName, rightName) && context.comparator(leftValue, rightValue),
+      ) &&
+      context.comparator(this.annotations, that.annotations)
+    );
   }
 }
 
@@ -532,11 +625,19 @@ export function createEnum(
   return new Enum(enums, annotations);
 }
 
-export class TemplateLiteralSpan {
+export class TemplateLiteralSpan implements Equatable {
   constructor(
     readonly type: StringKeyword | NumberKeyword,
     readonly literal: string,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      that instanceof TemplateLiteralSpan &&
+      context.comparator(this.type, that.type) &&
+      context.comparator(this.literal, that.literal)
+    );
+  }
 
   toString() {
     switch (this.type._tag) {
@@ -552,7 +653,7 @@ export class TemplateLiteralSpan {
  * TemplateLiteral
  */
 
-export class TemplateLiteral extends AST {
+export class TemplateLiteral extends AST implements Equatable {
   readonly _tag = ASTTag.TemplateLiteral;
   constructor(
     readonly head: string,
@@ -567,6 +668,15 @@ export class TemplateLiteral extends AST {
       newProperties.head ?? this.head,
       newProperties.spans ?? this.spans,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.TemplateLiteral) &&
+      context.comparator(this.head, that.head) &&
+      context.comparator(this.spans, that.spans) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
@@ -590,11 +700,19 @@ export function createTemplateLiteral(
  * Element
  */
 
-export class Element {
+export class Element implements Equatable {
   constructor(
     readonly type: AST,
     readonly isOptional: boolean,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      that instanceof Element &&
+      context.comparator(this.type, that.type) &&
+      context.comparator(this.isOptional, that.isOptional)
+    );
+  }
 
   toString() {
     return String(this.type) + (this.isOptional ? "?" : "");
@@ -612,7 +730,7 @@ export function createElement(type: AST, isOptional: boolean): Element {
  * Tuple
  */
 
-export class Tuple extends AST {
+export class Tuple extends AST implements Equatable {
   readonly _tag = ASTTag.Tuple;
   constructor(
     readonly elements: Vector<Element>,
@@ -629,6 +747,16 @@ export class Tuple extends AST {
       newProperties.rest ?? this.rest,
       newProperties.isReadonly ?? this.isReadonly,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Tuple) &&
+      context.comparator(this.elements, that.elements) &&
+      context.comparator(this.rest, that.rest) &&
+      context.comparator(this.isReadonly, that.isReadonly) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
@@ -654,7 +782,7 @@ export const unknownArray = AST.createTuple(Vector.empty(), Just(Vector(AST.unkn
  * PropertySignature
  */
 
-export class PropertySignature {
+export class PropertySignature implements Equatable {
   constructor(
     readonly name: PropertyKey,
     readonly type: AST,
@@ -670,6 +798,17 @@ export class PropertySignature {
       newProperties.isOptional ?? this.isOptional,
       newProperties.isReadonly ?? this.isReadonly,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      that instanceof PropertySignature &&
+      context.comparator(this.name, that.name) &&
+      context.comparator(this.type, that.type) &&
+      context.comparator(this.isOptional, that.isOptional) &&
+      context.comparator(this.isReadonly, that.isReadonly) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
@@ -691,12 +830,21 @@ export function createPropertySignature(
  * IndexSignature
  */
 
-export class IndexSignature {
+export class IndexSignature implements Equatable {
   constructor(
     readonly parameter: StringKeyword | SymbolKeyword | TemplateLiteral | NumberKeyword | Refinement,
     readonly type: AST,
     readonly isReadonly: boolean,
   ) {}
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      that instanceof IndexSignature &&
+      context.comparator(this.parameter, that.parameter) &&
+      context.comparator(this.type, that.type) &&
+      context.comparator(this.isReadonly, that.isReadonly)
+    );
+  }
 }
 
 /**
@@ -714,7 +862,7 @@ export function createIndexSignature(
  * TypeLiteral
  */
 
-export class TypeLiteral extends AST {
+export class TypeLiteral extends AST implements Equatable {
   readonly _tag = ASTTag.TypeLiteral;
   readonly propertySignatures: Vector<PropertySignature>;
   readonly indexSignatures: Vector<IndexSignature>;
@@ -733,6 +881,15 @@ export class TypeLiteral extends AST {
       newProperties.propertySignatures ?? this.propertySignatures,
       newProperties.indexSignatures ?? this.indexSignatures,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.TypeLiteral) &&
+      context.comparator(this.propertySignatures, that.propertySignatures) &&
+      context.comparator(this.indexSignatures, that.indexSignatures) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
@@ -772,7 +929,7 @@ export const unknownRecord = AST.createTypeLiteral(
  * Union
  */
 
-export class Union extends AST {
+export class Union extends AST implements Equatable {
   readonly _tag = ASTTag.Union;
   constructor(
     readonly types: Vector<AST>,
@@ -783,6 +940,14 @@ export class Union extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return createUnion(newProperties.types ?? this.types, newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Union) &&
+      context.comparator(this.types, that.types) &&
+      context.comparator(this.annotations, that.annotations)
+    );
   }
 }
 
@@ -813,7 +978,7 @@ export function createUnion(candidates: Vector<AST>, annotations: ASTAnnotationM
  * Lazy
  */
 
-export class Lazy extends AST {
+export class Lazy extends AST implements Equatable {
   readonly _tag = ASTTag.Lazy;
   constructor(
     readonly getAST: () => AST,
@@ -824,6 +989,10 @@ export class Lazy extends AST {
 
   clone(newProperties: Partial<this>): AST {
     return new Lazy(newProperties.getAST ?? this.getAST, newProperties.annotations ?? this.annotations);
+  }
+
+  [Symbol.equals](that: unknown): boolean {
+    return this === that;
   }
 }
 
@@ -846,7 +1015,7 @@ export function isLazy(self: AST): self is Lazy {
  * Refinement
  */
 
-export class Refinement extends AST {
+export class Refinement extends AST implements Equatable {
   readonly _tag = ASTTag.Refinement;
   constructor(
     readonly from: AST,
@@ -865,6 +1034,15 @@ export class Refinement extends AST {
       newProperties.from ?? this.from,
       newProperties.predicate ?? this.predicate,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Refinement) &&
+      context.comparator(this.from, that.from) &&
+      context.comparator(this.predicate, that.predicate) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
@@ -894,7 +1072,7 @@ export interface ParseOptions {
  * Transform
  */
 
-export class Transform extends AST {
+export class Transform extends AST implements Equatable {
   readonly _tag = ASTTag.Transform;
   constructor(
     readonly from: AST,
@@ -913,6 +1091,17 @@ export class Transform extends AST {
       newProperties.decode ?? this.decode,
       newProperties.encode ?? this.encode,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Transform) &&
+      context.comparator(this.from, that.from) &&
+      context.comparator(this.to, that.to) &&
+      context.comparator(this.decode, that.decode) &&
+      context.comparator(this.encode, that.encode) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
@@ -934,7 +1123,7 @@ export function createTransform(
  * Validation
  */
 
-export class Validation extends AST {
+export class Validation extends AST implements Equatable {
   readonly _tag = ASTTag.Validation;
   constructor(
     readonly from: AST,
@@ -949,6 +1138,15 @@ export class Validation extends AST {
       newProperties.from ?? this.from,
       newProperties.validation ?? this.validation,
       newProperties.annotations ?? this.annotations,
+    );
+  }
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      hasTag(that, ASTTag.Validation) &&
+      context.comparator(this.from, that.from) &&
+      context.comparator(this.validation, that.validation) &&
+      context.comparator(this.annotations, that.annotations)
     );
   }
 }
