@@ -38,7 +38,7 @@
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.2.0",
     "@0x706b/prettier-eslint-8": "^0.0.3",
-    "@0x706b/tsplus-installer": "0.0.189",
+    "@0x706b/tsplus-installer": "^0.0.190",
     "@babel/cli": "^7.28.6",
     "@babel/core": "7.27.4",
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
