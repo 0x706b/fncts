@@ -46,7 +46,7 @@ export function absolve<R, E, E1, A>(z: STM<R, E, Either<E1, A>>, __tsplusTrace?
 /**
  * Creates an STM effect from a raw function.
  *
- * @tsplus static fncts.io.STMOps makeEffect
+ * @tsplus static fncts.io.STMOps Effect
  */
 export function makeEffect<R, E, A>(
   f: (journal: Journal, fiberId: FiberId, r: Environment<R>) => A,
@@ -513,7 +513,7 @@ export function head<R, E, A>(stm: STM<R, E, Iterable<A>>, __tsplusTrace?: strin
   return stm.matchSTM(
     (e) => STM.failNow(Just(e)),
     (ia) => {
-      const it = ia[Symbol.iterator]();
+      const it   = ia[Symbol.iterator]();
       const next = it.next();
       return next.done ? STM.failNow(Nothing()) : STM.succeedNow(next.value);
     },
