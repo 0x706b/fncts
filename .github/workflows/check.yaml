@@ -131,6 +131,15 @@ jobs:
         run: |
           yarn test
 
+      - name: Delete Previous Cache
+        if: ${{ steps.vitest-module-cache-restore.outputs.cache-hit }}
+        continue-on-error: true
+        run: |
+          gh extension install actions/gh-actions-cache
+          gh actions-cache delete "${{ steps.vitest-module-cache-restore.outputs.cache-primary-key }}" --confirm
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/cache/save@v5
         id: vitest-module-cache-save
         if: always()
