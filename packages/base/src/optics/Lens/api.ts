@@ -65,7 +65,7 @@ export function getComponent<A extends ReadonlyArray<unknown>>() {
         if (ap === s[component]) {
           return s;
         }
-        const copy: A = s.slice() as unknown as A;
+        const copy: A   = s.slice() as unknown as A;
         copy[component] = ap;
         return copy;
       },

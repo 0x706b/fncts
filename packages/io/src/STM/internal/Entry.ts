@@ -23,7 +23,7 @@ export class Entry {
  */
 export function make<A0>(tref0: Atomic<A0>, isNew0: boolean): Entry {
   const versioned = tref0.versioned;
-  const ops = new ConcreteEntry<A0>(tref0, versioned, versioned.value, isNew0, false);
+  const ops       = new ConcreteEntry<A0>(tref0, versioned, versioned.value, isNew0, false);
   return new Entry((f) => f(ops));
 }
 
@@ -41,7 +41,7 @@ export class ConcreteEntry<S> {
   ) {}
   unsafeSet(value: unknown) {
     this._isChanged = true;
-    this.newValue = value as S;
+    this.newValue   = value as S;
   }
   unsafeGet<B>(): B {
     return this.newValue as unknown as B;

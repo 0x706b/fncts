@@ -61,7 +61,7 @@ export function hmap<
     readonly [K in keyof F]: ReturnType<F[K]>;
   }> => {
     const keys = self.keys;
-    const out = {} as any;
+    const out  = {} as any;
     for (const key of keys) {
       out[key] = fs[key](unsafeCoerce(self.getStruct[key]));
     }
@@ -115,7 +115,7 @@ export function omit<A extends {}, N extends ReadonlyArray<keyof A>>(keys: [...N
     readonly [P in Exclude<keyof A, N[number]>]: A[P];
   }> => {
     const newKeys = keys.asReadonlyArray.difference(self.keys, Eq({ equals: (y) => (x) => x === y }));
-    const out = {} as any;
+    const out     = {} as any;
     for (const key of newKeys) {
       out[key] = self.getStruct[key];
     }
@@ -130,11 +130,11 @@ export function omit<A extends {}, N extends ReadonlyArray<keyof A>>(keys: [...N
  */
 export function map<A, B>(f: (a: A[keyof A]) => B) {
   return (self: Struct<A>): Struct<Record<keyof A, B>> => {
-    const out = {} as Record<keyof A, B>;
+    const out  = {} as Record<keyof A, B>;
     const keys = Object.keys(self);
     for (let i = 0; i < keys.length; i++) {
       const k = keys[i]! as keyof A;
-      out[k] = f(self.getStruct[k]);
+      out[k]  = f(self.getStruct[k]);
     }
     return Struct.get(out);
   };

@@ -14,7 +14,8 @@ export interface PIso<S, T, A, B> extends PLens<S, T, A, B>, PPrism<S, T, A, B> 
 }
 
 export interface PIsoPartiallyApplied<T, A, B>
-  extends PLensPartiallyApplied<T, A, B>, PPrismPartiallyApplied<T, A, B> {}
+  extends PLensPartiallyApplied<T, A, B>,
+    PPrismPartiallyApplied<T, A, B> {}
 
 /**
  *
