@@ -1,6 +1,6 @@
-name: Publish
+name: Check
 on:
-  push:
+  pull_request:
     branches:
       - trunk
 
@@ -8,10 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+    
       - name: Install node
         run: |
           curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
@@ -47,13 +47,3 @@ jobs:
       - name: Test
         run: |
           yarn test
-
-      - name: Changeset
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          version: node .github/changeset-version.cjs
-          publish: yarn release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
