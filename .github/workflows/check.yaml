@@ -112,7 +112,8 @@ jobs:
           nvm install
           corepack enable
 
-      - uses: actions/cache@v5
+      - uses: actions/cache/restore@v5
+        id: vitest-module-cache-restore
         with:
           path: "node_modules/.experimental-vitest-cache"
           key: ${{ runner.os }}-vitest-module-cache-${{ hashFiles('**/vitest.config.ts') }}
@@ -129,3 +130,10 @@ jobs:
       - name: Test
         run: |
           yarn test
+
+      - uses: actions/cache/save@v5
+        id: vitest-module-cache-save
+        if: always()
+        with:
+          path: "node_modules/.experimental-vitest-cache"
+          key: ${{ steps.vitest-module-cache-restore.outputs.cache-primary-key }}
