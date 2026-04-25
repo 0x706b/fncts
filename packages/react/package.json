@@ -40,7 +40,7 @@
     "@fncts/base": "workspace:*",
     "@fncts/io": "workspace:*",
     "@fncts/typelevel": "workspace:*",
-    "uuid": "^11.1.0"
+    "uuid": "^14.0.0"
   },
   "peerDependencies": {
     "@types/react": "^18.0.26",

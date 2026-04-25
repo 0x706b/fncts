@@ -44,7 +44,7 @@
     "find-my-way": "^9.3.0",
     "find-my-way-ts": "^0.1.5",
     "isows": "^1.0.7",
-    "uuid": "^11.1.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",

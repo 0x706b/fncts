@@ -39,12 +39,12 @@
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.2.0",
     "@0x706b/prettier-eslint-8": "^0.0.3",
     "@0x706b/tsplus-installer": "0.0.189",
-    "@babel/cli": "^7.27.2",
+    "@babel/cli": "^7.28.6",
     "@babel/core": "7.27.4",
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@babel/plugin-transform-modules-commonjs": "^7.27.1",
     "@changesets/changelog-git": "^0.2.1",
-    "@changesets/cli": "^2.29.4",
+    "@changesets/cli": "^2.31.0",
     "@eslint/compat": "^2.0.3",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "10.0.1",
@@ -61,21 +61,15 @@
     "benchmark": "^2.1.4",
     "concurrently": "^9.1.2",
     "dpdm": "^3.14.0",
-    "eslint": "10.1.0",
+    "eslint": "^10.2.1",
     "eslint-import-resolver-typescript": "4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
-    "madge": "^8.0.0",
     "prettier": "^3.5.3",
-    "prettier-eslint": "^16.4.2",
-    "prettier-eslint-cli": "^8.0.1",
     "tinybench": "^4.0.1",
     "ts-node": "^10.9.2",
     "typescript": "5.8.3",
     "typescript-eslint": "^8.57.2",
     "vitest": "^4.1.5"
-  },
-  "resolutions": {
-    "@babel/types": "^7.27.3"
   }
 }

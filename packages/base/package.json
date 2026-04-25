@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@fncts/typelevel": "workspace:*",
-    "uuid": "^11.1.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",

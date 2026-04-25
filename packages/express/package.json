@@ -48,6 +48,6 @@
     "@fncts/scripts": "workspace:*",
     "@types/express": "^5.0.2",
     "@types/node": "^22.15.29",
-    "express": "^4.21.2"
+    "express": "^4.22.1"
   }
 }

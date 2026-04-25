@@ -46,16 +46,16 @@
     "@typescript-eslint/experimental-utils": "^5.62.0",
     "@typescript-eslint/parser": "^8.57.2",
     "benchmark": "^2.1.4",
-    "eslint": "^10.1.0",
+    "eslint": "^10.2.1",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "prettier": "^3.5.3"
   },
   "dependencies": {
-    "glob": "^11.0.2",
+    "glob": "^13.0.6",
     "io-ts-extra": "^0.11.6",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "lodash": "^4.17.21"
   },
   "publishConfig": {
