@@ -24,7 +24,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: ".yarn/cache"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install
         run: |
@@ -49,7 +49,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: ".yarn/cache"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install
         run: |
@@ -85,7 +85,7 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: ".yarn/cache"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install
         run: |
@@ -115,12 +115,12 @@ jobs:
       - uses: actions/cache@v5
         with:
           path: "node_modules/.experimental-vitest-cache"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/vitest.config.ts') }}
+          key: ${{ runner.os }}-vitest-module-cache-${{ hashFiles('**/vitest.config.ts') }}
 
       - uses: actions/cache@v5
         with:
           path: ".yarn/cache"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install
         run: |
