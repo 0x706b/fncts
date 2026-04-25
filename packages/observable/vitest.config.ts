@@ -4,6 +4,9 @@ import { tscPlugin } from "../../plugins/vite-plugin-typescript.js";
 
 export default defineConfig({
   plugins: [tscPlugin({ cwd: import.meta.dirname })],
+  resolve: {
+    tsconfigPaths: true,
+  },
   test: {
     include: ["test/**/*.test.ts"],
   },

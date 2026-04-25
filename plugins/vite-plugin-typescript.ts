@@ -18,7 +18,6 @@ if (!fs.existsSync(cacheDir)) {
   fs.mkdirSync(cacheDir, { recursive: true });
 }
 
-
 const registry = ts.createDocumentRegistry();
 const files = new Set<string>();
 
@@ -41,12 +40,14 @@ const collectFiles = (configPath: string) => {
   );
 
   Object.assign(config.compilerOptions ?? {}, {
+    moduleDetection: "force",
     sourceMap: false,
     inlineSourceMap: true,
     inlineSources: true,
     noEmit: false,
     declaration: true,
     declarationMap: false,
+    useDefineForClassFields: false,
     module: "ESNext",
     target: "ESNext",
   });
@@ -188,7 +189,11 @@ export const getCompiled = (path: string) => {
   if (syntactic.length > 0) {
     throw new Error(
       syntactic
-        .map((_) => ts.flattenDiagnosticMessageText(_.messageText, "\n"))
+        .map(
+          (_) =>
+            ts.flattenDiagnosticMessageText(_.messageText, "\n") +
+            ` at ${_.file?.fileName}:${ts.getLineAndCharacterOfPosition(_.file, _.start).line + 1}`,
+        )
         .join("\n"),
     );
   }
@@ -199,7 +204,11 @@ export const getCompiled = (path: string) => {
   if (semantic.length > 0) {
     throw new Error(
       semantic
-        .map((_) => ts.flattenDiagnosticMessageText(_.messageText, "\n"))
+        .map(
+          (_) =>
+            ts.flattenDiagnosticMessageText(_.messageText, "\n") +
+            ` at ${_.file?.fileName}:${ts.getLineAndCharacterOfPosition(_.file!, _.start!).line + 1}`,
+        )
         .join("\n"),
     );
   }
@@ -212,7 +221,7 @@ export const getCompiled = (path: string) => {
 };
 
 type Options = {
-  cwd: string
+  cwd: string;
   include?: V.FilterPattern;
   exclude?: V.FilterPattern;
 };

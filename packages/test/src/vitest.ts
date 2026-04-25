@@ -52,7 +52,7 @@ export const it = (() => {
   }
 
   function it(name: string, test: Lazy<TestResult | Promise<void> | void>, options?: V.TestOptions) {
-    return V.it.concurrent(name, () => runTest(test), options);
+    return V.it.concurrent(name, options, () => runTest(test));
   }
 
   function runTestIO<E>(io: Lazy<IO<TestEnvironment, E, TestResult>>) {

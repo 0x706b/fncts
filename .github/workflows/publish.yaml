@@ -5,8 +5,12 @@ on:
       - trunk
 
 jobs:
-  build:
+  check:
+    uses: ./.github/workflows/check.yaml
+
+  publish:
     runs-on: ubuntu-latest
+    needs: check
     steps:
       - uses: actions/checkout@v6
         with:
@@ -25,28 +29,14 @@ jobs:
           path: ".yarn/cache"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
-      - uses: actions/cache@v5
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
         with:
-          path: "node_modules/.experimental-vitest-cache"
-          key: ${{ runner.os }}-vitest-${{ hashFiles('**/vitest.config.ts') }}
+          name: build-artifacts
 
       - name: Install
         run: |
           yarn install --immutable
-
-      - name: Lint
-        run: |
-          yarn build-lint-deps
-          yarn lint
-
-      - name: Build
-        run: |
-          yarn workspace @fncts/transformers build && yarn workspace @fncts/transformers build-cjs
-          yarn build-pack
-
-      - name: Test
-        run: |
-          yarn test
 
       - name: Changeset
         id: changesets

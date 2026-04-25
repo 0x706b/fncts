@@ -3,12 +3,74 @@ on:
   pull_request:
     branches:
       - trunk
+  workflow_call:
 
 jobs:
-  build:
+  install-node-modules:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install node
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install
+          corepack enable
+
+      - uses: actions/cache@v5
+        with:
+          path: ".yarn/cache"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install
+        run: |
+          yarn install --immutable
+
+  build:
+    runs-on: ubuntu-latest
+    needs: install-node-modules
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install node
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install
+          corepack enable
+
+      - uses: actions/cache@v5
+        with:
+          path: ".yarn/cache"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install
+        run: |
+          yarn install --immutable
+
+      - name: Build
+        run: |
+          yarn workspace @fncts/transformers build && yarn workspace @fncts/transformers build-cjs
+          yarn build-pack
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-artifacts
+          path: packages/**/dist
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: install-node-modules
+    steps:
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
     
@@ -25,11 +87,6 @@ jobs:
           path: ".yarn/cache"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
 
-      - uses: actions/cache@v5
-        with:
-          path: "node_modules/.experimental-vitest-cache"
-          key: ${{ runner.os }}-vitest-${{ hashFiles('**/vitest.config.ts') }}
-
       - name: Install
         run: |
           yarn install --immutable
@@ -39,10 +96,35 @@ jobs:
           yarn build-lint-deps
           yarn lint
 
-      - name: Build
+  test:
+    runs-on: ubuntu-latest
+    needs: install-node-modules
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+    
+      - name: Install node
         run: |
-          yarn workspace @fncts/transformers build && yarn workspace @fncts/transformers build-cjs
-          yarn build-pack
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install
+          corepack enable
+
+      - uses: actions/cache@v5
+        with:
+          path: "node_modules/.experimental-vitest-cache"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/vitest.config.ts') }}
+
+      - uses: actions/cache@v5
+        with:
+          path: ".yarn/cache"
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Install
+        run: |
+          yarn install --immutable
 
       - name: Test
         run: |
