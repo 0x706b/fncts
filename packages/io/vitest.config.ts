@@ -8,7 +8,7 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
-    include: ["test/**/*.test.ts", "build/test/**/*.test.js"],
+    include: ["test/**/*.test.ts"],
     experimental: {
       fsModuleCache: true,
     },
