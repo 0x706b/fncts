@@ -42,6 +42,9 @@
     },
     {
       "path": "./packages/http"
+    },
+    {
+      "path": "./tsconfig.configs.json"
     }
   ]
 }

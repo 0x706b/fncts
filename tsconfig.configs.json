@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./packages/config/tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "outDir": "build"
+  },
+  "include": ["./*.ts", "./plugins/*.ts"]
+}

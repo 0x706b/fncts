@@ -80,10 +80,10 @@ export function from<R = never, E = never, A = never>(input: ObservableInput<R, 
   if (isAsyncIterable(input)) {
     return fromAsyncIterable(input);
   }
-  if (isIterable(input)) {
+  if (isIterable<A>(input)) {
     return fromIterable(input);
   }
-  if (isReadableStream(input)) {
+  if (isReadableStream<A>(input)) {
     return fromReadableStreamLike(input);
   }
   if (isIO(input)) {
@@ -273,7 +273,7 @@ export function scheduled(scheduler: SchedulerLike) {
     if (isAsyncIterable(input)) {
       return scheduleAsyncIterable(input, scheduler);
     }
-    if (isReadableStream(input)) {
+    if (isReadableStream<A>(input)) {
       return scheduleReadableStreamLike(input, scheduler);
     }
     return scheduleObservable(from(input), scheduler);
