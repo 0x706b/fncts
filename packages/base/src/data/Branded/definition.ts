@@ -1,5 +1,4 @@
 import type { EqualsContext } from "@fncts/base/data/Equatable";
-
 import type { Union } from "@fncts/typelevel";
 declare const validSym: unique symbol;
 export declare namespace Brand {

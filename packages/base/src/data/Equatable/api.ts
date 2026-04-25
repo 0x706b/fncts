@@ -7,9 +7,29 @@ import {
   sameValueZeroEqual,
 } from "@fncts/base/data/Equatable/fast-equals";
 
+/**
+ * @tsplus static fncts.EquatableOps anything
+ */
+export const anything: any = Symbol.for("fncts.Equatable.anything");
+
+/**
+ * @tsplus static fncts.EquatableOps nothing
+ */
+export const nothing: any = Symbol.for("fncts.Equatable.nothing");
+
 const deepEqualsComparator = createComparator(
   createCircularEqualCreator((eq) => (a, b, meta) => {
-    const equalsContext: EqualsContext = { comparator: deepEquals };
+    const equalsContext: EqualsContext = {
+      comparator: (a, b) => {
+        if (a === anything || b === anything) {
+          return true;
+        } else if (a === nothing || b === nothing) {
+          return false;
+        }
+        return deepEquals(a, b);
+      },
+    };
+
     if (isEquatable(a)) {
       return a[Symbol.equals](b, equalsContext);
     } else if (isEquatable(b)) {
@@ -40,7 +60,14 @@ export function deepEquals<A>(a: A, b: unknown): boolean {
  */
 export function strictEquals<A>(a: A, b: unknown): boolean {
   const context: EqualsContext = {
-    comparator: strictEquals,
+    comparator: (a, b) => {
+      if (a === anything || b === anything) {
+        return true;
+      } else if (a === nothing || b === nothing) {
+        return false;
+      }
+      return strictEquals(a, b);
+    },
   };
   if (isEquatable(a)) {
     return a[Symbol.equals](b, context);

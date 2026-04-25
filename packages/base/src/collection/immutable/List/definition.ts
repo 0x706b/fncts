@@ -12,6 +12,8 @@
  * for more information regarding copyright ownership
  */
 
+import type { EqualsContext } from "@fncts/base/data/Equatable";
+
 export const ListTypeId = Symbol.for("fncts.List");
 export type ListTypeId = typeof ListTypeId;
 
@@ -19,7 +21,7 @@ export type ListTypeId = typeof ListTypeId;
  * @tsplus type fncts.List.Cons
  * @tsplus companion fncts.ConsOps
  */
-export class Cons<A> implements Iterable<A> {
+export class Cons<A> implements Iterable<A>, Equatable {
   readonly _tag                     = "Cons";
   readonly [ListTypeId]: ListTypeId = ListTypeId;
   constructor(
@@ -27,6 +29,18 @@ export class Cons<A> implements Iterable<A> {
     public tail: List<A> = _Nil,
   ) {}
 
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return (
+      isList(that) &&
+      that._tag === "Cons" &&
+      context.comparator(this.head, that.head) &&
+      context.comparator(this.tail, that.tail)
+    );
+  }
+
+  /**
+   * Iterates elements from this node through the tail.
+   */
   [Symbol.iterator](): Iterator<A> {
     let done = false;
 
@@ -58,9 +72,17 @@ export class Cons<A> implements Iterable<A> {
  * @tsplus type fncts.List.Nil
  * @tsplus companion fncts.NilOps
  */
-export class Nil<A> implements Iterable<A> {
+export class Nil<A> implements Iterable<A>, Equatable {
   readonly _tag                     = "Nil";
   readonly [ListTypeId]: ListTypeId = ListTypeId;
+
+  [Symbol.equals](that: unknown, context: EqualsContext): boolean {
+    return isList(that) && that._tag === "Nil";
+  }
+
+  /**
+   * Returns an iterator that is immediately done.
+   */
   [Symbol.iterator](): Iterator<A> {
     return {
       next() {

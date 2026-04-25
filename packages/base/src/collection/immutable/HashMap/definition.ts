@@ -53,7 +53,10 @@ export class HashMap<in out K, in out V> implements Iterable<readonly [K, V]>, H
     return (
       isHashMap(other) &&
       other.size === this.size &&
-      (this as Iterable<readonly [K, V]>).corresponds(other, Equatable.strictEquals)
+      (this as Iterable<readonly [K, V]>).corresponds(
+        other,
+        ([ka, va], [kb, vb]) => Equatable.strictEquals(ka, kb) && Equatable.strictEquals(va, vb),
+      )
     );
   }
 }
