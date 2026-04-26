@@ -58,13 +58,16 @@ jobs:
       - name: Build
         run: |
           yarn workspace @fncts/transformers build && yarn workspace @fncts/transformers build-cjs
+          yarn build
           yarn build-pack
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
           name: build-artifacts
-          path: packages/**/dist
+          path: |
+            packages/**/build
+            packages/**/dist
 
   lint:
     runs-on: ubuntu-latest
@@ -98,7 +101,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: install-node-modules
+    needs: [install-node-modules, build]
     steps:
       - uses: actions/checkout@v6
         with:
@@ -121,6 +124,12 @@ jobs:
         run: |
           yarn install --immutable
 
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: build-artifacts
+          path: packages
+
       - uses: actions/cache/restore@v5
         id: vitest-module-cache-restore
         with:
@@ -129,7 +138,7 @@ jobs:
 
       - name: Test
         run: |
-          yarn test
+          CI=1 yarn test run
 
       - name: Delete Previous Cache
         if: ${{ steps.vitest-module-cache-restore.outputs.cache-hit }}
