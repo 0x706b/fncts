@@ -44,7 +44,6 @@
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@fncts/scripts": "workspace:*",
-    "@typed/fx": "^1.32.0"
+    "@fncts/scripts": "workspace:*"
   }
 }
