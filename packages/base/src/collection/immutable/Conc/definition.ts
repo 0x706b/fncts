@@ -268,15 +268,15 @@ export const _Empty = new Empty<never>();
 export class Concat<A> extends ConcImplementation<A> {
   declare _A: () => A;
   readonly _tag = ConcTag.Concat;
-  length        = this.left.length + this.right.length;
-  depth         = 1 + Math.max(this.left.depth, this.right.depth);
-  binary        = this.left.binary && this.right.binary;
   constructor(
     readonly left: ConcImplementation<A>,
     readonly right: ConcImplementation<A>,
   ) {
     super();
   }
+  length = this.left.length + this.right.length;
+  depth  = 1 + Math.max(this.left.depth, this.right.depth);
+  binary = this.left.binary && this.right.binary;
   get(n: number): A {
     return n < this.left.length ? this.left.get(n) : this.right.get(n - this.left.length);
   }
@@ -306,11 +306,6 @@ export class Concat<A> extends ConcImplementation<A> {
 class AppendN<A> extends ConcImplementation<A> {
   readonly _tag = ConcTag.AppendN;
 
-  length: number;
-  depth = this.start.depth + 1;
-  left  = _Empty;
-  right = _Empty;
-
   constructor(
     readonly start: ConcImplementation<A>,
     readonly buffer: Array<unknown> | Uint8Array,
@@ -320,6 +315,11 @@ class AppendN<A> extends ConcImplementation<A> {
     super();
     this.length = this.start.length + this.bufferUsed;
   }
+
+  length: number;
+  depth = this.start.depth + 1;
+  left  = _Empty;
+  right = _Empty;
 
   [Symbol.iterator](): Iterator<A> {
     return this.start.toIterable

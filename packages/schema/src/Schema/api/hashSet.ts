@@ -61,7 +61,7 @@ function hashSetParser(isDecoding: boolean) {
         const tv = parseValue(v, options);
         Either.concrete(tv);
         if (tv.isLeft()) {
-          errors.push(ParseError.KeyError(value.ast, value, tv.left));
+          errors.push(ParseError.KeyError(value.ast, v, tv.left));
           if (!allErrors) {
             return ParseResult.fail(ParseError.IterableError(schema.ast, u, errors));
           }

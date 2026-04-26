@@ -71,7 +71,7 @@ function mapParser(isDecoding: boolean) {
         const tv = valueParser(v, options);
         Either.concrete(tv);
         if (tv.isLeft()) {
-          errors.push(ParseError.KeyError(key.ast, k, ParseError.TypeError(value.ast, tv.left)));
+          errors.push(ParseError.KeyError(key.ast, k, tv.left));
           if (!allErrors) {
             return ParseResult.fail(ParseError.IterableError(schema.ast, u, errors));
           }

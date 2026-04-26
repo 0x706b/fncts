@@ -1,4 +1,4 @@
-import type { Lock, LockState } from "./definition.js";
+import type { LockState } from "./definition.js";
 
 import { RetryException } from "../STM.js";
 import { ReadLock, TReentrantLock } from "./definition.js";

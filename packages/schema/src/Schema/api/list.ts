@@ -47,12 +47,13 @@ function parser(isDecoding: boolean) {
       const out       = new ListBuffer<unknown>();
       const errors    = Vector.emptyPushable<IndexError>();
       const allErrors = options?.allErrors;
-      const index     = 0;
+      let index       = 0;
       for (const v of u) {
         const t = parseValue(v, options);
         Either.concrete(t);
         if (t.isLeft()) {
           errors.push(ParseError.IndexError(index, t.left));
+          index++;
           if (allErrors) {
             continue;
           }
@@ -60,6 +61,7 @@ function parser(isDecoding: boolean) {
         } else {
           out.append(t.right);
         }
+        index++;
       }
       return errors.isNonEmpty()
         ? ParseResult.fail(ParseError.IterableError(schema.ast, u, errors))
