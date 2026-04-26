@@ -1,4 +1,6 @@
 /**
+ * Accesses the fiber's descriptor and uses it to produce an effect.
+ *
  * @tsplus static fncts.io.IOOps descriptorWith
  */
 export function descriptorWith<R, E, A>(f: (descriptor: FiberDescriptor) => IO<R, E, A>): IO<R, E, A> {
@@ -9,6 +11,8 @@ export function descriptorWith<R, E, A>(f: (descriptor: FiberDescriptor) => IO<R
 }
 
 /**
+ * Returns the current fiber's descriptor.
+ *
  * @tsplus static fncts.io.IOOps descriptor
  */
 export const descriptor: UIO<FiberDescriptor> = IO.descriptorWith((descriptor) => IO.succeedNow(descriptor));

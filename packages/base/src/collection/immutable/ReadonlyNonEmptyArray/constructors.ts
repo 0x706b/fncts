@@ -1,3 +1,6 @@
+/**
+ * Allocates an array with a fixed length and initializes index 0.
+ */
 export function allocWithHead<A>(
   head: A,
   length: number,
@@ -12,8 +15,12 @@ export function allocWithHead<A>(
 }
 
 /**
+ * Unsafely treats a readonly array as non-empty, throwing if it is empty.
+ *
  * @tsplus getter fncts.ReadonlyArray unsafeAsNonEmptyArray
+ *
  * @tsplus getter fncts.Array unsafeAsNonEmptyArray
+ *
  * @tsplus identity
  */
 export function unsafeAsNonEmptyArray<A>(self: ReadonlyArray<A>): ReadonlyNonEmptyArray<A> {
@@ -24,6 +31,8 @@ export function unsafeAsNonEmptyArray<A>(self: ReadonlyArray<A>): ReadonlyNonEmp
 }
 
 /**
+ * Coerces a readonly array with a guaranteed first element into a non-empty array.
+ *
  * @tsplus static fncts.ReadonlyNonEmptyArrayOps from
  */
 export function from<A>(
@@ -35,7 +44,10 @@ export function from<A>(
 }
 
 /**
+ * Wraps a readonly array in `Maybe`, returning `Nothing` when it is empty.
+ *
  * @tsplus static fncts.ReadonlyNonEmptyArrayOps fromArray
+ *
  * @tsplus getter fncts.ImmutableArray toNonEmptyArray
  */
 export function fromArray<A>(self: ReadonlyArray<A>): Maybe<ReadonlyNonEmptyArray<A>> {
@@ -43,6 +55,8 @@ export function fromArray<A>(self: ReadonlyArray<A>): Maybe<ReadonlyNonEmptyArra
 }
 
 /**
+ * Builds a non-empty array from a non-empty rest parameter list.
+ *
  * @tsplus static fncts.ReadonlyNonEmptyArrayOps __call
  */
 export function make<A>(...values: NonEmptyArray<A>): ReadonlyNonEmptyArray<A> {
@@ -50,6 +64,8 @@ export function make<A>(...values: NonEmptyArray<A>): ReadonlyNonEmptyArray<A> {
 }
 
 /**
+ * Creates a non-empty array by applying `f` to each index from `0` to `n - 1`.
+ *
  * @tsplus static fncts.ReadonlyNonEmptyArrayOps makeBy
  */
 export function makeBy<A>(n: number, f: (i: number) => A): ReadonlyNonEmptyArray<A> {
@@ -62,6 +78,8 @@ export function makeBy<A>(n: number, f: (i: number) => A): ReadonlyNonEmptyArray
 }
 
 /**
+ * Creates a non-empty array of length `n` filled with the same value.
+ *
  * @tsplus static fncts.ReadonlyNonEmptyArray replicate
  */
 export function replicate<A>(n: number, a: A): ReadonlyNonEmptyArray<A> {
@@ -69,6 +87,8 @@ export function replicate<A>(n: number, a: A): ReadonlyNonEmptyArray<A> {
 }
 
 /**
+ * Creates an inclusive numeric range, or a singleton when `start > end`.
+ *
  * @tsplus static fncts.ReadonlyNonEmptyArrayOps range
  */
 export function range(start: number, end: number): ReadonlyNonEmptyArray<number> {

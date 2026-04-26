@@ -6,6 +6,7 @@ import { PLens } from "@fncts/base/optics/Lens";
 import { PPrism } from "@fncts/base/optics/Prism";
 
 /**
+ *
  * @tsplus type fncts.optics.PIso
  */
 export interface PIso<S, T, A, B> extends PLens<S, T, A, B>, PPrism<S, T, A, B> {
@@ -17,6 +18,7 @@ export interface PIsoPartiallyApplied<T, A, B>
     PPrismPartiallyApplied<T, A, B> {}
 
 /**
+ *
  * @tsplus type fncts.optics.PIsoOps
  */
 export interface PIsoOps {}
@@ -29,6 +31,8 @@ export interface PIsoMin<S, T, A, B> {
 }
 
 /**
+ * Builds a polymorphic isomorphism from forward and reverse mappings.
+ *
  * @tsplus static fncts.optics.PIsoOps __call
  */
 export function makePIso<S, T, A, B>(F: PIsoMin<S, T, A, B>): PIso<S, T, A, B> {
@@ -40,16 +44,20 @@ export function makePIso<S, T, A, B>(F: PIsoMin<S, T, A, B>): PIso<S, T, A, B> {
 }
 
 /**
+ *
  * @tsplus type fncts.optics.Iso
  */
 export interface Iso<S, A> extends PIso<S, S, A, A> {}
 
 /**
+ *
  * @tsplus type fncts.optics.IsoOps
  */
 export interface IsoOps {}
 
 /**
+ * Builds a monomorphic isomorphism from matching forward and reverse mappings.
+ *
  * @tsplus static fncts.optics.IsoOps __call
  */
 export function makeIso<S, A>(F: PIsoMin<S, S, A, A>): Iso<S, A> {

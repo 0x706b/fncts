@@ -1,4 +1,6 @@
 /**
+ * Provides the specified Scope to this effect.
+ *
  * @tsplus pipeable fncts.io.IO provideScope
  */
 export function provideScope(scope: Scope) {

@@ -1,5 +1,8 @@
 /**
+ * Acquires a resource, ensuring it is released when the scope closes.
+ *
  * @tsplus static fncts.io.IOOps acquireRelease
+ *
  * @tsplus fluent fncts.io.IO acquireRelease
  */
 export function acquireRelease<R, E, A, R1>(

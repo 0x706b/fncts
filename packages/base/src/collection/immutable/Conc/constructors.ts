@@ -1,6 +1,8 @@
 import { ByteChunk, Chunk, Singleton } from "./definition.js";
 
 /**
+ * Create a `Conc` from an iterable or array-like value.
+ *
  * @tsplus static fncts.ConcOps from
  */
 export function from<A>(as: Iterable<A>): Conc<A> {
@@ -9,6 +11,8 @@ export function from<A>(as: Iterable<A>): Conc<A> {
 }
 
 /**
+ * Create a `Conc` from a mutable buffer array.
+ *
  * @tsplus static fncts.ConcOps fromBuffer
  */
 export function fromBuffer(bytes: Uint8Array): Conc<Byte> {
@@ -16,6 +20,8 @@ export function fromBuffer(bytes: Uint8Array): Conc<Byte> {
 }
 
 /**
+ * Create a `Conc` from the provided values.
+ *
  * @tsplus static fncts.ConcOps __call
  */
 export function make<A>(...as: ReadonlyArray<A>): Conc<A> {
@@ -23,6 +29,8 @@ export function make<A>(...as: ReadonlyArray<A>): Conc<A> {
 }
 
 /**
+ * Create a collection of numbers in a range.
+ *
  * @tsplus static fncts.ConcOps range
  */
 export function range(start: number, end: number): Conc<number> {
@@ -30,6 +38,8 @@ export function range(start: number, end: number): Conc<number> {
 }
 
 /**
+ * Create a collection containing one element.
+ *
  * @tsplus static fncts.ConcOps single
  */
 export function single<A>(a: A): Conc<A> {

@@ -1,6 +1,8 @@
 import { Queue } from "@fncts/base/collection/immutable/Queue/definition";
 
 /**
+ * Returns the number of elements in the queue.
+ *
  * @tsplus getter fncts.ImmutableQueue length
  */
 export function length<A>(self: Queue<A>): number {
@@ -8,6 +10,8 @@ export function length<A>(self: Queue<A>): number {
 }
 
 /**
+ * Returns the first element, throwing if the queue is empty.
+ *
  * @tsplus getter fncts.ImmutableQueue unsafeHead
  */
 export function unsafeHead<A>(self: Queue<A>): A {
@@ -21,6 +25,8 @@ export function unsafeHead<A>(self: Queue<A>): A {
 }
 
 /**
+ * Returns the first element as a `Maybe`.
+ *
  * @tsplus getter fncts.ImmutableQueue head
  */
 export function head<A>(self: Queue<A>): Maybe<A> {
@@ -28,6 +34,8 @@ export function head<A>(self: Queue<A>): Maybe<A> {
 }
 
 /**
+ * Returns the queue without its first element, throwing if empty.
+ *
  * @tsplus getter fncts.ImmutableQueue unsafeTail
  */
 export function unsafeTail<A>(self: Queue<A>): Queue<A> {
@@ -41,6 +49,8 @@ export function unsafeTail<A>(self: Queue<A>): Queue<A> {
 }
 
 /**
+ * Returns the queue without its first element as a `Maybe`.
+ *
  * @tsplus getter fncts.ImmutableQueue tail
  */
 export function tail<A>(self: Queue<A>): Maybe<Queue<A>> {
@@ -48,6 +58,8 @@ export function tail<A>(self: Queue<A>): Maybe<Queue<A>> {
 }
 
 /**
+ * Prepends an element to the front of the queue.
+ *
  * @tsplus pipeable fncts.ImmutableQueue prepend
  */
 export function prepend<B>(elem: B) {
@@ -57,6 +69,8 @@ export function prepend<B>(elem: B) {
 }
 
 /**
+ * Enqueues an element at the back of the queue.
+ *
  * @tsplus pipeable fncts.ImmutableQueue enqueue
  */
 export function enqueue<B>(elem: B) {
@@ -66,6 +80,8 @@ export function enqueue<B>(elem: B) {
 }
 
 /**
+ * Dequeues the first element, throwing if the queue is empty.
+ *
  * @tsplus getter fncts.ImmutableQueue unsafeDequeue
  */
 export function unasfeDequeue<A>(self: Queue<A>): readonly [A, Queue<A>] {
@@ -80,6 +96,8 @@ export function unasfeDequeue<A>(self: Queue<A>): readonly [A, Queue<A>] {
 }
 
 /**
+ * Dequeues the first element as a `Maybe` pair.
+ *
  * @tsplus getter fncts.ImmutableQueue dequeue
  */
 export function dequeue<A>(self: Queue<A>): Maybe<readonly [A, Queue<A>]> {
@@ -90,6 +108,8 @@ export function dequeue<A>(self: Queue<A>): Maybe<readonly [A, Queue<A>]> {
 }
 
 /**
+ * Maps each element of the queue with `f`.
+ *
  * @tsplus pipeable fncts.ImmutableQueue map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -99,6 +119,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Left-folds the queue from front to back.
+ *
  * @tsplus pipeable fncts.ImmutableQueue foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -114,6 +136,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Checks whether any element satisfies `p`.
+ *
  * @tsplus pipeable fncts.ImmutableQueue some
  */
 export function some<A>(p: Predicate<A>) {
@@ -123,6 +147,8 @@ export function some<A>(p: Predicate<A>) {
 }
 
 /**
+ * Finds the first element that satisfies `p`.
+ *
  * @tsplus pipeable fncts.ImmutableQueue find
  */
 export function find<A>(p: Predicate<A>) {
@@ -140,6 +166,8 @@ export function find<A>(p: Predicate<A>) {
 }
 
 /**
+ * Keeps elements that satisfy `p`.
+ *
  * @tsplus pipeable fncts.ImmutableQueue filter
  */
 export function filter<A>(p: Predicate<A>) {
@@ -149,6 +177,8 @@ export function filter<A>(p: Predicate<A>) {
 }
 
 /**
+ * Counts elements that satisfy `p`.
+ *
  * @tsplus pipeable fncts.ImmutableQueue count
  */
 export function count<A>(p: Predicate<A>) {

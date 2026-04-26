@@ -1,6 +1,8 @@
 import { State } from "../../State.js";
 
 /**
+ * Runs this effect with access to mutable state of type S.
+ *
  * @tsplus static fncts.io.IOOps stateful
  */
 export function stateful<S, R, E, A>(

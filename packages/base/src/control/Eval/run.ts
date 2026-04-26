@@ -2,7 +2,10 @@ import { concrete, EvalTag } from "@fncts/base/control/Eval/definition";
 import { Stack } from "@fncts/base/internal/Stack";
 
 /**
+ * Execute an `Eval` computation to produce its value.
+ *
  * @tsplus getter fncts.control.Eval run
+ *
  * @tsplus static fncts.control.EvalOps run
  */
 export function run<A>(computation: Eval<A>): A {

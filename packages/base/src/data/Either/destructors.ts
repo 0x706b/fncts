@@ -1,6 +1,8 @@
 import { EitherTag } from "./definition.js";
 
 /**
+ * Pattern matches on `Either`, handling both `Left` and `Right` cases.
+ *
  * @tsplus pipeable fncts.Either match
  */
 export function match<E, A, B, C>(onLeft: (e: E) => B, onRight: (a: A) => C) {

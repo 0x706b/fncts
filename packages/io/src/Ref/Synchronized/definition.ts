@@ -8,6 +8,7 @@ export const SynchronizedTypeId = Symbol.for("fncts.io.Ref.Synchronized");
 export type SynchronizedTypeId = typeof SynchronizedTypeId;
 
 /**
+ *
  * @tsplus type fncts.io.Ref.Synchronized
  */
 export interface PSynchronized<RA, RB, EA, EB, A, B> extends PRef<RA, RB, EA, EB, A, B> {
@@ -15,11 +16,13 @@ export interface PSynchronized<RA, RB, EA, EB, A, B> extends PRef<RA, RB, EA, EB
 }
 
 /**
+ *
  * @tsplus type fncts.io.Ref.SynchronizedOps
  */
 export interface PSynchronizedOps {}
 
 /**
+ *
  * @tsplus static fncts.io.RefOps Synchronized
  */
 export const Synchronized: PSynchronizedOps = {};
@@ -69,6 +72,7 @@ export interface MappableSynchronized<RA, RB, EA, EB, A, B> {
 }
 
 /**
+ *
  * @tsplus type fncts.io.Ref.Synchronized
  */
 export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA, RB, EA, EB, A, B> {
@@ -171,6 +175,8 @@ export class PSynchronizedInternal<RA, RB, EA, EB, A, B> extends RefInternal<RA,
 }
 
 /**
+ * Assert that a synchronized ref uses `PSynchronizedInternal`.
+ *
  * @tsplus macro remove
  */
 export function concreteSynchronized<RA, RB, EA, EB, A, B>(

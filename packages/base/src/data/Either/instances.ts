@@ -6,6 +6,7 @@ import { concrete, Either, EitherTag, Right } from "@fncts/base/data/Either/defi
 import * as P from "../../typeclass.js";
 
 /**
+ *
  * @tsplus implicit
  */
 export const Functor = HKT.instance<P.Functor<EitherF>>({
@@ -13,6 +14,8 @@ export const Functor = HKT.instance<P.Functor<EitherF>>({
 });
 
 /**
+ * Returns an equality instance for `Either`.
+ *
  * @tsplus static fncts.EitherOps getEq
  */
 export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
@@ -35,6 +38,8 @@ export function getEq<E, A>(EE: P.Eq<E>, EA: P.Eq<A>): P.Eq<Either<E, A>> {
 }
 
 /**
+ * Derives an equality instance for a specific `Either` type.
+ *
  * @tsplus derive fncts.Eq[fncts.Either]<_> 10
  */
 export function deriveEq<A extends Either<any, any>>(
@@ -44,6 +49,8 @@ export function deriveEq<A extends Either<any, any>>(
 }
 
 /**
+ * Returns a filterable instance for `Either` with a monoidal left side.
+ *
  * @tsplus static fncts.EitherOps getFilterable
  */
 export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterable<EitherF, HKT.Fix<"E", E>> {
@@ -97,6 +104,8 @@ export function getFilerable<E>(/** @tsplus auto */ ME: P.Monoid<E>): P.Filterab
 }
 
 /**
+ * Derives a runtime guard for a specific `Either` type.
+ *
  * @tsplus derive fncts.Guard[fncts.Either]<_> 10
  */
 export function deriveGuard<A extends Either<any, any>>(

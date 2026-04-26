@@ -27,6 +27,7 @@ export interface EvalF extends HKT {
 }
 
 /**
+ *
  * @tsplus type fncts.control.Eval
  */
 export interface Eval<A> {
@@ -37,6 +38,7 @@ export interface Eval<A> {
 }
 
 /**
+ *
  * @tsplus type fncts.control.EvalOps
  */
 export interface EvalOps {}
@@ -77,6 +79,8 @@ export interface FlatMap
 type Primitive = Value | Defer | FlatMap;
 
 /**
+ * Assert an `Eval` value is one of the primitive runtime nodes.
+ *
  * @tsplus optimize remove
  */
 export function concrete(_: Eval<any>): asserts _ is Primitive {
@@ -84,6 +88,8 @@ export function concrete(_: Eval<any>): asserts _ is Primitive {
 }
 
 /**
+ * Normalize inferred `Eval` types.
+ *
  * @tsplus unify fncts.control.Eval
  */
 export function unifyEval<X extends Eval<any>>(self: X): Eval<[X] extends [Eval<infer A>] ? A : never> {

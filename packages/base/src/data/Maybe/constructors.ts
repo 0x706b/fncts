@@ -1,6 +1,8 @@
 import type { Nullable } from "@fncts/base/types";
 
 /**
+ * Converts a nullable value to a `Maybe`.
+ *
  * @tsplus static fncts.MaybeOps fromNullable
  */
 export function fromNullable<A>(a: Nullable<A>): Maybe<NonNullable<A>> {
@@ -8,6 +10,8 @@ export function fromNullable<A>(a: Nullable<A>): Maybe<NonNullable<A>> {
 }
 
 /**
+ * Lifts a nullable-returning function into one returning `Maybe`.
+ *
  * @tsplus static fncts.MaybeOps fromNullableK
  */
 export function fromNullableK<P extends ReadonlyArray<unknown>, A>(f: (...params: P) => Nullable<A>) {
@@ -15,6 +19,8 @@ export function fromNullableK<P extends ReadonlyArray<unknown>, A>(f: (...params
 }
 
 /**
+ * Constructs a `Maybe` from a predicate.
+ *
  * @tsplus static fncts.MaybeOps fromPredicate
  */
 export function fromPredicate<A>(a: A, p: Predicate<A>): Maybe<A>;
@@ -23,14 +29,20 @@ export function fromPredicate<A>(a: A, p: Predicate<A>): Maybe<A> {
   return p(a) ? Just(a) : Nothing();
 }
 /**
+ * Constructs a `Just` value.
+ *
  * @tsplus static fncts.MaybeOps just
+ *
  * @tsplus static fncts.JustOps __call
  */
 export function just<A>(a: A, __tsplusTrace?: string): Maybe<A> {
   return new Just(a, __tsplusTrace);
 }
 /**
+ * Constructs a `Nothing` value.
+ *
  * @tsplus static fncts.MaybeOps nothing
+ *
  * @tsplus static fncts.NothingOps __call
  */
 export function nothing<A = never>(__tsplusTrace?: string): Maybe<A> {
@@ -38,6 +50,8 @@ export function nothing<A = never>(__tsplusTrace?: string): Maybe<A> {
 }
 
 /**
+ * Converts a partial function into one returning `Maybe`.
+ *
  * @tsplus static fncts.MaybeOps partial
  */
 export function partial<P extends ReadonlyArray<unknown>, A>(f: (miss: () => never) => (...params: P) => A) {
@@ -62,6 +76,8 @@ function raisePartial(): never {
 }
 
 /**
+ * Executes a thunk and returns `Nothing` if it throws.
+ *
  * @tsplus static fncts.MaybeOps tryCatch
  */
 export function tryCatch<A>(thunk: () => A): Maybe<A> {
@@ -73,6 +89,8 @@ export function tryCatch<A>(thunk: () => A): Maybe<A> {
 }
 
 /**
+ * Lifts a throwing function into one returning `Maybe`.
+ *
  * @tsplus static fncts.MaybeOps tryCatchK
  */
 export function tryCatchK<P extends ReadonlyArray<unknown>, A>(f: (...params: P) => A) {

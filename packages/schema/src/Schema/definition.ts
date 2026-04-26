@@ -12,7 +12,9 @@ export interface SchemaF extends HKT {
 }
 
 /**
+ *
  * @tsplus type fncts.schema.Schema
+ *
  * @tsplus companion fncts.schema.SchemaOps
  */
 export class Schema<in out A> {
@@ -32,6 +34,8 @@ export declare namespace Schema {
 }
 
 /**
+ * Check whether a value is a Schema.
+ *
  * @tsplus static fncts.schema.SchemaOps isSchema
  */
 export function isSchema(u: unknown): u is Schema<unknown> {

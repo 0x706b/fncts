@@ -25,7 +25,9 @@ const _justHash    = Hashable.string("fncts.Just");
 const _nothingHash = Hashable.string("fncts.Nothing");
 
 /**
+ *
  * @tsplus type fncts.Maybe
+ *
  * @tsplus companion fncts.MaybeOps
  */
 export abstract class Maybe<A> {
@@ -39,7 +41,9 @@ export abstract class Maybe<A> {
 }
 
 /**
+ *
  * @tsplus type fncts.Just
+ *
  * @tsplus companion fncts.JustOps
  */
 export class Just<A> extends Maybe<A> {
@@ -59,7 +63,9 @@ export class Just<A> extends Maybe<A> {
 }
 
 /**
+ *
  * @tsplus type fncts.Nothing
+ *
  * @tsplus companion fncts.NothingOps
  */
 export class Nothing extends Maybe<never> {
@@ -76,6 +82,8 @@ export class Nothing extends Maybe<never> {
 }
 
 /**
+ * Widens a `Maybe` to its inferred value type.
+ *
  * @tsplus unify fncts.Maybe
  */
 export function unifyMaybe<X extends Maybe<any>>(
@@ -85,6 +93,8 @@ export function unifyMaybe<X extends Maybe<any>>(
 }
 
 /**
+ * Checks whether a value is a `Maybe`.
+ *
  * @tsplus static fncts.MaybeOps isMaybe
  */
 export function isMaybe(u: unknown): u is Maybe<unknown> {
@@ -112,8 +122,12 @@ export function isNothing<A>(self: Maybe<A>): self is Nothing {
 }
 
 /**
+ * Narrows a `Maybe` to its concrete runtime variants.
+ *
  * @tsplus fluent fncts.Maybe concrete
+ *
  * @tsplus static fncts.MaybeOps concrete
+ *
  * @tsplus macro remove
  */
 export function concrete<A>(self: Maybe<A>): asserts self is Just<A> | Nothing {

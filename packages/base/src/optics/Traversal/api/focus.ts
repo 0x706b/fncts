@@ -3,6 +3,8 @@ import type { PSetter } from "@fncts/base/optics/Setter";
 import type { PTraversal, PTraversalPartiallyApplied } from "@fncts/base/optics/Traversal";
 
 /**
+ * Focuses a source value through a traversal and returns traversal-based optics on the focus.
+ *
  * @tsplus fluent global focus 2
  */
 export function focus<S, T, A, B>(self: S, traversal: PTraversal<S, T, A, B>): PTraversalPartiallyApplied<T, A, B> {

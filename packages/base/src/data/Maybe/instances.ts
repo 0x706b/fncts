@@ -5,16 +5,19 @@ import { filter, filterMap, flatMap, foldLeft, foldRight, map, partition, partit
 import { just } from "./constructors.js";
 
 /**
+ *
  * @tsplus static fncts.MaybeOps Functor
  */
 export const Functor = HKT.instance<P.Functor<MaybeF>>({ map });
 
 /**
+ *
  * @tsplus static fncts.MaybeOps Apply
  */
 export const Apply = HKT.instance<P.Apply<MaybeF>>({ ...Functor, zip, zipWith });
 
 /**
+ *
  * @tsplus static fncts.MaybeOps Applicative
  */
 export const Applicative = HKT.instance<P.Applicative<MaybeF>>({
@@ -23,6 +26,7 @@ export const Applicative = HKT.instance<P.Applicative<MaybeF>>({
 });
 
 /**
+ *
  * @tsplus static fncts.MaybeOps Monad
  */
 export const Monad = HKT.instance<P.Monad<MaybeF>>({
@@ -31,6 +35,7 @@ export const Monad = HKT.instance<P.Monad<MaybeF>>({
 });
 
 /**
+ *
  * @tsplus static fncts.MaybeOps Foldable
  */
 export const Foldable = HKT.instance<P.Foldable<MaybeF>>({
@@ -39,6 +44,7 @@ export const Foldable = HKT.instance<P.Foldable<MaybeF>>({
 });
 
 /**
+ *
  * @tsplus static fncts.MaybeOps Filterable
  */
 export const Filterable = HKT.instance<P.Filterable<MaybeF>>({
@@ -50,6 +56,8 @@ export const Filterable = HKT.instance<P.Filterable<MaybeF>>({
 });
 
 /**
+ * Derives a runtime guard for a specific `Maybe` type.
+ *
  * @tsplus derive fncts.Guard[fncts.Maybe]<_> 10
  */
 export function deriveGuard<A extends Maybe<any>>(

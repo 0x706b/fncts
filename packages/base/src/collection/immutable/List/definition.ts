@@ -16,7 +16,10 @@ export const ListTypeId = Symbol.for("fncts.List");
 export type ListTypeId = typeof ListTypeId;
 
 /**
+ * Non-empty list node containing a head element and tail list.
+ *
  * @tsplus type fncts.List.Cons
+ *
  * @tsplus companion fncts.ConsOps
  */
 export class Cons<A> implements Iterable<A> {
@@ -27,6 +30,9 @@ export class Cons<A> implements Iterable<A> {
     public tail: List<A> = _Nil,
   ) {}
 
+  /**
+   * Iterates elements from this node through the tail.
+   */
   [Symbol.iterator](): Iterator<A> {
     let done = false;
 
@@ -55,12 +61,19 @@ export class Cons<A> implements Iterable<A> {
 }
 
 /**
+ * Singleton empty list representation.
+ *
  * @tsplus type fncts.List.Nil
+ *
  * @tsplus companion fncts.NilOps
  */
 export class Nil<A> implements Iterable<A> {
   readonly _tag                     = "Nil";
   readonly [ListTypeId]: ListTypeId = ListTypeId;
+
+  /**
+   * Returns an iterator that is immediately done.
+   */
   [Symbol.iterator](): Iterator<A> {
     return {
       next() {
@@ -71,6 +84,8 @@ export class Nil<A> implements Iterable<A> {
 }
 
 /**
+ * Checks whether `u` is a `List` value.
+ *
  * @tsplus static fncts.ListOps is
  */
 export function isList(u: unknown): u is List<unknown> {
@@ -80,11 +95,15 @@ export function isList(u: unknown): u is List<unknown> {
 export const _Nil = new Nil<never>();
 
 /**
+ * Immutable singly linked list type.
+ *
  * @tsplus type fncts.List
  */
 export type List<A> = Cons<A> | Nil<A>;
 
 /**
+ * Namespace of static list operations.
+ *
  * @tsplus type fncts.ListOps
  */
 export interface ListOps {}
@@ -92,6 +111,8 @@ export interface ListOps {}
 export const List: ListOps = {};
 
 /**
+ * Checks whether the list is empty.
+ *
  * @tsplus fluent fncts.List isEmpty
  */
 export function isEmpty<A>(list: List<A>): list is Nil<A> {
@@ -99,6 +120,8 @@ export function isEmpty<A>(list: List<A>): list is Nil<A> {
 }
 
 /**
+ * Checks whether the list is non-empty.
+ *
  * @tsplus fluent fncts.List isNonEmpty
  */
 export function isNonEmpty<A>(list: List<A>): list is Cons<A> {

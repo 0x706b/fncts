@@ -1,4 +1,6 @@
 /**
+ * Splits an array into chunks of size `n`.
+ *
  * @tsplus pipeable fncts.ReadonlyArray chunksOf
  */
 export function chunksOf(n: number) {

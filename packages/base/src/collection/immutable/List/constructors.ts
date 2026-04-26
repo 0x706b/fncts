@@ -15,6 +15,8 @@
 import { _Nil } from "./definition.js";
 
 /**
+ * Constructs a `Cons` node from `head` and `tail`.
+ *
  * @tsplus static fncts.ConsOps __call
  */
 export function cons<A>(head: A, tail: List<A> = _Nil): Cons<A> {
@@ -22,6 +24,8 @@ export function cons<A>(head: A, tail: List<A> = _Nil): Cons<A> {
 }
 
 /**
+ * Returns an empty list.
+ *
  * @tsplus static fncts.ListOps empty
  */
 export function empty<A>(): List<A> {
@@ -29,7 +33,10 @@ export function empty<A>(): List<A> {
 }
 
 /**
+ * Builds a list from an iterable.
+ *
  * @tsplus static fncts.ListOps from
+ *
  * @tsplus getter fncts.Iterable toList
  */
 export function from<A>(prefix: Iterable<A>): List<A> {
@@ -50,6 +57,8 @@ export function from<A>(prefix: Iterable<A>): List<A> {
 }
 
 /**
+ * Builds a list from the provided values.
+ *
  * @tsplus static fncts.ListOps __call
  */
 export function make<A>(...as: ReadonlyArray<A>): List<A> {
@@ -57,6 +66,8 @@ export function make<A>(...as: ReadonlyArray<A>): List<A> {
 }
 
 /**
+ * Returns the singleton empty `Nil` value.
+ *
  * @tsplus static fncts.NilOps __call
  */
 export function nil<A>(): Nil<A> {

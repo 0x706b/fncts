@@ -6,6 +6,7 @@ import { Fold } from "@fncts/base/optics/Fold";
 import { PSetter } from "@fncts/base/optics/Setter";
 
 /**
+ *
  * @tsplus type fncts.optics.PTraversal
  */
 export interface PTraversal<S, T, A, B> extends PSetter<S, T, A, B>, Fold<S, A> {
@@ -33,6 +34,7 @@ export interface PTraversalMin<S, T, A, B> {
 }
 
 /**
+ *
  * @tsplus type fncts.optics.PTraversalOps
  */
 export interface PTraversalOps {}
@@ -40,6 +42,8 @@ export interface PTraversalOps {}
 export const PTraversal: PTraversalOps = {};
 
 /**
+ * Builds a polymorphic traversal from its minimal applicative modifier.
+ *
  * @tsplus static fncts.optics.PTraversalOps __call
  */
 export function makePTraversal<S, T, A, B>(F: PTraversalMin<S, T, A, B>): PTraversal<S, T, A, B> {
@@ -60,16 +64,20 @@ export function makePTraversal<S, T, A, B>(F: PTraversalMin<S, T, A, B>): PTrave
 }
 
 /**
+ *
  * @tsplus type fncts.optics.Traversal
  */
 export interface Traversal<S, A> extends PTraversal<S, S, A, A> {}
 
 /**
+ *
  * @tsplus type fncts.optics.TraversalOps
  */
 export interface TraversalOps extends PTraversalOps {}
 
 /**
+ * Builds a monomorphic traversal from its minimal applicative modifier.
+ *
  * @tsplus static fncts.optics.TraversalOps __call
  */
 export function makeTraversal<S, A>(F: PTraversalMin<S, S, A, A>): Traversal<S, A> {

@@ -2,6 +2,8 @@ import { _Nil } from "@fncts/base/collection/immutable/List";
 import { EmptyQueue, Queue } from "@fncts/base/collection/immutable/Queue/definition";
 
 /**
+ * Returns an empty immutable queue.
+ *
  * @tsplus static fncts.ImmutableQueueOps empty
  */
 export function empty<A>(): Queue<A> {
@@ -9,6 +11,8 @@ export function empty<A>(): Queue<A> {
 }
 
 /**
+ * Creates a queue containing a single element.
+ *
  * @tsplus static fncts.ImmutableQueueOps single
  */
 export function single<A>(a: A): Queue<A> {

@@ -1,4 +1,6 @@
 /**
+ * Returns the tail, throwing if the list is empty.
+ *
  * @tsplus getter fncts.List unsafeTail
  */
 export function unsafeTail<A>(self: List<A>): List<A> {

@@ -10,6 +10,8 @@ export function hashSet<A>(value: Schema<A>): Schema<HashSet<A>> {
 }
 
 /**
+ * Create a HashSet schema from an array representation.
+ *
  * @tsplus static fncts.schema.SchemaOps hashSetFromArray
  */
 export function hashSetFromArray<A>(value: Schema<A>): Schema<HashSet<A>> {
@@ -33,6 +35,8 @@ export function hashSetFromArray<A>(value: Schema<A>): Schema<HashSet<A>> {
 }
 
 /**
+ * Derive a HashSet schema from a HashSet type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.HashSet]<_> 10
  */
 export function deriveHashSet<A extends HashSet<any>>(

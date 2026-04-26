@@ -23,6 +23,7 @@ export interface VectorF extends HKT {
  * Represents a Vector of elements.
  *
  * @tsplus type fncts.Vector
+ *
  * @tsplus companion fncts.VectorOps
  */
 export class Vector<A> implements Iterable<A> {
@@ -62,7 +63,10 @@ export class Vector<A> implements Iterable<A> {
 }
 
 /**
+ * Mutable view of the internal Vector representation used for batched updates.
+ *
  * @tsplus type fncts.Vector
+ *
  * @tsplus type fncts.MutableVector
  */
 export interface MutableVector<A> {
@@ -87,6 +91,9 @@ export interface MutableVector<A> {
   "@@mutable": true;
 }
 
+/**
+ * Returns `true` when the value is a Vector instance.
+ */
 export function isVector(u: unknown): u is Vector<unknown> {
   return isObject(u) && VectorTypeId in u;
 }
@@ -96,6 +103,7 @@ export function isVector(u: unknown): u is Vector<unknown> {
  * pair of elements with the given comparison function.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector corresponds
  */
 export function corresponds<A, B>(bs: Vector<B>, f: (a: A, b: B) => boolean) {
@@ -115,6 +123,9 @@ type EqualsState<A, B> = {
   equals: boolean;
 };
 
+/**
+ * Compares one pair of elements in `corresponds` and stops on mismatch.
+ */
 function equalsCb<A, B>(a: A, state: EqualsState<A, B>): boolean {
   const { value } = state.iterator.next();
   return (state.equals = state.f(a, value));

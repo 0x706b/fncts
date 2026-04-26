@@ -9,6 +9,8 @@ export interface getPartiallyApplied<A> {
 }
 
 /**
+ * Represents a getter that focuses on exactly one value within a source.
+ *
  * @tsplus type fncts.optics.Getter
  */
 export interface Getter<S, A> extends Fold<S, A> {
@@ -20,10 +22,15 @@ export interface GetterPartiallyApplied<A> extends FoldPartiallyApplied<A> {
 }
 
 /**
+ * Provides static constructors and helpers for building `Getter` values.
+ *
  * @tsplus type fncts.optics.GetterOps
  */
 export interface GetterOps {}
 
+/**
+ * Exposes the namespace object for `Getter` constructors and extensions.
+ */
 export const Getter: GetterOps = {};
 
 export interface GetterMin<S, A> {
@@ -31,6 +38,8 @@ export interface GetterMin<S, A> {
 }
 
 /**
+ * Builds a `Getter` from a minimal `get` implementation and derives `foldMap` from it.
+ *
  * @tsplus static fncts.optics.GetterOps __call
  */
 export function makeGetter<S, A>(F: GetterMin<S, A>): Getter<S, A> {

@@ -32,6 +32,10 @@ export function unsafeRunAll<S1>(s: S1) {
     let failed                = false;
     let current               = ma as Pure<any, any, any, any, any, any> | undefined;
     let log                   = Conc.empty<W>();
+
+    /**
+     * Unwind continuation frames until the nearest error handler.
+     */
     function unsafeUnwindStack() {
       let unwinding = true;
       while (unwinding) {
@@ -280,6 +284,7 @@ export function unsafeRunExit<E, A>(ma: Pure<never, unknown, unknown, never, E, 
 }
 
 /**
+ * Run a computation and return its log together with the result.
  *
  * @tsplus getter fncts.control.Pure unsafeRunWriter
  */

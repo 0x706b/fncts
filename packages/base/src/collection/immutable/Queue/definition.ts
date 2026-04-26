@@ -15,7 +15,10 @@
 import { _Nil } from "@fncts/base/collection/immutable/List";
 
 /**
+ * Immutable FIFO queue backed by two lists.
+ *
  * @tsplus type fncts.ImmutableQueue
+ *
  * @tsplus companion fncts.ImmutableQueueOps
  */
 export class Queue<A> implements Iterable<A> {
@@ -25,6 +28,10 @@ export class Queue<A> implements Iterable<A> {
     /* @internal */
     public _out: List<A>,
   ) {}
+
+  /**
+   * Iterates queue elements from front to back.
+   */
   [Symbol.iterator]() {
     return this._in.concat(this._out.reverse)[Symbol.iterator]();
   }

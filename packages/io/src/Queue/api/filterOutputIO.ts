@@ -66,6 +66,9 @@ class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, R
 }
 
 /**
+ * Filter elements dequeued from the queue using an effectful predicate.
+ * Elements that do not pass the predicate are skipped.
+ *
  * @tsplus pipeable fncts.io.Queue filterOutputIO
  */
 export function filterOutputIO<B, RB1, EB1>(f: (b: B) => IO<RB1, EB1, boolean>, __tsplusTrace?: string) {
@@ -76,6 +79,9 @@ export function filterOutputIO<B, RB1, EB1>(f: (b: B) => IO<RB1, EB1, boolean>, 
 }
 
 /**
+ * Filter elements dequeued from the queue using a predicate.
+ * Elements that do not pass the predicate are skipped.
+ *
  * @tsplus pipeable fncts.io.Queue filterOutput
  */
 export function filterOutput<B>(p: Predicate<B>, __tsplusTrace?: string) {
@@ -150,6 +156,8 @@ class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1>
 }
 
 /**
+ * Filter elements dequeued from an enqueue-only queue using an effectful predicate.
+ *
  * @tsplus pipeable fncts.io.Queue.Dequeue filterOutputIO
  */
 export function filterOutputDequeueIO<B, RB1, EB1>(f: (b: B) => IO<RB1, EB1, boolean>, __tsplusTrace?: string) {

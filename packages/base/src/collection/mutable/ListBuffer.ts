@@ -19,18 +19,32 @@ export class ListBuffer<A> implements Iterable<A> {
   private last0: Cons<A> | undefined = undefined;
   private len = 0;
 
+  /**
+   * Returns an iterator over the current elements in insertion order.
+   */
   [Symbol.iterator](): Iterator<A> {
     return this.first[Symbol.iterator]();
   }
 
+  /**
+   * Number of elements currently stored in this buffer.
+   */
   get length(): number {
     return this.len;
   }
 
+  /**
+   * Whether this buffer has no elements.
+   */
   get isEmpty(): boolean {
     return this.len === 0;
   }
 
+  /**
+   * First element in the buffer.
+   *
+   * @throws NoSuchElementError if the buffer is empty
+   */
   get unsafeHead(): A {
     if (this.isEmpty) {
       throw new NoSuchElementError("head on empty ListBuffer");
@@ -38,6 +52,11 @@ export class ListBuffer<A> implements Iterable<A> {
     return (this.first as Cons<A>).head;
   }
 
+  /**
+   * All elements except the first one.
+   *
+   * @throws NoSuchElementError if the buffer is empty
+   */
   get unsafeTail(): List<A> {
     if (this.isEmpty) {
       throw new NoSuchElementError("tail on empty ListBuffer");
@@ -45,6 +64,9 @@ export class ListBuffer<A> implements Iterable<A> {
     return (this.first as Cons<A>).tail;
   }
 
+  /**
+   * Appends `elem` to the end of this buffer.
+   */
   append(elem: A): this {
     const last1 = new Cons(elem, _Nil);
     if (this.len === 0) {
@@ -57,11 +79,19 @@ export class ListBuffer<A> implements Iterable<A> {
     return this;
   }
 
+  /**
+   * Inserts `elem` at the beginning of this buffer.
+   */
   prepend(elem: A): this {
     this.insert(0, elem);
     return this;
   }
 
+  /**
+   * Removes and returns the first element.
+   *
+   * @throws NoSuchElementError if the buffer is empty
+   */
   unprepend(): A {
     if (this.isEmpty) {
       throw new NoSuchElementError("unprepend on empty ListBuffer");
@@ -72,10 +102,18 @@ export class ListBuffer<A> implements Iterable<A> {
     return h;
   }
 
+  /**
+   * Returns the current elements as an immutable list view.
+   */
   get toList(): List<A> {
     return this.first;
   }
 
+  /**
+   * Inserts `elem` at `idx`, shifting later elements to the right.
+   *
+   * @throws IndexOutOfBoundsError if `idx` is outside `[0, length]`
+   */
   insert(idx: number, elem: A): this {
     if (idx < 0 || idx > this.len) {
       throw new IndexOutOfBoundsError(`${idx} is out of bounds (min 0, max ${this.len - 1})`);
@@ -95,10 +133,16 @@ export class ListBuffer<A> implements Iterable<A> {
     return this;
   }
 
+  /**
+   * Folds elements from left to right starting with `b`.
+   */
   foldLeft<B>(b: B, f: (b: B, a: A) => B): B {
     return this.first.foldLeft(b, f);
   }
 
+  /**
+   * Returns the node after `p`, or the current head when `p` is absent.
+   */
   private getNext(p: List<A> | undefined): List<A> {
     if (p === undefined) {
       return this.first;
@@ -107,6 +151,9 @@ export class ListBuffer<A> implements Iterable<A> {
     }
   }
 
+  /**
+   * Finds the node preceding index `i`, or `undefined` for the head position.
+   */
   private locate(i: number): List<A> | undefined {
     if (i === 0) {
       return undefined;

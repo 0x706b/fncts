@@ -1,4 +1,6 @@
 /**
+ * Left-folds the list from head to tail.
+ *
  * @tsplus pipeable fncts.List foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {

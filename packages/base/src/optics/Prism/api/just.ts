@@ -1,6 +1,8 @@
 import { Prism } from "@fncts/base/optics/Prism/definition";
 
 /**
+ * Creates a prism that matches `Just` values from `Maybe`.
+ *
  * @tsplus static fncts.optics.PPrismOps just
  */
 export function just<A>(): Prism<Maybe<A>, A> {

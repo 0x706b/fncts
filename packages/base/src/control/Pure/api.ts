@@ -3,6 +3,8 @@ import { PurePrimitive, PureTag } from "@fncts/base/control/Pure/definition";
 import { identity, tuple } from "../../data/function.js";
 
 /**
+ * Expose failure from an `Either` success channel as typed failure.
+ *
  * @tsplus getter fncts.control.Pure absolve
  */
 export function absolve<W, S1, S2, R, E, E1, A>(
@@ -12,6 +14,8 @@ export function absolve<W, S1, S2, R, E, E1, A>(
 }
 
 /**
+ * Apply a pure function to a pure value.
+ *
  * @tsplus pipeable fncts.control.Pure ap
  */
 export function ap<W, S, A, R1, E1>(fb: Pure<W, S, S, R1, E1, A>) {
@@ -21,6 +25,8 @@ export function ap<W, S, A, R1, E1>(fb: Pure<W, S, S, R1, E1, A>) {
 }
 
 /**
+ * Combine two computations and keep the left result.
+ *
  * @tsplus pipeable fncts.control.Pure zipLeft
  */
 export function zipLeft<W, S, R1, E1, B>(fb: Pure<W, S, S, R1, E1, B>) {
@@ -30,6 +36,8 @@ export function zipLeft<W, S, R1, E1, B>(fb: Pure<W, S, S, R1, E1, B>) {
 }
 
 /**
+ * Combine two computations and keep the right result.
+ *
  * @tsplus pipeable fncts.control.Pure zipRight
  */
 export function zipRight<W, S, R1, E1, B>(fb: Pure<W, S, S, R1, E1, B>) {
@@ -39,6 +47,8 @@ export function zipRight<W, S, R1, E1, B>(fb: Pure<W, S, S, R1, E1, B>) {
 }
 
 /**
+ * Map both error and success channels.
+ *
  * @tsplus pipeable fncts.control.Pure bimap
  */
 export function bimap<E, A, G, B>(f: (e: E) => G, g: (a: A) => B) {
@@ -62,6 +72,8 @@ export function catchAll<W, S1, E, S3, R1, E1, B>(onFailure: (e: E) => Pure<W, S
 }
 
 /**
+ * Handle only selected errors and leave others unchanged.
+ *
  * @tsplus pipeable fncts.control.Pure catchJust
  */
 export function catchJust<W, S1, E, S3, R1, E1, B>(f: (e: E) => Maybe<Pure<W, S1, S3, R1, E1, B>>) {
@@ -71,6 +83,8 @@ export function catchJust<W, S1, E, S3, R1, E1, B>(f: (e: E) => Maybe<Pure<W, S1
 }
 
 /**
+ * Sequence computations by binding the success value.
+ *
  * @tsplus pipeable fncts.control.Pure flatMap
  */
 export function flatMap<S2, A, W1, S3, R1, E1, B>(f: (a: A) => Pure<W1, S2, S3, R1, E1, B>) {
@@ -83,6 +97,8 @@ export function flatMap<S2, A, W1, S3, R1, E1, B>(f: (a: A) => Pure<W1, S2, S3, 
 }
 
 /**
+ * Transform the required environment before running.
+ *
  * @tsplus pipeable fncts.control.Pure contramapEnvironment
  */
 export function contramapEnvironment<R0, R>(f: (r0: Environment<R0>) => Environment<R>) {
@@ -104,6 +120,8 @@ export function contramapState<S0, S1>(f: (s: S0) => S1) {
 }
 
 /**
+ * Combine two computations into a tuple.
+ *
  * @tsplus pipeable fncts.control.Pure cross
  */
 export function cross<W, S, R1, E1, B>(fb: Pure<W, S, S, R1, E1, B>) {
@@ -113,6 +131,8 @@ export function cross<W, S, R1, E1, B>(fb: Pure<W, S, S, R1, E1, B>) {
 }
 
 /**
+ * Combine two computations with a custom function.
+ *
  * @tsplus pipeable fncts.control.Pure crossWith
  */
 export function crossWith<W, S, A, R1, E1, B, C>(fb: Pure<W, S, S, R1, E1, B>, f: (a: A, b: B) => C) {
@@ -122,6 +142,8 @@ export function crossWith<W, S, A, R1, E1, B, C>(fb: Pure<W, S, S, R1, E1, B>, f
 }
 
 /**
+ * Suspend creation of a computation until evaluation.
+ *
  * @tsplus static fncts.control.PureOps defer
  */
 export function defer<W, S1, S2, R, E, A>(
@@ -145,6 +167,8 @@ export function either<W, S1, S2, R, E, A>(fa: Pure<W, S1, S2, R, E, A>): Pure<W
 }
 
 /**
+ * Access the current environment.
+ *
  * @tsplus static fncts.control.PureOps environment
  */
 export function environment<R>(): Pure<never, unknown, never, R, never, Environment<R>> {
@@ -154,6 +178,8 @@ export function environment<R>(): Pure<never, unknown, never, R, never, Environm
 }
 
 /**
+ * Read from the environment using a pure function.
+ *
  * @tsplus static fncts.control.PureOps environmentWith
  */
 export function environmentWith<R0, A>(f: (r: Environment<R0>) => A): Pure<never, unknown, never, R0, never, A> {
@@ -163,6 +189,8 @@ export function environmentWith<R0, A>(f: (r: Environment<R0>) => A): Pure<never
 }
 
 /**
+ * Read from the environment and continue with a computation.
+ *
  * @tsplus static fncts.control.PureOps environmentWithPure
  */
 export function environmentWithPure<R0, W, S1, S2, R, E, A>(
@@ -183,6 +211,8 @@ export function erase<W, S1, S2, R, E, A>(wa: Pure<W, S1, S2, R, E, A>): Pure<ne
 }
 
 /**
+ * Fail with a lazily constructed error.
+ *
  * @tsplus static fncts.control.PureOps fail
  */
 export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Pure<never, unknown, never, never, E, never> {
@@ -190,6 +220,8 @@ export function fail<E>(e: Lazy<E>, __tsplusTrace?: string): Pure<never, unknown
 }
 
 /**
+ * Fail immediately with an error.
+ *
  * @tsplus static fncts.control.PureOps failNow
  */
 export function failNow<E>(e: E, __tsplusTrace?: string): Pure<never, unknown, never, never, E, never> {
@@ -197,6 +229,8 @@ export function failNow<E>(e: E, __tsplusTrace?: string): Pure<never, unknown, n
 }
 
 /**
+ * Fail with a lazily constructed cause.
+ *
  * @tsplus static fncts.control.PureOps failCause
  */
 export function failCause<E>(
@@ -207,6 +241,8 @@ export function failCause<E>(
 }
 
 /**
+ * Fail immediately with the provided cause.
+ *
  * @tsplus static fncts.control.PureOps failCauseNow
  */
 export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Pure<never, unknown, never, never, E, never> {
@@ -216,6 +252,8 @@ export function failCauseNow<E>(cause: Cause<E>, __tsplusTrace?: string): Pure<n
 }
 
 /**
+ * Flatten one level of nested `Pure`.
+ *
  * @tsplus getter fncts.control.Pure flatten
  */
 export function flatten<W, S1, S2, R, E, A, W1, S3, R1, E1>(
@@ -234,6 +272,8 @@ export function get<S>(): Pure<never, S, S, never, never, S> {
 }
 
 /**
+ * Read the current state through a projection function.
+ *
  * @tsplus static fncts.control.PureOps gets
  */
 export function gets<S, A>(f: (s: S) => A): Pure<never, S, S, never, never, A> {
@@ -241,6 +281,8 @@ export function gets<S, A>(f: (s: S) => A): Pure<never, S, S, never, never, A> {
 }
 
 /**
+ * Read the state and continue with a stateful computation.
+ *
  * @tsplus static fncts.control.PureOps getsPure
  */
 export function getsPure<S, W, R, E, A>(f: (s: S) => Pure<W, S, S, R, E, A>): Pure<W, S, S, R, E, A> {
@@ -248,6 +290,8 @@ export function getsPure<S, W, R, E, A>(f: (s: S) => Pure<W, S, S, R, E, A>): Pu
 }
 
 /**
+ * Terminate with a lazily constructed defect.
+ *
  * @tsplus static fncts.control.PureOps halt
  */
 export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Pure<never, unknown, never, never, never, never> {
@@ -255,6 +299,8 @@ export function halt(defect: Lazy<unknown>, __tsplusTrace?: string): Pure<never,
 }
 
 /**
+ * Terminate immediately with a defect.
+ *
  * @tsplus static fncts.control.PureOps haltNow
  */
 export function haltNow(defect: unknown, __tsplusTrace?: string): Pure<never, unknown, never, never, never, never> {
@@ -262,6 +308,8 @@ export function haltNow(defect: unknown, __tsplusTrace?: string): Pure<never, un
 }
 
 /**
+ * Return both result and accumulated log.
+ *
  * @tsplus getter fncts.control.Pure listen
  */
 export function listen<W, S1, S2, R, E, A>(wa: Pure<W, S1, S2, R, E, A>): Pure<W, S1, S2, R, E, readonly [A, Conc<W>]> {
@@ -272,6 +320,8 @@ export function listen<W, S1, S2, R, E, A>(wa: Pure<W, S1, S2, R, E, A>): Pure<W
 }
 
 /**
+ * Transform the captured log while keeping the result.
+ *
  * @tsplus pipeable fncts.control.Pure listens
  */
 export function listens<W, B>(f: (log: Conc<W>) => B) {
@@ -281,6 +331,8 @@ export function listens<W, B>(f: (log: Conc<W>) => B) {
 }
 
 /**
+ * Transform the success value.
+ *
  * @tsplus pipeable fncts.control.Pure map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -290,6 +342,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Transform typed errors.
+ *
  * @tsplus pipeable fncts.control.Pure mapError
  */
 export function mapError<E, G>(f: (e: E) => G) {
@@ -355,6 +409,8 @@ export function matchPure<S5, S2, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>(
 }
 
 /**
+ * Recover by matching on full failure cause or success.
+ *
  * @tsplus pipeable fncts.control.Pure matchCausePure
  */
 export function matchCausePure<S2, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E2, C>(
@@ -370,6 +426,8 @@ export function matchCausePure<S2, E, A, W1, S0, S3, R1, E1, B, W2, S4, R2, E2, 
 }
 
 /**
+ * Recover using both accumulated log and result/error.
+ *
  * @tsplus pipeable fncts.control.Pure matchLogPure
  */
 export function matchLogPure<W, S5, S2, E, A, W1, S3, R1, E1, B, W2, S4, R2, E2, C>(
@@ -432,6 +490,8 @@ export function modifyEither<S1, S2, E, A>(
 }
 
 /**
+ * Fallback to another computation on failure.
+ *
  * @tsplus pipeable fncts.control.Pure orElse
  */
 export function orElse<S1, W1, S3, R1, E1, A1>(fb: Lazy<Pure<W1, S1, S3, R1, E1, A1>>) {
@@ -456,6 +516,8 @@ export function orElseEither<W, S3, S4, R1, E1, A1>(that: Lazy<Pure<W, S3, S4, R
 }
 
 /**
+ * Provide the environment required by this computation.
+ *
  * @tsplus pipeable fncts.control.Pure provideEnvironment
  */
 export function provideEnvironment<R>(r: Environment<R>) {
@@ -501,6 +563,8 @@ export function repeatUntil<A>(p: Predicate<A>) {
 }
 
 /**
+ * Succeed with a lazily computed value.
+ *
  * @tsplus static fncts.control.PureOps succeed
  */
 export function succeed<A, W = never, S1 = unknown, S2 = never>(
@@ -513,6 +577,8 @@ export function succeed<A, W = never, S1 = unknown, S2 = never>(
 }
 
 /**
+ * Succeed immediately with a value.
+ *
  * @tsplus static fncts.control.PureOps succeedNow
  */
 export function succeedNow<A, W = never, S1 = unknown, S2 = never>(
@@ -525,6 +591,8 @@ export function succeedNow<A, W = never, S1 = unknown, S2 = never>(
 }
 
 /**
+ * Run an effectful continuation and keep the original value.
+ *
  * @tsplus pipeable fncts.control.Pure tap
  */
 export function tap<S2, A, W1, S3, R1, E1, B>(f: (a: A) => Pure<W1, S2, S3, R1, E1, B>) {
@@ -534,6 +602,8 @@ export function tap<S2, A, W1, S3, R1, E1, B>(f: (a: A) => Pure<W1, S2, S3, R1, 
 }
 
 /**
+ * Append a single log entry.
+ *
  * @tsplus static fncts.control.PureOps tell
  */
 export function tell<W>(w: W): Pure<W, unknown, never, never, never, void> {
@@ -541,6 +611,8 @@ export function tell<W>(w: W): Pure<W, unknown, never, never, never, void> {
 }
 
 /**
+ * Append multiple log entries.
+ *
  * @tsplus static fncts.control.PureOps tellAll
  */
 export function tellAll<W>(ws: Conc<W>): Pure<W, unknown, never, never, never, void> {
@@ -561,6 +633,8 @@ export function transform<S2, A, S3, B>(f: (s: S2, a: A) => readonly [B, S3]) {
 }
 
 /**
+ * A computation that succeeds with `undefined`.
+ *
  * @tsplus static fncts.control.PureOps unit
  */
 export const unit: Pure<never, unknown, never, never, never, void> = Pure.succeedNow(undefined);
@@ -575,6 +649,8 @@ export function update<S1, S2>(f: (s: S1) => S2): Pure<never, S1, S2, never, nev
 }
 
 /**
+ * Append one log entry to a computation.
+ *
  * @tsplus pipeable fncts.control.Pure write
  */
 export function write<W1>(w: W1) {
@@ -584,6 +660,8 @@ export function write<W1>(w: W1) {
 }
 
 /**
+ * Append all provided log entries to a computation.
+ *
  * @tsplus pipeable fncts.control.Pure writeAll
  */
 export function writeAll<W1>(log: Conc<W1>) {
@@ -593,6 +671,8 @@ export function writeAll<W1>(log: Conc<W1>) {
 }
 
 /**
+ * Combine two computations into a zipped pair.
+ *
  * @tsplus pipeable fncts.control.Pure zip
  */
 export function zip<S2, W1, S3, Q, D, B>(fb: Pure<W1, S2, S3, Q, D, B>) {
@@ -602,6 +682,8 @@ export function zip<S2, W1, S3, Q, D, B>(fb: Pure<W1, S2, S3, Q, D, B>) {
 }
 
 /**
+ * Combine two computations and keep the first result.
+ *
  * @tsplus pipeable fncts.control.Pure zipFirst
  */
 export function zipFirst<S2, W1, S3, Q, D, B>(fb: Pure<W1, S2, S3, Q, D, B>) {
@@ -611,6 +693,8 @@ export function zipFirst<S2, W1, S3, Q, D, B>(fb: Pure<W1, S2, S3, Q, D, B>) {
 }
 
 /**
+ * Combine two computations and keep the second result.
+ *
  * @tsplus pipeable fncts.control.Pure zipSecond
  */
 export function zipSecond<S2, W1, S3, Q, D, B>(fb: Pure<W1, S2, S3, Q, D, B>) {
@@ -620,6 +704,8 @@ export function zipSecond<S2, W1, S3, Q, D, B>(fb: Pure<W1, S2, S3, Q, D, B>) {
 }
 
 /**
+ * Combine two computations with a result function.
+ *
  * @tsplus pipeable fncts.control.Pure zipWith
  */
 export function zipWith<S2, A, W1, S3, R1, E1, B, C>(fb: Pure<W1, S2, S3, R1, E1, B>, f: (a: A, b: B) => C) {

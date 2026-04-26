@@ -1,4 +1,6 @@
 /**
+ * Forks this effect into a fiber attached to the current scope.
+ *
  * @tsplus getter fncts.io.IO forkScoped
  */
 export function forkScoped<R, E, A>(

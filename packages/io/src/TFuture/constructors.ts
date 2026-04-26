@@ -1,5 +1,8 @@
 /**
+ * Creates a new empty transactional future.
+ *
  * @tsplus static fncts.io.TFutureOps make
+ *
  * @tsplus static fncts.io.TFutureOps __call
  */
 export function make<E, A>(__tsplusTrace?: string): USTM<TFuture<E, A>> {
@@ -7,6 +10,8 @@ export function make<E, A>(__tsplusTrace?: string): USTM<TFuture<E, A>> {
 }
 
 /**
+ * Creates a new empty transactional future in `UIO`.
+ *
  * @tsplus static fncts.io.TFutureOps makeCommit
  */
 export function makeCommit<E, A>(__tsplusTrace?: string): UIO<TFuture<E, A>> {

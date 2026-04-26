@@ -6,7 +6,9 @@ export const EntryTypeId = Symbol.for("fncts.io.Entry");
 export type EntryTypeId = typeof EntryTypeId;
 
 /**
+ *
  * @tsplus type fncts.io.Entry
+ *
  * @tsplus companion fncts.io.EntryOps
  */
 export class Entry {
@@ -15,6 +17,8 @@ export class Entry {
 }
 
 /**
+ * Creates an entry for a TRef in the transaction journal.
+ *
  * @tsplus static fncts.io.EntryOps make
  */
 export function make<A0>(tref0: Atomic<A0>, isNew0: boolean): Entry {

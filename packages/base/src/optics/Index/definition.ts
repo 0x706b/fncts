@@ -1,6 +1,7 @@
 import type { Optional } from "@fncts/base/optics/Optional";
 
 /**
+ *
  * @tsplus type fncts.optics.Index
  */
 export interface Index<S, I, A> {
@@ -10,6 +11,7 @@ export interface Index<S, I, A> {
 export type IndexMin<S, I, A> = Index<S, I, A>;
 
 /**
+ *
  * @tsplus type fncts.optics.IndexOps
  */
 export interface IndexOps {}
@@ -17,6 +19,8 @@ export interface IndexOps {}
 export const Index: IndexOps = {};
 
 /**
+ * Builds an `Index` from its minimal `index` implementation.
+ *
  * @tsplus static fncts.optics.IndexOps __call
  */
 export function makeIndex<S, I, A>(F: IndexMin<S, I, A>): Index<S, I, A> {

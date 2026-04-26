@@ -1,6 +1,8 @@
 import { ServiceNotFoundError } from "@fncts/base/data/Environment/ServiceNotFoundError";
 
 /**
+ * Adds or replaces a service in the environment.
+ *
  * @tsplus pipeable fncts.Environment add
  */
 export function add<H extends S, S = H>(
@@ -18,6 +20,7 @@ export function add<H extends S, S = H>(service: H, tag: Tag<S>) {
 }
 
 /**
+ *
  * @tsplus static fncts.EnvironmentOps empty
  */
 export const empty = Environment();
@@ -25,6 +28,8 @@ export const empty = Environment();
 type Tags<R> = R extends infer S ? Tag<any, S> : never;
 
 /**
+ * Looks up a service and narrows its inferred type.
+ *
  * @tsplus pipeable fncts.Environment get
  */
 export function get<R, T extends Tags<R>>(tag: T) {
@@ -34,6 +39,8 @@ export function get<R, T extends Tags<R>>(tag: T) {
 }
 
 /**
+ * Looks up a service as `Maybe`.
+ *
  * @tsplus pipeable fncts.Environment getMaybe
  */
 export function getMaybe<S, I>(tag: Tag<S, I>) {
@@ -43,6 +50,8 @@ export function getMaybe<S, I>(tag: Tag<S, I>) {
 }
 
 /**
+ * Creates an empty environment.
+ *
  * @tsplus static fncts.EnvironmentOps __call
  */
 export function make(): Environment<never> {
@@ -50,7 +59,10 @@ export function make(): Environment<never> {
 }
 
 /**
+ * Combines two environments, preferring entries from `that` on conflicts.
+ *
  * @tsplus pipeable-operator fncts.Environment +
+ *
  * @tsplus pipeable fncts.Environment union
  */
 export function union<R1>(that: Environment<R1>) {
@@ -60,6 +72,8 @@ export function union<R1>(that: Environment<R1>) {
 }
 
 /**
+ * Retrieves a service or throws when the tag is missing.
+ *
  * @tsplus pipeable fncts.Environment unsafeGet
  */
 export function unsafeGet<S, I>(tag: Tag<S, I>) {
@@ -87,6 +101,8 @@ export function unsafeGet<S, I>(tag: Tag<S, I>) {
 }
 
 /**
+ * Updates a service with the provided transformer.
+ *
  * @tsplus pipeable fncts.Environment update
  */
 export function update<R, S extends R>(f: (s: S) => S, tag: Tag<S>) {

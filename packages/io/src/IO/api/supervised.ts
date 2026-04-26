@@ -1,4 +1,6 @@
 /**
+ * Runs this effect under the specified supervisor.
+ *
  * @tsplus fluent fncts.io.IO supervised
  */
 export function supervised<R, E, A>(

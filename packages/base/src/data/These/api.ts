@@ -4,6 +4,8 @@ import type * as P from "@fncts/base/typeclass";
 import { TheseTag } from "@fncts/base/data/These/definition";
 
 /**
+ * Applies a function inside `These` to a value inside another `These`.
+ *
  * @tsplus pipeable fncts.These ap
  */
 export function ap<E, A>(that: These<E, A>, /** @tsplus auto */ S: P.Semigroup<E>) {
@@ -13,6 +15,8 @@ export function ap<E, A>(that: These<E, A>, /** @tsplus auto */ S: P.Semigroup<E
 }
 
 /**
+ * Maps both the left and right sides of `These`.
+ *
  * @tsplus pipeable fncts.These bimap
  */
 export function bimap<E, A, E1, B>(f: (e: E) => E1, g: (a: A) => B) {
@@ -29,6 +33,8 @@ export function bimap<E, A, E1, B>(f: (e: E) => E1, g: (a: A) => B) {
 }
 
 /**
+ * Recovers from a `Left` value using the provided handler.
+ *
  * @tsplus pipeable fncts.These catchAll
  */
 export function catchAll<E, B>(f: (e: E) => These<E, B>) {
@@ -41,6 +47,8 @@ export function catchAll<E, B>(f: (e: E) => These<E, B>) {
 }
 
 /**
+ * Drops the right value when this is `Both`, keeping only the left.
+ *
  * @tsplus getter fncts.These condemn
  */
 export function condemn<E, A>(self: These<E, A>): These<E, A> {
@@ -51,6 +59,8 @@ export function condemn<E, A>(self: These<E, A>): These<E, A> {
 }
 
 /**
+ * Condemns `Both` to `Left` when the left value satisfies the predicate.
+ *
  * @tsplus pipeable fncts.These condemnWhen
  */
 export function condemnWhen<E>(p: Predicate<E>) {
@@ -63,6 +73,8 @@ export function condemnWhen<E>(p: Predicate<E>) {
 }
 
 /**
+ * Chains computations, combining left values with the provided semigroup.
+ *
  * @tsplus pipeable fncts.These flatMap
  */
 export function flatMap<E, A, B>(f: (a: A) => These<E, B>, /** @tsplus auto */ S: P.Semigroup<E>) {
@@ -86,6 +98,8 @@ export function flatMap<E, A, B>(f: (a: A) => These<E, B>, /** @tsplus auto */ S
 }
 
 /**
+ * Returns true when this value is `Both`.
+ *
  * @tsplus fluent fncts.These isBoth
  */
 export function isBoth<E, A>(self: These<E, A>): self is Both<E, A> {
@@ -93,6 +107,8 @@ export function isBoth<E, A>(self: These<E, A>): self is Both<E, A> {
 }
 
 /**
+ * Returns true when this value is `Left`.
+ *
  * @tsplus fluent fncts.These isLeft
  */
 export function isLeft<E, A>(self: These<E, A>): self is Left<E> {
@@ -100,6 +116,8 @@ export function isLeft<E, A>(self: These<E, A>): self is Left<E> {
 }
 
 /**
+ * Returns true when this value is `Right`.
+ *
  * @tsplus fluent fncts.These isRight
  */
 export function isRight<E, A>(self: These<E, A>): self is Right<A> {
@@ -107,6 +125,8 @@ export function isRight<E, A>(self: These<E, A>): self is Right<A> {
 }
 
 /**
+ * Maps the right side of `These`.
+ *
  * @tsplus pipeable fncts.These map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -123,6 +143,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Maps the left side of `These`.
+ *
  * @tsplus pipeable fncts.These mapLeft
  */
 export function mapLeft<E, E1>(f: (e: E) => E1) {
@@ -139,6 +161,8 @@ export function mapLeft<E, E1>(f: (e: E) => E1) {
 }
 
 /**
+ * Combines two `These` values into a tuple.
+ *
  * @tsplus pipeable fncts.These zip
  */
 export function zip<E, B>(that: These<E, B>, /** @tsplus auto */ S: P.Semigroup<E>) {
@@ -148,6 +172,8 @@ export function zip<E, B>(that: These<E, B>, /** @tsplus auto */ S: P.Semigroup<
 }
 
 /**
+ * Combines two `These` values with a function.
+ *
  * @tsplus pipeable fncts.These zipWith
  */
 export function zipWith<E, A, B, C>(that: These<E, B>, f: (a: A, b: B) => C, /** @tsplus auto */ S: P.Semigroup<E>) {

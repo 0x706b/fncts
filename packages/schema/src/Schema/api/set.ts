@@ -2,6 +2,8 @@ import type { KeyError } from "@fncts/schema/ParseError";
 import type { Sized } from "@fncts/test/control/Sized";
 
 /**
+ * Create a schema for Set values.
+ *
  * @tsplus static fncts.schema.SchemaOps map
  */
 export function set<V>(value: Schema<V>): Schema<Set<V>> {
@@ -11,6 +13,8 @@ export function set<V>(value: Schema<V>): Schema<Set<V>> {
 }
 
 /**
+ * Create a Set schema from an array representation.
+ *
  * @tsplus static fncts.schema.SchemaOps mapFromRecord
  */
 export function setFromArray<V>(value: Schema<V>): Schema<Set<V>> {
@@ -26,6 +30,8 @@ export function setFromArray<V>(value: Schema<V>): Schema<Set<V>> {
 }
 
 /**
+ * Derive a Set schema from a Set type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.Set]<_> 10
  */
 export function deriveSet<A extends Set<any>>(

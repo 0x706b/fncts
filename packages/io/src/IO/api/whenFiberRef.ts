@@ -1,5 +1,8 @@
 /**
+ * Runs this effect only when the FiberRef value satisfies the predicate.
+ *
  * @tsplus pipeable fncts.io.IO whenFiberRef
+ *
  * @tsplus static fncts.io.IOOps whenFiberRef
  */
 export function whenFiberRef<S>(ref: FiberRef<S>, f: Predicate<S>, __tsplusTrace?: string) {

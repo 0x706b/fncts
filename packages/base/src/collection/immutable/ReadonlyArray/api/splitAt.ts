@@ -1,4 +1,6 @@
 /**
+ * Splits an array at index `n`.
+ *
  * @tsplus pipeable fncts.ReadonlyArray splitAt
  */
 export function splitAt(n: number) {

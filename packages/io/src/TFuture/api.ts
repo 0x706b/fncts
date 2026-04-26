@@ -1,4 +1,6 @@
 /**
+ * Completes the future with the provided result, succeeding only if it was empty.
+ *
  * @tsplus pipeable fncts.io.TFuture done
  */
 export function done<E, A>(v: Either<E, A>, __tsplusTrace?: string) {
@@ -16,6 +18,8 @@ export function done<E, A>(v: Either<E, A>, __tsplusTrace?: string) {
 }
 
 /**
+ * Fails the future with `e`, succeeding only if it was empty.
+ *
  * @tsplus pipeable fncts.io.TFuture fail
  */
 export function fail<E>(e: E, __tsplusTrace?: string) {
@@ -25,6 +29,8 @@ export function fail<E>(e: E, __tsplusTrace?: string) {
 }
 
 /**
+ * Returns the current completion state without blocking.
+ *
  * @tsplus getter fncts.io.TFuture poll
  */
 export function poll<E, A>(self: TFuture<E, A>, __tsplusTrace?: string): USTM<Maybe<Either<E, A>>> {
@@ -32,6 +38,8 @@ export function poll<E, A>(self: TFuture<E, A>, __tsplusTrace?: string): USTM<Ma
 }
 
 /**
+ * Succeeds the future with `a`, succeeding only if it was empty.
+ *
  * @tsplus pipeable fncts.io.TFuture succeed
  */
 export function succeed<A>(a: A, __tsplusTrace?: string) {
@@ -41,6 +49,8 @@ export function succeed<A>(a: A, __tsplusTrace?: string) {
 }
 
 /**
+ * Waits until completion, then returns the value or fails with the stored error.
+ *
  * @tsplus getter fncts.io.TFuture await
  */
 export function wait<E, A>(self: TFuture<E, A>, __tsplusTrace?: string): STM<never, E, A> {

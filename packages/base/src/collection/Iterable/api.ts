@@ -13,6 +13,8 @@ type PartitionHandleResult<A> =
     };
 
 /**
+ * Apply each function in `self` to each value in `fa`.
+ *
  * @tsplus pipeable fncts.Iterable ap
  */
 export function ap<A>(fa: Iterable<A>) {
@@ -22,6 +24,8 @@ export function ap<A>(fa: Iterable<A>) {
 }
 
 /**
+ * Append a single element to the end of an iterable.
+ *
  * @tsplus pipeable fncts.Iterable append
  */
 export function append<B>(b: B) {
@@ -58,6 +62,8 @@ export function append<B>(b: B) {
 }
 
 /**
+ * Concatenate two iterables.
+ *
  * @tsplus pipeable fncts.Iterable concat
  */
 export function concat<A>(ib: Iterable<A>) {
@@ -85,6 +91,8 @@ export function concat<A>(ib: Iterable<A>) {
 }
 
 /**
+ * Compare two iterables element by element.
+ *
  * @tsplus pipeable fncts.Iterable corresponds
  */
 export function corresponds<A, B>(right: Iterable<B>, f: (a: A, b: B) => boolean) {
@@ -109,6 +117,8 @@ export function corresponds<A, B>(right: Iterable<B>, f: (a: A, b: B) => boolean
 }
 
 /**
+ * Build the cartesian product and combine pairs with `f`.
+ *
  * @tsplus pipeable fncts.Iterable crossWith
  */
 export function crossWith<A, B, C>(that: Iterable<B>, f: (a: A, b: B) => C) {
@@ -118,6 +128,8 @@ export function crossWith<A, B, C>(that: Iterable<B>, f: (a: A, b: B) => C) {
 }
 
 /**
+ * Test whether all elements satisfy a predicate.
+ *
  * @tsplus pipeable fncts.Iterable every
  */
 export function every<A, B extends A>(p: Refinement<A, B>): (self: Iterable<A>) => boolean;
@@ -129,6 +141,8 @@ export function every<A>(p: Predicate<A>) {
 }
 
 /**
+ * Test whether all elements satisfy an index-aware predicate.
+ *
  * @tsplus pipeable fncts.Iterable everyWithIndex
  */
 export function everyWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (self: Iterable<A>) => boolean;
@@ -152,6 +166,8 @@ export function everyWithIndex<A>(p: PredicateWithIndex<number, A>) {
 }
 
 /**
+ * Keep only elements that satisfy a predicate.
+ *
  * @tsplus pipeable fncts.Iterable filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: Iterable<A>) => Iterable<B>;
@@ -163,6 +179,8 @@ export function filter<A>(p: Predicate<A>) {
 }
 
 /**
+ * Map and discard `Nothing` results.
+ *
  * @tsplus pipeable fncts.Iterable filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
@@ -172,6 +190,8 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * Map with index and discard `Nothing` results.
+ *
  * @tsplus pipeable fncts.Iterable filterMapWithIndex
  */
 export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
@@ -213,6 +233,8 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 }
 
 /**
+ * Keep only elements that satisfy an index-aware predicate.
+ *
  * @tsplus pipeable fncts.Iterable filterWithIndex
  */
 export function filterWithIndex<A, B extends A>(
@@ -253,6 +275,8 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
 }
 
 /**
+ * Find the first element that satisfies a predicate.
+ *
  * @tsplus pipeable fncts.Iterable find
  */
 export function find<A, B extends A>(refinement: Refinement<A, B>): (self: Iterable<A>) => Maybe<B>;
@@ -269,6 +293,8 @@ export function find<A>(predicate: Predicate<A>) {
 }
 
 /**
+ * Find the index of the first element satisfying a predicate.
+ *
  * @tsplus pipeable fncts.Iterable findIndex
  */
 export function findIndex<A>(p: Predicate<A>) {
@@ -285,6 +311,8 @@ export function findIndex<A>(p: Predicate<A>) {
 }
 
 /**
+ * Map each element to an iterable and flatten the result.
+ *
  * @tsplus pipeable fncts.Iterable flatMap
  */
 export function flatMap<A, B>(f: (a: A) => Iterable<B>) {
@@ -338,6 +366,8 @@ export function flatMap<A, B>(f: (a: A) => Iterable<B>) {
 }
 
 /**
+ * Left-fold the iterable.
+ *
  * @tsplus pipeable fncts.Iterable foldLeft
  */
 export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
@@ -347,6 +377,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 }
 
 /**
+ * Left-fold with access to the current index.
+ *
  * @tsplus pipeable fncts.Iterable foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
@@ -362,6 +394,8 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
 }
 
 /**
+ * Map each element to a monoid and combine them.
+ *
  * @tsplus pipeable fncts.Iterable foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
@@ -371,6 +405,8 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: P.Monoid<M>
 }
 
 /**
+ * Map each element with index to a monoid and combine them.
+ *
  * @tsplus pipeable fncts.Iterable foldMapWithIndex
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: P.Monoid<M>) {
@@ -386,6 +422,8 @@ export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus au
 }
 
 /**
+ * Right-fold the iterable using `Eval` for laziness.
+ *
  * @tsplus pipeable fncts.Iterable foldRight
  */
 export function foldRight<A, B>(b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>) {
@@ -395,6 +433,8 @@ export function foldRight<A, B>(b: Eval<B>, f: (a: A, b: Eval<B>) => Eval<B>) {
 }
 
 /**
+ * Right-fold with index using `Eval` for laziness.
+ *
  * @tsplus pipeable fncts.Iterable foldRightWithIndex
  */
 export function foldRightWithIndex<A, B>(b: Eval<B>, f: (i: number, a: A, b: Eval<B>) => Eval<B>) {
@@ -413,6 +453,9 @@ export function foldRightWithIndex<A, B>(b: Eval<B>, f: (i: number, a: A, b: Eva
   };
 }
 
+/**
+ * Decide whether a partition branch should emit the current element.
+ */
 function handlePartition<A>(
   predicate: PredicateWithIndex<number, A>,
   i: number,
@@ -422,6 +465,9 @@ function handlePartition<A>(
   return h === predicate(i, a) ? { emit: true, value: a } : { emit: false };
 }
 
+/**
+ * Route an `Either` value to the requested partition branch.
+ */
 function handlePartitionMap<A, B, C>(
   f: (i: number, a: A) => Either<B, C>,
   i: number,
@@ -438,6 +484,8 @@ function handlePartitionMap<A, B, C>(
 }
 
 /**
+ * Return a known size if the iterable exposes `size` or `length`.
+ *
  * @tsplus getter fncts.Iterable intrinsicSize
  */
 export function intrinsicSize<A>(self: Iterable<A>): Maybe<number> {
@@ -453,6 +501,8 @@ export function intrinsicSize<A>(self: Iterable<A>): Maybe<number> {
 }
 
 /**
+ * Check whether the iterable has no elements.
+ *
  * @tsplus getter fncts.Iterable isEmpty
  */
 export function isEmpty<A>(self: Iterable<A>): boolean {
@@ -469,6 +519,8 @@ export function isEmpty<A>(self: Iterable<A>): boolean {
 }
 
 /**
+ * Check whether the iterable contains at least one element.
+ *
  * @tsplus getter fncts.Iterable isNonEmpty
  */
 export function isNonEmpty<A>(self: Iterable<A>): boolean {
@@ -485,6 +537,8 @@ export function isNonEmpty<A>(self: Iterable<A>): boolean {
 }
 
 /**
+ * Map each element.
+ *
  * @tsplus pipeable fncts.Iterable map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -494,6 +548,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Map each element with access to its index.
+ *
  * @tsplus pipeable fncts.Iterable mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -529,6 +585,8 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 }
 
 /**
+ * Split elements by predicate into failing and passing iterables.
+ *
  * @tsplus pipeable fncts.Iterable partition
  */
 export function partition<A, B extends A>(
@@ -542,6 +600,8 @@ export function partition<A>(p: Predicate<A>) {
 }
 
 /**
+ * Split elements by mapping each element to an `Either`.
+ *
  * @tsplus pipeable fncts.Iterable partitionMap
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
@@ -551,6 +611,8 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 }
 
 /**
+ * Split elements with an index-aware `Either` mapping.
+ *
  * @tsplus pipeable fncts.Iterable partitionMapWithIndex
  */
 export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
@@ -562,6 +624,9 @@ export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B,
   };
 }
 
+/**
+ * Iterator implementation for one side of `partitionMapWithIndex`.
+ */
 function partitionMapWithIndexIterator<A, B, C>(
   self: Iterable<A>,
   f: (i: number, a: A) => Either<B, C>,
@@ -601,6 +666,8 @@ function partitionMapWithIndexIterator<A, B, C>(
 }
 
 /**
+ * Split elements with an index-aware predicate.
+ *
  * @tsplus pipeable fncts.Iterable partitionWithIndex
  */
 export function partitionWithIndex<A, B extends A>(
@@ -618,6 +685,9 @@ export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
   };
 }
 
+/**
+ * Iterator implementation for one side of `partitionWithIndex`.
+ */
 function partitionWithIndexIterator<A>(
   self: Iterable<A>,
   predicate: PredicateWithIndex<number, A>,
@@ -657,6 +727,8 @@ function partitionWithIndexIterator<A>(
 }
 
 /**
+ * Repeat a value `n` times.
+ *
  * @tsplus static fncts.IterableOps replicate
  */
 export function replicate<A>(n: number, a: A): Iterable<A> {
@@ -664,6 +736,8 @@ export function replicate<A>(n: number, a: A): Iterable<A> {
 }
 
 /**
+ * Count elements in the iterable.
+ *
  * @tsplus getter fncts.Iterable size
  */
 export function size<A>(self: Iterable<A>): number {
@@ -679,6 +753,8 @@ export function size<A>(self: Iterable<A>): number {
 }
 
 /**
+ * Sum all numbers in the iterable.
+ *
  * @tsplus getter fncts.Iterable sum
  */
 export function sum(self: Iterable<number>): number {
@@ -686,6 +762,8 @@ export function sum(self: Iterable<number>): number {
 }
 
 /**
+ * Take at most the first `n` elements.
+ *
  * @tsplus pipeable fncts.Iterable take
  */
 export function take(n: number) {
@@ -722,6 +800,8 @@ export function take(n: number) {
 }
 
 /**
+ * Materialize the iterable into an array.
+ *
  * @tsplus getter fncts.Iterable toArray
  */
 export function toArray<A>(self: Iterable<A>): Array<A> {
@@ -729,6 +809,8 @@ export function toArray<A>(self: Iterable<A>): Array<A> {
 }
 
 /**
+ * Return the iterable unchanged.
+ *
  * @tsplus getter fncts.Iterable toIterable
  */
 export function toIterable<A>(self: Iterable<A>): Iterable<A> {
@@ -736,6 +818,8 @@ export function toIterable<A>(self: Iterable<A>): Iterable<A> {
 }
 
 /**
+ * Zip two iterables and combine paired elements with `f`.
+ *
  * @tsplus pipeable fncts.Iterable zipWith
  */
 export function zipWith<A, B, C>(fb: Iterable<B>, f: (a: A, b: B) => C) {
@@ -771,6 +855,8 @@ export function zipWith<A, B, C>(fb: Iterable<B>, f: (a: A, b: B) => C) {
 }
 
 /**
+ * Pair each element with its index.
+ *
  * @tsplus getter fncts.Iterable zipWithIndex
  */
 export function zipWithIndex<A>(self: Iterable<A>): Iterable<readonly [number, A]> {

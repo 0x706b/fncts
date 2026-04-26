@@ -7,6 +7,8 @@ import { Lens, PLens } from "@fncts/base/optics/Lens/definition";
 import { Prism } from "@fncts/base/optics/Prism";
 
 /**
+ * Focuses a structure with the provided lens and exposes focused accessors.
+ *
  * @tsplus fluent global focus
  */
 export function focus<S, T, A, B>(self: S, lens: PLens<S, T, A, B>): PLensPartiallyApplied<T, A, B> {
@@ -17,6 +19,8 @@ export function focus<S, T, A, B>(self: S, lens: PLens<S, T, A, B>): PLensPartia
 }
 
 /**
+ * Composes a lens with an array/tuple index lens.
+ *
  * @tsplus pipeable fncts.optics.PLens component
  */
 export function component<A extends ReadonlyArray<unknown>, P extends keyof A>(component: P) {
@@ -26,6 +30,8 @@ export function component<A extends ReadonlyArray<unknown>, P extends keyof A>(c
 }
 
 /**
+ * Builds a lens by composing this lens with another lens.
+ *
  * @tsplus pipeable fncts.optics.PLens compose
  */
 export function compose<A, B, C, D>(that: PLens<A, B, C, D>) {
@@ -38,6 +44,8 @@ export function compose<A, B, C, D>(that: PLens<A, B, C, D>) {
 }
 
 /**
+ * Narrows a lens target to non-nullable values through a nullable prism.
+ *
  * @tsplus static fncts.optics.PLensOps fromNullable
  */
 export function fromNullable<S, A>(self: Lens<S, A>): Optional<S, NonNullable<A>> {
@@ -45,6 +53,8 @@ export function fromNullable<S, A>(self: Lens<S, A>): Optional<S, NonNullable<A>
 }
 
 /**
+ * Creates a lens focused on a specific array/tuple component.
+ *
  * @tsplus static fncts.optics.PLensOps getComponent
  */
 export function getComponent<A extends ReadonlyArray<unknown>>() {
@@ -63,6 +73,8 @@ export function getComponent<A extends ReadonlyArray<unknown>>() {
 }
 
 /**
+ * Creates a lens focused on a specific object property.
+ *
  * @tsplus static fncts.optics.PLensOps getProp
  */
 export function getProp<A extends Record<string, any>>() {
@@ -79,6 +91,8 @@ export function getProp<A extends Record<string, any>>() {
 }
 
 /**
+ * Returns the identity lens that focuses the whole value.
+ *
  * @tsplus static fncts.optics.PLensOps id
  */
 export function id<A>(): Lens<A, A> {
@@ -89,6 +103,8 @@ export function id<A>(): Lens<A, A> {
 }
 
 /**
+ * Reinterprets the focused value using a pair of inverse mappings.
+ *
  * @tsplus pipeable fncts.optics.PLensOps invmap
  */
 export function invmap_<A, B>(f: (a: A) => B, g: (b: B) => A) {
@@ -101,6 +117,8 @@ export function invmap_<A, B>(f: (a: A) => B, g: (b: B) => A) {
 }
 
 /**
+ * Composes a lens with a property lens for the given key.
+ *
  * @tsplus pipeable fncts.optics.Lens prop
  */
 export function prop<A extends Record<string, any>, P extends keyof A>(prop: P) {
@@ -109,6 +127,9 @@ export function prop<A extends Record<string, any>, P extends keyof A>(prop: P) 
   };
 }
 
+/**
+ * Builds nested object structure for setting a value at a path.
+ */
 function nestPath<A>(p: ReadonlyNonEmptyArray<string>, a: A): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   let view = out;
@@ -125,6 +146,9 @@ function nestPath<A>(p: ReadonlyNonEmptyArray<string>, a: A): Record<string, unk
   return out;
 }
 
+/**
+ * Creates a path-based lens by walking and updating nested properties.
+ */
 function anyPath(path: ReadonlyArray<string>) {
   return (self: Lens<any, any>): Lens<any, any> => {
     return Lens({
@@ -143,6 +167,8 @@ function anyPath(path: ReadonlyArray<string>) {
 }
 
 /**
+ * Composes a lens with a nested path lens.
+ *
  * @tsplus pipeable fncts.optics.Lens path
  */
 export function path<A extends object, P extends Array<string>>(path: readonly [...AutoPath<A, P>]) {
@@ -152,6 +178,8 @@ export function path<A extends object, P extends Array<string>>(path: readonly [
 }
 
 /**
+ * Creates a lens focused on a nested path from the root.
+ *
  * @tsplus static fncts.optics.LensOps fromPath
  */
 export function fromPath<S, P extends Array<string>>(path: readonly [...AutoPath<S, P>]): Lens<S, Path<S, P>> {

@@ -1,4 +1,6 @@
 /**
+ * Splits at the first element that satisfies `p`.
+ *
  * @tsplus pipeable fncts.ReadonlyArray splitWhere
  */
 export function splitWhere<A>(p: Predicate<A>) {

@@ -33,6 +33,8 @@ export function fork<R, E, A>(ma: IO<R, E, A>, __tsplusTrace?: string): URIO<R, 
 }
 
 /**
+ * Forks this effect with the specified scope override.
+ *
  * @tsplus pipeable fncts.io.IO forkWithScopeOverride
  */
 export function forkWithScopeOverride(scopeOverride: FiberScope | null, __tsplusTrace?: string) {
@@ -56,6 +58,8 @@ export function unsafeFork<R, E, A, E1, B>(
 }
 
 /**
+ * Creates a child fiber without starting it. Unsafe - for internal use only.
+ *
  * @tsplus static fncts.io.IOOps unsafeMakeChildFiber
  */
 export function unsafeMakeChildFiber<R, E, A, E1, B>(

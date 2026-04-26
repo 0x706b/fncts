@@ -1,5 +1,8 @@
 /**
+ * Provides some of the environment required by this effect from a Layer.
+ *
  * @tsplus static fncts.io.IOAspects provideSomeLayer
+ *
  * @tsplus pipeable fncts.io.IO provideSomeLayer
  */
 export function provideSomeLayer<RIn, E1, ROut>(layer: Layer<RIn, E1, ROut>, __tsplusTrace?: string) {

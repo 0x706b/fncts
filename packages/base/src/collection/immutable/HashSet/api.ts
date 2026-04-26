@@ -8,6 +8,8 @@ import * as P from "@fncts/base/typeclass";
 import { HashEq } from "@fncts/base/typeclass";
 
 /**
+ * Builds a set from an iterable of values.
+ *
  * @tsplus static fncts.HashSetOps from
  */
 export function from<A>(items: Iterable<A>): HashSet<A> {
@@ -19,6 +21,8 @@ export function from<A>(items: Iterable<A>): HashSet<A> {
 }
 
 /**
+ * Adds a value to the set.
+ *
  * @tsplus pipeable fncts.HashSet add
  */
 export function add<A>(value: A) {
@@ -58,6 +62,8 @@ export function forEach<V>(f: (v: V, m: HashSet<V>) => void) {
 }
 
 /**
+ * Checks whether a value is present in the set.
+ *
  * @tsplus pipeable fncts.HashSet has
  */
 export function has<A>(value: A) {
@@ -67,6 +73,8 @@ export function has<A>(value: A) {
 }
 
 /**
+ * Creates an empty set with the provided hash/equality behavior.
+ *
  * @tsplus static fncts.HashSetOps emptyWith
  */
 export function emptyWith<A>(config: HashEq<A>): HashSet<A> {
@@ -74,6 +82,8 @@ export function emptyWith<A>(config: HashEq<A>): HashSet<A> {
 }
 
 /**
+ * Creates an empty set using structural hashing and equality.
+ *
  * @tsplus static fncts.HashSetOps empty
  */
 export function empty<A>(): HashSet<A> {
@@ -81,6 +91,8 @@ export function empty<A>(): HashSet<A> {
 }
 
 /**
+ * Creates a set containing the provided values.
+ *
  * @tsplus static fncts.HashSetOps make
  */
 export function make<A>(...values: ReadonlyArray<A>): HashSet<A> {
@@ -105,6 +117,8 @@ export function mutate<A>(transient: (set: HashSet<A>) => void) {
 }
 
 /**
+ * Removes a value from the set.
+ *
  * @tsplus pipeable fncts.HashSet remove
  */
 export function remove<A>(value: A) {
@@ -114,6 +128,8 @@ export function remove<A>(value: A) {
 }
 
 /**
+ * Removes all provided values from the set.
+ *
  * @tsplus pipeable fncts.HashSet removeMany
  */
 export function removeMany<A>(values: Iterable<A>) {
@@ -193,6 +209,8 @@ export function flatMapWith<B>(C: P.HashEq<B>): <A>(f: (x: A) => Iterable<B>) =>
 }
 
 /**
+ * Maps each value to an iterable and unions the results.
+ *
  * @tsplus pipeable fncts.HashSet flatMap
  */
 export function flatMap<A, B>(f: (a: A) => Iterable<B>) {
@@ -247,6 +265,9 @@ export function filter<A>(predicate: Predicate<A>) {
   };
 }
 
+/**
+ * Maps each value to `Maybe` and keeps only present results.
+ */
 export function filterMapWith<B>(B: P.HashEq<B>): <A>(f: (a: A) => Maybe<B>) => (fa: HashSet<A>) => HashSet<B> {
   return (f) => (fa) => {
     const out = beginMutation(emptyWith(B));
@@ -261,6 +282,8 @@ export function filterMapWith<B>(B: P.HashEq<B>): <A>(f: (a: A) => Maybe<B>) => 
 }
 
 /**
+ * Maps each value to `Maybe` and collects `Just` values.
+ *
  * @tsplus pipeable fncts.HashSet filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>): (self: HashSet<A>) => HashSet<B> {
@@ -314,6 +337,8 @@ export function partitionMapWith<B, C>(
 }
 
 /**
+ * Splits values into two sets using an `Either` mapping.
+ *
  * @tsplus pipeable fncts.HashSet partitionMap
  */
 export function partitionMap<A, B, C>(
@@ -352,6 +377,8 @@ export function foldLeft<A, B>(b: B, f: (b: B, v: A) => B) {
 }
 
 /**
+ * Concatenates set values using the given separator.
+ *
  * @tsplus pipeable fncts.HashSet join
  */
 export function join(separator: string) {
@@ -474,6 +501,8 @@ export function union<A>(that: Iterable<A>) {
 }
 
 /**
+ * Collects set values into an array sorted by the provided order.
+ *
  * @tsplus pipeable fncts.HashSet toArray
  */
 export function toArray<A>(O: P.Ord<A>) {
@@ -484,6 +513,9 @@ export function toArray<A>(O: P.Ord<A>) {
   };
 }
 
+/**
+ * Replaces the tree and size, mutating when the set is editable.
+ */
 function setTree<A>(set: HashSet<A>, newRoot: Node<A>, newSize: number) {
   if (set._editable) {
     set._root = newRoot;
@@ -493,12 +525,18 @@ function setTree<A>(set: HashSet<A>, newRoot: Node<A>, newSize: number) {
   return newRoot === set._root ? set : new HashSet(set._editable, set._edit, set.config, newRoot, newSize);
 }
 
+/**
+ * Applies an add/remove operation using a precomputed hash.
+ */
 function modifyHash<A>(set: HashSet<A>, value: A, hash: number, remove: boolean): HashSet<A> {
   const size    = { value: set._size };
   const newRoot = set._root.modify(remove, set._editable ? set._edit : NaN, set.config.equals, 0, hash, value, size);
   return setTree(set, newRoot, size.value);
 }
 
+/**
+ * Returns the stored value equal to `value`, if present.
+ */
 function tryGetHash<A>(set: HashSet<A>, value: A, hash: number): Maybe<A> {
   let node  = set._root;
   let shift = 0;
@@ -544,6 +582,9 @@ function tryGetHash<A>(set: HashSet<A>, value: A, hash: number): Maybe<A> {
   }
 }
 
+/**
+ * Tests membership using a precomputed hash.
+ */
 function hasHash<A>(set: HashSet<A>, value: A, hash: number): boolean {
   return tryGetHash(set, value, hash).isJust();
 }

@@ -13,6 +13,8 @@ import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/no
 import { Stack } from "@fncts/base/internal/Stack";
 
 /**
+ * Returns an iterator view positioned at `key` and moving in the chosen direction.
+ *
  * @tsplus pipeable fncts.SortedMap find
  */
 export function find<K>(key: K, direction: 0 | 1 = 0) {
@@ -63,6 +65,8 @@ export function forEach<K, V>(visit: (key: K, value: V) => void) {
 }
 
 /**
+ * Visits entries whose keys fall between `min` and `max` in sorted order.
+ *
  * @tsplus pipeable fncts.SortedMap forEachBetween
  */
 export function forEachBetween<K, V>(min: K, max: K, visit: (k: K, v: V) => void) {
@@ -77,6 +81,8 @@ export function forEachBetween<K, V>(min: K, max: K, visit: (k: K, v: V) => void
 }
 
 /**
+ * Visits entries with keys less than or equal to `max` in sorted order.
+ *
  * @tsplus pipeable fncts.SortedMap forEachLte
  */
 export function forEachLte<K, V>(max: K, visit: (k: K, v: V) => void) {
@@ -91,6 +97,8 @@ export function forEachLte<K, V>(max: K, visit: (k: K, v: V) => void) {
 }
 
 /**
+ * Visits entries with keys strictly less than `max` in sorted order.
+ *
  * @tsplus pipeable fncts.SortedMap forEachLt
  */
 export function forEachLt<K, V>(max: K, visit: (k: K, v: V) => void) {
@@ -105,6 +113,8 @@ export function forEachLt<K, V>(max: K, visit: (k: K, v: V) => void) {
 }
 
 /**
+ * Visits entries with keys greater than or equal to `min` in sorted order.
+ *
  * @tsplus pipeable fncts.SortedMap forEachGte
  */
 export function forEachGte<K, V>(min: K, visit: (k: K, v: V) => void) {
@@ -119,6 +129,8 @@ export function forEachGte<K, V>(min: K, visit: (k: K, v: V) => void) {
 }
 
 /**
+ * Visits entries with keys strictly greater than `min` in sorted order.
+ *
  * @tsplus pipeable fncts.SortedMap forEachGt
  */
 export function forEachGt<K, V>(min: K, visit: (k: K, v: V) => void) {
@@ -349,6 +361,8 @@ export function setWith<K, V>(key: K, value: V, /** @tsplus auto */ S: Semigroup
 }
 
 /**
+ * Returns `true` when the map has no entries.
+ *
  * @tsplus getter fncts.SortedMap isEmpty
  */
 export function isEmpty<K, V>(self: SortedMap<K, V>): boolean {
@@ -356,6 +370,8 @@ export function isEmpty<K, V>(self: SortedMap<K, V>): boolean {
 }
 
 /**
+ * Returns `true` when the map contains at least one entry.
+ *
  * @tsplus getter fncts.SortedMap isNonEmpty
  */
 export function isNonEmpty<K, V>(self: SortedMap<K, V>): boolean {
@@ -363,6 +379,8 @@ export function isNonEmpty<K, V>(self: SortedMap<K, V>): boolean {
 }
 
 /**
+ * Creates an empty sorted map using the provided ordering.
+ *
  * @tsplus static fncts.SortedMapOps make
  */
 export function make<K, V>(/** @tsplus auto */ ord: Ord<K>) {
@@ -382,6 +400,8 @@ export function remove<K>(key: K) {
 }
 
 /**
+ * Traverses all entries in sorted order and stops at the first `Just` result.
+ *
  * @tsplus pipeable fncts.SortedMap visitFull
  */
 export function visitFull<K, V, A>(visit: (key: K, value: V) => Maybe<A>) {
@@ -409,6 +429,8 @@ export function visitFull<K, V, A>(visit: (key: K, value: V) => Maybe<A>) {
 }
 
 /**
+ * Traverses entries up to `max` and returns the first `Just` produced by `visit`.
+ *
  * @tsplus pipeable fncts.SortedMap visitLte
  */
 export function visitLte<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
@@ -440,6 +462,8 @@ export function visitLte<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
 }
 
 /**
+ * Traverses entries strictly below `max` and returns the first `Just` from `visit`.
+ *
  * @tsplus pipeable fncts.SortedMap visitLt
  */
 export function visitLt<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
@@ -471,6 +495,8 @@ export function visitLt<K, V, A>(max: K, visit: (k: K, v: V) => Maybe<A>) {
 }
 
 /**
+ * Traverses entries from `min` upward and returns the first `Just` from `visit`.
+ *
  * @tsplus pipeable fncts.SortedMap visitGte
  */
 export function visitGte<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
@@ -505,6 +531,8 @@ export function visitGte<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
 }
 
 /**
+ * Traverses entries strictly above `min` and returns the first `Just` from `visit`.
+ *
  * @tsplus pipeable fncts.SortedMap visitGt
  */
 export function visitGt<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
@@ -539,6 +567,8 @@ export function visitGt<K, V, A>(min: K, visit: (k: K, v: V) => Maybe<A>) {
 }
 
 /**
+ * Traverses entries with keys in `[min, max)` and returns the first `Just` from `visit`.
+ *
  * @tsplus pipeable fncts.SortedMap visitBetween
  */
 export function visitBetween<K, V, A>(min: K, max: K, visit: (k: K, v: V) => Maybe<A>) {

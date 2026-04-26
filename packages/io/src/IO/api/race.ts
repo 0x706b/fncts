@@ -21,6 +21,8 @@ function disconnect<R, E, A>(io: IO<R, E, A>, interruptStatus: InterruptStatus, 
 }
 
 /**
+ * Races two effects, waiting for the loser to complete before returning.
+ *
  * @tsplus pipeable fncts.io.IO raceAwait
  */
 export function raceAwait<R1, E1, A1>(that: IO<R1, E1, A1>) {

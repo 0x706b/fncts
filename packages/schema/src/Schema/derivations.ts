@@ -5,6 +5,8 @@ import type { OptionalKeys, RequiredKeys } from "@fncts/typelevel/Object";
 import { ownKeys } from "@fncts/schema/utils";
 
 /**
+ * Derive a branded validation schema.
+ *
  * @tsplus derive fncts.schema.Schema<_> 10
  */
 export function deriveValidation<A extends Brand.Valid<any, any>>(
@@ -27,6 +29,8 @@ export function deriveValidation<A extends Brand.Valid<any, any>>(
 }
 
 /**
+ * Derive a schema for a literal value.
+ *
  * @tsplus derive fncts.schema.Schema<_> 20
  */
 export function deriveLiteral<A extends LiteralValue>(
@@ -44,6 +48,8 @@ type IndexSignatures<A extends Record<PropertyKey, any>> = Union.ListOf<
 >;
 
 /**
+ * Derive a struct schema from a record type.
+ *
  * @tsplus derive fncts.schema.Schema<_> 20
  */
 export function deriveStruct<A extends Record<string, any>>(
@@ -150,6 +156,8 @@ export function deriveStruct<A extends Record<string, any>>(
 }
 
 /**
+ * Derive a tuple schema from a tuple type.
+ *
  * @tsplus derive fncts.schema.Schema<_> 10
  */
 export function deriveTuple<A extends ReadonlyArray<any>>(
@@ -159,6 +167,8 @@ export function deriveTuple<A extends ReadonlyArray<any>>(
 }
 
 /**
+ * Derive a lazy schema for recursive types.
+ *
  * @tsplus derive fncts.schema.Schema lazy
  */
 export function deriveLazy<A>(f: (_: Schema<A>) => Schema<A>): Schema<A> {
@@ -173,6 +183,8 @@ export function deriveLazy<A>(f: (_: Schema<A>) => Schema<A>): Schema<A> {
 }
 
 /**
+ * Derive a ReadonlyArray schema.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.ReadonlyArray]<_> 10
  */
 export function deriveReadonlyArray<A extends ReadonlyArray<any>>(
@@ -186,6 +198,8 @@ export function deriveReadonlyArray<A extends ReadonlyArray<any>>(
 }
 
 /**
+ * Derive a mutable Array schema.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.Array]<_> 10
  */
 export function deriveArray<A extends Array<any>>(
@@ -199,6 +213,8 @@ export function deriveArray<A extends Array<any>>(
 }
 
 /**
+ * Derive a Record schema from a record type.
+ *
  * @tsplus derive fncts.schema.Schema<_> 15
  */
 export function deriveRecord<A extends Record<string | symbol, any>>(

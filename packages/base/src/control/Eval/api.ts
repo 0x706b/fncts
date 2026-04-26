@@ -4,6 +4,8 @@ import { EvalPrimitive, EvalTag } from "@fncts/base/control/Eval/definition";
 import { identity } from "@fncts/base/data/function";
 
 /**
+ * Apply an evaluated function to an evaluated value.
+ *
  * @tsplus pipeable fncts.control.Eval ap
  */
 export function ap<A>(fa: Eval<A>) {
@@ -13,6 +15,8 @@ export function ap<A>(fa: Eval<A>) {
 }
 
 /**
+ * Combine two boolean computations with logical AND.
+ *
  * @tsplus pipeable fncts.control.Eval and
  */
 export function and(that: Eval<boolean>) {
@@ -22,6 +26,8 @@ export function and(that: Eval<boolean>) {
 }
 
 /**
+ * Sequence computations by feeding the result into `f`.
+ *
  * @tsplus pipeable fncts.control.Eval flatMap
  */
 export function flatMap<A, B>(f: (a: A) => Eval<B>) {
@@ -34,6 +40,8 @@ export function flatMap<A, B>(f: (a: A) => Eval<B>) {
 }
 
 /**
+ * Repeat an effectful loop while `check` returns true.
+ *
  * @tsplus static fncts.control.EvalOps whileLoop
  */
 export function whileLoop<A>(check: Lazy<boolean>, body: Lazy<Eval<A>>, process: (a: A) => void): Eval<void> {
@@ -50,6 +58,8 @@ export function whileLoop<A>(check: Lazy<boolean>, body: Lazy<Eval<A>>, process:
 }
 
 /**
+ * Evaluate each element and collect results into a `Conc`.
+ *
  * @tsplus static fncts.control.EvalOps forEach
  */
 export function forEach<A, B>(as: Iterable<A>, f: (a: A) => Eval<B>): Eval<Conc<B>> {
@@ -71,6 +81,8 @@ export function forEach<A, B>(as: Iterable<A>, f: (a: A) => Eval<B>): Eval<Conc<
 }
 
 /**
+ * Flatten one level of nested `Eval`.
+ *
  * @tsplus getter fncts.control.Eval flatten
  */
 export function flatten<A>(self: Eval<Eval<A>>): Eval<A> {
@@ -78,6 +90,8 @@ export function flatten<A>(self: Eval<Eval<A>>): Eval<A> {
 }
 
 /**
+ * Transform a successful computation result.
+ *
  * @tsplus pipeable fncts.control.Eval map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -87,6 +101,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Combine two computations with a function.
+ *
  * @tsplus pipeable fncts.control.Eval zipWith
  */
 export function zipWith<A, B, C>(fb: Eval<B>, f: (a: A, b: B) => C) {
@@ -96,6 +112,8 @@ export function zipWith<A, B, C>(fb: Eval<B>, f: (a: A, b: B) => C) {
 }
 
 /**
+ * Combine two computations into a pair.
+ *
  * @tsplus pipeable fncts.control.Eval zip
  */
 export function zip<B>(fb: Eval<B>) {
@@ -104,6 +122,9 @@ export function zip<B>(fb: Eval<B>) {
   };
 }
 
+/**
+ * Evaluate each element with index and collect results.
+ */
 export function foreachWithIndex<A, B>(as: Iterable<A>, f: (index: number, a: A) => Eval<B>): Eval<ReadonlyArray<B>> {
   return Eval.defer(() => {
     const it = as[Symbol.iterator]();
@@ -125,6 +146,8 @@ export function foreachWithIndex<A, B>(as: Iterable<A>, f: (index: number, a: A)
 }
 
 /**
+ * Evaluate each element and collect results in order.
+ *
  * @tsplus static fncts.control.EvalOps foreach
  */
 export function foreach<A, B>(as: Iterable<A>, f: (a: A) => Eval<B>): Eval<ReadonlyArray<B>> {
@@ -144,6 +167,8 @@ export function foreach<A, B>(as: Iterable<A>, f: (a: A) => Eval<B>): Eval<Reado
 }
 
 /**
+ * Run many computations and collect their results.
+ *
  * @tsplus static fncts.control.EvalOps all
  */
 export function all<A extends ReadonlyArray<Eval<any>>>(...computations: A): Eval<{ [K in keyof A]: _A<A[K]> }>;
@@ -175,8 +200,15 @@ export function all(
   }
 }
 
+/**
+ * Wrapper type used by `Eval.gen` for yielded computations.
+ */
 class GenEval<A> {
   readonly _A!: () => A;
+
+  /**
+   * Yield this wrapper to the generator runtime.
+   */
   *[Symbol.iterator](): Generator<GenEval<A>, A, any> {
     return yield this;
   }
@@ -185,6 +217,9 @@ class GenEval<A> {
 
 const __adapter = (_: Eval<any>) => new GenEval(_);
 
+/**
+ * Continue a generator-based `Eval` program until completion.
+ */
 function runGenEval<T extends GenEval<A>, A>(
   state: IteratorYieldResult<T> | IteratorReturnResult<A>,
   iterator: Generator<T, A, any>,
@@ -199,6 +234,8 @@ function runGenEval<T extends GenEval<A>, A>(
 }
 
 /**
+ * Build an `Eval` program from generator syntax.
+ *
  * @tsplus static fncts.control.EvalOps gen
  */
 export function gen<T extends GenEval<any>, A>(

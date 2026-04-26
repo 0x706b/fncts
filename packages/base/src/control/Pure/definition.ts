@@ -23,6 +23,7 @@ export type PureTypeId = typeof PureTypeId;
  * including context, state, failure, and logging.
  *
  * @tsplus type fncts.control.Pure
+ *
  * @tsplus companion fncts.control.PureOps
  */
 export abstract class Pure<W, S1, S2, R, E, A> {
@@ -38,6 +39,8 @@ export abstract class Pure<W, S1, S2, R, E, A> {
 }
 
 /**
+ * Normalize inferred `Pure` types.
+ *
  * @tsplus unify fncts.control.Pure
  */
 export function unifyPure<X extends Pure<any, any, any, any, any, any>>(
@@ -70,6 +73,8 @@ export class PurePrimitive {
 }
 
 /**
+ * Check whether a value is a `Pure` computation.
+ *
  * @tsplus static fncts.control.PureOps isPure
  */
 export function isPure(u: unknown): u is Pure<unknown, unknown, unknown, unknown, unknown, unknown> {
@@ -203,6 +208,8 @@ export type Primitive =
   | MapLog;
 
 /**
+ * Assert that a `Pure` value is a primitive runtime node.
+ *
  * @tsplus static fncts.control.PureOps concrete
  */
 export function concrete(_: Pure<any, any, any, any, any, any>): asserts _ is Primitive {
@@ -217,6 +224,9 @@ export class PureError<E> {
   constructor(readonly cause: Cause<E>) {}
 }
 
+/**
+ * Check whether a value is a `PureError` wrapper.
+ */
 export function isPureError(u: unknown): u is PureError<unknown> {
   return isObject(u) && PureErrorTypeId in u;
 }

@@ -6,6 +6,7 @@ import { Getter } from "@fncts/base/optics/Getter";
 import { POptional } from "@fncts/base/optics/Optional";
 
 /**
+ *
  * @tsplus type fncts.optics.PLens
  */
 export interface PLens<S, T, A, B> extends POptional<S, T, A, B>, Getter<S, A> {}
@@ -13,6 +14,7 @@ export interface PLens<S, T, A, B> extends POptional<S, T, A, B>, Getter<S, A> {
 export interface PLensPartiallyApplied<T, A, B> extends POptionalPartiallyApplied<T, A, B>, GetterPartiallyApplied<A> {}
 
 /**
+ *
  * @tsplus type fncts.optics.PLensOps
  */
 export interface PLensOps {}
@@ -25,6 +27,8 @@ export interface PLensMin<S, T, A, B> {
 }
 
 /**
+ * Builds a polymorphic lens from primitive `get` and `set` operations.
+ *
  * @tsplus static fncts.optics.PLensOps __call
  */
 export function makePLens<S, T, A, B>(F: PLensMin<S, T, A, B>): PLens<S, T, A, B> {
@@ -35,11 +39,13 @@ export function makePLens<S, T, A, B>(F: PLensMin<S, T, A, B>): PLens<S, T, A, B
 }
 
 /**
+ *
  * @tsplus type fncts.optics.Lens
  */
 export interface Lens<S, A> extends PLens<S, S, A, A> {}
 
 /**
+ *
  * @tsplus type fncts.optics.LensOps
  */
 export interface LensOps extends PLensOps {}
@@ -47,6 +53,8 @@ export interface LensOps extends PLensOps {}
 export const Lens: LensOps = {};
 
 /**
+ * Builds a monomorphic lens from primitive `get` and `set` operations.
+ *
  * @tsplus static fncts.optics.LensOps __call
  */
 export function makeLens<S, A>(F: PLensMin<S, S, A, A>): Lens<S, A> {

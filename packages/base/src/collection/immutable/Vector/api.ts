@@ -56,6 +56,7 @@ import {
  * @complexity O(n)
  *
  * @tsplus pipeable fncts.Vector append
+ *
  * @tsplus pipeable-operator fncts.Vector +
  */
 export function append<A>(a: A) {
@@ -107,7 +108,9 @@ export function chunksOf(size: number) {
  * Concatenates two Vectors.
  *
  * @complexity O(log(n))
+ *
  * @tsplus pipeable fncts.Vector concat
+ *
  * @tsplus pipeable-operator fncts.Vector + 1
  */
 export function concat<B>(that: Vector<B>): <A>(self: Vector<A>) => Vector<A | B>;
@@ -155,6 +158,8 @@ export function concat<A>(that: Vector<A>) {
   };
 }
 /**
+ * Keeps only the elements that satisfy the given predicate.
+ *
  * @tsplus pipeable fncts.Vector filter
  */
 export function filter<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => Vector<B>;
@@ -165,6 +170,8 @@ export function filter<A>(predicate: Predicate<A>) {
   };
 }
 /**
+ * Maps each element and keeps only present results.
+ *
  * @tsplus pipeable fncts.Vector filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
@@ -174,6 +181,8 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ * Maps each element with its index and keeps only present results.
+ *
  * @tsplus pipeable fncts.Vector filterMapWithIndex
  */
 export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
@@ -188,6 +197,8 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 }
 
 /**
+ * Keeps only elements whose index and value satisfy the predicate.
+ *
  * @tsplus pipeable fncts.Vector filterWithIndex
  */
 export function filterWithIndex<A, B extends A>(
@@ -261,6 +272,7 @@ type PredState = {
  * Otherwise it returns `false`.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector contains
  */
 export function contains<A>(element: A) {
@@ -271,6 +283,9 @@ export function contains<A>(element: A) {
   };
 }
 
+/**
+ * Stops a membership scan once a matching element is found.
+ */
 function containsCb(value: any, state: ContainsState): boolean {
   return !(state.result = value === state.element);
 }
@@ -279,6 +294,7 @@ function containsCb(value: any, state: ContainsState): boolean {
  * Returns a new Vector without the first `n` elements.
  *
  * @complexity `O(log(n))`
+ *
  * @tsplus pipeable fncts.Vector drop
  */
 export function drop(n: number) {
@@ -291,6 +307,7 @@ export function drop(n: number) {
  * Returns a new Vector without the last `n` elements.
  *
  * @complexity `O(log(n))`
+ *
  * @tsplus pipeable fncts.Vector dropLast
  */
 export function dropLast(n: number) {
@@ -303,6 +320,7 @@ export function dropLast(n: number) {
  * Returns a new Vector without repeated elements.
  *
  * @complexity `O(n)`
+ *
  * @tsplus getter fncts.Vector dropRepeats
  */
 export function dropRepeats<A>(self: Vector<A>): Vector<A> {
@@ -314,6 +332,7 @@ export function dropRepeats<A>(self: Vector<A>): Vector<A> {
  * function to determine when elements are equal.
  *
  * @complexity `O(n)`
+ *
  * @tsplus pipeable fncts.Vector dropRepeatsWith
  */
 export function dropRepeatsWith<A>(predicate: (a: A, b: A) => boolean) {
@@ -330,6 +349,7 @@ export function dropRepeatsWith<A>(predicate: (a: A, b: A) => boolean) {
  *
  * @complexity `O(k + log(n))` where `k` is the number of elements
  * satisfying the predicate.
+ *
  * @tsplus pipeable fncts.Vector dropWhile
  */
 export function dropWhile<A>(predicate: Predicate<A>) {
@@ -340,6 +360,8 @@ export function dropWhile<A>(predicate: Predicate<A>) {
 }
 
 /**
+ * Checks whether the Vector contains the given element using an `Eq` instance.
+ *
  * @tsplus pipeable fncts.Vector elem
  */
 export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
@@ -350,6 +372,9 @@ export function elem<A>(a: A, /** @tsplus auto */ E: Eq<A>) {
   };
 }
 
+/**
+ * Stops a scan once an `Eq` comparison succeeds.
+ */
 function elemCb(value: any, state: ElemState): boolean {
   return !(state.result = state.equals(state.element)(value));
 }
@@ -358,6 +383,7 @@ function elemCb(value: any, state: ElemState): boolean {
  * Creates an empty Vector.
  *
  * @complexity O(1)
+ *
  * @tsplus static fncts.VectorOps empty
  */
 export function empty<A = never>(): Vector<A> {
@@ -365,6 +391,8 @@ export function empty<A = never>(): Vector<A> {
 }
 
 /**
+ * Creates an empty mutable Vector optimized for incremental pushes.
+ *
  * @tsplus static fncts.VectorOps emptyPushable
  */
 export function emptyPushable<A = never>(): MutableVector<A> {
@@ -375,6 +403,7 @@ export function emptyPushable<A = never>(): MutableVector<A> {
  * Returns true if the two Vectors are equivalent.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector equals
  */
 export function equals<A>(that: Vector<A>) {
@@ -388,6 +417,7 @@ export function equals<A>(that: Vector<A>) {
  * for all elements in the given Vector.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector every
  */
 export function every<A, B extends A>(refinement: Refinement<A, B>): (self: Vector<A>) => self is Vector<B>;
@@ -398,6 +428,9 @@ export function every<A>(predicate: Predicate<A>) {
   };
 }
 
+/**
+ * Updates `every` state and stops when the predicate fails.
+ */
 function everyCb<A>(value: A, state: any): boolean {
   return (state.result = state.predicate(value));
 }
@@ -407,6 +440,7 @@ function everyCb<A>(value: A, state: any): boolean {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector find
  */
 export function find<A>(predicate: Predicate<A>) {
@@ -415,6 +449,9 @@ export function find<A>(predicate: Predicate<A>) {
   };
 }
 
+/**
+ * Stores the first matching element and stops traversal.
+ */
 function findCb<A>(value: A, state: PredState): boolean {
   if (state.predicate(value)) {
     state.result = value;
@@ -430,6 +467,7 @@ function findCb<A>(value: A, state: PredState): boolean {
  * `-1`.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector findIndex
  */
 export function findIndex<A>(predicate: Predicate<A>) {
@@ -439,6 +477,9 @@ export function findIndex<A>(predicate: Predicate<A>) {
   };
 }
 
+/**
+ * Tracks the current index and stops when a match is found.
+ */
 function findIndexCb<A>(value: A, state: FindIndexState): boolean {
   ++state.index;
   return !(state.found = state.predicate(value));
@@ -449,6 +490,7 @@ function findIndexCb<A>(value: A, state: FindIndexState): boolean {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector findLast
  */
 export function findLast<A>(predicate: Predicate<A>) {
@@ -463,6 +505,7 @@ export function findLast<A>(predicate: Predicate<A>) {
  * `-1`.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector findLastIndex
  */
 export function findLastIndex<A>(predicate: Predicate<A>) {
@@ -472,6 +515,9 @@ export function findLastIndex<A>(predicate: Predicate<A>) {
   };
 }
 
+/**
+ * Counts the longest prefix or suffix that satisfies the predicate.
+ */
 function findNotIndexCb(value: any, state: FindNotIndexState): boolean {
   if (state.predicate(value)) {
     ++state.index;
@@ -505,6 +551,8 @@ export function foldLeft<A, B>(initial: B, f: (acc: B, a: A) => B) {
 }
 
 /**
+ * Folds from the left while the continuation predicate stays true.
+ *
  * @tsplus pipeable fncts.Vector foldLeftWhile
  */
 export function foldLeftWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, b: B, a: A) => B) {
@@ -517,6 +565,8 @@ export function foldLeftWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, b: 
 }
 
 /**
+ * Folds from the left while exposing each element index.
+ *
  * @tsplus pipeable fncts.Vector foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
@@ -532,6 +582,8 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
 }
 
 /**
+ * Maps each element and combines results with the provided `Monoid`.
+ *
  * @tsplus pipeable fncts.Vector foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>) {
@@ -541,6 +593,8 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>) 
 }
 
 /**
+ * Maps each indexed element and combines results with the provided `Monoid`.
+ *
  * @tsplus pipeable fncts.Vector foldMapWithIndex
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: Monoid<M>) {
@@ -553,6 +607,7 @@ export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus au
  * Folds a function over a Vector. Right-associative.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector foldRight
  */
 export function foldRight<A, B>(initial: B, f: (value: A, acc: B) => B) {
@@ -562,6 +617,8 @@ export function foldRight<A, B>(initial: B, f: (value: A, acc: B) => B) {
 }
 
 /**
+ * Folds from the right while the continuation predicate stays true.
+ *
  * @tsplus pipeable fncts.Vector foldRightWhile
  */
 export function foldRightWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, a: A, b: B) => B) {
@@ -578,6 +635,7 @@ export function foldRightWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, a:
  * Folds a function over a Vector. Right-associative.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector foldRightWithIndex
  */
 export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
@@ -624,6 +682,7 @@ function foldWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolea
  * makes `forEach` faster when the new Vector is unneeded.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector forEach
  */
 export function forEach<A>(f: (a: A) => void) {
@@ -633,6 +692,8 @@ export function forEach<A>(f: (a: A) => void) {
 }
 
 /**
+ * Applies an effectful callback to each element with its index.
+ *
  * @tsplus pipeable fncts.Vector forEachWithIndex
  */
 export function forEachWithIndex<A>(f: (i: number, a: A) => void) {
@@ -645,6 +706,7 @@ export function forEachWithIndex<A>(f: (i: number, a: A) => void) {
  * Converts an array, an array-like, or an iterable into a Vector.
  *
  * @complexity O(n)
+ *
  * @tsplus static fncts.VectorOps from
  */
 export function from<A>(sequence: A[] | ArrayLike<A> | Iterable<A>): Vector<A>;
@@ -669,6 +731,7 @@ export function from<A>(sequence: any): Vector<A> {
  * `undefined` is returned.
  *
  * @complexity O(log(n))
+ *
  * @tsplus pipeable fncts.Vector get
  */
 export function get(index: number) {
@@ -706,6 +769,7 @@ export function groupWith<A>(f: (a: A, b: A) => boolean) {
  * Returns the first element of the Vector.
  *
  * @complexity O(1)
+ *
  * @tsplus getter fncts.Vector head
  */
 export function head<A>(self: Vector<A>): Maybe<NonNullable<A>> {
@@ -713,6 +777,8 @@ export function head<A>(self: Vector<A>): Maybe<NonNullable<A>> {
 }
 
 /**
+ * Returns `true` when at least one element is strictly equal to the given value.
+ *
  * @tsplus pipeable fncts.Vector includes
  */
 export function includes<A>(element: A) {
@@ -730,6 +796,7 @@ export function includes<A>(element: A) {
  * to the given element. If no such element is found `-1` is returned.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector indexOf
  */
 export function indexOf<A>(element: A) {
@@ -740,6 +807,9 @@ export function indexOf<A>(element: A) {
   };
 }
 
+/**
+ * Tracks the current index and stops when strict equality succeeds.
+ */
 function indexOfCb(value: any, state: IndexOfState): boolean {
   ++state.index;
   return !(state.found = Equatable.strictEquals(value, state.element));
@@ -749,6 +819,7 @@ function indexOfCb(value: any, state: IndexOfState): boolean {
  * Inserts the given Vector of elements at the given index in the Vector.
  *
  * @complexity `O(log(n))`
+ *
  * @tsplus pipeable fncts.Vector insertAllAt
  */
 export function insertAllAt<A>(index: number, elements: Vector<A>) {
@@ -761,6 +832,7 @@ export function insertAllAt<A>(index: number, elements: Vector<A>) {
  * Inserts the given element at the given index in the Vector.
  *
  * @complexity O(log(n))
+ *
  * @tsplus pipeable fncts.Vector insertAt
  */
 export function insertAt<A>(index: number, element: A) {
@@ -781,6 +853,8 @@ export function intersperse<A>(separator: A) {
 }
 
 /**
+ * Returns `true` when the Vector contains no elements.
+ *
  * @tsplus fluent fncts.Vector isEmpty
  */
 export function isEmpty<A>(self: Vector<A>): boolean {
@@ -788,6 +862,8 @@ export function isEmpty<A>(self: Vector<A>): boolean {
 }
 
 /**
+ * Returns `true` when the Vector contains at least one element.
+ *
  * @tsplus fluent fncts.Vector isNonEmpty
  */
 export function isNonEmpty<A>(self: Vector<A>): boolean {
@@ -809,6 +885,7 @@ export function join(separator: string) {
  * Returns the last element of the Vector.
  *
  * @complexity O(1)
+ *
  * @tsplus getter fncts.Vector last
  */
 export function last<A>(self: Vector<A>): Maybe<NonNullable<A>> {
@@ -820,6 +897,7 @@ export function last<A>(self: Vector<A>): Maybe<NonNullable<A>> {
  * to the given element. If no such element is found `-1` is returned.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector lastIndexOf
  */
 export function lastIndexOf<A>(element: A) {
@@ -835,6 +913,7 @@ export function lastIndexOf<A>(element: A) {
  * `n` times.
  *
  * @complexity O(n)
+ *
  * @tsplus static fncts.VectorOps makeBy
  */
 export function makeBy<A>(n: number, f: (index: number) => A): Vector<A> {
@@ -850,6 +929,7 @@ export function makeBy<A>(n: number, f: (index: number) => A): Vector<A> {
  * new Vector of the values that the function return.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector map
  */
 export function map<A, B>(f: (a: A) => B) {
@@ -859,6 +939,8 @@ export function map<A, B>(f: (a: A) => B) {
 }
 
 /**
+ * Maps while threading an accumulator through the traversal.
+ *
  * @tsplus pipeable fncts.Vector mapAccum
  */
 export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
@@ -876,6 +958,7 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
  * new Vector of the values that the function return.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -912,6 +995,8 @@ export function modifyAt<A>(i: number, f: (a: A) => A) {
 }
 
 /**
+ * Creates a mutable structural clone that shares existing nodes.
+ *
  * @tsplus getter fncts.Vector mutableClone
  */
 export function mutableClone<A>(self: Vector<A>): MutableVector<A> {
@@ -936,6 +1021,7 @@ export function none<A>(predicate: Predicate<A>) {
  * Takes two arguments and returns a Vector that contains them.
  *
  * @complexity O(1)
+ *
  * @tsplus static fncts.VectorOps pair
  */
 export function pair<A>(first: A, second: A): Vector<A> {
@@ -947,6 +1033,7 @@ export function pair<A>(first: A, second: A): Vector<A> {
  * empty the empty Vector is returned.
  *
  * @complexity `O(1)`
+ *
  * @tsplus getter fncts.Vector pop
  */
 export function pop<A>(self: Vector<A>): Vector<A> {
@@ -985,6 +1072,8 @@ export function prepend<A>(a: A) {
 }
 
 /**
+ * Prepends an element using the `+` operator form.
+ *
  * @tsplus operator fncts.Vector +
  */
 export function prependOperator<A>(a: A, self: Vector<A>): Vector<A> {
@@ -995,6 +1084,7 @@ export function prependOperator<A>(a: A, self: Vector<A>): Vector<A> {
  * Returns a Vector of numbers between an inclusive lower bound and an exclusive upper bound.
  *
  * @complexity O(n)
+ *
  * @tsplus static fncts.VectorOps range
  */
 export function range(start: number, end: number): Vector<number> {
@@ -1025,6 +1115,7 @@ export function remove(from: number, amount: number) {
  * in all positions.
  *
  * @complexity O(n)
+ *
  * @tsplus static fncts.VectorOps replicate
  */
 export function replicate<A>(n: number, a: A): Vector<A> {
@@ -1037,6 +1128,8 @@ export function replicate<A>(n: number, a: A): Vector<A> {
 }
 
 /**
+ * Returns a Vector with elements in reverse order.
+ *
  * @tsplus getter fncts.Vector reverse
  */
 export function reverse<A>(self: Vector<A>): Vector<A> {
@@ -1059,6 +1152,7 @@ export function scanLeft<A, B>(initial: B, f: (acc: B, value: A) => B) {
  * Takes a single arguments and returns a singleton Vector that contains it.
  *
  * @complexity O(1)
+ *
  * @tsplus static fncts.VectorOps single
  */
 export function single<A>(a: A): Vector<A> {
@@ -1071,6 +1165,7 @@ export function single<A>(a: A): Vector<A> {
  * from the right end of the Vector.
  *
  * @complexity `O(log(n))`
+ *
  * @tsplus pipeable fncts.Vector slice
  */
 export function slice(from: number, to: number) {
@@ -1192,11 +1287,16 @@ export function some<A>(predicate: Predicate<A>) {
   };
 }
 
+/**
+ * Stops `some` as soon as the predicate matches.
+ */
 function someCb<A>(value: A, state: PredState): boolean {
   return !(state.result = state.predicate(value));
 }
 
 /**
+ * Sorts values using the provided `Ord` instance.
+ *
  * @tsplus pipeable fncts.Vector sort
  */
 export function sort<A>(/** @tsplus auto */ O: Ord<A>) {
@@ -1283,6 +1383,7 @@ export function tail<A>(self: Vector<A>): Vector<A> {
  * Takes the first `n` elements from a Vector and returns them in a new Vector.
  *
  * @complexity `O(log(n))`
+ *
  * @tsplus pipeable fncts.Vector take
  */
 export function take(n: number) {
@@ -1296,6 +1397,7 @@ export function take(n: number) {
  * Vector.
  *
  * @complexity `O(log(n))`
+ *
  * @tsplus pipeable fncts.Vector takeLast
  */
 export function takeLast(n: number) {
@@ -1340,6 +1442,7 @@ export function takeWhile<A>(predicate: Predicate<A>) {
  * Converts a Vector into an array.
  *
  * @complexity `O(n)`
+ *
  * @tsplus getter fncts.Vector toArray
  */
 export function toArray<A>(self: Vector<A>): ReadonlyArray<A> {
@@ -1350,6 +1453,7 @@ export function toArray<A>(self: Vector<A>): ReadonlyArray<A> {
  * Converts a Vector into a List.
  *
  * @complexity `O(n)`
+ *
  * @tsplus getter fncts.Vector toList
  */
 export function toList<A>(self: Vector<A>): List<A> {
@@ -1361,6 +1465,8 @@ export function toList<A>(self: Vector<A>): List<A> {
 }
 
 /**
+ * Builds an applicative traversal that ignores element indices.
+ *
  * @tsplus getter fncts.Vector traverse
  */
 export function traverse_<A>(self: Vector<A>) {
@@ -1371,6 +1477,8 @@ export function traverse_<A>(self: Vector<A>) {
       self.traverseWithIndex(G)((_, a) => f(a));
 }
 /**
+ * Builds an applicative traversal that exposes each element index.
+ *
  * @tsplus getter fncts.Vector traverseWithIndex
  */
 export function traverseWithIndex_<A>(
@@ -1401,6 +1509,8 @@ export const traverse: Traversable<VectorF>["traverse"] = (G) => (f) => (self) =
   self.traverseWithIndex(G)((_, a) => f(a));
 
 /**
+ * Builds a Vector by repeatedly unfolding from a seed value.
+ *
  * @tsplus static fncts.VectorOps unfold
  */
 export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Vector<A> {
@@ -1425,6 +1535,7 @@ export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Vector<
  * Eq instance to determine when elements are equal
  *
  * @complexity `O(n)`
+ *
  * @tsplus pipeable fncts.Vector uniq
  */
 export function uniq<A>(E: Eq<A>) {
@@ -1436,6 +1547,7 @@ export function uniq<A>(E: Eq<A>) {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector unsafeFind
  */
 export function unsafeFind<A>(predicate: Predicate<A>) {
@@ -1449,6 +1561,7 @@ export function unsafeFind<A>(predicate: Predicate<A>) {
  * If no such element is found the function returns `undefined`.
  *
  * @complexity O(n)
+ *
  * @tsplus pipeable fncts.Vector unsafeFindLast
  */
 export function unsafeFindLast<A>(predicate: Predicate<A>) {
@@ -1462,7 +1575,9 @@ export function unsafeFindLast<A>(predicate: Predicate<A>) {
  * `undefined` is returned.
  *
  * @complexity O(log(n))
+ *
  * @tsplus pipeable fncts.Vector unsafeGet
+ *
  * @tsplus pipeable-index fncts.Vector
  */
 export function unsafeGet(index: number) {
@@ -1494,6 +1609,7 @@ export function unsafeGet(index: number) {
  * function returns undefined.
  *
  * @complexity O(1)
+ *
  * @tsplus getter fncts.Vector unsafeHead
  */
 export function unsafeHead<A>(self: Vector<A>): A | undefined {
@@ -1506,6 +1622,7 @@ export function unsafeHead<A>(self: Vector<A>): A | undefined {
  * function returns `undefined`.
  *
  * @complexity O(1)
+ *
  * @tsplus getter fncts.Vector unsafeLast
  */
 export function unsafeLast<A>(self: Vector<A>): A | undefined {
@@ -1519,6 +1636,7 @@ export function unsafeLast<A>(self: Vector<A>): A | undefined {
  * If the index is out of bounds the given Vector is returned unchanged.
  *
  * @complexity O(log(n))
+ *
  * @tsplus pipeable fncts.Vector updateAt
  */
 export function updateAt<A>(i: number, a: A) {
@@ -1545,6 +1663,8 @@ export function updateAt<A>(i: number, a: A) {
 }
 
 /**
+ * Creates a Vector from the given arguments.
+ *
  * @tsplus static fncts.VectorOps __call
  */
 export function vector<A extends ReadonlyArray<any>>(

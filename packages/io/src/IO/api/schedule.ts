@@ -1,4 +1,6 @@
 /**
+ * Runs this effect repeatedly on a schedule, starting with the given initial value.
+ *
  * @tsplus pipeable fncts.io.IO scheduleFrom
  */
 export function scheduleFrom<A extends A1, R1, A1, B>(
@@ -22,6 +24,8 @@ export function scheduleFrom<A extends A1, R1, A1, B>(
 }
 
 /**
+ * Runs this effect repeatedly on a schedule.
+ *
  * @tsplus pipeable fncts.io.IO schedule
  */
 export function schedule<R1, B>(schedule: Lazy<Schedule<R1, any, B>>, __tsplusTrace?: string) {

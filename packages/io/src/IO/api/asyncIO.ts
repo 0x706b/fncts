@@ -1,4 +1,6 @@
 /**
+ * Creates an async effect where the registration itself is effectful.
+ *
  * @tsplus static fncts.io.IOOps asyncIO
  */
 export function asyncIO<R, E, A>(

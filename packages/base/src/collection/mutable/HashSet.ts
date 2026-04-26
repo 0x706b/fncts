@@ -20,7 +20,9 @@ const DEFAULT_INITIAL_CAPACITY = 16;
 const DEFAULT_LOAD_FACTOR      = 0.75;
 
 /**
+ *
  * @tsplus type fncts.MutableHashSet
+ *
  * @tsplus companion fncts.MutableHashSetOps
  */
 export class HashSet<A> implements Iterable<A> {
@@ -33,6 +35,9 @@ export class HashSet<A> implements Iterable<A> {
     this.threshold = this.newThreshold(this.table.length);
   }
 
+  /**
+   * Returns an iterator over the set's elements.
+   */
   [Symbol.iterator](): Iterator<A> {
     return new HashSetIterator(this.table, (nd) => nd.key);
   }
@@ -43,27 +48,45 @@ export class HashSet<A> implements Iterable<A> {
 
   private contentSize = 0;
 
+  /**
+   * Creates an empty mutable hash set with optional hashing/equality configuration.
+   */
   static empty<A>(config?: HashEq<A>) {
     return new HashSet(DEFAULT_INITIAL_CAPACITY, DEFAULT_LOAD_FACTOR, config);
   }
 
+  /**
+   * The current number of elements stored in the set.
+   */
   get size(): number {
     return this.contentSize;
   }
 
+  /**
+   * Tests whether an equivalent element is present in the set.
+   */
   has(key: A): boolean {
     return this.findNode(key) !== undefined;
   }
 
+  /**
+   * Adds an element when absent and returns whether insertion occurred.
+   */
   add(elem: A): boolean {
     this.contentSize + 1 >= this.threshold && this.growTable(this.table.length * 2);
     return this.addHash(elem, this.computeHash(elem));
   }
 
+  /**
+   * Removes an element if present and returns whether removal occurred.
+   */
   remove(elem: A): boolean {
     return this.removeHash(elem, this.computeHash(elem));
   }
 
+  /**
+   * Applies a function to each element currently contained in the set.
+   */
   forEach<U>(f: (elem: A) => U): void {
     for (let i = 0; i < this.table.length; i++) {
       const n = this.table[i];
@@ -71,6 +94,9 @@ export class HashSet<A> implements Iterable<A> {
     }
   }
 
+  /**
+   * Inserts an element into its hash bucket while preserving chain ordering by hash.
+   */
   private addHash(elem: A, hash: number): boolean {
     const idx = this.index(hash);
     let n     = this.table[idx];
@@ -96,6 +122,9 @@ export class HashSet<A> implements Iterable<A> {
     return true;
   }
 
+  /**
+   * Removes an element from its hash bucket when a matching hash and key are found.
+   */
   private removeHash(elem: A, hash: number): boolean {
     const idx = this.index(hash);
     const n   = this.table[idx];
@@ -121,24 +150,39 @@ export class HashSet<A> implements Iterable<A> {
     }
   }
 
+  /**
+   * Computes the resize threshold for a given table size.
+   */
   private newThreshold(size: number) {
     return Math.floor(size * this.loadFactor);
   }
 
+  /**
+   * Produces an improved hash value for key distribution.
+   */
   private computeHash(k: A): number {
     return improveHash(this.config.hash(k));
   }
 
+  /**
+   * Maps a hash value to a table index.
+   */
   private index(hash: number) {
     return hash & (this.table.length - 1);
   }
 
+  /**
+   * Finds the node containing the given key, if present.
+   */
   private findNode(key: A): Node<A> | undefined {
     const hash = this.computeHash(key);
     const n    = this.table[this.index(hash)];
     return n === undefined ? n : n.findNode(key, hash, this.config.equals);
   }
 
+  /**
+   * Grows the backing table and redistributes nodes into expanded buckets.
+   */
   private growTable(newLen: number) {
     assert(newLen >= 0, `New HashSet table size ${newLen}`);
     let oldLen     = this.table.length;
@@ -194,6 +238,9 @@ class Node<K> {
     public next: Node<K> | undefined,
   ) {}
 
+  /**
+   * Traverses this chain and returns the first node matching hash and key.
+   */
   findNode(k: K, h: number, equals: (y: K) => (x: K) => boolean): Node<K> | undefined {
     let n: Node<K> | undefined = this;
     while (n) {
@@ -206,6 +253,9 @@ class Node<K> {
     return undefined;
   }
 
+  /**
+   * Applies a function to each key in this linked bucket chain.
+   */
   forEach<U>(f: (k: K) => U): void {
     let n: Node<K> | undefined = this;
     while (n) {
@@ -227,6 +277,9 @@ export class HashSetIterator<V, A> implements Iterator<A> {
     this.len = table.length;
   }
 
+  /**
+   * Returns the next iterator result, advancing through buckets and chain nodes.
+   */
   next(): IteratorResult<A> {
     if (this.done) {
       return this.return();
@@ -249,6 +302,9 @@ export class HashSetIterator<V, A> implements Iterator<A> {
     return { done: false, value };
   }
 
+  /**
+   * Marks iteration as complete and returns the final iterator result.
+   */
   return(value?: unknown): IteratorReturnResult<unknown> {
     if (!this.done) {
       this.done = true;

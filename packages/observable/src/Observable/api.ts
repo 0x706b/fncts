@@ -19,6 +19,7 @@ export type ObservableInput<R = never, E = never, A = never> =
   | IO<R, E, A>;
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps halt
  */
 export function halt(defect: unknown): Observable<never, never, never> {
@@ -26,6 +27,7 @@ export function halt(defect: unknown): Observable<never, never, never> {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps defer
  */
 export function defer<R, E, A>(observable: Lazy<ObservableInput<R, E, A>>): Observable<R, E, A> {
@@ -35,6 +37,7 @@ export function defer<R, E, A>(observable: Lazy<ObservableInput<R, E, A>>): Obse
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps empty
  */
 export function empty<A>(): Observable<never, never, A> {
@@ -42,6 +45,7 @@ export function empty<A>(): Observable<never, never, A> {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps environmentWithObservable
  */
 export function environmentWithObservable<R0, R, E, A>(
@@ -51,6 +55,7 @@ export function environmentWithObservable<R0, R, E, A>(
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps failCause
  */
 export function failCause<E>(cause: Cause<E>): Observable<never, E, never> {
@@ -58,6 +63,7 @@ export function failCause<E>(cause: Cause<E>): Observable<never, E, never> {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps fail
  */
 export function fail<E>(e: E): Observable<never, E, never> {
@@ -65,6 +71,7 @@ export function fail<E>(e: E): Observable<never, E, never> {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps from
  */
 export function from<R = never, E = never, A = never>(input: ObservableInput<R, E, A>): Observable<R, E, A> {
@@ -143,6 +150,7 @@ export function fromReadableStreamLike<A>(readableStream: ReadableStreamLike<A>)
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps fromSubscribable
  */
 export function fromSubscribable<E, A>(subscribable: Subscribable<E, A>): Observable<never, E, A> {
@@ -166,6 +174,7 @@ export function fromInterop<A>(subscribable: {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps if
  */
 export function _if<R, E, A, R1, E1, B>(
@@ -186,6 +195,7 @@ export interface IterateOptions<S> {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps iterate
  */
 export function iterate<S>(options: IterateOptions<S>): Observable<never, never, S> {
@@ -209,6 +219,7 @@ async function process<A>(asyncIterable: AsyncIterable<A>, subscriber: Subscribe
 }
 
 /**
+ *
  * @tsplus static fncts.obervable.ObservableOps interval
  */
 export function interval(period = 0, scheduler: SchedulerLike = asyncScheduler): Observable<never, never, number> {
@@ -219,6 +230,7 @@ export function interval(period = 0, scheduler: SchedulerLike = asyncScheduler):
 }
 
 /**
+ *
  * @tsplus static fncts.obervable.ObservableOps merge
  */
 export function merge<O extends ReadonlyArray<ObservableInput<any, any>>>(
@@ -239,6 +251,7 @@ export function merge<O extends ReadonlyArray<ObservableInput<any, any>>>(
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps of
  */
 export function of<A>(...items: ReadonlyArray<A>): Observable<never, never, A> {
@@ -246,6 +259,7 @@ export function of<A>(...items: ReadonlyArray<A>): Observable<never, never, A> {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps single
  */
 export function single<A>(a: A): Observable<never, never, A> {
@@ -256,7 +270,9 @@ export function single<A>(a: A): Observable<never, never, A> {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable scheduled
+ *
  * @tsplus static fncts.observable.ObservableOps scheduled
  */
 export function scheduled(scheduler: SchedulerLike) {
@@ -395,6 +411,7 @@ export function scheduleReadableStreamLike<A>(
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps timer
  */
 export function timer(
@@ -436,6 +453,7 @@ export function timer(
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps zip
  */
 export function makeZip<O extends ReadonlyArray<ObservableInput<any, any>>>(
@@ -484,6 +502,7 @@ export function makeZip<O extends ReadonlyArray<ObservableInput<any, any>>>(
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps fromIO
  */
 export function fromIO<R, E, A>(io: IO<R, E, A>, scheduler: SchedulerLike = asyncScheduler): Observable<R, E, A> {
@@ -509,11 +528,13 @@ export function fromIO<R, E, A>(io: IO<R, E, A>, scheduler: SchedulerLike = asyn
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps unit
  */
 export const unit: Observable<never, never, void> = Observable.single(undefined);
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable zipWith
  */
 export function zipWith<A, R1, E1, B, C>(fb: Observable<R1, E1, B>, f: (a: A, b: B) => C) {
@@ -523,6 +544,7 @@ export function zipWith<A, R1, E1, B, C>(fb: Observable<R1, E1, B>, f: (a: A, b:
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable zip
  */
 export function zip<R1, E1, B>(fb: Observable<R1, E1, B>) {
@@ -532,6 +554,7 @@ export function zip<R1, E1, B>(fb: Observable<R1, E1, B>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable ap
  */
 export function ap<A, R1, E1>(fa: Observable<R1, E1, A>) {
@@ -541,6 +564,7 @@ export function ap<A, R1, E1>(fa: Observable<R1, E1, A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
@@ -559,6 +583,7 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable map
  */
 export function map_<A, B>(f: (a: A) => B) {
@@ -568,6 +593,7 @@ export function map_<A, B>(f: (a: A) => B) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable as
  */
 export function as<B>(b: Lazy<B>) {
@@ -577,6 +603,7 @@ export function as<B>(b: Lazy<B>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable mapError
  */
 export function mapError<E, E1>(f: (e: E) => E1) {
@@ -594,6 +621,7 @@ export function mapError<E, E1>(f: (e: E) => E1) {
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable swap
  */
 export function swap<R, E, A>(fa: Observable<R, E, A>): Observable<R, A, E> {
@@ -619,6 +647,7 @@ export function swap<R, E, A>(fa: Observable<R, E, A>): Observable<R, A, E> {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable filterWithIndex
  */
 export function filterWithIndex<A, B extends A>(
@@ -641,6 +670,7 @@ export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable filter
  */
 export function filter<A, B extends A>(
@@ -654,6 +684,7 @@ export function filter<A>(predicate: Predicate<A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable filterMapWithIndex
  */
 export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
@@ -674,6 +705,7 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
@@ -683,6 +715,7 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable partitionWithIndex
  */
 export function partitionWithIndex<A, B extends A>(
@@ -698,6 +731,7 @@ export function partitionWithIndex<A>(predicate: PredicateWithIndex<number, A>) 
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable partition
  */
 export function partition<A, B extends A>(
@@ -713,6 +747,7 @@ export function partition<A>(predicate: Predicate<A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable partitionMapWithIndex
  */
 export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
@@ -743,6 +778,7 @@ export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B,
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable partitionMap
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
@@ -752,6 +788,7 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable provideService
  */
 export function provideService<S>(service: S, /** @tsplus auto */ tag: Tag<S>) {
@@ -761,6 +798,7 @@ export function provideService<S>(service: S, /** @tsplus auto */ tag: Tag<S>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable mergeMapWithIndex
  */
 export function mergeMapWithIndex<A, R1, E1, B>(
@@ -775,6 +813,7 @@ export function mergeMapWithIndex<A, R1, E1, B>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable mergeMap
  */
 export function mergeMap<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>, concurrent = Infinity) {
@@ -784,6 +823,7 @@ export function mergeMap<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>, 
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable concatMapWithIndex
  */
 export function concatMapWithIndex<A, R1, E1, B>(f: (i: number, a: A) => ObservableInput<R1, E1, B>) {
@@ -793,6 +833,7 @@ export function concatMapWithIndex<A, R1, E1, B>(f: (i: number, a: A) => Observa
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable concatMap
  */
 export function concatMap<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>) {
@@ -802,6 +843,7 @@ export function concatMap<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>)
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable contramapEnvironment
  */
 export function contramapEnvironment<R, R0>(f: (r0: Environment<R0>) => Environment<R>) {
@@ -811,6 +853,7 @@ export function contramapEnvironment<R, R0>(f: (r0: Environment<R0>) => Environm
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable flatten
  */
 export function flatten<R, E, R1, E1, A>(mma: Observable<R, E, Observable<R1, E1, A>>): Observable<R | R1, E | E1, A> {
@@ -818,6 +861,7 @@ export function flatten<R, E, R1, E1, A>(mma: Observable<R, E, Observable<R1, E1
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable foldLeftWithIndex
  */
 export function foldLeftWithIndex<A, B>(initial: B, f: (index: number, acc: B, value: A) => B) {
@@ -829,6 +873,7 @@ export function foldLeftWithIndex<A, B>(initial: B, f: (index: number, acc: B, v
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable foldLeft
  */
 export function foldLeft<A, B>(initial: B, f: (acc: B, value: A) => B) {
@@ -838,6 +883,7 @@ export function foldLeft<A, B>(initial: B, f: (acc: B, value: A) => B) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable at
  */
 export function at(index: number) {
@@ -851,6 +897,7 @@ export function at(index: number) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable audit
  */
 export function audit<A, R1, E1>(durationSelector: (value: A) => ObservableInput<R1, E1, any>) {
@@ -899,6 +946,7 @@ export function audit<A, R1, E1>(durationSelector: (value: A) => ObservableInput
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable auditTime
  */
 export function auditTime(duration: number, scheduler: SchedulerLike = asyncScheduler) {
@@ -908,6 +956,7 @@ export function auditTime(duration: number, scheduler: SchedulerLike = asyncSche
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable buffer
  */
 export function buffer<R1, E1>(closingNotifier: Observable<R1, E1, any>) {
@@ -941,6 +990,7 @@ export function buffer<R1, E1>(closingNotifier: Observable<R1, E1, any>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable bufferCount
  */
 export function bufferCount(bufferSize: number, startBufferEvery?: number) {
@@ -993,6 +1043,7 @@ export interface BufferTimeConfig {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable bufferTime
  */
 export function bufferTime(config: BufferTimeConfig) {
@@ -1070,6 +1121,7 @@ export function bufferTime(config: BufferTimeConfig) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable bufferToggle
  */
 export function bufferToggle<R1, E1, B, R2, E2>(
@@ -1121,6 +1173,7 @@ export function bufferToggle<R1, E1, B, R2, E2>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable bufferWhen
  */
 export function bufferWhen<R1, E1>(closingSelector: () => ObservableInput<R1, E1, any>) {
@@ -1153,6 +1206,7 @@ export function bufferWhen<R1, E1>(closingSelector: () => ObservableInput<R1, E1
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable catchAllCause
  */
 export function catchAllCause<R, E, A, R1, E1, B>(
@@ -1187,6 +1241,7 @@ export function catchAllCause<R, E, A, R1, E1, B>(
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable concatAll
  */
 export function concatAll<R, E, R1, E1, A>(
@@ -1196,6 +1251,7 @@ export function concatAll<R, E, R1, E1, A>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable concat
  */
 export function concat<O extends ReadonlyArray<ObservableInput<any, any, any>>>(...sources: O) {
@@ -1215,6 +1271,7 @@ export function concat<O extends ReadonlyArray<ObservableInput<any, any, any>>>(
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable count
  */
 export function count<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, number> {
@@ -1222,6 +1279,7 @@ export function count<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, number
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable countWithIndex
  */
 export function countWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
@@ -1231,6 +1289,7 @@ export function countWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable countWith
  */
 export function countWith<A>(predicate: Predicate<A>) {
@@ -1240,6 +1299,7 @@ export function countWith<A>(predicate: Predicate<A>) {
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable combineLatestAll
  */
 export function combineLatestAll<R, E, R1, E1, A>(
@@ -1251,6 +1311,7 @@ export function combineLatestAll<R, E, R1, E1, A>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable zipLatest
  */
 export function zipLatest<O extends ReadonlyArray<ObservableInput<any, any, any>>>(...sources: O) {
@@ -1277,6 +1338,7 @@ export function zipLatest<O extends ReadonlyArray<ObservableInput<any, any, any>
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable zipWithLatest
  */
 export function zipWithLatest<A, R1, E1, B, C>(that: ObservableInput<R1, E1, B>, f: (a: A, b: B) => C) {
@@ -1286,6 +1348,7 @@ export function zipWithLatest<A, R1, E1, B, C>(that: ObservableInput<R1, E1, B>,
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable debounceWith
  */
 export function debounceWith<A, R1, E1>(durationSelector: (value: A) => ObservableInput<R1, E1, any>) {
@@ -1324,6 +1387,7 @@ export function debounceWith<A, R1, E1>(durationSelector: (value: A) => Observab
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable debounce
  */
 export function debounce(dueTime: number, scheduler: SchedulerLike = asyncScheduler) {
@@ -1375,6 +1439,7 @@ export function debounce(dueTime: number, scheduler: SchedulerLike = asyncSchedu
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable either
  */
 export function either<R, E, A>(fa: Observable<R, E, A>): Observable<R, never, Either<E, A>> {
@@ -1396,6 +1461,7 @@ export function either<R, E, A>(fa: Observable<R, E, A>): Observable<R, never, E
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable delayWithIndex
  */
 export function delayWithIndex<A, R1, E1>(f: (index: number, value: A) => Observable<R1, E1, any>) {
@@ -1405,6 +1471,7 @@ export function delayWithIndex<A, R1, E1>(f: (index: number, value: A) => Observ
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable delayWith
  */
 export function delayWith<A, R1, E1>(f: (value: A) => Observable<R1, E1, any>) {
@@ -1414,6 +1481,7 @@ export function delayWith<A, R1, E1>(f: (value: A) => Observable<R1, E1, any>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable delay
  */
 export function delay(due: number | Date, scheduler: SchedulerLike = asyncScheduler) {
@@ -1424,6 +1492,7 @@ export function delay(due: number | Date, scheduler: SchedulerLike = asyncSchedu
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable dematerialize
  */
 export function dematerialize<R, E, E1, A>(fa: Observable<R, E, Notification<E1, A>>): Observable<R, E | E1, A> {
@@ -1435,6 +1504,7 @@ export function dematerialize<R, E, E1, A>(fa: Observable<R, E, Notification<E1,
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable ensuring
  */
 export function ensuring(finalizer: () => void) {
@@ -1447,6 +1517,7 @@ export function ensuring(finalizer: () => void) {
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable exhaustAll
  */
 export function exhaustAll<R, E, R1, E1, A>(
@@ -1481,6 +1552,7 @@ export function exhaustAll<R, E, R1, E1, A>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable exhaustMapWithIndex
  */
 export function exhaustMapWithIndex<A, R1, E1, B>(f: (i: number, a: A) => ObservableInput<R1, E1, B>) {
@@ -1513,6 +1585,7 @@ export function exhaustMapWithIndex<A, R1, E1, B>(f: (i: number, a: A) => Observ
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable exhaustMap
  */
 export function exhaustMap<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>) {
@@ -1522,6 +1595,7 @@ export function exhaustMap<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable expandWithIndex
  */
 export function expandWithIndex<A, R1, E1, B>(
@@ -1537,6 +1611,7 @@ export function expandWithIndex<A, R1, E1, B>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable expand
  */
 export function expand<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>, concurrent = Infinity) {
@@ -1546,6 +1621,7 @@ export function expand<A, R1, E1, B>(f: (a: A) => ObservableInput<R1, E1, B>, co
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable findWithIndex
  */
 export function findWithIndex<A, B extends A>(
@@ -1561,6 +1637,7 @@ export function findWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable find
  */
 export function find<A, B extends A>(
@@ -1574,6 +1651,7 @@ export function find<A>(predicate: Predicate<A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable findIndexWithIndex
  */
 export function findIndexWithIndex<A, B extends A>(
@@ -1589,6 +1667,7 @@ export function findIndexWithIndex<A>(predicate: PredicateWithIndex<number, A>) 
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable findIndex
  */
 export function findIndex<A, B extends A>(
@@ -1602,6 +1681,7 @@ export function findIndex<A>(predicate: Predicate<A>) {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps forkJoin
  */
 export function forkJoin<S extends Record<string, ObservableInput<any, any>>>(
@@ -1669,6 +1749,7 @@ export function forkJoin(...args: any[]): Observable<any, any, any> {
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable ignore
  */
 export function ignore<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, never> {
@@ -1682,6 +1763,7 @@ export function ignore<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, never
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable isEmpty
  */
 export function isEmpty<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, boolean> {
@@ -1702,6 +1784,7 @@ export function isEmpty<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, bool
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable materialize
  */
 export function materialize<R, E, A>(fa: Observable<R, E, A>): Observable<R, never, Notification<E, A>> {
@@ -1723,6 +1806,7 @@ export function materialize<R, E, A>(fa: Observable<R, E, A>): Observable<R, nev
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable mergeAll
  */
 export function mergeAll(concurrent = Infinity) {
@@ -1732,6 +1816,7 @@ export function mergeAll(concurrent = Infinity) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable mergeScanWithIndex
  */
 export function mergeScanWithIndex<A, R1, E1, B>(
@@ -1760,6 +1845,7 @@ export function mergeScanWithIndex<A, R1, E1, B>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable mergeScan
  */
 export function mergeScan<A, R1, E1, B>(
@@ -1809,6 +1895,7 @@ export function onErrorResumeNext<R, E, A, O extends ReadonlyArray<ObservableInp
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable onEmpty
  */
 export function onEmpty<B>(f: Lazy<B>) {
@@ -1834,6 +1921,7 @@ export function onEmpty<B>(f: Lazy<B>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable repeat
  */
 export function repeat(count = Infinity) {
@@ -1879,6 +1967,7 @@ export interface RetryConfig {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable retry
  */
 export function retry(count?: number): <R, E, A>(fa: Observable<R, E, A>) => Observable<R, E, A>;
@@ -1936,6 +2025,7 @@ export function retry(configOrCount: number | RetryConfig = Infinity) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable sample
  */
 export function sample<R1, E1>(notifier: Observable<R1, E1, any>) {
@@ -1965,6 +2055,7 @@ export function sample<R1, E1>(notifier: Observable<R1, E1, any>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable sampleTime
  */
 export function sampleTime(period: number, scheduler: SchedulerLike = asyncScheduler) {
@@ -1974,6 +2065,7 @@ export function sampleTime(period: number, scheduler: SchedulerLike = asyncSched
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable scanLeftWithIndex
  */
 export function scanLeftWithIndex<A, B>(initial: B, f: (index: number, acc: B, value: A) => B) {
@@ -1985,6 +2077,7 @@ export function scanLeftWithIndex<A, B>(initial: B, f: (index: number, acc: B, v
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable scanLeft
  */
 export function scanLeft<A, B>(initial: B, f: (acc: B, value: A) => B) {
@@ -1994,6 +2087,7 @@ export function scanLeft<A, B>(initial: B, f: (acc: B, value: A) => B) {
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps service
  */
 export function service<S>(/** @tsplus auto */ tag: Tag<S>): Observable<S, never, S> {
@@ -2001,6 +2095,7 @@ export function service<S>(/** @tsplus auto */ tag: Tag<S>): Observable<S, never
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps serviceWith
  */
 export function serviceWith<S, A>(f: (service: S) => A, /** @tsplus auto */ tag: Tag<S>): Observable<S, never, A> {
@@ -2008,6 +2103,7 @@ export function serviceWith<S, A>(f: (service: S) => A, /** @tsplus auto */ tag:
 }
 
 /**
+ *
  * @tsplus static fncts.observable.ObservableOps serviceWithObservable
  */
 export function serviceWithObservable<S, R, E, A>(
@@ -2018,6 +2114,7 @@ export function serviceWithObservable<S, R, E, A>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable skip
  */
 export function skip(count: number) {
@@ -2027,6 +2124,7 @@ export function skip(count: number) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable skipLast
  */
 export function skipLast(skipCount: number) {
@@ -2059,6 +2157,7 @@ export function skipLast(skipCount: number) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable skipUntil
  */
 export function skipUntil<R1, E1>(notifier: Observable<R1, E1, any>) {
@@ -2083,6 +2182,7 @@ export function skipUntil<R1, E1>(notifier: Observable<R1, E1, any>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable skipWhile
  */
 export function skipWhile<A>(predicate: PredicateWithIndex<number, A>) {
@@ -2100,6 +2200,7 @@ export function skipWhile<A>(predicate: PredicateWithIndex<number, A>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable startWith
  */
 export function startWith<B extends ReadonlyArray<unknown>>(...values: B) {
@@ -2112,6 +2213,7 @@ export function startWith<B extends ReadonlyArray<unknown>>(...values: B) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable subscribeOn
  */
 export function subscribeOn(scheduler: SchedulerLike, delay = 0) {
@@ -2123,6 +2225,7 @@ export function subscribeOn(scheduler: SchedulerLike, delay = 0) {
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable switchAll
  */
 export function switchAll<R, E, R1, E1, A>(
@@ -2132,6 +2235,7 @@ export function switchAll<R, E, R1, E1, A>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable switchMapWithIndex
  */
 export function switchMapWithIndex<A, R1, E1, B>(f: (index: number, value: A) => ObservableInput<R1, E1, B>) {
@@ -2170,6 +2274,7 @@ export function switchMapWithIndex<A, R1, E1, B>(f: (index: number, value: A) =>
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable switchMap
  */
 export function switchMap<A, R1, E1, B>(f: (value: A) => ObservableInput<R1, E1, B>) {
@@ -2179,6 +2284,7 @@ export function switchMap<A, R1, E1, B>(f: (value: A) => ObservableInput<R1, E1,
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable switchScanWithIndex
  */
 export function switchScanWithIndex<A, R1, E1, B>(
@@ -2199,6 +2305,7 @@ export function switchScanWithIndex<A, R1, E1, B>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable switchScan
  */
 export function switchScan<A, R1, E1, B>(initial: B, f: (acc: B, value: A) => ObservableInput<R1, E1, B>) {
@@ -2208,6 +2315,7 @@ export function switchScan<A, R1, E1, B>(initial: B, f: (acc: B, value: A) => Ob
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable take
  */
 export function take(count: number) {
@@ -2233,6 +2341,7 @@ export function take(count: number) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable takeLast
  */
 export function takeLast(count: number) {
@@ -2263,6 +2372,7 @@ export function takeLast(count: number) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable takeUntil
  */
 export function takeUntil<R1, E1>(notifier: ObservableInput<R1, E1, any>) {
@@ -2277,6 +2387,7 @@ export function takeUntil<R1, E1>(notifier: ObservableInput<R1, E1, any>) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable takeWhileWithIndex
  */
 export function takeWhileWithIndex<A, B extends A>(
@@ -2305,6 +2416,7 @@ export function takeWhileWithIndex<A>(predicate: PredicateWithIndex<number, A>, 
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable takeWhile
  */
 export function takeWhile<A, B extends A>(
@@ -2322,6 +2434,7 @@ export function takeWhile<A>(predicate: Predicate<A>, inclusive?: boolean) {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable tap
  */
 export function tap<E, A>(observer: Partial<Observer<E, A>>) {
@@ -2358,6 +2471,7 @@ export const defaultThrottleConfig: ThrottleConfig = {
 };
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable throttle
  */
 export function throttle<A, R1, E1>(
@@ -2410,6 +2524,7 @@ export function throttle<A, R1, E1>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable throttleTime
  */
 export function throttleTime(
@@ -2452,6 +2567,7 @@ export class TimeoutError<A, M> extends Error {
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable timeout
  */
 export function timeout<A, R1, E1, B, M = unknown>(
@@ -2529,6 +2645,7 @@ function toArrayAccumulator(arr: any[], value: any) {
 }
 
 /**
+ *
  * @tsplus getter fncts.observable.Observable toArray
  */
 export function toArray<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, ReadonlyArray<A>> {
@@ -2540,6 +2657,7 @@ export function toArray<R, E, A>(fa: Observable<R, E, A>): Observable<R, E, Read
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable unique
  */
 export function unique<A, K, R1, E1 = never>(toKey?: (value: A) => K, flushes?: Observable<R1, E1, any>) {
@@ -2565,6 +2683,7 @@ export function unique<A, K, R1, E1 = never>(toKey?: (value: A) => K, flushes?: 
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable uniqueUntilChanged
  */
 export function uniqueUntilChanged<A, K>(
@@ -2605,6 +2724,7 @@ export function uniqueUntilChanged<A, K = A>(
 }
 
 /**
+ *
  * @tsplus pipeable fncts.observable.Observable uniqueUntilKeyChanged
  */
 export function uniqueUntilKeyChanged<A, K extends keyof A>(

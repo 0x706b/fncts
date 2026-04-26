@@ -1,4 +1,6 @@
 /**
+ * Returns `b` if the effect times out, otherwise applies `f` to the result.
+ *
  * @tsplus pipeable fncts.io.IO timeoutTo
  */
 export function timeoutTo<A, B, B1>(duration: Lazy<Duration>, b: Lazy<B>, f: (a: A) => B1, __tsplusTrace?: string) {
@@ -28,6 +30,8 @@ export function timeoutTo<A, B, B1>(duration: Lazy<Duration>, b: Lazy<B>, f: (a:
 }
 
 /**
+ * Fails with the specified error if the effect times out.
+ *
  * @tsplus pipeable fncts.io.IO timeoutFail
  */
 export function timeoutFail<E1>(duration: Lazy<Duration>, b: Lazy<E1>) {
@@ -36,6 +40,8 @@ export function timeoutFail<E1>(duration: Lazy<Duration>, b: Lazy<E1>) {
 }
 
 /**
+ * Returns `Nothing` if the effect times out, otherwise `Just` with the result.
+ *
  * @tsplus pipeable fncts.io.IO timeout
  */
 export function timeout(duration: Lazy<Duration>, __tsplusTrace?: string) {

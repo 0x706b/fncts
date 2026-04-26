@@ -1,5 +1,6 @@
 import { Lens } from "@fncts/base/optics/Lens";
 /**
+ *
  * @tsplus type fncts.optics.At
  */
 export interface At<S, I, A> {
@@ -14,6 +15,7 @@ export type AtMin<S, I, A> =
   | At<S, I, A>;
 
 /**
+ *
  * @tsplus type fncts.optics.AtOps
  */
 export interface AtOps {}
@@ -21,6 +23,8 @@ export interface AtOps {}
 export const At: AtOps = {};
 
 /**
+ * Builds an `At` from an existing instance or from indexed `get` and `set` accessors.
+ *
  * @tsplus static fncts.optics.AtOps __call
  */
 export function mkAt<S, I, A>(F: AtMin<S, I, A>): At<S, I, A> {

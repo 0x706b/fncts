@@ -1,6 +1,8 @@
 import type * as P from "@fncts/base/typeclass";
 
 /**
+ * Traverse with index into an applicative `Conc` result.
+ *
  * @tsplus getter fncts.Iterable traverseToConcWithIndex
  */
 export function _traverseToConcWithIndex<A>(ta: Iterable<A>) {
@@ -22,6 +24,8 @@ export function _traverseToConcWithIndex<A>(ta: Iterable<A>) {
 }
 
 /**
+ * Traverse into an applicative `Conc` result.
+ *
  * @tsplus getter fncts.Iterable traverseToConc
  */
 export function _traverseToConc<A>(

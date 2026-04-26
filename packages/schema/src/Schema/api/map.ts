@@ -2,6 +2,8 @@ import type { KeyError } from "@fncts/schema/ParseError";
 import type { Sized } from "@fncts/test/control/Sized";
 
 /**
+ * Create a schema for Map values with key and value schemas.
+ *
  * @tsplus static fncts.schema.SchemaOps map
  */
 export function map<K, V>(key: Schema<K>, value: Schema<V>): Schema<Map<K, V>> {
@@ -11,6 +13,8 @@ export function map<K, V>(key: Schema<K>, value: Schema<V>): Schema<Map<K, V>> {
 }
 
 /**
+ * Create a Map schema from a record representation.
+ *
  * @tsplus static fncts.schema.SchemaOps mapFromRecord
  */
 export function mapFromRecord<K extends string | symbol, V>(key: Schema<K>, value: Schema<V>): Schema<Map<K, V>> {
@@ -34,6 +38,8 @@ export function mapFromRecord<K extends string | symbol, V>(key: Schema<K>, valu
 }
 
 /**
+ * Derive a Map schema from a Map type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.Map]<_> 10
  */
 export function deriveMap<A extends Map<any, any>>(

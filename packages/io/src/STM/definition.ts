@@ -20,7 +20,9 @@ export const STMTypeId = Symbol.for("fncts.io.STM");
 export type STMTypeId = typeof STMTypeId;
 
 /**
+ *
  * @tsplus type fncts.io.STM
+ *
  * @tsplus companion fncts.io.STMOps
  */
 export abstract class STM<R, E, A> {
@@ -47,6 +49,8 @@ export declare namespace STM {
 }
 
 /**
+ * Unifies the STM type to its concrete type parameters.
+ *
  * @tsplus unify fncts.io.STM
  */
 export function unifySTM<X extends STM<any, any, any>>(self: X): STM<_R<X>, _E<X>, _A<X>> {
@@ -54,6 +58,7 @@ export function unifySTM<X extends STM<any, any, any>>(self: X): STM<_R<X>, _E<X
 }
 
 /**
+ *
  * @tsplus type fncts.io.STM
  */
 export interface USTM<A> extends STM<never, never, A> {}
@@ -125,6 +130,9 @@ export class ContramapEnvironment<R, E, A, R0> extends STM<R0, E, A> {
   }
 }
 
+/**
+ * Asserts that the given STM is one of the concrete STM types.
+ */
 export function concrete<R, E, A>(
   _: STM<R, E, A>,
 ): asserts _ is

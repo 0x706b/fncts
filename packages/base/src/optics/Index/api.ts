@@ -1,18 +1,11 @@
-import type { At } from "@fncts/base/optics/At";
 import type { Iso } from "@fncts/base/optics/Iso";
 
 import { Index } from "@fncts/base/optics/Index/definition";
 import { Optional } from "@fncts/base/optics/Optional/definition";
-import { Prism } from "@fncts/base/optics/Prism/definition";
 
 /**
- * @tsplus static fncts.optics.IndexOps fromAt
- */
-export function fromAt<T, J, B>(at: At<T, J, Maybe<B>>): Index<T, J, B> {
-  return Index({ index: (i) => at.at(i).compose(Prism.just<B>()) });
-}
-
-/**
+ * Builds an `Index` by lifting it through an `Iso`.
+ *
  * @tsplus static fncts.optics.IndexOps fromIso
  */
 export function fromIso<T, S>(iso: Iso<T, S>) {
@@ -20,6 +13,8 @@ export function fromIso<T, S>(iso: Iso<T, S>) {
 }
 
 /**
+ * Creates an `Index` that focuses an array element by numeric position.
+ *
  * @tsplus static fncts.optics.IndexOps array
  */
 export function array<A = never>(): Index<ReadonlyArray<A>, number, A> {

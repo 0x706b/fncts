@@ -1,4 +1,6 @@
 /**
+ * Runs this effect with finalizers executed sequentially.
+ *
  * @tsplus getter fncts.io.IO sequentialFinalizers
  */
 export function sequentialFinalizers<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
@@ -17,6 +19,8 @@ export function sequentialFinalizers<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: s
 }
 
 /**
+ * Runs this effect with finalizers executed concurrently.
+ *
  * @tsplus getter fncts.io.IO concurrentFinalizers
  */
 export function concurrentFinalizers<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: string): IO<R, E, A> {
@@ -35,6 +39,8 @@ export function concurrentFinalizers<R, E, A>(io: IO<R, E, A>, __tsplusTrace?: s
 }
 
 /**
+ * Runs with concurrent finalizers, providing a restore function for the original execution strategy.
+ *
  * @tsplus static fncts.io.IOOps concurrentFinalizersMask
  */
 export function concurrentFinalizersMask<R, E, A>(

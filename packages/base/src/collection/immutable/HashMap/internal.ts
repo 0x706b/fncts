@@ -16,6 +16,9 @@ export const MIN_ARRAY_NODE = BUCKET_SIZE / 4;
 
 /* Array Operations */
 
+/**
+ * Replace the value at `at`, mutating in place when allowed.
+ */
 export function arrayUpdate<A>(mutate: boolean, at: number, v: A, arr: A[]) {
   let out = arr;
   if (!mutate) {
@@ -27,6 +30,9 @@ export function arrayUpdate<A>(mutate: boolean, at: number, v: A, arr: A[]) {
   return out;
 }
 
+/**
+ * Remove the element at `at`, mutating in place when allowed.
+ */
 export function arraySpliceOut<A>(mutate: boolean, at: number, arr: A[]) {
   const newLen = arr.length - 1;
   let i        = 0;
@@ -46,6 +52,9 @@ export function arraySpliceOut<A>(mutate: boolean, at: number, arr: A[]) {
   return out;
 }
 
+/**
+ * Insert `v` at `at`, mutating in place when allowed.
+ */
 export function arraySpliceIn<A>(mutate: boolean, at: number, v: A, arr: A[]) {
   const len = arr.length;
   if (mutate) {
@@ -79,14 +88,23 @@ export function popcount(x: number) {
   return x & 0x7f;
 }
 
+/**
+ * Extract a hash fragment at the current trie depth.
+ */
 export function hashFragment(shift: number, h: number) {
   return (h >>> shift) & MASK;
 }
 
+/**
+ * Convert a fragment index into a bitmap mask.
+ */
 export function toBitmap(x: number) {
   return 1 << x;
 }
 
+/**
+ * Convert a fragment bit into a compact child index.
+ */
 export function fromBitmap(bitmap: number, bit: number) {
   return popcount(bitmap & (bit - 1));
 }
@@ -105,6 +123,9 @@ export interface SizeRef {
 
 export class EmptyNode<K, V> {
   readonly _tag = "EmptyNode";
+  /**
+   * Apply an update in an empty branch, inserting when `f` returns a value.
+   */
   modify(edit: number, keyEq: KeyEq<K>, shift: number, f: UpdateFn<V>, hash: number, key: K, size: SizeRef) {
     const v = f(Nothing());
     if (v.isNothing()) return _EmptyNode;
@@ -115,14 +136,23 @@ export class EmptyNode<K, V> {
 
 export const _EmptyNode = new EmptyNode<never, never>();
 
+/**
+ * Check whether a node is the shared empty node.
+ */
 export function isEmptyNode(a: unknown): a is EmptyNode<unknown, unknown> {
   return a === _EmptyNode;
 }
 
+/**
+ * Check whether a node is a leaf-like node.
+ */
 export function isLeaf<K, V>(node: Node<K, V>): node is EmptyNode<K, V> | LeafNode<K, V> | CollisionNode<K, V> {
   return isEmptyNode(node) || node._tag === "LeafNode" || node._tag === "CollisionNode";
 }
 
+/**
+ * Check if a node can be edited in place.
+ */
 export function canEditNode<K, V>(edit: number, node: Node<K, V>): boolean {
   return isEmptyNode(node) ? false : edit === node.edit;
 }
@@ -140,6 +170,9 @@ export class LeafNode<K, V> {
     public value: Maybe<V>,
   ) {}
 
+  /**
+   * Apply an update at a leaf, replacing, removing, or merging on key mismatch.
+   */
   modify(
     edit: number,
     keyEq: KeyEq<K>,
@@ -178,6 +211,9 @@ export class CollisionNode<K, V> {
     public children: Array<Node<K, V>>,
   ) {}
 
+  /**
+   * Apply an update inside a collision bucket or merge when hashes diverge.
+   */
   modify(
     edit: number,
     keyEq: KeyEq<K>,
@@ -201,6 +237,9 @@ export class CollisionNode<K, V> {
   }
 }
 
+/**
+ * Update or append a leaf in a collision list.
+ */
 function updateCollisionList<K, V>(
   mutate: boolean,
   edit: number,
@@ -240,6 +279,9 @@ export class IndexedNode<K, V> {
     public children: Array<Node<K, V>>,
   ) {}
 
+  /**
+   * Apply an update in a bitmap-indexed branch and rebalance child layout.
+   */
   modify(
     edit: number,
     keyEq: KeyEq<K>,
@@ -298,6 +340,9 @@ export class ArrayNode<K, V> {
     public children: Array<Node<K, V>>,
   ) {}
 
+  /**
+   * Apply an update in a dense array branch and shrink when it becomes sparse.
+   */
   modify(
     edit: number,
     keyEq: KeyEq<K>,
@@ -342,6 +387,9 @@ export class ArrayNode<K, V> {
   }
 }
 
+/**
+ * Pack a sparse array node into an indexed node.
+ */
 function pack<K, V>(edit: number, count: number, removed: number, elements: Node<K, V>[]) {
   const children = new Array<Node<K, V>>(count - 1);
   let g          = 0;
@@ -358,6 +406,9 @@ function pack<K, V>(edit: number, count: number, removed: number, elements: Node
   return new IndexedNode(edit, bitmap, children);
 }
 
+/**
+ * Expand an indexed node into an array node.
+ */
 function expand<K, V>(edit: number, frag: number, child: Node<K, V>, bitmap: number, subNodes: Node<K, V>[]) {
   const arr = [];
   let bit   = bitmap;
@@ -370,6 +421,9 @@ function expand<K, V>(edit: number, frag: number, child: Node<K, V>, bitmap: num
   return new ArrayNode(edit, count + 1, arr);
 }
 
+/**
+ * Merge two leaf nodes into a shared subtree.
+ */
 function mergeLeaves<K, V>(
   edit: number,
   shift: number,

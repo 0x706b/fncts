@@ -1,4 +1,6 @@
 /**
+ * Retries this effect according to the specified schedule on failure.
+ *
  * @tsplus pipeable fncts.io.IO retry
  */
 export function retry<R1, E, O>(schedule0: Lazy<Schedule<R1, E, O>>, __tsplusTrace?: string) {
@@ -6,6 +8,8 @@ export function retry<R1, E, O>(schedule0: Lazy<Schedule<R1, E, O>>, __tsplusTra
 }
 
 /**
+ * Retries this effect according to the schedule, with a fallback on exhausted retries.
+ *
  * @tsplus pipeable fncts.io.IO retryOrElse
  */
 export function retryOrElse<E, A, R1, O, R2, E2>(
@@ -18,6 +22,8 @@ export function retryOrElse<E, A, R1, O, R2, E2>(
 }
 
 /**
+ * Retries this effect, returning either the fallback or original result.
+ *
  * @tsplus pipeable fncts.io.IO retryOrElseEither
  */
 export function retryOrElseEither<E, R1, O, R2, E2, B>(

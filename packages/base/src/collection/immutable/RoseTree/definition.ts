@@ -12,7 +12,10 @@ export interface RoseTreeF extends HKT {
 }
 
 /**
+ * Represents a rose tree node with a value and child forest.
+ *
  * @tsplus type fncts.RoseTree
+ *
  * @tsplus companion fncts.RoseTreeOps
  */
 export class RoseTree<A> implements Hashable, Equatable {
@@ -25,10 +28,16 @@ export class RoseTree<A> implements Hashable, Equatable {
     readonly forest: Vector<RoseTree<A>>,
   ) {}
 
+  /**
+   * Compares two rose trees by node value and child forest reference.
+   */
   [Symbol.equals](that: unknown): boolean {
     return isRoseTree(that) ? Equatable.strictEquals(this.value, that.value) && this.forest == that.forest : false;
   }
 
+  /**
+   * Computes a hash from the tree type, value, and child forest.
+   */
   get [Symbol.hash]() {
     let h = Hashable.symbol(RoseTreeTypeId);
     h    ^= Hashable.unknown(this.value);
@@ -37,6 +46,9 @@ export class RoseTree<A> implements Hashable, Equatable {
   }
 }
 
+/**
+ * Returns true when the input is a rose tree instance.
+ */
 export function isRoseTree(u: unknown): u is RoseTree<unknown> {
   return isObject(u) && RoseTreeTypeId in u;
 }

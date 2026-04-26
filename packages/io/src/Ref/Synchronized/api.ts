@@ -133,6 +133,8 @@ export function getAndUpdateJustIO<A, R1, E1>(f: (a: A) => Maybe<IO<R1, E1, A>>,
 }
 
 /**
+ * Transform both set/get channels using effectful functions.
+ *
  * @tsplus pipeable fncts.io.Ref.Synchronized matchIO
  */
 export function matchIO<EA, EB, A, B, RC, RD, EC, ED, C, D>(
@@ -149,6 +151,8 @@ export function matchIO<EA, EB, A, B, RC, RD, EC, ED, C, D>(
 }
 
 /**
+ * Like `matchIO`, but set transformation can depend on current value.
+ *
  * @tsplus pipeable fncts.io.Ref.Synchronized matchAllIO
  */
 export function matchAllIO<EA, EB, A, B, RC, RD, EC, ED, C, D>(
@@ -168,6 +172,8 @@ export function matchAllIO<EA, EB, A, B, RC, RD, EC, ED, C, D>(
 }
 
 /**
+ * Atomically modify a synchronized ref with an effectful update.
+ *
  * @tsplus pipeable fncts.io.Ref.Synchronized modifyIO
  */
 export function modifyIO<A, R1, E1, B>(f: (a: A) => IO<R1, E1, readonly [B, A]>, __tsplusTrace?: string) {

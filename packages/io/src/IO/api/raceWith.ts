@@ -4,6 +4,8 @@ import { ExitTag } from "@fncts/base/data/Exit";
 import { AtomicBoolean } from "@fncts/base/internal/AtomicBoolean";
 
 /**
+ * Low-level racing primitive that races two fibers and uses handlers for the results.
+ *
  * @tsplus pipeable fncts.io.IO raceFibersWith
  */
 export function raceFibersWith<R, E, A, R1, E1, B, R2, E2, C, R3, E3, D>(

@@ -19,7 +19,10 @@ export type EnsureLiteralTuple<A extends ReadonlyArray<unknown>> = unknown exten
   : A;
 
 /**
+ * Returns the Struct from an object.
+ *
  * @tsplus static fncts.StructOps __call
+ *
  * @tsplus macro identity
  */
 export function makeStruct<A>(a: A): Struct<A> {
@@ -27,6 +30,8 @@ export function makeStruct<A>(a: A): Struct<A> {
 }
 
 /**
+ * Returns a new Struct with the specified key updated to the provided value.
+ *
  * @tsplus pipeable fncts.Struct set
  */
 export function set<N extends string, B>(key: EnsureLiteral<N>, value: B) {
@@ -40,6 +45,8 @@ export function set<N extends string, B>(key: EnsureLiteral<N>, value: B) {
 }
 
 /**
+ * Returns a new Struct with values transformed by the provided functions.
+ *
  * @tsplus pipeable fncts.Struct hmap
  */
 export function hmap<
@@ -63,6 +70,8 @@ export function hmap<
 }
 
 /**
+ * Returns a new Struct with the value at the specified key transformed.
+ *
  * @tsplus pipeable fncts.Struct modify
  */
 export function modify<A, N extends keyof A, B>(key: N, f: (a: A[N]) => B) {
@@ -76,6 +85,8 @@ export function modify<A, N extends keyof A, B>(key: N, f: (a: A[N]) => B) {
 }
 
 /**
+ * Returns a new Struct containing only the specified keys.
+ *
  * @tsplus pipeable fncts.Struct pick
  */
 export function pick<A, N extends ReadonlyArray<keyof A>>(keys: [...N]) {
@@ -93,6 +104,8 @@ export function pick<A, N extends ReadonlyArray<keyof A>>(keys: [...N]) {
 }
 
 /**
+ * Returns a new Struct with the specified keys omitted.
+ *
  * @tsplus pipeable fncts.Struct omit
  */
 export function omit<A extends {}, N extends ReadonlyArray<keyof A>>(keys: [...N]) {
@@ -111,6 +124,8 @@ export function omit<A extends {}, N extends ReadonlyArray<keyof A>>(keys: [...N
 }
 
 /**
+ * Returns a new Struct with all values transformed.
+ *
  * @tsplus pipeable fncts.Struct map
  */
 export function map<A, B>(f: (a: A[keyof A]) => B) {
@@ -126,6 +141,8 @@ export function map<A, B>(f: (a: A[keyof A]) => B) {
 }
 
 /**
+ * Returns all keys of the Struct.
+ *
  * @tsplus getter fncts.Struct keys
  */
 export function keys<A extends {}>(self: Struct<A>): ReadonlyArray<keyof A> {
@@ -133,7 +150,10 @@ export function keys<A extends {}>(self: Struct<A>): ReadonlyArray<keyof A> {
 }
 
 /**
+ * Returns the underlying object of the Struct.
+ *
  * @tsplus getter fncts.Struct getStruct
+ *
  * @tsplus macro identity
  */
 export function getStruct<A>(self: Struct<A>): A {

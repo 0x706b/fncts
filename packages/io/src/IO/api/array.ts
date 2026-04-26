@@ -1,4 +1,6 @@
 /**
+ * Maps each array element with an indexed effectful function, discarding results.
+ *
  * @tsplus fluent fncts.ReadonlyArray mapIOWithIndexDiscard
  */
 export function foreachArrayWithIndexDiscard<A, R, E>(
@@ -15,6 +17,8 @@ export function foreachArrayWithIndexDiscard<A, R, E>(
 }
 
 /**
+ * Maps each array element with an effectful function, discarding results.
+ *
  * @tsplus fluent fncts.ReadonlyArray mapIODiscard
  */
 export function foreachArrayDiscard<A, R, E>(array: ReadonlyArray<A>, f: (a: A) => IO<R, E, unknown>): IO<R, E, void> {
@@ -22,6 +26,8 @@ export function foreachArrayDiscard<A, R, E>(array: ReadonlyArray<A>, f: (a: A) 
 }
 
 /**
+ * Maps each array element with an indexed effectful function, collecting results.
+ *
  * @tsplus fluent fncts.ReadonlyArray mapIOWithIndex
  */
 export function foreachArrayWithIndex<A, R, E, B>(
@@ -42,6 +48,8 @@ export function foreachArrayWithIndex<A, R, E, B>(
 }
 
 /**
+ * Maps each array element with an effectful function, collecting results.
+ *
  * @tsplus fluent fncts.ReadonlyArray mapIO
  */
 export function foreachArray<A, R, E, B>(array: ReadonlyArray<A>, f: (a: A) => IO<R, E, B>): IO<R, E, Conc<B>> {

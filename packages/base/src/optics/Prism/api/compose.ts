@@ -2,6 +2,8 @@ import { identity } from "@fncts/base/data/function";
 import { PPrism } from "@fncts/base/optics/Prism/definition";
 
 /**
+ * Composes two prisms so the second refines the first focus.
+ *
  * @tsplus pipeable fncts.optics.PPrism compose
  */
 export function compose<A, B, C, D>(that: PPrism<A, B, C, D>) {

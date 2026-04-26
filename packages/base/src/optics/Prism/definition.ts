@@ -4,6 +4,7 @@ import { identity } from "@fncts/base/data/function";
 import { POptional } from "@fncts/base/optics/Optional";
 
 /**
+ *
  * @tsplus type fncts.optics.PPrism
  */
 export interface PPrism<S, T, A, B> extends POptional<S, T, A, B> {
@@ -15,6 +16,7 @@ export interface PPrismPartiallyApplied<T, A, B> extends POptionalPartiallyAppli
 }
 
 /**
+ *
  * @tsplus type fncts.optics.PPrismOps
  */
 export interface PPrismOps {}
@@ -27,6 +29,8 @@ export interface PPrismMin<S, T, A, B> {
 }
 
 /**
+ * Builds a polymorphic prism from a matcher and a constructor.
+ *
  * @tsplus static fncts.optics.PPrismOps __call
  */
 export function makePPrism<S, T, A, B>(F: PPrismMin<S, T, A, B>): PPrism<S, T, A, B> {
@@ -40,11 +44,13 @@ export function makePPrism<S, T, A, B>(F: PPrismMin<S, T, A, B>): PPrism<S, T, A
 }
 
 /**
+ *
  * @tsplus type fncts.optics.Prism
  */
 export interface Prism<S, A> extends PPrism<S, S, A, A> {}
 
 /**
+ *
  * @tsplus type fncts.optics.PrismOps
  */
 export interface PrismOps extends PPrismOps {}
@@ -52,6 +58,8 @@ export interface PrismOps extends PPrismOps {}
 export const Prism: PrismOps = {};
 
 /**
+ * Builds a monomorphic prism from a matcher and a constructor.
+ *
  * @tsplus static fncts.optics.PrismOps __call
  */
 export function makePrism<S, A>(F: PPrismMin<S, S, A, A>): Prism<S, A> {

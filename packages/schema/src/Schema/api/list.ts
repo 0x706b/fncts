@@ -2,7 +2,10 @@ import type { IndexError } from "@fncts/schema/ParseError";
 import type { Sized } from "@fncts/test/control/Sized";
 
 /**
+ * Create a schema for List values.
+ *
  * @tsplus static fncts.schema.SchemaOps list
+ *
  * @tsplus getter fncts.Schema.Schema list
  */
 export function list<A>(value: Schema<A>): Schema<List<A>> {
@@ -12,7 +15,10 @@ export function list<A>(value: Schema<A>): Schema<List<A>> {
 }
 
 /**
+ * Create a List schema from an array representation.
+ *
  * @tsplus static fncts.schema.SchemaOps listFromArray
+ *
  * @tsplus getter fncts.Schema.Schema listFromArray
  */
 export function listFromArray<A>(value: Schema<A>): Schema<List<A>> {
@@ -24,6 +30,8 @@ export function listFromArray<A>(value: Schema<A>): Schema<List<A>> {
 }
 
 /**
+ * Derive a List schema from a List type.
+ *
  * @tsplus derive fncts.schema.Schema[fncts.List]<_> 10
  */
 export function deriveList<A extends List<any>>(

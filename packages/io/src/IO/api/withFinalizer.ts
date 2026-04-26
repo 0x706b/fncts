@@ -1,4 +1,6 @@
 /**
+ * Attaches a finalizer that runs when the scope closes.
+ *
  * @tsplus pipeable fncts.io.IO withFinalizer
  */
 export function withFinalizer<A, R1>(finalizer: (a: A) => URIO<R1, any>, __tsplusTrace?: string) {

@@ -28,6 +28,8 @@ function unifyInterrupt(interrupt: Interrupt): Unified {
 }
 
 /**
+ * Internal tail-recursive loop used to normalize a `Cause`.
+ *
  * @tsplus tailRec
  */
 function unifyLoop<E>(
@@ -60,6 +62,8 @@ function unifyLoop<E>(
 }
 
 /**
+ * Converts a `Cause` into a normalized list used for rendering.
+ *
  * @tsplus getter fncts.Cause unified
  */
 export function unified<E>(self: Cause<E>): List<Unified> {

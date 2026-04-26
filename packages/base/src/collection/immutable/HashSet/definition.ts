@@ -19,7 +19,9 @@ export const HashSetTypeId = Symbol.for("fncts.HashSet");
 export type HashSetTypeId = typeof HashSetTypeId;
 
 /**
+ *
  * @tsplus type fncts.HashSet
+ *
  * @tsplus companion fncts.HashSetOps
  */
 export class HashSet<in out A> implements Iterable<A>, P.Hashable, P.Equatable {
@@ -73,6 +75,8 @@ export class HashSet<in out A> implements Iterable<A>, P.Hashable, P.Equatable {
 }
 
 /**
+ * Checks whether a value is a `HashSet` instance.
+ *
  * @tsplus static fncts.HashSetOps is
  */
 export function isHashSet<A>(u: Iterable<A>): u is HashSet<A>;
@@ -115,6 +119,9 @@ interface SizeRef {
   value: number;
 }
 
+/**
+ * Returns whether a node belongs to the current edit session.
+ */
 export function canEditNode<A>(edit: number, node: Node<A>): boolean {
   return isEmptyNode(node) ? false : edit === node.edit;
 }
@@ -141,6 +148,9 @@ export class EmptyNode<A> {
 
 export const _EmptyNode = new EmptyNode<never>();
 
+/**
+ * Checks whether a node is the shared empty node.
+ */
 export function isEmptyNode<A>(n: Node<A>): n is EmptyNode<A> {
   return n === _EmptyNode;
 }
@@ -212,6 +222,9 @@ export class CollisionNode<A> {
   }
 }
 
+/**
+ * Updates a collision bucket by inserting, replacing, or removing a leaf.
+ */
 function updateCollisionList<A>(
   remove: boolean,
   mutate: boolean,
@@ -239,6 +252,9 @@ function updateCollisionList<A>(
   return arrayUpdate(mutate, len, new LeafNode(edit, hash, value), list);
 }
 
+/**
+ * Returns `true` when the node has no further branching.
+ */
 export function isLeaf<A>(node: Node<A>): node is EmptyNode<A> | LeafNode<A> | CollisionNode<A> {
   return isEmptyNode(node) || node._tag === "LeafNode" || node._tag === "CollisionNode";
 }
@@ -346,6 +362,9 @@ export class ArrayNode<A> {
   }
 }
 
+/**
+ * Compacts a sparse array node back into an indexed node.
+ */
 function pack<A>(edit: number, count: number, removed: number, elements: Array<Node<A>>) {
   const children = new Array<Node<A>>(count - 1);
   let g          = 0;
@@ -362,6 +381,9 @@ function pack<A>(edit: number, count: number, removed: number, elements: Array<N
   return new IndexedNode(edit, bitmap, children);
 }
 
+/**
+ * Expands an indexed node into an array node.
+ */
 function expand<A>(edit: number, frag: number, child: Node<A>, bitmap: number, subNodes: Array<Node<A>>) {
   const arr = [];
   let bit   = bitmap;
@@ -374,6 +396,9 @@ function expand<A>(edit: number, frag: number, child: Node<A>, bitmap: number, s
   return new ArrayNode(edit, count + 1, arr);
 }
 
+/**
+ * Merges two leaves into the smallest shared branch.
+ */
 function mergeLeaves<A>(edit: number, shift: number, h1: number, n1: Node<A>, h2: number, n2: Node<A>): Node<A> {
   if (h1 === h2) return new CollisionNode(edit, h1, [n2, n1]);
   const subH1 = hashFragment(shift, h1);
@@ -387,10 +412,16 @@ function mergeLeaves<A>(edit: number, shift: number, h1: number, n1: Node<A>, h2
 
 type Cont<V, A> = [len: number, children: Array<Node<V>>, i: number, f: (node: V) => A, cont: Cont<V, A>] | undefined;
 
+/**
+ * Continues lazy traversal from a stored continuation frame.
+ */
 function applyCont<V, A>(cont: Cont<V, A>) {
   return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : undefined;
 }
 
+/**
+ * Lazily visits child nodes starting at the given index.
+ */
 function visitLazyChildren<V, A>(
   len: number,
   children: Node<V>[],

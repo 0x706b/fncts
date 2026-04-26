@@ -12,11 +12,13 @@ import { CommitState } from "./CommitState.js";
 import { Done, Suspend } from "./TryCommit.js";
 
 /**
+ *
  * @tsplus type fncts.io.Journal
  */
 export type Journal = Map<Atomic<any>, Entry>;
 
 /**
+ *
  * @tsplus type fncts.io.JournalOps
  */
 export interface JournalOps {}
@@ -86,6 +88,7 @@ export function analyzeJournal(journal: Journal): JournalAnalysis {
 }
 
 /**
+ *
  * @tsplus static fncts.io.JournalOps emptyTodoMap
  */
 export const emptyTodoMap = HashMap.empty<TxnId, Todo>();
@@ -159,6 +162,8 @@ export function addTodo(txnId: TxnId, todoEffect: Todo) {
 
 /**
  * Finds all the new todo targets that are not already tracked in the `oldJournal`.
+ *
+ * @tsplus static fncts.io.JournalOps untrackedTodoTargets
  */
 export function untrackedTodoTargets(oldJournal: Journal, newJournal: Journal): Journal {
   const untracked: Journal = new Map();

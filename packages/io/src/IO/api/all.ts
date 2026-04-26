@@ -1,6 +1,8 @@
 import type { _A, _E, _R } from "@fncts/base/types";
 
 /**
+ * Combines multiple effects into one, executing them sequentially and collecting results.
+ *
  * @tsplus static fncts.io.IOOps all
  */
 export function all<T extends ReadonlyArray<IO<any, any, any>>>(
@@ -32,6 +34,8 @@ export function all(ios: Record<string, IO<any, any, any>> | Iterable<IO<any, an
 }
 
 /**
+ * Combines multiple effects into one, executing them concurrently and collecting results.
+ *
  * @tsplus static fncts.io.IOOps allConcurrent
  */
 export function allConcurrent<T extends ReadonlyArray<IO<any, any, any>>>(

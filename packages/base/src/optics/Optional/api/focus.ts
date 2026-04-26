@@ -2,6 +2,8 @@ import type { POptional, POptionalPartiallyApplied } from "@fncts/base/optics/Op
 import type { PTraversal } from "@fncts/base/optics/Traversal";
 
 /**
+ * Focuses a value with a `POptional` and exposes optional-specific accessors.
+ *
  * @tsplus fluent global focus 1
  */
 export function focus<S, T, A, B>(self: S, optional: POptional<S, T, A, B>): POptionalPartiallyApplied<T, A, B> {

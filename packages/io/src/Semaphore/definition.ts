@@ -3,7 +3,9 @@ import { IllegalArgumentError } from "@fncts/base/data/exceptions";
 import { Reservation } from "@fncts/io/Semaphore/Reservation";
 
 /**
+ *
  * @tsplus type fncts.io.Semaphore
+ *
  * @tsplus companion fncts.io.SemaphoreOps
  */
 export class Semaphore {
@@ -11,6 +13,7 @@ export class Semaphore {
 
   ref = Ref.unsafeMake<Either<ImmutableQueue<[Future<never, void>, number]>, number>>(Either.right(this.permits));
 
+  /** Returns `0` when there are queued waiters, otherwise returns currently free permits. */
   available(__tsplusTrace?: string): UIO<number> {
     return this.ref.get.map((_) =>
       _.match(
@@ -20,6 +23,7 @@ export class Semaphore {
     );
   }
 
+  /** Attempts to reserve `n` permits immediately, returning `Nothing` when not enough are available. */
   tryReserve(n: number, __tsplusTrace?: string): UIO<Maybe<Reservation>> {
     if (n < 0) {
       return IO.halt(new IllegalArgumentError(`Unexpected negative ${n} permits requested`, "Semaphore.tryReserve"));
@@ -41,6 +45,7 @@ export class Semaphore {
     }
   }
 
+  /** Reserves `n` permits, suspending on a queue until enough permits can be acquired. */
   reserve(n: number, __tsplusTrace?: string): UIO<Reservation> {
     if (n < 0) {
       return IO.halt(new IllegalArgumentError(`Unexpected negative ${n} permits requested`, "Semaphore.reserve"));
@@ -70,6 +75,7 @@ export class Semaphore {
     }
   }
 
+  /** Cancels a pending reservation and releases any already-accounted permits back to the semaphore. */
   restore(future: Future<never, void>, n: number, __tsplusTrace?: string): UIO<void> {
     return this.ref.modify((state) =>
       state.match(
@@ -88,10 +94,12 @@ export class Semaphore {
     ).flatten;
   }
 
+  /** Releases `n` permits, waking queued waiters in order while accounting for partial fulfillment. */
   releaseN(n: number, __tsplusTrace?: string): UIO<void> {
     const self = this;
 
     /**
+     *
      * @tsplus tailRec
      */
     function loop(
@@ -131,6 +139,7 @@ export class Semaphore {
     return this.ref.modify((state) => loop(n, state, IO.unit)).flatten;
   }
 
+  /** Runs an effect only if `permits` can be reserved immediately, otherwise returns `Nothing`. */
   tryWithPermits(permits: number) {
     return <R, E, A>(io: IO<R, E, A>, __tsPlusTrace?: string): IO<R, E, Maybe<A>> => {
       return this.tryReserve(permits).bracket(
@@ -148,10 +157,12 @@ export class Semaphore {
     };
   }
 
+  /** Variant of `tryWithPermits` for a single permit. */
   tryWithPermit<R, E, A>(io: IO<R, E, A>): IO<R, E, Maybe<A>> {
     return this.tryWithPermits(1)(io);
   }
 
+  /** Brackets an effect with acquisition and release of `permits`, waiting if needed. */
   withPermits(permits: number) {
     return <R, E, A>(io: IO<R, E, A>): IO<R, E, A> => {
       return IO.bracket(
@@ -162,10 +173,12 @@ export class Semaphore {
     };
   }
 
+  /** Variant of `withPermits` for a single permit. */
   withPermit<R, E, A>(io: IO<R, E, A>): IO<R, E, A> {
     return this.withPermits(1)(io);
   }
 
+  /** Acquires `permits` for the lifetime of the surrounding scope. */
   withPermitsScoped(permits: number) {
     return <R, E, A>(io: IO<R, E, A>): IO<Scope | R, E, A> => {
       return IO.acquireRelease(this.reserve(permits), (reservation) => reservation.release).flatMap(
@@ -174,6 +187,7 @@ export class Semaphore {
     };
   }
 
+  /** Variant of `withPermitsScoped` for a single permit. */
   withPermitScoped<R, E, A>(io: IO<R, E, A>): IO<Scope | R, E, A> {
     return this.withPermitsScoped(1)(io);
   }
