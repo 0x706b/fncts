@@ -17,17 +17,16 @@ const packages = [
   "scripts",
   "test",
   "transformers",
-  "typelevel"
-]
+  "typelevel",
+];
 
 export const aliases = packages.flatMap((name) => [
   {
     find: RegExp(`^@fncts\/${name}$`),
-    replacement: path.resolve(projectDir, "packages", name, "src", "index.ts")
+    replacement: path.resolve(projectDir, "packages", name, "src", "index.ts"),
   },
   {
     find: RegExp(`^@fncts\/${name}\/(.*)$`),
-    replacement: path.resolve(projectDir, "packages", name, "src", "$1")
+    replacement: path.resolve(projectDir, "packages", name, "src", "$1"),
   },
 ]);
-
