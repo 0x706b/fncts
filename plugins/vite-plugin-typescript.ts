@@ -40,7 +40,6 @@ const collectFiles = (configPath: string) => {
   );
 
   Object.assign(config.compilerOptions ?? {}, {
-    incremental: true,
     moduleDetection: "force",
     sourceMap: false,
     inlineSourceMap: true,

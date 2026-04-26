@@ -6,6 +6,9 @@
   "exports": {
     "./prettier": {
       "import": "./prettier.config.js"
+    },
+    "./vitest-aliases": {
+      "import": "./vitest-aliases.js"
     }
   }
 }
