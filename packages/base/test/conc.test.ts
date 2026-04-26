@@ -108,16 +108,22 @@ suite.concurrent("Conc", () => {
       { timeout: 10_000 },
     );
 
-    test.io("buffer full", () => {
-      function addAll<A>(l: Conc<A>, r: Conc<A>): Conc<A> {
-        return l.foldRight(r, (a, acc) => acc.prepend(a));
-      }
-      return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
-        const actual   = Array.replicate(100, as).foldRight(bs, addAll);
-        const expected = Array.replicate(100, as).foldRight(bs, (as, bs) => as.concat(bs));
-        return actual.assert(strictEqualTo(expected));
-      });
-    });
+    test.io(
+      "buffer full",
+      () => {
+        function addAll<A>(l: Conc<A>, r: Conc<A>): Conc<A> {
+          return l.foldRight(r, (a, acc) => acc.prepend(a));
+        }
+        return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
+          const actual   = Array.replicate(100, as).foldRight(bs, addAll);
+          const expected = Array.replicate(100, as).foldRight(bs, (as, bs) => as.concat(bs));
+          return actual.assert(strictEqualTo(expected));
+        });
+      },
+      {
+        timeout: 10_000,
+      },
+    );
 
     test.io(
       "buffer used",
@@ -137,6 +143,9 @@ suite.concurrent("Conc", () => {
         const expected = as.concat(bs);
         return actual.assert(strictEqualTo(expected));
       }),
+      {
+        timeout: 10_000,
+      },
     );
   });
 
