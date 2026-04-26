@@ -10,11 +10,17 @@ class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends QueueInt
     super();
   }
 
-  awaitShutdown: UIO<void> = this.queue.awaitShutdown;
+  get awaitShutdown(): UIO<void> {
+    return this.queue.awaitShutdown;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = this.queue.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.queue.isShutdown;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.queue.unsafeSize;
@@ -39,13 +45,21 @@ class FilterInputIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> extends QueueInt
     });
   }
 
-  shutdown: UIO<void> = this.queue.shutdown;
+  get shutdown(): UIO<void> {
+    return this.queue.shutdown;
+  }
 
-  size: UIO<number> = this.queue.size;
+  get size(): UIO<number> {
+    return this.queue.size;
+  }
 
-  take: IO<RB, EB, B> = this.queue.take;
+  get take(): IO<RB, EB, B> {
+    return this.queue.take;
+  }
 
-  takeAll: IO<RB, EB, Conc<B>> = this.queue.takeAll;
+  get takeAll(): IO<RB, EB, Conc<B>> {
+    return this.queue.takeAll;
+  }
 
   takeUpTo(max: number): IO<RB, EB, Conc<B>> {
     return this.queue.takeUpTo(max);
@@ -94,11 +108,17 @@ class FilterInputEnqueueIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>
     readonly f: (_: A1) => IO<R2, E2, boolean>,
   ) {}
 
-  awaitShutdown: UIO<void> = this.queue.awaitShutdown;
+  get awaitShutdown(): UIO<void> {
+    return this.queue.awaitShutdown;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = this.queue.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.queue.isShutdown;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.queue.unsafeSize;
@@ -123,9 +143,13 @@ class FilterInputEnqueueIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>
     });
   }
 
-  shutdown: UIO<void> = this.queue.shutdown;
+  get shutdown(): UIO<void> {
+    return this.queue.shutdown;
+  }
 
-  size: UIO<number> = this.queue.size;
+  get size(): UIO<number> {
+    return this.queue.size;
+  }
 }
 
 /**

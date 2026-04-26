@@ -1,5 +1,5 @@
-import { defineConfig } from "vitest/config";
 import os from "node:os";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
@@ -8,5 +8,6 @@ export default defineConfig({
       fsModuleCache: true,
     },
     maxWorkers: Math.max(1, Math.min(8, os.availableParallelism() - 1)),
+    pool: "threads",
   },
 });

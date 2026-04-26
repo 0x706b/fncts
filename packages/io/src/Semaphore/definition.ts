@@ -7,9 +7,11 @@ import { Reservation } from "@fncts/io/Semaphore/Reservation";
  * @tsplus companion fncts.io.SemaphoreOps
  */
 export class Semaphore {
-  constructor(readonly permits: number) {}
+  readonly ref: Ref<Either<ImmutableQueue<[Future<never, void>, number]>, number>>;
 
-  ref = Ref.unsafeMake<Either<ImmutableQueue<[Future<never, void>, number]>, number>>(Either.right(this.permits));
+  constructor(readonly permits: number) {
+    this.ref = Ref.unsafeMake(Either.right(this.permits));
+  }
 
   available(__tsplusTrace?: string): UIO<number> {
     return this.ref.get.map((_) =>

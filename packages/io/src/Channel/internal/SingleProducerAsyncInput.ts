@@ -56,6 +56,10 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
 {
   constructor(readonly ref: Ref<State<Err, Elem, Done>>) {}
 
+  get awaitRead(): UIO<void> {
+    return this.ref.modify((s) => (s._stateTag === StateTag.Empty ? [s.notifyProducer.await, s] : [IO.unit, s]));
+  }
+
   emit(el: Elem): UIO<unknown> {
     return Future.make<never, void>().flatMap(
       (p) =>
@@ -167,10 +171,8 @@ export class SingleProducerAsyncInput<Err, Elem, Done>
     (el) => Exit.succeed(el),
     (d) => Exit.fail(Either.right(d)),
   );
-  close                = IO.fiberId.flatMap((id) => this.error(Cause.interrupt(id)));
-  awaitRead: UIO<void> = this.ref.modify((s) =>
-    s._stateTag === StateTag.Empty ? [s.notifyProducer.await, s] : [IO.unit, s],
-  );
+
+  close = IO.fiberId.flatMap((id) => this.error(Cause.interrupt(id)));
 }
 
 /**

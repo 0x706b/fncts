@@ -42,8 +42,6 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
     readonly _A: (_: never) => A;
   };
 
-  location = this.fiberId.location;
-
   get await(): UIO<Exit<E, A>> {
     return IO.defer(this.awaitUnsafe());
   }
@@ -80,6 +78,10 @@ export class FiberRuntime<E, A> implements Fiber.Runtime<E, A> {
         return IO.updateRuntimeFlags(patch);
       });
     });
+  }
+
+  get location(): string | undefined {
+    return this.fiberId.location;
   }
 
   get poll(): UIO<Maybe<Exit<E, A>>> {

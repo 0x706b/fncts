@@ -16,11 +16,17 @@ class UnsafeQueue<A> extends QueueInternal<never, never, never, never, A, A> {
     super();
   }
 
-  awaitShutdown: UIO<void> = this.shutdownHook.await;
+  get awaitShutdown(): UIO<void> {
+    return this.shutdownHook.await;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = IO.succeed(this.shutdownFlag.get);
+  get isShutdown(): UIO<boolean> {
+    return IO.succeed(this.shutdownFlag.get);
+  }
 
   get unsafeSize(): Maybe<number> {
     if (this.shutdownFlag.get) {

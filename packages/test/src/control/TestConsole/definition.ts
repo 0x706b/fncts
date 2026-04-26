@@ -43,11 +43,21 @@ export class TestConsole implements Console {
       }),
     );
   }
-  clearInput  = this.consoleState.update((data) => data.copy({ input: Vector.empty() }));
-  clearOutput = this.consoleState.update((data) => data.copy({ output: Vector.empty() }));
-  output      = this.consoleState.get.map((data) => data.output);
-  errOutput   = this.consoleState.get.map((data) => data.errOutput);
-  debugOutput = this.consoleState.get.map((data) => data.debugOutput);
+  get clearInput() {
+    return this.consoleState.update((data) => data.copy({ input: Vector.empty() }));
+  }
+  get clearOutput() {
+    return this.consoleState.update((data) => data.copy({ output: Vector.empty() }));
+  }
+  get output() {
+    return this.consoleState.get.map((data) => data.output);
+  }
+  get errOutput() {
+    return this.consoleState.get.map((data) => data.errOutput);
+  }
+  get debugOutput() {
+    return this.consoleState.get.map((data) => data.debugOutput);
+  }
   feedLines(...lines: ReadonlyArray<string>): UIO<void> {
     return this.consoleState.update((data) => data.copy({ input: data.input.concat(Vector.from(lines)) }));
   }

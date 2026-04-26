@@ -68,7 +68,9 @@ class Map<A, B, C> extends ObservableRef<A, C> {
     return this.f(this.source.unsafeGet());
   }
 
-  get: UIO<C> = this.source.get.map(this.f);
+  get get(): UIO<C> {
+    return this.source.get.map(this.f);
+  }
 
   unsafeSet(a: A): void {
     this.source.unsafeSet(a);
@@ -82,9 +84,13 @@ class Map<A, B, C> extends ObservableRef<A, C> {
     this.source.unsafeClear();
   }
 
-  clear: UIO<void> = this.source.clear;
+  get clear(): UIO<void> {
+    return this.source.clear;
+  }
 
-  observable: Observable<never, never, C> = this.source.observable.map(this.f);
+  get observable(): Observable<never, never, C> {
+    return this.source.observable.map(this.f);
+  }
 }
 
 /**
@@ -108,7 +114,9 @@ class ContramapIn<A, B, C> extends ObservableRef<C, B> {
     return this.source.unsafeGet();
   }
 
-  get: UIO<B> = this.source.get;
+  get get(): UIO<B> {
+    return this.source.get;
+  }
 
   unsafeSet(c: C): void {
     this.source.unsafeSet(this.f(c));
@@ -122,9 +130,13 @@ class ContramapIn<A, B, C> extends ObservableRef<C, B> {
     this.source.unsafeClear();
   }
 
-  clear: UIO<void> = this.source.clear;
+  get clear(): UIO<void> {
+    return this.source.clear;
+  }
 
-  observable: Observable<never, never, B> = this.source.observable;
+  get observable(): Observable<never, never, B> {
+    return this.source.observable;
+  }
 }
 
 /**
@@ -148,7 +160,9 @@ class Focus<A, B> extends ObservableRef<B, B> {
     return this.lens.get(this.source.unsafeGet());
   }
 
-  get: UIO<B> = this.source.get.map(this.lens.get);
+  get get(): UIO<B> {
+    return this.source.get.map(this.lens.get);
+  }
 
   unsafeSet(b: B): void {
     this.source.unsafeSet(this.lens.set(b)(this.source.unsafeGet()));
@@ -162,9 +176,13 @@ class Focus<A, B> extends ObservableRef<B, B> {
     this.source.unsafeClear();
   }
 
-  clear: UIO<void> = this.source.clear;
+  get clear(): UIO<void> {
+    return this.source.clear;
+  }
 
-  observable: Observable<never, never, B> = this.source.observable.map(this.lens.get);
+  get observable(): Observable<never, never, B> {
+    return this.source.observable.map(this.lens.get);
+  }
 }
 
 /**
@@ -188,16 +206,22 @@ export class ZipWith<A, B, C> implements ObservableRef.Readable<C> {
     return this.f(this.sourceA.unsafeGet(), this.sourceB.unsafeGet());
   }
 
-  get: UIO<C> = this.sourceA.get.zipWith(this.sourceB.get, this.f);
+  get get(): UIO<C> {
+    return this.sourceA.get.zipWith(this.sourceB.get, this.f);
+  }
 
   unsafeClear() {
     this.sourceA.unsafeClear();
     this.sourceB.unsafeClear();
   }
 
-  clear: UIO<void> = this.sourceA.clear > this.sourceB.clear;
+  get clear(): UIO<void> {
+    return this.sourceA.clear > this.sourceB.clear;
+  }
 
-  observable: Observable<never, never, C> = this.sourceA.observable.zipWithLatest(this.sourceB.observable, this.f);
+  get observable(): Observable<never, never, C> {
+    return this.sourceA.observable.zipWithLatest(this.sourceB.observable, this.f);
+  }
 }
 
 /**

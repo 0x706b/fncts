@@ -171,12 +171,14 @@ export class LinkedQueue<A> extends MutableQueue<A> {
 }
 
 export abstract class RingBuffer<A> extends MutableQueue<A> {
+  private buf: Array<any>;
+  private head = 0;
+  private tail = 0;
+
   constructor(readonly capacity: number) {
     super();
+    this.buf = new Array(this.capacity);
   }
-  private buf: Array<any> = new Array(this.capacity);
-  private head            = 0;
-  private tail            = 0;
 
   abstract posToIdx(pos: number, capacity: number): number;
 

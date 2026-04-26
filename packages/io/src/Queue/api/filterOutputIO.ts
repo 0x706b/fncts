@@ -10,11 +10,17 @@ class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, R
     super();
   }
 
-  awaitShutdown: UIO<void> = this.queue.awaitShutdown;
+  get awaitShutdown(): UIO<void> {
+    return this.queue.awaitShutdown;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = this.queue.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.queue.isShutdown;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.queue.unsafeSize;
@@ -32,15 +38,21 @@ class FilterOutputIO<RA, RB, EA, EB, A, B, RB1, EB1> extends QueueInternal<RA, R
     return this.queue.offerAll(as);
   }
 
-  shutdown: UIO<void> = this.queue.shutdown;
+  get shutdown(): UIO<void> {
+    return this.queue.shutdown;
+  }
 
-  size: UIO<number> = this.queue.size;
+  get size(): UIO<number> {
+    return this.queue.size;
+  }
 
-  take: IO<RB | RB1, EB1 | EB, B> = this.queue.take.flatMap((b) =>
-    this.f(b).flatMap((p) => (p ? IO.succeedNow(b) : this.take)),
-  );
+  get take(): IO<RB | RB1, EB1 | EB, B> {
+    return this.queue.take.flatMap((b) => this.f(b).flatMap((p) => (p ? IO.succeedNow(b) : this.take)));
+  }
 
-  takeAll: IO<RB | RB1, EB | EB1, Conc<B>> = this.queue.takeAll.flatMap((bs) => IO.filter(bs, this.f));
+  get takeAll(): IO<RB | RB1, EB | EB1, Conc<B>> {
+    return this.queue.takeAll.flatMap((bs) => IO.filter(bs, this.f));
+  }
 
   loop(max: number, acc: Conc<B>): IO<RB | RB1, EB | EB1, Conc<B>> {
     return this.queue.takeUpTo(max).flatMap((bs) => {
@@ -102,15 +114,25 @@ class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1>
     readonly f: (b: B) => IO<RB1, EB1, boolean>,
   ) {}
 
-  awaitShutdown: UIO<void> = this.queue.awaitShutdown;
+  get awaitShutdown(): UIO<void> {
+    return this.queue.awaitShutdown;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = this.queue.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.queue.isShutdown;
+  }
 
-  shutdown: UIO<void> = this.queue.shutdown;
+  get shutdown(): UIO<void> {
+    return this.queue.shutdown;
+  }
 
-  size: UIO<number> = this.queue.size;
+  get size(): UIO<number> {
+    return this.queue.size;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.queue.unsafeSize;
@@ -120,11 +142,13 @@ class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1>
     throw new Error("Cannot unsafely offer to an effectful Queue");
   }
 
-  take: IO<RB | RB1, EB1 | EB, B> = this.queue.take.flatMap((b) =>
-    this.f(b).flatMap((p) => (p ? IO.succeedNow(b) : this.take)),
-  );
+  get take(): IO<RB | RB1, EB1 | EB, B> {
+    return this.queue.take.flatMap((b) => this.f(b).flatMap((p) => (p ? IO.succeedNow(b) : this.take)));
+  }
 
-  takeAll: IO<RB | RB1, EB | EB1, Conc<B>> = this.queue.takeAll.flatMap((bs) => IO.filter(bs, this.f));
+  get takeAll(): IO<RB | RB1, EB | EB1, Conc<B>> {
+    return this.queue.takeAll.flatMap((bs) => IO.filter(bs, this.f));
+  }
 
   loop(max: number, acc: Conc<B>): IO<RB | RB1, EB | EB1, Conc<B>> {
     return this.queue.takeUpTo(max).flatMap((bs) => {

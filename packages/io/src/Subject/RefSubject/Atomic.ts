@@ -13,6 +13,13 @@ import { Derived } from "./Derived.js";
 import { PRefSubject } from "./RefSubject.js";
 
 export class Atomic<R, E, A> extends PRefSubject<never, never, E, E, E, A, A> {
+  private futureRef: FutureRef<E, A>;
+
+  private subject                   = new HoldSubject<E, A>();
+  private fiber: Fiber<E, A> | null = null;
+
+  readonly semaphore = Semaphore.unsafeMake(1);
+
   constructor(
     readonly fiberId: FiberId,
     readonly initial: IO<R, E, A>,
@@ -21,10 +28,13 @@ export class Atomic<R, E, A> extends PRefSubject<never, never, E, E, E, A, A> {
   ) {
     super();
 
+    this.futureRef = new FutureRef(this.fiberId, this.subject.value);
+
     const onSuccess = (a: A) => this.futureRef.done(Exit.succeed(a));
     const onCause   = (cause: Cause<E>) => this.futureRef.done(Exit.failCause(cause));
     const onError   = (e: E) => onCause(Cause.fail(e));
     const io        = IO.concrete(initial);
+
     switch (io._ioOpCode) {
       case IOTag.SucceedNow:
         onSuccess(io.i0);
@@ -54,11 +64,6 @@ export class Atomic<R, E, A> extends PRefSubject<never, never, E, E, E, A, A> {
       }
     }
   }
-
-  readonly semaphore                = Semaphore.unsafeMake(1);
-  private subject                   = new HoldSubject<E, A>();
-  private futureRef                 = new FutureRef(this.fiberId, this.subject.value);
-  private fiber: Fiber<E, A> | null = null;
 
   readonly interrupt = IO.fiberIdWith((fiberId) => {
     this.futureRef.reset();

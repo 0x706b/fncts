@@ -27,11 +27,17 @@ class DimapIO<RA, RB, EA, EB, A, B, RC, EC, C, RD, ED, D> extends QueueInternal<
     super();
   }
 
-  awaitShutdown: UIO<void> = this.queue.awaitShutdown;
+  get awaitShutdown(): UIO<void> {
+    return this.queue.awaitShutdown;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = this.queue.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.queue.isShutdown;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.queue.unsafeSize;
@@ -49,13 +55,21 @@ class DimapIO<RA, RB, EA, EB, A, B, RC, EC, C, RD, ED, D> extends QueueInternal<
     return IO.foreach(cs, this.f).flatMap((as) => this.queue.offerAll(as));
   }
 
-  shutdown: UIO<void> = this.queue.shutdown;
+  get shutdown(): UIO<void> {
+    return this.queue.shutdown;
+  }
 
-  size: UIO<number> = this.queue.size;
+  get size(): UIO<number> {
+    return this.queue.size;
+  }
 
-  take: IO<RD | RB, ED | EB, D> = this.queue.take.flatMap(this.g);
+  get take(): IO<RD | RB, ED | EB, D> {
+    return this.queue.take.flatMap(this.g);
+  }
 
-  takeAll: IO<RD | RB, ED | EB, Conc<D>> = this.queue.takeAll.flatMap((bs) => IO.foreach(bs, this.g));
+  get takeAll(): IO<RD | RB, ED | EB, Conc<D>> {
+    return this.queue.takeAll.flatMap((bs) => IO.foreach(bs, this.g));
+  }
 
   takeUpTo(n: number): IO<RD | RB, ED | EB, Conc<D>> {
     return this.queue.takeUpTo(n).flatMap((bs) => IO.foreach(bs, this.g));
@@ -154,11 +168,17 @@ class ContramapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PEnqueueInternal<R
     readonly f: (c: C) => IO<RC, EC, A>,
   ) {}
 
-  awaitShutdown: UIO<void> = this.queue.awaitShutdown;
+  get awaitShutdown(): UIO<void> {
+    return this.queue.awaitShutdown;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = this.queue.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.queue.isShutdown;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.queue.unsafeSize;
@@ -176,9 +196,13 @@ class ContramapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PEnqueueInternal<R
     return IO.foreach(cs, this.f).flatMap((as) => this.queue.offerAll(as));
   }
 
-  shutdown: UIO<void> = this.queue.shutdown;
+  get shutdown(): UIO<void> {
+    return this.queue.shutdown;
+  }
 
-  size: UIO<number> = this.queue.size;
+  get size(): UIO<number> {
+    return this.queue.size;
+  }
 }
 
 /**
@@ -209,15 +233,25 @@ class MapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PDequeueInternal<RA, RB 
     readonly f: (b: B) => IO<RC, EC, C>,
   ) {}
 
-  awaitShutdown: UIO<void> = this.queue.awaitShutdown;
+  get awaitShutdown(): UIO<void> {
+    return this.queue.awaitShutdown;
+  }
 
-  capacity: number = this.queue.capacity;
+  get capacity(): number {
+    return this.queue.capacity;
+  }
 
-  isShutdown: UIO<boolean> = this.queue.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.queue.isShutdown;
+  }
 
-  shutdown: UIO<void> = this.queue.shutdown;
+  get shutdown(): UIO<void> {
+    return this.queue.shutdown;
+  }
 
-  size: UIO<number> = this.queue.size;
+  get size(): UIO<number> {
+    return this.queue.size;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.queue.unsafeSize;
@@ -227,9 +261,13 @@ class MapIO<RA, RB, EA, EB, A, B, RC, EC, C> implements PDequeueInternal<RA, RB 
     throw new Error("Cannot unsafely offer to an effectful Queue");
   }
 
-  take: IO<RB | RC, EB | EC, C> = this.queue.take.flatMap(this.f);
+  get take(): IO<RB | RC, EB | EC, C> {
+    return this.queue.take.flatMap(this.f);
+  }
 
-  takeAll: IO<RB | RC, EB | EC, Conc<C>> = this.queue.takeAll.flatMap((bs) => IO.foreach(bs, this.f));
+  get takeAll(): IO<RB | RC, EB | EC, Conc<C>> {
+    return this.queue.takeAll.flatMap((bs) => IO.foreach(bs, this.f));
+  }
 
   takeUpTo(n: number): IO<RB | RC, EB | EC, Conc<C>> {
     return this.queue.takeUpTo(n).flatMap((bs) => IO.foreach(bs, this.f));

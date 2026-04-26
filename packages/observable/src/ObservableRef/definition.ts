@@ -47,12 +47,20 @@ export abstract class ObservableRef<in A, out B> implements Readable<B>, Writabl
   constructor(readonly descriptor: ObservableRefDescriptor<any>) {}
 
   abstract unsafeGet(): B;
-  readonly get: UIO<B> = IO(this.unsafeGet());
   abstract unsafeSet(a: A): void;
+  abstract unsafeClear(): void;
+
+  abstract readonly observable: Observable<never, never, B>;
+
+  get get(): UIO<B> {
+    return IO(this.unsafeGet());
+  }
+
   set(a: A): UIO<void> {
     return IO(this.unsafeSet(a));
   }
-  abstract unsafeClear(): void;
-  readonly clear = IO(this.unsafeClear());
-  abstract readonly observable: Observable<never, never, B>;
+
+  get clear() {
+    return IO(this.unsafeClear());
+  }
 }

@@ -87,13 +87,14 @@ export class ProxySupervisor<A> extends Supervisor<A> {
 
 export class Zip<A, B> extends Supervisor<readonly [A, B]> {
   readonly _tag = SupervisorTag.Zip;
+  readonly value: UIO<readonly [A, B]>;
   constructor(
     readonly first: Supervisor<A>,
     readonly second: Supervisor<B>,
   ) {
     super();
+    this.value = this.first.value.zip(this.second.value);
   }
-  value = this.first.value.zip(this.second.value);
   unsafeOnStart<R, E, A>(
     environment: Environment<R>,
     effect: IO<R, E, A>,

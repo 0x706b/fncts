@@ -47,7 +47,6 @@ const collectFiles = (configPath: string) => {
     noEmit: false,
     declaration: true,
     declarationMap: false,
-    useDefineForClassFields: false,
     module: "ESNext",
     target: "ESNext",
   });

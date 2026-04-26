@@ -17,11 +17,17 @@ class ZipWithIO<RA, RB, EA, EB, A, B, RA1, RB1, EA1, EB1, A1 extends A, B1, R3, 
     super();
   }
 
-  awaitShutdown: UIO<void> = this.fa.awaitShutdown.flatMap(() => this.fb.awaitShutdown);
+  get awaitShutdown(): UIO<void> {
+    return this.fa.awaitShutdown.flatMap(() => this.fb.awaitShutdown);
+  }
 
-  capacity: number = Math.min(this.fa.capacity, this.fb.capacity);
+  get capacity(): number {
+    return Math.min(this.fa.capacity, this.fb.capacity);
+  }
 
-  isShutdown: UIO<boolean> = this.fa.isShutdown;
+  get isShutdown(): UIO<boolean> {
+    return this.fa.isShutdown;
+  }
 
   get unsafeSize(): Maybe<number> {
     return this.fa.unsafeSize.zipWith(this.fb.unsafeSize, (a, b) => Math.max(a, b));
@@ -39,17 +45,23 @@ class ZipWithIO<RA, RB, EA, EB, A, B, RA1, RB1, EA1, EB1, A1 extends A, B1, R3, 
     return this.fa.offerAll(as).zipWithConcurrent(this.fb.offerAll(as), (x, y) => x && y);
   }
 
-  shutdown: UIO<void> = this.fa.shutdown.zipWithConcurrent(this.fb.shutdown, () => undefined);
+  get shutdown(): UIO<void> {
+    return this.fa.shutdown.zipWithConcurrent(this.fb.shutdown, () => undefined);
+  }
 
-  size: UIO<number> = this.fa.size.zipWithConcurrent(this.fb.size, (x, y) => Math.max(x, y));
+  get size(): UIO<number> {
+    return this.fa.size.zipWithConcurrent(this.fb.size, (x, y) => Math.max(x, y));
+  }
 
-  take: IO<RB | RB1 | R3, E3 | EB | EB1, C> = this.fa.take
-    .zipConcurrent(this.fb.take)
-    .flatMap(([b, c]) => this.f(b, c));
+  get take(): IO<RB | RB1 | R3, E3 | EB | EB1, C> {
+    return this.fa.take.zipConcurrent(this.fb.take).flatMap(([b, c]) => this.f(b, c));
+  }
 
-  takeAll: IO<RB | RB1 | R3, E3 | EB | EB1, Conc<C>> = this.fa.takeAll
-    .zipConcurrent(this.fb.takeAll)
-    .flatMap(([bs, cs]) => IO.foreach(bs.zip(cs), ([b, c]) => this.f(b, c)));
+  get takeAll(): IO<RB | RB1 | R3, E3 | EB | EB1, Conc<C>> {
+    return this.fa.takeAll
+      .zipConcurrent(this.fb.takeAll)
+      .flatMap(([bs, cs]) => IO.foreach(bs.zip(cs), ([b, c]) => this.f(b, c)));
+  }
 
   takeUpTo(max: number): IO<RB | RB1 | R3, E3 | EB | EB1, Conc<C>> {
     return this.fa

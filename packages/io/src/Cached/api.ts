@@ -45,8 +45,14 @@ class Manual<Error, Resource> extends CachedInternal<Error, Resource> {
   ) {
     super();
   }
-  get: FIO<Error, Resource> = this.ref.get.flatMap(IO.fromExitNow);
-  refresh: FIO<Error, void> = this.ref.set(this.acquire.map(Exit.succeed));
+
+  get get(): FIO<Error, Resource> {
+    return this.ref.get.flatMap(IO.fromExitNow);
+  }
+
+  get refresh(): FIO<Error, void> {
+    return this.ref.set(this.acquire.map(Exit.succeed));
+  }
 }
 
 /**

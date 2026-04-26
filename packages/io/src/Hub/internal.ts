@@ -267,20 +267,28 @@ class UnsafeSubscription<A> extends QueueInternal<never, never, never, never, A,
     super();
   }
 
-  awaitShutdown: UIO<void> = this.shutdownHook.await;
+  get awaitShutdown(): UIO<void> {
+    return this.shutdownHook.await;
+  }
 
-  capacity: number = this.hub.capacity;
+  get capacity(): number {
+    return this.hub.capacity;
+  }
 
-  isShutdown: UIO<boolean> = IO.succeed(() => this.shutdownFlag.get);
+  get isShutdown(): UIO<boolean> {
+    return IO.succeed(() => this.shutdownFlag.get);
+  }
 
-  shutdown: UIO<void> = IO.fiberId.flatMap((fiberId) =>
-    IO.defer(() => {
-      this.shutdownFlag.set(true);
-      return IO.foreachConcurrent(this.pollers.unsafeDequeueAll, (fiber) => fiber.interruptAs(fiberId))
-        .zipRight(IO.succeed(this.subscription.unsubscribe()))
-        .whenIO(this.shutdownHook.succeed(undefined));
-    }),
-  );
+  get shutdown(): UIO<void> {
+    return IO.fiberId.flatMap((fiberId) =>
+      IO.defer(() => {
+        this.shutdownFlag.set(true);
+        return IO.foreachConcurrent(this.pollers.unsafeDequeueAll, (fiber) => fiber.interruptAs(fiberId))
+          .zipRight(IO.succeed(this.subscription.unsubscribe()))
+          .whenIO(this.shutdownHook.succeed(undefined));
+      }),
+    );
+  }
 
   get unsafeSize(): Maybe<number> {
     if (this.shutdownFlag.get) {
@@ -418,11 +426,17 @@ class UnsafeHub<A> extends PHubInternal<never, never, never, never, A, A> {
     super();
   }
 
-  awaitShutdown = this.shutdownHook.await;
+  get awaitShutdown() {
+    return this.shutdownHook.await;
+  }
 
-  capacity = this.hub.capacity;
+  get capacity() {
+    return this.hub.capacity;
+  }
 
-  isShutdown = IO.succeed(this.shutdownFlag.get);
+  get isShutdown() {
+    return IO.succeed(this.shutdownFlag.get);
+  }
 
   shutdown = IO.fiberId.flatMap((fiberId) =>
     IO.defer(() => {
@@ -449,12 +463,14 @@ class UnsafeHub<A> extends PHubInternal<never, never, never, never, A, A> {
     return IO.succeed(this.hub.size());
   });
 
-  subscribe: IO<Scope, never, Queue.Dequeue<A>> = IO.acquireRelease(
-    makeSubscription(this.hub, this.subscribers, this.strategy).tap((dequeue) =>
-      this.scope.addFinalizer(dequeue.shutdown),
-    ),
-    (dequeue) => dequeue.shutdown,
-  );
+  get subscribe(): IO<Scope, never, Queue.Dequeue<A>> {
+    return IO.acquireRelease(
+      makeSubscription(this.hub, this.subscribers, this.strategy).tap((dequeue) =>
+        this.scope.addFinalizer(dequeue.shutdown),
+      ),
+      (dequeue) => dequeue.shutdown,
+    );
+  }
 
   publish = (a: A): IO<never, never, boolean> =>
     IO.defer(() => {

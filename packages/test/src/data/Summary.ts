@@ -5,5 +5,7 @@ export class Summary {
     readonly ignore: number,
     readonly summary: string,
   ) {}
-  total = this.success + this.fail + this.ignore;
+  get total() {
+    return this.success + this.fail + this.ignore;
+  }
 }

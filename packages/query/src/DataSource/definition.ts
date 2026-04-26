@@ -36,7 +36,9 @@ export abstract class DataSource<out R, in A> implements Hashable, Equatable {
   batchN(n: number): DataSource<R, A> {
     const self = this;
     return new (class extends DataSource<R, A> {
-      identifier: string = `${this.identifier}.batchN(${n})`;
+      get identifier(): string {
+        return `${this.identifier}.batchN(${n})`;
+      }
       runAll(requests: Conc<Conc<A>>, __tsplusTrace?: string): IO<R, never, CompletedRequestMap> {
         if (n < 1) {
           return IO.halt(new IllegalArgumentError("n must be at least 1", "DataSource.batchN"));

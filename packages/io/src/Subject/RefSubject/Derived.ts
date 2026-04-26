@@ -36,8 +36,13 @@ export class Derived<EnvIn, EnvOut, ErrIn, ErrOut, ErrInRef, In, Out> extends PR
     super();
   }
 
-  subscribers = this.use(({ ref }) => ref.subscribers);
-  interrupt   = this.use(({ ref }) => ref.interrupt);
+  get subscribers() {
+    return this.use(({ ref }) => ref.subscribers);
+  }
+
+  get interrupt() {
+    return this.use(({ ref }) => ref.interrupt);
+  }
 
   onSuccess(value: In): IO<EnvIn, never, void> {
     return this.use(({ ref, mapSetErrorInput, mapSet }) =>

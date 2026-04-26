@@ -9,7 +9,7 @@ export function make<State, Env, In, Out>(
   __tsplusTrace?: string,
 ): Schedule.WithState<State, Env, In, Out> {
   return new (class extends Schedule<Env, In, Out> {
-    readonly _State!: State;
+    declare readonly _State: State;
     initial = initial;
     step = step;
   })();

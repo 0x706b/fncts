@@ -91,7 +91,9 @@ export class TestClock extends Clock {
       );
     });
   };
-  currentTime = this.clockState.get.map((data) => data.duration);
+  get currentTime() {
+    return this.clockState.get.map((data) => data.duration);
+  }
   adjust(duration: number): UIO<void> {
     return this.warningDone > this.run((d) => d + duration);
   }
@@ -101,7 +103,9 @@ export class TestClock extends Clock {
   setTime(time: number): UIO<void> {
     return this.warningDone > this.run((_) => time);
   }
-  sleeps = this.clockState.get.map((data) => data.sleeps.map(([_]) => _));
+  get sleeps() {
+    return this.clockState.get.map((data) => data.sleeps.map(([_]) => _));
+  }
   get supervizedFibers(): UIO<HashSet<Fiber.Runtime<any, any>>> {
     return IO.fiberId.flatMap((fiberId) =>
       this.annotations.get(TestAnnotation.Fibers).flatMap((_) =>
@@ -172,20 +176,24 @@ export class TestClock extends Clock {
       }
     });
   }
-  warningDone: UIO<void> = this.warningState.updateJustIO(
-    matchTag({
-      Start: () => Just(IO(Done)),
-      Pending: ({ fiber }) => Just(fiber.interrupt.as(Done)),
-      Done: () => Nothing(),
-    }),
-  );
-  private warningStart: UIO<void> = this.warningState.updateJustIO(
-    matchTag(
-      {
-        Start: () =>
-          Just(this.live.provide(Clock.sleep((5).seconds) > Console.print(warning)).interruptible.fork.map(Pending)),
-      },
-      () => Nothing<IO<never, never, WarningData>>(),
-    ),
-  );
+  get warningDone() {
+    return this.warningState.updateJustIO(
+      matchTag({
+        Start: () => Just(IO(Done)),
+        Pending: ({ fiber }) => Just(fiber.interrupt.as(Done)),
+        Done: () => Nothing(),
+      }),
+    );
+  }
+  private get warningStart(): UIO<void> {
+    return this.warningState.updateJustIO(
+      matchTag(
+        {
+          Start: () =>
+            Just(this.live.provide(Clock.sleep((5).seconds) > Console.print(warning)).interruptible.fork.map(Pending)),
+        },
+        () => Nothing<IO<never, never, WarningData>>(),
+      ),
+    );
+  }
 }

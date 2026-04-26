@@ -83,24 +83,31 @@ class DimapIO<RA, RB, RC, RD, EA, EB, EC, ED, A, B, C, D> extends PHubInternal<
   C,
   D
 > {
+  declare readonly awaitShutdown;
+  declare readonly capacity;
+  declare readonly isShutdown;
+  declare readonly shutdown;
+  declare readonly size;
+
   constructor(
     readonly source: PHubInternal<RA, RB, EA, EB, A, B>,
     readonly f: (c: C) => IO<RC, EC, A>,
     readonly g: (b: B) => IO<RD, ED, D>,
   ) {
     super();
+    this.awaitShutdown = this.source.awaitShutdown;
+    this.capacity      = this.source.capacity;
+    this.isShutdown    = this.source.isShutdown;
+    this.shutdown      = this.source.shutdown;
+    this.size          = this.source.size;
   }
-  awaitShutdown = this.source.awaitShutdown;
-  capacity      = this.source.capacity;
-  isShutdown    = this.source.isShutdown;
-  shutdown      = this.source.shutdown;
-  size          = this.source.size;
+
   get unsafeSize() {
     return this.source.unsafeSize;
   }
-  subscribe: IO<Scope, never, PDequeue<RA | RC, RB | RD, EA | EC, EB | ED, C, D>> = unsafeCoerce(
-    this.source.subscribe.map((queue) => queue.mapIO(this.g)),
-  );
+  get subscribe(): IO<Scope, never, PDequeue<RA | RC, RB | RD, EA | EC, EB | ED, C, D>> {
+    return unsafeCoerce(this.source.subscribe.map((queue) => queue.mapIO(this.g)));
+  }
   publish    = (c: C) => this.f(c).flatMap((a) => this.source.publish(a));
   publishAll = (cs: Iterable<C>) => IO.foreach(cs, this.f).flatMap((as) => this.source.publishAll(as));
 }
@@ -134,21 +141,29 @@ export function filterInput<A>(f: (a: A) => boolean, __tsplusTrace?: string) {
 }
 
 class FilterInputIO<RA, RA1, RB, EA, EA1, EB, A, B> extends PHubInternal<RA | RA1, RB, EA | EA1, EB, A, B> {
+  declare readonly awaitShutdown;
+  declare readonly capacity;
+  declare readonly isShutdown;
+  declare readonly shutdown;
+  declare readonly size;
+
   constructor(
     readonly source: PHubInternal<RA, RB, EA, EB, A, B>,
     readonly f: (a: A) => IO<RA1, EA1, boolean>,
   ) {
     super();
+    this.awaitShutdown = this.source.awaitShutdown;
+    this.capacity      = this.source.capacity;
+    this.isShutdown    = this.source.isShutdown;
+    this.shutdown      = this.source.shutdown;
+    this.size          = this.source.size;
   }
-  awaitShutdown = this.source.awaitShutdown;
-  capacity      = this.source.capacity;
-  isShutdown    = this.source.isShutdown;
-  shutdown      = this.source.shutdown;
-  size          = this.source.size;
   get unsafeSize() {
     return this.source.unsafeSize;
   }
-  subscribe  = this.source.subscribe;
+  get subscribe() {
+    return this.source.subscribe;
+  }
   publish    = (a: A) => this.f(a).flatMap((b) => (b ? this.source.publish(a) : IO.succeedNow(false)));
   publishAll = (as: Iterable<A>) =>
     IO.filter(as, this.f).flatMap((as) => (as.isNonEmpty ? this.source.publishAll(as) : IO.succeedNow(false)));
@@ -192,21 +207,28 @@ export function filterOutputIO<B, R1, E1>(f: (a: B) => IO<R1, E1, boolean>, __ts
 }
 
 class FilterOutputIO<RA, RB, RB1, EA, EB, EB1, A, B> extends PHubInternal<RA, RB | RB1, EA, EB | EB1, A, B> {
+  declare readonly awaitShutdown;
+  declare readonly capacity;
+  declare readonly isShutdown;
+  declare readonly shutdown;
+  declare readonly size;
   constructor(
     readonly source: PHubInternal<RA, RB, EA, EB, A, B>,
     readonly f: (a: B) => IO<RB1, EB1, boolean>,
   ) {
     super();
+    this.awaitShutdown = this.source.awaitShutdown;
+    this.capacity      = this.source.capacity;
+    this.isShutdown    = this.source.isShutdown;
+    this.shutdown      = this.source.shutdown;
+    this.size          = this.source.size;
   }
-  awaitShutdown = this.source.awaitShutdown;
-  capacity      = this.source.capacity;
-  isShutdown    = this.source.isShutdown;
-  shutdown      = this.source.shutdown;
-  size          = this.source.size;
   get unsafeSize() {
     return this.source.unsafeSize;
   }
-  subscribe  = this.source.subscribe.map((queue) => queue.filterOutputIO(this.f));
+  get subscribe() {
+    return this.source.subscribe.map((queue) => queue.filterOutputIO(this.f));
+  }
   publish    = (a: A) => this.source.publish(a);
   publishAll = (as: Iterable<A>) => this.source.publishAll(as);
 }
@@ -359,15 +381,24 @@ class ToQueue<RA, RB, EA, EB, A, B> implements PEnqueue<RA, RB, EA, EB, A, B> {
     readonly _A: (_: A) => void;
     readonly _B: (_: never) => B;
   };
-  constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>) {}
-  awaitShutdown = this.source.awaitShutdown;
-  capacity      = this.source.capacity;
-  isShutdown    = this.source.isShutdown;
-  shutdown      = this.source.shutdown;
-  size          = this.source.size;
-  offer         = (a: A): IO<RA, EA, boolean> => this.source.publish(a);
-  offerAll      = (as: Iterable<A>): IO<RA, EA, boolean> => this.source.publishAll(as);
-  takeUpTo      = (): IO<never, never, Conc<never>> => IO.succeedNow(Conc.empty());
+
+  readonly awaitShutdown;
+  readonly capacity;
+  readonly isShutdown;
+  readonly shutdown;
+  readonly size;
+
+  constructor(readonly source: PHubInternal<RA, RB, EA, EB, A, B>) {
+    this.awaitShutdown = this.source.awaitShutdown;
+    this.capacity      = this.source.capacity;
+    this.isShutdown    = this.source.isShutdown;
+    this.shutdown      = this.source.shutdown;
+    this.size          = this.source.size;
+  }
+
+  offer    = (a: A): IO<RA, EA, boolean> => this.source.publish(a);
+  offerAll = (as: Iterable<A>): IO<RA, EA, boolean> => this.source.publishAll(as);
+  takeUpTo = (): IO<never, never, Conc<never>> => IO.succeedNow(Conc.empty());
 }
 
 /**

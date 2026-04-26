@@ -16,12 +16,24 @@ export class TestRandom implements Random {
     readonly randomState: Ref<Data>,
     readonly bufferState: Ref<Buffer>,
   ) {}
-  clearBooleans: UIO<void> = this.bufferState.update((buff) => buff.copy({ booleans: Vector.empty() }));
-  clearBytes: UIO<void>    = this.bufferState.update((buff) => buff.copy({ bytes: Vector.empty() }));
-  clearChars: UIO<void>    = this.bufferState.update((buff) => buff.copy({ chars: Vector.empty() }));
-  clearDoubles: UIO<void>  = this.bufferState.update((buff) => buff.copy({ doubles: Vector.empty() }));
-  clearInts: UIO<void>     = this.bufferState.update((buff) => buff.copy({ integers: Vector.empty() }));
-  clearStrings: UIO<void>  = this.bufferState.update((buff) => buff.copy({ strings: Vector.empty() }));
+  get clearBooleans() {
+    return this.bufferState.update((buff) => buff.copy({ booleans: Vector.empty() }));
+  }
+  get clearBytes() {
+    return this.bufferState.update((buff) => buff.copy({ bytes: Vector.empty() }));
+  }
+  get clearChars() {
+    return this.bufferState.update((buff) => buff.copy({ chars: Vector.empty() }));
+  }
+  get clearDoubles() {
+    return this.bufferState.update((buff) => buff.copy({ doubles: Vector.empty() }));
+  }
+  get clearInts() {
+    return this.bufferState.update((buff) => buff.copy({ integers: Vector.empty() }));
+  }
+  get clearStrings() {
+    return this.bufferState.update((buff) => buff.copy({ strings: Vector.empty() }));
+  }
   feedBooleans(...booleans: ReadonlyArray<boolean>): UIO<void> {
     return this.bufferState.update((buff) => buff.copy({ booleans: Vector.from(booleans).concat(buff.booleans) }));
   }
@@ -40,7 +52,9 @@ export class TestRandom implements Random {
   feedStrings(...strings: ReadonlyArray<string>): UIO<void> {
     return this.bufferState.update((data) => data.copy({ strings: Vector.from(strings).concat(data.strings) }));
   }
-  getSeed: UIO<number> = this.randomState.get.map((data) => ((data.seed1 << 24) | data.seed2) ^ 0x5deece66d);
+  get getSeed(): UIO<number> {
+    return this.randomState.get.map((data) => ((data.seed1 << 24) | data.seed2) ^ 0x5deece66d);
+  }
   setSeed(seed: number): UIO<void> {
     const mash    = Mash();
     const newSeed = mash(seed.toString());
@@ -79,8 +93,10 @@ export class TestRandom implements Random {
       return [result >>> (32 - bits), new Data(newSeed1, newSeed2, data.nextNextGaussians)];
     });
   };
-  private randomBoolean = this.randomBits(1).map((n) => n !== 0);
-  private randomBytes   = (length: number): UIO<ReadonlyArray<Byte>> => {
+  private get randomBoolean() {
+    return this.randomBits(1).map((n) => n !== 0);
+  }
+  private randomBytes = (length: number): UIO<ReadonlyArray<Byte>> => {
     const loop = (i: number, rnd: UIO<number>, n: number, acc: UIO<List<Byte>>): UIO<List<Byte>> => {
       if (i === length) {
         return acc.map((l) => l.reverse);
@@ -113,14 +129,20 @@ export class TestRandom implements Random {
       return loop;
     }
   };
-  private randomLong: UIO<bigint> = this.randomBits(32).flatMap((i1) =>
-    this.randomBits(32).flatMap((i2) => IO.succeedNow(BigInt(i1 << 32) + BigInt(i2))),
-  );
-  private randomInt    = this.randomBits(32);
-  private randomDouble = this.randomBits(26).flatMap((i1) =>
-    this.randomBits(27).map((i2) => (i1 * (1 << 27) + i2) / (1 << 53)),
-  );
-  private random = this.randomBits(26);
+  private get randomLong(): UIO<bigint> {
+    return this.randomBits(32).flatMap((i1) =>
+      this.randomBits(32).flatMap((i2) => IO.succeedNow(BigInt(i1 << 32) + BigInt(i2))),
+    );
+  }
+  private get randomInt() {
+    return this.randomBits(32);
+  }
+  private get randomDouble() {
+    return this.randomBits(26).flatMap((i1) => this.randomBits(27).map((i2) => (i1 * (1 << 27) + i2) / (1 << 53)));
+  }
+  private get random() {
+    return this.randomBits(26);
+  }
   get nextInt(): UIO<number> {
     return this.getOrElse(this.bufferedInt, this.randomInt);
   }

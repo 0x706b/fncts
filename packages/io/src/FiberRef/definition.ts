@@ -33,7 +33,7 @@ const fiberRefCounter = globalValue(FiberRefCounterId, () => new AtomicNumber(0)
  * @tsplus type fncts.io.FiberRef
  */
 export class FiberRefInternal<Value, Patch> extends FiberRef<Value> implements Hashable, Equatable {
-  readonly _Patch!: Patch;
+  declare readonly _Patch: Patch;
   private readonly id = fiberRefCounter.getAndIncrement();
   constructor(
     readonly _initial: Value,

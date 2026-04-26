@@ -7,28 +7,39 @@ export type CountdownLatchTypeId = typeof CountdownLatchTypeId;
  */
 export class CountdownLatch {
   readonly [CountdownLatchTypeId]: CountdownLatchTypeId = CountdownLatchTypeId;
+
   constructor(
     private _count: Ref<number>,
     private _waiters: Future<never, void>,
   ) {}
 
-  readonly await: UIO<void> = this._waiters.await;
+  get await(): UIO<void> {
+    return this._waiters.await;
+  }
 
-  readonly countDown: UIO<void> = this._count.modify((n) => {
-    if (n === 0) {
-      return [IO.unit, 0];
-    } else if (n === 1) {
-      return [this._waiters.succeed(undefined), 0];
-    } else {
-      return [IO.unit, n - 1];
-    }
-  }).flatten.asUnit;
+  get countDown(): UIO<void> {
+    return this._count.modify((n) => {
+      if (n === 0) {
+        return [IO.unit, 0];
+      } else if (n === 1) {
+        return [this._waiters.succeed(undefined), 0];
+      } else {
+        return [IO.unit, n - 1];
+      }
+    }).flatten.asUnit;
+  }
 
-  readonly count: UIO<number> = this._count.get;
+  get count(): UIO<number> {
+    return this._count.get;
+  }
 
-  readonly increment: UIO<void> = this._count.update((n) => n + 1);
+  get increment(): UIO<void> {
+    return this._count.update((n) => n + 1);
+  }
 
-  readonly isOpen: UIO<boolean> = this._count.get.map((count) => count === 0);
+  get isOpen(): UIO<boolean> {
+    return this._count.get.map((count) => count === 0);
+  }
 }
 
 /**

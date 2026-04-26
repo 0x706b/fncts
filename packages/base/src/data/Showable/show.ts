@@ -721,7 +721,7 @@ export function showProperty(
             Pure.update((_: ShowContext): ShowContext => _.copy({ indentationLevel: _.indentationLevel - diff })),
           );
       } else if (isDefined(descriptor.get)) {
-        return Pure.succeedNow(tuple(descriptor, " ", `[${descriptor.set ? "Getter/Settter" : "Getter"}]`));
+        return Pure.succeedNow(tuple(descriptor, " ", `[${descriptor.set ? "Getter/Setter" : "Getter"}]`));
       } else if (isDefined(descriptor.set)) {
         return Pure.succeedNow(tuple(descriptor, " ", "Setter"));
       } else {
