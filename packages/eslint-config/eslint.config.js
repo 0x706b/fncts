@@ -2,6 +2,7 @@ import { FlatCompat } from "@eslint/eslintrc";
 import eslint from "@eslint/js";
 import { codegen } from "@fncts/codegen/codegen";
 import { legacyPlugin } from "@fncts/eslint-config/legacyPlugin";
+import { defineConfig } from "eslint/config";
 import perfectionist from "eslint-plugin-perfectionist";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -11,7 +12,7 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const compat = new FlatCompat({ baseDirectory: dirname, recommendedConfig: eslint.configs.recommended });
 
-export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.recommended, {
+export default defineConfig(eslint.configs.recommended, ...tseslint.configs.recommended, {
   plugins: {
     import: legacyPlugin(compat, "eslint-plugin-import", "import"),
     "simple-import-sort": legacyPlugin(compat, "eslint-plugin-simple-import-sort", "simple-import-sort"),

@@ -11,7 +11,7 @@ if (!configPath) {
   throw new Error('Could not find a valid "tsconfig.json".');
 }
 
-const baseDir = nodePath.dirname(nodePath.resolve(configPath));
+const baseDir  = nodePath.dirname(nodePath.resolve(configPath));
 const cacheDir = nodePath.join(baseDir, ".cache/tsc");
 
 if (!fs.existsSync(cacheDir)) {
@@ -19,7 +19,7 @@ if (!fs.existsSync(cacheDir)) {
 }
 
 const registry = ts.createDocumentRegistry();
-const files = new Set<string>();
+const files    = new Set<string>();
 
 let services: ts.LanguageService;
 
@@ -118,7 +118,7 @@ const getEmit = (path: string) => {
   files.add(path);
 
   const program = services.getProgram()!;
-  const source = program.getSourceFile(path);
+  const source  = program.getSourceFile(path);
 
   let text: string | undefined;
 
@@ -165,7 +165,7 @@ export const fromCache = (fileName: string) => {
 
 export const toCache = (fileName: string, content: string) => {
   const current = getScriptVersion(fileName);
-  const path = nodePath.join(cacheDir, `${ts.sys.createHash!(fileName)}.hash`);
+  const path    = nodePath.join(cacheDir, `${ts.sys.createHash!(fileName)}.hash`);
   fs.writeFileSync(path, current);
   fs.writeFileSync(
     nodePath.join(cacheDir, `${ts.sys.createHash!(fileName)}.content`),

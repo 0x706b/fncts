@@ -33,7 +33,7 @@
     "test": "yarn org:tsc -b ./tsconfig.test.json && yarn org:vitest",
     "format": "yarn org:prettier --list-different -w src/**/*.ts",
     "lint": "yarn org:eslint src/**/*.ts",
-    "circular": "yarn org:madge --circular --no-spinner --warning build/esm",
+    "circular": "yarn org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
     "clean": "rm -rf ./build ./dist"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
 import baseConfig from "@fncts/eslint-config";
-import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 
-export default tseslint.config(...baseConfig, {
+export default defineConfig(...baseConfig, {
   files: [
     "src/data/Maybe/api.ts",
     "src/data/Maybe/constructors.ts",
