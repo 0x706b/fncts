@@ -6,7 +6,6 @@ import { defineConfig } from "eslint/config";
 import perfectionist from "eslint-plugin-perfectionist";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
