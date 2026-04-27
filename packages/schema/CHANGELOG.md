@@ -1,5 +1,19 @@
 # @fncts/schema
 
+## 0.0.24
+
+### Patch Changes
+
+- ea76461: test: add unit tests for schema combinators
+  chore: dependency updates
+- 6bef993: chore(deps): update eslint
+- 916867b: refactor: target esnext
+- Updated dependencies [ea76461]
+- Updated dependencies [6bef993]
+- Updated dependencies [916867b]
+  - @fncts/typelevel@0.0.24
+  - @fncts/base@0.0.43
+
 ## 0.0.23
 
 ### Patch Changes
