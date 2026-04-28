@@ -34,6 +34,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: build-artifacts
+          path: packages
 
       - name: Install
         run: |
