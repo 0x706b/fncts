@@ -31,7 +31,7 @@ const typeBarrel: Preset<{
   }
 
   const expectedContent = relativeFiles
-    .map((f) => `export type {} from '${f}'`)
+    .map((f) => `export type {} from "${f}";`)
     .join("\n");
 
   // ignore stylistic differences. babel generate deals with most

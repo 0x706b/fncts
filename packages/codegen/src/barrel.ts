@@ -66,7 +66,7 @@ const barrel: Preset<{
 
   const expectedContent = match(opts.import)
     .with(undefined, () => {
-      return relativeFiles.map((f) => `export * from '${f}'`).join("\n");
+      return relativeFiles.map((f) => `export * from "${f}";`).join("\n");
     })
     .with(P.string, (s) => {
       const importPrefix = s === "default" ? "" : "* as ";
@@ -89,7 +89,7 @@ const barrel: Preset<{
       );
 
       const imports = withIdentifiers
-        .map((i) => `import ${importPrefix}${i.identifier} from '${i.file}'`)
+        .map((i) => `import ${importPrefix}${i.identifier} from "${i.file}";`)
         .join("\n");
 
       const exportProps = match(opts.export)

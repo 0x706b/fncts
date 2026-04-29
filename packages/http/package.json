@@ -27,9 +27,8 @@
   },
   "scripts": {
     "build": "yarn org:tsc -b ./tsconfig.json",
-    "build-mjs": "yarn org:babel build/esm --config-file ./.babel.mjs.json --out-dir build/mjs --out-file-extension .mjs --source-maps",
-    "build-cjs": "yarn org:babel build/esm --config-file ./.babel.cjs.json --out-dir build/cjs --out-file-extension .cjs --source-maps",
-    "build-pack": "yarn build && yarn org:concurrently \"yarn build-cjs\" \"yarn build-mjs\" && fncts-pack",
+    "build-js": "yarn org:rolldown -c ./rolldown.config.js",
+    "build-pack": "yarn build && yarn build-js && fncts-pack",
     "test": "yarn org:tsc -b ./tsconfig.test.json && yarn org:vitest",
     "lint": "yarn org:eslint src/**/*.ts",
     "format": "yarn org:prettier --list-different -w src/**/*.ts",

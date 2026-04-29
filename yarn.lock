@@ -4953,6 +4953,7 @@ __metadata:
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-simple-import-sort: "npm:^12.1.1"
     prettier: "npm:^3.5.3"
+    rolldown: "npm:1.0.0-rc.17"
     tinybench: "npm:^4.0.1"
     ts-node: "npm:^10.9.2"
     typescript: "npm:5.8.3"
