@@ -55,7 +55,7 @@ jobs:
 
       - name: Build
         run: |
-          yarn workspace @fncts/transformers build && yarn workspace @fncts/transformers build-cjs
+          yarn clean
           yarn build
           yarn build-pack
 
