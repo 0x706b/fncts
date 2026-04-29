@@ -116,7 +116,7 @@ export const codegen: Rule.RuleModule = {
 
       let preset: Preset;
       try {
-        preset = require(presets[presetName]!).default;
+        preset = require(presets[presetName]!);
       } catch (e) {
         context.report({
           message: `Failed to require preset ${presetName}: ${e}`,
