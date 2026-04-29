@@ -9,6 +9,9 @@
     },
     "./vitest-aliases": {
       "import": "./vitest-aliases.js"
+    },
+    "./makeRolldownConfig": {
+      "import": "./makeRolldownConfig.js"
     }
   }
 }

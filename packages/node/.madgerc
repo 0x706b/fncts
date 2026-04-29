@@ -1,6 +1,0 @@
-{
-  "baseDir": "./build/esm",
-  "excludeRegExp": [
-    "^.+Queue\/constructors.js$"
-  ]
-}
