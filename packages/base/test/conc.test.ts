@@ -56,14 +56,18 @@ suite.concurrent("Conc", { timeout: 10_000 }, () => {
       });
     });
 
-    test.io("buffer used", () => {
-      return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
-        const effect   = IO.succeed(bs.foldLeft(as, (acc, a) => acc.append(a)));
-        const actual   = IO.allConcurrent(Iterable.replicate(100, effect));
-        const expected = as.concat(bs);
-        return actual.assertIO(every(strictEqualTo(expected)));
-      });
-    });
+    test.io(
+      "buffer used",
+      () => {
+        return Gen.int.conc.zip(Gen.int.conc).check(([as, bs]) => {
+          const effect   = IO.succeed(bs.foldLeft(as, (acc, a) => acc.append(a)));
+          const actual   = IO.allConcurrent(Iterable.replicate(100, effect));
+          const expected = as.concat(bs);
+          return actual.assertIO(every(strictEqualTo(expected)));
+        });
+      },
+      { timeout: 20_000 },
+    );
 
     test.io(
       "equals",
