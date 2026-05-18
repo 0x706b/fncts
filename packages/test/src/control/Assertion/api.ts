@@ -156,7 +156,7 @@ export function strictEqualTo(expected: unknown): Assertion<unknown> {
   return Assertion.make("strictEqualTo", [RenderParam(expected)], (actual) => Equatable.strictEquals(actual, expected));
 }
 
-export function deepEqualTo<A>(expected: A): Assertion<A> {
+export function deepEqualTo<A>(expected: NoInfer<A>): Assertion<A> {
   return Assertion.make("deepEqualTo", [RenderParam(expected)], (actual) => Equatable.deepEquals(actual, expected));
 }
 
