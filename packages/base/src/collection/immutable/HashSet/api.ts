@@ -148,6 +148,8 @@ export function toggle<A>(a: A) {
 
 /**
  * Projects a Set through a function
+ *
+ * @tsplus static fncts.HashSetOps mapWith
  */
 export function mapWith<B>(B: P.HashEq<B>): <A>(f: (a: A) => B) => (self: HashSet<A>) => HashSet<B> {
   const r = emptyWith(B);
@@ -176,6 +178,8 @@ export function map<A, B>(f: (a: A) => B) {
 
 /**
  * Map + Flatten
+ *
+ * @tsplus static fncts.HashSetOps flatMapWith
  */
 export function flatMapWith<B>(C: P.HashEq<B>): <A>(f: (x: A) => Iterable<B>) => (self: HashSet<A>) => HashSet<B> {
   const r = emptyWith<B>(C);
@@ -247,6 +251,9 @@ export function filter<A>(predicate: Predicate<A>) {
   };
 }
 
+/**
+ * @tsplus static fncts.HashSetOps filterMapWith
+ */
 export function filterMapWith<B>(B: P.HashEq<B>): <A>(f: (a: A) => Maybe<B>) => (fa: HashSet<A>) => HashSet<B> {
   return (f) => (fa) => {
     const out = beginMutation(emptyWith(B));
@@ -291,6 +298,8 @@ export function partition<A>(p: Predicate<A>) {
 
 /**
  * Partition set values using predicate
+ *
+ * @tsplus static fncts.HashSetOps partitionMapWith
  */
 export function partitionMapWith<B, C>(
   B: P.HashEq<B>,
@@ -477,7 +486,7 @@ export function union<A>(that: Iterable<A>) {
  * @tsplus pipeable fncts.HashSet toArray
  */
 export function toArray<A>(O: P.Ord<A>) {
-  return (self: HashSet<A>): ReadonlyArray<A> => {
+  return (self: HashSet<A>): Array<A> => {
     const r: Array<A> = [];
     self.forEach((a) => r.push(a));
     return r.sort((a, b) => O.compare(b)(a));
