@@ -35,7 +35,7 @@ export function makeWith<K, V>(config: P.HashEq<K>): HashMap<K, V> {
  * @tsplus static fncts.HashMapOps __call
  */
 export function make<K, V>(...items: ReadonlyArray<readonly [K, V]>): HashMap<K, V> {
-  return HashMap.empty<any, any>().mutate((map) => {
+  return HashMap.empty<K, V>().mutate((map) => {
     for (const [key, value] of items) {
       map.set(key, value);
     }
@@ -559,7 +559,7 @@ export function foldLeftWithIndexWhile<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z
           if (child._tag === "LeafNode") {
             if (child.value.isJust()) {
               acc = f(child.key, acc, child.value.value);
-              if (p(acc)) {
+              if (!p(acc)) {
                 break loop;
               }
             }
