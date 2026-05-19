@@ -1513,6 +1513,14 @@ export const wither: P.Witherable<ReadonlyArrayF>["wither"] = (G) => (f) => (sel
   self.witherWithIndex(G)((_, a) => f(a));
 
 /**
+ * @tsplus getter fncts.Array toIterable
+ * @tsplus getter fncts.ReadonlyArray toIterable
+ */
+export function toIterable<A>(self: ReadonlyArray<A>): Iterable<A> {
+  return self;
+}
+
+/**
  * @tsplus pipeable fncts.ReadonlyArray zip
  */
 export function zip<B>(that: ReadonlyArray<B>) {
