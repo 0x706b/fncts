@@ -68,7 +68,7 @@ export function enqueue<B>(elem: B) {
 /**
  * @tsplus getter fncts.ImmutableQueue unsafeDequeue
  */
-export function unasfeDequeue<A>(self: Queue<A>): readonly [A, Queue<A>] {
+export function unsafeDequeue<A>(self: Queue<A>): readonly [A, Queue<A>] {
   if (self._out.isEmpty() && self._in.isNonEmpty()) {
     const rev = self._in.reverse;
     return [rev.unsafeHead, new Queue(Nil(), rev.unsafeTail)];
