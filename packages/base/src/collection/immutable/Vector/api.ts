@@ -295,7 +295,7 @@ export function drop(n: number) {
  */
 export function dropLast(n: number) {
   return <A>(self: Vector<A>): Vector<A> => {
-    return self.slice(0, self.length - n);
+    return n >= self.length ? empty() : self.slice(0, self.length - n);
   };
 }
 
@@ -1300,7 +1300,7 @@ export function take(n: number) {
  */
 export function takeLast(n: number) {
   return <A>(self: Vector<A>): Vector<A> => {
-    return self.slice(self.length - n, self.length);
+    return n >= self.length ? self : self.slice(self.length - n, self.length);
   };
 }
 
@@ -1342,7 +1342,7 @@ export function takeWhile<A>(predicate: Predicate<A>) {
  * @complexity `O(n)`
  * @tsplus getter fncts.Vector toArray
  */
-export function toArray<A>(self: Vector<A>): ReadonlyArray<A> {
+export function toArray<A>(self: Vector<A>): Array<A> {
   return self.foldLeft<A, A[]>([], arrayPush);
 }
 
@@ -1427,7 +1427,7 @@ export function unfold<A, B>(b: B, f: (b: B) => Maybe<readonly [A, B]>): Vector<
  * @complexity `O(n)`
  * @tsplus pipeable fncts.Vector uniq
  */
-export function uniq<A>(E: Eq<A>) {
+export function uniq<A>(/** @tsplus auto */ E: Eq<A>) {
   return (self: Vector<A>) => self.dropRepeatsWith((a, b) => E.equals(b)(a));
 }
 
