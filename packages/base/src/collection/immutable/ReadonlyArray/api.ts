@@ -7,6 +7,7 @@ import * as P from "@fncts/base/typeclass";
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray align
+ * @tsplus pipeable fncts.Array align
  */
 export function align<B>(fb: ReadonlyArray<B>) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<These<A, B>> => {
@@ -16,6 +17,7 @@ export function align<B>(fb: ReadonlyArray<B>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray alignWith
+ * @tsplus pipeable fncts.Array alignWith
  */
 export function alignWith<A, B, C>(fb: ReadonlyArray<B>, f: (_: These<A, B>) => C) {
   return (self: ReadonlyArray<A>): ReadonlyArray<C> => {
@@ -44,6 +46,7 @@ export function alignWith<A, B, C>(fb: ReadonlyArray<B>, f: (_: These<A, B>) => 
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray alt
+ * @tsplus pipeable fncts.Array alt
  */
 export function alt<B>(that: Lazy<ReadonlyArray<B>>) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A | B> => {
@@ -53,6 +56,7 @@ export function alt<B>(that: Lazy<ReadonlyArray<B>>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray ap
+ * @tsplus pipeable fncts.Array ap
  */
 export function ap<A>(fa: ReadonlyArray<A>) {
   return <B>(self: ReadonlyArray<(a: A) => B>): ReadonlyArray<B> => {
@@ -62,6 +66,7 @@ export function ap<A>(fa: ReadonlyArray<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray append
+ * @tsplus pipeable fncts.Array append
  */
 export function append<B>(last: B) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A | B> => {
@@ -78,6 +83,7 @@ export function append<B>(last: B) {
 
 /**
  * @tsplus static fncts.ReadonlyArrayOps chainRecBreadthFirst
+ * @tsplus static fncts.ArrayOps chainRecBreadthFirst
  */
 export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Either<A, B>>): ReadonlyArray<B> {
   const initial                     = f(a);
@@ -86,7 +92,7 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Eith
 
   function go(e: Either<A, B>): void {
     Either.concrete(e);
-    if (e._tag === "Left") {
+    if (e._tag === EitherTag.Left) {
       f(e.left).forEach((v) => buffer.push(v));
     } else {
       out.push(e.right);
@@ -106,6 +112,7 @@ export function chainRecBreadthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Eith
 
 /**
  * @tsplus static fncts.ReadonlyArrayOps chainRecDepthFirst
+ * @tsplus static fncts.ArrayOps chainRecDepthFirst
  */
 export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Either<A, B>>): ReadonlyArray<B> {
   const buffer   = f(a).slice();
@@ -130,6 +137,7 @@ export function chainRecDepthFirst<A, B>(a: A, f: (a: A) => ReadonlyArray<Either
  * that will consume an initial prefix of the `Array` and produce a value and the rest of the `Array`.
  *
  * @tsplus pipeable fncts.ReadonlyArray chop
+ * @tsplus pipeable fncts.Array chop
  */
 export function chop<A, B>(f: (as: ReadonlyNonEmptyArray<A>) => readonly [B, ReadonlyArray<A>]) {
   return (as: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -146,6 +154,7 @@ export function chop<A, B>(f: (as: ReadonlyNonEmptyArray<A>) => readonly [B, Rea
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray collectWhile
+ * @tsplus pipeable fncts.Array collectWhile
  */
 export function collectWhile<A, B>(f: (a: A) => Maybe<B>) {
   return (as: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -164,6 +173,7 @@ export function collectWhile<A, B>(f: (a: A) => Maybe<B>) {
 
 /**
  * @tsplus static fncts.ReadonlyArrayOps comprehension
+ * @tsplus static fncts.ArrayOps comprehension
  */
 export function comprehension<A, B, C, D, R>(
   input: [ReadonlyArray<A>, ReadonlyArray<B>, ReadonlyArray<C>, ReadonlyArray<D>],
@@ -199,14 +209,16 @@ function comprehensionLoop<A, R>(
     return g(...scope) ? Eval.now([f(...scope)]) : Eval.now([]);
   } else {
     return input[0]!
-      .traverse(Eval.Applicative)((a) => comprehensionLoop(scope.append(a), input.slice(1), f, g))
+      .traverse(Eval.Applicative)((a) => comprehensionLoop(scope.prepend(a), input.slice(1), f, g))
       .map((rs) => rs.flatten);
   }
 }
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray concat
+ * @tsplus pipeable fncts.Array concat
  * @tsplus pipeable-operator fncts.ReadonlyArray +
+ * @tsplus pipeable-operator fncts.Array +
  */
 export function concat<B>(that: ReadonlyArray<B>) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A | B> => {
@@ -231,6 +243,7 @@ export function concat<B>(that: ReadonlyArray<B>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray cross
+ * @tsplus pipeable fncts.Array cross
  */
 export function cross<B>(fb: ReadonlyArray<B>) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<Zipped.Make<A, B>> => {
@@ -240,6 +253,7 @@ export function cross<B>(fb: ReadonlyArray<B>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray crossWith
+ * @tsplus pipeable fncts.Array crossWith
  */
 export function crossWith<A, B, C>(fb: ReadonlyArray<B>, f: (a: A, b: B) => C) {
   return (self: ReadonlyArray<A>): ReadonlyArray<C> => {
@@ -249,6 +263,7 @@ export function crossWith<A, B, C>(fb: ReadonlyArray<B>, f: (a: A, b: B) => C) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray deleteAt
+ * @tsplus pipeable fncts.Array deleteAt
  */
 export function deleteAt(i: number) {
   return <A>(as: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> => {
@@ -258,6 +273,7 @@ export function deleteAt(i: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray difference
+ * @tsplus pipeable fncts.Array difference
  */
 export function difference<A>(ys: ReadonlyArray<A>, /** @tsplus auto */ E: P.Eq<A>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -266,6 +282,7 @@ export function difference<A>(ys: ReadonlyArray<A>, /** @tsplus auto */ E: P.Eq<
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray drop
+ * @tsplus pipeable fncts.Array drop
  */
 export function drop(n: number) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -275,6 +292,7 @@ export function drop(n: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray dropLast
+ * @tsplus pipeable fncts.Array dropLast
  */
 export function dropLast(n: number) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -284,6 +302,7 @@ export function dropLast(n: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray dropLastWhile
+ * @tsplus pipeable fncts.Array dropLastWhile
  */
 export function dropLastWhile<A>(p: Predicate<A>) {
   return (as: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -293,6 +312,7 @@ export function dropLastWhile<A>(p: Predicate<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray dropWhile
+ * @tsplus pipeable fncts.Array dropWhile
  */
 export function dropWhile<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -323,6 +343,7 @@ export function elem<A>(a: A, /** @tsplus auto */ E: P.Eq<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray every
+ * @tsplus pipeable fncts.Array every
  */
 export function every<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => self is ReadonlyArray<B>;
 export function every<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => boolean;
@@ -334,6 +355,7 @@ export function every<A>(p: Predicate<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray everyWithIndex
+ * @tsplus pipeable fncts.Array everyWithIndex
  */
 export function everyWithIndex<A, B extends A>(
   p: RefinementWithIndex<number, A, B>,
@@ -353,6 +375,7 @@ export function everyWithIndex<A>(p: PredicateWithIndex<number, A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray filter
+ * @tsplus pipeable fncts.Array filter
  */
 export function filter<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
 export function filter<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => ReadonlyArray<A>;
@@ -364,6 +387,7 @@ export function filter<A>(p: Predicate<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray filterMap
+ * @tsplus pipeable fncts.Array filterMap
  */
 export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -374,6 +398,7 @@ export function filterMap<A, B>(f: (a: A) => Maybe<B>) {
 /**
  * @tsplus pipeable fncts.Array filterMap
  * @tsplus pipeable fncts.ReadonlyArray filterMap
+ * @tsplus pipeable fncts.Array filterMap
  */
 export function filterMapUndefined<A, B>(f: (a: A) => B | undefined) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -390,6 +415,7 @@ export function filterMapUndefined<A, B>(f: (a: A) => B | undefined) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray filterMapWithIndex
+ * @tsplus pipeable fncts.Array filterMapWithIndex
  */
 export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
   return (fa: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -406,6 +432,7 @@ export function filterMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray filterWithIndex
+ * @tsplus pipeable fncts.Array filterWithIndex
  */
 export function filterWithIndex<A, B extends A>(
   p: RefinementWithIndex<number, A, B>,
@@ -426,6 +453,7 @@ export function filterWithIndex<A>(p: PredicateWithIndex<number, A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray find
+ * @tsplus pipeable fncts.Array find
  */
 export function find<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => Maybe<B>;
 export function find<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => Maybe<A>;
@@ -437,6 +465,7 @@ export function find<A>(p: Predicate<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray findIndex
+ * @tsplus pipeable fncts.Array findIndex
  */
 export function findIndex<A>(predicate: Predicate<A>) {
   return (as: ReadonlyArray<A>): Maybe<number> => {
@@ -446,6 +475,7 @@ export function findIndex<A>(predicate: Predicate<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray findLast
+ * @tsplus pipeable fncts.Array findLast
  */
 export function findLast<A, B extends A>(p: Refinement<A, B>): (as: ReadonlyArray<A>) => Maybe<B>;
 export function findLast<A>(p: Predicate<A>): (as: ReadonlyArray<A>) => Maybe<A>;
@@ -462,6 +492,7 @@ export function findLast<A>(p: Predicate<A>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray findLastIndex
+ * @tsplus pipeable fncts.Array findLastIndex
  */
 export function findLastIndex<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): Maybe<number> => {
@@ -471,6 +502,7 @@ export function findLastIndex<A>(p: Predicate<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray findLastMap
+ * @tsplus pipeable fncts.Array findLastMap
  */
 export function findLastMap<A, B>(f: (a: A) => Maybe<B>) {
   return (as: ReadonlyArray<A>): Maybe<B> => {
@@ -480,6 +512,7 @@ export function findLastMap<A, B>(f: (a: A) => Maybe<B>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray findLastMapWithIndex
+ * @tsplus pipeable fncts.Array findLastMapWithIndex
  */
 export function findLastMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
   return (as: ReadonlyArray<A>): Maybe<B> => {
@@ -495,6 +528,7 @@ export function findLastMapWithIndex<A, B>(f: (i: number, a: A) => Maybe<B>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray findMap
+ * @tsplus pipeable fncts.Array findMap
  */
 export function findMap<A, B>(f: (a: A) => Maybe<B>) {
   return (as: ReadonlyArray<A>): Maybe<B> => {
@@ -503,6 +537,7 @@ export function findMap<A, B>(f: (a: A) => Maybe<B>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray findMapWithIndex
+ * @tsplus pipeable fncts.Array findMapWithIndex
  */
 export function findMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
   return (as: ReadonlyArray<A>): Maybe<B> => {
@@ -519,6 +554,7 @@ export function findMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray findWithIndex
+ * @tsplus pipeable fncts.Array findWithIndex
  */
 export function findWithIndex<A, B extends A>(p: RefinementWithIndex<number, A, B>): (as: ReadonlyArray<A>) => Maybe<B>;
 export function findWithIndex<A>(p: PredicateWithIndex<number, A>): (as: ReadonlyArray<A>) => Maybe<A>;
@@ -535,6 +571,7 @@ export function findWithIndex<A>(p: PredicateWithIndex<number, A>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray flatMap
+ * @tsplus pipeable fncts.Array flatMap
  */
 export function flatMap<A, B>(f: (a: A) => ReadonlyArray<B>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -543,6 +580,7 @@ export function flatMap<A, B>(f: (a: A) => ReadonlyArray<B>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray flatMapWithIndex
+ * @tsplus pipeable fncts.Array flatMapWithIndex
  */
 export function flatMapWithIndex<A, B>(f: (i: number, a: A) => ReadonlyArray<B>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -571,6 +609,7 @@ export function flatMapWithIndex<A, B>(f: (i: number, a: A) => ReadonlyArray<B>)
 
 /**
  * @tsplus getter fncts.ReadonlyArray flatten
+ * @tsplus getter fncts.Array flatten
  */
 export function flatten<A>(self: ReadonlyArray<ReadonlyArray<A>>): ReadonlyArray<A> {
   return self.flatMap(identity);
@@ -578,6 +617,7 @@ export function flatten<A>(self: ReadonlyArray<ReadonlyArray<A>>): ReadonlyArray
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray fold
+ * @tsplus pipeable fncts.Array fold
  */
 export function fold<M>(/** @tsplus auto */ M: Monoid<M>) {
   return (self: ReadonlyArray<M>): M => {
@@ -626,11 +666,13 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
  */
 export function foldLeftWithIndexWhile<A, B>(b: B, p: Predicate<B>, f: (i: number, b: B, a: A) => B) {
   return (self: ReadonlyArray<A>): B => {
-    let out  = b;
-    let cont = p(out);
-    for (let i = 0; cont && i < self.length; i++) {
-      out  = f(i, out, self[i]!);
-      cont = p(out);
+    let out = b;
+    for (let i = 0; i < self.length; i++) {
+      const check = f(i, out, self[i]!);
+      if (!p(check)) {
+        return out;
+      }
+      out = check;
     }
     return out;
   };
@@ -638,6 +680,7 @@ export function foldLeftWithIndexWhile<A, B>(b: B, p: Predicate<B>, f: (i: numbe
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray foldMap
+ * @tsplus pipeable fncts.Array foldMap
  */
 export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>) {
   return (self: ReadonlyArray<A>): M => {
@@ -647,6 +690,7 @@ export function foldMap<A, M>(f: (a: A) => M, /** @tsplus auto */ M: Monoid<M>) 
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray foldMapWithIndex
+ * @tsplus pipeable fncts.Array foldMapWithIndex
  */
 export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus auto */ M: Monoid<M>) {
   return (self: ReadonlyArray<A>): M => {
@@ -656,6 +700,7 @@ export function foldMapWithIndex<A, M>(f: (i: number, a: A) => M, /** @tsplus au
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray foldRight
+ * @tsplus pipeable fncts.Array foldRight
  */
 export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
   return (self: ReadonlyArray<A>): B => {
@@ -665,6 +710,7 @@ export function foldRight<A, B>(b: B, f: (a: A, b: B) => B) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray foldRighWhile
+ * @tsplus pipeable fncts.Array foldRighWhile
  */
 export function foldRightWhile<A, B>(b: B, p: Predicate<B>, f: (a: A, b: B) => B) {
   return (self: ReadonlyArray<A>): B => {
@@ -674,6 +720,7 @@ export function foldRightWhile<A, B>(b: B, p: Predicate<B>, f: (a: A, b: B) => B
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray foldRightWithIndex
+ * @tsplus pipeable fncts.Array foldRightWithIndex
  */
 export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) {
   return (self: ReadonlyArray<A>): B => {
@@ -687,6 +734,7 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray foldRightWithIndexWhile
+ * @tsplus pipeable fncts.Array foldRightWithIndexWhile
  */
 export function foldRightWithIndexWhile<A, B>(b: B, predicate: Predicate<B>, f: (i: number, a: A, b: B) => B) {
   return (self: ReadonlyArray<A>): B => {
@@ -702,6 +750,7 @@ export function foldRightWithIndexWhile<A, B>(b: B, predicate: Predicate<B>, f: 
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray forEach
+ * @tsplus pipeable fncts.Array forEach
  */
 export function forEach<A, B>(f: (a: A) => B) {
   return (self: ReadonlyArray<A>): void => {
@@ -722,6 +771,7 @@ export function fromValue<A>(value: A): A extends Array<any> ? A : A extends Rea
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray get
+ * @tsplus pipeable fncts.Array get
  * @tsplus pipeable fncts.MutableArray get
  */
 export function get(i: number) {
@@ -732,6 +782,7 @@ export function get(i: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray group
+ * @tsplus pipeable fncts.Array group
  */
 export function group<A>(E: P.Eq<A>): (self: ReadonlyArray<A>) => ReadonlyArray<ReadonlyNonEmptyArray<A>> {
   return chop((self) => {
@@ -752,6 +803,7 @@ export function group<A>(E: P.Eq<A>): (self: ReadonlyArray<A>) => ReadonlyArray<
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray groupBy
+ * @tsplus pipeable fncts.Array groupBy
  */
 export function groupBy<A>(f: (a: A) => string) {
   return (self: ReadonlyArray<A>): Readonly<Record<string, ReadonlyNonEmptyArray<A>>> => {
@@ -771,6 +823,7 @@ export function groupBy<A>(f: (a: A) => string) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray head
+ * @tsplus getter fncts.Array head
  */
 export function head<A>(self: ReadonlyArray<A>): Maybe<A> {
   return self.isNonEmpty() ? Just(self[0]) : Nothing();
@@ -778,6 +831,7 @@ export function head<A>(self: ReadonlyArray<A>): Maybe<A> {
 
 /**
  * @tsplus getter fncts.ReadonlyArray init
+ * @tsplus getter fncts.Array init
  */
 export function init<A>(self: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> {
   const len = self.length;
@@ -786,6 +840,7 @@ export function init<A>(self: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray insertAt
+ * @tsplus pipeable fncts.Array insertAt
  */
 export function insertAt<A>(i: number, a: A) {
   return (self: ReadonlyArray<A>): Maybe<ReadonlyNonEmptyArray<A>> => {
@@ -795,6 +850,7 @@ export function insertAt<A>(i: number, a: A) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray intersection
+ * @tsplus pipeable fncts.Array intersection
  */
 export function intersection<A>(that: ReadonlyArray<A>, /** @tsplus auto */ E: P.Eq<A>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -804,6 +860,7 @@ export function intersection<A>(that: ReadonlyArray<A>, /** @tsplus auto */ E: P
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray intersperse
+ * @tsplus pipeable fncts.Array intersperse
  */
 export function intersperse<A>(a: A) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -813,14 +870,18 @@ export function intersperse<A>(a: A) {
 }
 
 /**
+ * @tsplus fluent fncts.Array isEmpty
  * @tsplus fluent fncts.ReadonlyArray isEmpty
+ * @tsplus fluent fncts.Array isEmpty
  */
 export function isEmpty<A>(self: ReadonlyArray<A>): boolean {
   return self.length === 0;
 }
 
 /**
+ * @tsplus fluent fncts.Array isNonEmpty
  * @tsplus fluent fncts.ReadonlyArray isNonEmpty
+ * @tsplus fluent fncts.Array isNonEmpty
  */
 export function isNonEmpty<A>(self: ReadonlyArray<A>): self is ReadonlyNonEmptyArray<A> {
   return self.length > 0;
@@ -828,6 +889,7 @@ export function isNonEmpty<A>(self: ReadonlyArray<A>): self is ReadonlyNonEmptyA
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray isOutOfBound
+ * @tsplus pipeable fncts.Array isOutOfBound
  */
 export function isOutOfBound(i: number) {
   return <A>(self: ReadonlyArray<A>): boolean => {
@@ -837,6 +899,7 @@ export function isOutOfBound(i: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray join
+ * @tsplus pipeable fncts.Array join
  */
 export function join(separator: string) {
   return (self: ReadonlyArray<string>): string => {
@@ -846,6 +909,7 @@ export function join(separator: string) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray last
+ * @tsplus getter fncts.Array last
  */
 export function last<A>(self: ReadonlyArray<A>): Maybe<A> {
   return self.get(self.length - 1);
@@ -853,6 +917,7 @@ export function last<A>(self: ReadonlyArray<A>): Maybe<A> {
 
 /**
  * @tsplus getter fncts.ReadonlyArray lefts
+ * @tsplus getter fncts.Array lefts
  */
 export function lefts<E, A>(self: ReadonlyArray<Either<E, A>>): ReadonlyArray<E> {
   const ls: Array<E> = [];
@@ -868,6 +933,7 @@ export function lefts<E, A>(self: ReadonlyArray<Either<E, A>>): ReadonlyArray<E>
 
 /**
  * @tsplus getter fncts.ReadonlyArray length
+ * @tsplus getter fncts.Array length
  */
 export function length<A>(self: ReadonlyArray<A>): number {
   return self.length;
@@ -875,6 +941,7 @@ export function length<A>(self: ReadonlyArray<A>): number {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray map
+ * @tsplus pipeable fncts.Array map
  */
 export function map<A, B>(f: (a: A) => B) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -884,6 +951,7 @@ export function map<A, B>(f: (a: A) => B) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray mapAccum
+ * @tsplus pipeable fncts.Array mapAccum
  */
 export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
   return (self: ReadonlyArray<A>): readonly [ReadonlyArray<B>, S] => {
@@ -900,6 +968,7 @@ export function mapAccum<A, S, B>(s: S, f: (s: S, a: A) => readonly [B, S]) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray mapWithIndex
+ * @tsplus pipeable fncts.Array mapWithIndex
  */
 export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -914,6 +983,7 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray modifyAt
+ * @tsplus pipeable fncts.Array modifyAt
  */
 export function modifyAt<A>(i: number, f: (a: A) => A) {
   return (self: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> => {
@@ -923,6 +993,7 @@ export function modifyAt<A>(i: number, f: (a: A) => A) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray mutableClone
+ * @tsplus getter fncts.Array mutableClone
  */
 export function mutableClone<A>(self: ReadonlyArray<A>): Array<A> {
   return self.slice(0);
@@ -930,6 +1001,7 @@ export function mutableClone<A>(self: ReadonlyArray<A>): Array<A> {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray mutate
+ * @tsplus pipeable fncts.Array mutate
  */
 export function mutate<A>(f: (self: Array<A>) => void) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -941,6 +1013,7 @@ export function mutate<A>(f: (self: Array<A>) => void) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray partition
+ * @tsplus pipeable fncts.Array partition
  */
 export function partition<A, B extends A>(
   p: Refinement<A, B>,
@@ -956,6 +1029,7 @@ export function partition<A>(p: Predicate<A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray partitionMap
+ * @tsplus pipeable fncts.Array partitionMap
  */
 export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
   return (self: ReadonlyArray<A>): readonly [ReadonlyArray<B>, ReadonlyArray<C>] => {
@@ -965,6 +1039,7 @@ export function partitionMap<A, B, C>(f: (a: A) => Either<B, C>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray partitionMapWithIndex
+ * @tsplus pipeable fncts.Array partitionMapWithIndex
  */
 export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B, C>) {
   return (self: ReadonlyArray<A>): readonly [ReadonlyArray<B>, ReadonlyArray<C>] => {
@@ -988,6 +1063,7 @@ export function partitionMapWithIndex<A, B, C>(f: (i: number, a: A) => Either<B,
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray partitionWithIndex
+ * @tsplus pipeable fncts.Array partitionWithIndex
  */
 export function partitionWithIndex<A, B extends A>(
   p: RefinementWithIndex<number, A, B>,
@@ -1013,6 +1089,7 @@ export function partitionWithIndex<A>(p: PredicateWithIndex<number, A>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray prepend
+ * @tsplus pipeable fncts.Array prepend
  */
 export function prepend<B>(head: B) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A | B> => {
@@ -1042,6 +1119,7 @@ export function prependAll<A>(a: A) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray reverse
+ * @tsplus getter fncts.Array reverse
  */
 export function reverse<A>(self: ReadonlyArray<A>): ReadonlyArray<A> {
   if (self.isEmpty()) {
@@ -1059,6 +1137,7 @@ export function reverse<A>(self: ReadonlyArray<A>): ReadonlyArray<A> {
 
 /**
  * @tsplus getter fncts.ReadonlyArray rights
+ * @tsplus getter fncts.Array rights
  */
 export function rights<E, A>(self: ReadonlyArray<Either<E, A>>): ReadonlyArray<A> {
   const rs: Array<A> = [];
@@ -1074,6 +1153,7 @@ export function rights<E, A>(self: ReadonlyArray<Either<E, A>>): ReadonlyArray<A
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray rotate
+ * @tsplus pipeable fncts.Array rotate
  */
 export function rotate(n: number) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1090,6 +1170,7 @@ export function rotate(n: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray scanLeft
+ * @tsplus pipeable fncts.Array scanLeft
  */
 export function scanLeft<A, B>(b: B, f: (b: B, a: A) => B) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -1105,6 +1186,7 @@ export function scanLeft<A, B>(b: B, f: (b: B, a: A) => B) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray scanRight
+ * @tsplus pipeable fncts.Array scanRight
  */
 export function scanRight<A, B>(b: B, f: (a: A, b: B) => B) {
   return (self: ReadonlyArray<A>): ReadonlyArray<B> => {
@@ -1120,6 +1202,7 @@ export function scanRight<A, B>(b: B, f: (a: A, b: B) => B) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray some
+ * @tsplus pipeable fncts.Array some
  */
 export function some<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): self is ReadonlyNonEmptyArray<A> => {
@@ -1153,6 +1236,7 @@ export function sortBy<A>(Os: ReadonlyArray<P.Ord<A>>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray spanIndexLeft
+ * @tsplus pipeable fncts.Array spanIndexLeft
  */
 export function spanIndexLeft<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): number => {
@@ -1168,6 +1252,7 @@ export function spanIndexLeft<A>(p: Predicate<A>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray spanIndexRight
+ * @tsplus pipeable fncts.Array spanIndexRight
  */
 export function spanIndexRight<A>(predicate: Predicate<A>) {
   return (as: ReadonlyArray<A>): number => {
@@ -1182,6 +1267,7 @@ export function spanIndexRight<A>(predicate: Predicate<A>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray spanLeft
+ * @tsplus pipeable fncts.Array spanLeft
  */
 export function spanLeft<A, B extends A>(
   p: Refinement<A, B>,
@@ -1204,6 +1290,7 @@ export function spanLeft<A>(p: Predicate<A>) {
 }
 /**
  * @tsplus pipeable fncts.ReadonlyArray spanRight
+ * @tsplus pipeable fncts.Array spanRight
  */
 export function spanRight<A, B extends A>(
   p: Refinement<A, B>,
@@ -1229,6 +1316,7 @@ export function spanRight<A>(p: Predicate<A>) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray tail
+ * @tsplus getter fncts.Array tail
  */
 export function tail<A>(self: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> {
   return self.isNonEmpty() ? Just(self.slice(1)) : Nothing();
@@ -1236,6 +1324,7 @@ export function tail<A>(self: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray take
+ * @tsplus pipeable fncts.Array take
  */
 export function take(n: number) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1245,6 +1334,7 @@ export function take(n: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray takeLast
+ * @tsplus pipeable fncts.Array takeLast
  */
 export function takeLast(n: number) {
   return <A>(as: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1254,6 +1344,7 @@ export function takeLast(n: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray takeWhile
+ * @tsplus pipeable fncts.Array takeWhile
  */
 export function takeWhile<A, B extends A>(p: Refinement<A, B>): (self: ReadonlyArray<A>) => ReadonlyArray<B>;
 export function takeWhile<A>(p: Predicate<A>): (self: ReadonlyArray<A>) => ReadonlyArray<A>;
@@ -1270,6 +1361,7 @@ export function takeWhile<A>(p: Predicate<A>) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray traverse
+ * @tsplus getter fncts.Array traverse
  */
 export function traverse_<A>(
   self: ReadonlyArray<A>,
@@ -1283,6 +1375,7 @@ export function traverse_<A>(
 
 /**
  * @tsplus getter fncts.ReadonlyArray traverseWithIndex
+ * @tsplus getter fncts.Array traverseWithIndex
  */
 export function traverseWithIndex_<A>(
   self: ReadonlyArray<A>,
@@ -1311,6 +1404,7 @@ export const traverse: P.Traversable<ReadonlyArrayF>["traverse"] = (G) => (f) =>
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray union
+ * @tsplus pipeable fncts.Array union
  */
 export function union<A>(that: ReadonlyArray<A>, /** @tsplus auto */ E: P.Eq<A>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1320,6 +1414,7 @@ export function union<A>(that: ReadonlyArray<A>, /** @tsplus auto */ E: P.Eq<A>)
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray uniq
+ * @tsplus pipeable fncts.Array uniq
  */
 export function uniq<A>(/** @tsplus auto */ E: P.Eq<A>) {
   return (self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1340,6 +1435,7 @@ export function uniq<A>(/** @tsplus auto */ E: P.Eq<A>) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray unprepend
+ * @tsplus getter fncts.Array unprepend
  */
 export function unprepend<A>(self: ReadonlyArray<A>): Maybe<readonly [A, ReadonlyArray<A>]> {
   return self.isNonEmpty() ? Just([self[0]!, self.slice(1)]) : Nothing();
@@ -1347,6 +1443,7 @@ export function unprepend<A>(self: ReadonlyArray<A>): Maybe<readonly [A, Readonl
 
 /**
  * @tsplus getter fncts.ReadonlyArray unsafeAsMutable
+ * @tsplus getter fncts.Array unsafeAsMutable
  */
 export function unsafeAsMutable<A>(self: ReadonlyArray<A>): Array<A> {
   return self as Array<A>;
@@ -1354,6 +1451,7 @@ export function unsafeAsMutable<A>(self: ReadonlyArray<A>): Array<A> {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray unsafeDeleteAt
+ * @tsplus pipeable fncts.Array unsafeDeleteAt
  */
 export function unsafeDeleteAt(i: number) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1365,6 +1463,7 @@ export function unsafeDeleteAt(i: number) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray unsafeInsertAt
+ * @tsplus pipeable fncts.Array unsafeInsertAt
  */
 export function unsafeInsertAt<A>(i: number, a: A) {
   return (as: ReadonlyArray<A>): ReadonlyNonEmptyArray<A> => {
@@ -1376,6 +1475,7 @@ export function unsafeInsertAt<A>(i: number, a: A) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray unsafeModifyAt
+ * @tsplus pipeable fncts.Array unsafeModifyAt
  */
 export function unsafeModifyAt<A>(i: number, f: (a: A) => A) {
   return (as: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1391,6 +1491,7 @@ export function unsafeModifyAt<A>(i: number, f: (a: A) => A) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray unsafeUpdateAt
+ * @tsplus pipeable fncts.Array unsafeUpdateAt
  */
 export function unsafeUpdateAt<A>(i: number, a: A) {
   return (as: ReadonlyArray<A>): ReadonlyArray<A> => {
@@ -1406,6 +1507,7 @@ export function unsafeUpdateAt<A>(i: number, a: A) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray unzip
+ * @tsplus getter fncts.Array unzip
  */
 export function unzip<A, B>(self: ReadonlyArray<readonly [A, B]>): readonly [ReadonlyArray<A>, ReadonlyArray<B>] {
   const fa = Array<A>(self.length);
@@ -1421,6 +1523,7 @@ export function unzip<A, B>(self: ReadonlyArray<readonly [A, B]>): readonly [Rea
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray updateAt
+ * @tsplus pipeable fncts.Array updateAt
  */
 export function updateAt<A>(i: number, a: A) {
   return (as: ReadonlyArray<A>): Maybe<ReadonlyArray<A>> => {
@@ -1430,6 +1533,7 @@ export function updateAt<A>(i: number, a: A) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray wilt
+ * @tsplus getter fncts.Array wilt
  */
 export function wilt_<A>(self: ReadonlyArray<A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
@@ -1441,6 +1545,7 @@ export function wilt_<A>(self: ReadonlyArray<A>) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray wiltWithIndex
+ * @tsplus getter fncts.Array wiltWithIndex
  */
 export function wiltWithIndex_<A>(self: ReadonlyArray<A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
@@ -1469,6 +1574,7 @@ export function wiltWithIndex_<A>(self: ReadonlyArray<A>) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray wither
+ * @tsplus getter fncts.Array wither
  */
 export function wither_<A>(self: ReadonlyArray<A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
@@ -1480,6 +1586,7 @@ export function wither_<A>(self: ReadonlyArray<A>) {
 
 /**
  * @tsplus getter fncts.ReadonlyArray witherWithIndex
+ * @tsplus getter fncts.Array witherWithIndex
  */
 export function witherWithIndex_<A>(self: ReadonlyArray<A>) {
   return <G extends HKT, GC = HKT.None>(G: P.Applicative<G, GC>) =>
@@ -1515,6 +1622,7 @@ export const wither: P.Witherable<ReadonlyArrayF>["wither"] = (G) => (f) => (sel
 /**
  * @tsplus getter fncts.Array toIterable
  * @tsplus getter fncts.ReadonlyArray toIterable
+ * @tsplus getter fncts.Array toIterable
  */
 export function toIterable<A>(self: ReadonlyArray<A>): Iterable<A> {
   return self;
@@ -1522,6 +1630,7 @@ export function toIterable<A>(self: ReadonlyArray<A>): Iterable<A> {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray zip
+ * @tsplus pipeable fncts.Array zip
  */
 export function zip<B>(that: ReadonlyArray<B>) {
   return <A>(self: ReadonlyArray<A>): ReadonlyArray<readonly [A, B]> => {
@@ -1531,6 +1640,7 @@ export function zip<B>(that: ReadonlyArray<B>) {
 
 /**
  * @tsplus pipeable fncts.ReadonlyArray zipWith
+ * @tsplus pipeable fncts.Array zipWith
  */
 export function zipWith<A, B, C>(fb: ReadonlyArray<B>, f: (a: A, b: B) => C) {
   return (self: ReadonlyArray<A>): ReadonlyArray<C> => {
