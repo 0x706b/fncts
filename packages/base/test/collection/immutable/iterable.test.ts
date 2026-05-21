@@ -1,3 +1,5 @@
+import type {} from "@fncts/base/collection/Iterable";
+
 import { isJust } from "@fncts/test/control/Assertion";
 
 suite.concurrent("Iterable", () => {

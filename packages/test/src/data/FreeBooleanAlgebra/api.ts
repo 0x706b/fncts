@@ -1,11 +1,17 @@
 import { And, FreeBooleanAlgebra, FreeBooleanAlgebraTag, Not, Or, Value } from "./definition.js";
 
 /**
- * @tsplus pipeable fncts.test.FreeBooleanAlgebra and
- * @tsplus pipeable-operator fncts.test.FreeBooleanAlgebra &&
+ * @tsplus operator fncts.test.FreeBooleanAlgebra &&
  */
-export function and<A>(right: FreeBooleanAlgebra<A>) {
-  return (left: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> => {
+export function and_<A>(self: FreeBooleanAlgebra<A>, that: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> {
+  return new And(self, that);
+}
+
+/**
+ * @tsplus pipeable fncts.test.FreeBooleanAlgebra and
+ */
+export function and<A>(left: FreeBooleanAlgebra<A>) {
+  return (right: FreeBooleanAlgebra<A>): FreeBooleanAlgebra<A> => {
     return new And(left, right);
   };
 }
