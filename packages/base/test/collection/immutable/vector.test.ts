@@ -1,8 +1,8 @@
 import type {} from "@fncts/base/global";
 import type {} from "@fncts/io/global";
 
-suite.concurrent("Vector", () => {
-  suite.concurrent("constructors", () => {
+suite("Vector", () => {
+  suite("constructors", () => {
     test("empty", Vector.empty<number>().assert(strictEqualTo(Vector.empty())));
 
     test("vector variadic", Vector(1, 2, 3).assert(strictEqualTo(Vector(1, 2, 3))));
@@ -39,47 +39,47 @@ suite.concurrent("Vector", () => {
     test("unfold empty", Vector.unfold(0, () => Nothing()).assert(strictEqualTo(Vector.empty())));
   });
 
-  suite.concurrent("isEmpty / isNonEmpty", () => {
+  suite("isEmpty / isNonEmpty", () => {
     test("empty is empty", Vector.empty<number>().isEmpty().assert(isTrue));
     test("empty is not non-empty", Vector.empty<number>().isNonEmpty().assert(isFalse));
     test("non-empty is not empty", Vector(1).isEmpty().assert(isFalse));
     test("non-empty is non-empty", Vector(1).isNonEmpty().assert(isTrue));
   });
 
-  suite.concurrent("length", () => {
+  suite("length", () => {
     test("empty length", Vector.empty<number>().length.assert(strictEqualTo(0)));
     test("single length", Vector(1).length.assert(strictEqualTo(1)));
     test("multiple length", Vector(1, 2, 3, 4, 5).length.assert(strictEqualTo(5)));
   });
 
-  suite.concurrent("head", () => {
+  suite("head", () => {
     test("safe head on empty", Vector.empty<number>().head.assert(strictEqualTo(Nothing())));
     test("safe head on non-empty", Vector(1, 2).head.assert(strictEqualTo(Just(1))));
   });
 
-  suite.concurrent("unsafeHead", () => {
+  suite("unsafeHead", () => {
     test("unsafeHead returns first element", Vector(1, 2, 3).unsafeHead!.assert(strictEqualTo(1)));
     test("unsafeHead on empty returns undefined", Vector.empty<number>().unsafeHead!.assert(strictEqualTo(undefined)));
   });
 
-  suite.concurrent("last", () => {
+  suite("last", () => {
     test("safe last on empty", Vector.empty<number>().last.assert(strictEqualTo(Nothing())));
     test("safe last on non-empty", Vector(1, 2, 3).last.assert(strictEqualTo(Just(3))));
   });
 
-  suite.concurrent("unsafeLast", () => {
+  suite("unsafeLast", () => {
     test("unsafeLast returns last element", Vector(1, 2, 3).unsafeLast!.assert(strictEqualTo(3)));
     test("unsafeLast on single", Vector(42).unsafeLast!.assert(strictEqualTo(42)));
     test("unsafeLast on empty returns undefined", Vector.empty<number>().unsafeLast!.assert(strictEqualTo(undefined)));
   });
 
-  suite.concurrent("tail", () => {
+  suite("tail", () => {
     test("safe tail on empty", Vector.empty<number>().tail.assert(strictEqualTo(Vector.empty())));
     test("safe tail on single", Vector(1).tail.assert(strictEqualTo(Vector.empty())));
     test("safe tail on multiple", Vector(1, 2, 3).tail.assert(strictEqualTo(Vector(2, 3))));
   });
 
-  suite.concurrent("get / unsafeGet", () => {
+  suite("get / unsafeGet", () => {
     test(
       "get existing",
       Vector(10, 20, 30)
@@ -93,7 +93,7 @@ suite.concurrent("Vector", () => {
     test("unsafeGet last", Vector(10, 20, 30).unsafeGet(2)!.assert(strictEqualTo(30)));
   });
 
-  suite.concurrent("append", () => {
+  suite("append", () => {
     test(
       "append to empty",
       Vector.empty<number>()
@@ -128,7 +128,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test(
       "prepend to empty",
       Vector.empty<number>()
@@ -150,7 +150,7 @@ suite.concurrent("Vector", () => {
         .assert(strictEqualTo(Vector(1, 2, 3))),
     );
     test("prepend preserves original", () => {
-      const original  = Vector(2, 3);
+      const original = Vector(2, 3);
       const prepended = original.prepend(1);
       return prepended.assert(strictEqualTo(Vector(1, 2, 3)));
     });
@@ -163,7 +163,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("concat", () => {
+  suite("concat", () => {
     test(
       "concat empty left",
       Vector.empty<number>()
@@ -197,7 +197,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("take / drop", () => {
+  suite("take / drop", () => {
     test("take from empty", Vector.empty<number>().take(5).assert(strictEqualTo(Vector.empty())));
     test("take zero", Vector(1, 2, 3).take(0).assert(strictEqualTo(Vector.empty())));
     test(
@@ -235,7 +235,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("takeLast / dropLast", () => {
+  suite("takeLast / dropLast", () => {
     test(
       "takeLast some",
       Vector(1, 2, 3, 4, 5)
@@ -259,7 +259,7 @@ suite.concurrent("Vector", () => {
     test("dropLast empty", Vector.empty<number>().dropLast(3).assert(strictEqualTo(Vector.empty())));
   });
 
-  suite.concurrent("takeWhile / dropWhile", () => {
+  suite("takeWhile / dropWhile", () => {
     test(
       "takeWhile",
       Vector(1, 3, 5, 2, 4)
@@ -286,7 +286,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("slice", () => {
+  suite("slice", () => {
     test(
       "slice middle",
       Vector(0, 1, 2, 3, 4, 5)
@@ -313,7 +313,7 @@ suite.concurrent("Vector", () => {
     });
   });
 
-  suite.concurrent("splitAt / splitWhen", () => {
+  suite("splitAt / splitWhen", () => {
     test(
       "splitAt middle",
       Vector(1, 2, 3, 4, 5)
@@ -346,7 +346,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("map", () => {
+  suite("map", () => {
     test(
       "map empty",
       Vector.empty<number>()
@@ -374,7 +374,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("flatMap", () => {
+  suite("flatMap", () => {
     test(
       "flatMap empty",
       Vector.empty<number>()
@@ -395,7 +395,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("filter", () => {
+  suite("filter", () => {
     test(
       "filter empty",
       Vector.empty<number>()
@@ -422,7 +422,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("filterMap", () => {
+  suite("filterMap", () => {
     test(
       "filterMap some",
       Vector(1, 2, 3, 4)
@@ -437,7 +437,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("foldLeft", () => {
+  suite("foldLeft", () => {
     test(
       "foldLeft empty",
       Vector.empty<number>()
@@ -464,7 +464,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("foldRight", () => {
+  suite("foldRight", () => {
     test(
       "foldRight empty",
       Vector.empty<number>()
@@ -485,7 +485,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("foldMap", () => {
+  suite("foldMap", () => {
     test(
       "foldMap sum",
       Vector(1, 2, 3)
@@ -500,7 +500,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("reverse", () => {
+  suite("reverse", () => {
     test("reverse empty", Vector.empty<number>().reverse.assert(strictEqualTo(Vector.empty())));
     test("reverse single", Vector(1).reverse.assert(strictEqualTo(Vector(1))));
     test("reverse multiple", Vector(1, 2, 3).reverse.assert(strictEqualTo(Vector(3, 2, 1))));
@@ -513,7 +513,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("sort", () => {
+  suite("sort", () => {
     test("sort empty", Vector.empty<number>().sort().assert(strictEqualTo(Vector.empty())));
     test(
       "sort single",
@@ -541,7 +541,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("sortWith", () => {
+  suite("sortWith", () => {
     test(
       "sortWith reverse order",
       Vector(1, 2, 3)
@@ -556,7 +556,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("find / findIndex", () => {
+  suite("find / findIndex", () => {
     test(
       "find existing",
       Vector(1, 2, 3)
@@ -583,21 +583,21 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("indexOf / lastIndexOf", () => {
+  suite("indexOf / lastIndexOf", () => {
     test("indexOf existing", Vector(10, 20, 30).indexOf(20).assert(strictEqualTo(1)));
     test("indexOf missing", Vector(10, 20, 30).indexOf(99).assert(strictEqualTo(-1)));
     test("lastIndexOf existing", Vector(10, 20, 10).lastIndexOf(10).assert(strictEqualTo(2)));
     test("lastIndexOf missing", Vector(10, 20, 30).lastIndexOf(99).assert(strictEqualTo(-1)));
   });
 
-  suite.concurrent("contains / elem", () => {
+  suite("contains / elem", () => {
     test("contains existing", Vector(1, 2, 3).contains(2).assert(isTrue));
     test("contains missing", Vector(1, 2, 3).contains(10).assert(isFalse));
     test("elem existing", Vector(1, 2, 3).elem(2).assert(isTrue));
     test("elem missing", Vector(1, 2, 3).elem(10).assert(isFalse));
   });
 
-  suite.concurrent("every / some / none", () => {
+  suite("every / some / none", () => {
     test(
       "every all match",
       Vector(2, 4, 6)
@@ -648,7 +648,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("updateAt / modifyAt", () => {
+  suite("updateAt / modifyAt", () => {
     test(
       "updateAt existing",
       Vector(1, 2, 3)
@@ -675,7 +675,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("insertAt / remove", () => {
+  suite("insertAt / remove", () => {
     test(
       "insertAt beginning",
       Vector(2, 3)
@@ -714,7 +714,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("intersperse", () => {
+  suite("intersperse", () => {
     test(
       "intersperse",
       Vector(1, 2, 3)
@@ -730,13 +730,13 @@ suite.concurrent("Vector", () => {
     test("intersperse empty", Vector.empty<number>().intersperse(0).assert(strictEqualTo(Vector.empty())));
   });
 
-  suite.concurrent("join", () => {
+  suite("join", () => {
     test("join empty", Vector.empty<string>().join(",").assert(strictEqualTo("")));
     test("join single", Vector("a").join(",").assert(strictEqualTo("a")));
     test("join multiple", Vector("a", "b", "c").join(",").assert(strictEqualTo("a,b,c")));
   });
 
-  suite.concurrent("scanLeft", () => {
+  suite("scanLeft", () => {
     test(
       "scanLeft sum",
       Vector(1, 2, 3)
@@ -751,7 +751,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("mapWithIndex", () => {
+  suite("mapWithIndex", () => {
     test(
       "mapWithIndex",
       Vector("a", "b", "c")
@@ -760,7 +760,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("mapAccum", () => {
+  suite("mapAccum", () => {
     test(
       "mapAccum",
       Vector(1, 1, 1)
@@ -769,7 +769,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("groupWith", () => {
+  suite("groupWith", () => {
     test(
       "groupWith",
       Vector(1, 1, 2, 3, 3, 3, 4)
@@ -778,7 +778,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("uniq", () => {
+  suite("uniq", () => {
     test(
       "uniq",
       Vector(1, 2, 2, 3, 3, 3)
@@ -788,19 +788,19 @@ suite.concurrent("Vector", () => {
     test("uniq empty", Vector.empty<number>().uniq().assert(strictEqualTo(Vector.empty())));
   });
 
-  suite.concurrent("toArray / toList", () => {
+  suite("toArray / toList", () => {
     test("toArray", Vector(1, 2, 3).toArray.assert(deepEqualTo<number[]>([1, 2, 3])));
     test("toList", Vector(1, 2, 3).toList.assert(strictEqualTo(List(1, 2, 3))));
   });
 
-  suite.concurrent("isVector", () => {
+  suite("isVector", () => {
     test("isVector vector", Vector.is(Vector(1)).assert(isTrue));
     test("isVector empty", Vector.is(Vector.empty()).assert(isTrue));
     test("isVector not vector", Vector.is([1, 2]).assert(isFalse));
     test("isVector primitive", Vector.is(1).assert(isFalse));
   });
 
-  suite.concurrent("equality", () => {
+  suite("equality", () => {
     test("same vector equal", Vector(1, 2, 3).assert(strictEqualTo(Vector(1, 2, 3))));
     test("different vectors not equal", Vector(1, 2, 3).assert(strictEqualTo(Vector(1, 2, 3, 4)).invert));
     test(
@@ -809,7 +809,7 @@ suite.concurrent("Vector", () => {
     );
   });
 
-  suite.concurrent("iteration", () => {
+  suite("iteration", () => {
     test("iterator empty", () => {
       const result = [...Vector.empty<number>()];
       return result.assert(deepEqualTo<number[]>([]));
@@ -828,7 +828,7 @@ suite.concurrent("Vector", () => {
     });
   });
 
-  suite.concurrent("property-based", () => {
+  suite("property-based", () => {
     test.io(
       "append increases length",
       Gen.int.array.check((as) => {
@@ -849,7 +849,7 @@ suite.concurrent("Vector", () => {
       "take returns correct length",
       Gen.int.array.check((as) => {
         const vec = Vector.from(as);
-        const n   = as.length > 0 ? Math.floor(as.length / 2) : 0;
+        const n = as.length > 0 ? Math.floor(as.length / 2) : 0;
         return vec.take(n).length.assert(strictEqualTo(Math.min(n, vec.length)));
       }),
     );
@@ -857,8 +857,8 @@ suite.concurrent("Vector", () => {
     test.io(
       "drop returns correct length",
       Gen.int.array.check((as) => {
-        const vec      = Vector.from(as);
-        const n        = as.length > 0 ? Math.floor(as.length / 2) : 0;
+        const vec = Vector.from(as);
+        const n = as.length > 0 ? Math.floor(as.length / 2) : 0;
         const expected = Math.max(0, vec.length - n);
         return vec.drop(n).length.assert(strictEqualTo(expected));
       }),

@@ -1,5 +1,5 @@
-suite.concurrent("List", () => {
-  suite.concurrent("constructors", () => {
+suite("List", () => {
+  suite("constructors", () => {
     test("empty", List.empty<number>().assert(strictEqualTo(Nil())));
 
     test("nil", Nil<number>().assert(strictEqualTo(Nil())));
@@ -15,19 +15,19 @@ suite.concurrent("List", () => {
     test("from empty iterable", ([] as Iterable<never>).toList.assert(strictEqualTo(Nil())));
   });
 
-  suite.concurrent("isEmpty / isNonEmpty", () => {
+  suite("isEmpty / isNonEmpty", () => {
     test("empty is empty", Nil().isEmpty().assert(isTrue));
     test("empty is not non-empty", Nil().isNonEmpty().assert(isFalse));
     test("non-empty is not empty", List(1).isEmpty().assert(isFalse));
     test("non-empty is non-empty", List(1).isNonEmpty().assert(isTrue));
   });
 
-  suite.concurrent("head", () => {
+  suite("head", () => {
     test("safe head on empty", Nil<number>().head.assert(strictEqualTo(Nothing())));
     test("safe head on non-empty", List(1, 2).head.assert(strictEqualTo(Just(1))));
   });
 
-  suite.concurrent("unsafeHead", () => {
+  suite("unsafeHead", () => {
     test("unsafeHead returns first element", List(1, 2, 3).unsafeHead.assert(strictEqualTo(1)));
     test("unsafeHead on empty throws", () => {
       let threw = false;
@@ -40,13 +40,13 @@ suite.concurrent("List", () => {
     });
   });
 
-  suite.concurrent("tail", () => {
+  suite("tail", () => {
     test("safe tail on empty", Nil<number>().tail.assert(strictEqualTo(Nothing())));
     test("safe tail on single", List(1).tail.assert(strictEqualTo(Just(Nil()))));
     test("safe tail on multiple", List(1, 2, 3).tail.assert(strictEqualTo(Just(List(2, 3)))));
   });
 
-  suite.concurrent("unsafeTail", () => {
+  suite("unsafeTail", () => {
     test("unsafeTail returns remainder", List(1, 2, 3).unsafeTail.assert(strictEqualTo(List(2, 3))));
     test("unsafeTail on empty throws", () => {
       let threw = false;
@@ -59,7 +59,7 @@ suite.concurrent("List", () => {
     });
   });
 
-  suite.concurrent("unsafeLast", () => {
+  suite("unsafeLast", () => {
     test("unsafeLast on single", List(1).unsafeLast.assert(strictEqualTo(1)));
     test("unsafeLast on multiple", List(1, 2, 3).unsafeLast.assert(strictEqualTo(3)));
     test("unsafeLast on empty throws", () => {
@@ -73,13 +73,13 @@ suite.concurrent("List", () => {
     });
   });
 
-  suite.concurrent("length", () => {
+  suite("length", () => {
     test("empty length", Nil().length.assert(strictEqualTo(0)));
     test("single length", List(1).length.assert(strictEqualTo(1)));
     test("multiple length", List(1, 2, 3, 4, 5).length.assert(strictEqualTo(5)));
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test(
       "prepend to empty",
       Nil()
@@ -94,11 +94,11 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("prepend operator (+)", () => {
+  suite("prepend operator (+)", () => {
     test("operator prepend", (1 + List(2, 3)).assert(strictEqualTo(List(1, 2, 3))));
   });
 
-  suite.concurrent("prependAll", () => {
+  suite("prependAll", () => {
     test("both empty", Nil().prependAll(Nil()).assert(strictEqualTo(Nil())));
     test(
       "self empty",
@@ -120,7 +120,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("concat", () => {
+  suite("concat", () => {
     test(
       "concat empty left",
       Nil()
@@ -141,7 +141,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("map", () => {
+  suite("map", () => {
     test(
       "map empty",
       Nil<number>()
@@ -162,7 +162,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("flatMap", () => {
+  suite("flatMap", () => {
     test(
       "flatMap empty",
       Nil<number>()
@@ -189,7 +189,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("filter", () => {
+  suite("filter", () => {
     test(
       "filter empty",
       Nil<number>()
@@ -222,7 +222,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("some", () => {
+  suite("some", () => {
     test(
       "some empty",
       Nil<number>()
@@ -249,7 +249,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("forEach", () => {
+  suite("forEach", () => {
     test("forEach empty", () => {
       let called = 0;
       Nil().forEach(() => called++);
@@ -262,7 +262,7 @@ suite.concurrent("List", () => {
     });
   });
 
-  suite.concurrent("foldLeft", () => {
+  suite("foldLeft", () => {
     test(
       "foldLeft empty",
       Nil<number>()
@@ -289,13 +289,13 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("reverse", () => {
+  suite("reverse", () => {
     test("reverse empty", Nil().reverse.assert(strictEqualTo(Nil())));
     test("reverse single", List(1).reverse.assert(strictEqualTo(List(1))));
     test("reverse multiple", List(1, 2, 3).reverse.assert(strictEqualTo(List(3, 2, 1))));
   });
 
-  suite.concurrent("take", () => {
+  suite("take", () => {
     test("take from empty", Nil().take(5).assert(strictEqualTo(Nil())));
     test("take zero", List(1, 2, 3).take(0).assert(strictEqualTo(Nil())));
     test("take negative", List(1, 2, 3).take(-1).assert(strictEqualTo(Nil())));
@@ -313,13 +313,13 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("join", () => {
+  suite("join", () => {
     test("join empty", Nil<string>().join(",").assert(strictEqualTo("")));
     test("join single", List("a").join(",").assert(strictEqualTo("a")));
     test("join multiple", List("a", "b", "c").join(",").assert(strictEqualTo("a,b,c")));
   });
 
-  suite.concurrent("sort", () => {
+  suite("sort", () => {
     test("sort empty", Nil<number>().sort().assert(strictEqualTo(Nil())));
     test(
       "sort single",
@@ -347,7 +347,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("sortWith", () => {
+  suite("sortWith", () => {
     test(
       "sortWith reverse order",
       List(1, 2, 3)
@@ -362,7 +362,7 @@ suite.concurrent("List", () => {
     );
   });
 
-  suite.concurrent("isList", () => {
+  suite("isList", () => {
     test("isList Cons", List.is(List(1)).assert(isTrue));
     test("isList Nil", List.is(Nil()).assert(isTrue));
     test("isList not list", List.is([1, 2]).assert(isFalse));
@@ -370,14 +370,14 @@ suite.concurrent("List", () => {
     test("isList object", List.is({}).assert(isFalse));
   });
 
-  suite.concurrent("equality", () => {
+  suite("equality", () => {
     test("same list equal", List(1, 2, 3).assert(strictEqualTo(List(1, 2, 3))));
     test("different lists not equal", List(1, 2, 3).assert(strictEqualTo(List(1, 2, 3, 4)).invert));
     test("nil equal", Nil().assert(strictEqualTo(Nil())));
     test("nested lists equal", List(List(1, 2), List(3)).assert(strictEqualTo(List(List(1, 2), List(3)))));
   });
 
-  suite.concurrent("iteration", () => {
+  suite("iteration", () => {
     test("iterator empty", () => {
       const result = [...Nil()];
       return result.assert(deepEqualTo<Array<unknown>>([]));
@@ -396,7 +396,7 @@ suite.concurrent("List", () => {
     });
   });
 
-  suite.concurrent("property-based", () => {
+  suite("property-based", () => {
     test.io(
       "reverse is involution",
       Gen.int.array.check((as) => {
@@ -416,8 +416,8 @@ suite.concurrent("List", () => {
     test.io(
       "take returns correct length",
       Gen.int.array.check((as) => {
-        const list   = List.from(as);
-        const n      = as.length > 0 ? Math.floor(as.length / 2) : 0;
+        const list = List.from(as);
+        const n = as.length > 0 ? Math.floor(as.length / 2) : 0;
         const actual = list.take(n).length;
         return actual.assert(strictEqualTo(Math.min(n, list.length)));
       }),
@@ -443,7 +443,7 @@ suite.concurrent("List", () => {
       "foldLeft sum matches array",
       Gen.int.array.check((as) => {
         const listSum = List.from(as).foldLeft(0, (acc, n) => acc + n);
-        const arrSum  = as.foldLeft(0, (acc, n) => acc + n);
+        const arrSum = as.foldLeft(0, (acc, n) => acc + n);
         return listSum.assert(strictEqualTo(arrSum));
       }),
     );

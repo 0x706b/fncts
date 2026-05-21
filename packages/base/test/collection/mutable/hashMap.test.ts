@@ -5,8 +5,8 @@ import { HashMap } from "@fncts/base/collection/mutable/HashMap";
 import { HashEq } from "@fncts/base/data/HashEq";
 import { isJust, isNothing } from "@fncts/test/control/Assertion";
 
-suite.concurrent("MutableHashMap", () => {
-  suite.concurrent("empty", () => {
+suite("MutableHashMap", () => {
+  suite("empty", () => {
     test("creates an empty map", () => {
       const map = HashMap.empty<number, string>();
       return map.size.assert(strictEqualTo(0));
@@ -28,7 +28,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("size", () => {
+  suite("size", () => {
     test("size increases on insert", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
@@ -59,7 +59,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("has", () => {
+  suite("has", () => {
     test("returns false for missing key", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
@@ -80,7 +80,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("unsafeGet", () => {
+  suite("unsafeGet", () => {
     test("returns value for existing key", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
@@ -93,7 +93,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("get", () => {
+  suite("get", () => {
     test("returns Just for existing key", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
@@ -106,7 +106,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("set", () => {
+  suite("set", () => {
     test("inserts new key and returns Nothing", () => {
       const map = HashMap.empty<number, string>();
       const old = map.set(0, "a");
@@ -133,7 +133,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("delete", () => {
+  suite("delete", () => {
     test("removes existing key and returns Just(value)", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
@@ -142,7 +142,7 @@ suite.concurrent("MutableHashMap", () => {
     });
 
     test("returns Nothing for missing key", () => {
-      const map     = HashMap.empty<number, string>();
+      const map = HashMap.empty<number, string>();
       const removed = map.delete(0);
       return removed.assert(isNothing);
     });
@@ -157,7 +157,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("clear", () => {
+  suite("clear", () => {
     test("removes all entries", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
@@ -173,15 +173,15 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("updateWith", () => {
+  suite("updateWith", () => {
     test("inserts when key missing and f returns Just", () => {
-      const map    = HashMap.empty<number, string>();
+      const map = HashMap.empty<number, string>();
       const result = map.updateWith(0, () => Just("a"));
       return result.assert(isJust(strictEqualTo("a"))) && map.get(0).assert(isJust(strictEqualTo("a")));
     });
 
     test("does nothing when key missing and f returns Nothing", () => {
-      const map    = HashMap.empty<number, string>();
+      const map = HashMap.empty<number, string>();
       const result = map.updateWith(0, () => Nothing());
       return result.assert(isNothing) && map.has(0).assert(isFalse) && map.size.assert(strictEqualTo(0));
     });
@@ -201,7 +201,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("forEach", () => {
+  suite("forEach", () => {
     test("visits all entries", () => {
       const map = HashMap.empty<number, string>();
       const visited: Array<[number, string]> = [];
@@ -219,14 +219,14 @@ suite.concurrent("MutableHashMap", () => {
     });
 
     test("does not call callback on empty map", () => {
-      const map  = HashMap.empty<number, string>();
+      const map = HashMap.empty<number, string>();
       let called = 0;
       map.forEach(() => called++);
       return called.assert(strictEqualTo(0));
     });
   });
 
-  suite.concurrent("iteration", () => {
+  suite("iteration", () => {
     test("yields all entries via for...of", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
@@ -246,14 +246,14 @@ suite.concurrent("MutableHashMap", () => {
     });
 
     test("iterator on empty map returns done immediately", () => {
-      const map      = HashMap.empty<number, string>();
+      const map = HashMap.empty<number, string>();
       const iterator = map[Symbol.iterator]();
-      const first    = iterator.next();
+      const first = iterator.next();
       return first.done!.assert(isTrue);
     });
   });
 
-  suite.concurrent("collision handling", () => {
+  suite("collision handling", () => {
     test("stores multiple keys with same hash", () => {
       const config = HashEq({
         hash: () => 0,
@@ -319,7 +319,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("table growth", () => {
+  suite("table growth", () => {
     test("grows table when threshold exceeded", () => {
       const map = HashMap.empty<number, string>();
       for (let i = 0; i < 20; i++) {
@@ -355,7 +355,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("custom HashEq", () => {
+  suite("custom HashEq", () => {
     test("custom equality determines key match", () => {
       const config = HashEq({
         hash: (s: string) => s.length,
@@ -379,7 +379,7 @@ suite.concurrent("MutableHashMap", () => {
     });
   });
 
-  suite.concurrent("mutation in place", () => {
+  suite("mutation in place", () => {
     test("same instance is mutated by set", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");

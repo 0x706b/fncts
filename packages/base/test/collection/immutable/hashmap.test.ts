@@ -26,7 +26,7 @@ class Value implements Equatable {
   }
 }
 
-suite.concurrent("HashMap", () => {
+suite("HashMap", () => {
   function key(n: number): Key {
     return new Key(n);
   }
@@ -114,20 +114,20 @@ suite.concurrent("HashMap", () => {
   });
 
   test("mutation", () => {
-    const map         = HashMap.empty();
+    const map = HashMap.empty();
     const mapEditable = map.editable;
 
-    const mutableMap         = map.beginMutation;
+    const mutableMap = map.beginMutation;
     const mutableMapEditable = mutableMap.editable;
 
-    const immutableMap         = mutableMap.endMutation;
+    const immutableMap = mutableMap.endMutation;
     const immutableMapEditable = immutableMap.editable;
 
     return mapEditable.assert(isFalse) && mutableMapEditable.assert(isTrue) && immutableMapEditable.assert(isFalse);
   });
 
   test("mutate", () => {
-    const map    = HashMap.empty<number, string>();
+    const map = HashMap.empty<number, string>();
     const result = map.mutate((map) => {
       map.set(0, "a");
     });
@@ -135,19 +135,19 @@ suite.concurrent("HashMap", () => {
   });
 
   test("getHash", () => {
-    const k   = key(0);
+    const k = key(0);
     const map = HashMap([k, value("a")]);
     return map.getHash(key(0), k[Symbol.hash]).assert(isJust(deepEqualTo(value("a"))));
   });
 
   test("hasHash", () => {
-    const k   = key(0);
+    const k = key(0);
     const map = HashMap([k, value("a")]);
     return map.hasHash(key(0), k[Symbol.hash]).assert(isTrue) && map.hasHash(key(1), k[Symbol.hash]).assert(isFalse);
   });
 
   test("modifyHash", () => {
-    const k   = key(0);
+    const k = key(0);
     const map = HashMap.empty<Key, Value>().modifyHash(k, k[Symbol.hash], () => Just(value("a")));
     return map.get(k).assert(isJust(deepEqualTo(value("a"))));
   });
@@ -260,9 +260,9 @@ suite.concurrent("HashMap", () => {
   });
 
   test("flatMap", () => {
-    const map1    = HashMap([key(0), value("a")], [key(1), value("bb")]);
+    const map1 = HashMap([key(0), value("a")], [key(1), value("bb")]);
     const result1 = map1.flatMap(({ s }) => {
-      const newKey   = key(s.length);
+      const newKey = key(s.length);
       const newValue = value(s);
       return HashMap([newKey, newValue]);
     });
@@ -339,7 +339,7 @@ suite.concurrent("HashMap", () => {
 
   test("foldLeftWithIndexWhile", () => {
     const visited: Array<number> = [];
-    const result                 = HashMap([0, 1], [1, 2], [2, 3]).foldLeftWithIndexWhile(
+    const result = HashMap([0, 1], [1, 2], [2, 3]).foldLeftWithIndexWhile(
       0,
       (_, sum, v) => {
         visited.push(v);
@@ -358,7 +358,7 @@ suite.concurrent("HashMap", () => {
 
   test("foldLeftWhile", () => {
     const visited: Array<number> = [];
-    const result                 = HashMap([0, 1], [1, 2], [2, 3]).foldLeftWhile(
+    const result = HashMap([0, 1], [1, 2], [2, 3]).foldLeftWhile(
       0,
       (sum, v) => {
         visited.push(v);

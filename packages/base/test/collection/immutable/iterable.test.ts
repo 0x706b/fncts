@@ -2,8 +2,8 @@ import type {} from "@fncts/base/collection/Iterable";
 
 import { isJust } from "@fncts/test/control/Assertion";
 
-suite.concurrent("Iterable", () => {
-  suite.concurrent("constructors", () => {
+suite("Iterable", () => {
+  suite("constructors", () => {
     test("make", () => {
       const iterable = Iterable.make<number>(() => {
         let i = 0;
@@ -41,7 +41,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("toArray", () => {
+  suite("toArray", () => {
     test("from array", () => {
       return [1, 2, 3].toIterable.toArray.assert(deepEqualTo([1, 2, 3]));
     });
@@ -51,14 +51,14 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("toIterable", () => {
+  suite("toIterable", () => {
     test("returns self", () => {
       const arr = [1, 2, 3];
       return arr.toIterable.assert(strictEqualTo(arr));
     });
   });
 
-  suite.concurrent("isEmpty", () => {
+  suite("isEmpty", () => {
     test("empty array", () => {
       return [].toIterable.isEmpty.assert(isTrue);
     });
@@ -72,7 +72,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("isNonEmpty", () => {
+  suite("isNonEmpty", () => {
     test("empty array", () => {
       return [].toIterable.isNonEmpty.assert(isFalse);
     });
@@ -86,7 +86,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("intrinsicSize", () => {
+  suite("intrinsicSize", () => {
     test("array with length", () => {
       return [1, 2, 3].toIterable.intrinsicSize.assert(isJust(strictEqualTo(3)));
     });
@@ -101,7 +101,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("size", () => {
+  suite("size", () => {
     test("array", () => {
       return [1, 2, 3].toIterable.size.assert(strictEqualTo(3));
     });
@@ -116,7 +116,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("sum", () => {
+  suite("sum", () => {
     test("non-empty", () => {
       return [1, 2, 3].toIterable.sum.assert(strictEqualTo(6));
     });
@@ -130,7 +130,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("map", () => {
+  suite("map", () => {
     test("non-empty", () => {
       return [1, 2, 3].toIterable.map((n) => n * 2).toArray.assert(deepEqualTo([2, 4, 6]));
     });
@@ -144,7 +144,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("mapWithIndex", () => {
+  suite("mapWithIndex", () => {
     test("non-empty", () => {
       return ["a", "b"].toIterable.mapWithIndex((i, s) => `${i}:${s}`).toArray.assert(deepEqualTo(["0:a", "1:b"]));
     });
@@ -154,7 +154,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("flatMap", () => {
+  suite("flatMap", () => {
     test("non-empty", () => {
       return [1, 2].toIterable.flatMap((n) => [n, n + 1].toIterable).toArray.assert(deepEqualTo([1, 2, 2, 3]));
     });
@@ -168,7 +168,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("ap", () => {
+  suite("ap", () => {
     test("functions and values", () => {
       const fns  = [(x: number) => x + 1, (x: number) => x * 2].toIterable;
       const vals = [1, 2].toIterable;
@@ -188,7 +188,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("crossWith", () => {
+  suite("crossWith", () => {
     test("cartesian product", () => {
       return [1, 2].toIterable
         .crossWith([10, 20].toIterable, (a, b) => a + b)
@@ -208,7 +208,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("filter", () => {
+  suite("filter", () => {
     test("some match", () => {
       return [1, 2, 3, 4].toIterable.filter((n) => n % 2 === 0).toArray.assert(deepEqualTo([2, 4]));
     });
@@ -226,7 +226,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("filterWithIndex", () => {
+  suite("filterWithIndex", () => {
     test("even indices", () => {
       return ["a", "b", "c", "d"].toIterable
         .filterWithIndex((i, _) => i % 2 === 0)
@@ -238,7 +238,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("filterMap", () => {
+  suite("filterMap", () => {
     test("some just", () => {
       return [1, 2, 3, 4].toIterable
         .filterMap((n) => (n % 2 === 0 ? Just(n.toString()) : Nothing()))
@@ -254,7 +254,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("filterMapWithIndex", () => {
+  suite("filterMapWithIndex", () => {
     test("even indices", () => {
       return ["a", "b", "c"].toIterable
         .filterMapWithIndex((i, s) => (i % 2 === 0 ? Just(s.toUpperCase()) : Nothing()))
@@ -266,7 +266,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("concat", () => {
+  suite("concat", () => {
     test("both non-empty", () => {
       return [1, 2].toIterable.concat([3, 4].toIterable).toArray.assert(deepEqualTo([1, 2, 3, 4]));
     });
@@ -284,7 +284,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("append", () => {
+  suite("append", () => {
     test("non-empty", () => {
       return [1, 2].toIterable.append(3).toArray.assert(deepEqualTo([1, 2, 3]));
     });
@@ -294,7 +294,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("zipWith", () => {
+  suite("zipWith", () => {
     test("same length", () => {
       return [1, 2].toIterable.zipWith([10, 20].toIterable, (a, b) => a + b).toArray.assert(deepEqualTo([11, 22]));
     });
@@ -314,7 +314,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("zipWithIndex", () => {
+  suite("zipWithIndex", () => {
     test("non-empty", () => {
       return ["a", "b", "c"].toIterable.zipWithIndex.toArray.assert(
         deepEqualTo([
@@ -330,7 +330,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("take", () => {
+  suite("take", () => {
     test("some", () => {
       return [1, 2, 3, 4].toIterable.take(2).toArray.assert(deepEqualTo([1, 2]));
     });
@@ -348,7 +348,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("every", () => {
+  suite("every", () => {
     test("all match", () => {
       return [2, 4, 6].toIterable.every((n) => n % 2 === 0).assert(isTrue);
     });
@@ -362,7 +362,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("everyWithIndex", () => {
+  suite("everyWithIndex", () => {
     test("match", () => {
       return [0, 2, 4].toIterable.everyWithIndex((i, n) => n === i * 2).assert(isTrue);
     });
@@ -376,7 +376,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("find", () => {
+  suite("find", () => {
     test("match", () => {
       return [1, 2, 3].toIterable.find((n) => n === 2).assert(strictEqualTo(Just(2)));
     });
@@ -390,7 +390,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("findIndex", () => {
+  suite("findIndex", () => {
     test("match", () => {
       return [1, 2, 3].toIterable.findIndex((n) => n === 2).assert(strictEqualTo(1));
     });
@@ -404,7 +404,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("corresponds", () => {
+  suite("corresponds", () => {
     test("equal", () => {
       return [1, 2, 3].toIterable.corresponds([1, 2, 3], (a, b) => a === b).assert(isTrue);
     });
@@ -424,7 +424,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("foldLeft", () => {
+  suite("foldLeft", () => {
     test("sum", () => {
       return [1, 2, 3].toIterable.foldLeft(0, (acc, n) => acc + n).assert(strictEqualTo(6));
     });
@@ -438,7 +438,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("foldLeftWithIndex", () => {
+  suite("foldLeftWithIndex", () => {
     test("sum with index", () => {
       return [1, 2, 3].toIterable.foldLeftWithIndex(0, (i, acc, n) => acc + n + i).assert(strictEqualTo(9));
     });
@@ -448,7 +448,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("foldRight", () => {
+  suite("foldRight", () => {
     test("sum", () => {
       const result = [1, 2, 3].toIterable.foldRight(Eval.now(0), (a, eb) => Eval.now(a + eb.run));
       return result.run.assert(strictEqualTo(6));
@@ -465,7 +465,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("foldRightWithIndex", () => {
+  suite("foldRightWithIndex", () => {
     test("sum with index", () => {
       const result = [1, 2, 3].toIterable.foldRightWithIndex(Eval.now(0), (i, a, eb) => Eval.now(a + i + eb.run));
       return result.run.assert(strictEqualTo(9));
@@ -479,7 +479,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("foldMap", () => {
+  suite("foldMap", () => {
     test("string concat", () => {
       return ["a", "b", "c"].toIterable.foldMap((s) => s.toUpperCase()).assert(strictEqualTo("ABC"));
     });
@@ -489,7 +489,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("foldMapWithIndex", () => {
+  suite("foldMapWithIndex", () => {
     test("string concat with index", () => {
       return ["a", "b", "c"].toIterable.foldMapWithIndex((i, s) => `${i}${s}`).assert(strictEqualTo("0a1b2c"));
     });
@@ -499,7 +499,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("partition", () => {
+  suite("partition", () => {
     test("some match", () => {
       const [fails, passes] = [1, 2, 3, 4].toIterable.partition((n) => n % 2 === 0);
       return fails.toArray.assert(deepEqualTo([1, 3])) && passes.toArray.assert(deepEqualTo([2, 4]));
@@ -521,14 +521,14 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("partitionWithIndex", () => {
+  suite("partitionWithIndex", () => {
     test("even indices", () => {
       const [fails, passes] = ["a", "b", "c"].toIterable.partitionWithIndex((i, _) => i % 2 === 0);
       return fails.toArray.assert(deepEqualTo(["b"])) && passes.toArray.assert(deepEqualTo(["a", "c"]));
     });
   });
 
-  suite.concurrent("partitionMap", () => {
+  suite("partitionMap", () => {
     test("mixed", () => {
       const [lefts, rights] = [1, 2, 3, 4].toIterable.partitionMap((n) =>
         n % 2 === 0 ? Either.right(n) : Either.left(n),
@@ -552,7 +552,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("partitionMapWithIndex", () => {
+  suite("partitionMapWithIndex", () => {
     test("even indices", () => {
       const [lefts, rights] = ["a", "b", "c"].toIterable.partitionMapWithIndex((i, s) =>
         i % 2 === 0 ? Either.right(s.toUpperCase()) : Either.left(s),
@@ -561,7 +561,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("traverseToConc", () => {
+  suite("traverseToConc", () => {
     test("all Just", () => {
       const result = [1, 2, 3].toIterable.traverseToConc(Maybe.Applicative)((n) => Just(n * 2));
       return result.assert(isJust(strictEqualTo(Conc(2, 4, 6))));
@@ -578,7 +578,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("traverseToConcWithIndex", () => {
+  suite("traverseToConcWithIndex", () => {
     test("with index", () => {
       const result = [1, 2, 3].toIterable.traverseToConcWithIndex(Maybe.Applicative)((i, n) => Just(i + n));
       return result.assert(isJust(strictEqualTo(Conc(1, 3, 5))));
@@ -592,7 +592,7 @@ suite.concurrent("Iterable", () => {
     });
   });
 
-  suite.concurrent("property-based", () => {
+  suite("property-based", () => {
     test.io(
       "map identity",
       Gen.int.array.check((as) => {
@@ -625,6 +625,7 @@ suite.concurrent("Iterable", () => {
         const expected = as.concat(bs);
         return actual.assert(deepEqualTo(expected));
       }),
+      { timeout: 10_000 },
     );
 
     test.io(

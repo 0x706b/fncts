@@ -9,21 +9,21 @@ function Q<A>(...as: A[]): ImmutableQueue<A> {
   return q;
 }
 
-suite.concurrent("ImmutableQueue", () => {
-  suite.concurrent("constructors", () => {
+suite("ImmutableQueue", () => {
+  suite("constructors", () => {
     test("empty", ImmutableQueue.empty<number>().assert(strictEqualTo(Q())));
 
     test("single", ImmutableQueue.single(1).assert(strictEqualTo(Q(1))));
   });
 
-  suite.concurrent("isEmpty / isNonEmpty", () => {
+  suite("isEmpty / isNonEmpty", () => {
     test("empty is empty", ImmutableQueue.empty<number>().isEmpty.assert(isTrue));
     test("empty is not non-empty", ImmutableQueue.empty<number>().isNonEmpty.assert(isFalse));
     test("non-empty is not empty", Q(1).isEmpty.assert(isFalse));
     test("non-empty is non-empty", Q(1).isNonEmpty.assert(isTrue));
   });
 
-  suite.concurrent("length", () => {
+  suite("length", () => {
     test("empty length", ImmutableQueue.empty<number>().length.assert(strictEqualTo(0)));
     test("single length", Q(1).length.assert(strictEqualTo(1)));
     test("multiple length", Q(1, 2, 3).length.assert(strictEqualTo(3)));
@@ -31,7 +31,7 @@ suite.concurrent("ImmutableQueue", () => {
     test("length after dequeue", Q(1, 2, 3).unsafeDequeue[1].length.assert(strictEqualTo(2)));
   });
 
-  suite.concurrent("head", () => {
+  suite("head", () => {
     test("safe head on empty", ImmutableQueue.empty<number>().head.assert(strictEqualTo(Nothing())));
     test("safe head on single", Q(1).head.assert(strictEqualTo(Just(1))));
     test("safe head on multiple", Q(1, 2, 3).head.assert(strictEqualTo(Just(1))));
@@ -44,7 +44,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("unsafeHead", () => {
+  suite("unsafeHead", () => {
     test("unsafeHead returns first element", Q(1, 2, 3).unsafeHead.assert(strictEqualTo(1)));
     test("unsafeHead on empty throws", () => {
       let threw = false;
@@ -57,13 +57,13 @@ suite.concurrent("ImmutableQueue", () => {
     });
   });
 
-  suite.concurrent("tail", () => {
+  suite("tail", () => {
     test("safe tail on empty", ImmutableQueue.empty<number>().tail.assert(strictEqualTo(Nothing())));
     test("safe tail on single", Q(1).tail.assert(deepEqualTo(Just(Q()))));
     test("safe tail on multiple", Q(1, 2, 3).tail.assert(deepEqualTo(Just(Q(2, 3)))));
   });
 
-  suite.concurrent("unsafeTail", () => {
+  suite("unsafeTail", () => {
     test("unsafeTail returns remainder", Q(1, 2, 3).unsafeTail.assert(strictEqualTo(Q(2, 3))));
     test("unsafeTail on empty throws", () => {
       let threw = false;
@@ -76,7 +76,7 @@ suite.concurrent("ImmutableQueue", () => {
     });
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test(
       "prepend to empty",
       ImmutableQueue.empty<number>()
@@ -98,7 +98,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("enqueue", () => {
+  suite("enqueue", () => {
     test(
       "enqueue to empty",
       ImmutableQueue.empty<number>()
@@ -121,7 +121,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("dequeue", () => {
+  suite("dequeue", () => {
     test("safe dequeue on empty", ImmutableQueue.empty<number>().dequeue.assert(strictEqualTo(Nothing())));
     test("safe dequeue on single", Q(1).dequeue.assert(deepEqualTo(Just([1, Q()] as const))));
     test("safe dequeue on multiple", Q(1, 2, 3).dequeue.assert(deepEqualTo(Just([1, Q(2, 3)] as const))));
@@ -131,7 +131,7 @@ suite.concurrent("ImmutableQueue", () => {
     });
   });
 
-  suite.concurrent("unsafeDequeue", () => {
+  suite("unsafeDequeue", () => {
     test(
       "unsafeDequeue returns element and remainder",
       Q(1, 2, 3).unsafeDequeue.assert(deepEqualTo([1, Q(2, 3)] as const)),
@@ -147,7 +147,7 @@ suite.concurrent("ImmutableQueue", () => {
     });
   });
 
-  suite.concurrent("map", () => {
+  suite("map", () => {
     test(
       "map empty",
       ImmutableQueue.empty<number>()
@@ -168,7 +168,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("foldLeft", () => {
+  suite("foldLeft", () => {
     test(
       "foldLeft empty",
       ImmutableQueue.empty<number>()
@@ -201,7 +201,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("some", () => {
+  suite("some", () => {
     test(
       "some empty",
       ImmutableQueue.empty<number>()
@@ -229,7 +229,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("find", () => {
+  suite("find", () => {
     test(
       "find empty",
       ImmutableQueue.empty<number>()
@@ -256,7 +256,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("filter", () => {
+  suite("filter", () => {
     test(
       "filter empty",
       ImmutableQueue.empty<number>()
@@ -283,7 +283,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("count", () => {
+  suite("count", () => {
     test(
       "count empty",
       ImmutableQueue.empty<number>()
@@ -310,7 +310,7 @@ suite.concurrent("ImmutableQueue", () => {
     );
   });
 
-  suite.concurrent("iteration", () => {
+  suite("iteration", () => {
     test("iterator empty", () => {
       const result = [...ImmutableQueue.empty<number>()];
       return result.assert(deepEqualTo<Array<unknown>>([]));
@@ -324,12 +324,12 @@ suite.concurrent("ImmutableQueue", () => {
       return result.assert(deepEqualTo([1, 2, 3]));
     });
     test("iterator after dequeue", () => {
-      const q      = Q(1, 2, 3).unsafeDequeue[1];
+      const q = Q(1, 2, 3).unsafeDequeue[1];
       const result = [...q];
       return result.assert(deepEqualTo([2, 3]));
     });
     test("iterator after mixed operations", () => {
-      const q      = ImmutableQueue.empty<number>().enqueue(1).enqueue(2).prepend(0).enqueue(3);
+      const q = ImmutableQueue.empty<number>().enqueue(1).enqueue(2).prepend(0).enqueue(3);
       const result = [...q];
       return result.assert(deepEqualTo([0, 1, 2, 3]));
     });
@@ -343,7 +343,7 @@ suite.concurrent("ImmutableQueue", () => {
     });
   });
 
-  suite.concurrent("equality", () => {
+  suite("equality", () => {
     test("same values equal", Q(1, 2, 3).assert(strictEqualTo(Q(1, 2, 3))));
     test("different values not equal", Q(1, 2, 3).assert(strictEqualTo(Q(1, 2, 3, 4)).invert));
     test("empty queues equal", ImmutableQueue.empty<number>().assert(strictEqualTo(ImmutableQueue.empty<number>())));
@@ -351,7 +351,7 @@ suite.concurrent("ImmutableQueue", () => {
     test("order matters", Q(1, 2).assert(strictEqualTo(Q(2, 1)).invert));
   });
 
-  suite.concurrent("isQueue", () => {
+  suite("isQueue", () => {
     test("isQueue queue", ImmutableQueue.is(Q(1)).assert(isTrue));
     test("isQueue empty", ImmutableQueue.is(ImmutableQueue.empty()).assert(isTrue));
     test("isQueue not queue", ImmutableQueue.is([1, 2]).assert(isFalse));
@@ -359,7 +359,7 @@ suite.concurrent("ImmutableQueue", () => {
     test("isQueue object", ImmutableQueue.is({}).assert(isFalse));
   });
 
-  suite.concurrent("property-based", () => {
+  suite("property-based", () => {
     test.io(
       "enqueue increases length",
       Gen.int.array.check((as) => {
@@ -434,7 +434,7 @@ suite.concurrent("ImmutableQueue", () => {
           q = q.enqueue(a);
         }
         const queueSum = q.foldLeft(0, (acc, n) => acc + n);
-        const arrSum   = as.foldLeft(0, (acc, n) => acc + n);
+        const arrSum = as.foldLeft(0, (acc, n) => acc + n);
         return queueSum.assert(strictEqualTo(arrSum));
       }),
     );

@@ -1,5 +1,5 @@
-suite.concurrent("Maybe", () => {
-  suite.concurrent("ap", () => {
+suite("Maybe", () => {
+  suite("ap", () => {
     test(
       "Just ap Just",
       Just((n: number) => n + 1)
@@ -16,7 +16,7 @@ suite.concurrent("Maybe", () => {
     test("Nothing ap Nothing", Nothing<(n: number) => number>().ap(Nothing()).assert(strictEqualTo(Nothing())));
   });
 
-  suite.concurrent("flatMap", () => {
+  suite("flatMap", () => {
     test(
       "Just flatMap Just",
       Just(1)

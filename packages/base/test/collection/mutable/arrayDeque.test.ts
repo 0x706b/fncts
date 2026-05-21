@@ -12,8 +12,8 @@ function fromArray<A>(as: A[]): ArrayDeque<A> {
   return deque;
 }
 
-suite.concurrent("ArrayDeque", () => {
-  suite.concurrent("empty", () => {
+suite("ArrayDeque", () => {
+  suite("empty", () => {
     test("creates an empty deque", () => {
       const deque = ArrayDeque.empty<number>();
       return deque.isEmpty.assert(isTrue) && deque.length.assert(strictEqualTo(0));
@@ -25,7 +25,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("addOne", () => {
+  suite("addOne", () => {
     test("addOne to empty", () => {
       const deque = ArrayDeque.empty<number>();
       deque.addOne(1);
@@ -42,7 +42,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("addOne returns same instance", () => {
       const deque = ArrayDeque.empty<number>();
-      const ret   = deque.addOne(1);
+      const ret = deque.addOne(1);
       return (ret === deque).assert(isTrue);
     });
 
@@ -55,7 +55,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test("prepend to empty", () => {
       const deque = ArrayDeque.empty<number>();
       deque.prepend(1);
@@ -72,7 +72,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("prepend returns same instance", () => {
       const deque = ArrayDeque.empty<number>();
-      const ret   = deque.prepend(1);
+      const ret = deque.prepend(1);
       return (ret === deque).assert(isTrue);
     });
 
@@ -85,7 +85,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("get", () => {
+  suite("get", () => {
     test("get first element", () => {
       const deque = fromArray([1, 2, 3]);
       return deque.get(0).assert(strictEqualTo(1));
@@ -103,7 +103,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("get throws on negative index", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw   = false;
+      let threw = false;
       try {
         deque.get(-1);
       } catch {
@@ -114,7 +114,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("get throws on index >= length", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw   = false;
+      let threw = false;
       try {
         deque.get(3);
       } catch {
@@ -138,7 +138,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("update", () => {
+  suite("update", () => {
     test("update existing index", () => {
       const deque = fromArray([1, 2, 3]);
       deque.update(1, 99);
@@ -159,7 +159,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("update throws on out of bounds", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw   = false;
+      let threw = false;
       try {
         deque.update(3, 99);
       } catch {
@@ -179,7 +179,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("insert", () => {
+  suite("insert", () => {
     test("insert at head", () => {
       const deque = fromArray([2, 3]);
       deque.insert(0, 1);
@@ -220,7 +220,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("insert throws on out of bounds", () => {
       const deque = fromArray([1, 2]);
-      let threw   = false;
+      let threw = false;
       try {
         deque.insert(4, 99);
       } catch {
@@ -240,7 +240,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("remove", () => {
+  suite("remove", () => {
     test("remove from head", () => {
       const deque = fromArray([1, 2, 3, 4, 5]);
       deque.remove(0, 2);
@@ -273,7 +273,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("remove negative count throws", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw   = false;
+      let threw = false;
       try {
         deque.remove(1, -1);
       } catch {
@@ -284,7 +284,7 @@ suite.concurrent("ArrayDeque", () => {
 
     test("remove throws on out of bounds for positive count", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw   = false;
+      let threw = false;
       try {
         deque.remove(5, 1);
       } catch {
@@ -315,16 +315,16 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("removeHead", () => {
+  suite("removeHead", () => {
     test("removeHead returns first element", () => {
       const deque = fromArray([1, 2, 3]);
-      const head  = deque.removeHead();
+      const head = deque.removeHead();
       return head.assert(strictEqualTo(1)) && deque.toArray().assert(deepEqualTo([2, 3]));
     });
 
     test("removeHead throws on empty", () => {
       const deque = ArrayDeque.empty<number>();
-      let threw   = false;
+      let threw = false;
       try {
         deque.removeHead();
       } catch {
@@ -346,7 +346,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("removeHeadOption", () => {
+  suite("removeHeadOption", () => {
     test("removeHeadOption returns Just on non-empty", () => {
       const deque = fromArray([1, 2, 3]);
       return deque.removeHeadOption().assert(isJust(strictEqualTo(1))) && deque.toArray().assert(deepEqualTo([2, 3]));
@@ -358,7 +358,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("removeLastOption", () => {
+  suite("removeLastOption", () => {
     test("removeLastOption returns Just on non-empty", () => {
       const deque = fromArray([1, 2, 3]);
       return deque.removeLastOption().assert(isJust(strictEqualTo(3))) && deque.toArray().assert(deepEqualTo([1, 2]));
@@ -381,7 +381,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("length / isEmpty", () => {
+  suite("length / isEmpty", () => {
     test("empty deque has length 0 and isEmpty", () => {
       const deque = ArrayDeque.empty<number>();
       return deque.length.assert(strictEqualTo(0)) && deque.isEmpty.assert(isTrue);
@@ -414,24 +414,24 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("copySliceToArray", () => {
+  suite("copySliceToArray", () => {
     test("copies full contents linear", () => {
       const deque = fromArray([1, 2, 3]);
-      const dest  = new Array<number>(3);
+      const dest = new Array<number>(3);
       deque.copySliceToArray(0, dest, 0, 3);
       return dest.assert(deepEqualTo([1, 2, 3]));
     });
 
     test("copies partial contents", () => {
       const deque = fromArray([1, 2, 3, 4, 5]);
-      const dest  = new Array<number>(3);
+      const dest = new Array<number>(3);
       deque.copySliceToArray(1, dest, 0, 3);
       return dest.assert(deepEqualTo([2, 3, 4]));
     });
 
     test("copies with dest offset", () => {
       const deque = fromArray([1, 2, 3]);
-      const dest  = new Array<number>(5);
+      const dest = new Array<number>(5);
       dest.fill(0);
       deque.copySliceToArray(0, dest, 2, 3);
       return dest.assert(deepEqualTo([0, 0, 1, 2, 3]));
@@ -450,13 +450,13 @@ suite.concurrent("ArrayDeque", () => {
 
     test("copySliceToArray respects maxItems", () => {
       const deque = fromArray([1, 2, 3, 4, 5]);
-      const dest  = new Array<number>(2);
+      const dest = new Array<number>(2);
       deque.copySliceToArray(0, dest, 0, 2);
       return dest.assert(deepEqualTo([1, 2]));
     });
   });
 
-  suite.concurrent("wrap-around behavior", () => {
+  suite("wrap-around behavior", () => {
     test("interleaved prepend and addOne wrap correctly", () => {
       const deque = ArrayDeque.empty<number>(4);
       deque.addOne(2);
@@ -532,7 +532,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("growth", () => {
+  suite("growth", () => {
     test("grows from small initial capacity", () => {
       const deque = ArrayDeque.empty<number>(2);
       for (let i = 0; i < 100; i++) {
@@ -561,7 +561,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("shrink", () => {
+  suite("shrink", () => {
     test("shrinks after removing most elements from large deque", () => {
       const deque = ArrayDeque.empty<number>(256);
       for (let i = 0; i < 200; i++) {
@@ -584,7 +584,7 @@ suite.concurrent("ArrayDeque", () => {
     });
   });
 
-  suite.concurrent("property-based", () => {
+  suite("property-based", () => {
     test.io(
       "addOne preserves order",
       Gen.int.array.check((as) => {
@@ -623,7 +623,7 @@ suite.concurrent("ArrayDeque", () => {
     test.io(
       "get after insert matches expected",
       Gen.int.conc.zip(Gen.int).check(([as, n]) => {
-        const deque         = ArrayDeque.empty<number>();
+        const deque = ArrayDeque.empty<number>();
         const arr: number[] = [];
         for (const a of as) {
           deque.addOne(a);
@@ -640,13 +640,13 @@ suite.concurrent("ArrayDeque", () => {
       "remove then insert roundtrip",
       Gen.int.conc.check((as) => {
         if (as.length < 2) return true.assert(isTrue);
-        const deque         = ArrayDeque.empty<number>();
+        const deque = ArrayDeque.empty<number>();
         const arr: number[] = [];
         for (const a of as) {
           deque.addOne(a);
           arr.push(a);
         }
-        const idx   = 0;
+        const idx = 0;
         const count = 1;
         arr.splice(idx, count);
         deque.remove(idx, count);

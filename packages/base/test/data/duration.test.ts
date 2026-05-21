@@ -1,4 +1,4 @@
-suite.concurrent("Duration", () => {
+suite("Duration", () => {
   test("milliseconds", Duration.milliseconds(1).milliseconds.assert(strictEqualTo(1)));
   test("seconds", Duration.seconds(1).milliseconds.assert(strictEqualTo(1000)));
   test("minutes", Duration.minutes(1).milliseconds.assert(strictEqualTo(60000)));

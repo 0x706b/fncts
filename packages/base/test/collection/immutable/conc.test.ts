@@ -1,5 +1,5 @@
-suite.concurrent("Conc", { timeout: 10_000 }, () => {
-  suite.concurrent("length", () => {
+suite("Conc", { timeout: 10_000 }, () => {
+  suite("length", () => {
     test("concatenated size must match length", () => {
       const conc = Conc.empty<number>()
         .concat(Conc.fromArray([1, 2]))
@@ -29,7 +29,7 @@ suite.concurrent("Conc", { timeout: 10_000 }, () => {
     });
   });
 
-  suite.concurrent("append", () => {
+  suite("append", () => {
     test.io("index", () => {
       const chunksWithIndex = Do((_) => {
         const p  = _(Gen.boolean);
@@ -79,7 +79,7 @@ suite.concurrent("Conc", { timeout: 10_000 }, () => {
     );
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test.io("index", () => {
       const chunksWithIndex = Do((_) => {
         const p  = _(Gen.boolean);
