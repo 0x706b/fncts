@@ -2,7 +2,8 @@ import type { RBNode } from "@fncts/base/collection/immutable/SortedMap/node";
 import type { Ord } from "@fncts/base/typeclass";
 
 import { fixDoubleBlack, swapNode } from "@fncts/base/collection/immutable/SortedMap/internal";
-import { Color, Leaf, Node } from "@fncts/base/collection/immutable/SortedMap/node";
+import { Node } from "@fncts/base/collection/immutable/SortedMap/node";
+import { Color, Leaf } from "@fncts/base/collection/immutable/SortedMap/node";
 
 export interface SortedMapIterable<K, V> extends Iterable<readonly [K, V]> {
   readonly ord: Ord<K>;

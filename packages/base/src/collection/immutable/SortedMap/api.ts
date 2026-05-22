@@ -224,14 +224,11 @@ export function getLte<K>(key: K) {
     let lastValue = Nothing<V>();
     while (n) {
       const d = cmp(n.key)(key);
-      if (d > 0) {
-        if (lastValue.isJust()) {
-          break;
-        }
-        n = n.right;
-      } else {
+      if (d >= 0) {
         lastValue = Just(n.value);
-        n         = n.left;
+        n         = n.right;
+      } else {
+        n = n.left;
       }
     }
     return lastValue;
@@ -273,9 +270,6 @@ export function getGte<K>(key: K) {
  */
 export function set<K, V>(key: K, value: V) {
   return (self: SortedMap<K, V>): SortedMap<K, V> => {
-    if (isEmptyNode(self.root)) {
-      return new SortedMap(self.ord, new Node(Color.R, Leaf, key, value, Leaf, 1));
-    }
     const cmp = self.ord.compare;
     const nodeStack: Array<Node<K, V>> = [];
     const orderStack: Array<Ordering>  = [];
@@ -367,6 +361,15 @@ export function isNonEmpty<K, V>(self: SortedMap<K, V>): boolean {
  */
 export function make<K, V>(/** @tsplus auto */ ord: Ord<K>) {
   return new SortedMap<K, V>(ord, null);
+}
+
+/**
+ * @tsplus pipeable fncts.SortedMap has
+ */
+export function has<K>(key: K) {
+  return <V>(self: SortedMap<K, V>): boolean => {
+    return self.find(key)[Symbol.iterator]().value.isJust();
+  };
 }
 
 /**
@@ -550,19 +553,20 @@ export function visitBetween<K, V, A>(min: K, max: K, visit: (k: K, v: V) => May
     while (!done) {
       if (current) {
         stack.push(current);
-        if (cmp(min)(current.key) > 0) {
+        if (cmp(current.key)(min) <= 0) {
           current = current.left;
         } else {
           current = null;
         }
       } else if (stack.hasNext) {
         const next = stack.pop()!;
-        if (cmp(max)(next.key) >= 0) {
-          break;
-        }
-        const v = visit(next.key, next.value);
-        if (v.isJust()) {
-          return v;
+        if (cmp(next.key)(max) > 0) {
+          if (cmp(next.key)(min) <= 0) {
+            const v = visit(next.key, next.value);
+            if (v.isJust()) {
+              return v;
+            }
+          }
         }
         current = next.right;
       } else {
@@ -571,4 +575,11 @@ export function visitBetween<K, V, A>(min: K, max: K, visit: (k: K, v: V) => May
     }
     return Nothing();
   };
+}
+
+/**
+ * @tsplus getter fncts.SortedMap size
+ */
+export function size<K, V>(self: SortedMap<K, V>): number {
+  return self.root?.count ?? 0;
 }
