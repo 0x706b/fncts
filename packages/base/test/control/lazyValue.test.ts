@@ -2,7 +2,7 @@ import { vitest } from "vitest";
 
 suite("LazyValue", () => {
   test("Returns result of getValue without computing more than once", () => {
-    const fn = vitest.fn();
+    const fn        = vitest.fn();
     const lazyValue = LazyValue(() => {
       fn();
       return 1;

@@ -1,15 +1,11 @@
-import type {} from "@fncts/base/global";
-import type {} from "@fncts/io/global";
-
-import { isRoseTree } from "@fncts/base/collection/immutable/RoseTree";
 import { strictNotEqualTo } from "@fncts/test/control/Assertion";
 
-suite.concurrent("RoseTree", () => {
+suite("RoseTree", () => {
   function T<A>(value: A, ...children: Array<RoseTree<A>>): RoseTree<A> {
     return RoseTree(value, Vector.from(children));
   }
 
-  suite.concurrent("constructors", () => {
+  suite("constructors", () => {
     test("make with no children", RoseTree(1).assert(strictEqualTo(RoseTree(1, Vector.empty()))));
 
     test(
@@ -25,19 +21,19 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("isRoseTree", () => {
-    test("isRoseTree on tree", isRoseTree(RoseTree(1)).assert(isTrue));
+  suite("isRoseTree", () => {
+    test("isRoseTree on tree", RoseTree.is(RoseTree(1)).assert(isTrue));
 
-    test("isRoseTree on number", isRoseTree(1).assert(isFalse));
+    test("isRoseTree on number", RoseTree.is(1).assert(isFalse));
 
-    test("isRoseTree on null", isRoseTree(null).assert(isFalse));
+    test("isRoseTree on null", RoseTree.is(null).assert(isFalse));
 
-    test("isRoseTree on plain object", isRoseTree({}).assert(isFalse));
+    test("isRoseTree on plain object", RoseTree.is({}).assert(isFalse));
 
-    test("isRoseTree on array", isRoseTree([1, 2]).assert(isFalse));
+    test("isRoseTree on array", RoseTree.is([1, 2]).assert(isFalse));
   });
 
-  suite.concurrent("equality", () => {
+  suite("equality", () => {
     test("same tree equal", RoseTree(1).assert(strictEqualTo(RoseTree(1))));
 
     test("nested equal", T(1, T(2, T(3)), T(4)).assert(strictEqualTo(T(1, T(2, T(3)), T(4)))));
@@ -51,7 +47,7 @@ suite.concurrent("RoseTree", () => {
     test("different children not equal", RoseTree(1, Vector(RoseTree(2))).assert(strictNotEqualTo(RoseTree(1))));
   });
 
-  suite.concurrent("hash", () => {
+  suite("hash", () => {
     test("same tree same hash", T(1, T(2))[Symbol.hash].assert(strictEqualTo(T(1, T(2))[Symbol.hash])));
 
     test(
@@ -60,7 +56,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("foldLeft", () => {
+  suite("foldLeft", () => {
     test(
       "foldLeft single node",
       RoseTree(1)
@@ -97,7 +93,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("foldRight", () => {
+  suite("foldRight", () => {
     test(
       "foldRight single node",
       RoseTree(1)
@@ -120,7 +116,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("map", () => {
+  suite("map", () => {
     test(
       "map identity",
       T(1, T(2), T(3))
@@ -150,7 +146,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("mapAccum", () => {
+  suite("mapAccum", () => {
     test(
       "mapAccum accumulates state",
       T(1, T(2), T(3))
@@ -173,7 +169,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("mapWithIndex", () => {
+  suite("mapWithIndex", () => {
     test(
       "mapWithIndex assigns pre-order indices",
       T(10, T(20, T(30)), T(40))
@@ -189,7 +185,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("unfold", () => {
+  suite("unfold", () => {
     test(
       "unfold linear chain",
       RoseTree.unfold(1, (n) => [n, n < 3 ? Vector(n + 1) : Vector.empty()]).assert(strictEqualTo(T(1, T(2, T(3))))),
@@ -205,7 +201,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("zipWith", () => {
+  suite("zipWith", () => {
     test(
       "zipWith same shape",
       T(1, T(2), T(3))
@@ -235,7 +231,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("zipWithAccum", () => {
+  suite("zipWithAccum", () => {
     test(
       "zipWithAccum threads state",
       T(1, T(2), T(3))
@@ -251,7 +247,7 @@ suite.concurrent("RoseTree", () => {
     );
   });
 
-  suite.concurrent("draw", () => {
+  suite("draw", () => {
     test("draw single node", RoseTree("a").draw.assert(strictEqualTo("a")));
 
     test("draw flat children", T("a", T("b"), T("c")).draw.assert(strictEqualTo("a\n├─ b\n└─ c")));
@@ -269,7 +265,7 @@ suite.concurrent("RoseTree", () => {
     test("draw wide tree", T("root", T("a"), T("b"), T("c")).draw.assert(strictEqualTo("root\n├─ a\n├─ b\n└─ c")));
   });
 
-  suite.concurrent("property-based", () => {
+  suite("property-based", () => {
     test.io(
       "map identity on flat trees",
       Gen.int.array.check((as) => {

@@ -58,19 +58,19 @@ suite("HashSet", () => {
 
   suite("beginMutation", () => {
     test("returns editable set", () => {
-      const set = HashSet.make(1, 2, 3);
+      const set     = HashSet.make(1, 2, 3);
       const mutable = set.beginMutation;
       return mutable._editable.assert(isTrue);
     });
 
     test("increments edit counter", () => {
-      const set = HashSet.make(1, 2, 3);
+      const set     = HashSet.make(1, 2, 3);
       const mutable = set.beginMutation;
       return mutable._edit.assert(strictEqualTo(set._edit + 1));
     });
 
     test("preserves elements", () => {
-      const set = HashSet.make(1, 2, 3);
+      const set     = HashSet.make(1, 2, 3);
       const mutable = set.beginMutation;
       return mutable.size.assert(strictEqualTo(3));
     });
@@ -78,7 +78,7 @@ suite("HashSet", () => {
 
   suite("endMutation", () => {
     test("returns immutable set", () => {
-      const set = HashSet.make(1, 2, 3).beginMutation;
+      const set       = HashSet.make(1, 2, 3).beginMutation;
       const immutable = set.endMutation;
       return immutable._editable.assert(isFalse);
     });
@@ -136,7 +136,7 @@ suite("HashSet", () => {
   suite("emptyWith", () => {
     test("creates empty set with custom config", () => {
       const config = HashEq.StructuralStrict;
-      const set = HashSet.emptyWith(config);
+      const set    = HashSet.emptyWith(config);
       return set.size.assert(strictEqualTo(0)) && set.config.assert(strictEqualTo(config));
     });
   });
@@ -285,7 +285,7 @@ suite("HashSet", () => {
 
     test("toggling twice returns original set", () => {
       const original = HashSet.make(1, 2);
-      const toggled = original.toggle(2).toggle(2);
+      const toggled  = original.toggle(2).toggle(2);
       return toggled.size.assert(strictEqualTo(2)) && toggled.has(2).assert(isTrue);
     });
   });
@@ -293,7 +293,7 @@ suite("HashSet", () => {
   suite("mapWith", () => {
     test("transforms elements with custom config", () => {
       const config = HashEq.StructuralStrict as HashEq<string>;
-      const set = HashSet.mapWith(config)((n: number) => n.toString())(HashSet.make(1, 2, 3));
+      const set    = HashSet.mapWith(config)((n: number) => n.toString())(HashSet.make(1, 2, 3));
       return (
         set.size.assert(strictEqualTo(3)) &&
         set.has("1").assert(isTrue) &&
@@ -333,7 +333,7 @@ suite("HashSet", () => {
   suite("flatMapWith", () => {
     test("transforms and flattens with custom config", () => {
       const config = HashEq.StructuralStrict;
-      const set = HashSet.flatMapWith(config)((n: number) => [n, n * 10])(HashSet.make(1, 2, 3));
+      const set    = HashSet.flatMapWith(config)((n: number) => [n, n * 10])(HashSet.make(1, 2, 3));
       return (
         set.has(1).assert(isTrue) &&
         set.has(2).assert(isTrue) &&
@@ -373,35 +373,35 @@ suite("HashSet", () => {
   suite("getEq", () => {
     test("same instance is equal", () => {
       const set = HashSet.make(1, 2, 3);
-      const eq = HashSet.getEq<number>();
+      const eq  = HashSet.getEq<number>();
       return eq.equals(set)(set).assert(isTrue);
     });
 
     test("equal sets with same elements", () => {
       const set1 = HashSet.make(1, 2, 3);
       const set2 = HashSet.make(3, 2, 1);
-      const eq = HashSet.getEq<number>();
+      const eq   = HashSet.getEq<number>();
       return eq.equals(set2)(set1).assert(isTrue);
     });
 
     test("different sizes are not equal", () => {
       const set1 = HashSet.make(1, 2);
       const set2 = HashSet.make(1, 2, 3);
-      const eq = HashSet.getEq<number>();
+      const eq   = HashSet.getEq<number>();
       return eq.equals(set2)(set1).assert(isFalse);
     });
 
     test("different elements are not equal", () => {
       const set1 = HashSet.make(1, 2, 3);
       const set2 = HashSet.make(1, 2, 4);
-      const eq = HashSet.getEq<number>();
+      const eq   = HashSet.getEq<number>();
       return eq.equals(set2)(set1).assert(isFalse);
     });
 
     test("empty sets are equal", () => {
       const set1 = HashSet.empty<number>();
       const set2 = HashSet.empty<number>();
-      const eq = HashSet.getEq<number>();
+      const eq   = HashSet.getEq<number>();
       return eq.equals(set2)(set1).assert(isTrue);
     });
   });
@@ -431,7 +431,7 @@ suite("HashSet", () => {
   suite("filterMapWith", () => {
     test("filters and maps with custom config", () => {
       const config = HashEq.StructuralStrict;
-      const set = HashSet.filterMapWith(config)((n: number) => (n % 2 === 0 ? Just(n.toString()) : Nothing()))(
+      const set    = HashSet.filterMapWith(config)((n: number) => (n % 2 === 0 ? Just(n.toString()) : Nothing()))(
         HashSet.make(1, 2, 3, 4),
       );
       return set.size.assert(strictEqualTo(2)) && set.has("2").assert(isTrue) && set.has("4").assert(isTrue);
@@ -487,8 +487,8 @@ suite("HashSet", () => {
 
   suite("partitionMapWith", () => {
     test("partitions and maps with custom configs", () => {
-      const bConfig = HashEq.StructuralStrict;
-      const cConfig = HashEq.StructuralStrict;
+      const bConfig       = HashEq.StructuralStrict;
+      const cConfig       = HashEq.StructuralStrict;
       const [left, right] = HashSet.partitionMapWith(
         bConfig,
         cConfig,
@@ -548,7 +548,7 @@ suite("HashSet", () => {
 
     test("folds with string accumulator", () => {
       const result = HashSet.make("a", "b", "c").foldLeft("", (acc, s) => acc + s);
-      const chars = result.split("").sort().join("");
+      const chars  = result.split("").sort().join("");
       return chars.assert(strictEqualTo("abc"));
     });
 
@@ -560,9 +560,9 @@ suite("HashSet", () => {
 
   suite("join", () => {
     test("joins strings with separator", () => {
-      const set = HashSet.make("a", "b", "c");
+      const set    = HashSet.make("a", "b", "c");
       const result = set.join(", ");
-      const parts = result.split(", ").sort();
+      const parts  = result.split(", ").sort();
       return parts.assert(deepEqualTo(["a", "b", "c"]));
     });
 
@@ -575,7 +575,7 @@ suite("HashSet", () => {
     });
 
     test("joins with empty separator", () => {
-      const set = HashSet.make("a", "b");
+      const set    = HashSet.make("a", "b");
       const result = set.join("");
       return result.assert(strictEqualTo("ab")) || result.assert(strictEqualTo("ba"));
     });
@@ -654,13 +654,13 @@ suite("HashSet", () => {
 
   suite("isSubset", () => {
     test("returns true when all elements are in other set", () => {
-      const subset = HashSet.make(1, 2);
+      const subset   = HashSet.make(1, 2);
       const superset = HashSet.make(1, 2, 3, 4);
       return subset.isSubset(superset).assert(isTrue);
     });
 
     test("returns false when some elements are not in other set", () => {
-      const subset = HashSet.make(1, 2, 5);
+      const subset   = HashSet.make(1, 2, 5);
       const superset = HashSet.make(1, 2, 3, 4);
       return subset.isSubset(superset).assert(isFalse);
     });
