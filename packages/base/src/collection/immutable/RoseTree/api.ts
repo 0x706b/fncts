@@ -115,7 +115,7 @@ function mapAccumLoop<S, A, B>(
       f,
       state_,
       { label: label_, todo: head.forest, done: Vector() },
-      Cons({ label: acc.label, done: acc.done, todo: acc.todo.tail }, stack),
+      { label: acc.label, done: acc.done, todo: acc.todo.tail } + stack,
     );
   }
 }
@@ -157,7 +157,7 @@ function unfoldLoop<A, B>(
     return unfoldLoop(
       f,
       { todo, label, done: Vector() },
-      Cons({ done: acc.done, label: acc.label, todo: acc.todo.tail }, stack),
+      { done: acc.done, label: acc.label, todo: acc.todo.tail } + stack,
     );
   }
 }
