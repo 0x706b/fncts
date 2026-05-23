@@ -29,6 +29,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: install-node-modules
+    env:
+      NODE_PRESERVE_SYMLINKS: true
     steps:
       - uses: actions/checkout@v6
         with:
