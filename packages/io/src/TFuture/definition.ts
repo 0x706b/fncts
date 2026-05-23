@@ -6,13 +6,12 @@ interface TFutureN extends HKT {
 /**
  * @tsplus type fncts.io.TFuture
  */
-export interface TFuture<E, A>
-  extends Newtype<
-    {
-      readonly TFuture: unique symbol;
-    },
-    TRef<Maybe<Either<E, A>>>
-  > {}
+export interface TFuture<E, A> extends Newtype<
+  {
+    readonly TFuture: unique symbol;
+  },
+  TRef<Maybe<Either<E, A>>>
+> {}
 
 /**
  * @tsplus type fncts.io.TFutureOps

@@ -5,7 +5,7 @@
   "typesVersions": {
     "*": {
       "*": [
-        "./build/dts/*"
+        "./dist/*"
       ]
     }
   },
@@ -15,23 +15,23 @@
   },
   "exports": {
     "./*": {
-      "types": "./build/dts/*.d.ts",
-      "import": "./build/esm/*.js",
-      "require": "./build/cjs/*.cjs"
+      "types": "./dist/*.d.ts",
+      "import": "./dist/_mjs/*.mjs",
+      "require": "./dist/_cjs/*.cjs"
     },
     ".": {
-      "types": "./build/dts/index.d.ts",
-      "import": "./build/esm/index.js",
-      "require": "./build/cjs/index.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/_mjs/index.mjs",
+      "require": "./dist/_cjs/index.cjs"
     }
   },
   "scripts": {
-    "build": "yarn org:tsc -b",
-    "build-js": "yarn org:rolldown -c ./rolldown.config.js",
-    "build-pack": "yarn build && yarn build-js && fncts-pack",
-    "circular": "yarn org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
-    "lint": "yarn org:eslint src/**/*.ts",
-    "format": "yarn org:prettier --list-different -w src/**/*.ts",
+    "build": "pnpm -w run org:tsc -b",
+    "build-js": "pnpm -w run org:rolldown -c ./rolldown.config.js",
+    "build-pack": "pnpm build && pnpm build-js && fncts-pack",
+    "circular": "pnpm -w run org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
+    "lint": "pnpm -w run org:eslint src/**/*.ts",
+    "format": "pnpm -w run org:prettier --list-different -w src/**/*.ts",
     "clean": "rm -rf ./build ./dist"
   },
   "devDependencies": {

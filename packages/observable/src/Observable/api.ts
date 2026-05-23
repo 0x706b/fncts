@@ -2525,7 +2525,7 @@ function timeoutError<R, A, M>(info: TimeoutInfo<A, M>): Observable<R, TimeoutEr
 }
 
 function toArrayAccumulator(arr: any[], value: any) {
-  return arr.push(value), arr;
+  return (arr.push(value), arr);
 }
 
 /**

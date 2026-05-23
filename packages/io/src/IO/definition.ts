@@ -119,110 +119,99 @@ export function isIO(u: unknown): u is IO<any, any, any> {
   return isObject(u) && IOTypeId in u;
 }
 
-export interface Sync<A = any>
-  extends IOOp<
-    IOTag.Sync,
-    {
-      readonly i0: () => A;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface Sync<A = any> extends IOOp<
+  IOTag.Sync,
+  {
+    readonly i0: () => A;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface Async
-  extends IOOp<
-    IOTag.Async,
-    {
-      readonly i0: (resume: (io: Primitive) => void) => void;
-      readonly i1: () => FiberId;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface Async extends IOOp<
+  IOTag.Async,
+  {
+    readonly i0: (resume: (io: Primitive) => void) => void;
+    readonly i1: () => FiberId;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface OnSuccessAndFailure
-  extends IOOp<
-    IOTag.OnSuccessAndFailure,
-    {
-      readonly i0: Primitive;
-      readonly i1: (cause: Cause<unknown>) => Primitive;
-      readonly i2: (a: unknown) => Primitive;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface OnSuccessAndFailure extends IOOp<
+  IOTag.OnSuccessAndFailure,
+  {
+    readonly i0: Primitive;
+    readonly i1: (cause: Cause<unknown>) => Primitive;
+    readonly i2: (a: unknown) => Primitive;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface OnSuccess
-  extends IOOp<
-    IOTag.OnSuccess,
-    {
-      readonly i0: Primitive;
-      readonly i1: (a: unknown) => Primitive;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface OnSuccess extends IOOp<
+  IOTag.OnSuccess,
+  {
+    readonly i0: Primitive;
+    readonly i1: (a: unknown) => Primitive;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface Succeed
-  extends IOOp<
-    IOTag.SucceedNow,
-    {
-      readonly i0: any;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface Succeed extends IOOp<
+  IOTag.SucceedNow,
+  {
+    readonly i0: any;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface UpdateRuntimeFlags
-  extends IOOp<
-    IOTag.UpdateRuntimeFlags,
-    {
-      readonly i0: RuntimeFlags.Patch;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface UpdateRuntimeFlags extends IOOp<
+  IOTag.UpdateRuntimeFlags,
+  {
+    readonly i0: RuntimeFlags.Patch;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface UpdateRuntimeFlagsWithin
-  extends IOOp<
-    IOTag.UpdateRuntimeFlagsWithin,
-    {
-      readonly i0: RuntimeFlagsPatch;
-      readonly i1: (oldRuntimeFlags: RuntimeFlags) => Primitive;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface UpdateRuntimeFlagsWithin extends IOOp<
+  IOTag.UpdateRuntimeFlagsWithin,
+  {
+    readonly i0: RuntimeFlagsPatch;
+    readonly i1: (oldRuntimeFlags: RuntimeFlags) => Primitive;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface Stateful
-  extends IOOp<
-    IOTag.Stateful,
-    {
-      readonly i0: (fiber: FiberRuntime<any, any>, status: Running) => Primitive;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface Stateful extends IOOp<
+  IOTag.Stateful,
+  {
+    readonly i0: (fiber: FiberRuntime<any, any>, status: Running) => Primitive;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface WhileLoop
-  extends IOOp<
-    IOTag.WhileLoop,
-    {
-      readonly i0: () => boolean;
-      readonly i1: () => Primitive;
-      readonly i2: (a: any) => any;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface WhileLoop extends IOOp<
+  IOTag.WhileLoop,
+  {
+    readonly i0: () => boolean;
+    readonly i1: () => Primitive;
+    readonly i2: (a: any) => any;
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface YieldNow
-  extends IOOp<
-    IOTag.YieldNow,
-    {
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface YieldNow extends IOOp<
+  IOTag.YieldNow,
+  {
+    readonly trace: string | undefined;
+  }
+> {}
 
-export interface Fail
-  extends IOOp<
-    IOTag.Fail,
-    {
-      readonly i0: () => Cause<unknown>;
-      readonly trace: string | undefined;
-    }
-  > {}
+export interface Fail extends IOOp<
+  IOTag.Fail,
+  {
+    readonly i0: () => Cause<unknown>;
+    readonly trace: string | undefined;
+  }
+> {}
 
 export type Primitive =
   | OnSuccessAndFailure

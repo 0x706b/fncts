@@ -17,3 +17,6 @@ dist
 *.tsbuildinfo
 .DS_Store
 .cache
+
+.pi
+.pi-lens

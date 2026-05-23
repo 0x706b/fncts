@@ -5,11 +5,10 @@ export interface FiberRefsN extends HKT {
 /**
  * @tsplus type fncts.io.FiberRefs
  */
-export interface FiberRefs
-  extends Newtype<
-    { readonly FiberRefs: unique symbol },
-    HashMap<FiberRef<any>, Cons<readonly [FiberId.Runtime, unknown]>>
-  > {}
+export interface FiberRefs extends Newtype<
+  { readonly FiberRefs: unique symbol },
+  HashMap<FiberRef<any>, Cons<readonly [FiberId.Runtime, unknown]>>
+> {}
 
 /**
  * @tsplus type fncts.io.FiberRefsOps

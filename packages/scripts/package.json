@@ -12,21 +12,20 @@
     "./*.js": "./build/esm/*.js"
   },
   "scripts": {
-    "build": "yarn org:tsc -b ./tsconfig.json",
-    "build-pack": "yarn build",
-    "lint": "yarn org:eslint src/**/*.ts",
-    "format": "yarn org:prettier --list-different -w src/**/*.ts",
-    "circular": "yarn org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
+    "build": "pnpm -w run org:tsc -b ./tsconfig.json",
+    "build-pack": "pnpm build",
+    "lint": "pnpm -w run org:eslint src/**/*.ts",
+    "format": "pnpm -w run org:prettier --list-different -w src/**/*.ts",
+    "circular": "pnpm -w run org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
     "clean": "rm -rf ./build",
-    "postclean": "yarn build-pack"
+    "postclean": "pnpm build-pack"
   },
   "devDependencies": {
     "@babel/plugin-syntax-class-properties": "^7.12.13",
     "@babel/plugin-syntax-typescript": "^7.27.1",
     "@babel/types": "^7.27.3",
     "@types/babel__core": "^7.20.5",
-    "@yarnpkg/cli": "4.14.1",
-    "@yarnpkg/core": "4.7.0",
+    "@fncts/eslint-config": "workspace:*",
     "recast": "^0.23.11"
   }
 }

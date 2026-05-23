@@ -1,6 +1,4 @@
 const { execSync } = require("node:child_process");
 
-execSync("npx changeset version");
-execSync(
-  "YARN_ENABLE_IMMUTABLE_INSTALLS=false node .yarn/releases/yarn-4.13.0.cjs",
-);
+execSync("pnpm exec changeset version");
+execSync("pnpm install --no-frozen-lockfile");

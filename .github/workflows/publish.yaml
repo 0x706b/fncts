@@ -17,18 +17,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install node
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install
-          corepack enable
-
-      - uses: actions/cache@v5
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
         with:
-          path: ".yarn/cache"
-          key: ${{ runner.os }}-yarn-cache-${{ hashFiles('**/yarn.lock') }}
+          cache: true
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install
+        run: |
+          pnpm install --frozen-lockfile
 
       - name: Download build artifacts
         uses: actions/download-artifact@v7
@@ -36,16 +37,12 @@ jobs:
           name: build-artifacts
           path: packages
 
-      - name: Install
-        run: |
-          yarn install --immutable
-
       - name: Changeset
         id: changesets
         uses: changesets/action@v1
         with:
           version: node .github/changeset-version.cjs
-          publish: yarn release
+          publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,9 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import type { RouteParameters } from "express-serve-static-core";
-
-export interface ParsedQs {
-  [key: string]: undefined | string | string[] | ParsedQs | ParsedQs[];
-}
+import type qs from "qs";
 
 export interface RequestHandlerIO<
   R,
@@ -11,7 +8,7 @@ export interface RequestHandlerIO<
   P = RouteParameters<Route>,
   ResBody = any,
   ReqBody = any,
-  ReqQuery = ParsedQs,
+  ReqQuery = qs.ParsedQs,
   Locals extends Record<string, any> = Record<string, any>,
 > {
   (

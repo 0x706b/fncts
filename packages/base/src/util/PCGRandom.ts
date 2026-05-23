@@ -134,7 +134,7 @@ export class PCGRandom {
 
     // eslint-disable-next-line no-useless-assignment
     let num    = 0;
-    const skew = (-max >>> 0) % max >>> 0;
+    const skew = ((-max >>> 0) % max) >>> 0;
     for (num = this._next(); num < skew; num = this._next()) {
       // this loop will rarely execute more than twice,
       // and is intentionally empty

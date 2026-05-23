@@ -5,13 +5,12 @@ type ErrnoException = NodeJS.ErrnoException;
 interface FileDescriptorN extends HKT {
   type: FileDescriptor;
 }
-export interface FileDescriptor
-  extends Newtype<
-    {
-      readonly FileDescriptor: unique symbol;
-    },
-    number
-  > {}
+export interface FileDescriptor extends Newtype<
+  {
+    readonly FileDescriptor: unique symbol;
+  },
+  number
+> {}
 export const FileDescriptor = Newtype<FileDescriptorN>();
 
 function unitErrorCallback(cb: (_: IO<never, ErrnoException, void>) => void): (err: ErrnoException | null) => void {
