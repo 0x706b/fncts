@@ -1,6 +1,10 @@
 {
   "name": "@fncts/express",
   "version": "0.0.45",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0x706b/fncts"
+  },
   "type": "module",
   "typesVersions": {
     "*": {
