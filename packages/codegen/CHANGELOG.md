@@ -1,5 +1,12 @@
 # @fncts/codegen
 
+## 0.0.27
+
+### Patch Changes
+
+- 7a5d602: build: use rolldown for dist build
+- 1efbb95: chore: migrate to pnpm
+
 ## 0.0.26
 
 ### Patch Changes

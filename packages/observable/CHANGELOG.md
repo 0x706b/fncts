@@ -1,5 +1,15 @@
 # @fncts/pattern
 
+## 0.0.33
+
+### Patch Changes
+
+- 7a5d602: build: use rolldown for dist build
+- 1efbb95: chore: migrate to pnpm
+- Updated dependencies [7a5d602]
+- Updated dependencies [1efbb95]
+  - @fncts/base@0.0.44
+
 ## 0.0.32
 
 ### Patch Changes

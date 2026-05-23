@@ -1,5 +1,14 @@
 # @fncts/eslint-config
 
+## 0.0.29
+
+### Patch Changes
+
+- 1efbb95: chore: migrate to pnpm
+- Updated dependencies [7a5d602]
+- Updated dependencies [1efbb95]
+  - @fncts/codegen@0.0.27
+
 ## 0.0.28
 
 ### Patch Changes

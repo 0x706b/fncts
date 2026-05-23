@@ -1,5 +1,11 @@
 # @fncts/scripts
 
+## 0.0.29
+
+### Patch Changes
+
+- 1efbb95: chore: migrate to pnpm
+
 ## 0.0.28
 
 ### Patch Changes
