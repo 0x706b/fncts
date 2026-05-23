@@ -12,23 +12,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install node
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install
-          npm install -g pnpm
-          corepack enable
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/cache@v5
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
         with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          cache: true
 
       - name: Install
         run: |
@@ -42,23 +29,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install node
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install
-          npm install -g pnpm
-          corepack enable
-
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/cache@v5
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
         with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          cache: true
 
       - name: Install
         run: |
@@ -85,24 +59,11 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-    
-      - name: Install node
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install
-          npm install -g pnpm
-          corepack enable
 
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/cache@v5
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
         with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          cache: true
 
       - name: Install
         run: |
@@ -120,24 +81,11 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-    
-      - name: Install node
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install
-          npm install -g pnpm
-          corepack enable
 
-      - name: Get pnpm store path
-        id: pnpm-store
-        run: echo "STORE_PATH=$(pnpm store path)" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/cache@v5
+      - uses: pnpm/action-setup@v6
+        name: Install pnpm
         with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          cache: true
 
       - name: Install
         run: |
