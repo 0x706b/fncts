@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "changeset": "changeset",
-    "release": "pnpm publish -r",
+    "release": "pnpm publish -r --provenance",
     "build": "tsc -b --verbose",
     "build-pack": "pnpm build && pnpm -r --parallel --if-present run build-pack",
     "format": "pnpm -r --parallel --if-present run format",
