@@ -1,5 +1,12 @@
 # @fncts/typelevel
 
+## 0.0.25
+
+### Patch Changes
+
+- 7a5d602: build: use rolldown for dist build
+- 1efbb95: chore: migrate to pnpm
+
 ## 0.0.24
 
 ### Patch Changes

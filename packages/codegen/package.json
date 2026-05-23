@@ -1,6 +1,6 @@
 {
   "name": "@fncts/codegen",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "type": "module",
   "scripts": {
     "build": "pnpm -w run org:tsc -b",

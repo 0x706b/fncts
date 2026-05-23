@@ -1,5 +1,17 @@
 # @fncts/react
 
+## 0.0.24
+
+### Patch Changes
+
+- 7a5d602: build: use rolldown for dist build
+- 1efbb95: chore: migrate to pnpm
+- Updated dependencies [7a5d602]
+- Updated dependencies [1efbb95]
+  - @fncts/typelevel@0.0.25
+  - @fncts/base@0.0.44
+  - @fncts/io@0.0.52
+
 ## 0.0.23
 
 ### Patch Changes
