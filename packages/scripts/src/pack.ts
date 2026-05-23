@@ -1,15 +1,8 @@
-import type { Workspace } from "@yarnpkg/core";
-
-import { getPluginConfiguration } from "@yarnpkg/cli";
-import { Configuration, Project, structUtils } from "@yarnpkg/core";
-import { ppath } from "@yarnpkg/fslib";
 import child_process from "child_process";
 import fs from "fs/promises";
 import { glob } from "glob";
 import { posix } from "path";
 import { promisify } from "util";
-
-import { convertWorkspaceDependencies } from "./convertWorkspaceDependencies.js";
 
 type Mode = "cjs" | "mjs" | "both";
 
@@ -37,7 +30,7 @@ async function getPackageJson() {
   return JSON.parse(content);
 }
 
-async function writePackageJson(project: Project, workspace: Workspace, mode: "cjs" | "mjs" | "both" = "both") {
+async function writePackageJson(mode: "cjs" | "mjs" | "both" = "both") {
   const originalManifest = await getPackageJson();
   const rawManifest: any = {};
 
@@ -50,8 +43,8 @@ async function writePackageJson(project: Project, workspace: Workspace, mode: "c
   carry("bin", originalManifest, rawManifest);
   carry("dependencies", originalManifest, rawManifest);
   carry("peerDependencies", originalManifest, rawManifest);
-
-  convertWorkspaceDependencies(rawManifest, project, workspace);
+  carry("peerDependenciesMeta", originalManifest, rawManifest);
+  carry("optionalDependencies", originalManifest, rawManifest);
 
   const exports: any = {};
   exports["./*"]     = {};
@@ -114,14 +107,6 @@ function exists(path: string) {
 
 const mode = getMode();
 
-const cwd = ppath.cwd();
-
-const yarnConfiguration = await Configuration.find(cwd, getPluginConfiguration());
-
-const { project } = await Project.find(yarnConfiguration, cwd);
-
-const workspace = project.getWorkspaceByCwd(cwd);
-
 if (await exists("dist")) {
   await exec("rm -rf dist");
 }
@@ -142,7 +127,7 @@ if (await exists("./build/dts")) {
   await exec("cp -r ./build/dts/* ./dist");
 }
 
-await writePackageJson(project, workspace, mode);
+await writePackageJson(mode);
 
 const sourceMapPaths = await glob("dist/**/*.map");
 

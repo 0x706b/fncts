@@ -81,94 +81,84 @@ export class PushPrimitive extends Push<never, any, any> {
   }
 }
 
-export interface Base<R = never, E = any, A = any>
-  extends PushOp<
-    null,
-    {
-      readonly run: Push.Run<R, E, A>;
-    }
-  > {}
+export interface Base<R = never, E = any, A = any> extends PushOp<
+  null,
+  {
+    readonly run: Push.Run<R, E, A>;
+  }
+> {}
 
-export interface Defer
-  extends PushOp<
-    PushTag.Defer,
-    {
-      readonly i0: () => Primitive;
-    }
-  > {}
+export interface Defer extends PushOp<
+  PushTag.Defer,
+  {
+    readonly i0: () => Primitive;
+  }
+> {}
 
-export interface FromPush<R = never, E = any, A = any>
-  extends PushOp<
-    PushTag.FromPush,
-    {
-      readonly i0: Push.Run<R, E, A>;
-    }
-  > {}
+export interface FromPush<R = never, E = any, A = any> extends PushOp<
+  PushTag.FromPush,
+  {
+    readonly i0: Push.Run<R, E, A>;
+  }
+> {}
 
-export interface ProducerSync<A = any>
-  extends PushOp<
-    PushTag.ProducerSync,
-    {
-      readonly i0: SyncProducer<A>;
-    }
-  > {}
+export interface ProducerSync<A = any> extends PushOp<
+  PushTag.ProducerSync,
+  {
+    readonly i0: SyncProducer<A>;
+  }
+> {}
 
-export interface ProducerIO<R = never, E = any, A = any>
-  extends PushOp<
-    PushTag.ProducerIO,
-    {
-      readonly i0: IOProducer<R, E, A>;
-    }
-  > {}
+export interface ProducerIO<R = never, E = any, A = any> extends PushOp<
+  PushTag.ProducerIO,
+  {
+    readonly i0: IOProducer<R, E, A>;
+  }
+> {}
 
-export interface Fail<E = any>
-  extends PushOp<
-    PushTag.FailCause,
-    {
-      readonly i0: () => Cause<E>;
-    }
-  > {}
+export interface Fail<E = any> extends PushOp<
+  PushTag.FailCause,
+  {
+    readonly i0: () => Cause<E>;
+  }
+> {}
 
-export interface OnSuccess<A = any>
-  extends PushOp<
-    PushTag.OnSuccess,
-    {
-      readonly i0: Primitive;
-      readonly i1: (a: A) => Primitive;
-    }
-  > {}
+export interface OnSuccess<A = any> extends PushOp<
+  PushTag.OnSuccess,
+  {
+    readonly i0: Primitive;
+    readonly i1: (a: A) => Primitive;
+  }
+> {}
 
-export interface OnSuccessWithStrategy<A = any>
-  extends PushOp<
-    PushTag.OnSuccessWithStrategy,
-    {
-      readonly i0: Primitive;
-      readonly i1: (a: A) => Primitive;
-      readonly i2: FlattenStrategy;
-      readonly i3: ExecutionStrategy;
-    }
-  > {}
+export interface OnSuccessWithStrategy<A = any> extends PushOp<
+  PushTag.OnSuccessWithStrategy,
+  {
+    readonly i0: Primitive;
+    readonly i1: (a: A) => Primitive;
+    readonly i2: FlattenStrategy;
+    readonly i3: ExecutionStrategy;
+  }
+> {}
 
-export interface OnSuccessAndFailure<E = any, A = any>
-  extends PushOp<
-    PushTag.OnSuccessAndFailure,
-    {
-      readonly i0: Primitive;
-      readonly i1: (cause: Cause<E>) => Primitive;
-      readonly i2: (a: A) => Primitive;
-      readonly i3: FlattenStrategy;
-      readonly i4: ExecutionStrategy;
-    }
-  > {}
+export interface OnSuccessAndFailure<E = any, A = any> extends PushOp<
+  PushTag.OnSuccessAndFailure,
+  {
+    readonly i0: Primitive;
+    readonly i1: (cause: Cause<E>) => Primitive;
+    readonly i2: (a: A) => Primitive;
+    readonly i3: FlattenStrategy;
+    readonly i4: ExecutionStrategy;
+  }
+> {}
 
-export interface Transform
-  extends PushOp<
-    PushTag.Transform,
-    {
-      i0: Primitive;
-      i1: (io: IO<any, any, any>) => IO<any, never, void>;
-    }
-  > {}
+export interface Transform extends PushOp<
+  PushTag.Transform,
+  {
+    i0: Primitive;
+    i1: (io: IO<any, any, any>) => IO<any, never, void>;
+  }
+> {}
 
 type Primitive =
   | Base

@@ -3,13 +3,13 @@
   "version": "0.0.26",
   "type": "module",
   "scripts": {
-    "build": "yarn org:tsc -b",
-    "build-js": "yarn org:rolldown -c ./rolldown.config.js",
-    "build-pack": "yarn build && yarn build-js && fncts-pack",
-    "postclean": "yarn build-pack",
+    "build": "pnpm -w run org:tsc -b",
+    "build-js": "pnpm -w run org:rolldown -c ./rolldown.config.js",
+    "build-pack": "pnpm build && pnpm build-js && fncts-pack",
+    "postclean": "pnpm build-pack",
     "clean": "rm -rf ./build",
-    "lint": "yarn org:eslint src/**/*.ts",
-    "format": "yarn org:prettier --list-different -w src/**/*.ts"
+    "lint": "pnpm -w run org:eslint src/**/*.ts",
+    "format": "pnpm -w run org:prettier --list-different -w src/**/*.ts"
   },
   "exports": {
     "./*": {
@@ -33,6 +33,7 @@
   "devDependencies": {
     "@babel/generator": "^7.27.3",
     "@babel/parser": "^7.27.4",
+    "@fncts/config": "workspace:*",
     "@fncts/scripts": "workspace:*",
     "@types/babel__generator": "^7.27.0",
     "@types/glob": "^8.1.0",
@@ -44,7 +45,8 @@
     "glob": "^13.0.6",
     "io-ts-extra": "^0.11.6",
     "js-yaml": "^4.1.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "ts-pattern": "^5.9.0"
   },
   "peerDependencies": {
     "@babel/generator": "^7.27.3",

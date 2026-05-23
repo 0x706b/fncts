@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "build": "rm -rf build && mkdir build && mkdir build/mjs && cp eslint.config.js build/mjs/index.mjs && cp legacyPlugin.js build/mjs/legacyPlugin.mjs",
-    "build-pack": "yarn build && fncts-pack mjs",
-    "postclean": "yarn build-pack"
+    "build-pack": "pnpm build && fncts-pack mjs",
+    "postclean": "pnpm build-pack"
   },
   "dependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",

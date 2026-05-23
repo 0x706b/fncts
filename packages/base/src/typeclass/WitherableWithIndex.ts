@@ -9,9 +9,7 @@ import { pipe } from "@fncts/base/data/function";
  * @tsplus type fncts.WitherableWithIndex
  */
 export interface WitherableWithIndex<F extends HKT, FC = HKT.None>
-  extends FilterableWithIndex<F, FC>,
-    TraversableWithIndex<F, FC>,
-    Witherable<F, FC> {
+  extends FilterableWithIndex<F, FC>, TraversableWithIndex<F, FC>, Witherable<F, FC> {
   witherWithIndex: <G extends HKT, GC = HKT.None>(
     G: Applicative<G, GC>,
   ) => <KF, A, KG, QG, WG, XG, IG, SG, RG, EG, B>(

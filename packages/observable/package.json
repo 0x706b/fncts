@@ -26,13 +26,13 @@
     }
   },
   "scripts": {
-    "build": "yarn org:tsc -b ./tsconfig.json",
-    "build-js": "yarn org:rolldown -c ./rolldown.config.js",
-    "build-pack": "yarn build && yarn build-js && fncts-pack",
-    "test": "yarn org:tsc -b ./tsconfig.test.json && yarn org:vitest",
-    "lint": "yarn org:eslint src/**/*.ts",
-    "format": "yarn org:prettier --list-different -w src/**/*.ts",
-    "circular": "yarn org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
+    "build": "pnpm -w run org:tsc -b ./tsconfig.json",
+    "build-js": "pnpm -w run org:rolldown -c ./rolldown.config.js",
+    "build-pack": "pnpm build && pnpm build-js && fncts-pack",
+    "test": "pnpm -w run org:tsc -b ./tsconfig.test.json && pnpm -w run org:vitest",
+    "lint": "pnpm -w run org:eslint src/**/*.ts",
+    "format": "pnpm -w run org:prettier --list-different -w src/**/*.ts",
+    "circular": "pnpm -w run org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
     "clean": "rm -rf ./build ./dist"
   },
   "dependencies": {

@@ -7,9 +7,7 @@ import type { Traversable } from "@fncts/base/typeclass/Traversable";
  * @tsplus type fncts.TraversableWithIndex
  */
 export interface TraversableWithIndex<F extends HKT, FC = HKT.None>
-  extends FunctorWithIndex<F, FC>,
-    FoldableWithIndex<F, FC>,
-    Traversable<F, FC> {
+  extends FunctorWithIndex<F, FC>, FoldableWithIndex<F, FC>, Traversable<F, FC> {
   traverseWithIndex: <G extends HKT, GC = HKT.None>(
     G: Applicative<G, GC>,
   ) => <KF, A, KG, QG, WG, XG, IG, SG, RG, EG, B>(

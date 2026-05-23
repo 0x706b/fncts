@@ -5,13 +5,12 @@ interface TSemaphoreN extends HKT {
 /**
  * @tsplus type fncts.io.TSemaphore
  */
-export interface TSemaphore
-  extends Newtype<
-    {
-      readonly TSemaphore: unique symbol;
-    },
-    TRef<number>
-  > {}
+export interface TSemaphore extends Newtype<
+  {
+    readonly TSemaphore: unique symbol;
+  },
+  TRef<number>
+> {}
 
 /**
  * @tsplus type fncts.io.TSemaphoreOps

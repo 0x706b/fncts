@@ -169,22 +169,20 @@ export type ChannelContinuationOp<Tag extends string | number, Body = {}> = Cont
     readonly _tag: Tag;
   };
 
-export interface ContinuationK
-  extends ChannelContinuationOp<
-    ChannelTag.ContinuationK,
-    {
-      readonly i0: (_: any) => Primitive;
-      readonly i1: (_: Cause<any>) => Primitive;
-    }
-  > {}
+export interface ContinuationK extends ChannelContinuationOp<
+  ChannelTag.ContinuationK,
+  {
+    readonly i0: (_: any) => Primitive;
+    readonly i1: (_: Cause<any>) => Primitive;
+  }
+> {}
 
-export interface ContinuationFinalizer
-  extends ChannelContinuationOp<
-    ChannelTag.ContinuationFinalizer,
-    {
-      readonly i0: (_: Exit<any, any>) => URIO<any, any>;
-    }
-  > {}
+export interface ContinuationFinalizer extends ChannelContinuationOp<
+  ChannelTag.ContinuationFinalizer,
+  {
+    readonly i0: (_: Exit<any, any>) => URIO<any, any>;
+  }
+> {}
 
 export type ContinuationPrimitive = ContinuationK | ContinuationFinalizer;
 
@@ -197,121 +195,108 @@ export function concreteContinuation<Env, InErr, InElem, InDone, OutErr, OutErr2
   //
 }
 
-export interface PipeTo
-  extends ChannelOp<
-    ChannelTag.PipeTo,
-    {
-      readonly i0: () => Primitive;
-      readonly i1: () => Primitive;
-    }
-  > {}
+export interface PipeTo extends ChannelOp<
+  ChannelTag.PipeTo,
+  {
+    readonly i0: () => Primitive;
+    readonly i1: () => Primitive;
+  }
+> {}
 
-export interface Fold
-  extends ChannelOp<
-    ChannelTag.Fold,
-    {
-      readonly i0: Primitive;
-      readonly i1: ContinuationK;
-    }
-  > {}
+export interface Fold extends ChannelOp<
+  ChannelTag.Fold,
+  {
+    readonly i0: Primitive;
+    readonly i1: ContinuationK;
+  }
+> {}
 
-export interface Read
-  extends ChannelOp<
-    ChannelTag.Read,
-    {
-      readonly i0: (_: any) => Primitive;
-      readonly i1: ContinuationK;
-    }
-  > {}
+export interface Read extends ChannelOp<
+  ChannelTag.Read,
+  {
+    readonly i0: (_: any) => Primitive;
+    readonly i1: ContinuationK;
+  }
+> {}
 
-export interface Done
-  extends ChannelOp<
-    ChannelTag.Done,
-    {
-      readonly i0: () => any;
-    }
-  > {}
+export interface Done extends ChannelOp<
+  ChannelTag.Done,
+  {
+    readonly i0: () => any;
+  }
+> {}
 
-export interface Fail
-  extends ChannelOp<
-    ChannelTag.Halt,
-    {
-      readonly i0: () => Cause<any>;
-    }
-  > {}
+export interface Fail extends ChannelOp<
+  ChannelTag.Halt,
+  {
+    readonly i0: () => Cause<any>;
+  }
+> {}
 
-export interface FromIO
-  extends ChannelOp<
-    ChannelTag.FromIO,
-    {
-      readonly i0: IO<any, any, any>;
-    }
-  > {}
+export interface FromIO extends ChannelOp<
+  ChannelTag.FromIO,
+  {
+    readonly i0: IO<any, any, any>;
+  }
+> {}
 
-export interface Defer
-  extends ChannelOp<
-    ChannelTag.Defer,
-    {
-      readonly i0: () => Primitive;
-    }
-  > {}
+export interface Defer extends ChannelOp<
+  ChannelTag.Defer,
+  {
+    readonly i0: () => Primitive;
+  }
+> {}
 
-export interface Ensuring
-  extends ChannelOp<
-    ChannelTag.Ensuring,
-    {
-      readonly i0: Primitive;
-      readonly i1: (_: Exit<any, any>) => URIO<any, any>;
-    }
-  > {}
+export interface Ensuring extends ChannelOp<
+  ChannelTag.Ensuring,
+  {
+    readonly i0: Primitive;
+    readonly i1: (_: Exit<any, any>) => URIO<any, any>;
+  }
+> {}
 
-export interface ConcatAll
-  extends ChannelOp<
-    ChannelTag.ConcatAll,
-    {
-      readonly i0: (_: any, __: any) => any;
-      readonly i1: (_: any, __: any) => any;
-      readonly i2: (_: UpstreamPullRequest<any>) => UpstreamPullStrategy<any>;
-      readonly i3: (_: any) => ChildExecutorDecision;
-      readonly i4: Primitive;
-      readonly i5: (_: any) => Primitive;
-    }
-  > {}
+export interface ConcatAll extends ChannelOp<
+  ChannelTag.ConcatAll,
+  {
+    readonly i0: (_: any, __: any) => any;
+    readonly i1: (_: any, __: any) => any;
+    readonly i2: (_: UpstreamPullRequest<any>) => UpstreamPullStrategy<any>;
+    readonly i3: (_: any) => ChildExecutorDecision;
+    readonly i4: Primitive;
+    readonly i5: (_: any) => Primitive;
+  }
+> {}
 
-export interface BracketOut
-  extends ChannelOp<
-    ChannelTag.BracketOut,
-    {
-      readonly i0: IO<any, any, any>;
-      readonly i1: (_: any, __: Exit<any, any>) => URIO<any, any>;
-    }
-  > {}
+export interface BracketOut extends ChannelOp<
+  ChannelTag.BracketOut,
+  {
+    readonly i0: IO<any, any, any>;
+    readonly i1: (_: any, __: Exit<any, any>) => URIO<any, any>;
+  }
+> {}
 
-export interface Provide
-  extends ChannelOp<
-    ChannelTag.Provide,
-    {
-      readonly i0: Environment<any>;
-      readonly i1: Primitive;
-    }
-  > {}
+export interface Provide extends ChannelOp<
+  ChannelTag.Provide,
+  {
+    readonly i0: Environment<any>;
+    readonly i1: Primitive;
+  }
+> {}
 
-export interface Emit
-  extends ChannelOp<
-    ChannelTag.Emit,
-    {
-      readonly i0: () => any;
-    }
-  > {}
+export interface Emit extends ChannelOp<
+  ChannelTag.Emit,
+  {
+    readonly i0: () => any;
+  }
+> {}
 
-export interface Bridge
-  extends ChannelOp<
-    ChannelTag.Bridge,
-    {
-      readonly i0: AsyncInputProducer<any, any, any>;
-      readonly i1: Primitive;
-    }
-  > {}
+export interface Bridge extends ChannelOp<
+  ChannelTag.Bridge,
+  {
+    readonly i0: AsyncInputProducer<any, any, any>;
+    readonly i1: Primitive;
+  }
+> {}
 
 export type Primitive =
   | PipeTo
