@@ -5,3 +5,4 @@ allowBuilds:
 nodeLinker: hoisted
 hoist: true
 hoistWorkspacePackages: true
+shamefullyHoist: true
