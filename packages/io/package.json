@@ -43,6 +43,7 @@
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
-    "@fncts/scripts": "workspace:*"
+    "@fncts/scripts": "workspace:*",
+    "@fncts/transformers": "workspace:*"
   }
 }
