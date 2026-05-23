@@ -18,6 +18,7 @@ jobs:
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           nvm install
+          npm install -g pnpm
           corepack enable
 
       - name: Get pnpm store path
@@ -47,6 +48,7 @@ jobs:
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           nvm install
+          npm install -g pnpm
           corepack enable
 
       - name: Get pnpm store path
@@ -90,6 +92,7 @@ jobs:
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           nvm install
+          npm install -g pnpm
           corepack enable
 
       - name: Get pnpm store path
@@ -124,6 +127,7 @@ jobs:
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           nvm install
+          npm install -g pnpm
           corepack enable
 
       - name: Get pnpm store path
