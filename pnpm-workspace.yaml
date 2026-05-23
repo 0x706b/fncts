@@ -4,3 +4,4 @@ allowBuilds:
   unrs-resolver: true
 nodeLinker: hoisted
 hoist: true
+hoistWorkspacePackages: true
