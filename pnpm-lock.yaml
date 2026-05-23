@@ -181,6 +181,9 @@ importers:
       '@fncts/config':
         specifier: workspace:*
         version: link:../config
+      '@fncts/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config/dist
       '@fncts/scripts':
         specifier: workspace:*
         version: link:../scripts
@@ -504,6 +507,9 @@ importers:
       '@babel/types':
         specifier: ^7.27.3
         version: 7.29.0
+      '@fncts/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config/dist
       '@types/babel__core':
         specifier: ^7.20.5
         version: 7.20.5
@@ -546,6 +552,9 @@ importers:
       '@fncts/config':
         specifier: workspace:*
         version: link:../config
+      '@fncts/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config/dist
       '@fncts/scripts':
         specifier: workspace:*
         version: link:../scripts

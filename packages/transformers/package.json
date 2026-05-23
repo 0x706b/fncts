@@ -39,6 +39,7 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
+    "@fncts/eslint-config": "workspace:*",
     "@fncts/config": "workspace:*",
     "@fncts/scripts": "workspace:*",
     "@types/uuid": "^10.0.0"
