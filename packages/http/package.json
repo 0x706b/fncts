@@ -5,7 +5,7 @@
   "typesVersions": {
     "*": {
       "*": [
-        "./build/dts/*"
+        "./dist/*"
       ]
     }
   },
@@ -15,14 +15,14 @@
   },
   "exports": {
     "./*": {
-      "types": "./build/dts/*.d.ts",
-      "import": "./build/esm/*.js",
-      "require": "./build/cjs/*.cjs"
+      "types": "./dist/*.d.ts",
+      "import": "./dist/_mjs/*.mjs",
+      "require": "./dist/_cjs/*.cjs"
     },
     ".": {
-      "types": "./build/dts/index.d.ts",
-      "import": "./build/esm/index.js",
-      "require": "./build/cjs/index.cjs"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/_mjs/index.mjs",
+      "require": "./dist/_cjs/index.cjs"
     }
   },
   "scripts": {
