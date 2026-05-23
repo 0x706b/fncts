@@ -56,7 +56,7 @@ export function makeBy<A>(n: number, f: (i: number) => A): ReadonlyNonEmptyArray
   const len = Math.max(0, Math.floor(n));
   const out = allocWithHead(f(0), len);
   for (let i = 1; i < len; i++) {
-    out.push(f(i));
+    out[i] = f(i);
   }
   return out.unsafeAsNonEmptyArray;
 }

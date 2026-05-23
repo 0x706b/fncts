@@ -416,8 +416,8 @@ suite("List", () => {
     test.io(
       "take returns correct length",
       Gen.int.array.check((as) => {
-        const list = List.from(as);
-        const n = as.length > 0 ? Math.floor(as.length / 2) : 0;
+        const list   = List.from(as);
+        const n      = as.length > 0 ? Math.floor(as.length / 2) : 0;
         const actual = list.take(n).length;
         return actual.assert(strictEqualTo(Math.min(n, list.length)));
       }),
@@ -443,7 +443,7 @@ suite("List", () => {
       "foldLeft sum matches array",
       Gen.int.array.check((as) => {
         const listSum = List.from(as).foldLeft(0, (acc, n) => acc + n);
-        const arrSum = as.foldLeft(0, (acc, n) => acc + n);
+        const arrSum  = as.foldLeft(0, (acc, n) => acc + n);
         return listSum.assert(strictEqualTo(arrSum));
       }),
     );
