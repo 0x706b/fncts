@@ -1,4 +1,4 @@
 const { execSync } = require("node:child_process");
 
-execSync("npx changeset version");
-execSync("pnpm install");
+execSync("pnpm exec changeset version");
+execSync("pnpm install --no-frozen-lockfile");

@@ -15,7 +15,7 @@ It includes "original" code, hard forks, and ports of other works.
 Read the skills in `./doc/skills` when needed.
 
 - The git base branch is `trunk`
-- Use `yarn` as the package manager
+- Use `pnpm` as the package manager
 
 ### Principles
 - **Reliability, clarity, readability**: Favor clear and maintainable solutions
@@ -24,8 +24,8 @@ Read the skills in `./doc/skills` when needed.
 
 ### Validation Steps
 - Always format and lint after editing files, **always** in that order
-- Always run tests after making changes `yarn test run <file.ts>`
-- Run type checking/build `yarn build`
+- Always run tests after making changes
+- Run type checking/build `pnpm build`
 
 ## Code Style
 
