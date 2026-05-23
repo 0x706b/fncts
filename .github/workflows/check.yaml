@@ -53,7 +53,6 @@ jobs:
       - name: Build
         run: |
           pnpm clean
-          pnpm install
           pnpm build
           pnpm build-pack
 
