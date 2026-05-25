@@ -375,7 +375,12 @@ suite("MutableHashMap", () => {
       map.set("a", 1);
       map.set("b", 2);
       map.set("c", 3);
-      return map.size.assert(strictEqualTo(3));
+      return (
+        map.size.assert(strictEqualTo(3)) &&
+        map.get("a").assert(isJust(strictEqualTo(1))) &&
+        map.get("b").assert(isJust(strictEqualTo(2))) &&
+        map.get("c").assert(isJust(strictEqualTo(3)))
+      );
     });
   });
 

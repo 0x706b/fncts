@@ -299,7 +299,14 @@ suite("MutableHashSet", () => {
       for (const elem of set) {
         found.add(elem);
       }
-      return found.size.assert(strictEqualTo(1000));
+      let allExpectedFound = true;
+      for (let i = 0; i < 1000; i++) {
+        if (!found.has(i)) {
+          allExpectedFound = false;
+          break;
+        }
+      }
+      return found.size.assert(strictEqualTo(1000)) && allExpectedFound.assert(isTrue);
     });
 
     test("deletion works after growth", () => {
@@ -334,7 +341,7 @@ suite("MutableHashSet", () => {
       set.add("a");
       set.add("b");
       set.add("c");
-      return set.size.assert(strictEqualTo(3));
+      return set.size.assert(strictEqualTo(3)) && set.has("a").assert(isTrue) && set.has("b").assert(isTrue) && set.has("c").assert(isTrue);
     });
   });
 
