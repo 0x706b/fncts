@@ -96,9 +96,14 @@ export function filterOutput<B>(p: Predicate<B>, __tsplusTrace?: string) {
   };
 }
 
-class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1>
-  implements PDequeueInternal<RA, RB | RB1, EA, EB | EB1, A, B>
-{
+class FilterOutputDequeueIO<RA, RB, EA, EB, A, B, RB1, EB1> implements PDequeueInternal<
+  RA,
+  RB | RB1,
+  EA,
+  EB | EB1,
+  A,
+  B
+> {
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
   readonly [DequeueTypeId]: DequeueTypeId = DequeueTypeId;
   declare [QueueVariance]: {

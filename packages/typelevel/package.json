@@ -30,8 +30,8 @@
     "build-js": "pnpm -w run org:rolldown -c ./rolldown.config.js",
     "build-pack": "pnpm build && pnpm build-js && fncts-pack",
     "circular": "pnpm -w run org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
-    "lint": "pnpm -w run org:eslint src/**/*.ts",
-    "format": "pnpm -w run org:prettier --list-different -w src/**/*.ts",
+    "lint": "pnpm -w run org:eslint \"{src,test}/**/*.ts\"",
+    "format": "pnpm -w run org:prettier --list-different -w \"{src,test}/**/*.ts\"",
     "clean": "rm -rf ./build ./dist"
   },
   "devDependencies": {

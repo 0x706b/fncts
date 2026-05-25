@@ -14,8 +14,8 @@
   "scripts": {
     "build": "pnpm -w run org:tsc -b ./tsconfig.json",
     "build-pack": "pnpm build",
-    "lint": "pnpm -w run org:eslint src/**/*.ts",
-    "format": "pnpm -w run org:prettier --list-different -w src/**/*.ts",
+    "lint": "pnpm -w run org:eslint \"{src,test}/**/*.ts\"",
+    "format": "pnpm -w run org:prettier --list-different -w \"{src,test}/**/*.ts\"",
     "circular": "pnpm -w run org:dpdm --exit-code circular:1 --circular --tsconfig ./tsconfig.build.json ./src/**/* -T",
     "clean": "rm -rf ./build",
     "postclean": "pnpm build-pack"

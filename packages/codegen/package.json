@@ -8,8 +8,8 @@
     "build-pack": "pnpm build && pnpm build-js && fncts-pack",
     "postclean": "pnpm build-pack",
     "clean": "rm -rf ./build",
-    "lint": "pnpm -w run org:eslint src/**/*.ts",
-    "format": "pnpm -w run org:prettier --list-different -w src/**/*.ts"
+    "lint": "pnpm -w run org:eslint \"{src,test}/**/*.ts\"",
+    "format": "pnpm -w run org:prettier --list-different -w \"{src,test}/**/*.ts\""
   },
   "exports": {
     "./*": {

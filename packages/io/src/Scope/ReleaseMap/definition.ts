@@ -25,13 +25,12 @@ interface ReleaseMapN extends HKT {
 /**
  * @tsplus type fncts.io.Scope.ReleaseMap
  */
-export interface ReleaseMap
-  extends Newtype<
-    {
-      readonly ReleaseMap: unique symbol;
-    },
-    Ref<State>
-  > {}
+export interface ReleaseMap extends Newtype<
+  {
+    readonly ReleaseMap: unique symbol;
+  },
+  Ref<State>
+> {}
 
 /**
  * @tsplus type fncts.io.Scope.ReleaseMapOps

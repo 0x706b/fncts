@@ -1,6 +1,6 @@
 import type { TypeLiteral, Union } from "@fncts/schema/AST";
 
-import { KeyError,TypeError, TypeLiteralError } from "@fncts/schema/ParseError";
+import { KeyError, TypeError, TypeLiteralError } from "@fncts/schema/ParseError";
 
 import { expectFailure, expectSuccess } from "../utils.js";
 
