@@ -1,7 +1,7 @@
 import { deepEqualTo } from "@fncts/test/control/Assertion";
 import { Gen } from "@fncts/test/control/Gen";
 
-suite.concurrent("Queue", () => {
+suite("Queue", () => {
   test.io(
     "sequential offer and take",
     Do((Δ) => {
@@ -266,7 +266,7 @@ suite.concurrent("Queue", () => {
       return c.assert(deepEqualTo(Conc(1, 2, 3, 4)));
     }),
   );
-  suite.concurrent("takeBetween", () => {
+  suite("takeBetween", () => {
     test.io(
       "returns immediately if there are enough elements",
       Do((Δ) => {
@@ -323,7 +323,7 @@ suite.concurrent("Queue", () => {
       ),
     );
   });
-  suite.concurrent("takeN", () => {
+  suite("takeN", () => {
     test.io(
       "returns immediately if there are enough elements",
       Do((Δ) => {

@@ -5,13 +5,12 @@ interface DictionaryN extends HKT {
 /**
  * @tsplus type fncts.Dictionary
  */
-export interface Dictionary<A>
-  extends Newtype<
-    {
-      readonly Dictionary: unique symbol;
-    },
-    Readonly<Record<string, A>>
-  > {}
+export interface Dictionary<A> extends Newtype<
+  {
+    readonly Dictionary: unique symbol;
+  },
+  Readonly<Record<string, A>>
+> {}
 
 /**
  * @tsplus type fncts.DictionaryOps

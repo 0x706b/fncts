@@ -471,13 +471,14 @@ export function foldLeftWhile<A, B>(b: B, p: Predicate<B>, f: (b: B, a: A) => B)
     concrete(as);
     const iterator = as.arrayIterator();
     let s          = b;
-    let cont       = p(s);
     let result: IteratorResult<ArrayLike<A>>;
-    while (cont && !(result = iterator.next()).done) {
+    while (!(result = iterator.next()).done) {
       const array = result.value;
-      for (let i = 0; cont && i < array.length; i++) {
-        s    = f(s, array[i]!);
-        cont = p(s);
+      for (let i = 0; i < array.length; i++) {
+        if (!p(s)) {
+          return s;
+        }
+        s = f(s, array[i]!);
       }
     }
     return s;

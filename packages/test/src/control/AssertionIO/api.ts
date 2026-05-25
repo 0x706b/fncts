@@ -1,3 +1,9 @@
+import type { Assertion } from "../Assertion/definition.js";
+import type { FreeBooleanAlgebraIO } from "../FreeBooleanAlgebraIO.js";
+import type { AssertionValue } from "@fncts/test/data/AssertionValue";
+
+import { AssertionData } from "@fncts/test/data/AssertionData";
+
 import { Render } from "../../data/Render.js";
 import { RenderParam } from "../../data/RenderParam.js";
 import { AssertionIO } from "./definition.js";
@@ -35,4 +41,15 @@ export function label(label: string) {
   return <A>(self: AssertionIO<A>): AssertionIO<A> => {
     return new AssertionIO(Render.infix(RenderParam(self), ":", RenderParam(label)), self.runIO);
   };
+}
+
+/**
+ * @tsplus static fncts.test.AssertionIOOps direct
+ */
+export function assertionDirect<A>(
+  name: string,
+  params: ReadonlyArray<RenderParam>,
+  run: (actual: A) => FreeBooleanAlgebraIO<never, never, AssertionValue<A>>,
+): AssertionIO<A> {
+  return new AssertionIO(Render.fn(name, Conc.single(Conc.from(params))), run);
 }

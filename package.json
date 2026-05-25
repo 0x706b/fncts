@@ -19,6 +19,7 @@
     "clean": "pnpm -r --parallel --if-present run clean && pnpm run postclean",
     "test": "pnpm vitest",
     "build-lint-deps": "pnpm --filter @fncts/scripts run build-pack && pnpm --filter @fncts/codegen... run build-pack",
+    "align-package-lint-format": "node ./scripts/align-package-lint-format.mjs",
     "lint": "pnpm -r --parallel --if-present run lint",
     "circular": "pnpm -r --parallel --if-present run circular",
     "postclean": "pnpm -r --if-present run postclean",

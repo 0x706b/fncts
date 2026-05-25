@@ -1,5 +1,5 @@
-suite.concurrent("Conc", { timeout: 10_000 }, () => {
-  suite.concurrent("length", () => {
+suite("Conc", { timeout: 10_000 }, () => {
+  suite("length", () => {
     test("concatenated size must match length", () => {
       const conc = Conc.empty<number>()
         .concat(Conc.fromArray([1, 2]))
@@ -29,7 +29,7 @@ suite.concurrent("Conc", { timeout: 10_000 }, () => {
     });
   });
 
-  suite.concurrent("append", () => {
+  suite("append", () => {
     test.io("index", () => {
       const chunksWithIndex = Do((_) => {
         const p  = _(Gen.boolean);
@@ -79,7 +79,7 @@ suite.concurrent("Conc", { timeout: 10_000 }, () => {
     );
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test.io("index", () => {
       const chunksWithIndex = Do((_) => {
         const p  = _(Gen.boolean);
@@ -142,6 +142,17 @@ suite.concurrent("Conc", { timeout: 10_000 }, () => {
         const expected = as.toIterable.foldLeft(0, (acc, n) => acc + n);
         return actual.assert(strictEqualTo(expected));
       }),
+  );
+
+  test(
+    "foldLeftWhile stops before folding when predicate fails",
+    Conc(1, 2, 3, 4)
+      .foldLeftWhile(
+        0,
+        (b) => b < 5,
+        (b, a) => b + a,
+      )
+      .assert(strictEqualTo(6)),
   );
 
   test("foldRight", () => {

@@ -3,7 +3,7 @@ import { UnsafeSink } from "@fncts/io/Push/Sink";
 import { strictEqualTo } from "@fncts/test/control/Assertion";
 import { TestConsole } from "@fncts/test/control/TestConsole";
 
-suite.concurrent("RefSubject", () => {
+suite("RefSubject", () => {
   test.io(
     "acts as a Ref and a Subject",
     () =>

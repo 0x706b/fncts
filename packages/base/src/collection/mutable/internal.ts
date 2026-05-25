@@ -20,5 +20,5 @@ export function copyOfArray<A>(arr: Array<A>, length: number) {
   for (let i = 0; i < arr.length; i++) {
     out[i] = arr[i]!;
   }
-  return arr;
+  return out;
 }

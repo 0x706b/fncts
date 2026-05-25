@@ -9,6 +9,10 @@ export function empty<A = never>(): ReadonlyArray<A> {
  * @tsplus static fncts.ArrayOps makeBy
  */
 export function makeBy<A>(n: number, f: (i: number) => A): ReadonlyArray<A> {
+  if (n < 0) {
+    return [];
+  }
+
   const j   = Math.max(0, Math.floor(n));
   const out = Array(n);
   for (let i = 0; i < j; i++) {
@@ -32,7 +36,8 @@ export function replicate<A>(n: number, a: A): ReadonlyArray<A> {
 }
 
 /**
- * tsplus static fncts.ArrayOps __call
+ * @tsplus static fncts.ArrayOps __call
+ * @tsplus static fncts.ArrayOps make
  */
 export function make<A>(...values: ReadonlyArray<A>): ReadonlyArray<A> {
   return values;

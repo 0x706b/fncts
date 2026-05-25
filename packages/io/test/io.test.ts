@@ -4,8 +4,8 @@ import { test } from "@fncts/test/vitest";
 
 import { withLatch } from "./Latch.js";
 
-suite.concurrent("IO", () => {
-  suite.concurrent("heap", () => {
+suite("IO", () => {
+  suite("heap", () => {
     test.io(
       "unit.forever is safe",
       Do((Δ) => {
@@ -17,7 +17,7 @@ suite.concurrent("IO", () => {
       { timeout: 6_000 },
     );
   });
-  suite.concurrent("absorbWith", () => {
+  suite("absorbWith", () => {
     test.io(
       "on fail",
       IO.fail("fail")
@@ -37,7 +37,7 @@ suite.concurrent("IO", () => {
         .assertIO(strictEqualTo(1)),
     );
   });
-  suite.concurrent("bracket", () => {
+  suite("bracket", () => {
     test.io(
       "bracket happy path",
       Do((Δ) => {
@@ -79,7 +79,7 @@ suite.concurrent("IO", () => {
     });
   });
 
-  suite.concurrent("bracketExit + disconnect", () => {
+  suite("bracketExit + disconnect", () => {
     test.io(
       "bracketExit happy path",
       Do((Δ) => {
@@ -146,7 +146,7 @@ suite.concurrent("IO", () => {
     });
   });
 
-  suite.concurrent("catchJustDefect", () => {
+  suite("catchJustDefect", () => {
     test.io("recovers from some defects", () => {
       const s  = "division by zero";
       const io = IO.halt(s);
@@ -176,7 +176,7 @@ suite.concurrent("IO", () => {
     });
   });
 
-  suite.concurrent("collect", () => {
+  suite("collect", () => {
     test.io(
       "returns failure ignoring value",
       Do((Δ) => {
@@ -201,7 +201,7 @@ suite.concurrent("IO", () => {
     );
   });
 
-  suite.concurrent("repeatUntil", () => {
+  suite("repeatUntil", () => {
     it.io(
       "repeats until condition is true",
       Do((Δ) => {
@@ -224,7 +224,7 @@ suite.concurrent("IO", () => {
     );
   });
 
-  suite.concurrent("foreachConcurrent", () => {
+  suite("foreachConcurrent", () => {
     it.io(
       "returns results in the same order",
       Do((Δ) => {
@@ -280,7 +280,7 @@ suite.concurrent("IO", () => {
     );
   });
 
-  suite.concurrent("RTS finalizers", () => {
+  suite("RTS finalizers", () => {
     it.io("fail ensuring", () => {
       let finalized = false;
 
@@ -328,7 +328,7 @@ suite.concurrent("IO", () => {
     });
   });
 
-  suite.concurrent("RTS asynchronous correctness", () => {
+  suite("RTS asynchronous correctness", () => {
     it.io("simple async must return", () => {
       const io = IO.async<never, never, number>((k) => k(IO.succeed(42)));
       return io.assertIO(strictEqualTo(42));
@@ -442,7 +442,7 @@ suite.concurrent("IO", () => {
       return io.assertIO(isJust(strictEqualTo("Ouch")));
     });
   });
-  suite.concurrent("RTS concurrency correctness", () => {
+  suite("RTS concurrency correctness", () => {
     it.io(
       "shallow fork/join identity",
       Do((Δ) => {
@@ -614,7 +614,7 @@ suite.concurrent("IO", () => {
       return io.assertIO(strictEqualTo(10));
     });
   });
-  suite.concurrent("RTS interruption", () => {
+  suite("RTS interruption", () => {
     it.io("sync forever is interruptible", () =>
       IO.succeed(1)
         .forever.fork.flatMap((f) => f.interrupt)
@@ -750,7 +750,7 @@ suite.concurrent("IO", () => {
       }),
     );
   });
-  suite.concurrent("zipConcurrent", () => {
+  suite("zipConcurrent", () => {
     it.io(
       "is interruptible",
       Do((Δ) => {
@@ -767,7 +767,7 @@ suite.concurrent("IO", () => {
     );
   });
 
-  suite.concurrent("all", () => {
+  suite("all", () => {
     test.io(
       "iterable",
       IO.all([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assertIO(strictEqualTo(Conc(1, 2, 3))),
@@ -780,7 +780,7 @@ suite.concurrent("IO", () => {
     );
   });
 
-  suite.concurrent("allConcurrent", () => {
+  suite("allConcurrent", () => {
     test.io(
       "iterable",
       IO.allConcurrent([IO.succeedNow(1), IO.succeedNow(2), IO.succeedNow(3)]).assertIO(strictEqualTo(Conc(1, 2, 3))),
@@ -793,7 +793,7 @@ suite.concurrent("IO", () => {
     );
   });
 
-  suite.concurrent("RTS synchronous correctness", () => {
+  suite("RTS synchronous correctness", () => {
     test.io(
       "deferTry must catch",
       IO.deferTry(() => {

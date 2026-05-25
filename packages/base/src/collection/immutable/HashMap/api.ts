@@ -35,7 +35,7 @@ export function makeWith<K, V>(config: P.HashEq<K>): HashMap<K, V> {
  * @tsplus static fncts.HashMapOps __call
  */
 export function make<K, V>(...items: ReadonlyArray<readonly [K, V]>): HashMap<K, V> {
-  return HashMap.empty<any, any>().mutate((map) => {
+  return HashMap.empty<K, V>().mutate((map) => {
     for (const [key, value] of items) {
       map.set(key, value);
     }
@@ -545,7 +545,7 @@ export function partition<V>(predicate: Predicate<V>) {
 export function foldLeftWithIndexWhile<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z, p: Predicate<Z>) {
   return (self: HashMap<K, V>): Z => {
     const root = self.root;
-    if (root._tag === "LeafNode") return root.value.isJust() ? f(root.key, z, root.value.value) : z;
+    if (root._tag === "LeafNode") return root.value.isJust() && p(z) ? f(root.key, z, root.value.value) : z;
     if (root._tag === "EmptyNode") {
       return z;
     }
@@ -558,10 +558,10 @@ export function foldLeftWithIndexWhile<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z
         if (child && !isEmptyNode(child)) {
           if (child._tag === "LeafNode") {
             if (child.value.isJust()) {
-              acc = f(child.key, acc, child.value.value);
-              if (p(acc)) {
+              if (!p(acc)) {
                 break loop;
               }
+              acc = f(child.key, acc, child.value.value);
             }
           } else {
             toVisit.push(child.children);

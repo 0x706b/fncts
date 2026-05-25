@@ -1,7 +1,6 @@
 import type { Transform, TypeLiteral } from "@fncts/schema/AST";
 
 import { KeyError, TransformationError, TypeError, TypeLiteralError } from "@fncts/schema/ParseError";
-
 import { deepEqualTo, isJust, isNothing, strictEqualTo } from "@fncts/test/control/Assertion";
 
 import { expectFailure, expectSuccess } from "../utils.js";

@@ -5,13 +5,12 @@ interface StructN extends HKT {
 /**
  * @tsplus type fncts.Struct
  */
-export interface Struct<A>
-  extends Newtype<
-    {
-      readonly Struct: unique symbol;
-    },
-    A
-  > {}
+export interface Struct<A> extends Newtype<
+  {
+    readonly Struct: unique symbol;
+  },
+  A
+> {}
 
 /**
  * @tsplus type fncts.StructOps

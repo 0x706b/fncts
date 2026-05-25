@@ -1,5 +1,6 @@
 /**
  * @tsplus pipeable fncts.ReadonlyArray splitWhere
+ * @tsplus pipeable fncts.Array splitWhere
  */
 export function splitWhere<A>(p: Predicate<A>) {
   return (self: ReadonlyArray<A>): readonly [ReadonlyArray<A>, ReadonlyArray<A>] => {

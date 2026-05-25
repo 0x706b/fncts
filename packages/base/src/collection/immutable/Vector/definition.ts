@@ -88,6 +88,9 @@ export interface MutableVector<A> {
   "@@mutable": true;
 }
 
+/**
+ * @tsplus static fncts.VectorOps is
+ */
 export function isVector(u: unknown): u is Vector<unknown> {
   return isObject(u) && VectorTypeId in u;
 }

@@ -37,6 +37,9 @@ export class RoseTree<A> implements Hashable, Equatable {
   }
 }
 
+/**
+ * @tsplus static fncts.RoseTree is
+ */
 export function isRoseTree(u: unknown): u is RoseTree<unknown> {
   return isObject(u) && RoseTreeTypeId in u;
 }

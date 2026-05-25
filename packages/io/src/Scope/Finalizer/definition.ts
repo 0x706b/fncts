@@ -5,13 +5,12 @@ interface FinalizerN extends HKT {
 /**
  * @tsplus type fncts.io.Managed.Finalizer
  */
-export interface Finalizer
-  extends Newtype<
-    {
-      readonly Finalizer: unique symbol;
-    },
-    (exit: Exit<any, any>) => IO<never, never, any>
-  > {}
+export interface Finalizer extends Newtype<
+  {
+    readonly Finalizer: unique symbol;
+  },
+  (exit: Exit<any, any>) => IO<never, never, any>
+> {}
 
 /**
  * @tsplus type fncts.io.Managed.FinalizerOps

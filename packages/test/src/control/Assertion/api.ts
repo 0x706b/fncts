@@ -152,12 +152,20 @@ export function halts(assertion: Assertion<any>): Assertion<Exit<any, any>> {
   );
 }
 
+export function strictNotEqualTo(expected: unknown): Assertion<unknown> {
+  return strictEqualTo(expected).invert;
+}
+
 export function strictEqualTo(expected: unknown): Assertion<unknown> {
   return Assertion.make("strictEqualTo", [RenderParam(expected)], (actual) => Equatable.strictEquals(actual, expected));
 }
 
-export function deepEqualTo<A>(expected: A): Assertion<A> {
+export function deepEqualTo<A>(expected: NoInfer<A>): Assertion<A> {
   return Assertion.make("deepEqualTo", [RenderParam(expected)], (actual) => Equatable.deepEquals(actual, expected));
+}
+
+export function deepNotEqualTo(expected: unknown): Assertion<unknown> {
+  return deepEqualTo(expected).invert;
 }
 
 export function equals<A>(expected: A, E: Eq<A>): Assertion<A> {

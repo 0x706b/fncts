@@ -1,6 +1,6 @@
 import { vitest } from "vitest";
 
-suite.concurrent("Eval", () => {
+suite("Eval", () => {
   test("now", Eval.now(1).run.assert(strictEqualTo(1)));
   test("defer", () => {
     const fn     = vitest.fn();

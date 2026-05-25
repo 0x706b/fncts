@@ -288,6 +288,9 @@ export function group<A>(/** @tsplus auto */ E: P.Eq<A>) {
   };
 }
 
+/**
+ * @tsplus fluent fncts.ReadonlyNonEmptyArray groupSort
+ */
 export function groupSort<A>(
   as: ReadonlyNonEmptyArray<A>,
   /** @tsplus auto */ O: P.Ord<A>,
@@ -338,7 +341,7 @@ export function max<A>(/** @tsplus auto */ O: P.Ord<A>) {
 }
 
 /**
- * @tsplus pipeable fncts.ReadonlyNonEmptyArray max
+ * @tsplus pipeable fncts.ReadonlyNonEmptyArray min
  */
 export function min<A>(/** @tsplus auto */ O: P.Ord<A>) {
   return (self: ReadonlyNonEmptyArray<A>): A => {

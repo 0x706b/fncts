@@ -15,6 +15,7 @@ export * from "./IO/api/all.js";
 export * from "./IO/api/array.js";
 export * from "./IO/api/asyncInterrupt.js";
 export * from "./IO/api/asyncIO.js";
+export * from "./IO/api/asyncIterable.js";
 export * from "./IO/api/awaitAllChildren.js";
 export * from "./IO/api/blocking.js";
 export * from "./IO/api/bracket.js";

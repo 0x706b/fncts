@@ -2,7 +2,7 @@ const current = 0;
 
 const update = 1;
 
-suite.concurrent("Ref", () => {
+suite("Ref", () => {
   test.io(
     "get",
     Do((Δ) => {
@@ -32,7 +32,7 @@ suite.concurrent("Ref", () => {
     }),
   );
 
-  suite.concurrent("getAndUpdateJust", () => {
+  suite("getAndUpdateJust", () => {
     test.io(
       "Just",
       Do((Δ) => {
@@ -84,7 +84,7 @@ suite.concurrent("Ref", () => {
     }),
   );
 
-  suite.concurrent("modifyJust", () => {
+  suite("modifyJust", () => {
     test.io(
       "Just",
       Do((Δ) => {
@@ -115,7 +115,7 @@ suite.concurrent("Ref", () => {
     }),
   );
 
-  suite.concurrent("updateJustAndGet", () => {
+  suite("updateJustAndGet", () => {
     test.io(
       "Just",
       Do((Δ) => {

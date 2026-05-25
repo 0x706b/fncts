@@ -1,4 +1,4 @@
-suite.concurrent("Either", () => {
+suite("Either", () => {
   test(
     "ap",
     Either.right((n: number) => n + 1)

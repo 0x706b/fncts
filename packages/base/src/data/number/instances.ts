@@ -4,6 +4,14 @@ import { isNumber } from "@fncts/base/util/predicates";
 import * as P from "../../typeclass.js";
 
 /**
+ * @tsplus static fncts.NumberOps MonoidSum
+ */
+export const MonoidSum = P.Monoid<number>({
+  combine: (x) => (y) => x + y,
+  nat: 0,
+});
+
+/**
  * @tsplus static fncts.NumberOps Eq
  * @tsplus implicit
  */

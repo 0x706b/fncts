@@ -90,9 +90,14 @@ export function filterInput<A, A1 extends A>(f: Predicate<A1>, __tsplusTrace?: s
   };
 }
 
-class FilterInputEnqueueIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2>
-  implements PEnqueueInternal<RA | R2, RB, EA | E2, EB, A1, B>
-{
+class FilterInputEnqueueIO<RA, RB, EA, EB, B, A, A1 extends A, R2, E2> implements PEnqueueInternal<
+  RA | R2,
+  RB,
+  EA | E2,
+  EB,
+  A1,
+  B
+> {
   readonly [EnqueueTypeId]: EnqueueTypeId = EnqueueTypeId;
   readonly [QueueTypeId]: QueueTypeId     = QueueTypeId;
   declare [QueueVariance]: {

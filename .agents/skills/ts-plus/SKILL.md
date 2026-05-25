@@ -22,6 +22,27 @@ Since it is a modification of the TypeScript compiler, LSP features will work as
 
 `ts-plus` uses JSDoc tags to communicate with the type-checker.
 
+### `Lazy<A>`
+
+The special `Lazy` type allows passing values where a thunk is expected. When compiled, the argument will be wrapped
+in a thunk.
+
+#### Example
+
+```ts
+function f<A>(x: Lazy<A>): void {
+  x()
+}
+
+f(1)
+```
+
+When compiled, the call will be transformed to:
+
+```ts
+f(() => 1)
+```
+
 ### `@tsplus type`
 
 ```ts

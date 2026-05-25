@@ -86,7 +86,7 @@ export const it = (() => {
   }
 
   function itIO<E>(name: string, io: Lazy<IO<TestEnvironment, E, TestResult>>, options?: V.TestOptions) {
-    return V.it.concurrent(name, options, () => runTestIO(io));
+    return V.it(name, options, () => runTestIO(io));
   }
 
   return Object.assign(it, {

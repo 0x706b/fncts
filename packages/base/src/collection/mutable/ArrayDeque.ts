@@ -1,6 +1,13 @@
 const STABLE_SIZE          = 128;
 const DEFAULT_INITIAL_SIZE = 16;
 
+function alloc(len: number): number {
+  if (len < 0) throw new Error("Non-negative array size required");
+  const size = ((1 << 31) >>> Math.clz32(len)) << 1;
+  if (size < 0) throw new Error(`ArrayDeque too big - cannot allocate ArrayDeque of length ${len}`);
+  return Math.max(size, DEFAULT_INITIAL_SIZE);
+}
+
 /**
  * @tsplus type fncts.MutableArrayDeque
  * @tsplus companion fncts.MutableArrayDeque
@@ -13,11 +20,11 @@ export class ArrayDeque<A> {
   ) {}
 
   static empty<A>(initialSize = DEFAULT_INITIAL_SIZE): ArrayDeque<A> {
-    return new ArrayDeque(new Array(initialSize), 0, 0);
+    return new ArrayDeque(new Array(alloc(initialSize)), 0, 0);
   }
 
   protected requireBounds(idx: number, until: number = this.length) {
-    if (idx < 0 || idx > until) throw new IndexOutOfBoundsError(`${idx} is out of bounds (min 0, max ${until - 1})`);
+    if (idx < 0 || idx >= until) throw new IndexOutOfBoundsError(`${idx} is out of bounds (min 0, max ${until - 1})`);
   }
 
   get(idx: number): A {
@@ -50,7 +57,7 @@ export class ArrayDeque<A> {
     } else {
       const finalLength = n + 1;
       if (this.mustGrow(finalLength)) {
-        const array2 = new Array(finalLength);
+        const array2 = new Array(alloc(finalLength));
         this.copySliceToArray(0, array2, 0, idx);
         array2[idx] = elem;
         this.copySliceToArray(idx, array2, idx + 1, n);
@@ -66,7 +73,7 @@ export class ArrayDeque<A> {
       } else {
         let i = 0;
         for (; i < idx; i++) {
-          this._set(i - 1, this._get(1));
+          this._set(i - 1, this._get(i));
         }
         this.start = this.start_minus(1);
         this._set(i, elem);
@@ -82,7 +89,7 @@ export class ArrayDeque<A> {
       const finalLength = n - removals;
       const suffixStart = idx + removals;
       if (this.shouldShrink(finalLength)) {
-        const array2 = new Array(finalLength);
+        const array2 = new Array(alloc(finalLength));
         this.copySliceToArray(0, array2, 0, idx);
         this.copySliceToArray(suffixStart, array2, idx, n);
         this.reset(array2, 0, finalLength);
@@ -164,9 +171,11 @@ export class ArrayDeque<A> {
   }
 
   private resize(len: number) {
-    const n      = this.length;
-    const array2 = this.copySliceToArray(0, new Array(len), 0, n);
-    this.reset(array2, 0, n);
+    if (this.mustGrow(len) || this.canShrink(len)) {
+      const n      = this.length;
+      const array2 = this.copySliceToArray(0, new Array(alloc(len)), 0, n);
+      this.reset(array2, 0, n);
+    }
   }
 
   private reset(array: Array<A>, start: number, end: number) {
@@ -221,6 +230,15 @@ export class ArrayDeque<A> {
       if (block2 > 0) copyArray(this.array, 0, dest, destStart + block1, block2);
     }
     return dest;
+  }
+
+  toArray(): Array<A> {
+    const arr = this.copySliceToArray(0, new Array(this.length), 0, this.length);
+    return arr;
+  }
+
+  private canShrink(len: number) {
+    return this.array.length > DEFAULT_INITIAL_SIZE && this.array.length - len > len;
   }
 
   private shouldShrink(len: number) {
