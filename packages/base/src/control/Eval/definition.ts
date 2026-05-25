@@ -49,30 +49,27 @@ export const enum EvalTag {
   FlatMap,
 }
 
-export interface Value
-  extends EvalOp<
-    EvalTag.Value,
-    {
-      readonly i0: any;
-    }
-  > {}
+export interface Value extends EvalOp<
+  EvalTag.Value,
+  {
+    readonly i0: any;
+  }
+> {}
 
-export interface Defer
-  extends EvalOp<
-    EvalTag.Defer,
-    {
-      readonly i0: () => Primitive;
-    }
-  > {}
+export interface Defer extends EvalOp<
+  EvalTag.Defer,
+  {
+    readonly i0: () => Primitive;
+  }
+> {}
 
-export interface FlatMap
-  extends EvalOp<
-    EvalTag.FlatMap,
-    {
-      readonly i0: Primitive;
-      readonly i1: (a: any) => Primitive;
-    }
-  > {}
+export interface FlatMap extends EvalOp<
+  EvalTag.FlatMap,
+  {
+    readonly i0: Primitive;
+    readonly i1: (a: any) => Primitive;
+  }
+> {}
 
 type Primitive = Value | Defer | FlatMap;
 

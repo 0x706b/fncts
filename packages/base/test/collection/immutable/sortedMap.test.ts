@@ -55,9 +55,25 @@ suite("SortedMap", () => {
       );
     });
 
-    test("duplicate keys allowed", () => {
-      const map = fromNumbers([1, "a"], [1, "b"]);
-      return map.size.assert(strictEqualTo(2));
+    test("duplicate keys are kept in iteration, lookup, has, and remove", () => {
+      const map     = fromNumbers([1, "a"], [1, "b"]);
+      const removed = map.remove(1);
+      return (
+        map.size.assert(strictEqualTo(2)) &&
+        Array.from(map).assert(
+          deepEqualTo([
+            [1, "b"],
+            [1, "a"],
+          ]),
+        ) &&
+        map.get(1).assert(isJust(strictEqualTo("a"))) &&
+        map.has(1).assert(isTrue) &&
+        removed.size.assert(strictEqualTo(1)) &&
+        Array.from(removed).assert(deepEqualTo([[1, "b"]])) &&
+        removed.get(1).assert(isJust(strictEqualTo("b"))) &&
+        removed.has(1).assert(isTrue) &&
+        removed.remove(1).has(1).assert(isFalse)
+      );
     });
 
     test("preserves original", () => {
@@ -81,6 +97,43 @@ suite("SortedMap", () => {
     test("empty", () => {
       const map = SortedMap.make<number, string>(Number.Ord);
       return map.get(1).assert(isNothing);
+    });
+  });
+
+  suite("has", () => {
+    test("existing", () => {
+      const map = fromNumbers([1, "a"], [2, "b"]);
+      return map.has(2).assert(isTrue);
+    });
+
+    test("missing", () => {
+      const map = fromNumbers([1, "a"]);
+      return map.has(2).assert(isFalse);
+    });
+
+    test("empty", () => {
+      const map = SortedMap.make<number, string>(Number.Ord);
+      return map.has(1).assert(isFalse);
+    });
+  });
+
+  suite("is / equality", () => {
+    test("is identifies SortedMap values", () => {
+      return SortedMap.is(fromNumbers([1, "a"])).assert(isTrue) && SortedMap.is([[1, "a"]]).assert(isFalse);
+    });
+
+    test("structural equality compares ordered entries", () => {
+      const left      = fromNumbers([2, "b"], [1, "a"]);
+      const same      = fromNumbers([1, "a"], [2, "b"]);
+      const different = fromNumbers([1, "a"], [2, "c"]);
+      return (
+        Equatable.deepEquals(left, same).assert(isTrue) &&
+        Equatable.deepEquals(left, different).assert(isFalse) &&
+        Equatable.deepEquals(left, [
+          [1, "a"],
+          [2, "b"],
+        ]).assert(isFalse)
+      );
     });
   });
 
@@ -149,6 +202,11 @@ suite("SortedMap", () => {
       return map.getGt(2).assert(isJust(strictEqualTo("c")));
     });
 
+    test("excludes the boundary", () => {
+      const map = fromNumbers([1, "a"], [3, "c"], [5, "e"]);
+      return map.getGt(3).assert(isJust(strictEqualTo("e")));
+    });
+
     test("no greater", () => {
       const map = fromNumbers([1, "a"], [2, "b"]);
       return map.getGt(2).assert(isNothing);
@@ -161,6 +219,11 @@ suite("SortedMap", () => {
       return map.getLt(4).assert(isJust(strictEqualTo("c")));
     });
 
+    test("excludes the boundary", () => {
+      const map = fromNumbers([1, "a"], [3, "c"], [5, "e"]);
+      return map.getLt(3).assert(isJust(strictEqualTo("a")));
+    });
+
     test("no less", () => {
       const map = fromNumbers([2, "b"], [3, "c"]);
       return map.getLt(2).assert(isNothing);
@@ -168,7 +231,7 @@ suite("SortedMap", () => {
   });
 
   suite("getGte", () => {
-    test("exact match", () => {
+    test("includes the boundary", () => {
       const map = fromNumbers([1, "a"], [3, "c"]);
       return map.getGte(3).assert(isJust(strictEqualTo("c")));
     });
@@ -180,7 +243,7 @@ suite("SortedMap", () => {
   });
 
   suite("getLte", () => {
-    test("exact match", () => {
+    test("includes the boundary", () => {
       const map = fromNumbers([1, "a"], [3, "c"]);
       return map.getLte(1).assert(isJust(strictEqualTo("a")));
     });
@@ -335,13 +398,13 @@ suite("SortedMap", () => {
       return result.assert(deepEqualTo(["a", "b", "c"]));
     });
 
-    test("forEachBetween", () => {
+    test("forEachBetween includes min and excludes max", () => {
       const map                   = fromNumbers([1, "a"], [2, "b"], [3, "c"], [4, "d"]);
       const result: Array<string> = [];
-      map.forEachBetween(2, 3, (_, v) => {
+      map.forEachBetween(2, 4, (_, v) => {
         result.push(v);
       });
-      return result.assert(deepEqualTo(["b"]));
+      return result.assert(deepEqualTo(["b", "c"]));
     });
 
     test("forEachLt", () => {
@@ -394,10 +457,14 @@ suite("SortedMap", () => {
       return result.assert(isNothing);
     });
 
-    test("visitBetween", () => {
-      const map    = fromNumbers([1, "a"], [2, "b"], [3, "c"], [4, "d"]);
-      const result = map.visitBetween(2, 4, (k, v) => (k === 3 ? Just(v) : Nothing()));
-      return result.assert(isJust(strictEqualTo("c")));
+    test("visitBetween includes min and excludes max", () => {
+      const map                    = fromNumbers([1, "a"], [2, "b"], [3, "c"], [4, "d"]);
+      const visited: Array<number> = [];
+      const result                 = map.visitBetween(2, 4, (k) => {
+        visited.push(k);
+        return Nothing();
+      });
+      return result.assert(isNothing) && visited.assert(deepEqualTo([2, 3]));
     });
 
     test("visitLte", () => {

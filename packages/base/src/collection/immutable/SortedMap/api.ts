@@ -368,7 +368,7 @@ export function make<K, V>(/** @tsplus auto */ ord: Ord<K>) {
  */
 export function has<K>(key: K) {
   return <V>(self: SortedMap<K, V>): boolean => {
-    return self.find(key)[Symbol.iterator]().value.isJust();
+    return self.get(key).isJust();
   };
 }
 

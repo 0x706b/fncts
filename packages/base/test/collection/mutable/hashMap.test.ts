@@ -386,23 +386,26 @@ suite("MutableHashMap", () => {
 
   suite("mutation in place", () => {
     test("same instance is mutated by set", () => {
-      const map = HashMap.empty<number, string>();
+      const map  = HashMap.empty<number, string>();
+      const same = map;
       map.set(0, "a");
-      return map.has(0).assert(isTrue) && map.size.assert(strictEqualTo(1));
+      return (same === map).assert(isTrue) && same.has(0).assert(isTrue) && same.size.assert(strictEqualTo(1));
     });
 
     test("same instance is mutated by delete", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
+      const same = map;
       map.delete(0);
-      return map.has(0).assert(isFalse) && map.size.assert(strictEqualTo(0));
+      return (same === map).assert(isTrue) && same.has(0).assert(isFalse) && same.size.assert(strictEqualTo(0));
     });
 
     test("same instance is mutated by clear", () => {
       const map = HashMap.empty<number, string>();
       map.set(0, "a");
+      const same = map;
       map.clear();
-      return map.size.assert(strictEqualTo(0));
+      return (same === map).assert(isTrue) && same.size.assert(strictEqualTo(0));
     });
   });
 });

@@ -341,22 +341,29 @@ suite("MutableHashSet", () => {
       set.add("a");
       set.add("b");
       set.add("c");
-      return set.size.assert(strictEqualTo(3)) && set.has("a").assert(isTrue) && set.has("b").assert(isTrue) && set.has("c").assert(isTrue);
+      return (
+        set.size.assert(strictEqualTo(3)) &&
+        set.has("a").assert(isTrue) &&
+        set.has("b").assert(isTrue) &&
+        set.has("c").assert(isTrue)
+      );
     });
   });
 
   suite("mutation in place", () => {
     test("same instance is mutated by add", () => {
-      const set = HashSet.empty<number>();
+      const set  = HashSet.empty<number>();
+      const same = set;
       set.add(0);
-      return set.has(0).assert(isTrue) && set.size.assert(strictEqualTo(1));
+      return (same === set).assert(isTrue) && same.has(0).assert(isTrue) && same.size.assert(strictEqualTo(1));
     });
 
     test("same instance is mutated by remove", () => {
       const set = HashSet.empty<number>();
       set.add(0);
+      const same = set;
       set.remove(0);
-      return set.has(0).assert(isFalse) && set.size.assert(strictEqualTo(0));
+      return (same === set).assert(isTrue) && same.has(0).assert(isFalse) && same.size.assert(strictEqualTo(0));
     });
   });
 });

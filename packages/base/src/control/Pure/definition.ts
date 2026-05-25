@@ -96,98 +96,87 @@ export type PureOp<Tag extends number, Body = {}> = PurePrimitive &
     _tag: Tag;
   };
 
-export interface SucceedNow
-  extends PureOp<
-    PureTag.SucceedNow,
-    {
-      readonly i0: any;
-    }
-  > {}
+export interface SucceedNow extends PureOp<
+  PureTag.SucceedNow,
+  {
+    readonly i0: any;
+  }
+> {}
 
-export interface Succeed
-  extends PureOp<
-    PureTag.Succeed,
-    {
-      readonly i0: () => any;
-    }
-  > {}
+export interface Succeed extends PureOp<
+  PureTag.Succeed,
+  {
+    readonly i0: () => any;
+  }
+> {}
 
-export interface Defer
-  extends PureOp<
-    PureTag.Defer,
-    {
-      readonly i0: () => Primitive;
-    }
-  > {}
+export interface Defer extends PureOp<
+  PureTag.Defer,
+  {
+    readonly i0: () => Primitive;
+  }
+> {}
 
-export interface Fail
-  extends PureOp<
-    PureTag.Fail,
-    {
-      readonly i0: Cause<unknown>;
-    }
-  > {}
+export interface Fail extends PureOp<
+  PureTag.Fail,
+  {
+    readonly i0: Cause<unknown>;
+  }
+> {}
 
-export interface Modify
-  extends PureOp<
-    PureTag.Modify,
-    {
-      readonly i0: (s1: any) => readonly [any, any];
-    }
-  > {}
+export interface Modify extends PureOp<
+  PureTag.Modify,
+  {
+    readonly i0: (s1: any) => readonly [any, any];
+  }
+> {}
 
-export interface FlatMap
-  extends PureOp<
-    PureTag.Chain,
-    {
-      readonly i0: Primitive;
-      readonly i1: (a: any) => Primitive;
-    }
-  > {}
+export interface FlatMap extends PureOp<
+  PureTag.Chain,
+  {
+    readonly i0: Primitive;
+    readonly i1: (a: any) => Primitive;
+  }
+> {}
 
-export interface Match
-  extends PureOp<
-    PureTag.Match,
-    {
-      readonly i0: Primitive;
-      readonly i1: (ws: Conc<any>, e: Cause<unknown>) => Primitive;
-      readonly i2: (ws: Conc<any>, a: any) => Primitive;
-    }
-  > {}
+export interface Match extends PureOp<
+  PureTag.Match,
+  {
+    readonly i0: Primitive;
+    readonly i1: (ws: Conc<any>, e: Cause<unknown>) => Primitive;
+    readonly i2: (ws: Conc<any>, a: any) => Primitive;
+  }
+> {}
 
-export interface Access
-  extends PureOp<
-    PureTag.Access,
-    {
-      readonly i0: (r: Environment<any>) => Primitive;
-    }
-  > {}
+export interface Access extends PureOp<
+  PureTag.Access,
+  {
+    readonly i0: (r: Environment<any>) => Primitive;
+  }
+> {}
 
-export interface Provide
-  extends PureOp<
-    PureTag.Provide,
-    {
-      readonly i0: Primitive;
-      readonly i1: Environment<any>;
-    }
-  > {}
+export interface Provide extends PureOp<
+  PureTag.Provide,
+  {
+    readonly i0: Primitive;
+    readonly i1: Environment<any>;
+  }
+> {}
 
-export interface Tell
-  extends PureOp<
-    PureTag.Tell,
-    {
-      readonly i0: Conc<any>;
-    }
-  > {}
+export interface Tell extends PureOp<
+  PureTag.Tell,
+  {
+    readonly i0: Conc<any>;
+  }
+> {}
 
-export interface MapLog
-  extends PureOp<
-    PureTag.MapLog,
-    {
-      readonly i0: Primitive;
-      readonly i1: (ws: Conc<any>) => Conc<any>;
-    }
-  > {}
+export interface MapLog extends PureOp<
+  PureTag.MapLog,
+  {
+    readonly i0: Primitive;
+    readonly i1: (ws: Conc<any>) => Conc<any>;
+  }
+> {}
 
 export type Primitive =
   | SucceedNow

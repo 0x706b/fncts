@@ -12,4 +12,4 @@ import { Gen } from "@fncts/test/control/Gen";
 /**
  * @tsplus global
  */
-import { calledTimes,suite, test } from "@fncts/test/vitest";
+import { calledTimes, suite, test } from "@fncts/test/vitest";
