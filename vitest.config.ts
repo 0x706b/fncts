@@ -2,6 +2,9 @@ import os from "node:os";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  build: {
+    sourcemap: true,
+  },
   test: {
     projects: ["packages/*"],
     experimental: {
@@ -9,5 +12,10 @@ export default defineConfig({
     },
     maxWorkers: Math.max(1, Math.min(8, os.availableParallelism() - 1)),
     pool: "threads",
+    server: {
+      deps: {
+        external: [/^@fncts\/.*$/],
+      },
+    },
   },
 });

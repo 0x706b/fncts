@@ -41,8 +41,8 @@ const collectFiles = (configPath: string) => {
 
   Object.assign(config.compilerOptions ?? {}, {
     moduleDetection: "force",
-    sourceMap: false,
-    inlineSourceMap: true,
+    sourceMap: true,
+    inlineSourceMap: false,
     inlineSources: true,
     noEmit: false,
     declaration: true,
@@ -113,73 +113,107 @@ const init = (cwd: string) => {
   return services;
 };
 
-const getEmit = (path: string) => {
+type SourceMap = {
+  version: number;
+  sources: Array<string>;
+  names: Array<string>;
+  mappings: string;
+  sourcesContent?: Array<string>;
+  [key: string]: unknown;
+};
+
+type Compiled = {
+  code: string;
+  map?: SourceMap;
+};
+
+const cacheVersion = "v2";
+
+const getEmit = (path: string): Compiled => {
   files.add(path);
 
   const program = services.getProgram()!;
   const source  = program.getSourceFile(path);
 
-  let text: string | undefined;
+  let code: string | undefined;
+  let map: SourceMap | undefined;
 
   program.emit(
     source,
     (file, content) => {
       if (file.endsWith(".js") || file.endsWith(".jsx")) {
-        text = content;
+        code = content;
+      } else if (file.endsWith(".js.map") || file.endsWith(".jsx.map")) {
+        map         = JSON.parse(content) as SourceMap;
+        map.sources = map.sources.map(() => path);
       }
     },
     void 0,
     void 0,
   );
 
-  if (!text) {
+  if (!code) {
     throw new Error(`Typescript failed emit for file: ${path}`);
   }
 
-  return text;
+  return { code, map };
 };
 
-const cache = new Map<string, { hash: string; content: string }>();
+const cache = new Map<string, { hash: string; compiled: Compiled }>();
 
 export const fromCache = (fileName: string) => {
   const current = getScriptVersion(fileName);
   if (cache.has(fileName)) {
     const cached = cache.get(fileName)!;
     if (cached.hash === current) {
-      return cached.content;
+      return cached.compiled;
     }
   }
-  const path = nodePath.join(cacheDir, `${ts.sys.createHash!(fileName)}.hash`);
+  const path = nodePath.join(
+    cacheDir,
+    `${cacheVersion}-${ts.sys.createHash!(fileName)}.hash`,
+  );
   if (fs.existsSync(path)) {
     const hash = fs.readFileSync(path).toString("utf-8");
     if (hash === current) {
-      return fs
-        .readFileSync(
-          nodePath.join(cacheDir, `${ts.sys.createHash!(fileName)}.content`),
-        )
-        .toString("utf-8");
+      const compiled = JSON.parse(
+        fs
+          .readFileSync(
+            nodePath.join(
+              cacheDir,
+              `${cacheVersion}-${ts.sys.createHash!(fileName)}.content`,
+            ),
+          )
+          .toString("utf-8"),
+      ) as Compiled;
+      cache.set(fileName, { hash: current, compiled });
+      return compiled;
     }
   }
 };
 
-export const toCache = (fileName: string, content: string) => {
+export const toCache = (fileName: string, compiled: Compiled) => {
   const current = getScriptVersion(fileName);
-  const path    = nodePath.join(cacheDir, `${ts.sys.createHash!(fileName)}.hash`);
+  const path    = nodePath.join(
+    cacheDir,
+    `${cacheVersion}-${ts.sys.createHash!(fileName)}.hash`,
+  );
   fs.writeFileSync(path, current);
   fs.writeFileSync(
-    nodePath.join(cacheDir, `${ts.sys.createHash!(fileName)}.content`),
-    content,
+    nodePath.join(
+      cacheDir,
+      `${cacheVersion}-${ts.sys.createHash!(fileName)}.content`,
+    ),
+    JSON.stringify(compiled),
   );
-  cache.set(fileName, { hash: current, content });
-  return content;
+  cache.set(fileName, { hash: current, compiled });
+  return compiled;
 };
 
 export const getCompiled = (path: string) => {
   const cached = fromCache(path);
   if (cached) {
-    return {
-      code: cached,
-    };
+    return cached;
   }
 
   const syntactic: Array<ts.DiagnosticWithLocation> =
@@ -212,11 +246,7 @@ export const getCompiled = (path: string) => {
     );
   }
 
-  const code = toCache(path, getEmit(path));
-
-  return {
-    code,
-  };
+  return toCache(path, getEmit(path));
 };
 
 type Options = {

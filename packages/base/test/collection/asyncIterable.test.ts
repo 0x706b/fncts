@@ -1,45 +1,4 @@
-import type {} from "@fncts/base/collection/AsyncIterable";
-import type {} from "@fncts/io/global";
-
 import { vitest } from "vitest";
-
-async function toArray<A>(iterable: AsyncIterable<A>): Promise<Array<A>> {
-  const values: Array<A> = [];
-  for await (const value of iterable) {
-    values.push(value);
-  }
-  return values;
-}
-
-function toArrayIO<A>(iterable: AsyncIterable<A>) {
-  return IO.fromPromise(() => toArray(iterable));
-}
-
-function trackedAsyncIterable<A>(values: ReadonlyArray<A>) {
-  let returned = 0;
-
-  let pulled = 0;
-
-  const iterable = AsyncIterable<A>(() => {
-    let index = 0;
-    return {
-      async next() {
-        pulled++;
-        return index < values.length ? { done: false, value: values[index++]! } : { done: true, value: undefined };
-      },
-      async return(value?: unknown) {
-        returned++;
-        return { done: true, value };
-      },
-    };
-  });
-
-  return {
-    iterable,
-    pulled: () => pulled,
-    returned: () => returned,
-  };
-}
 
 suite.concurrent("AsyncIterable", () => {
   suite.concurrent("constructors", () => {
@@ -66,12 +25,12 @@ suite.concurrent("AsyncIterable", () => {
 
     test.io(
       "from converts a synchronous iterable",
-      toArrayIO(AsyncIterable.from([1, 2, 3])).assertIO(deepEqualTo([1, 2, 3])),
+      IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3])).assertIO(deepEqualTo(Conc(1, 2, 3))),
     );
 
     test.io(
       "from converts an empty iterable",
-      toArrayIO(AsyncIterable.from([] as Array<number>)).assertIO(deepEqualTo([])),
+      IO.fromAsyncIterable(AsyncIterable.from([] as Array<number>)).assertIO(deepEqualTo(Conc())),
     );
 
     test.io(
@@ -100,19 +59,19 @@ suite.concurrent("AsyncIterable", () => {
 
     test.io(
       "fromValues creates an iterable from variadic values",
-      toArrayIO(AsyncIterable.fromValues(1, 2, 3)).assertIO(deepEqualTo([1, 2, 3])),
+      IO.fromAsyncIterable(AsyncIterable.fromValues(1, 2, 3)).assertIO(deepEqualTo(Conc(1, 2, 3))),
     );
   });
 
   suite.concurrent("map", () => {
     test.io(
       "maps every value",
-      toArrayIO(AsyncIterable.from([1, 2, 3]).map((n) => n * 2)).assertIO(deepEqualTo([2, 4, 6])),
+      IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3]).map((n) => n * 2)).assertIO(deepEqualTo(Conc(2, 4, 6))),
     );
 
     test.io(
       "maps an empty iterable",
-      toArrayIO(AsyncIterable.from([] as Array<number>).map((n) => n * 2)).assertIO(deepEqualTo([])),
+      IO.fromAsyncIterable(AsyncIterable.from([] as Array<number>).map((n) => n * 2)).assertIO(deepEqualTo(Conc())),
     );
 
     test.io(
@@ -146,8 +105,8 @@ suite.concurrent("AsyncIterable", () => {
   suite.concurrent("mapWithIndex", () => {
     test.io(
       "maps values with zero-based indices",
-      toArrayIO(AsyncIterable.from(["a", "b", "c"]).mapWithIndex((i, value) => `${i}:${value}`)).assertIO(
-        deepEqualTo(["0:a", "1:b", "2:c"]),
+      IO.fromAsyncIterable(AsyncIterable.from(["a", "b", "c"]).mapWithIndex((i, value) => `${i}:${value}`)).assertIO(
+        deepEqualTo(Conc("0:a", "1:b", "2:c")),
       ),
     );
   });
@@ -155,41 +114,47 @@ suite.concurrent("AsyncIterable", () => {
   suite.concurrent("mapPromise", () => {
     test.io(
       "maps every value with a promise",
-      toArrayIO(AsyncIterable.from([1, 2, 3]).mapPromise(async (n) => n * 2)).assertIO(deepEqualTo([2, 4, 6])),
+      IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3]).mapPromise(async (n) => n * 2)).assertIO(
+        deepEqualTo(Conc(2, 4, 6)),
+      ),
     );
   });
 
   suite.concurrent("mapPromiseWithIndex", () => {
     test.io(
       "maps values with indices and promises",
-      toArrayIO(AsyncIterable.from(["a", "b"]).mapPromiseWithIndex(async (i, value) => `${i}:${value}`)).assertIO(
-        deepEqualTo(["0:a", "1:b"]),
-      ),
+      IO.fromAsyncIterable(
+        AsyncIterable.from(["a", "b"]).mapPromiseWithIndex(async (i, value) => `${i}:${value}`),
+      ).assertIO(deepEqualTo(Conc("0:a", "1:b"))),
     );
   });
 
   suite.concurrent("filter", () => {
     test.io(
       "keeps matching values",
-      toArrayIO(AsyncIterable.from([1, 2, 3, 4]).filter((n) => n % 2 === 0)).assertIO(deepEqualTo([2, 4])),
+      IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3, 4]).filter((n) => n % 2 === 0)).assertIO(
+        deepEqualTo(Conc(2, 4)),
+      ),
     );
 
     test.io(
       "keeps all matching values",
-      toArrayIO(AsyncIterable.from([2, 4, 6]).filter((n) => n % 2 === 0)).assertIO(deepEqualTo([2, 4, 6])),
+      IO.fromAsyncIterable(AsyncIterable.from([2, 4, 6]).filter((n) => n % 2 === 0)).assertIO(
+        deepEqualTo(Conc(2, 4, 6)),
+      ),
     );
 
     test.io(
       "returns empty when no values match",
-      toArrayIO(AsyncIterable.from([1, 3, 5]).filter((n) => n % 2 === 0)).assertIO(deepEqualTo([])),
+      IO.fromAsyncIterable(AsyncIterable.from([1, 3, 5]).filter((n) => n % 2 === 0)).assertIO(deepEqualTo(Conc())),
     );
   });
 
   suite.concurrent("filterWithIndex", () => {
     test.io(
       "filters values with zero-based indices",
-      toArrayIO(AsyncIterable.from(["a", "b", "c", "d"]).filterWithIndex((i) => i % 2 === 0)).assertIO(
-        deepEqualTo(["a", "c"]),
+      IO.fromAsyncIterable(AsyncIterable.from(["a", "b", "c", "d"]).filterWithIndex((i) => i % 2 === 0)).assertIO(
+        deepEqualTo(Conc("a", "c")),
       ),
     );
 
@@ -210,30 +175,32 @@ suite.concurrent("AsyncIterable", () => {
   suite.concurrent("filterMapWithIndex", () => {
     test.io(
       "filters and maps Just values",
-      toArrayIO(
+      IO.fromAsyncIterable(
         AsyncIterable.from([1, 2, 3, 4]).filterMapWithIndex((i, n) => (n % 2 === 0 ? Just(`${i}:${n}`) : Nothing())),
-      ).assertIO(deepEqualTo(["1:2", "3:4"])),
+      ).assertIO(deepEqualTo(Conc("1:2", "3:4"))),
     );
 
     test.io(
       "returns empty when every value maps to Nothing",
-      toArrayIO(AsyncIterable.from([1, 2, 3]).filterMapWithIndex(() => Nothing<number>())).assertIO(deepEqualTo([])),
+      IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3]).filterMapWithIndex(() => Nothing<number>())).assertIO(
+        deepEqualTo(Conc()),
+      ),
     );
   });
 
   suite.concurrent("zipWith", () => {
     test.io(
       "zips values pairwise",
-      toArrayIO(AsyncIterable.from([1, 2, 3]).zipWith(AsyncIterable.from([4, 5, 6]), (a, b) => a + b)).assertIO(
-        deepEqualTo([5, 7, 9]),
-      ),
+      IO.fromAsyncIterable(
+        AsyncIterable.from([1, 2, 3]).zipWith(AsyncIterable.from([4, 5, 6]), (a, b) => a + b),
+      ).assertIO(deepEqualTo(Conc(5, 7, 9))),
     );
 
     test.io(
       "stops at the shorter iterable",
-      toArrayIO(AsyncIterable.from([1, 2, 3]).zipWith(AsyncIterable.from(["a"]), (a, b) => `${a}:${b}`)).assertIO(
-        deepEqualTo(["1:a"]),
-      ),
+      IO.fromAsyncIterable(
+        AsyncIterable.from([1, 2, 3]).zipWith(AsyncIterable.from(["a"]), (a, b) => `${a}:${b}`),
+      ).assertIO(deepEqualTo(Conc("1:a"))),
     );
 
     test.io(
@@ -255,16 +222,16 @@ suite.concurrent("AsyncIterable", () => {
   suite.concurrent("zipWithPromise", () => {
     test.io(
       "zips values pairwise with a promise",
-      toArrayIO(
+      IO.fromAsyncIterable(
         AsyncIterable.from([1, 2, 3]).zipWithPromise(AsyncIterable.from([4, 5, 6]), async (a, b) => a + b),
-      ).assertIO(deepEqualTo([5, 7, 9])),
+      ).assertIO(deepEqualTo(Conc(5, 7, 9))),
     );
 
     test.io(
       "stops at the shorter iterable",
-      toArrayIO(AsyncIterable.from([1]).zipWithPromise(AsyncIterable.from([4, 5, 6]), async (a, b) => a + b)).assertIO(
-        deepEqualTo([5]),
-      ),
+      IO.fromAsyncIterable(
+        AsyncIterable.from([1]).zipWithPromise(AsyncIterable.from([4, 5, 6]), async (a, b) => a + b),
+      ).assertIO(deepEqualTo(Conc(5))),
     );
   });
 
@@ -291,3 +258,37 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 });
+
+async function toArray<A>(iterable: AsyncIterable<A>): Promise<Array<A>> {
+  const values: Array<A> = [];
+  for await (const value of iterable) {
+    values.push(value);
+  }
+  return values;
+}
+
+function trackedAsyncIterable<A>(values: ReadonlyArray<A>) {
+  let returned = 0;
+
+  let pulled = 0;
+
+  const iterable = AsyncIterable<A>(() => {
+    let index = 0;
+    return {
+      async next() {
+        pulled++;
+        return index < values.length ? { done: false, value: values[index++]! } : { done: true, value: undefined };
+      },
+      async return(value?: unknown) {
+        returned++;
+        return { done: true, value };
+      },
+    };
+  });
+
+  return {
+    iterable,
+    pulled: () => pulled,
+    returned: () => returned,
+  };
+}
