@@ -12,10 +12,5 @@ export default defineConfig({
     },
     maxWorkers: Math.max(1, Math.min(8, os.availableParallelism() - 1)),
     pool: "threads",
-    server: {
-      deps: {
-        external: [/^@fncts\/.*$/],
-      },
-    },
   },
 });
