@@ -42,7 +42,7 @@ suite("ArrayDeque", () => {
 
     test("addOne returns same instance", () => {
       const deque = ArrayDeque.empty<number>();
-      const ret = deque.addOne(1);
+      const ret   = deque.addOne(1);
       return (ret === deque).assert(isTrue);
     });
 
@@ -72,7 +72,7 @@ suite("ArrayDeque", () => {
 
     test("prepend returns same instance", () => {
       const deque = ArrayDeque.empty<number>();
-      const ret = deque.prepend(1);
+      const ret   = deque.prepend(1);
       return (ret === deque).assert(isTrue);
     });
 
@@ -103,7 +103,7 @@ suite("ArrayDeque", () => {
 
     test("get throws on negative index", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw = false;
+      let threw   = false;
       try {
         deque.get(-1);
       } catch {
@@ -114,7 +114,7 @@ suite("ArrayDeque", () => {
 
     test("get throws on index >= length", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw = false;
+      let threw   = false;
       try {
         deque.get(3);
       } catch {
@@ -159,7 +159,7 @@ suite("ArrayDeque", () => {
 
     test("update throws on out of bounds", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw = false;
+      let threw   = false;
       try {
         deque.update(3, 99);
       } catch {
@@ -220,7 +220,7 @@ suite("ArrayDeque", () => {
 
     test("insert throws on out of bounds", () => {
       const deque = fromArray([1, 2]);
-      let threw = false;
+      let threw   = false;
       try {
         deque.insert(4, 99);
       } catch {
@@ -273,7 +273,7 @@ suite("ArrayDeque", () => {
 
     test("remove negative count throws", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw = false;
+      let threw   = false;
       try {
         deque.remove(1, -1);
       } catch {
@@ -284,7 +284,7 @@ suite("ArrayDeque", () => {
 
     test("remove throws on out of bounds for positive count", () => {
       const deque = fromArray([1, 2, 3]);
-      let threw = false;
+      let threw   = false;
       try {
         deque.remove(5, 1);
       } catch {
@@ -318,13 +318,13 @@ suite("ArrayDeque", () => {
   suite("removeHead", () => {
     test("removeHead returns first element", () => {
       const deque = fromArray([1, 2, 3]);
-      const head = deque.removeHead();
+      const head  = deque.removeHead();
       return head.assert(strictEqualTo(1)) && deque.toArray().assert(deepEqualTo([2, 3]));
     });
 
     test("removeHead throws on empty", () => {
       const deque = ArrayDeque.empty<number>();
-      let threw = false;
+      let threw   = false;
       try {
         deque.removeHead();
       } catch {
@@ -417,21 +417,21 @@ suite("ArrayDeque", () => {
   suite("copySliceToArray", () => {
     test("copies full contents linear", () => {
       const deque = fromArray([1, 2, 3]);
-      const dest = new Array<number>(3);
+      const dest  = new Array<number>(3);
       deque.copySliceToArray(0, dest, 0, 3);
       return dest.assert(deepEqualTo([1, 2, 3]));
     });
 
     test("copies partial contents", () => {
       const deque = fromArray([1, 2, 3, 4, 5]);
-      const dest = new Array<number>(3);
+      const dest  = new Array<number>(3);
       deque.copySliceToArray(1, dest, 0, 3);
       return dest.assert(deepEqualTo([2, 3, 4]));
     });
 
     test("copies with dest offset", () => {
       const deque = fromArray([1, 2, 3]);
-      const dest = new Array<number>(5);
+      const dest  = new Array<number>(5);
       dest.fill(0);
       deque.copySliceToArray(0, dest, 2, 3);
       return dest.assert(deepEqualTo([0, 0, 1, 2, 3]));
@@ -450,7 +450,7 @@ suite("ArrayDeque", () => {
 
     test("copySliceToArray respects maxItems", () => {
       const deque = fromArray([1, 2, 3, 4, 5]);
-      const dest = new Array<number>(2);
+      const dest  = new Array<number>(2);
       deque.copySliceToArray(0, dest, 0, 2);
       return dest.assert(deepEqualTo([1, 2]));
     });
@@ -623,7 +623,7 @@ suite("ArrayDeque", () => {
     test.io(
       "get after insert matches expected",
       Gen.int.conc.zip(Gen.int).check(([as, n]) => {
-        const deque = ArrayDeque.empty<number>();
+        const deque         = ArrayDeque.empty<number>();
         const arr: number[] = [];
         for (const a of as) {
           deque.addOne(a);
@@ -632,26 +632,24 @@ suite("ArrayDeque", () => {
         const idx = arr.length === 0 ? 0 : Math.abs(n) % (arr.length + 1);
         arr.splice(idx, 0, 42);
         deque.insert(idx, 42);
-        return deque.toArray().assert(deepEqualTo(arr));
+        return deque.get(idx).assert(strictEqualTo(42)) && deque.toArray().assert(deepEqualTo(arr));
       }),
     );
 
     test.io(
       "remove then insert roundtrip",
-      Gen.int.conc.check((as) => {
-        if (as.length < 2) return true.assert(isTrue);
-        const deque = ArrayDeque.empty<number>();
+      Gen.int.conc.zip(Gen.int).check(([as, n]) => {
+        if (as.length === 0) return true.assert(isTrue);
+        const deque         = ArrayDeque.empty<number>();
         const arr: number[] = [];
         for (const a of as) {
           deque.addOne(a);
           arr.push(a);
         }
-        const idx = 0;
-        const count = 1;
-        arr.splice(idx, count);
-        deque.remove(idx, count);
-        arr.splice(idx, 0, 99);
-        deque.insert(idx, 99);
+        const idx   = Math.abs(n) % arr.length;
+        const value = deque.get(idx);
+        deque.remove(idx, 1);
+        deque.insert(idx, value);
         return deque.toArray().assert(deepEqualTo(arr));
       }),
     );

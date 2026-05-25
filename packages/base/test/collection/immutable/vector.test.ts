@@ -150,9 +150,9 @@ suite("Vector", () => {
         .assert(strictEqualTo(Vector(1, 2, 3))),
     );
     test("prepend preserves original", () => {
-      const original = Vector(2, 3);
+      const original  = Vector(2, 3);
       const prepended = original.prepend(1);
-      return prepended.assert(strictEqualTo(Vector(1, 2, 3)));
+      return original.assert(strictEqualTo(Vector(2, 3))) && prepended.assert(strictEqualTo(Vector(1, 2, 3)));
     });
     test.io(
       "prepend property",
@@ -227,10 +227,11 @@ suite("Vector", () => {
     );
     test("drop all", Vector(1, 2, 3).drop(5).assert(strictEqualTo(Vector.empty())));
     test.io(
-      "take then drop is identity",
-      Gen.int.array.check((as) => {
+      "take plus drop is identity",
+      Gen.int.array.zip(Gen.int).check(([as, n]) => {
         const vec = Vector.from(as);
-        return vec.take(vec.length).assert(strictEqualTo(vec));
+        const idx = vec.length === 0 ? 0 : Math.abs(n) % (vec.length + 1);
+        return vec.take(idx).concat(vec.drop(idx)).assert(strictEqualTo(vec));
       }),
     );
   });
@@ -461,6 +462,19 @@ suite("Vector", () => {
       Vector("a", "b", "c")
         .foldLeft("", (acc, s) => acc + s)
         .assert(strictEqualTo("abc")),
+    );
+  });
+
+  suite("foldLeftWhile", () => {
+    test(
+      "returns accumulator when predicate fails",
+      Vector(1, 2, 3, 4)
+        .foldLeftWhile(
+          0,
+          (b) => b < 5,
+          (b, a) => b + a,
+        )
+        .assert(strictEqualTo(6)),
     );
   });
 
@@ -849,7 +863,7 @@ suite("Vector", () => {
       "take returns correct length",
       Gen.int.array.check((as) => {
         const vec = Vector.from(as);
-        const n = as.length > 0 ? Math.floor(as.length / 2) : 0;
+        const n   = as.length > 0 ? Math.floor(as.length / 2) : 0;
         return vec.take(n).length.assert(strictEqualTo(Math.min(n, vec.length)));
       }),
     );
@@ -857,8 +871,8 @@ suite("Vector", () => {
     test.io(
       "drop returns correct length",
       Gen.int.array.check((as) => {
-        const vec = Vector.from(as);
-        const n = as.length > 0 ? Math.floor(as.length / 2) : 0;
+        const vec      = Vector.from(as);
+        const n        = as.length > 0 ? Math.floor(as.length / 2) : 0;
         const expected = Math.max(0, vec.length - n);
         return vec.drop(n).length.assert(strictEqualTo(expected));
       }),
@@ -867,8 +881,10 @@ suite("Vector", () => {
     test.io(
       "filter then length <= original length",
       Gen.int.array.check((as) => {
-        const vec = Vector.from(as);
-        return vec.filter(() => true).length.assert(strictEqualTo(vec.length));
+        const vec      = Vector.from(as);
+        const expected = Vector.from(as.filter((n) => n % 2 === 0));
+        const filtered = vec.filter((n) => n % 2 === 0);
+        return (filtered.length <= vec.length).assert(isTrue) && filtered.assert(strictEqualTo(expected));
       }),
     );
 

@@ -8,8 +8,8 @@ function buffer<A>(...as: A[]): ListBuffer<A> {
   return b;
 }
 
-suite.concurrent("ListBuffer", () => {
-  suite.concurrent("empty", () => {
+suite("ListBuffer", () => {
+  suite("empty", () => {
     test("empty buffer has length 0", () => {
       const b = new ListBuffer<number>();
       return b.length.assert(strictEqualTo(0));
@@ -35,7 +35,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("append", () => {
+  suite("append", () => {
     test("append to empty", () => {
       const b = new ListBuffer<number>();
       b.append(1);
@@ -70,7 +70,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test("prepend to empty", () => {
       const b = new ListBuffer<number>();
       b.prepend(1);
@@ -99,7 +99,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("length / isEmpty", () => {
+  suite("length / isEmpty", () => {
     test("empty", () => {
       const b = new ListBuffer<number>();
       return b.length.assert(strictEqualTo(0)) && b.isEmpty.assert(isTrue);
@@ -130,7 +130,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("unsafeHead", () => {
+  suite("unsafeHead", () => {
     test("unsafeHead returns first element", () => {
       const b = buffer(1, 2, 3);
       return b.unsafeHead.assert(strictEqualTo(1));
@@ -148,7 +148,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("unsafeTail", () => {
+  suite("unsafeTail", () => {
     test("unsafeTail returns remainder", () => {
       const b = buffer(1, 2, 3);
       return b.unsafeTail.assert(strictEqualTo(List(2, 3)));
@@ -171,7 +171,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("unprepend", () => {
+  suite("unprepend", () => {
     test("unprepend returns head", () => {
       const b = buffer(1, 2, 3);
       return b.unprepend().assert(strictEqualTo(1));
@@ -201,7 +201,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("toList", () => {
+  suite("toList", () => {
     test("toList on empty", () => {
       const b = new ListBuffer<number>();
       return b.toList.assert(strictEqualTo(Nil()));
@@ -218,7 +218,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("insert", () => {
+  suite("insert", () => {
     test("insert at head", () => {
       const b = buffer(2, 3);
       b.insert(0, 1);
@@ -279,7 +279,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("foldLeft", () => {
+  suite("foldLeft", () => {
     test("foldLeft empty", () => {
       const b = new ListBuffer<number>();
       return b.foldLeft(0, (acc, n) => acc + n).assert(strictEqualTo(0));
@@ -301,7 +301,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("iteration", () => {
+  suite("iteration", () => {
     test("iterator empty", () => {
       const b      = new ListBuffer<number>();
       const result = [...b];
@@ -332,7 +332,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("mixed operations", () => {
+  suite("mixed operations", () => {
     test("append then prepend", () => {
       const b = new ListBuffer<number>();
       b.append(2);
@@ -369,7 +369,7 @@ suite.concurrent("ListBuffer", () => {
     });
   });
 
-  suite.concurrent("property-based", () => {
+  suite("property-based", () => {
     test.io(
       "append preserves order",
       Gen.int.array.check((as) => {

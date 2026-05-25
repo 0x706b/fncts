@@ -4,8 +4,8 @@ import type {} from "@fncts/io/global";
 import { HashSet } from "@fncts/base/collection/mutable/HashSet";
 import { HashEq } from "@fncts/base/data/HashEq";
 
-suite.concurrent("MutableHashSet", () => {
-  suite.concurrent("empty", () => {
+suite("MutableHashSet", () => {
+  suite("empty", () => {
     test("creates an empty set", () => {
       const set = HashSet.empty<number>();
       return set.size.assert(strictEqualTo(0));
@@ -17,7 +17,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("size", () => {
+  suite("size", () => {
     test("size increases on add", () => {
       const set = HashSet.empty<number>();
       set.add(0);
@@ -48,7 +48,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("has", () => {
+  suite("has", () => {
     test("returns false for missing element", () => {
       const set = HashSet.empty<number>();
       set.add(0);
@@ -69,7 +69,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("add", () => {
+  suite("add", () => {
     test("returns true for new element", () => {
       const set   = HashSet.empty<number>();
       const added = set.add(0);
@@ -97,7 +97,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("remove", () => {
+  suite("remove", () => {
     test("returns true for existing element and removes it", () => {
       const set = HashSet.empty<number>();
       set.add(0);
@@ -163,7 +163,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("forEach", () => {
+  suite("forEach", () => {
     test("visits all elements", () => {
       const set                    = HashSet.empty<number>();
       const visited: Array<number> = [];
@@ -181,7 +181,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("iteration", () => {
+  suite("iteration", () => {
     test("yields all elements via for...of", () => {
       const set = HashSet.empty<number>();
       set.add(0);
@@ -201,7 +201,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("collision handling", () => {
+  suite("collision handling", () => {
     test("stores multiple elements with same hash", () => {
       const config = HashEq({
         hash: () => 0,
@@ -266,7 +266,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("table growth", () => {
+  suite("table growth", () => {
     test("grows table when threshold exceeded", () => {
       const set = HashSet.empty<number>();
       for (let i = 0; i < 20; i++) {
@@ -314,7 +314,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("custom HashEq", () => {
+  suite("custom HashEq", () => {
     test("custom equality determines element match", () => {
       const config = HashEq({
         hash: (s: string) => s.length,
@@ -338,7 +338,7 @@ suite.concurrent("MutableHashSet", () => {
     });
   });
 
-  suite.concurrent("mutation in place", () => {
+  suite("mutation in place", () => {
     test("same instance is mutated by add", () => {
       const set = HashSet.empty<number>();
       set.add(0);

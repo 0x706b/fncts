@@ -142,7 +142,7 @@ suite("MutableHashMap", () => {
     });
 
     test("returns Nothing for missing key", () => {
-      const map = HashMap.empty<number, string>();
+      const map     = HashMap.empty<number, string>();
       const removed = map.delete(0);
       return removed.assert(isNothing);
     });
@@ -175,13 +175,13 @@ suite("MutableHashMap", () => {
 
   suite("updateWith", () => {
     test("inserts when key missing and f returns Just", () => {
-      const map = HashMap.empty<number, string>();
+      const map    = HashMap.empty<number, string>();
       const result = map.updateWith(0, () => Just("a"));
       return result.assert(isJust(strictEqualTo("a"))) && map.get(0).assert(isJust(strictEqualTo("a")));
     });
 
     test("does nothing when key missing and f returns Nothing", () => {
-      const map = HashMap.empty<number, string>();
+      const map    = HashMap.empty<number, string>();
       const result = map.updateWith(0, () => Nothing());
       return result.assert(isNothing) && map.has(0).assert(isFalse) && map.size.assert(strictEqualTo(0));
     });
@@ -219,7 +219,7 @@ suite("MutableHashMap", () => {
     });
 
     test("does not call callback on empty map", () => {
-      const map = HashMap.empty<number, string>();
+      const map  = HashMap.empty<number, string>();
       let called = 0;
       map.forEach(() => called++);
       return called.assert(strictEqualTo(0));
@@ -246,9 +246,9 @@ suite("MutableHashMap", () => {
     });
 
     test("iterator on empty map returns done immediately", () => {
-      const map = HashMap.empty<number, string>();
+      const map      = HashMap.empty<number, string>();
       const iterator = map[Symbol.iterator]();
-      const first = iterator.next();
+      const first    = iterator.next();
       return first.done!.assert(isTrue);
     });
   });

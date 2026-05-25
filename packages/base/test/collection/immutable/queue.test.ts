@@ -324,12 +324,12 @@ suite("ImmutableQueue", () => {
       return result.assert(deepEqualTo([1, 2, 3]));
     });
     test("iterator after dequeue", () => {
-      const q = Q(1, 2, 3).unsafeDequeue[1];
+      const q      = Q(1, 2, 3).unsafeDequeue[1];
       const result = [...q];
       return result.assert(deepEqualTo([2, 3]));
     });
     test("iterator after mixed operations", () => {
-      const q = ImmutableQueue.empty<number>().enqueue(1).enqueue(2).prepend(0).enqueue(3);
+      const q      = ImmutableQueue.empty<number>().enqueue(1).enqueue(2).prepend(0).enqueue(3);
       const result = [...q];
       return result.assert(deepEqualTo([0, 1, 2, 3]));
     });
@@ -434,7 +434,7 @@ suite("ImmutableQueue", () => {
           q = q.enqueue(a);
         }
         const queueSum = q.foldLeft(0, (acc, n) => acc + n);
-        const arrSum = as.foldLeft(0, (acc, n) => acc + n);
+        const arrSum   = as.foldLeft(0, (acc, n) => acc + n);
         return queueSum.assert(strictEqualTo(arrSum));
       }),
     );
@@ -446,7 +446,9 @@ suite("ImmutableQueue", () => {
         for (const a of as) {
           q = q.enqueue(a);
         }
-        return q.filter(() => true).length.assert(strictEqualTo(q.length));
+        const expected = Q(...as.filter((n) => n % 2 === 0));
+        const filtered = q.filter((n) => n % 2 === 0);
+        return (filtered.length <= q.length).assert(isTrue) && filtered.assert(strictEqualTo(expected));
       }),
     );
 

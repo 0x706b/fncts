@@ -350,6 +350,19 @@ suite("HashMap", () => {
     return result.assert(strictEqualTo(3)) && visited.length.assert(strictEqualTo(2));
   });
 
+  test("foldLeftWithIndexWhile stops before folding when predicate fails", () => {
+    const visited: Array<number> = [];
+    const result                 = HashMap([0, 1]).foldLeftWithIndexWhile(
+      0,
+      (_, sum, v) => {
+        visited.push(v);
+        return sum + v;
+      },
+      () => false,
+    );
+    return result.assert(strictEqualTo(0)) && visited.length.assert(strictEqualTo(0));
+  });
+
   test("foldLeftWithIndex", () => {
     return HashMap([0, 1], [1, 2])
       .foldLeftWithIndex(0, (k, sum, v) => sum + k + v)
@@ -367,6 +380,19 @@ suite("HashMap", () => {
       (sum) => sum < 3,
     );
     return result.assert(strictEqualTo(3)) && visited.length.assert(strictEqualTo(2));
+  });
+
+  test("foldLeftWhile stops before folding when predicate fails", () => {
+    const visited: Array<number> = [];
+    const result                 = HashMap([0, 1]).foldLeftWhile(
+      0,
+      (sum, v) => {
+        visited.push(v);
+        return sum + v;
+      },
+      () => false,
+    );
+    return result.assert(strictEqualTo(0)) && visited.length.assert(strictEqualTo(0));
   });
 
   test("foldLeft", () => {

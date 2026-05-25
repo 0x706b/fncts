@@ -240,7 +240,7 @@ type FindNotIndexState = {
 };
 
 type FoldWhileState<A, B> = {
-  predicate: Predicate<B>;
+  predicate: (i: number, b: B, a: A) => boolean;
   result: B;
   f: (i: number, b: B, a: A) => B;
 };
@@ -507,13 +507,30 @@ export function foldLeft<A, B>(initial: B, f: (acc: B, a: A) => B) {
 /**
  * @tsplus pipeable fncts.Vector foldLeftWhile
  */
-export function foldLeftWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, b: B, a: A) => B) {
+export function foldLeftWhile<A, B>(b: B, cont: Predicate<B>, f: (b: B, a: A) => B) {
   return (self: Vector<A>): B => {
-    if (!cont(b)) {
-      return b;
-    }
-    return foldLeftCb<A, FoldWhileState<A, B>>(foldWhileCb, { predicate: cont, f, result: b }, self).result;
+    return foldLeftCb<A, FoldWhileState<A, B>>(
+      foldLeftWhileCb,
+      {
+        predicate: (_i, b, _a) => cont(b),
+        f: (_i, b, a) => f(b, a),
+        result: b,
+      },
+      self,
+    ).result;
   };
+}
+
+/**
+ * Similar to `foldl`. But, for each element it calls the predicate function
+ * _before_ the folding function and stops folding if it returns `false`.
+ */
+function foldLeftWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolean {
+  if (state.predicate(i, state.result, a) === false) {
+    return false;
+  }
+  state.result = state.f(i, state.result, a);
+  return true;
 }
 
 /**
@@ -562,19 +579,6 @@ export function foldRight<A, B>(initial: B, f: (value: A, acc: B) => B) {
 }
 
 /**
- * @tsplus pipeable fncts.Vector foldRightWhile
- */
-export function foldRightWhile<A, B>(b: B, cont: Predicate<B>, f: (i: number, a: A, b: B) => B) {
-  return (self: Vector<A>): B => {
-    return foldRightCb<A, FoldWhileState<A, B>>(
-      foldWhileCb,
-      { predicate: cont, result: b, f: (i, b, a) => f(i, a, b) },
-      self,
-    ).result;
-  };
-}
-
-/**
  * Folds a function over a Vector. Right-associative.
  *
  * @complexity O(n)
@@ -590,28 +594,6 @@ export function foldRightWithIndex<A, B>(b: B, f: (i: number, a: A, b: B) => B) 
     }
     return foldRightPrefix(f, acc, self.prefix, prefixSize, j)[0];
   };
-}
-
-/**
- * Similar to `foldl`. But, for each element it calls the predicate function
- * _before_ the folding function and stops folding if it returns `false`.
- *
- *
- * @example
- * const isOdd = (_acc:, x) => x % 2 === 1;
- *
- * const xs = V.vector(1, 3, 5, 60, 777, 800);
- * foldlWhile(isOdd, (n, m) => n + m, 0, xs) //=> 9
- *
- * const ys = V.vector(2, 4, 6);
- * foldlWhile(isOdd, (n, m) => n + m, 111, ys) //=> 111
- */
-function foldWhileCb<A, B>(a: A, state: FoldWhileState<A, B>, i: number): boolean {
-  if (state.predicate(state.result) === false) {
-    return false;
-  }
-  state.result = state.f(i, state.result, a);
-  return true;
 }
 
 /**
@@ -720,7 +702,7 @@ export function includes<A>(element: A) {
     return self.foldLeftWhile(
       false,
       (found) => !found,
-      (_, __, a) => a === element,
+      (__, a) => a === element,
     );
   };
 }

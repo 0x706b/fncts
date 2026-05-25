@@ -144,6 +144,17 @@ suite("Conc", { timeout: 10_000 }, () => {
       }),
   );
 
+  test(
+    "foldLeftWhile stops before folding when predicate fails",
+    Conc(1, 2, 3, 4)
+      .foldLeftWhile(
+        0,
+        (b) => b < 5,
+        (b, a) => b + a,
+      )
+      .assert(strictEqualTo(6)),
+  );
+
   test("foldRight", () => {
     const chunk  = Conc("a").concat(Conc("b")).concat(Conc("c"));
     const actual = chunk.foldRight("d", (s, acc) => s + acc);

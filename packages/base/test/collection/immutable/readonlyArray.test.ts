@@ -1,3 +1,5 @@
+import { every, filter } from "@fncts/base/collection/immutable/ReadonlyArray";
+
 suite("ReadonlyArray", () => {
   suite("empty", () => {
     test("returns an empty array", Array.empty<number>().assert(deepEqualTo([])));
@@ -359,14 +361,14 @@ suite("ReadonlyArray", () => {
 
   suite("foldLeftWhile", () => {
     test(
-      "stops when predicate fails",
+      "stops before folding when predicate fails",
       [1, 2, 3, 4]
         .foldLeftWhile(
           0,
           (b) => b < 5,
           (b, a) => b + a,
         )
-        .assert(strictEqualTo(3)),
+        .assert(strictEqualTo(6)),
     );
   });
 
@@ -385,14 +387,14 @@ suite("ReadonlyArray", () => {
 
   suite("foldLeftWithIndexWhile", () => {
     test(
-      "stops when predicate fails",
+      "stops before folding when predicate fails",
       [1, 2, 3]
         .foldLeftWithIndexWhile(
           0,
           (b) => b < 5,
           (i, b, a) => b + a + i,
         )
-        .assert(strictEqualTo(4)),
+        .assert(strictEqualTo(9)),
     );
   });
 
@@ -888,7 +890,14 @@ suite("ReadonlyArray", () => {
 
     test.io(
       "filter then length <= original",
-      Gen.int.array.check((as) => as.filter(() => true).length.assert(strictEqualTo(as.length))),
+      Gen.int.array.check((as) => {
+        const filtered: ReadonlyArray<number> = filter((n: number) => n % 2 === 0)(as);
+        const expected: number[]              = [];
+        for (const n of as) {
+          if (n % 2 === 0) expected.push(n);
+        }
+        return (filtered.length <= as.length).assert(isTrue) && filtered.assert(deepEqualTo(expected));
+      }),
     );
 
     test.io(
@@ -911,7 +920,13 @@ suite("ReadonlyArray", () => {
 
     test.io(
       "every on generated arrays",
-      Gen.intWith({ min: -1000 }).array.check((as) => as.every((x) => x > -1000).assert(isTrue)),
+      Gen.int.array.check((as) => {
+        let expected = true;
+        for (const n of as) {
+          expected = expected && n % 2 === 0;
+        }
+        return every((n: number) => n % 2 === 0)(as).assert(strictEqualTo(expected));
+      }),
     );
   });
 });

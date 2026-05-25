@@ -667,12 +667,8 @@ export function foldLeftWithIndex<A, B>(b: B, f: (i: number, b: B, a: A) => B) {
 export function foldLeftWithIndexWhile<A, B>(b: B, p: Predicate<B>, f: (i: number, b: B, a: A) => B) {
   return (self: ReadonlyArray<A>): B => {
     let out = b;
-    for (let i = 0; i < self.length; i++) {
-      const check = f(i, out, self[i]!);
-      if (!p(check)) {
-        return out;
-      }
-      out = check;
+    for (let i = 0; i < self.length && p(out); i++) {
+      out = f(i, out, self[i]!);
     }
     return out;
   };

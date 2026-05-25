@@ -426,8 +426,10 @@ suite("List", () => {
     test.io(
       "filter then length <= original length",
       Gen.int.array.check((as) => {
-        const list = List.from(as);
-        return list.filter(() => true).length.assert(strictEqualTo(list.length));
+        const list     = List.from(as);
+        const expected = List.from(as.filter((n) => n % 2 === 0));
+        const filtered = list.filter((n) => n % 2 === 0);
+        return (filtered.length <= list.length).assert(isTrue) && filtered.assert(strictEqualTo(expected));
       }),
     );
 

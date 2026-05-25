@@ -1,7 +1,7 @@
 import { vitest } from "vitest";
 
-suite.concurrent("AsyncIterable", () => {
-  suite.concurrent("constructors", () => {
+suite("AsyncIterable", () => {
+  suite("constructors", () => {
     test.io(
       "make is lazy and repeatable",
       IO.fromPromise(async () => {
@@ -63,7 +63,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("map", () => {
+  suite("map", () => {
     test.io(
       "maps every value",
       IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3]).map((n) => n * 2)).assertIO(deepEqualTo(Conc(2, 4, 6))),
@@ -102,7 +102,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("mapWithIndex", () => {
+  suite("mapWithIndex", () => {
     test.io(
       "maps values with zero-based indices",
       IO.fromAsyncIterable(AsyncIterable.from(["a", "b", "c"]).mapWithIndex((i, value) => `${i}:${value}`)).assertIO(
@@ -111,7 +111,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("mapPromise", () => {
+  suite("mapPromise", () => {
     test.io(
       "maps every value with a promise",
       IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3]).mapPromise(async (n) => n * 2)).assertIO(
@@ -120,7 +120,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("mapPromiseWithIndex", () => {
+  suite("mapPromiseWithIndex", () => {
     test.io(
       "maps values with indices and promises",
       IO.fromAsyncIterable(
@@ -129,7 +129,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("filter", () => {
+  suite("filter", () => {
     test.io(
       "keeps matching values",
       IO.fromAsyncIterable(AsyncIterable.from([1, 2, 3, 4]).filter((n) => n % 2 === 0)).assertIO(
@@ -150,7 +150,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("filterWithIndex", () => {
+  suite("filterWithIndex", () => {
     test.io(
       "filters values with zero-based indices",
       IO.fromAsyncIterable(AsyncIterable.from(["a", "b", "c", "d"]).filterWithIndex((i) => i % 2 === 0)).assertIO(
@@ -172,7 +172,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("filterMapWithIndex", () => {
+  suite("filterMapWithIndex", () => {
     test.io(
       "filters and maps Just values",
       IO.fromAsyncIterable(
@@ -188,7 +188,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("zipWith", () => {
+  suite("zipWith", () => {
     test.io(
       "zips values pairwise",
       IO.fromAsyncIterable(
@@ -219,7 +219,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("zipWithPromise", () => {
+  suite("zipWithPromise", () => {
     test.io(
       "zips values pairwise with a promise",
       IO.fromAsyncIterable(
@@ -235,7 +235,7 @@ suite.concurrent("AsyncIterable", () => {
     );
   });
 
-  suite.concurrent("foldLeftWithIndex", () => {
+  suite("foldLeftWithIndex", () => {
     test.io(
       "returns the initial value for an empty iterable",
       IO.fromPromise(() =>

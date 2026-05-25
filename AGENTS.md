@@ -23,9 +23,9 @@ Load skills from `./.agents/skills` when needed.
   Comments in jsdocs are acceptable.
 
 ### Validation Steps
-- Always format and lint after editing files, **always** in that order, format -> lint
-- Always run tests after making changes
-- Run type checking/build `pnpm build`
+After making changes, always run the following steps in order:
+- Type checking/build: `pnpm build`
+- Tests, using `--filter` to run only affected packages when applicable: `pnpm [--filter @fncts/base] test run`
 
 ## Code Style
 

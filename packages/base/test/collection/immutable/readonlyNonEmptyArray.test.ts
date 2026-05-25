@@ -1,5 +1,5 @@
-suite.concurrent("ReadonlyNonEmptyArray", () => {
-  suite.concurrent("constructors", () => {
+suite("ReadonlyNonEmptyArray", () => {
+  suite("constructors", () => {
     test("variadic constructor", ReadonlyNonEmptyArray(1, 2, 3).assert(deepEqualTo([1, 2, 3])));
     test("from preserves a statically non-empty array", ReadonlyNonEmptyArray.from([1, 2]).assert(deepEqualTo([1, 2])));
     test(
@@ -22,25 +22,25 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     });
   });
 
-  suite.concurrent("makeBy", () => {
+  suite("makeBy", () => {
     test("constructs by index", ReadonlyNonEmptyArray.makeBy(3, (i) => i).assert(deepEqualTo([0, 1, 2])));
     test("zero count still produces the head", ReadonlyNonEmptyArray.makeBy(0, (i) => i).assert(deepEqualTo([0])));
     test("negative count still produces the head", ReadonlyNonEmptyArray.makeBy(-1, (i) => i).assert(deepEqualTo([0])));
     test("floors fractional counts", ReadonlyNonEmptyArray.makeBy(2.9, (i) => i).assert(deepEqualTo([0, 1])));
   });
 
-  suite.concurrent("replicate", () => {
+  suite("replicate", () => {
     test("replicates a value", ReadonlyNonEmptyArray.replicate(3, "a").assert(deepEqualTo(["a", "a", "a"])));
     test("zero count still produces one value", ReadonlyNonEmptyArray.replicate(0, "a").assert(deepEqualTo(["a"])));
   });
 
-  suite.concurrent("range", () => {
+  suite("range", () => {
     test("inclusive ascending range", ReadonlyNonEmptyArray.range(1, 3).assert(deepEqualTo([1, 2, 3])));
     test("single element range", ReadonlyNonEmptyArray.range(5, 5).assert(deepEqualTo([5])));
     test("descending range returns the start only", ReadonlyNonEmptyArray.range(3, 1).assert(deepEqualTo([3])));
   });
 
-  suite.concurrent("destructors", () => {
+  suite("destructors", () => {
     test("head", ReadonlyNonEmptyArray(1, 2, 3).head.assert(strictEqualTo(1)));
     test("last on single", ReadonlyNonEmptyArray(1).last.assert(strictEqualTo(1)));
     test("last on multiple", ReadonlyNonEmptyArray(1, 2, 3).last.assert(strictEqualTo(3)));
@@ -52,7 +52,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     test("unprepend", ReadonlyNonEmptyArray(1, 2, 3).unprepend.assert(deepEqualTo([1, [2, 3]])));
   });
 
-  suite.concurrent("append", () => {
+  suite("append", () => {
     test(
       "appends an element",
       ReadonlyNonEmptyArray(1, 2)
@@ -66,7 +66,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     });
   });
 
-  suite.concurrent("prepend", () => {
+  suite("prepend", () => {
     test(
       "prepends an element",
       ReadonlyNonEmptyArray(2, 3)
@@ -80,7 +80,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     });
   });
 
-  suite.concurrent("concat", () => {
+  suite("concat", () => {
     test(
       "concatenates with a non-empty array",
       ReadonlyNonEmptyArray(1, 2)
@@ -95,7 +95,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("map", () => {
+  suite("map", () => {
     test(
       "maps every element",
       ReadonlyNonEmptyArray(1, 2, 3)
@@ -110,7 +110,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("mapWithIndex", () => {
+  suite("mapWithIndex", () => {
     test(
       "maps with element indexes",
       ReadonlyNonEmptyArray("a", "b", "c")
@@ -119,7 +119,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("ap", () => {
+  suite("ap", () => {
     test(
       "applies every function to every value",
       ReadonlyNonEmptyArray(
@@ -131,7 +131,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("flatMap", () => {
+  suite("flatMap", () => {
     test(
       "concatenates non-empty results",
       ReadonlyNonEmptyArray(1, 2)
@@ -146,7 +146,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("flatMapWithIndex", () => {
+  suite("flatMapWithIndex", () => {
     test(
       "uses indexes",
       ReadonlyNonEmptyArray("a", "b")
@@ -155,7 +155,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("flatten", () => {
+  suite("flatten", () => {
     test(
       "flattens nested non-empty arrays",
       ReadonlyNonEmptyArray(ReadonlyNonEmptyArray(1, 2), ReadonlyNonEmptyArray(3)).flatten.assert(
@@ -164,7 +164,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("folding", () => {
+  suite("folding", () => {
     test(
       "fold combines all values with a Semigroup",
       ReadonlyNonEmptyArray(1, 2, 3).fold(Number.MonoidSum).assert(strictEqualTo(6)),
@@ -207,7 +207,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("chop", () => {
+  suite("chop", () => {
     test(
       "repeatedly consumes the rest",
       ReadonlyNonEmptyArray(1, 2, 3, 4)
@@ -216,7 +216,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("chunksOf", () => {
+  suite("chunksOf", () => {
     test(
       "splits into non-empty chunks",
       ReadonlyNonEmptyArray(1, 2, 3, 4, 5)
@@ -231,7 +231,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("splitAt", () => {
+  suite("splitAt", () => {
     test(
       "splits in the middle",
       ReadonlyNonEmptyArray(1, 2, 3)
@@ -252,7 +252,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("cross", () => {
+  suite("cross", () => {
     test(
       "cartesian product",
       ReadonlyNonEmptyArray(1, 2)
@@ -261,7 +261,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("crossWith", () => {
+  suite("crossWith", () => {
     test(
       "cartesian product with a function",
       ReadonlyNonEmptyArray(1, 2)
@@ -270,7 +270,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("zipWith", () => {
+  suite("zipWith", () => {
     test(
       "zips to the shorter length",
       ReadonlyNonEmptyArray(1, 2, 3)
@@ -285,7 +285,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("align", () => {
+  suite("align", () => {
     test(
       "aligns left leftovers",
       ReadonlyNonEmptyArray(1, 2)
@@ -300,7 +300,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("alignWith", () => {
+  suite("alignWith", () => {
     test(
       "maps aligned values",
       ReadonlyNonEmptyArray(1, 2)
@@ -315,12 +315,12 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("elem", () => {
+  suite("elem", () => {
     test("returns true when the element is present", ReadonlyNonEmptyArray(1, 2, 3).elem(2, Number.Eq).assert(isTrue));
     test("returns false when the element is absent", ReadonlyNonEmptyArray(1, 2, 3).elem(4, Number.Eq).assert(isFalse));
   });
 
-  suite.concurrent("group", () => {
+  suite("group", () => {
     test(
       "groups adjacent equal values",
       ReadonlyNonEmptyArray(1, 1, 2, 1)
@@ -335,7 +335,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("groupSort", () => {
+  suite("groupSort", () => {
     test(
       "sorts before grouping",
       ReadonlyNonEmptyArray(2, 1, 2, 1)
@@ -349,20 +349,20 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("isOutOfBound", () => {
+  suite("isOutOfBound", () => {
     test("negative index", ReadonlyNonEmptyArray(1, 2).isOutOfBound(-1).assert(isTrue));
     test("index equal to length", ReadonlyNonEmptyArray(1, 2).isOutOfBound(2).assert(isTrue));
     test("index inside bounds", ReadonlyNonEmptyArray(1, 2).isOutOfBound(1).assert(isFalse));
   });
 
-  suite.concurrent("min and max", () => {
+  suite("min and max", () => {
     test("max", ReadonlyNonEmptyArray(2, 1, 3).max(Number.Ord).assert(strictEqualTo(3)));
     test("max single", ReadonlyNonEmptyArray(2).max(Number.Ord).assert(strictEqualTo(2)));
     test("min", ReadonlyNonEmptyArray(2, 1, 3).min(Number.Ord).assert(strictEqualTo(1)));
     test("min single", ReadonlyNonEmptyArray(2).min(Number.Ord).assert(strictEqualTo(2)));
   });
 
-  suite.concurrent("mutableClone", () => {
+  suite("mutableClone", () => {
     test("returns a mutable copy", () => {
       const original = ReadonlyNonEmptyArray(1, 2);
       const clone    = original.mutableClone as unknown as Array<number>;
@@ -371,12 +371,12 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     });
   });
 
-  suite.concurrent("reverse", () => {
+  suite("reverse", () => {
     test("reverses multiple elements", ReadonlyNonEmptyArray(1, 2, 3).reverse.assert(deepEqualTo([3, 2, 1])));
     test("single element reverse", ReadonlyNonEmptyArray(1).reverse.assert(deepEqualTo([1])));
   });
 
-  suite.concurrent("sort", () => {
+  suite("sort", () => {
     test(
       "sorts ascending",
       ReadonlyNonEmptyArray(3, 1, 2)
@@ -396,7 +396,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     });
   });
 
-  suite.concurrent("uniq", () => {
+  suite("uniq", () => {
     test(
       "keeps first occurrences",
       ReadonlyNonEmptyArray(1, 2, 1, 3, 2)
@@ -411,7 +411,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("traverse", () => {
+  suite("traverse", () => {
     test(
       "traverses with Maybe",
       ReadonlyNonEmptyArray(1, 2)
@@ -426,7 +426,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("traverseWithIndex", () => {
+  suite("traverseWithIndex", () => {
     test(
       "traverses with indexes",
       ReadonlyNonEmptyArray(1, 2)
@@ -435,7 +435,7 @@ suite.concurrent("ReadonlyNonEmptyArray", () => {
     );
   });
 
-  suite.concurrent("properties", () => {
+  suite("properties", () => {
     test.io(
       "reverse is involutive",
       Gen.int.array.check((as) => {
