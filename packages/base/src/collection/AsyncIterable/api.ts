@@ -1,6 +1,3 @@
-import { isPromiseLike } from "@fncts/base/data/Equatable";
-import { isPromise } from "@fncts/base/util/predicates";
-
 /**
  * @tsplus static fncts.AsyncIterableOps __call
  */
@@ -27,18 +24,18 @@ export function from<A>(iterable: Iterable<A>): AsyncIterable<A> {
         }
         value = ia.next();
         if (value.done) {
-          this.return!();
+          return this.return!();
         }
         return Promise.resolve(value);
       },
-      return() {
+      async return(returnValue?: unknown) {
         if (!done) {
           done = true;
           if (typeof ia.return === "function") {
-            ia.return();
+            await ia.return(returnValue);
           }
         }
-        return Promise.resolve({ done: true, value });
+        return { done: true, value: returnValue };
       },
     };
   });
@@ -81,15 +78,15 @@ export function filterMapWithIndex<A, B>(f: (index: number, a: A) => Maybe<B>) {
         });
       }
 
-      function iteratorReturn() {
+      async function iteratorReturn(value?: unknown) {
         if (!done) {
           done = true;
           if (typeof iterator.return === "function") {
-            iterator.return();
+            await iterator.return(value);
           }
         }
 
-        return Promise.resolve({ done: true, value: lastValue });
+        return { done: true, value: lastValue };
       }
 
       return {
@@ -139,15 +136,15 @@ export function filterWithIndex<A>(predicate: PredicateWithIndex<number, A>) {
         });
       }
 
-      function iteratorReturn(value: any) {
+      async function iteratorReturn(value: any) {
         if (!done) {
           done = true;
           if (typeof iterator.return === "function") {
-            iterator.return(value);
+            await iterator.return(value);
           }
         }
 
-        return Promise.resolve({ done, value: lastValue });
+        return { done: true, value: lastValue };
       }
 
       return {
@@ -196,14 +193,14 @@ export function mapWithIndex<A, B>(f: (i: number, a: A) => B) {
             return { done: false, value: f(n++, result.value) };
           });
         },
-        return(value?: unknown) {
+        async return(value?: unknown) {
           if (!done) {
             done = true;
             if (typeof ia.return === "function") {
-              ia.return(value);
+              await ia.return(value);
             }
           }
-          return Promise.resolve({ done: true, value });
+          return { done: true, value };
         },
       };
     });
@@ -240,14 +237,14 @@ export function mapPromiseWithIndex<A, B>(f: (i: number, a: A) => Promise<B>) {
             return f(n++, result.value).then((value) => ({ done: false, value }));
           });
         },
-        return(value?: unknown) {
+        async return(value?: unknown) {
           if (!done) {
             done = true;
             if (typeof ia.return === "function") {
-              ia.return();
+              await ia.return(value);
             }
           }
-          return Promise.resolve({ done: true, value });
+          return { done: true, value };
         },
       };
     });
@@ -282,17 +279,15 @@ export function zipWith<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) => C) {
             return va.done || vb.done ? this.return!() : { done: false, value: f(va.value, vb.value) };
           });
         },
-        return(value?: unknown) {
+        async return(value?: unknown) {
           if (!done) {
             done = true;
-            if (typeof ia.return === "function") {
-              ia.return();
-            }
-            if (typeof ib.return === "function") {
-              ib.return();
-            }
+            await Promise.all([
+              typeof ia.return === "function" ? ia.return(value) : undefined,
+              typeof ib.return === "function" ? ib.return(value) : undefined,
+            ]);
           }
-          return Promise.resolve({ done: true, value });
+          return { done: true, value };
         },
       };
     });
@@ -317,17 +312,15 @@ export function zipWithPromise<A, B, C>(that: AsyncIterable<B>, f: (a: A, b: B) 
           const [va, vb] = await Promise.all([ia.next(), ib.next()]);
           return va.done || vb.done ? this.return!() : { done: false, value: await f(va.value, vb.value) };
         },
-        return(value?: unknown) {
+        async return(value?: unknown) {
           if (!done) {
             done = true;
-            if (typeof ia.return === "function") {
-              ia.return();
-            }
-            if (typeof ib.return === "function") {
-              ib.return();
-            }
+            await Promise.all([
+              typeof ia.return === "function" ? ia.return(value) : undefined,
+              typeof ib.return === "function" ? ib.return(value) : undefined,
+            ]);
           }
-          return Promise.resolve({ done: true, value });
+          return { done: true, value };
         },
       };
     });
