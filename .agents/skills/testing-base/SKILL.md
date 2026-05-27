@@ -28,7 +28,7 @@ import { vitest } from "vitest";
 
 ### 2. Suite and Test Structure
 
-- Always use **`suite.concurrent`** (not plain `describe`) to let tests run in parallel.
+- Always use **`suite`**.
 - Nest suites by the method or feature under test.
 - Name tests descriptively: the condition being tested.
 
@@ -87,7 +87,7 @@ Vector(1, 2, 3).assert(strictEqualTo(Vector(1, 2, 3, 4)).invert);
 Use `Gen` generators inside a `test.io` block with `.check()`.
 
 ```ts
-suite.concurrent("property-based", () => {
+suite("property-based", () => {
   test.io(
     "reverse is involution",
     Gen.int.array.check((as) => {
@@ -166,7 +166,7 @@ test(
 
 ## Simple Rules
 
-1. **Use `suite.concurrent`**, not `describe`.
+1. **Use `suite`**, not `describe`.
 2. **Use `.assert()`** with `strictEqualTo`, `deepEqualTo`, `isTrue`, `isFalse`, etc. Never use `expect()`.
 3. **Group tests by method** in nested suites.
 4. **Cover empty, single, and multiple** element cases for collection methods.

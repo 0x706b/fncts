@@ -345,7 +345,7 @@ class AppendN<A> extends ConcImplementation<A> {
         buffer[this.bufferUsed] = a;
         return new AppendN<A | A1>(
           this.start as ConcImplementation<A | A1>,
-          this.buffer,
+          buffer,
           this.bufferUsed + 1,
           this.binary && binary,
         );

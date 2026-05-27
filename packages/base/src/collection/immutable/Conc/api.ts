@@ -261,7 +261,7 @@ export function drop(n: number) {
   return <A>(self: Conc<A>): Conc<A> => {
     concrete(self);
     const len = self.length;
-    if (len <= 0) {
+    if (len <= 0 || n <= 0) {
       return self;
     } else if (n >= len) {
       return Conc.empty();
@@ -1270,7 +1270,7 @@ export function zipWithIndexOffset(offset: number) {
     while (!(next = iterator.next()).done) {
       const array = next.value;
       const len   = array.length;
-      for (let j = 0; i < len; j++, i++) {
+      for (let j = 0; j < len; j++, i++) {
         out.append([array[j]!, i]);
       }
     }
