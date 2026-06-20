@@ -1,5 +1,15 @@
 # @fncts/io
 
+## 0.0.53
+
+### Patch Changes
+
+- 2803e14: test: add tests for base/collections
+  fix: multiple issues found while writing tests for base/collections
+- Updated dependencies [2803e14]
+- Updated dependencies [0e5dfce]
+  - @fncts/base@0.0.45
+
 ## 0.0.52
 
 ### Patch Changes
