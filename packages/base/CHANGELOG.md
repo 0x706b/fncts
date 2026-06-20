@@ -1,5 +1,15 @@
 # @fncts/base
 
+## 0.0.45
+
+### Patch Changes
+
+- 2803e14: test: add tests for base/collections
+  fix: multiple issues found while writing tests for base/collections
+- 0e5dfce: - Fixed Conc.drop(n) for negative values so drop(n <= 0) returns the original Conc instead of producing an invalid slice.
+  - Fixed Conc.zipWithIndexOffset(offset) to continue indexing across all elements instead of stopping early.
+  - Fixed Conc.append when appending a non-byte value to a buffered binary Conc, preserving the appended value and correctly transitioning to a non-binary buffer.
+
 ## 0.0.44
 
 ### Patch Changes
