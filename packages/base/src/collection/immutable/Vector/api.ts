@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import type { MutableVector, VectorF } from "@fncts/base/collection/immutable/Vector/definition";
-import type { Eq, Monoid, Ord, Ordering, Traversable } from "@fncts/base/typeclass";
 import type * as P from "@fncts/base/typeclass";
+import type { Eq, Monoid, Ord, Ordering, Traversable } from "@fncts/base/typeclass";
 
 import {
   affixPush,

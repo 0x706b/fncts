@@ -35,23 +35,22 @@
     }
   },
   "devDependencies": {
-    "@babel/generator": "^7.29.8",
-    "@babel/parser": "^7.29.11",
+    "@babel/generator": "^8.0.6",
+    "@babel/parser": "^8.0.8",
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/babel__generator": "^7.27.0",
-    "@types/glob": "^8.1.0",
+    "@types/glob": "^9.0.0",
     "@types/js-yaml": "^4.0.9",
-    "@types/lodash": "^4.17.24",
-    "prettier": "^3.8.3"
+    "@types/lodash": "^4.17.27",
+    "prettier": "^3.9.10"
   },
   "dependencies": {
     "glob": "^13.0.6",
     "io-ts-extra": "^0.11.6",
-    "js-yaml": "^4.3.2",
+    "js-yaml": "^5.5.0",
     "lodash": "^4.18.1",
-    "ts-pattern": "^5.9.0"
+    "ts-pattern": "^5.9.2"
   },
   "peerDependencies": {
     "@babel/generator": "^7.27.3",

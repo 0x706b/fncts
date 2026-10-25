@@ -7,9 +7,7 @@ export default defineConfig({
   },
   test: {
     projects: ["packages/*"],
-    experimental: {
-      fsModuleCache: true,
-    },
+    fsModuleCache: true,
     maxWorkers: Math.max(1, Math.min(8, os.availableParallelism() - 1)),
     pool: "threads",
   },

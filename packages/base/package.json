@@ -41,13 +41,13 @@
   },
   "dependencies": {
     "@fncts/typelevel": "workspace:*",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.3"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/node": "^25.9.1",
-    "@types/uuid": "^10.0.0"
+    "@types/node": "^26.6.5",
+    "@types/uuid": "^11.0.0"
   }
 }

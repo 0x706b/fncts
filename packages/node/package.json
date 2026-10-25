@@ -47,6 +47,6 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/ws": "^8.18.1"
+    "@types/ws": "^8.18.2"
   }
 }

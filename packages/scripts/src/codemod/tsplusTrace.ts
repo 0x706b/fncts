@@ -1,11 +1,11 @@
-import type { PluginObj } from "@babel/core";
 import type * as BabelCore from "@babel/core";
+import type { PluginObject } from "@babel/core";
 
 import * as t from "@babel/types";
 
 export type Babel = typeof BabelCore;
 
-export default function tsplusTrace(_: Babel): PluginObj {
+export default function tsplusTrace(_: Babel): PluginObject {
   return {
     visitor: {
       FunctionDeclaration({ node }) {

@@ -122,7 +122,7 @@ jobs:
       - uses: actions/cache/restore@v5
         id: vitest-module-cache-restore
         with:
-          path: "node_modules/.experimental-vitest-cache"
+          path: "node_modules/.vitest-cache"
           key: ${{ runner.os }}-vitest-module-cache-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: Test
@@ -142,5 +142,5 @@ jobs:
         id: vitest-module-cache-save
         if: always()
         with:
-          path: "node_modules/.experimental-vitest-cache"
+          path: "node_modules/.vitest-cache"
           key: ${{ steps.vitest-module-cache-restore.outputs.cache-primary-key }}

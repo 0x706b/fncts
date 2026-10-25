@@ -1,6 +1,6 @@
 import type { AST, Rule } from "eslint";
 
-import jsYaml from "js-yaml";
+import { load as loadYaml } from "js-yaml";
 import module from "node:module";
 import os from "node:os";
 import path from "node:path";
@@ -94,7 +94,7 @@ export const codegen: Rule.RuleModule = {
       let options: Record<string, unknown>;
 
       try {
-        options = jsYaml.load(startMatch[1]!) as Record<string, unknown>;
+        options = loadYaml(startMatch[1]!) as Record<string, unknown>;
       } catch (e) {
         context.report({
           message: `Error parsing options. ${e}`,
