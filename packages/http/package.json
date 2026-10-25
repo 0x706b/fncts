@@ -44,8 +44,8 @@
     "@fncts/io": "workspace:*",
     "@fncts/schema": "workspace:*",
     "@fncts/typelevel": "workspace:*",
-    "find-my-way": "^9.3.0",
-    "find-my-way-ts": "^0.1.5",
+    "find-my-way": "^9.10.0",
+    "find-my-way-ts": "^0.1.6",
     "isows": "^1.0.7",
     "uuid": "^14.0.0"
   },
@@ -53,7 +53,7 @@
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
-    "@types/react": "^18.3.23",
+    "@types/react": "^18.3.29",
     "@types/uuid": "^10.0.0"
   }
 }

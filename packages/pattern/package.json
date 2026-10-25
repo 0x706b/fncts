@@ -40,7 +40,7 @@
     "clean": "rm -rf ./build ./dist"
   },
   "dependencies": {
-    "ts-pattern": "^5.7.1"
+    "ts-pattern": "^5.9.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
