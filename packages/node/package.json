@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@fncts/io": "workspace:*",
-    "ws": "^8.20.0"
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
