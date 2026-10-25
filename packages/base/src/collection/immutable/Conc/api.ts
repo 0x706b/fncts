@@ -1,6 +1,6 @@
 import type { Concat, ConcF } from "@fncts/base/collection/immutable/Conc/definition";
-import type { Eq } from "@fncts/base/typeclass";
 import type * as P from "@fncts/base/typeclass";
+import type { Eq } from "@fncts/base/typeclass";
 
 import {
   _Empty,

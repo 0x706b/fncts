@@ -1,5 +1,5 @@
-import type { PluginObject } from "@babel/core";
 import type * as BabelCore from "@babel/core";
+import type { PluginObject } from "@babel/core";
 
 import * as t from "@babel/types";
 
