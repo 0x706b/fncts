@@ -4,6 +4,9 @@ on:
     branches:
       - trunk
 
+permissions:
+  id-token: write
+
 jobs:
   check:
     uses: ./.github/workflows/check.yaml
@@ -48,4 +51,3 @@ jobs:
           publish: pnpm release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
