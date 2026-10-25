@@ -1,4 +1,4 @@
-import type { PluginObj } from "@babel/core";
+import type { PluginObject } from "@babel/core";
 
 import * as BabelCore from "@babel/core";
 import { transformFromAstAsync } from "@babel/core";
@@ -8,7 +8,7 @@ import ts from "typescript";
 
 export type Babel = typeof BabelCore;
 
-export async function runBabelTransform(code: string, filePath: string, transform: (file: Babel) => PluginObj) {
+export async function runBabelTransform(code: string, filePath: string, transform: (file: Babel) => PluginObject) {
   const ast: BabelCore.types.File = parse(code, {
     parser: {
       parse: (source: string) =>

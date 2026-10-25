@@ -47,13 +47,13 @@
     "find-my-way": "^9.10.0",
     "find-my-way-ts": "^0.1.6",
     "isows": "^1.0.7",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.3"
   },
   "devDependencies": {
     "@fncts/config": "workspace:*",
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
     "@types/react": "^18.3.29",
-    "@types/uuid": "^10.0.0"
+    "@types/uuid": "^11.0.0"
   }
 }

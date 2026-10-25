@@ -14,18 +14,18 @@
   "dependencies": {
     "@0x706b/eslint-plugin-align-assignments": "^0.1.2",
     "@0x706b/eslint-plugin-module-specifier-extensions": "^0.2.0",
-    "@eslint/compat": "^2.1.0",
-    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/compat": "^2.1.1",
+    "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "10.0.1",
     "@fncts/codegen": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/eslint-plugin": "^8.72.0",
     "@typescript-eslint/experimental-utils": "^5.62.0",
-    "@typescript-eslint/parser": "^8.59.4",
-    "eslint-import-resolver-typescript": "4.4.4",
+    "@typescript-eslint/parser": "^8.72.0",
+    "eslint-import-resolver-typescript": "4.4.5",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-perfectionist": "^5.9.0",
-    "eslint-plugin-simple-import-sort": "^12.1.1",
-    "typescript-eslint": "^8.59.4"
+    "eslint-plugin-perfectionist": "^5.13.0",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "typescript-eslint": "^8.72.0"
   },
   "peerDependencies": {
     "eslint": "^9.6.0"

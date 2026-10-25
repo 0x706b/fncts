@@ -50,7 +50,7 @@
     "@fncts/eslint-config": "workspace:*",
     "@fncts/scripts": "workspace:*",
     "@types/express": "^5.0.6",
-    "@types/node": "^22.19.19",
-    "express": "^4.22.3"
+    "@types/node": "^26.6.5",
+    "express": "^5.3.0"
   }
 }
