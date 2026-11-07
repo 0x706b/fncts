@@ -1,5 +1,15 @@
 # @fncts/io
 
+## 0.0.55
+
+### Patch Changes
+
+- 4a04179: chore: republish
+- Updated dependencies [4a04179]
+  - @fncts/base@0.0.47
+  - @fncts/transformers@0.0.18
+  - @fncts/typelevel@0.0.27
+
 ## 0.0.54
 
 ### Patch Changes
