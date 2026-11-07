@@ -1,5 +1,13 @@
 # @fncts/express
 
+## 0.0.48
+
+### Patch Changes
+
+- 4a04179: chore: republish
+- Updated dependencies [4a04179]
+  - @fncts/io@0.0.55
+
 ## 0.0.47
 
 ### Patch Changes

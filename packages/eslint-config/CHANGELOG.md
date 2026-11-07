@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.31
+
+### Patch Changes
+
+- 4a04179: chore: republish
+- Updated dependencies [4a04179]
+  - @fncts/codegen@0.0.29
+
 ## 0.0.30
 
 ### Patch Changes

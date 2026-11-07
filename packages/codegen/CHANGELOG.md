@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.29
+
+### Patch Changes
+
+- 4a04179: chore: republish
+
 ## 0.0.28
 
 ### Patch Changes
