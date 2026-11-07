@@ -45,10 +45,8 @@ jobs:
 
       - name: Changeset
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
-          version: node .github/changeset-version.cjs
-          publish: pnpm release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          NPM_CONFIG_PROVENANCE: "true"
+          version-script: node .github/changeset-version.cjs
+          publish-script: pnpm release
+          github-token: ${{ secrets.GH_TOKEN }}
