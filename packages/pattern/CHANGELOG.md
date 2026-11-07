@@ -1,5 +1,11 @@
 # @fncts/pattern
 
+## 0.0.25
+
+### Patch Changes
+
+- 41f200c: chore: republish
+
 ## 0.0.24
 
 ### Patch Changes

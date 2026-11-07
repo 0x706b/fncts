@@ -1,5 +1,16 @@
 # @fncts/react
 
+## 0.0.15
+
+### Patch Changes
+
+- 41f200c: chore: republish
+- Updated dependencies [41f200c]
+  - @fncts/base@0.0.46
+  - @fncts/io@0.0.54
+  - @fncts/schema@0.0.27
+  - @fncts/typelevel@0.0.26
+
 ## 0.0.14
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @fncts/typelevel
 
+## 0.0.26
+
+### Patch Changes
+
+- 41f200c: chore: republish
+
 ## 0.0.25
 
 ### Patch Changes

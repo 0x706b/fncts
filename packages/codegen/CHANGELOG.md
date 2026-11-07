@@ -1,5 +1,11 @@
 # @fncts/codegen
 
+## 0.0.28
+
+### Patch Changes
+
+- 41f200c: chore: republish
+
 ## 0.0.27
 
 ### Patch Changes

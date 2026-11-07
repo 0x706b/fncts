@@ -1,5 +1,13 @@
 # @fncts/eslint-config
 
+## 0.0.30
+
+### Patch Changes
+
+- 41f200c: chore: republish
+- Updated dependencies [41f200c]
+  - @fncts/codegen@0.0.28
+
 ## 0.0.29
 
 ### Patch Changes

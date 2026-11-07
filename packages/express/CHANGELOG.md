@@ -1,5 +1,13 @@
 # @fncts/express
 
+## 0.0.47
+
+### Patch Changes
+
+- 41f200c: chore: republish
+- Updated dependencies [41f200c]
+  - @fncts/io@0.0.54
+
 ## 0.0.46
 
 ### Patch Changes

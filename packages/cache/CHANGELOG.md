@@ -1,5 +1,16 @@
 # @fncts/cache
 
+## 0.0.24
+
+### Patch Changes
+
+- 41f200c: chore: republish
+- Updated dependencies [41f200c]
+  - @fncts/base@0.0.46
+  - @fncts/io@0.0.54
+  - @fncts/transformers@0.0.17
+  - @fncts/typelevel@0.0.26
+
 ## 0.0.23
 
 ### Patch Changes
