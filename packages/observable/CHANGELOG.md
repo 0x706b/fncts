@@ -1,5 +1,13 @@
 # @fncts/pattern
 
+## 0.0.35
+
+### Patch Changes
+
+- 41f200c: chore: republish
+- Updated dependencies [41f200c]
+  - @fncts/base@0.0.46
+
 ## 0.0.34
 
 ### Patch Changes
