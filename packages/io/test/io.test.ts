@@ -367,409 +367,481 @@ suite("IO", () => {
     );
   });
 
-  for (const exitAware of [false, true]) {
-    suite(exitAware ? "bracketExit" : "bracket", () => {
-      if (exitAware) {
-        test.io("bracketExit error handling", () => {
-          const releaseHalted: unknown = new Error("release halted");
-
-          return Do((Δ) => {
-            const exit = Δ(
-              IO.bracketExit(
-                IO.succeed(42),
-                () => IO.fail("use failed"),
-                (_value, _exit) => IO.halt(releaseHalted),
-              ).result,
-            );
-            const cause = Δ(
-              exit.matchCauseIO(
-                (cause) => IO.succeed(cause),
-                () => IO.fail("effect should have failed"),
-              ),
-            );
-            return (
-              cause.failures.assert(deepEqualTo(List("use failed"))) &&
-              cause.defects.assert(deepEqualTo(List(releaseHalted)))
-            );
-          });
-        });
-
-        it.io("bracketExit is uninterruptible", () => {
-          const io = Do((Δ) => {
-            const future = Δ(Future.make<never, void>());
-            const fiber  = Δ(
-              IO.bracketExit(
-                future.succeed() > IO.never > IO.succeed(1),
-                () => IO.unit,
-                () => IO.unit,
-              ).forkDaemon,
-            );
-            return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
-          });
-          return Live.live(io).assertIO(strictEqualTo(42));
-        });
-
-        it.io(
-          "bracketExit use is interruptible",
-          Do((Δ) => {
-            const fiber = Δ(
-              IO.bracketExit(
-                IO.unit,
-                () => IO.never,
-                () => IO.unit,
-              ).fork,
-            );
-            const res = Δ(fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
-            return res.assert(strictEqualTo(0));
-          }),
+  suite("bracket", () => {
+    test.io(
+      "bracket happy path",
+      Do((Δ) => {
+        const release = Δ(Ref.make(false));
+        const result  = Δ(
+          IO.bracket(
+            IO.succeed(42),
+            (n) => IO.succeed(n + 1),
+            () => release.set(true),
+          ),
         );
+        const released = Δ(release.get);
+        return result.assert(strictEqualTo(43)) && released.assert(isTrue);
+      }),
+    );
 
-        it.io(
-          "bracketExit release called on interrupt",
-          Do((Δ) => {
-            const done  = Δ(Future.make<never, void>());
-            const fiber = Δ(
-              withLatch(
-                (release) =>
-                  IO.bracketExit(
-                    IO.unit,
-                    () => release > IO.never,
-                    () => done.succeed(undefined),
-                  ).fork,
-              ),
-            );
-            Δ(fiber.interrupt);
-            const r = Δ(done.await.timeoutTo((60).seconds, 42, () => 0));
-            return r.assert(strictEqualTo(0));
-          }),
+    it.io("bracket is uninterruptible", () => {
+      const io = Do((Δ) => {
+        const future = Δ(Future.make<never, void>());
+        const fiber  = Δ(
+          IO.bracket(
+            future.succeed() < IO.never,
+            () => IO.unit,
+            () => IO.unit,
+          ).forkDaemon,
         );
+        return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
+      });
+      return Live.live(io).assertIO(strictEqualTo(42));
+    });
 
-        test.io(
-          "bracketExit exit is usage result",
-          Do((Δ) => {
-            const ref   = Δ(Ref.make<Exit<string, number>>(Exit.succeed(0)));
-            const value = Δ(
-              IO.bracketExit(
-                IO.succeed(1),
-                (n) => IO.succeed(n + 1),
-                (_, exit) => ref.set(exit),
-              ),
-            );
-            const exit = Δ(ref.get);
-            return value.assert(strictEqualTo(2)) && exit.assert(strictEqualTo(Exit.succeed(2)));
-          }),
+    it.io(
+      "bracket use is interruptible",
+      Do((Δ) => {
+        const fiber = Δ(
+          IO.bracket(
+            IO.unit,
+            () => IO.never,
+            () => IO.unit,
+          ).fork,
         );
-      } else {
-        test.io(
-          "bracket happy path",
-          Do((Δ) => {
-            const release = Δ(Ref.make(false));
-            const result  = Δ(
-              IO.bracket(
-                IO.succeed(42),
-                (n) => IO.succeed(n + 1),
-                () => release.set(true),
-              ),
-            );
-            const released = Δ(release.get);
-            return result.assert(strictEqualTo(43)) && released.assert(isTrue);
-          }),
+        const res = Δ(fiber.interrupt);
+        return res.assert(isInterrupted);
+      }),
+    );
+
+    it.io("bracket release called on interrupt", () => {
+      const io = Do((Δ) => {
+        const f1    = Δ(Future.make<never, void>());
+        const f2    = Δ(Future.make<never, void>());
+        const fiber = Δ(
+          IO.bracket(
+            IO.unit,
+            () => f1.succeed(undefined) > IO.never,
+            () => f2.succeed(undefined) > IO.unit,
+          ).fork,
         );
+        Δ(f1.await);
+        Δ(fiber.interrupt);
+        Δ(f2.await);
+      });
+      return io.timeoutTo((1).seconds, 42, () => 0).assertIO(strictEqualTo(0));
+    });
 
-        it.io("bracket is uninterruptible", () => {
-          const io = Do((Δ) => {
-            const future = Δ(Future.make<never, void>());
-            const fiber  = Δ(
-              IO.bracket(
-                future.succeed() < IO.never,
-                () => IO.unit,
-                () => IO.unit,
-              ).forkDaemon,
-            );
-            return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
-          });
-          return Live.live(io).assertIO(strictEqualTo(42));
-        });
-
-        it.io(
-          "bracket use is interruptible",
-          Do((Δ) => {
-            const fiber = Δ(
-              IO.bracket(
-                IO.unit,
-                () => IO.never,
-                () => IO.unit,
-              ).fork,
-            );
-            const res = Δ(fiber.interrupt);
-            return res.assert(isInterrupted);
-          }),
+    test.io(
+      "error in just acquire",
+      Do((Δ) => {
+        const ref     = Δ(Ref.make(Conc.empty<string>()));
+        const acquire = ref.update((ns) => ns.append("acquire")) > IO.fail("error");
+        const exit    = Δ(
+          IO.bracket(
+            acquire,
+            () => ref.update((ns) => ns.append("use")) > IO.unit,
+            () => ref.update((ns) => ns.append("release")) > IO.unit,
+          ).result,
         );
+        const events = Δ(ref.get);
+        return exit.assert(fails(strictEqualTo("error"))) && events.assert(strictEqualTo(Conc("acquire")));
+      }),
+    );
+    test.io("rethrown caught error in acquire", () => {
+      const failure = IO.fail("error").catchAll(IO.failNow);
+      return IO.bracket(
+        failure,
+        () => IO.unit,
+        () => IO.unit,
+      ).result.assertIO(fails(strictEqualTo("error")));
+    });
 
-        it.io("bracket release called on interrupt", () => {
-          const io = Do((Δ) => {
-            const f1    = Δ(Future.make<never, void>());
-            const f2    = Δ(Future.make<never, void>());
-            const fiber = Δ(
-              IO.bracket(
-                IO.unit,
-                () => f1.succeed(undefined) > IO.never,
-                () => f2.succeed(undefined) > IO.unit,
-              ).fork,
-            );
-            Δ(f1.await);
-            Δ(fiber.interrupt);
-            Δ(f2.await);
-          });
-          return io.timeoutTo((1).seconds, 42, () => 0).assertIO(strictEqualTo(0));
-        });
-
-        for (const stage of ["acquire", "use", "release"] as const) {
-          test.io(
-            `error in just ${stage}`,
-            Do((Δ) => {
-              const ref     = Δ(Ref.make(Conc.empty<string>()));
-              const acquire =
-                ref.update((ns) => ns.append("acquire")) > (stage === "acquire" ? IO.fail("error") : IO.succeed(42));
-              const exit = Δ(
-                IO.bracket(
-                  acquire,
-                  () => ref.update((ns) => ns.append("use")) > (stage === "use" ? IO.fail("error") : IO.unit),
-                  () => ref.update((ns) => ns.append("release")) > (stage === "release" ? IO.fail("error") : IO.unit),
-                ).result,
-              );
-              const events = Δ(ref.get);
-              return (
-                exit.assert(fails(strictEqualTo("error"))) &&
-                events.assert(strictEqualTo(stage === "acquire" ? Conc("acquire") : Conc("acquire", "use", "release")))
-              );
-            }),
-          );
-          test.io(`rethrown caught error in ${stage}`, () => {
-            const failure = IO.fail("error").catchAll(IO.failNow);
-            return IO.bracket(
-              stage === "acquire" ? failure : IO.unit,
-              () => (stage === "use" ? failure : IO.unit),
-              () => (stage === "release" ? failure : IO.unit),
-            ).result.assertIO(fails(strictEqualTo("error")));
-          });
-        }
-
-        test.io(
-          "finalizer can recover from error",
-          Do((Δ) => {
-            const ref   = Δ(Ref.make(false));
-            const value = Δ(
-              IO.bracket(
-                IO.unit,
-                () => IO.succeed(42),
-                () => IO.fail("release").catchAll(() => ref.set(true)),
-              ),
-            );
-            const recovered = Δ(ref.get);
-            return value.assert(strictEqualTo(42)) && recovered.assert(isTrue);
-          }),
+    test.io(
+      "error in just use",
+      Do((Δ) => {
+        const ref     = Δ(Ref.make(Conc.empty<string>()));
+        const acquire = ref.update((ns) => ns.append("acquire")) > IO.succeed(42);
+        const exit    = Δ(
+          IO.bracket(
+            acquire,
+            () => ref.update((ns) => ns.append("use")) > IO.fail("error"),
+            () => ref.update((ns) => ns.append("release")) > IO.unit,
+          ).result,
         );
-
-        test.io(
-          "interrupt waits for finalizer",
-          Do((Δ) => {
-            const acquired   = Δ(Future.make<never, void>());
-            const finalizing = Δ(Future.make<never, void>());
-            const release    = Δ(Future.make<never, void>());
-            const done       = Δ(Ref.make(false));
-            const fiber      = Δ(
-              IO.bracket(
-                acquired.succeed(undefined),
-                () => IO.never,
-                () => finalizing.succeed(undefined) > release.await,
-              ).fork,
-            );
-            Δ(acquired.await);
-            const interrupter = Δ((fiber.interrupt > done.set(true)).fork);
-            Δ(finalizing.await);
-            const before = Δ(done.get);
-            Δ(release.succeed(undefined));
-            Δ(interrupter.join);
-            const after = Δ(done.get);
-            return before.assert(isFalse) && after.assert(isTrue);
-          }),
+        const events = Δ(ref.get);
+        return (
+          exit.assert(fails(strictEqualTo("error"))) && events.assert(strictEqualTo(Conc("acquire", "use", "release")))
         );
-      }
+      }),
+    );
+    test.io("rethrown caught error in use", () => {
+      const failure = IO.fail("error").catchAll(IO.failNow);
+      return IO.bracket(
+        IO.unit,
+        () => failure,
+        () => IO.unit,
+      ).result.assertIO(fails(strictEqualTo("error")));
+    });
+
+    test.io(
+      "error in just release",
+      Do((Δ) => {
+        const ref     = Δ(Ref.make(Conc.empty<string>()));
+        const acquire = ref.update((ns) => ns.append("acquire")) > IO.succeed(42);
+        const exit    = Δ(
+          IO.bracket(
+            acquire,
+            () => ref.update((ns) => ns.append("use")) > IO.unit,
+            () => ref.update((ns) => ns.append("release")) > IO.fail("error"),
+          ).result,
+        );
+        const events = Δ(ref.get);
+        return (
+          exit.assert(fails(strictEqualTo("error"))) && events.assert(strictEqualTo(Conc("acquire", "use", "release")))
+        );
+      }),
+    );
+    test.io("rethrown caught error in release", () => {
+      const failure = IO.fail("error").catchAll(IO.failNow);
+      return IO.bracket(
+        IO.unit,
+        () => IO.unit,
+        () => failure,
+      ).result.assertIO(fails(strictEqualTo("error")));
+    });
+
+    test.io(
+      "finalizer can recover from error",
+      Do((Δ) => {
+        const ref   = Δ(Ref.make(false));
+        const value = Δ(
+          IO.bracket(
+            IO.unit,
+            () => IO.succeed(42),
+            () => IO.fail("release").catchAll(() => ref.set(true)),
+          ),
+        );
+        const recovered = Δ(ref.get);
+        return value.assert(strictEqualTo(42)) && recovered.assert(isTrue);
+      }),
+    );
+
+    test.io(
+      "interrupt waits for finalizer",
+      Do((Δ) => {
+        const acquired   = Δ(Future.make<never, void>());
+        const finalizing = Δ(Future.make<never, void>());
+        const release    = Δ(Future.make<never, void>());
+        const done       = Δ(Ref.make(false));
+        const fiber      = Δ(
+          IO.bracket(
+            acquired.succeed(undefined),
+            () => IO.never,
+            () => finalizing.succeed(undefined) > release.await,
+          ).fork,
+        );
+        Δ(acquired.await);
+        const interrupter = Δ((fiber.interrupt > done.set(true)).fork);
+        Δ(finalizing.await);
+        const before = Δ(done.get);
+        Δ(release.succeed(undefined));
+        Δ(interrupter.join);
+        const after = Δ(done.get);
+        return before.assert(isFalse) && after.assert(isTrue);
+      }),
+    );
+    test.io(
+      "use inherits uninterruptible status",
+      Do((Δ) => {
+        const effect = IO.bracket(
+          IO.unit,
+          () => IO.checkInterruptible((status) => IO.succeed(status.isInterruptible)),
+          () => IO.unit,
+        );
+        const interruptible = Δ(effect.uninterruptible);
+        return interruptible.assert(isFalse);
+      }),
+    );
+    suite("disconnect", () => {
       test.io(
-        "use inherits uninterruptible status",
+        "bracketExit happy path",
         Do((Δ) => {
-          const effect = exitAware
-            ? IO.bracketExit(
-                IO.unit,
-                () => IO.checkInterruptible((status) => IO.succeed(status.isInterruptible)),
-                () => IO.unit,
-              )
-            : IO.bracket(
-                IO.unit,
-                () => IO.checkInterruptible((status) => IO.succeed(status.isInterruptible)),
-                () => IO.unit,
-              );
-          const interruptible = Δ(effect.uninterruptible);
-          return interruptible.assert(isFalse);
+          const release = Δ(Ref.make(false));
+          const result  = Δ(
+            IO.bracket(
+              IO.succeed(42),
+              (a) => IO.succeed(a + 1),
+              () => release.set(true),
+            ).disconnect,
+          );
+          const released = Δ(release.get);
+          return result.assert(strictEqualTo(43)) && released.assert(isTrue);
         }),
       );
-      suite("disconnect", () => {
-        if (exitAware) {
-          test.io("bracketExit error handling", () => {
-            const releaseHalted: unknown = new Error("release halted");
 
-            return Do((Δ) => {
-              const exit = Δ(
-                IO.bracketExit(
-                  IO.succeed(42),
-                  () => IO.fail("use failed"),
-                  (_value, _exit) => IO.halt(releaseHalted),
-                ).disconnect.result,
-              );
-              const cause = Δ(
-                exit.matchCauseIO(
-                  (cause) => IO.succeed(cause),
-                  () => IO.fail("effect should have failed"),
-                ),
-              );
-              return (
-                cause.failures.assert(deepEqualTo(List("use failed"))) &&
-                cause.defects.assert(deepEqualTo(List(releaseHalted)))
-              );
-            });
-          });
-
-          test.io("bracketExit beast mode error handling", () => {
-            const releaseHalted: unknown = new Error("release halted");
-
-            return Do((Δ) => {
-              const released = Δ(Ref.make(false));
-              const exit     = Δ(
-                IO.bracketExit(
-                  IO.succeed(42),
-                  () => released.set(true),
-                  (_value, _exit): IO<never, never, never> => {
-                    throw releaseHalted;
-                  },
-                ).disconnect.result,
-              );
-              const cause = Δ(
-                exit.matchCauseIO(
-                  (cause) => IO.succeed(cause),
-                  () => IO.fail("effect should have failed"),
-                ),
-              );
-              const isReleased = Δ(released.get);
-              return cause.defects.assert(deepEqualTo(List(releaseHalted))) && isReleased.assert(isTrue);
-            });
-          });
-
-          test.io(
-            "bracketExit acquire returns immediately on interrupt",
-            Do((Δ) => {
-              const started  = Δ(Future.make<never, void>());
-              const acquire  = Δ(Future.make<never, void>());
-              const released = Δ(Future.make<never, void>());
-              const fiber    = Δ(
-                IO.bracketExit(
-                  started.succeed(undefined) > acquire.await,
-                  () => IO.unit,
-                  () => released.succeed(undefined),
-                ).disconnect.fork,
-              );
-              Δ(started.await);
-              const exit = Δ(fiber.interrupt);
-              Δ(acquire.succeed(undefined));
-              Δ(released.await);
-              return exit.assert(isInterrupted);
-            }),
+      it.io(
+        "bracket acquire returns immediately on interrupt",
+        Do((Δ) => {
+          const f1 = Δ(Future.make<never, void>());
+          const f2 = Δ(Future.make<never, number>());
+          const f3 = Δ(Future.make<never, void>());
+          const s  = Δ(
+            IO.bracket(
+              f1.succeed(undefined) > f2.await,
+              () => IO.unit,
+              () => f3.await,
+            ).disconnect.fork,
           );
-        } else {
-          test.io(
-            "bracketExit happy path",
-            Do((Δ) => {
-              const release = Δ(Ref.make(false));
-              const result  = Δ(
-                IO.bracket(
-                  IO.succeed(42),
-                  (a) => IO.succeed(a + 1),
-                  () => release.set(true),
-                ).disconnect,
-              );
-              const released = Δ(release.get);
-              return result.assert(strictEqualTo(43)) && released.assert(isTrue);
-            }),
+          Δ(f1.await);
+          const res = Δ(s.interrupt);
+          Δ(f3.succeed(undefined));
+          return res.assert(isInterrupted);
+        }),
+      );
+      test.io(
+        "use is interruptible",
+        Do((Δ) => {
+          const started = Δ(Future.make<never, void>());
+          const effect  = IO.bracket(
+            IO.unit,
+            () => started.succeed(undefined) > IO.never,
+            () => IO.unit,
           );
+          const fiber = Δ(effect.disconnect.fork);
+          Δ(started.await);
+          const exit = Δ(fiber.interrupt);
+          return exit.assert(isInterrupted);
+        }),
+      );
 
-          it.io(
-            "bracket acquire returns immediately on interrupt",
-            Do((Δ) => {
-              const f1 = Δ(Future.make<never, void>());
-              const f2 = Δ(Future.make<never, number>());
-              const f3 = Δ(Future.make<never, void>());
-              const s  = Δ(
-                IO.bracket(
-                  f1.succeed(undefined) > f2.await,
-                  () => IO.unit,
-                  () => f3.await,
-                ).disconnect.fork,
-              );
-              Δ(f1.await);
-              const res = Δ(s.interrupt);
-              Δ(f3.succeed(undefined));
-              return res.assert(isInterrupted);
-            }),
+      test.io(
+        "release runs in separate fiber on interrupt",
+        Do((Δ) => {
+          const started  = Δ(Future.make<never, void>());
+          const released = Δ(Future.make<never, FiberId>());
+          const effect   = IO.bracket(
+            IO.unit,
+            () => started.succeed(undefined) > IO.never,
+            () => IO.fiberId.flatMap((id) => released.succeed(id)),
           );
-        }
-        test.io(
-          "use is interruptible",
-          Do((Δ) => {
-            const started = Δ(Future.make<never, void>());
-            const effect  = exitAware
-              ? IO.bracketExit(
-                  IO.unit,
-                  () => started.succeed(undefined) > IO.never,
-                  () => IO.unit,
-                )
-              : IO.bracket(
-                  IO.unit,
-                  () => started.succeed(undefined) > IO.never,
-                  () => IO.unit,
-                );
-            const fiber = Δ(effect.disconnect.fork);
-            Δ(started.await);
-            const exit = Δ(fiber.interrupt);
-            return exit.assert(isInterrupted);
-          }),
+          const fiber = Δ(effect.disconnect.fork);
+          Δ(started.await);
+          Δ(fiber.interrupt);
+          const releaseId = Δ(released.await);
+          return releaseId.assert(strictEqualTo(fiber.id).invert);
+        }),
+      );
+    });
+  });
+
+  suite("bracketExit", () => {
+    test.io("bracketExit error handling", () => {
+      const releaseHalted: unknown = new Error("release halted");
+
+      return Do((Δ) => {
+        const exit = Δ(
+          IO.bracketExit(
+            IO.succeed(42),
+            () => IO.fail("use failed"),
+            (_value, _exit) => IO.halt(releaseHalted),
+          ).result,
         );
-
-        test.io(
-          "release runs in separate fiber on interrupt",
-          Do((Δ) => {
-            const started  = Δ(Future.make<never, void>());
-            const released = Δ(Future.make<never, FiberId>());
-            const effect   = exitAware
-              ? IO.bracketExit(
-                  IO.unit,
-                  () => started.succeed(undefined) > IO.never,
-                  () => IO.fiberId.flatMap((id) => released.succeed(id)),
-                )
-              : IO.bracket(
-                  IO.unit,
-                  () => started.succeed(undefined) > IO.never,
-                  () => IO.fiberId.flatMap((id) => released.succeed(id)),
-                );
-            const fiber = Δ(effect.disconnect.fork);
-            Δ(started.await);
-            Δ(fiber.interrupt);
-            const releaseId = Δ(released.await);
-            return releaseId.assert(strictEqualTo(fiber.id).invert);
-          }),
+        const cause = Δ(
+          exit.matchCauseIO(
+            (cause) => IO.succeed(cause),
+            () => IO.fail("effect should have failed"),
+          ),
+        );
+        return (
+          cause.failures.assert(deepEqualTo(List("use failed"))) &&
+          cause.defects.assert(deepEqualTo(List(releaseHalted)))
         );
       });
     });
-  }
+
+    it.io("bracketExit is uninterruptible", () => {
+      const io = Do((Δ) => {
+        const future = Δ(Future.make<never, void>());
+        const fiber  = Δ(
+          IO.bracketExit(
+            future.succeed() > IO.never > IO.succeed(1),
+            () => IO.unit,
+            () => IO.unit,
+          ).forkDaemon,
+        );
+        return Δ(future.await > fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
+      });
+      return Live.live(io).assertIO(strictEqualTo(42));
+    });
+
+    it.io(
+      "bracketExit use is interruptible",
+      Do((Δ) => {
+        const fiber = Δ(
+          IO.bracketExit(
+            IO.unit,
+            () => IO.never,
+            () => IO.unit,
+          ).fork,
+        );
+        const res = Δ(fiber.interrupt.timeoutTo((1).seconds, 42, () => 0));
+        return res.assert(strictEqualTo(0));
+      }),
+    );
+
+    it.io(
+      "bracketExit release called on interrupt",
+      Do((Δ) => {
+        const done  = Δ(Future.make<never, void>());
+        const fiber = Δ(
+          withLatch(
+            (release) =>
+              IO.bracketExit(
+                IO.unit,
+                () => release > IO.never,
+                () => done.succeed(undefined),
+              ).fork,
+          ),
+        );
+        Δ(fiber.interrupt);
+        const r = Δ(done.await.timeoutTo((60).seconds, 42, () => 0));
+        return r.assert(strictEqualTo(0));
+      }),
+    );
+
+    test.io(
+      "bracketExit exit is usage result",
+      Do((Δ) => {
+        const ref   = Δ(Ref.make<Exit<string, number>>(Exit.succeed(0)));
+        const value = Δ(
+          IO.bracketExit(
+            IO.succeed(1),
+            (n) => IO.succeed(n + 1),
+            (_, exit) => ref.set(exit),
+          ),
+        );
+        const exit = Δ(ref.get);
+        return value.assert(strictEqualTo(2)) && exit.assert(strictEqualTo(Exit.succeed(2)));
+      }),
+    );
+    test.io(
+      "use inherits uninterruptible status",
+      Do((Δ) => {
+        const effect = IO.bracketExit(
+          IO.unit,
+          () => IO.checkInterruptible((status) => IO.succeed(status.isInterruptible)),
+          () => IO.unit,
+        );
+        const interruptible = Δ(effect.uninterruptible);
+        return interruptible.assert(isFalse);
+      }),
+    );
+    suite("disconnect", () => {
+      test.io("bracketExit error handling", () => {
+        const releaseHalted: unknown = new Error("release halted");
+
+        return Do((Δ) => {
+          const exit = Δ(
+            IO.bracketExit(
+              IO.succeed(42),
+              () => IO.fail("use failed"),
+              (_value, _exit) => IO.halt(releaseHalted),
+            ).disconnect.result,
+          );
+          const cause = Δ(
+            exit.matchCauseIO(
+              (cause) => IO.succeed(cause),
+              () => IO.fail("effect should have failed"),
+            ),
+          );
+          return (
+            cause.failures.assert(deepEqualTo(List("use failed"))) &&
+            cause.defects.assert(deepEqualTo(List(releaseHalted)))
+          );
+        });
+      });
+
+      test.io("bracketExit beast mode error handling", () => {
+        const releaseHalted: unknown = new Error("release halted");
+
+        return Do((Δ) => {
+          const released = Δ(Ref.make(false));
+          const exit     = Δ(
+            IO.bracketExit(
+              IO.succeed(42),
+              () => released.set(true),
+              (_value, _exit): IO<never, never, never> => {
+                throw releaseHalted;
+              },
+            ).disconnect.result,
+          );
+          const cause = Δ(
+            exit.matchCauseIO(
+              (cause) => IO.succeed(cause),
+              () => IO.fail("effect should have failed"),
+            ),
+          );
+          const isReleased = Δ(released.get);
+          return cause.defects.assert(deepEqualTo(List(releaseHalted))) && isReleased.assert(isTrue);
+        });
+      });
+
+      test.io(
+        "bracketExit acquire returns immediately on interrupt",
+        Do((Δ) => {
+          const started  = Δ(Future.make<never, void>());
+          const acquire  = Δ(Future.make<never, void>());
+          const released = Δ(Future.make<never, void>());
+          const fiber    = Δ(
+            IO.bracketExit(
+              started.succeed(undefined) > acquire.await,
+              () => IO.unit,
+              () => released.succeed(undefined),
+            ).disconnect.fork,
+          );
+          Δ(started.await);
+          const exit = Δ(fiber.interrupt);
+          Δ(acquire.succeed(undefined));
+          Δ(released.await);
+          return exit.assert(isInterrupted);
+        }),
+      );
+      test.io(
+        "use is interruptible",
+        Do((Δ) => {
+          const started = Δ(Future.make<never, void>());
+          const effect  = IO.bracketExit(
+            IO.unit,
+            () => started.succeed(undefined) > IO.never,
+            () => IO.unit,
+          );
+          const fiber = Δ(effect.disconnect.fork);
+          Δ(started.await);
+          const exit = Δ(fiber.interrupt);
+          return exit.assert(isInterrupted);
+        }),
+      );
+
+      test.io(
+        "release runs in separate fiber on interrupt",
+        Do((Δ) => {
+          const started  = Δ(Future.make<never, void>());
+          const released = Δ(Future.make<never, FiberId>());
+          const effect   = IO.bracketExit(
+            IO.unit,
+            () => started.succeed(undefined) > IO.never,
+            () => IO.fiberId.flatMap((id) => released.succeed(id)),
+          );
+          const fiber = Δ(effect.disconnect.fork);
+          Δ(started.await);
+          Δ(fiber.interrupt);
+          const releaseId = Δ(released.await);
+          return releaseId.assert(strictEqualTo(fiber.id).invert);
+        }),
+      );
+    });
+  });
 
   suite("cached", () => {
     test.io(
@@ -1391,12 +1463,25 @@ suite("IO", () => {
       }),
     );
 
-    for (const size of [0, 1, 2, 100]) {
-      test.io(`runs ${size} tasks`, () => {
-        const values = Array.from({ length: size }, (_, n) => n);
-        return IO.foreachConcurrent(values, (n) => IO.succeed(n)).assertIO(strictEqualTo(Conc.from(values)));
-      });
-    }
+    test.io("runs 0 tasks", () => {
+      const values = Array.from({ length: 0 }, (_, n) => n);
+      return IO.foreachConcurrent(values, (n) => IO.succeed(n)).assertIO(strictEqualTo(Conc.from(values)));
+    });
+
+    test.io("runs 1 tasks", () => {
+      const values = Array.from({ length: 1 }, (_, n) => n);
+      return IO.foreachConcurrent(values, (n) => IO.succeed(n)).assertIO(strictEqualTo(Conc.from(values)));
+    });
+
+    test.io("runs 2 tasks", () => {
+      const values = Array.from({ length: 2 }, (_, n) => n);
+      return IO.foreachConcurrent(values, (n) => IO.succeed(n)).assertIO(strictEqualTo(Conc.from(values)));
+    });
+
+    test.io("runs 100 tasks", () => {
+      const values = Array.from({ length: 100 }, (_, n) => n);
+      return IO.foreachConcurrent(values, (n) => IO.succeed(n)).assertIO(strictEqualTo(Conc.from(values)));
+    });
 
     test.io(
       "runs a task that fails",
@@ -1446,40 +1531,104 @@ suite("IO", () => {
     );
 
     suite("withConcurrency", () => {
-      for (const limit of [1, 2, 4]) {
-        test.io(
-          `runs at most ${limit} effects simultaneously`,
-          Do((Δ) => {
-            const active = Δ(Ref.make(0));
-            const peak   = Δ(Ref.make(0));
-            const ready  = Δ(Future.make<never, void>());
-            const gate   = Δ(Future.make<never, void>());
-            const fiber  = Δ(
-              IO.foreachConcurrent(Iterable.range(1, 12), (value) =>
-                active
-                  .updateAndGet((n) => n + 1)
-                  .flatMap(
-                    (n) =>
-                      peak.update((max) => Math.max(max, n)) >
-                      ready.succeed(undefined).when(n === limit) >
-                      gate.await.as(value),
-                  )
-                  .ensuring(active.update((n) => n - 1)),
-              ).withConcurrency(limit).fork,
-            );
-            Δ(ready.await);
-            Δ(gate.succeed(undefined));
-            const values    = Δ(fiber.join);
-            const maximum   = Δ(peak.get);
-            const remaining = Δ(active.get);
-            return (
-              values.length.assert(strictEqualTo(12)) &&
-              maximum.assert(strictEqualTo(limit)) &&
-              remaining.assert(strictEqualTo(0))
-            );
-          }),
-        );
-      }
+      test.io(
+        "runs at most 1 effects simultaneously",
+        Do((Δ) => {
+          const active = Δ(Ref.make(0));
+          const peak   = Δ(Ref.make(0));
+          const ready  = Δ(Future.make<never, void>());
+          const gate   = Δ(Future.make<never, void>());
+          const fiber  = Δ(
+            IO.foreachConcurrent(Iterable.range(1, 12), (value) =>
+              active
+                .updateAndGet((n) => n + 1)
+                .flatMap(
+                  (n) =>
+                    peak.update((max) => Math.max(max, n)) >
+                    ready.succeed(undefined).when(n === 1) >
+                    gate.await.as(value),
+                )
+                .ensuring(active.update((n) => n - 1)),
+            ).withConcurrency(1).fork,
+          );
+          Δ(ready.await);
+          Δ(gate.succeed(undefined));
+          const values    = Δ(fiber.join);
+          const maximum   = Δ(peak.get);
+          const remaining = Δ(active.get);
+          return (
+            values.length.assert(strictEqualTo(12)) &&
+            maximum.assert(strictEqualTo(1)) &&
+            remaining.assert(strictEqualTo(0))
+          );
+        }),
+      );
+
+      test.io(
+        "runs at most 2 effects simultaneously",
+        Do((Δ) => {
+          const active = Δ(Ref.make(0));
+          const peak   = Δ(Ref.make(0));
+          const ready  = Δ(Future.make<never, void>());
+          const gate   = Δ(Future.make<never, void>());
+          const fiber  = Δ(
+            IO.foreachConcurrent(Iterable.range(1, 12), (value) =>
+              active
+                .updateAndGet((n) => n + 1)
+                .flatMap(
+                  (n) =>
+                    peak.update((max) => Math.max(max, n)) >
+                    ready.succeed(undefined).when(n === 2) >
+                    gate.await.as(value),
+                )
+                .ensuring(active.update((n) => n - 1)),
+            ).withConcurrency(2).fork,
+          );
+          Δ(ready.await);
+          Δ(gate.succeed(undefined));
+          const values    = Δ(fiber.join);
+          const maximum   = Δ(peak.get);
+          const remaining = Δ(active.get);
+          return (
+            values.length.assert(strictEqualTo(12)) &&
+            maximum.assert(strictEqualTo(2)) &&
+            remaining.assert(strictEqualTo(0))
+          );
+        }),
+      );
+
+      test.io(
+        "runs at most 4 effects simultaneously",
+        Do((Δ) => {
+          const active = Δ(Ref.make(0));
+          const peak   = Δ(Ref.make(0));
+          const ready  = Δ(Future.make<never, void>());
+          const gate   = Δ(Future.make<never, void>());
+          const fiber  = Δ(
+            IO.foreachConcurrent(Iterable.range(1, 12), (value) =>
+              active
+                .updateAndGet((n) => n + 1)
+                .flatMap(
+                  (n) =>
+                    peak.update((max) => Math.max(max, n)) >
+                    ready.succeed(undefined).when(n === 4) >
+                    gate.await.as(value),
+                )
+                .ensuring(active.update((n) => n - 1)),
+            ).withConcurrency(4).fork,
+          );
+          Δ(ready.await);
+          Δ(gate.succeed(undefined));
+          const values    = Δ(fiber.join);
+          const maximum   = Δ(peak.get);
+          const remaining = Δ(active.get);
+          return (
+            values.length.assert(strictEqualTo(12)) &&
+            maximum.assert(strictEqualTo(4)) &&
+            remaining.assert(strictEqualTo(0))
+          );
+        }),
+      );
 
       test.io(
         "returns results in appropriate order",
@@ -1543,17 +1692,25 @@ suite("IO", () => {
         .assertIO(strictEqualTo(List("error", "error"))),
     );
 
-    for (const values of [[1, 2, 3], Conc(1, 2, 3)]) {
-      test.io(
-        `runs all effects for ${Array.isArray(values) ? "Array" : "Conc"}`,
-        Do((Δ) => {
-          const ref = Δ(Ref.make(0));
-          Δ(IO.foreachConcurrentDiscard(values, () => ref.update((n) => n + 1)));
-          const count = Δ(ref.get);
-          return count.assert(strictEqualTo(3));
-        }),
-      );
-    }
+    test.io(
+      "runs all effects for Array",
+      Do((Δ) => {
+        const ref = Δ(Ref.make(0));
+        Δ(IO.foreachConcurrentDiscard([1, 2, 3], () => ref.update((n) => n + 1)));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(3));
+      }),
+    );
+
+    test.io(
+      "runs all effects for Conc",
+      Do((Δ) => {
+        const ref = Δ(Ref.make(0));
+        Δ(IO.foreachConcurrentDiscard(Conc(1, 2, 3), () => ref.update((n) => n + 1)));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(3));
+      }),
+    );
 
     test.io("completes on empty input", IO.foreachConcurrentDiscard([], () => IO.halt("unexpected")).assertIO(isUnit));
 
@@ -2141,16 +2298,33 @@ suite("IO", () => {
   });
 
   suite("or", () => {
-    for (const left of [true, false]) {
-      for (const right of [true, false]) {
-        test.io(
-          `${left} or ${right}`,
-          IO.succeed(left)
-            .or(IO.succeed(right))
-            .assertIO(strictEqualTo(left || right)),
-        );
-      }
-    }
+    test.io(
+      "true or true",
+      IO.succeed(true)
+        .or(IO.succeed(true))
+        .assertIO(strictEqualTo(true)),
+    );
+
+    test.io(
+      "true or false",
+      IO.succeed(true)
+        .or(IO.succeed(false))
+        .assertIO(strictEqualTo(true)),
+    );
+
+    test.io(
+      "false or true",
+      IO.succeed(false)
+        .or(IO.succeed(true))
+        .assertIO(strictEqualTo(true)),
+    );
+
+    test.io(
+      "false or false",
+      IO.succeed(false)
+        .or(IO.succeed(false))
+        .assertIO(strictEqualTo(false)),
+    );
 
     test.io("short circuits", IO.succeed(true).or(IO.halt("not evaluated")).assertIO(isTrue));
   });
@@ -2413,21 +2587,33 @@ suite("IO", () => {
       }),
     );
 
-    for (const failure of [false, true]) {
-      test.io(
-        `raceFirst calls finalizers on ${failure ? "failure" : "success"}`,
-        Do((Δ) => {
-          const ready     = Δ(Future.make<never, void>());
-          const finalized = Δ(Future.make<never, void>());
-          const winner    = ready.await > (failure ? IO.fail("error") : IO.succeed(42));
-          const exit      = Δ(
-            (ready.succeed(undefined) > IO.never).ensuring(finalized.succeed(undefined)).raceFirst(winner).result,
-          );
-          Δ(finalized.await);
-          return failure ? exit.assert(fails(strictEqualTo("error"))) : exit.assert(strictEqualTo(Exit.succeed(42)));
-        }),
-      );
-    }
+    test.io(
+      "raceFirst calls finalizers on success",
+      Do((Δ) => {
+        const ready     = Δ(Future.make<never, void>());
+        const finalized = Δ(Future.make<never, void>());
+        const winner    = ready.await > IO.succeed(42);
+        const exit      = Δ(
+          (ready.succeed(undefined) > IO.never).ensuring(finalized.succeed(undefined)).raceFirst(winner).result,
+        );
+        Δ(finalized.await);
+        return exit.assert(strictEqualTo(Exit.succeed(42)));
+      }),
+    );
+
+    test.io(
+      "raceFirst calls finalizers on failure",
+      Do((Δ) => {
+        const ready     = Δ(Future.make<never, void>());
+        const finalized = Δ(Future.make<never, void>());
+        const winner    = ready.await > IO.fail("error");
+        const exit      = Δ(
+          (ready.succeed(undefined) > IO.never).ensuring(finalized.succeed(undefined)).raceFirst(winner).result,
+        );
+        Δ(finalized.await);
+        return exit.assert(fails(strictEqualTo("error")));
+      }),
+    );
   });
 
   suite("refineOrHalt", () => {
@@ -2504,136 +2690,229 @@ suite("IO", () => {
     );
   });
 
-  for (const mode of ["until", "while", "untilIO", "whileIO"] as const) {
-    suite(
-      mode === "until"
-        ? "repeatUntil"
-        : mode === "while"
-          ? "repeatWhile"
-          : mode === "untilIO"
-            ? "repeatUntilIO"
-            : "repeatWhileIO",
-      () => {
-        if (mode === "until") {
-          it.io(
-            "repeats until condition is true",
-            Do((Δ) => {
-              const inp = Δ(Ref.make(10));
-              const out = Δ(Ref.make(0));
-              Δ((inp.updateAndGet((n) => n - 1) < out.update((n) => n + 1)).repeatUntil((n) => n === 0));
-              const result = Δ(out.get);
+  suite("repeatUntil", () => {
+    it.io(
+      "repeats until condition is true",
+      Do((Δ) => {
+        const inp = Δ(Ref.make(10));
+        const out = Δ(Ref.make(0));
+        Δ((inp.updateAndGet((n) => n - 1) < out.update((n) => n + 1)).repeatUntil((n) => n === 0));
+        const result = Δ(out.get);
 
-              return result.assert(strictEqualTo(10));
-            }),
-          );
-
-          it.io(
-            "always evaluates the effect at least once",
-            Do((Δ) => {
-              const ref = Δ(Ref.make(0));
-              Δ(ref.update((n) => n + 1).repeatUntil(() => true));
-              const result = Δ(ref.get);
-              return result.assert(strictEqualTo(1));
-            }),
-          );
-        }
-        test.io(
-          "repeats until stopping condition",
-          Do((Δ) => {
-            const ref      = Δ(Ref.make(0));
-            const effect   = ref.updateAndGet((n) => n + 1);
-            const repeated =
-              mode === "until"
-                ? effect.repeatUntil((n) => n === 5)
-                : mode === "while"
-                  ? effect.repeatWhile((n) => n < 5)
-                  : mode === "untilIO"
-                    ? effect.repeatUntilIO((n) => IO.succeed(n === 5))
-                    : effect.repeatWhileIO((n) => IO.succeed(n < 5));
-            const value = Δ(repeated);
-            const count = Δ(ref.get);
-            return value.assert(strictEqualTo(5)) && count.assert(strictEqualTo(5));
-          }),
-        );
-
-        test.io(
-          "always evaluates effect at least once",
-          Do((Δ) => {
-            const ref    = Δ(Ref.make(0));
-            const effect = ref.updateAndGet((n) => n + 1);
-            Δ(
-              mode === "until"
-                ? effect.repeatUntil(() => true)
-                : mode === "while"
-                  ? effect.repeatWhile(() => false)
-                  : mode === "untilIO"
-                    ? effect.repeatUntilIO(() => IO.succeed(true))
-                    : effect.repeatWhileIO(() => IO.succeed(false)),
-            );
-            const count = Δ(ref.get);
-            return count.assert(strictEqualTo(1));
-          }),
-        );
-      },
+        return result.assert(strictEqualTo(10));
+      }),
     );
-    suite(
-      mode === "until"
-        ? "retryUntil"
-        : mode === "while"
-          ? "retryWhile"
-          : mode === "untilIO"
-            ? "retryUntilIO"
-            : "retryWhileIO",
-      () => {
-        test.io(
-          "retries until stopping condition",
-          Do((Δ) => {
-            const ref     = Δ(Ref.make(0));
-            const effect  = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
-            const retried =
-              mode === "until"
-                ? effect.retryUntil((n) => n === 5)
-                : mode === "while"
-                  ? effect.retryWhile((n) => n < 5)
-                  : mode === "untilIO"
-                    ? effect.retryUntilIO((n) => IO.succeed(n === 5))
-                    : effect.retryWhileIO((n) => IO.succeed(n < 5));
-            const exit  = Δ(retried.result);
-            const count = Δ(ref.get);
-            return exit.assert(fails(strictEqualTo(5))) && count.assert(strictEqualTo(5));
-          }),
-        );
 
-        test.io(
-          "runs at least once",
-          Do((Δ) => {
-            const ref    = Δ(Ref.make(0));
-            const effect = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
-            Δ(
-              (mode === "until"
-                ? effect.retryUntil(() => true)
-                : mode === "while"
-                  ? effect.retryWhile(() => false)
-                  : mode === "untilIO"
-                    ? effect.retryUntilIO(() => IO.succeed(true))
-                    : effect.retryWhileIO(() => IO.succeed(false))
-              ).result,
-            );
-            const count = Δ(ref.get);
-            return count.assert(strictEqualTo(1));
-          }),
-        );
-      },
+    it.io(
+      "always evaluates the effect at least once",
+      Do((Δ) => {
+        const ref = Δ(Ref.make(0));
+        Δ(ref.update((n) => n + 1).repeatUntil(() => true));
+        const result = Δ(ref.get);
+        return result.assert(strictEqualTo(1));
+      }),
     );
-  }
+    test.io(
+      "repeats until stopping condition",
+      Do((Δ) => {
+        const ref      = Δ(Ref.make(0));
+        const effect   = ref.updateAndGet((n) => n + 1);
+        const repeated = effect.repeatUntil((n) => n === 5);
+        const value    = Δ(repeated);
+        const count    = Δ(ref.get);
+        return value.assert(strictEqualTo(5)) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "always evaluates effect at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1);
+        Δ(effect.repeatUntil(() => true));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
+  suite("retryUntil", () => {
+    test.io(
+      "retries until stopping condition",
+      Do((Δ) => {
+        const ref     = Δ(Ref.make(0));
+        const effect  = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        const retried = effect.retryUntil((n) => n === 5);
+        const exit    = Δ(retried.result);
+        const count   = Δ(ref.get);
+        return exit.assert(fails(strictEqualTo(5))) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "runs at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        Δ(effect.retryUntil(() => true).result);
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
+
+  suite("repeatWhile", () => {
+    test.io(
+      "repeats until stopping condition",
+      Do((Δ) => {
+        const ref      = Δ(Ref.make(0));
+        const effect   = ref.updateAndGet((n) => n + 1);
+        const repeated = effect.repeatWhile((n) => n < 5);
+        const value    = Δ(repeated);
+        const count    = Δ(ref.get);
+        return value.assert(strictEqualTo(5)) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "always evaluates effect at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1);
+        Δ(effect.repeatWhile(() => false));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
+  suite("retryWhile", () => {
+    test.io(
+      "retries until stopping condition",
+      Do((Δ) => {
+        const ref     = Δ(Ref.make(0));
+        const effect  = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        const retried = effect.retryWhile((n) => n < 5);
+        const exit    = Δ(retried.result);
+        const count   = Δ(ref.get);
+        return exit.assert(fails(strictEqualTo(5))) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "runs at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        Δ(effect.retryWhile(() => false).result);
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
+
+  suite("repeatUntilIO", () => {
+    test.io(
+      "repeats until stopping condition",
+      Do((Δ) => {
+        const ref      = Δ(Ref.make(0));
+        const effect   = ref.updateAndGet((n) => n + 1);
+        const repeated = effect.repeatUntilIO((n) => IO.succeed(n === 5));
+        const value    = Δ(repeated);
+        const count    = Δ(ref.get);
+        return value.assert(strictEqualTo(5)) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "always evaluates effect at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1);
+        Δ(effect.repeatUntilIO(() => IO.succeed(true)));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
+  suite("retryUntilIO", () => {
+    test.io(
+      "retries until stopping condition",
+      Do((Δ) => {
+        const ref     = Δ(Ref.make(0));
+        const effect  = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        const retried = effect.retryUntilIO((n) => IO.succeed(n === 5));
+        const exit    = Δ(retried.result);
+        const count   = Δ(ref.get);
+        return exit.assert(fails(strictEqualTo(5))) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "runs at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        Δ(effect.retryUntilIO(() => IO.succeed(true)).result);
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
+
+  suite("repeatWhileIO", () => {
+    test.io(
+      "repeats until stopping condition",
+      Do((Δ) => {
+        const ref      = Δ(Ref.make(0));
+        const effect   = ref.updateAndGet((n) => n + 1);
+        const repeated = effect.repeatWhileIO((n) => IO.succeed(n < 5));
+        const value    = Δ(repeated);
+        const count    = Δ(ref.get);
+        return value.assert(strictEqualTo(5)) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "always evaluates effect at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1);
+        Δ(effect.repeatWhileIO(() => IO.succeed(false)));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
+  suite("retryWhileIO", () => {
+    test.io(
+      "retries until stopping condition",
+      Do((Δ) => {
+        const ref     = Δ(Ref.make(0));
+        const effect  = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        const retried = effect.retryWhileIO((n) => IO.succeed(n < 5));
+        const exit    = Δ(retried.result);
+        const count   = Δ(ref.get);
+        return exit.assert(fails(strictEqualTo(5))) && count.assert(strictEqualTo(5));
+      }),
+    );
+
+    test.io(
+      "runs at least once",
+      Do((Δ) => {
+        const ref    = Δ(Ref.make(0));
+        const effect = ref.updateAndGet((n) => n + 1).flatMap(IO.failNow);
+        Δ(effect.retryWhileIO(() => IO.succeed(false)).result);
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+  });
 
   suite("replicate", () => {
-    for (const n of [0, -1, 3]) {
-      test.io(
-        `${n} repetitions`,
-        IO.sequenceIterable(IO.succeed(1).replicate(n)).assertIO(strictEqualTo(n <= 0 ? Conc.empty() : Conc(1, 1, 1))),
-      );
-    }
+    test.io("0 repetitions", IO.sequenceIterable(IO.succeed(1).replicate(0)).assertIO(strictEqualTo(Conc.empty())));
+
+    test.io("-1 repetitions", IO.sequenceIterable(IO.succeed(1).replicate(-1)).assertIO(strictEqualTo(Conc.empty())));
+
+    test.io("3 repetitions", IO.sequenceIterable(IO.succeed(1).replicate(3)).assertIO(strictEqualTo(Conc(1, 1, 1))));
   });
 
   suite("require", () => {
@@ -3020,37 +3299,55 @@ suite("IO", () => {
   });
 
   suite("when", () => {
-    for (const condition of [true, false]) {
-      test.io(
-        `executes correct branch for ${condition}`,
-        Do((Δ) => {
-          const ref = Δ(Ref.make(0));
-          Δ(ref.update((n) => n + 1).when(condition));
-          const count = Δ(ref.get);
-          return count.assert(strictEqualTo(condition ? 1 : 0));
-        }),
-      );
-    }
+    test.io(
+      "executes correct branch for true",
+      Do((Δ) => {
+        const ref = Δ(Ref.make(0));
+        Δ(ref.update((n) => n + 1).when(true));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(1));
+      }),
+    );
+
+    test.io(
+      "executes correct branch for false",
+      Do((Δ) => {
+        const ref = Δ(Ref.make(0));
+        Δ(ref.update((n) => n + 1).when(false));
+        const count = Δ(ref.get);
+        return count.assert(strictEqualTo(0));
+      }),
+    );
   });
 
   suite("whenIO", () => {
-    for (const condition of [true, false]) {
-      test.io(
-        `executes condition and correct branch for ${condition}`,
-        Do((Δ) => {
-          const conditions = Δ(Ref.make(0));
-          const branches   = Δ(Ref.make(0));
-          const result     = Δ(branches.updateAndGet((n) => n + 1).whenIO(conditions.update((n) => n + 1).as(condition)));
-          const checked    = Δ(conditions.get);
-          const executed   = Δ(branches.get);
-          return (
-            checked.assert(strictEqualTo(1)) &&
-            executed.assert(strictEqualTo(condition ? 1 : 0)) &&
-            result.assert(condition ? isJust(strictEqualTo(1)) : isNothing)
-          );
-        }),
-      );
-    }
+    test.io(
+      "executes condition and correct branch for true",
+      Do((Δ) => {
+        const conditions = Δ(Ref.make(0));
+        const branches   = Δ(Ref.make(0));
+        const result     = Δ(branches.updateAndGet((n) => n + 1).whenIO(conditions.update((n) => n + 1).as(true)));
+        const checked    = Δ(conditions.get);
+        const executed   = Δ(branches.get);
+        return (
+          checked.assert(strictEqualTo(1)) &&
+          executed.assert(strictEqualTo(1)) &&
+          result.assert(isJust(strictEqualTo(1)))
+        );
+      }),
+    );
+
+    test.io(
+      "executes condition and correct branch for false",
+      Do((Δ) => {
+        const conditions = Δ(Ref.make(0));
+        const branches   = Δ(Ref.make(0));
+        const result     = Δ(branches.updateAndGet((n) => n + 1).whenIO(conditions.update((n) => n + 1).as(false)));
+        const checked    = Δ(conditions.get);
+        const executed   = Δ(branches.get);
+        return checked.assert(strictEqualTo(1)) && executed.assert(strictEqualTo(0)) && result.assert(isNothing);
+      }),
+    );
 
     test.io(
       "propagates condition failure",
@@ -3474,38 +3771,49 @@ suite("IO", () => {
       }),
     );
 
-    for (const sandboxed of [false, true]) {
-      test.io(
-        `${sandboxed ? "sandbox" : "result"} of interruptible region`,
-        Do((Δ) => {
-          const ready    = Δ(Future.make<never, void>());
-          const ref      = Δ(Ref.make(false));
-          const effect   = ready.succeed(undefined) > IO.never.interruptible;
-          const observed = sandboxed
-            ? effect.sandbox.either.flatMap((either) =>
-                ref.set(
-                  either.match(
-                    (cause) => cause.isInterrupted,
-                    () => false,
-                  ),
-                ),
-              )
-            : effect.result.flatMap((exit) =>
-                ref.set(
-                  exit.match(
-                    (cause) => cause.isInterrupted,
-                    () => false,
-                  ),
-                ),
-              );
-          const fiber = Δ(observed.uninterruptible.fork);
-          Δ(ready.await);
-          Δ(fiber.interrupt);
-          const recovered = Δ(ref.get);
-          return recovered.assert(isTrue);
-        }),
-      );
-    }
+    test.io(
+      "result of interruptible region",
+      Do((Δ) => {
+        const ready    = Δ(Future.make<never, void>());
+        const ref      = Δ(Ref.make(false));
+        const effect   = ready.succeed(undefined) > IO.never.interruptible;
+        const observed = effect.result.flatMap((exit) =>
+          ref.set(
+            exit.match(
+              (cause) => cause.isInterrupted,
+              () => false,
+            ),
+          ),
+        );
+        const fiber = Δ(observed.uninterruptible.fork);
+        Δ(ready.await);
+        Δ(fiber.interrupt);
+        const recovered = Δ(ref.get);
+        return recovered.assert(isTrue);
+      }),
+    );
+
+    test.io(
+      "sandbox of interruptible region",
+      Do((Δ) => {
+        const ready    = Δ(Future.make<never, void>());
+        const ref      = Δ(Ref.make(false));
+        const effect   = ready.succeed(undefined) > IO.never.interruptible;
+        const observed = effect.sandbox.either.flatMap((either) =>
+          ref.set(
+            either.match(
+              (cause) => cause.isInterrupted,
+              () => false,
+            ),
+          ),
+        );
+        const fiber = Δ(observed.uninterruptible.fork);
+        Δ(ready.await);
+        Δ(fiber.interrupt);
+        const recovered = Δ(ref.get);
+        return recovered.assert(isTrue);
+      }),
+    );
 
     test.io(
       "finalizer can see interrupting fiber",
@@ -3543,48 +3851,79 @@ suite("IO", () => {
       }),
     );
 
-    for (const disconnect of [false, true]) {
-      test.io(
-        `${disconnect ? "disconnect" : "timeout"} does not expose interruption within uninterruptible region`,
-        Do((Δ) => {
-          const ready       = Δ(Future.make<never, void>());
-          const release     = Δ(Future.make<never, void>());
-          const interrupted = Δ(Ref.make(false));
-          const effect      = (ready.succeed(undefined) > release.await).onInterrupt(() => interrupted.set(true));
-          const fiber       = Δ((disconnect ? effect.disconnect : effect.timeout((1).seconds)).uninterruptible.fork);
-          Δ(ready.await);
-          Δ(fiber.interruptFork);
-          Δ(release.succeed(undefined));
-          Δ(fiber.await);
-          const observed = Δ(interrupted.get);
-          return observed.assert(isFalse);
-        }),
-      );
-    }
+    test.io(
+      "timeout does not expose interruption within uninterruptible region",
+      Do((Δ) => {
+        const ready       = Δ(Future.make<never, void>());
+        const release     = Δ(Future.make<never, void>());
+        const interrupted = Δ(Ref.make(false));
+        const effect      = (ready.succeed(undefined) > release.await).onInterrupt(() => interrupted.set(true));
+        const fiber       = Δ(effect.timeout((1).seconds).uninterruptible.fork);
+        Δ(ready.await);
+        Δ(fiber.interruptFork);
+        Δ(release.succeed(undefined));
+        Δ(fiber.await);
+        const observed = Δ(interrupted.get);
+        return observed.assert(isFalse);
+      }),
+    );
 
-    for (const defect of [false, true]) {
-      test.io(
-        `previous ${defect ? "untyped errors are retained" : "typed errors are discarded"} after interruptible region`,
-        Do((Δ) => {
-          const finalizing = Δ(Future.make<never, void>());
-          const observed   = Δ(Ref.make(Cause.empty<number>()));
-          const failure    = defect ? IO.halt("error") : IO.fail("error");
-          const fiber      = Δ(
-            IO.uninterruptibleMask((restore) =>
-              restore(
-                failure.ensuring(finalizing.succeed(undefined) > IO.never.interruptible).mapError(() => 42),
-              ).catchAllCause((cause) => observed.set(cause)),
-            ).fork,
-          );
-          Δ(finalizing.await);
-          Δ(fiber.interrupt);
-          const cause = Δ(observed.get);
-          return (
-            cause.failures.assert(isEmpty) && cause.defects.assert(strictEqualTo(defect ? List("error") : List.empty()))
-          );
-        }),
-      );
-    }
+    test.io(
+      "disconnect does not expose interruption within uninterruptible region",
+      Do((Δ) => {
+        const ready       = Δ(Future.make<never, void>());
+        const release     = Δ(Future.make<never, void>());
+        const interrupted = Δ(Ref.make(false));
+        const effect      = (ready.succeed(undefined) > release.await).onInterrupt(() => interrupted.set(true));
+        const fiber       = Δ(effect.disconnect.uninterruptible.fork);
+        Δ(ready.await);
+        Δ(fiber.interruptFork);
+        Δ(release.succeed(undefined));
+        Δ(fiber.await);
+        const observed = Δ(interrupted.get);
+        return observed.assert(isFalse);
+      }),
+    );
+
+    test.io(
+      "previous typed errors are discarded after interruptible region",
+      Do((Δ) => {
+        const finalizing = Δ(Future.make<never, void>());
+        const observed   = Δ(Ref.make(Cause.empty<number>()));
+        const failure    = IO.fail("error");
+        const fiber      = Δ(
+          IO.uninterruptibleMask((restore) =>
+            restore(
+              failure.ensuring(finalizing.succeed(undefined) > IO.never.interruptible).mapError(() => 42),
+            ).catchAllCause((cause) => observed.set(cause)),
+          ).fork,
+        );
+        Δ(finalizing.await);
+        Δ(fiber.interrupt);
+        const cause = Δ(observed.get);
+        return cause.failures.assert(isEmpty) && cause.defects.assert(strictEqualTo(List.empty()));
+      }),
+    );
+
+    test.io(
+      "previous untyped errors are retained after interruptible region",
+      Do((Δ) => {
+        const finalizing = Δ(Future.make<never, void>());
+        const observed   = Δ(Ref.make(Cause.empty<number>()));
+        const failure    = IO.halt("error");
+        const fiber      = Δ(
+          IO.uninterruptibleMask((restore) =>
+            restore(
+              failure.ensuring(finalizing.succeed(undefined) > IO.never.interruptible).mapError(() => 42),
+            ).catchAllCause((cause) => observed.set(cause)),
+          ).fork,
+        );
+        Δ(finalizing.await);
+        Δ(fiber.interrupt);
+        const cause = Δ(observed.get);
+        return cause.failures.assert(isEmpty) && cause.defects.assert(strictEqualTo(List("error")));
+      }),
+    );
 
     test.io(
       "interruption after defect in uninterruptible mask",
@@ -3749,18 +4088,23 @@ suite("IO", () => {
       return l.zipWith(r, (a, b) => a === b).assertIO(isTrue);
     });
 
-    for (const kind of ["succeed", "attempt", "async"] as const) {
-      test.io(`deep map of ${kind}`, () => {
-        let effect: FIO<unknown, number> =
-          kind === "succeed"
-            ? IO.succeed(0)
-            : kind === "attempt"
-              ? IO.attempt(0)
-              : IO.async<never, never, number>((cb) => cb(IO.succeed(0)));
-        for (let i = 0; i < 10000; i++) effect = effect.map((n) => n + 1);
-        return effect.assertIO(strictEqualTo(10000));
-      });
-    }
+    test.io("deep map of succeed", () => {
+      let effect: FIO<unknown, number> = IO.succeed(0);
+      for (let i = 0; i < 10000; i++) effect = effect.map((n) => n + 1);
+      return effect.assertIO(strictEqualTo(10000));
+    });
+
+    test.io("deep map of attempt", () => {
+      let effect: FIO<unknown, number> = IO.attempt(0);
+      for (let i = 0; i < 10000; i++) effect = effect.map((n) => n + 1);
+      return effect.assertIO(strictEqualTo(10000));
+    });
+
+    test.io("deep map of async", () => {
+      let effect: FIO<unknown, number> = IO.async<never, never, number>((cb) => cb(IO.succeed(0)));
+      for (let i = 0; i < 10000; i++) effect = effect.map((n) => n + 1);
+      return effect.assertIO(strictEqualTo(10000));
+    });
 
     test.io("deep flatMap", () => {
       let effect = IO.succeed(0);
@@ -3768,15 +4112,17 @@ suite("IO", () => {
       return effect.assertIO(strictEqualTo(10000));
     });
 
-    for (const async of [false, true]) {
-      test.io(`deep absolve either identity ${async ? "async" : "sync"}`, () => {
-        let effect: FIO<string, number> = async
-          ? IO.async<never, string, number>((cb) => cb(IO.succeed(42)))
-          : IO.succeed(42);
-        for (let i = 0; i < 1000; i++) effect = effect.either.absolve;
-        return effect.assertIO(strictEqualTo(42));
-      });
-    }
+    test.io("deep absolve either identity sync", () => {
+      let effect: FIO<string, number> = IO.succeed(42);
+      for (let i = 0; i < 1000; i++) effect = effect.either.absolve;
+      return effect.assertIO(strictEqualTo(42));
+    });
+
+    test.io("deep absolve either identity async", () => {
+      let effect: FIO<string, number> = IO.async<never, string, number>((cb) => cb(IO.succeed(42)));
+      for (let i = 0; i < 1000; i++) effect = effect.either.absolve;
+      return effect.assertIO(strictEqualTo(42));
+    });
 
     test.io("deep uncaught sync error", () => {
       let effect: UIO<number> = IO.succeed(() => {
@@ -3786,17 +4132,19 @@ suite("IO", () => {
       return effect.result.assertIO(halts(strictEqualTo("defect")));
     });
 
-    for (const defect of [false, true]) {
-      test.io(`deep attempt ${defect ? "thrown" : "typed"} error`, () => {
-        let effect: FIO<unknown, number> = defect
-          ? IO.attempt(() => {
-              throw "error";
-            })
-          : IO.fail("error");
-        for (let i = 0; i < 10000; i++) effect = effect.flatMap((n) => IO.attempt(n + 1));
-        return effect.result.assertIO(fails(strictEqualTo("error")));
+    test.io("deep attempt typed error", () => {
+      let effect: FIO<unknown, number> = IO.fail("error");
+      for (let i = 0; i < 10000; i++) effect = effect.flatMap((n) => IO.attempt(n + 1));
+      return effect.result.assertIO(fails(strictEqualTo("error")));
+    });
+
+    test.io("deep attempt thrown error", () => {
+      let effect: FIO<unknown, number> = IO.attempt(() => {
+        throw "error";
       });
-    }
+      for (let i = 0; i < 10000; i++) effect = effect.flatMap((n) => IO.attempt(n + 1));
+      return effect.result.assertIO(fails(strictEqualTo("error")));
+    });
   });
 });
 
