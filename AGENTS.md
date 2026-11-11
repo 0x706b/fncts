@@ -25,7 +25,9 @@ Load skills from `./.agents/skills` when needed.
 ### Validation Steps
 After making changes, always run the following steps in order:
 - Type checking/build: `pnpm build`
-- Tests, using `--filter` to run only affected packages when applicable: `pnpm [--filter @fncts/base] test run`
+- Tests, using `--filter` to run only affected packages when applicable
+  `pnpm build-pack && CI=1 pnpm [--filter @fncts/base] test run`
+  Always build before running tests with `CI=1`.
 
 ## Code Style
 

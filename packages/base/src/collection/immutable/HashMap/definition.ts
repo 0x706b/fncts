@@ -96,8 +96,7 @@ export class HashMapIterator<K, V, T> implements IterableIterator<T> {
 }
 
 type Cont<K, V, A> =
-  | [len: number, children: Node<K, V>[], i: number, f: (node: readonly [K, V]) => A, cont: Cont<K, V, A>]
-  | undefined;
+  [len: number, children: Node<K, V>[], i: number, f: (node: readonly [K, V]) => A, cont: Cont<K, V, A>] | undefined;
 
 function applyCont<K, V, A>(cont: Cont<K, V, A>) {
   return cont ? visitLazyChildren(cont[0], cont[1], cont[2], cont[3], cont[4]) : Nothing();

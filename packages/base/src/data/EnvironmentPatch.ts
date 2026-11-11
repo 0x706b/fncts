@@ -66,11 +66,7 @@ export class UpdateService<Env, Service> extends EnvironmentPatch<Env & Has<Serv
 }
 
 export type Concrete =
-  | AddService<any, any>
-  | Combine<any, any, any>
-  | Empty<any>
-  | RemoveService<any, any>
-  | UpdateService<any, any>;
+  AddService<any, any> | Combine<any, any, any> | Empty<any> | RemoveService<any, any> | UpdateService<any, any>;
 
 /**
  * @tsplus macro remove

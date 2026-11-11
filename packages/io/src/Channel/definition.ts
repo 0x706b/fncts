@@ -299,19 +299,7 @@ export interface Bridge extends ChannelOp<
 > {}
 
 export type Primitive =
-  | PipeTo
-  | Read
-  | Done
-  | Fail
-  | FromIO
-  | Emit
-  | ConcatAll
-  | Bridge
-  | Fold
-  | Provide
-  | BracketOut
-  | Ensuring
-  | Defer;
+  PipeTo | Read | Done | Fail | FromIO | Emit | ConcatAll | Bridge | Fold | Provide | BracketOut | Ensuring | Defer;
 
 /**
  * @tsplus macro remove

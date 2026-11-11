@@ -553,7 +553,7 @@ export function foldLeftWithIndexWhile<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z
     let children;
     let acc       = z;
     loop: while ((children = toVisit.pop())) {
-      for (let i = 0, len = children.length; i < len; ) {
+      for (let i = 0, len = children.length; i < len;) {
         const child = children[i++];
         if (child && !isEmptyNode(child)) {
           if (child._tag === "LeafNode") {
@@ -589,7 +589,7 @@ export function foldLeftWithIndex<K, V, Z>(z: Z, f: (k: K, z: Z, v: V) => Z) {
     let children;
     let acc       = z;
     while ((children = toVisit.pop())) {
-      for (let i = 0, len = children.length; i < len; ) {
+      for (let i = 0, len = children.length; i < len;) {
         const child = children[i++];
         if (child && !isEmptyNode(child)) {
           if (child._tag === "LeafNode") {

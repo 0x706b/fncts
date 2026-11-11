@@ -525,8 +525,8 @@ export function filterOrElse<A, R1, E1, A1>(
 ): <R, E>(fa: IO<R, E, A>) => IO<R | R1, E | E1, A | A1>;
 export function filterOrElse<A>(predicate: Predicate<A>, or: unknown, __tsplusTrace?: string) {
   return <R, E, R1, E1, A1>(fa: IO<R, E, A>): IO<R | R1, E | E1, A | A1> => {
-    return fa.flatMap(
-      (a): IO<R1, E1, A | A1> => (predicate(a) ? IO.succeedNow(a) : IO.defer((or as (a: A) => IO<R1, E1, A1>)(a))),
+    return fa.flatMap((a): IO<R1, E1, A | A1> =>
+      predicate(a) ? IO.succeedNow(a) : IO.defer((or as (a: A) => IO<R1, E1, A1>)(a)),
     );
   };
 }
@@ -1479,7 +1479,9 @@ export function refineOrHalt<E, E1>(pf: (e: E) => Maybe<E1>, __tsplusTrace?: str
  */
 export function refineOrHaltWith<E, E1>(pf: (e: E) => Maybe<E1>, f: (e: E) => unknown, __tsplusTrace?: string) {
   return <R, A>(self: IO<R, E, A>): IO<R, E1, A> => {
-    return self.catchAll((e) => pf(e).match(() => IO.haltNow(f(e)), IO.failNow));
+    return self.catchAllCause((cause) =>
+      IO.failCauseNow(cause.flatMap((e) => pf(e).match(() => Cause.halt(f(e)), Cause.fail))),
+    );
   };
 }
 
@@ -1586,7 +1588,7 @@ export function repeatWhileIO<A, R1, E1>(f: (a: A) => IO<R1, E1, boolean>, __tsp
  */
 export function replicate(n: number, __tsplusTrace?: string) {
   return <R, E, A>(self: IO<R, E, A>): ReadonlyArray<IO<R, E, A>> => {
-    return Array.range(0, n).map(() => self);
+    return Array.range(0, n - 1).map(() => self);
   };
 }
 

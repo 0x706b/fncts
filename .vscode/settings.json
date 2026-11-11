@@ -34,4 +34,5 @@
       "source.fixAll.eslint",
     ]
   },
+  "js/ts.experimental.useTsgo": false,
 }

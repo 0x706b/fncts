@@ -75,14 +75,11 @@ export const makeExpressApp: IO<Scope | ExpressAppConfig, never, ExpressApp> = D
     >()
       .map((r) => new Runtime(r.environment, r.runtimeFlags, r.fiberRefs))
       .map((r) =>
-        handlers.map(
-          (handler): RequestHandler =>
-            (req, res, next) => {
-              r.unsafeRunFiber(
-                (open.get ? handler(req, res, next) : IO.interrupt).onTermination(config.exitHandler(req, res, next)),
-              );
-            },
-        ),
+        handlers.map((handler): RequestHandler => (req, res, next) => {
+          r.unsafeRunFiber(
+            (open.get ? handler(req, res, next) : IO.interrupt).onTermination(config.exitHandler(req, res, next)),
+          );
+        }),
       );
   }
 

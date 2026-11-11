@@ -34,6 +34,4 @@ export class Refreshing<Key, Error, Value> {
 }
 
 export type MapValue<Key, Error, Value> =
-  | Pending<Key, Error, Value>
-  | Complete<Key, Error, Value>
-  | Refreshing<Key, Error, Value>;
+  Pending<Key, Error, Value> | Complete<Key, Error, Value> | Refreshing<Key, Error, Value>;

@@ -89,11 +89,7 @@ export class TestCase<R, E, T> {
  * @tsplus type fncts.test.SpecCase
  */
 export type SpecCase<R, E, T, A> =
-  | ExecCase<A>
-  | LabeledCase<A>
-  | ScopedCase<R, E, A>
-  | MultipleCase<A>
-  | TestCase<R, E, T>;
+  ExecCase<A> | LabeledCase<A> | ScopedCase<R, E, A> | MultipleCase<A> | TestCase<R, E, T>;
 
 /**
  * @tsplus fluent fncts.test.SpecCase isMultiple

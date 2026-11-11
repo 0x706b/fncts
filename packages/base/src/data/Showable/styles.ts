@@ -1,16 +1,6 @@
 import * as Ansi from "@fncts/base/util/AnsiFormat";
 export type Style =
-  | "red"
-  | "green"
-  | "yellow"
-  | "blue"
-  | "magenta"
-  | "cyan"
-  | "white"
-  | "gray"
-  | "bold"
-  | "italic"
-  | "underline";
+  "red" | "green" | "yellow" | "blue" | "magenta" | "cyan" | "white" | "gray" | "bold" | "italic" | "underline";
 export type ShowGroup =
   | "string"
   | "number"
