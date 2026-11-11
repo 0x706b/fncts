@@ -12,10 +12,7 @@ export const enum IOOperatorTag {
  * @tsplus companion fncts.io.Push.IOOperatorOps
  */
 export type IOOperator =
-  | MapIO<any, any, any, any>
-  | TapIO<any, any, any, any>
-  | FilterIO<any, any, any>
-  | FilterMapIO<any, any, any, any>;
+  MapIO<any, any, any, any> | TapIO<any, any, any, any> | FilterIO<any, any, any> | FilterMapIO<any, any, any, any>;
 
 export interface MapIO<R, E, A, B> {
   readonly _tag: IOOperatorTag.MapIO;

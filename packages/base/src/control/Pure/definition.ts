@@ -179,17 +179,7 @@ export interface MapLog extends PureOp<
 > {}
 
 export type Primitive =
-  | SucceedNow
-  | Fail
-  | Modify
-  | FlatMap
-  | Match
-  | Access
-  | Provide
-  | Defer
-  | Succeed
-  | Tell
-  | MapLog;
+  SucceedNow | Fail | Modify | FlatMap | Match | Access | Provide | Defer | Succeed | Tell | MapLog;
 
 /**
  * @tsplus static fncts.control.PureOps concrete

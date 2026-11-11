@@ -10,16 +10,7 @@ import { TestRandom } from "@fncts/test/control/TestRandom";
 import { TestConfig } from "@fncts/test/data/TestConfig";
 
 export type TestEnvironment =
-  | Annotations
-  | Live
-  | Sized
-  | TestClock
-  | TestConfig
-  | TestRandom
-  | Clock
-  | Random
-  | Console
-  | TestConsole;
+  Annotations | Live | Sized | TestClock | TestConfig | TestRandom | Clock | Random | Console | TestConsole;
 
 export const LiveTestEnvironment: Layer<IOEnv, never, TestEnvironment> = Annotations.Live.and(Live.Default)
   .and(Sized.Live(100))

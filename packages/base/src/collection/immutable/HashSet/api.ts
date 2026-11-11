@@ -345,7 +345,7 @@ export function foldLeft<A, B>(b: B, f: (b: B, v: A) => B) {
     toVisit.push(root.children);
     while (toVisit.hasNext) {
       const children = toVisit.pop()!;
-      for (let i = 0, len = children.length; i < len; ) {
+      for (let i = 0, len = children.length; i < len;) {
         const child = children[i++];
         if (child && !isEmptyNode(child)) {
           if (child._tag === "LeafNode") {

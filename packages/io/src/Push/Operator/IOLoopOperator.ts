@@ -11,8 +11,7 @@ export const enum IOLoopOperatorTag {
  * @tsplus type fncts.io.Push.IOLoopOperator
  */
 export type IOLoopOperator<B = any, A = any, R = any, E = any, C = any> =
-  | LoopIOOperator<B, A, R, E, C>
-  | FilterMapLoopIOOperator<B, A, R, E, C>;
+  LoopIOOperator<B, A, R, E, C> | FilterMapLoopIOOperator<B, A, R, E, C>;
 
 export interface LoopIOOperator<B, A, R, E, C> {
   readonly _tag: IOLoopOperatorTag.LoopIO;
